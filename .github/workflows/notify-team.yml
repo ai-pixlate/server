@@ -22,7 +22,7 @@ jobs:
       COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
       PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # 커밋 메시지는 셸 인젝션을 피하려고 반드시 환경변수로만 넘깁니다.
       - name: 메시지 재료 수집

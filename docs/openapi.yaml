@@ -256,9 +256,8 @@ paths:
                   type: string
                   example: liability_disclaimer
                 jobId:
-                  type: integer
+                  type: [integer, 'null']
                   format: int64
-                  nullable: true
       responses:
         '201':
           description: 동의 기록됨
@@ -1846,9 +1845,8 @@ components:
           type: integer
           format: int64
         jobId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         sellerId:
           type: integer
           format: int64
@@ -1870,23 +1868,18 @@ components:
         nameKo:
           type: string
         nameEn:
-          type: string
-          nullable: true
+          type: [string, 'null']
         logoUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
         brandOverview:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 번역 톤 프롬프트 (F-BRD-03)
         coreAudience:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 핵심 고객층 (F-BRD-05)
         metadata:
-          type: object
-          nullable: true
+          type: [object, 'null']
           additionalProperties: true
         createdAt:
           type: string
@@ -1980,19 +1973,16 @@ components:
           type: integer
           format: int64
         parentId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         name:
           type: string
         amazonNode:
-          type: string
-          nullable: true
+          type: [string, 'null']
         isLeaf:
           type: boolean
         path:
-          type: string
-          nullable: true
+          type: [string, 'null']
     ChannelSpec:
       description: ERD channel_spec (+ validation_rule, module_spec)
       type: object
@@ -2012,8 +2002,7 @@ components:
           - custom
           description: 9월은 original만 활성
         description:
-          type: string
-          nullable: true
+          type: [string, 'null']
         isActive:
           type: boolean
         release:
@@ -2033,12 +2022,10 @@ components:
           - JPG
           - PNG
         maxFileSize:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
           description: 바이트. 9월 원본 규격은 미검사(null)
         recommendedResolution:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: '[12월] 규격 종속 안내'
         notes:
           type: array
@@ -2059,14 +2046,12 @@ components:
         isCurrent:
           type: boolean
         loadedBy:
-          type: string
-          nullable: true
+          type: [string, 'null']
         loadedAt:
           type: string
           format: date-time
         note:
-          type: string
-          nullable: true
+          type: [string, 'null']
     JobStatus:
       type: string
       description: DB status (6종). 사용자 상태 8종은 status+currentStep 조합으로 파생.
@@ -2112,9 +2097,8 @@ components:
           type: integer
           format: int64
         parentJobId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
           description: 다른 버전 만들기 시 원본 (F-VER-01)
         status:
           $ref: '#/components/schemas/JobStatus'
@@ -2123,14 +2107,11 @@ components:
         userFacingStatus:
           $ref: '#/components/schemas/UserFacingStatus'
         targetCountry:
-          type: string
-          nullable: true
+          type: [string, 'null']
         regulatoryClass:
-          type: string
-          nullable: true
+          type: [string, 'null']
         targetLang:
-          type: string
-          nullable: true
+          type: [string, 'null']
         specType:
           type: string
           default: original
@@ -2139,28 +2120,23 @@ components:
           - site
           - custom
         channelSpecId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         displayCategoryId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         internalCategory:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 내부 7종 환산 (F-SRC-04b)
         isSaved:
           type: boolean
           default: false
         savedAt:
-          type: string
+          type: [string, 'null']
           format: date-time
-          nullable: true
         expireAt:
-          type: string
+          type: [string, 'null']
           format: date-time
-          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -2201,9 +2177,8 @@ components:
           default: original
           description: 9월은 original만 (F-CH-02)
         channelSpecId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         displayCategoryId:
           type: integer
           format: int64
@@ -2255,11 +2230,9 @@ components:
           type: string
           format: uri
         width:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         height:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         createdAt:
           type: string
           format: date-time
@@ -2290,9 +2263,8 @@ components:
           - section
           - block
         unitId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         status:
           type: string
           enum:
@@ -2308,19 +2280,15 @@ components:
           type: integer
           default: 2
         errorCode:
-          type: string
-          nullable: true
+          type: [string, 'null']
         errorMessage:
-          type: string
-          nullable: true
+          type: [string, 'null']
         startedAt:
-          type: string
+          type: [string, 'null']
           format: date-time
-          nullable: true
         finishedAt:
-          type: string
+          type: [string, 'null']
           format: date-time
-          nullable: true
     JobTaskStatus:
       type: object
       properties:
@@ -2364,19 +2332,15 @@ components:
           - needs_fix
           description: 배지 4종
         verdictStatus:
-          type: string
-          nullable: true
+          type: [string, 'null']
         problemText:
-          type: string
-          nullable: true
+          type: [string, 'null']
         dictionaryId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
           description: expression_dictionary 참조
         basisArticle:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 조문 근거
         isTeaser:
           type: boolean
@@ -2398,14 +2362,11 @@ components:
         sectionOrder:
           type: integer
         topOffset:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         height:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         bbox:
-          type: object
-          nullable: true
+          type: [object, 'null']
           additionalProperties: true
         bucket:
           $ref: '#/components/schemas/SectionBucket'
@@ -2414,24 +2375,21 @@ components:
         excludedStage:
           $ref: '#/components/schemas/JobStep'
         inpaintStatus:
-          type: string
+          type: [string, 'null']
           enum:
           - pending
           - running
           - done
           - failed
-          nullable: true
         warningBadge:
-          type: string
-          nullable: true
+          type: [string, 'null']
           enum:
           - processing_failed
           - quality_warning
           description: F-INP-01b
         residualRatio:
-          type: number
+          type: [number, 'null']
           format: float
-          nullable: true
           description: 인페인팅 잔존율
         createdAt:
           type: string
@@ -2446,16 +2404,13 @@ components:
             items:
               $ref: '#/components/schemas/SectionVerdict'
           inpaintImageUrl:
-            type: string
+            type: [string, 'null']
             format: uri
-            nullable: true
           maskImageUrl:
-            type: string
+            type: [string, 'null']
             format: uri
-            nullable: true
           originalVerdict:
-            type: object
-            nullable: true
+            type: [object, 'null']
             additionalProperties: true
             description: 되살리기 시 원래 판정 기록 (PL-25)
     SectionList:
@@ -2485,20 +2440,16 @@ components:
           - done
           - failed
         inpaintImageUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
         maskImageUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
         residualRatio:
-          type: number
+          type: [number, 'null']
           format: float
-          nullable: true
         warningBadge:
-          type: string
-          nullable: true
+          type: [string, 'null']
           enum:
           - processing_failed
           - quality_warning
@@ -2527,8 +2478,7 @@ components:
         message:
           type: string
         basisArticle:
-          type: string
-          nullable: true
+          type: [string, 'null']
     TextBlock:
       description: ERD text_block
       type: object
@@ -2544,23 +2494,19 @@ components:
         role:
           $ref: '#/components/schemas/BlockRole'
         sourceKo:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 원문
         sourceLines:
-          type: array
-          nullable: true
+          type: [array, 'null']
           items:
             type: object
             additionalProperties: true
           description: 줄 목록 (F-INP-02a)
         bbox:
-          type: object
-          nullable: true
+          type: [object, 'null']
           additionalProperties: true
         style:
-          type: object
-          nullable: true
+          type: [object, 'null']
           additionalProperties: true
           description: 색·크기·정렬·굵기 (F-STY)
         blockStatus:
@@ -2570,27 +2516,22 @@ components:
           - edited
           default: machine
         trans1:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 1차 번역 (F-TRN-09)
         charCount:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         charLimit:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         overflow:
           type: boolean
           default: false
           description: 원본 박스 폭 초과 여부
         complianceFlags:
-          type: array
-          nullable: true
+          type: [array, 'null']
           items:
             $ref: '#/components/schemas/ComplianceFlag'
         autoAdjust:
-          type: object
-          nullable: true
+          type: [object, 'null']
           additionalProperties: true
           description: 자동 조정 알림 (폰트 −8% 등, F-CFM-12)
         updatedAt:
@@ -2604,20 +2545,16 @@ components:
           type: integer
           format: int64
         textBlockId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         candidateText:
           type: string
         renderedWidth:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         overflowPx:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         overflowLabel:
-          type: string
-          nullable: true
+          type: [string, 'null']
         passedRegulatory:
           type: boolean
           default: true
@@ -2653,8 +2590,7 @@ components:
               height:
                 type: integer
               warningBadge:
-                type: string
-                nullable: true
+                type: [string, 'null']
               bucket:
                 $ref: '#/components/schemas/SectionBucket'
     ValidationResult:
@@ -2672,16 +2608,13 @@ components:
           - thumbnail_sub
           - all
         passed:
-          type: boolean
-          nullable: true
+          type: [boolean, 'null']
           description: null = 미검사 (예 9월 용량)
         measuredValue:
-          type: string
-          nullable: true
+          type: [string, 'null']
           description: 실측값
         thresholdValue:
-          type: string
-          nullable: true
+          type: [string, 'null']
         severity:
           type: string
           enum:
@@ -2689,9 +2622,8 @@ components:
           - warning
           default: error
         sourceUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
     Deliverable:
       description: ERD deliverable
       type: object
@@ -2712,20 +2644,16 @@ components:
           - thumbnail
           default: detail
         imageUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
         format:
-          type: string
-          nullable: true
+          type: [string, 'null']
           example: JPG
         colorSpace:
-          type: string
-          nullable: true
+          type: [string, 'null']
           example: RGB
         fileSize:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
         renderStatus:
           type: string
           enum:
@@ -2735,8 +2663,7 @@ components:
           - failed
           default: pending
         validationResult:
-          type: array
-          nullable: true
+          type: [array, 'null']
           items:
             $ref: '#/components/schemas/ValidationResult'
         createdAt:
@@ -2774,9 +2701,8 @@ components:
           - manifest
           description: manifest는 서버 전용·비배포 (F-EXP-03)
         fileUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
         isDistributable:
           type: boolean
           default: true
@@ -2799,25 +2725,20 @@ components:
           type: integer
           format: int64
         thumbnailUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          nullable: true
         targetCountry:
-          type: string
-          nullable: true
+          type: [string, 'null']
         targetLang:
-          type: string
-          nullable: true
+          type: [string, 'null']
         specType:
           type: string
         savedAt:
-          type: string
+          type: [string, 'null']
           format: date-time
-          nullable: true
         expireAt:
-          type: string
+          type: [string, 'null']
           format: date-time
-          nullable: true
     AuditLog:
       description: ERD audit_log
       type: object
@@ -2826,9 +2747,8 @@ components:
           type: integer
           format: int64
         actorId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         actorType:
           type: string
           enum:
@@ -2838,15 +2758,12 @@ components:
         actionType:
           type: string
         targetType:
-          type: string
-          nullable: true
+          type: [string, 'null']
         targetId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         detail:
-          type: object
-          nullable: true
+          type: [object, 'null']
           additionalProperties: true
         createdAt:
           type: string
@@ -2862,17 +2779,14 @@ components:
           type: integer
           format: int64
         textBlockId:
-          type: integer
+          type: [integer, 'null']
           format: int64
-          nullable: true
         signalType:
           type: string
         beforeText:
-          type: string
-          nullable: true
+          type: [string, 'null']
         afterText:
-          type: string
-          nullable: true
+          type: [string, 'null']
         createdAt:
           type: string
           format: date-time

@@ -1,0 +1,128 @@
+name: API Docs Validate
+
+# develop 으로 들어오는 PR과 develop push 에서 OpenAPI 명세를 검증하고,
+# PR에는 어떤 엔드포인트가 추가/삭제됐는지 요약 코멘트를 남깁니다.
+on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - "docs/**"
+      - ".github/workflows/api-docs-validate.yml"
+  push:
+    branches: [develop]
+    paths:
+      - "docs/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: OpenAPI 검증
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # YAML 문법이 깨지면 여기서 바로 실패합니다.
+      - name: PyYAML 설치
+        run: python -m pip install --quiet pyyaml
+
+      - name: YAML 파싱 확인
+        run: python -c "import yaml,sys; yaml.safe_load(open('docs/openapi.yaml',encoding='utf-8')); print('YAML OK')"
+
+      # OpenAPI 스펙 위반(error)은 머지를 막고, 스타일 경고(warning)는 통과시킵니다.
+      - name: Redocly lint
+        run: npx --yes @redocly/cli@1 lint docs/openapi.yaml --format=stylish
+
+      # 추적 규약(x-feature-id / x-release)이 빠진 오퍼레이션을 알려줍니다. 경고만 냅니다.
+      - name: 추적 필드 점검
+        run: |
+          python - <<'PY'
+          import yaml
+          spec = yaml.safe_load(open('docs/openapi.yaml', encoding='utf-8'))
+          methods = {'get','post','put','patch','delete','head','options'}
+          missing = []
+          for path, item in (spec.get('paths') or {}).items():
+              for method, op in (item or {}).items():
+                  if method not in methods or not isinstance(op, dict):
+                      continue
+                  lack = [f for f in ('x-feature-id', 'x-release') if f not in op]
+                  if lack:
+                      missing.append(f"{method.upper()} {path} — 누락: {', '.join(lack)}")
+          if missing:
+              print(f"::warning::추적 필드가 빠진 오퍼레이션 {len(missing)}건")
+              for m in missing:
+                  print(" -", m)
+          else:
+              print("모든 오퍼레이션에 추적 필드가 있습니다.")
+          PY
+
+  diff-summary:
+    name: 변경 엔드포인트 요약
+    if: github.event_name == 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: PyYAML 설치
+        run: python -m pip install --quiet pyyaml
+
+      - name: 엔드포인트 diff 계산
+        id: diff
+        run: |
+          git show "origin/${{ github.base_ref }}:docs/openapi.yaml" > /tmp/base.yaml 2>/dev/null || echo "{}" > /tmp/base.yaml
+          python - <<'PY'
+          import yaml, os
+
+          def ops(path):
+              try:
+                  spec = yaml.safe_load(open(path, encoding='utf-8')) or {}
+              except Exception:
+                  return set()
+              methods = {'get','post','put','patch','delete','head','options'}
+              return {
+                  f"{m.upper()} {p}"
+                  for p, item in (spec.get('paths') or {}).items()
+                  for m in (item or {})
+                  if m in methods
+              }
+
+          base, head = ops('/tmp/base.yaml'), ops('docs/openapi.yaml')
+          added, removed = sorted(head - base), sorted(base - head)
+          lines = ["## API 변경 요약", ""]
+          lines.append(f"- 전체 오퍼레이션: **{len(head)}개** (base {len(base)}개)")
+          if added:
+              lines += ["", f"### 추가 ({len(added)})"] + [f"- `{a}`" for a in added]
+          if removed:
+              lines += ["", f"### 삭제 ({len(removed)})"] + [f"- `{r}`" for r in removed]
+          if not added and not removed:
+              lines += ["", "엔드포인트 추가/삭제 없음 (내용만 수정됨)."]
+          body = "\n".join(lines)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write("body<<__EOF__\n" + body + "\n__EOF__\n")
+          PY
+
+      - name: PR 코멘트 작성/갱신
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = process.env.BODY;
+            const marker = '## API 변경 요약';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const mine = comments.data.find(c => c.user.type === 'Bot' && c.body.startsWith(marker));
+            if (mine) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+        env:
+          BODY: ${{ steps.diff.outputs.body }}

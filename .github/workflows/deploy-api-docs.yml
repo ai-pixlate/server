@@ -1,0 +1,49 @@
+name: Deploy API Docs
+
+# docs/ 아래 파일이 main에 push될 때마다 OpenAPI 명세를 검증하고
+# Swagger UI를 GitHub Pages로 자동 배포합니다.
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "docs/**"
+      - ".github/workflows/deploy-api-docs.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: OpenAPI 검증 (lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # 명세 문법 오류를 조기에 잡습니다. 스타일 경고가 있어도 배포는 막지 않습니다.
+      - name: Redocly lint
+        continue-on-error: true
+        run: npx --yes @redocly/cli@1 lint docs/openapi.yaml
+
+  deploy:
+    name: GitHub Pages 배포
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Pages 아티팩트 업로드 (docs 폴더)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: 배포
+        id: deployment
+        uses: actions/deploy-pages@v4

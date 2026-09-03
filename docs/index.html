@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pixate API — 트래킹 명세</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%B4%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #0f1720; }
+    .pix-hero { background: linear-gradient(135deg,#1a2332,#0f1720); color:#e8eef5; padding:26px 0; border-bottom:3px solid #7a5cff; }
+    .pix-hero-inner { max-width:1200px; margin:0 auto; padding:0 24px; }
+    .pix-hero h1 { margin:0 0 4px; font-size:23px; font-weight:700; color:#fff; }
+    .pix-sub { margin:0 0 16px; color:#9fb0c3; font-size:13px; }
+    .pix-legend { margin:0; color:#b9c7d8; font-size:12.5px; line-height:1.7; max-width:980px; }
+    .pix-legend code { background:#26344a; color:#c7b6ff; padding:1px 6px; border-radius:4px; font-size:11.5px; }
+    .pix-legend b { color:#fff; }
+    .swagger-ui { max-width:1200px; margin:0 auto; background:#fff; }
+    .swagger-ui .topbar { display:none; }
+  </style>
+</head>
+<body>
+  <div class="pix-hero">
+    <div class="pix-hero-inner">
+      <h1>Pixate API — 트래킹 명세 (Swagger)</h1>
+      <p class="pix-sub">AI 상세페이지 로컬라이제이션 · 요구사항정의서 v3.0 / ERD 기반</p>
+      <p class="pix-legend">
+        각 오퍼레이션의 <code>x-feature-id</code>(요구사항 기능ID) · <code>x-release</code>(9월/12월/이후) ·
+        <code>x-mvp</code> · <code>x-stub</code> 확장 필드로 릴리스를 추적합니다.
+        요약에 <b>[12월]</b>·<b>[9월 should]</b>가 붙은 항목은 향후 활성 예정(미구현) 스텁입니다.
+        파이프라인: <b>N1 입력 → N2 분석 → N3 섹션 확인 → N4 번역 → N5 검수 → N6 저장</b>.
+        명세 원본: <code>openapi.yaml</code> (이 폴더).
+      </p>
+    </div>
+  </div>
+  <div id="swagger-ui"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.js" crossorigin></script>
+  <script>
+    window.addEventListener('load', function () {
+      window.ui = SwaggerUIBundle({
+        url: './openapi.yaml',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        filter: true,
+        docExpansion: 'none',
+        defaultModelsExpandDepth: 0,
+        tagsSorter: 'alpha',
+        presets: [SwaggerUIBundle.presets.apis],
+        layout: 'BaseLayout'
+      });
+    });
+  </script>
+</body>
+</html>

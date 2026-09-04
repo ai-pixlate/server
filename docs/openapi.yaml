@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
   title: Pixate API
-  version: 3.0.0-mvp
-  x-source-doc: Pixate_요구사항정의서_v3_0 / 프로젝트_개발계획문서_v3_0 / ERD_Pix_ate_v2
-  x-generated: '2026-09-02'
+  version: 3.3.1-mvp
+  x-source-doc: Pixate_요구사항정의서_v3_3 / pixate_schema_v3.3.1.sql / ERD_Pix_ate_v2
+  x-generated: '2026-09-04'
   description: '# Pixate — AI 상세페이지 로컬라이제이션 서비스 API
 
 
@@ -1161,65 +1161,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TextBlock'
-  /jobs/{jobId}/blocks/{blockId}/candidates:
-    parameters:
-    - $ref: '#/components/parameters/JobId'
-    - name: blockId
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-    get:
-      tags:
-      - N5 Review
-      summary: 다른 번역 보기 (후보 목록)
-      description: '통과한 번역 후보 목록(F-CFM-11). 후보 0개면 폭 초과 후보 제시. 규제 위반 후보는 응답에 싣지 않음.
-
-        '
-      operationId: listTranslationCandidates
-      x-feature-id: F-CFM-11
-      x-release: 9월
-      x-priority: P0
-      x-mvp: true
-      responses:
-        '200':
-          description: 번역 후보 목록
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TranslationCandidate'
-    post:
-      tags:
-      - N5 Review
-      summary: 번역 후보 선택
-      description: 후보 중 하나를 선택해 블록에 반영(F-CFM-11). 재렌더 트리거.
-      operationId: selectTranslationCandidate
-      x-feature-id: F-CFM-11
-      x-release: 9월
-      x-priority: P0
-      x-mvp: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-              - candidateId
-              properties:
-                candidateId:
-                  type: integer
-                  format: int64
-      responses:
-        '200':
-          description: 선택 반영됨
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TextBlock'
   /jobs/{jobId}/preview:
     parameters:
     - $ref: '#/components/parameters/JobId'
@@ -2371,9 +2312,13 @@ components:
         bucket:
           $ref: '#/components/schemas/SectionBucket'
         exclusionReason:
-          $ref: '#/components/schemas/ExclusionReason'
+          oneOf:
+          - $ref: '#/components/schemas/ExclusionReason'
+          - type: 'null'
         excludedStage:
-          $ref: '#/components/schemas/JobStep'
+          oneOf:
+          - $ref: '#/components/schemas/JobStep'
+          - type: 'null'
         inpaintStatus:
           type: [string, 'null']
           enum:
@@ -2537,33 +2482,50 @@ components:
         updatedAt:
           type: string
           format: date-time
-    TranslationCandidate:
-      description: ERD translation_candidate
+    ReviewSignal:
+      description: N5 확인 필요 신호 (F-CFM-05) — 블록·섹션 통합, FE {code,target,reason}
       type: object
+      required:
+      - code
+      - target
       properties:
-        id:
-          type: integer
-          format: int64
-        textBlockId:
-          type: [integer, 'null']
-          format: int64
-        candidateText:
+        code:
           type: string
-        renderedWidth:
-          type: [integer, 'null']
-        overflowPx:
-          type: [integer, 'null']
-        overflowLabel:
+          enum:
+          - regulatory
+          - forbidden_expression
+          - unapplied_glossary
+          - low_ocr_confidence
+          - translation_failed
+          - inpaint_residual
+          - overflow
+        target:
+          type: object
+          description: 신호 대상 판별자
+          required:
+          - type
+          - id
+          properties:
+            type:
+              type: string
+              enum:
+              - block
+              - section
+            id:
+              type: integer
+              format: int64
+        reason:
           type: [string, 'null']
-        passedRegulatory:
-          type: boolean
-          default: true
-        isSelected:
-          type: boolean
-          default: false
+        basisArticle:
+          type: [string, 'null']
     ReviewPreview:
       type: object
       properties:
+        signals:
+          type: array
+          description: N5 확인 필요 신호 통합 목록 (F-CFM-05). 블록·섹션을 target으로 구분
+          items:
+            $ref: '#/components/schemas/ReviewSignal'
         originalUrl:
           type: string
           format: uri
@@ -2635,13 +2597,15 @@ components:
           type: integer
           format: int64
         sourceImageId:
-          type: integer
+          type: [integer, 'null']
           format: int64
+          description: 다중 원본 결합 시 null. 구성 정본은 deliverable_section (v3.3-#2)
         usageType:
           type: string
           enum:
           - detail
-          - thumbnail
+          - thumbnail_main
+          - thumbnail_sub
           default: detail
         imageUrl:
           type: [string, 'null']

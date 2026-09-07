@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Pixate API
-  version: 3.3.1-mvp
-  x-source-doc: Pixate_요구사항정의서_v3_3 / pixate_schema_v3.3.1.sql / ERD_Pix_ate_v2
+  version: 3.3.2-mvp
+  x-source-doc: Pixate_요구사항정의서_v3_3 / pixate_schema_v3.3.2.sql / ERD_Pix_ate_v2
   x-generated: '2026-09-04'
   description: '# Pixate — AI 상세페이지 로컬라이제이션 서비스 API
 
@@ -2309,6 +2309,9 @@ components:
         bbox:
           type: [object, 'null']
           additionalProperties: true
+        category:
+          type: [string, 'null']
+          description: 섹션 성격 (분석 생성 · 12월 템플릿 배치 소비 · 값 미정, 스키마 v3.3.2)
         bucket:
           $ref: '#/components/schemas/SectionBucket'
         exclusionReason:
@@ -2408,6 +2411,7 @@ components:
       - caution
       description: 텍스트 역할 (F-INP-02b)
     ComplianceFlag:
+      description: 규제 검증 상세 (text_block.compliance_flags). 확인 필요 신호 8종은 ReviewSignal 참조.
       type: object
       properties:
         type:
@@ -2416,10 +2420,7 @@ components:
           - regulatory
           - forbidden_expression
           - unapplied_glossary
-          - low_ocr_confidence
-          - translation_failed
-          - inpaint_residual
-          description: 확인 필요 신호 (F-CFM-05)
+          description: 규제 검증 결과 유형
         message:
           type: string
         basisArticle:
@@ -2471,10 +2472,18 @@ components:
           type: boolean
           default: false
           description: 원본 박스 폭 초과 여부
+        isExcluded:
+          type: boolean
+          default: false
+          description: 블록 단위 번역·인페인팅 제외 (MVP=product_label, 스키마 v3.3.2)
         complianceFlags:
           type: [array, 'null']
           items:
             $ref: '#/components/schemas/ComplianceFlag'
+        ocrConfidence:
+          type: [number, 'null']
+          format: float
+          description: OCR 인식 신뢰도 0~1 (관리자 모니터링 · low_ocr_confidence 판정 소스)
         autoAdjust:
           type: [object, 'null']
           additionalProperties: true
@@ -2491,14 +2500,22 @@ components:
       properties:
         code:
           type: string
+          description: 확인 필요 신호 8종 (스키마 계약 문서 확정)
           enum:
-          - regulatory
-          - forbidden_expression
-          - unapplied_glossary
-          - low_ocr_confidence
+          - prohibited_expression
+          - mandatory_term_unapplied
           - translation_failed
-          - inpaint_residual
-          - overflow
+          - empty_block
+          - logo_match_failed
+          - width_overflow
+          - low_ocr_confidence
+          - inpaint_residual_flag
+        audience:
+          type: string
+          description: 사용자용 6종 / 관리자용 2종(low_ocr_confidence·inpaint_residual_flag)
+          enum:
+          - user
+          - admin
         target:
           type: object
           description: 신호 대상 판별자

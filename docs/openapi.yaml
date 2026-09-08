@@ -2283,22 +2283,20 @@ components:
           type: string
           enum:
           - regulatory
-          - channel_policy
+          - regulatory_conditional
           - local_irrelevant
           - needs_fix
-          description: 판정 성격 (사전 종류 대응). 배지 5종은 verdictType+verdictStatus 파생
+          - channel_policy
+          description: 배지 5종과 1:1. verdictStatus에서 generated 파생 — 읽기 전용(PATCH 바디 금지) (스키마 v3.3.4 D-7)
         verdictStatus:
-          type: [string, 'null']
+          type: string
           enum:
           - regulated
           - conditional
-          - allowed
           - irrelevant
           - needs_fix
-          - cultural
           - policy
-          - null
-          description: 사전 종류별 7값 (regulatory 3 · local 3 · channel 1). 행이 생성되는 값은 실질 5종 — allowed·cultural은 판정 미생성이라 행 없음. 배지 5종은 (verdictType, verdictStatus)에서 파생 (F-SEC-04)
+          description: 판정 정본 5값 (NOT NULL). allowed·cultural은 판정 미생성이라 section_verdict 행이 없음. 배지·버킷의 단일 정본 (스키마 v3.3.4 D-6)
         problemText:
           type: [string, 'null']
         dictionaryId:

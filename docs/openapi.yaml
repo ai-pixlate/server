@@ -915,6 +915,7 @@ paths:
 
         (규제 위반·🟠 조건부 규제(포함 버킷 배지)·채널정책(티저)·현지무의미·현지 수정필요, F-SEC-04)과
         제외 사유 코드(F-SEC-06). 조건부 규제·현지 수정필요는 제외하지 않고 포함 버킷에 배지만.
+        verdicts 배열은 우선순위 정렬(제외형 regulated→policy→irrelevant)해 반환 — 조회·PATCH 동일.
 
         순서 재정렬 불가 — 원본 세로 순서 고정.
 
@@ -2061,6 +2062,7 @@ components:
           type: [string, 'null']
         regulatoryClass:
           type: [string, 'null']
+          description: 셀러 선택값 (미국 cosmetic|otc|combination|unknown). 국가별 데이터 관리라 하드 enum 아님 (F-LNG-03)
         targetLang:
           type: [string, 'null']
         specType:
@@ -2296,7 +2298,7 @@ components:
           - cultural
           - policy
           - null
-          description: 사전 종류별 7값 (regulatory 3 · local 3 · channel 1). 배지 5종은 (verdictType, verdictStatus)에서 파생 (F-SEC-04)
+          description: 사전 종류별 7값 (regulatory 3 · local 3 · channel 1). 행이 생성되는 값은 실질 5종 — allowed·cultural은 판정 미생성이라 행 없음. 배지 5종은 (verdictType, verdictStatus)에서 파생 (F-SEC-04)
         problemText:
           type: [string, 'null']
         dictionaryId:
@@ -2316,7 +2318,7 @@ components:
         isTeaser:
           type: boolean
           default: false
-          description: 채널 정책 9월 티저 (F-LOC-03)
+          description: true면 배지만 노출하고 버킷을 바꾸지 않음 (채널 정책 9월 티저 F-LOC-03, NFR-31)
     Section:
       description: ERD section
       type: object
@@ -2334,6 +2336,9 @@ components:
           type: integer
         topOffset:
           type: [integer, 'null']
+        displayTop:
+          type: [integer, 'null']
+          description: N5 스택 표시 top (서버 계산·저장 안 함). overlay.y = displayTop + block.bbox.y
         height:
           type: [integer, 'null']
         bbox:
@@ -2345,6 +2350,7 @@ components:
         bucket:
           $ref: '#/components/schemas/SectionBucket'
         exclusionReason:
+          description: '버킷 상태 사유 1건. 우선순위: 사용자행동 > (isTeaser=false) regulated > policy > irrelevant > id asc'
           oneOf:
           - $ref: '#/components/schemas/ExclusionReason'
           - type: 'null'
@@ -2486,6 +2492,7 @@ components:
         bbox:
           type: [object, 'null']
           additionalProperties: true
+          description: 소속 section 내부(로컬) 좌표. N5 절대 위치 = section.displayTop + bbox.y
         style:
           type: [object, 'null']
           additionalProperties: true
@@ -2578,10 +2585,16 @@ components:
           type: string
           format: uri
           description: 제자리 렌더 결과 프리뷰
-        width:
+        originalWidth:
           type: integer
-        height:
+          description: 원본 폭 (scaleX = previewWidth / originalWidth)
+        originalHeight:
           type: integer
+        previewWidth:
+          type: integer
+        previewHeight:
+          type: integer
+          description: DB 컬럼 없음 — 서버 계산해 응답에만
         sections:
           type: array
           description: 섹션 위치·경고 배지 (원본 좌표 기준)

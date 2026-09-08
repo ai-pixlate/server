@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Pixate API
-  version: 3.3.2-mvp
-  x-source-doc: Pixate_요구사항정의서_v3_3 / pixate_schema_v3.3.2.sql / ERD_Pix_ate_v2
+  version: 3.4.0-mvp
+  x-source-doc: Pixate_요구사항정의서_v3_4 / pixate_schema_v3.3.4.sql / ERD_Pix_ate_v2
   x-generated: '2026-09-04'
   description: '# Pixate — AI 상세페이지 로컬라이제이션 서비스 API
 
@@ -833,7 +833,7 @@ paths:
       summary: 비동기 작업 큐 상태 조회
       description: 'job_async_task 목록 — 진행률·현재 단계 표시(F-TRN-01)와 상태 폴링(F-JOB-05)의 소스.
 
-        task_type(ocr/inpaint/translate/verify/render 등)·unit(section/block)·status·retry_count.
+        task_type(ocr/inpaint/translate/verify/render)·unit(section/text_block/job_source_image)·status·retry_count. 진행 조회 폴링 주기 2초(OI-56), N5 단건 재조판은 더 짧게.
 
         '
       operationId: listJobTasks
@@ -911,9 +911,10 @@ paths:
       tags:
       - N3 Section Review
       summary: 섹션 목록 (버킷 · 판정 배지)
-      description: '제외 버킷(펼침)/포함 버킷(접힘)으로 제시(F-SEC-02). 각 섹션에 판정 배지 4종
+      description: '제외 버킷(펼침)/포함 버킷(접힘)으로 제시(F-SEC-02). 각 섹션에 판정 배지 5종
 
-        (규제·채널정책(티저)·현지무의미·수정필요, F-SEC-04)과 제외 사유 코드(F-SEC-06).
+        (규제 위반·🟠 조건부 규제(포함 버킷 배지)·채널정책(티저)·현지무의미·현지 수정필요, F-SEC-04)과
+        제외 사유 코드(F-SEC-06). 조건부 규제·현지 수정필요는 제외하지 않고 포함 버킷에 배지만.
 
         순서 재정렬 불가 — 원본 세로 순서 고정.
 
@@ -1135,6 +1136,8 @@ paths:
       description: '번역문을 표에서 직접 수정(F-CFM-02). 수정 시 재렌더 + 금지표현 사전 재실행(F-CFM-02a).
 
         규제 검증 우회 가능성 고지, 해당 블록 재검증 대상 표시(PL-11). 캔버스 인라인 편집 없음.
+        char_count는 즉시(동기), overflow·auto_adjust는 재렌더(비동기) 후 확정되는 잠정값.
+        응답의 rerenderTaskId를 /tasks에서 unit_type=text_block·unit_id=blockId로 폴링.
 
         '
       operationId: updateBlockTranslation
@@ -1160,7 +1163,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TextBlock'
+                allOf:
+                - $ref: '#/components/schemas/TextBlock'
+                - type: object
+                  properties:
+                    rerenderTaskId:
+                      type: integer
+                      format: int64
+                      description: N5 단건 재조판 태스크 (unit_type=text_block)
   /jobs/{jobId}/preview:
     parameters:
     - $ref: '#/components/parameters/JobId'
@@ -2164,9 +2174,10 @@ components:
         imageType:
           type: string
           enum:
-          - detail
-          - thumbnail
-          default: detail
+          - multi_section
+          - single
+          default: multi_section
+          description: 입력 연속성 축 (multi_section=이어진 이미지/single=낱장). 결과 usageType과 별개 축 (스키마 v3.3.4 M3). 9월 MVP는 전부 multi_section
         fileUrl:
           type: string
           format: uri
@@ -2202,7 +2213,9 @@ components:
           enum:
           - job
           - section
-          - block
+          - text_block
+          - job_source_image
+          description: text_block=N5 단건 재렌더 · job_source_image=OCR 원본당 팬아웃
         unitId:
           type: [integer, 'null']
           format: int64
@@ -2271,9 +2284,19 @@ components:
           - channel_policy
           - local_irrelevant
           - needs_fix
-          description: 배지 4종
+          description: 판정 성격 (사전 종류 대응). 배지 5종은 verdictType+verdictStatus 파생
         verdictStatus:
           type: [string, 'null']
+          enum:
+          - regulated
+          - conditional
+          - allowed
+          - irrelevant
+          - needs_fix
+          - cultural
+          - policy
+          - null
+          description: 사전 종류별 7값 (regulatory 3 · local 3 · channel 1). 배지 5종은 (verdictType, verdictStatus)에서 파생 (F-SEC-04)
         problemText:
           type: [string, 'null']
         dictionaryId:
@@ -2282,7 +2305,14 @@ components:
           description: expression_dictionary 참조
         basisArticle:
           type: [string, 'null']
-          description: 조문 근거
+          description: 조문 식별자 스냅샷 (정본=expression_dictionary.evidence_article, OI-58 전문 미수록)
+        evidenceUrl:
+          type: [string, 'null']
+          format: uri
+          description: 판정 시점 근거 URL 스냅샷 (NFR-31 증빙 자립)
+        reason:
+          type: [string, 'null']
+          description: 판정 시점 사유 요약 스냅샷
         isTeaser:
           type: boolean
           default: false
@@ -2361,6 +2391,11 @@ components:
             type: [object, 'null']
             additionalProperties: true
             description: 되살리기 시 원래 판정 기록 (PL-25)
+          signals:
+            type: [array, 'null']
+            description: 섹션 확인 필요 신호 (inpaint_residual_flag 등)
+            items:
+              $ref: '#/components/schemas/ReviewSignal'
     SectionList:
       type: object
       properties:
@@ -2486,8 +2521,21 @@ components:
           description: OCR 인식 신뢰도 0~1 (관리자 모니터링 · low_ocr_confidence 판정 소스)
         autoAdjust:
           type: [object, 'null']
-          additionalProperties: true
-          description: 자동 조정 알림 (폰트 −8% 등, F-CFM-12)
+          description: 자동 조정 결과 (F-CFM-12)
+          properties:
+            font_scale:
+              type: number
+              description: 원본 대비 폰트 비율 (예 -0.08)
+            line_break_applied:
+              type: boolean
+          example:
+            font_scale: -0.08
+            line_break_applied: true
+        signals:
+          type: [array, 'null']
+          description: 블록 확인 필요 신호 (admin 2종은 셀러 응답에서 서버가 제외)
+          items:
+            $ref: '#/components/schemas/ReviewSignal'
         updatedAt:
           type: string
           format: date-time
@@ -2496,7 +2544,6 @@ components:
       type: object
       required:
       - code
-      - target
       properties:
         code:
           type: string
@@ -2516,21 +2563,6 @@ components:
           enum:
           - user
           - admin
-        target:
-          type: object
-          description: 신호 대상 판별자
-          required:
-          - type
-          - id
-          properties:
-            type:
-              type: string
-              enum:
-              - block
-              - section
-            id:
-              type: integer
-              format: int64
         reason:
           type: [string, 'null']
         basisArticle:
@@ -2538,11 +2570,6 @@ components:
     ReviewPreview:
       type: object
       properties:
-        signals:
-          type: array
-          description: N5 확인 필요 신호 통합 목록 (F-CFM-05). 블록·섹션을 target으로 구분
-          items:
-            $ref: '#/components/schemas/ReviewSignal'
         originalUrl:
           type: string
           format: uri

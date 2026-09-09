@@ -22,7 +22,6 @@ API 트래킹 문서(OpenAPI 명세·Swagger 사이트)는 `feature/api-tracking
 | `release/*` | 배포 직전 안정화 | 버그 수정만, 기능 추가 금지 |
 | `feature/*` | 기능 | 개인 작업 (자유롭게) |
 | `fix/*` | 버그 수정 | `develop` 또는 `release/*`로 PR |
-| `feature/api-tracking` | API 트래킹 문서 (OpenAPI·Swagger) | 이 저장소 전용, 장기 유지 |
 
 ## Commit
 

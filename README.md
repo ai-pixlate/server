@@ -12,14 +12,14 @@ Pixate 백엔드 API의 **단일 소스(SSOT)** 명세와 팀 공유용 문서 �
 
 | 브랜치 | 역할 |
 | --- | --- |
-| `api-tracking` | **이 문서 전용 브랜치.** 여기에 머지되면 문서 사이트가 자동으로 갱신됩니다. |
+| `feature/api-tracking` | **이 문서 전용 브랜치.** 여기에 머지되면 문서 사이트가 자동으로 갱신됩니다. |
 | `develop` / `main` | 백엔드 인프라 서버 코드 (이 문서와 무관). |
-| `docs/*` | 작업 브랜치. `api-tracking` 으로 PR 을 올립니다. |
+| `docs/*` | 작업 브랜치. `feature/api-tracking` 으로 PR 을 올립니다. |
 
 ## 문서 수정 방법 (팀원용)
 
 ```bash
-git switch api-tracking
+git switch feature/api-tracking
 git pull
 git switch -c docs/add-xxx-endpoint
 
@@ -36,13 +36,13 @@ git push -u origin docs/add-xxx-endpoint
 
 | 워크플로 | 트리거 | 하는 일 |
 | --- | --- | --- |
-| [`api-docs-validate.yml`](.github/workflows/api-docs-validate.yml) | `api-tracking` 대상 PR / push | YAML 파싱 · Redocly lint · 추적 필드(`x-feature-id`, `x-release`) 점검 · PR 에 변경 엔드포인트 요약 코멘트 |
-| [`deploy-api-docs.yml`](.github/workflows/deploy-api-docs.yml) | `api-tracking` push (`docs/**`) | Swagger UI 를 GitHub Pages 로 배포 |
+| [`api-docs-validate.yml`](.github/workflows/api-docs-validate.yml) | `feature/api-tracking` 대상 PR / push | YAML 파싱 · Redocly lint · 추적 필드(`x-feature-id`, `x-release`) 점검 · PR 에 변경 엔드포인트 요약 코멘트 |
+| [`deploy-api-docs.yml`](.github/workflows/deploy-api-docs.yml) | `feature/api-tracking` push (`docs/**`) | Swagger UI 를 GitHub Pages 로 배포 |
 
 ### 최초 1회 설정 (관리자)
 
 1. **Settings → Pages → Source** 를 `GitHub Actions` 로 지정
-2. **Settings → Environments → github-pages → Deployment branches** 에 `api-tracking` 추가
+2. **Settings → Environments → github-pages → Deployment branches** 에 `feature/api-tracking` 추가
 3. (권장) **Settings → Branches → Add rule** 로 `develop` 보호 — PR 필수 + `OpenAPI 검증` 체크 통과 필수
 
 ## 추적 규약

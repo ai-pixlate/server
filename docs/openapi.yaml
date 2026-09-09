@@ -2344,7 +2344,7 @@ components:
           additionalProperties: true
         category:
           type: [string, 'null']
-          description: 섹션 성격 (분석 생성 · 12월 템플릿 배치 소비 · 값 미정, 스키마 v3.3.2)
+          description: 섹션 성격 (분석 생성 · 12월 템플릿 배치 소비 · 값 미정, 스키마 v3.3.4)
         bucket:
           $ref: '#/components/schemas/SectionBucket'
         exclusionReason:
@@ -2515,7 +2515,7 @@ components:
         isExcluded:
           type: boolean
           default: false
-          description: 블록 단위 번역·인페인팅 제외 (MVP=product_label, 스키마 v3.3.2)
+          description: 블록 단위 번역·인페인팅 제외 (MVP=product_label). section.bucket과 독립 — include 섹션 내부 블록도 true일 수 있음 (스키마 v3.3.4)
         complianceFlags:
           type: [array, 'null']
           items:
@@ -2526,7 +2526,7 @@ components:
           description: OCR 인식 신뢰도 0~1 (관리자 모니터링 · low_ocr_confidence 판정 소스)
         autoAdjust:
           type: [object, 'null']
-          description: 자동 조정 결과 (F-CFM-12)
+          description: '{ font_scale, line_break_applied } (F-CFM-12)'
           properties:
             font_scale:
               type: number

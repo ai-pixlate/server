@@ -4,7 +4,7 @@ name: Deploy API Docs
 # Swagger UI를 GitHub Pages로 자동 배포합니다.
 on:
   push:
-    branches: [develop]
+    branches: [api-tracking]
     paths:
       - "docs/**"
       - ".github/workflows/deploy-api-docs.yml"

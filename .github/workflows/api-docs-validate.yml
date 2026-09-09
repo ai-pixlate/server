@@ -4,12 +4,12 @@ name: API Docs Validate
 # PR에는 어떤 엔드포인트가 추가/삭제됐는지 요약 코멘트를 남깁니다.
 on:
   pull_request:
-    branches: [develop]
+    branches: [api-tracking]
     paths:
       - "docs/**"
       - ".github/workflows/api-docs-validate.yml"
   push:
-    branches: [develop]
+    branches: [api-tracking]
     paths:
       - "docs/**"
   workflow_dispatch: {}

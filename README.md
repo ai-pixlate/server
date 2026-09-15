@@ -1,22 +1,27 @@
-# Pixate Server — API 트래킹 문서
+# Pixate Server
 
-Pixate 백엔드 API의 **단일 소스(SSOT)** 명세와 팀 공유용 문서 사이트를 관리하는 저장소입니다.
+Pixate 백엔드 인프라 서버 레포지터리입니다.
 
-| 항목 | 위치 |
-| --- | --- |
-| API 명세 (SSOT) | [`docs/openapi.yaml`](docs/openapi.yaml) |
-| 문서 사이트 (Swagger UI) | https://ai-pixlate.github.io/server/ |
-| 문서 운영 가이드 | [`docs/README.md`](docs/README.md) |
+> **API 트래킹 문서**(OpenAPI 명세·Swagger 문서 사이트)는 이 레포의 **`feature/api-tracking` 브랜치**에서 관리합니다.
+> 문서 사이트: https://ai-pixlate.github.io/server/
 
-## 브랜치 전략
+## 기여
+
+브랜치·커밋·PR 컨벤션과 작업 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 | 브랜치 | 역할 |
 | --- | --- |
-| `feature/api-tracking` | **이 문서 전용 브랜치.** 여기에 머지되면 문서 사이트가 자동으로 갱신됩니다. |
-| `develop` / `main` | 백엔드 인프라 서버 코드 (이 문서와 무관). |
-| `docs/*` | 작업 브랜치. `feature/api-tracking` 으로 PR 을 올립니다. |
+| `feature/api-tracking` | **API 문서 전용 브랜치.** 여기에 머지되면 문서 사이트가 자동으로 갱신됩니다. |
+| `develop` / `main` | 백엔드 인프라 서버 코드. |
+| `docs/*` | 문서 작업 브랜치. `feature/api-tracking` 으로 PR 을 올립니다. |
 
-## 문서 수정 방법 (팀원용)
+커밋 메시지 템플릿은 최초 1회 등록이 필요합니다.
+
+```
+git config --local commit.template gitmessage.txt
+```
+
+## 문서 작업 흐름
 
 ```bash
 git switch feature/api-tracking
@@ -29,7 +34,7 @@ git commit -m "docs(api): XXX 엔드포인트 추가"
 git push -u origin docs/add-xxx-endpoint
 ```
 
-이후 GitHub 에서 `develop` 대상으로 PR 을 올리면 자동 검증이 돌고,
+이후 GitHub 에서 `feature/api-tracking` 대상으로 PR 을 올리면 자동 검증이 돌고,
 어떤 엔드포인트가 추가/삭제됐는지 PR 코멘트로 요약됩니다.
 
 ## 자동화 (GitHub Actions)

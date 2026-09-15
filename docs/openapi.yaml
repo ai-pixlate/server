@@ -45,30 +45,30 @@ servers:
     description: '운영 게이트웨이 (base-path·버전은 여기서만 선언)'
 
 tags:
-  - name: Auth
-    description: '계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜은 🔵12월)'
-  - name: Brand
-    description: '브랜드·로고 (M2 · F-BRD) · 🟢9월'
-  - name: Master
-    description: '마스터 데이터 읽기 전용 시드 (F-LNG·F-CH·F-SRC) · 🟢9월'
-  - name: Job
-    description: '작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · JOB-08/PATCH 📌조건부)'
+  - name: G1 Auth
+    description: 'G1 로그인·회원가입 — 계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜은 🔵12월)'
+  - name: M2 Brand
+    description: 'M2 브랜드 정보 — 브랜드·로고 (F-BRD) · 🟢9월'
   - name: N1 Source
-    description: '원본 이미지 업로드·순서 (F-SRC-01) · 🟢9월'
+    description: 'N1 입력 — 원본 이미지 업로드·순서 (F-SRC-01) · 🟢9월'
   - name: N2 Analysis
-    description: '분석 비동기 트리거 — OCR·섹션분해·판정 (F-SEC-01) · 🟢9월'
+    description: 'N2 분석 — 비동기 트리거(OCR·섹션분해·판정) (F-SEC-01) · 🟢9월'
   - name: N3 Section Review
-    description: '섹션 버킷·판정 배지·되살리기 (F-SEC) · 🟢9월'
+    description: 'N3 섹션 확인 — 섹션 버킷·판정 배지·되살리기 (F-SEC) · 🟢9월'
   - name: N4 Translate
-    description: '인페인팅·번역 결과 조회 (F-INP) · 🟢9월 (INP-02 🔵12월)'
+    description: 'N4 번역 — 인페인팅·번역 결과 조회 (F-INP) · 🟢9월 (INP-02 🔵12월)'
   - name: N5 Review
-    description: '블록 대조·셀 수정·검수 프리뷰·확정 (F-CFM) · 🟢9월'
+    description: 'N5 검수 — 블록 대조·셀 수정·검수 프리뷰·확정 (F-CFM) · 🟢9월'
   - name: N6 Save & Export
-    description: '렌더·산출물·규격검증·묶음·저장 (F-FIN·F-EXP·F-CH) · 🟢9월 (FIN-07 🟡should)'
-  - name: Library
-    description: '보관함 카드 (F-LST) · 🟢9월 (LIB-02/03 🔵12월)'
+    description: 'N6 저장 — 렌더·산출물·규격검증·묶음·저장 (F-FIN·F-EXP·F-CH) · 🟢9월 (FIN-07 🟡should)'
+  - name: M1 Library
+    description: 'M1 보관함 — 보관함 카드 (F-LST) · 🟢9월 (LIB-02/03 🔵12월)'
+  - name: S0 Job
+    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · JOB-08/PATCH 📌조건부)'
+  - name: Master
+    description: '마스터 데이터 읽기 전용 시드 (F-LNG·F-CH·F-SRC) · 🟢9월 (전용 화면 O3는 🔵12월)'
   - name: Admin
-    description: '운영 콘솔 (A-*) · 🔵12월 · 역할 권한 필요(403)'
+    description: '운영 콘솔 O1~O5 (A-*) · 🔵12월 · 역할 권한 필요(403)'
 
 security:
   - bearerAuth: []
@@ -765,7 +765,7 @@ components:
 paths:
   /auth/login:
     post:
-      tags: [Auth]
+      tags: [G1 Auth]
       summary: 셀러 로그인 / JWT 발급 🟢9월
       operationId: authLogin
       x-screen: 'G1'
@@ -787,7 +787,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /auth/refresh:
     post:
-      tags: [Auth]
+      tags: [G1 Auth]
       summary: 액세스 토큰 갱신 🟢9월
       operationId: authRefresh
       x-screen: 'G1'
@@ -809,7 +809,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /auth/logout:
     post:
-      tags: [Auth]
+      tags: [G1 Auth]
       summary: 로그아웃 / 토큰 무효화 🟢9월
       operationId: authLogout
       x-screen: 'G1'
@@ -820,7 +820,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /auth/me:
     get:
-      tags: [Auth]
+      tags: [G1 Auth]
       summary: 현재 셀러 조회 🟢9월
       operationId: authMe
       x-screen: 'G1'
@@ -834,7 +834,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /consents:
     post:
-      tags: [Auth]
+      tags: [G1 Auth]
       summary: 책임 한계 동의 기록 🟢9월
       operationId: consentCreate
       x-screen: 'G1'
@@ -855,7 +855,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /auth/social:
     post:
-      tags: [Auth]
+      tags: [G1 Auth]
       summary: 소셜 로그인/회원가입 🔵12월
       operationId: authSocial
       x-screen: 'G1(12월)'
@@ -873,7 +873,7 @@ paths:
 
   /brands:
     get:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 목록 조회 🟢9월
       operationId: brandList
       x-screen: 'M2'
@@ -886,7 +886,7 @@ paths:
               schema: { type: array, items: { $ref: '#/components/schemas/Brand' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
     post:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 등록 🟢9월
       operationId: brandCreate
       x-screen: 'M2'
@@ -909,7 +909,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/BrandId'
     get:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 상세 조회 🟢9월
       operationId: brandGet
       x-screen: 'M2'
@@ -922,7 +922,7 @@ paths:
               schema: { $ref: '#/components/schemas/Brand' }
         '404': { $ref: '#/components/responses/NotFound' }
     patch:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 정보 수정 🟢9월
       operationId: brandUpdate
       x-screen: 'M2'
@@ -946,7 +946,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/BrandId'
     get:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 로고 목록 🟢9월
       operationId: brandLogoList
       x-screen: 'M2'
@@ -960,7 +960,7 @@ paths:
               schema: { type: array, items: { $ref: '#/components/schemas/BrandLogo' } }
         '404': { $ref: '#/components/responses/NotFound' }
     post:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 로고 추가 🟢9월
       operationId: brandLogoCreate
       x-screen: 'M2'
@@ -996,7 +996,7 @@ paths:
         required: true
         schema: { type: integer, format: int64 }
     delete:
-      tags: [Brand]
+      tags: [M2 Brand]
       summary: 브랜드 로고 삭제 🟢9월
       operationId: brandLogoDelete
       x-screen: 'M2'
@@ -1122,7 +1122,7 @@ paths:
 
   /jobs:
     get:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 작업 목록 조회 🔵12월
       operationId: jobList
       x-screen: 'M3(12월)'
@@ -1137,7 +1137,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/StubResponse' }
     post:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 작업 생성 = N1 완료 🟢9월
       operationId: jobCreate
       x-screen: 'N1'
@@ -1165,7 +1165,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '409': { $ref: '#/components/responses/Conflict' }
     patch:
-      tags: [Job]
+      tags: [S0 Job]
       summary: N1 입력 수정 📌조건부
       operationId: jobPatch
       x-screen: 'N1(조건부)'
@@ -1183,7 +1183,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/JobId'
     get:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 작업 조회 — 상태 + N1 입력값 🟢9월
       operationId: jobGet
       x-screen: 'S0·N1'
@@ -1197,7 +1197,7 @@ paths:
               schema: { $ref: '#/components/schemas/Job' }
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 작업 취소 🟢9월
       operationId: jobCancel
       x-screen: 'S0'
@@ -1210,7 +1210,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/JobId'
     get:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 비동기 큐 상태 조회 (폴링) 🟢9월
       operationId: jobTasks
       x-screen: 'N2·N4·N6'
@@ -1231,7 +1231,7 @@ paths:
         required: true
         schema: { type: integer, format: int64 }
     post:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 실패 작업 재시도 🟢9월
       operationId: jobTaskRetry
       x-screen: 'N2·N4'
@@ -1249,7 +1249,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/JobId'
     post:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 처리 중단·직전 화면 복귀 🟢9월
       operationId: jobAbort
       x-screen: 'S0·N2·N4'
@@ -1267,7 +1267,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/JobId'
     post:
-      tags: [Job]
+      tags: [S0 Job]
       summary: 실패 단계 전체 재시도 📌조건부
       operationId: jobResume
       x-screen: 'N2·N4(조건부)'
@@ -1740,7 +1740,7 @@ paths:
 
   /library:
     get:
-      tags: [Library]
+      tags: [M1 Library]
       summary: 보관함 카드 목록 🟢9월
       operationId: libraryList
       x-screen: 'M1'
@@ -1758,7 +1758,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/JobId'
     delete:
-      tags: [Library]
+      tags: [M1 Library]
       summary: 카드 삭제 🔵12월
       operationId: libraryDelete
       x-screen: 'M1(12월)'
@@ -1772,7 +1772,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/JobId'
     post:
-      tags: [Library]
+      tags: [M1 Library]
       summary: 다른 버전 만들기 🔵12월
       operationId: jobVersionCreate
       x-screen: 'M1(12월)'

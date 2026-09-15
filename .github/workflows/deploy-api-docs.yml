@@ -1,10 +1,10 @@
 name: Deploy API Docs
 
-# docs/ 아래 파일이 main에 push될 때마다 OpenAPI 명세를 검증하고
+# docs/ 아래 파일이 develop에 push될 때마다 OpenAPI 명세를 검증하고
 # Swagger UI를 GitHub Pages로 자동 배포합니다.
 on:
   push:
-    branches: [feature/api-tracking]
+    branches: [develop]
     paths:
       - "docs/**"
       - ".github/workflows/deploy-api-docs.yml"

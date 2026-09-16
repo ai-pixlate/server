@@ -33,7 +33,7 @@ info:
     - **인증**: `bearerAuth`(JWT access) 전역 적용. refresh 토큰은 httpOnly 쿠키로만 오간다(요청 바디 금지).
       `/auth/refresh`·`/auth/logout`은 쿠키 기반(+ CSRF 헤더 `X-Requested-With`). `/admin/**`은 역할 권한(403).
     - **소유 검증**: 남의 `/jobs/{jobId}/**`·`/brands/{brandId}/**` 접근은 존재 은닉 위해 **404 NOT_FOUND**.
-    - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`).
+    - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
     - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
     - **멱등·동시성**: `POST /jobs`는 `Idempotency-Key` 헤더 · `PATCH /jobs/{jobId}/blocks/{blockId}`는 `revision` 낙관적 잠금(409 REVISION_CONFLICT).
     - **비동기**: `/analyze`·`/sections/proceed`·`/render`·`PATCH /blocks` 등은 202 + taskId를 반환하고, 진행은 `GET /jobs/{jobId}/tasks` 폴링(2초).
@@ -145,11 +145,30 @@ components:
           properties:
             code:
               type: string
+              enum:
+                - VALIDATION_ERROR       # 400
+                - UNAUTHORIZED           # 401
+                - TOKEN_EXPIRED          # 401 (retryable: refresh 후)
+                - NOT_FOUND              # 404 (미존재 + 남의 리소스 소유 위반)
+                - DUPLICATE              # 409
+                - UNSUPPORTED_FORMAT     # 415
+                - FILE_TOO_LARGE         # 413
+                - INVALID_STATE          # 409
+                - ALL_SECTIONS_EXCLUDED  # 409
+                - RETRY_NOT_ALLOWED      # 409
+                - REVISION_CONFLICT      # 409
+                - CSV_SCHEMA_MISMATCH    # 422
+                - RATE_LIMITED           # 429 (retryable)
+                - INTERNAL_ERROR         # 500 (retryable)
+                - SERVICE_UNAVAILABLE    # 503 (retryable)
               description: >
-                에러 코드 문자열. 근거 문서 확인분 6종:
-                VALIDATION_ERROR · NOT_FOUND · INVALID_STATE · REVISION_CONFLICT ·
-                RETRY_NOT_ALLOWED · ALL_SECTIONS_EXCLUDED.
-                # TODO: 전체 15종 미확정 — 근거 `회신문 종합 1-C-5`(이번 배치서 제외). 확정 시 enum으로 고정.
+                HTTP `error.code` 15종 enum (근거: 인벤토리 §14-1 · 회신문 종합 1-C-5 · 10차 #D).
+                코드 네임스페이스 3종은 서로 다른 값 공간이며 섞지 않는다 —
+                ① HTTP `error.code`(이 15종 · 4xx/5xx · 이 래퍼) /
+                ② task `errorCode`(비동기 task 실패 · 자유 텍스트 · HTTP 200 · JOB-05 items[].errorCode) /
+                ③ signal `code`(검수 신호 · 계약 §6 · CFM-01 signals[].code).
+                번역·렌더 실패는 HTTP error.code가 아니라 task/signal로 전달된다.
+                # 403 FORBIDDEN은 /admin/** 역할 권한 전용(ADM=12월)이라 9월 15종에서 제외 — ADM 활성 시 추가 예정.
             message: { type: string }
             retryable: { type: boolean, description: '재시도 가능 여부(FE 재시도 버튼 노출 판단)' }
             details:
@@ -270,10 +289,12 @@ components:
         retryable: { type: [boolean, 'null'], description: 'translation_failed 신호에 동봉' }
     AutoAdjust:
       type: object
-      description: '자동 조정 결과 JSONB'
+      description: >
+        자동 조정 결과. DB JSONB(`font_scale`·`line_break_applied`)를 응답 시
+        `fontScale`·`lineBreakApplied`로 매핑한다(직렬화 계층 · 저장값 불변 · 10차 #A).
       properties:
-        font_scale: { type: number }
-        line_break_applied: { type: boolean }
+        fontScale: { type: number }
+        lineBreakApplied: { type: boolean }
     Bbox:
       type: object
       description: '{x,y,w,h} px · 원점 좌상단'
@@ -637,11 +658,16 @@ components:
         rerenderTaskId: { type: integer, format: int64, description: '/tasks 폴링 → done 시 블록·/preview 재조회' }
     ReviewPreview:
       type: object
-      description: '다폭 대응 검수 프리뷰 (계산값·미저장). scale=previewWidth/maxOriginalWidth · align=left.'
+      description: >
+        다폭 대응 검수 프리뷰 (계산값·미저장). scale=previewWidth/maxOriginalWidth · align=left.
+        요청 파라미터는 jobId뿐(폭 파라미터 없음). 리사이즈 시 재요청하지 않고 FE가
+        `transform: scale(표시폭/previewWidth)`로 축소 · 재조회는 구성 변경(SEC-03·CFM-02) 시만(10차 #B).
       properties:
         maxOriginalWidth: { type: integer }
         originalHeight: { type: integer }
-        previewWidth: { type: integer }
+        previewWidth:
+          type: integer
+          description: '서버 고정 상수 500 (설정값·server constant). 뷰포트 무관 좌표 기준 폭 — FE 코드젠이 변수로 오해하지 않도록 example 미지정.'
         previewHeight: { type: integer }
         scale: { type: number, format: float }
         align: { type: string, enum: [left] }
@@ -1215,7 +1241,10 @@ paths:
       operationId: jobTasks
       x-screen: 'N2·N4·N6'
       x-source: API-JOB-05
-      description: '폴링 주기 2초. progress·stages·uiStatus는 파생. cancelled 항목 제외. 🟢9월.'
+      description: >
+        폴링 주기 2초. progress·stages·uiStatus는 파생. cancelled 항목 제외.
+        섹션 렌더 실패 판별: items[]의 taskType=render + unitType=section + status=failed로 판별 —
+        deliverable.render_status·section.warning_badge로 판별하지 않음(10차 #E). 🟢9월.
       responses:
         '200':
           description: '진행 상태'
@@ -1306,7 +1335,10 @@ paths:
       operationId: sourceImageUpload
       x-screen: 'N1'
       x-source: API-SRC-02
-      description: 'multipart 다중. JPG·PNG(파일당 20MB·작업당 20장). 파일별 성공/실패 개별 기록. 🟢9월.'
+      description: >
+        multipart 다중. JPG·PNG(파일당 20MB·작업당 20장). 파일별 성공/실패 개별 기록.
+        서버가 업로드 시 원본 width·height를 측정(디코딩)해 저장 — NOT NULL(V5)이라
+        측정 실패 파일은 results[].ok=false로 개별 처리(클라이언트 보고 치수 불신 · 10차 #C). 🟢9월.
       requestBody:
         required: true
         content:
@@ -1534,7 +1566,7 @@ paths:
       x-source: API-CFM-02
       description: >
         revision 낙관적 잠금(불일치 409 REVISION_CONFLICT · details.current). char_count 즉시,
-        overflow·auto_adjust는 재렌더 후. 응답 rerenderTaskId → /tasks 폴링. 🟢9월.
+        overflow·autoAdjust는 재렌더 후. 응답 rerenderTaskId → /tasks 폴링. 🟢9월.
       requestBody:
         required: true
         content:
@@ -1602,7 +1634,10 @@ paths:
       operationId: renderStart
       x-screen: 'N6'
       x-source: API-FIN-01
-      description: 'review/N6 확인. 렌더 task upsert(unit당 1행·멱등). 202 renderTaskId → JOB-05 폴링. 🟢9월.'
+      description: >
+        review/N6 확인. 렌더 task upsert(unit당 1행·멱등). 202 renderTaskId → JOB-05 폴링.
+        렌더 실패 여부는 renderTaskId로 JOB-05 폴링(taskType=render·status=failed · 섹션 단위는 unitType=section) —
+        deliverable.render_status로 판별하지 않음(10차 #E). 🟢9월.
       responses:
         '202':
           description: '렌더 수락'

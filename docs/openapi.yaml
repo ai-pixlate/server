@@ -64,7 +64,7 @@ tags:
   - name: M1 Library
     description: 'M1 보관함 — 보관함 카드 (F-LST) · 🟢9월 (LIB-02/03 🔵12월)'
   - name: S0 Job
-    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · JOB-08/PATCH 📌조건부)'
+    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · PATCH /jobs draft-first 확정 · JOB-08 resume 📌조건부)'
   - name: Master
     description: '마스터 데이터 읽기 전용 시드 (F-LNG·F-CH·F-SRC) · 🟢9월 (전용 화면 O3는 🔵12월)'
   - name: Admin
@@ -440,11 +440,14 @@ components:
     # ===== Job =====
     JobCreate:
       type: object
-      required: [brandId, productName, targetCountry, regulatoryClass, targetLanguage, specType, categoryId, consentId]
-      description: 'N1 완료. productName은 API 필수(DB nullable). keywords는 job_keyword로 저장.'
+      required: [brandId]
+      description: >
+        draft 생성 (A3 draft-first). brandId만 필수 — 나머지 N1 값은 업로드(SRC-02) 후
+        PATCH /jobs/{jobId}로 세팅한다. 필수값 검증은 analyze(ANL-01) 게이트에서 수행.
+        keywords는 job_keyword로 저장.
       properties:
         brandId: { type: integer, format: int64 }
-        productName: { type: string, description: '필수(400) · F-SRC-11' }
+        productName: { type: [string, 'null'], description: 'F-SRC-11 · analyze 게이트에서 필수(400)' }
         productCode: { type: [string, 'null'] }
         targetCountry: { type: string }
         regulatoryClass: { $ref: '#/components/schemas/RegulatoryClass' }
@@ -455,6 +458,23 @@ components:
         keywords: { type: array, items: { type: string } }
         imageType: { $ref: '#/components/schemas/ImageContinuity' }
         consentId: { type: integer, format: int64, description: 'AUTH-05 응답값(본인·미사용 검증 후 연결)' }
+    JobPatch:
+      type: object
+      description: >
+        N1 입력값 세팅/수정 (A3 draft-first · PATCH /jobs/{jobId}). 부분 갱신 — 보낸 필드만 반영.
+        전부 기존 job 컬럼(스키마 무변경). 필수값 최종 검증은 analyze(ANL-01) 게이트.
+      properties:
+        productName: { type: [string, 'null'], description: 'F-SRC-11' }
+        productCode: { type: [string, 'null'] }
+        targetCountry: { type: [string, 'null'] }
+        regulatoryClass: { oneOf: [ { $ref: '#/components/schemas/RegulatoryClass' }, { type: 'null' } ] }
+        targetLanguage: { type: [string, 'null'] }
+        specType: { oneOf: [ { $ref: '#/components/schemas/SpecType' }, { type: 'null' } ] }
+        channelSpecId: { type: [integer, 'null'], format: int64 }
+        categoryId: { type: [integer, 'null'], format: int64 }
+        keywords: { type: array, items: { type: string } }
+        imageType: { oneOf: [ { $ref: '#/components/schemas/ImageContinuity' }, { type: 'null' } ] }
+        consentId: { type: [integer, 'null'], format: int64, description: 'AUTH-05 응답값' }
     Job:
       type: object
       description: 'ERD job — 상태 + N1 입력값 전체'
@@ -491,13 +511,16 @@ components:
         failedCount: { type: integer }
         stages:
           type: array
-          description: 'step별 고정 단계 (N2 ocr→section→verify · N4 inpaint→translate→verify→render · N6 render)'
+          description: >
+            step별 고정 단계 (N2 ocr→section→verify · N4 inpaint→translate→verify→render · N6 render).
+            status는 해당 task_type 행 집계 — 전부 done→done / 하나라도 running→running /
+            전부 pending→pending / failed 있으면 failed(cancelled 제외). 파생·미저장.
           items:
             type: object
             properties:
               key: { type: string }
-              label: { type: string }
-              status: { type: string }
+              label: { type: string, description: 'FE 표시 문구(런타임 값)' }
+              status: { type: string, enum: [pending, running, done, failed] }
         items:
           type: array
           items: { $ref: '#/components/schemas/JobAsyncTaskItem' }
@@ -757,7 +780,7 @@ components:
       type: object
       properties:
         artifactId: { type: integer, format: int64 }
-        artifactType: { type: string, enum: [zip] }
+        artifactType: { type: string, enum: [zip, images, csv, html] }
         components:
           type: array
           items: { type: string }
@@ -1169,8 +1192,9 @@ paths:
       x-screen: 'N1'
       x-source: API-JOB-02
       description: >
-        N1 필수값 확정. productName API 필수(400). 자동 트리거 없음(호출 순서 JOB-02→SRC-02→ANL-01).
-        Idempotency-Key 헤더 권장. 🟢9월.
+        draft 생성 (A3 draft-first). brandId만으로 빈 draft를 만들고 jobId 반환.
+        흐름: POST /jobs(draft) → SRC-02(원본 업로드) → PATCH /jobs/{jobId}(N1 값) → analyze.
+        N1 필수값 검증은 analyze(ANL-01) 게이트. Idempotency-Key 헤더 권장. 🟢9월.
       parameters:
         - name: Idempotency-Key
           in: header
@@ -1190,24 +1214,33 @@ paths:
               schema: { $ref: '#/components/schemas/Job' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '409': { $ref: '#/components/responses/Conflict' }
-    patch:
-      tags: [S0 Job]
-      summary: N1 입력 수정 📌조건부
-      operationId: jobPatch
-      x-screen: 'N1(조건부)'
-      x-source: 인벤토리 §14 조건부 (8차 #32)
-      description: '📌조건부 · 상세 계약 미확정. N1 입력 수정 + 무효화 규칙. TODO: PM 확정(회신문 종합 2-3-3).'
-      responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '200':
-          description: '📌조건부 미확정'
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/StubResponse' }
   /jobs/{jobId}:
     parameters:
       - $ref: '#/components/parameters/JobId'
+    patch:
+      tags: [S0 Job]
+      summary: N1 입력값 세팅/수정 (draft-first) 🟢9월
+      operationId: jobPatch
+      x-screen: 'N1'
+      x-source: API-JOB-02
+      description: >
+        draft job의 N1 입력값을 세팅/수정(A3 draft-first · 8차 #32). 부분 갱신 — 보낸 필드만 반영.
+        전부 기존 job 컬럼(스키마 무변경). draft/N1 단계에서만 허용(아니면 409 INVALID_STATE).
+        N1 필수값 최종 검증은 analyze 게이트. 🟢9월.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobPatch' }
+      responses:
+        '200':
+          description: '갱신된 작업 (상태 + N1 입력값)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
     get:
       tags: [S0 Job]
       summary: 작업 조회 — 상태 + N1 입력값 🟢9월
@@ -1610,7 +1643,8 @@ paths:
       x-source: API-CFM-04
       description: >
         전 섹션 제외 차단. acknowledgedWarnings 정합 아니면 409 INVALID_STATE(+현재 경고 목록).
-        job→review/N6(검수 유지 · 렌더 자동 등록 없음). 🟢9월.
+        job→review/N6. confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
+        FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
       requestBody:
         required: true
         content:
@@ -1636,6 +1670,7 @@ paths:
       x-source: API-FIN-01
       description: >
         review/N6 확인. 렌더 task upsert(unit당 1행·멱등). 202 renderTaskId → JOB-05 폴링.
+        최초 렌더는 confirm(CFM-04)이 자동 등록하므로 이 엔드포인트는 수동 재렌더용(A4·Q9).
         렌더 실패 여부는 renderTaskId로 JOB-05 폴링(taskType=render·status=failed · 섹션 단위는 unitType=section) —
         deliverable.render_status로 판별하지 않음(10차 #E). 🟢9월.
       responses:
@@ -1715,6 +1750,32 @@ paths:
       x-screen: 'N6'
       x-source: API-FIN-05
       description: 'presigned URL(5분)을 JSON으로 반환. manifest·미생성·남의 job은 404. 🟢9월.'
+      responses:
+        '200':
+          description: 'presigned 다운로드 정보'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/export/download:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N6 Save & Export]
+      summary: 산출물 개별 다운로드 — 타입별 presigned 🟢9월
+      operationId: exportDownloadByType
+      x-screen: 'N6'
+      x-source: API-FIN-05
+      description: >
+        N6 행별 개별 다운로드. artifactType으로 구성요소(zip|images|csv|html)를 지정 —
+        기본 zip. export_artifact 구성요소 행에서 presigned URL(5분) 반환.
+        manifest·미생성·남의 job은 404. 🟢9월.
+      parameters:
+        - name: artifactType
+          in: query
+          required: false
+          schema: { type: string, enum: [zip, images, csv, html], default: zip }
+          description: '구성요소 타입(기본 zip). images·csv·html은 해당 구성요소만 반환.'
       responses:
         '200':
           description: 'presigned 다운로드 정보'

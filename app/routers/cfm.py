@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.schemas import BlockStatus, CurrentStep, JobStatus
+from app.schemas import BlockStatus
 
 router = APIRouter(tags=["Review"])
 
@@ -95,6 +95,31 @@ def preview(job_id: int):
     }
 
 
-@router.post("/jobs/{job_id}/confirm", summary="API-CFM-04 검수 확정(N5→N6) (mock)")
-def confirm(job_id: int):
-    return {"jobId": job_id, "status": JobStatus.review, "currentStep": CurrentStep.N6}
+@router.post("/jobs/{job_id}/confirm", summary="API-CFM-04 검수 확정(N5→N6) (DB)")
+def confirm(job_id: int, db: Session = Depends(get_db)):
+    job = db.execute(
+        text("SELECT id FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    counts = db.execute(
+        text(
+            "SELECT count(*) FILTER (WHERE bucket='include') AS inc, count(*) AS total "
+            "FROM section WHERE job_id = :j"
+        ),
+        {"j": job_id},
+    ).mappings().one()
+    if counts["total"] == 0 or counts["inc"] == 0:
+        raise HTTPException(status_code=409, detail="ALL_SECTIONS_EXCLUDED")
+
+    r = db.execute(
+        text(
+            "UPDATE job SET status='review', current_step='N6', user_facing_status='reviewing', "
+            "updated_at=now() WHERE id=:j AND seller_id=:s RETURNING id, status, current_step"
+        ),
+        {"j": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    db.commit()
+    return {"jobId": r["id"], "status": r["status"], "currentStep": r["current_step"]}

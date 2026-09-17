@@ -1,38 +1,56 @@
 """FIN — 최종 산출물 (API-FIN-01~06, 🟢9월). 모두 mock 응답."""
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
+from app.db import get_db
 from app.schemas import ArtifactType, JobStatus
 
 router = APIRouter(tags=["Finalize"])
+
+MOCK_SELLER_ID = 1
 
 
 class ExportRequest(BaseModel):
     components: list[str] = ["images/", "content.csv", "html"]
 
 
-@router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링(N6 진입 시 호출)")
-def render(job_id: str, response: Response):
+# ── FIN-01·02: Celery 큐 / 실제 DB ────────────────────────────────
+@router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
+def render(job_id: int, response: Response, db: Session = Depends(get_db)):
+    job = db.execute(
+        text("SELECT id FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    from app.tasks import run_render  # 지연 임포트
+    result = run_render.delay(job_id)  # ← 렌더 태스크 큐 등록
     response.status_code = 202
-    return {"renderTaskId": "task-render-001"}
+    return {"jobId": job_id, "accepted": True, "renderTaskId": result.id}
 
 
-@router.get("/jobs/{job_id}/deliverables", summary="API-FIN-02 산출물 목록+검증+구성요소 상태")
-def deliverables(job_id: str):
+@router.get("/jobs/{job_id}/deliverables", summary="API-FIN-02 산출물 목록 (DB)")
+def deliverables(job_id: int, db: Session = Depends(get_db)):
+    rows = db.execute(
+        text(
+            "SELECT id, usage_type, image_url, render_status, created_at "
+            "FROM deliverable WHERE job_id = :j ORDER BY id"
+        ),
+        {"j": job_id},
+    ).mappings().all()
     return {
         "deliverables": [
             {
-                "id": "dlv-001", "usageType": "detail", "renderStatus": "done",
-                "imageUrl": "https://example-bucket.s3.amazonaws.com/deliverable/dlv-001.png?presigned=mock",
+                "id": r["id"],
+                "usageType": r["usage_type"],
+                "imageUrl": r["image_url"],
+                "renderStatus": r["render_status"],
             }
-        ],
-        "validationSummary": {"passed": True, "errorCount": 0, "warningCount": 1},
-        "components": [
-            {"artifactId": "art-img", "type": "images", "status": "generated", "isGenerated": True,
-             "isActive": True, "failedCount": 0, "retryAction": None},
-            {"artifactId": "art-csv", "type": "csv", "status": "generated", "isGenerated": True,
-             "isActive": True, "failedCount": 0, "retryAction": None},
-        ],
+            for r in rows
+        ]
     }
 
 

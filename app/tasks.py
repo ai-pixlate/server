@@ -139,3 +139,51 @@ def run_translate(job_id: int) -> dict:
         raise
     finally:
         db.close()
+
+
+@celery_app.task(name="app.tasks.run_render")
+def run_render(job_id: int) -> dict:
+    """N6 렌더(스텁): render 태스크 생성 → 산출물(deliverable) 1개 생성.
+
+    job 상태 전이는 하지 않는다(N6 done 전이는 FIN-06 save가 소유 · 아키텍처).
+    """
+    db = SessionLocal()
+    task_row_id = None
+    try:
+        row = db.execute(
+            text(
+                "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status, started_at) "
+                "VALUES (:j, 'render', 'job', :j, 'running', now()) RETURNING id"
+            ),
+            {"j": job_id},
+        ).mappings().one()
+        task_row_id = row["id"]
+        db.commit()
+
+        # 실제 렌더(Playwright 캡처 등) 대체(스텁)
+        time.sleep(3)
+
+        db.execute(
+            text(
+                "INSERT INTO deliverable (job_id, usage_type, image_url, render_status) "
+                "VALUES (:j, 'detail', :url, 'done')"
+            ),
+            {"j": job_id, "url": f"deliverable/job-{job_id}/detail.png"},
+        )
+        db.execute(
+            text("UPDATE job_async_task SET status='done', finished_at=now() WHERE id=:t"),
+            {"t": task_row_id},
+        )
+        db.commit()
+        return {"jobId": job_id, "producedDeliverables": 1}
+    except Exception:
+        db.rollback()
+        if task_row_id is not None:
+            db.execute(
+                text("UPDATE job_async_task SET status='failed', finished_at=now() WHERE id=:t"),
+                {"t": task_row_id},
+            )
+            db.commit()
+        raise
+    finally:
+        db.close()

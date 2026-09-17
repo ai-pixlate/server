@@ -5,13 +5,13 @@ SEC-04(이대로 진행)은 번역 워커, INP-01은 S3가 필요해 아직 mock
 """
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.schemas import CurrentStep, JobStatus, SectionBucket
+from app.schemas import SectionBucket
 
 router = APIRouter(tags=["Sections"])
 
@@ -119,10 +119,30 @@ def update_section(job_id: int, section_id: int, body: SectionAction, db: Sessio
     return _to_section(r)
 
 
-# ── SEC-04 · INP-01: 워커/S3 필요 → 아직 mock ──────────────────────
-@router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (mock·번역 워커 예정)")
-def proceed(job_id: int):
-    return {"jobId": job_id, "status": JobStatus.processing, "currentStep": CurrentStep.N4, "accepted": True}
+# ── SEC-04: 번역 큐 연결 (N3→N4) ──────────────────────────────────
+@router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (Celery 번역 큐)")
+def proceed(job_id: int, response: Response, db: Session = Depends(get_db)):
+    job = db.execute(
+        text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    counts = db.execute(
+        text(
+            "SELECT count(*) FILTER (WHERE bucket='include') AS inc, count(*) AS total "
+            "FROM section WHERE job_id = :j"
+        ),
+        {"j": job_id},
+    ).mappings().one()
+    if counts["total"] == 0 or counts["inc"] == 0:
+        raise HTTPException(status_code=409, detail="ALL_SECTIONS_EXCLUDED")
+
+    from app.tasks import run_translate  # 지연 임포트
+    result = run_translate.delay(job_id)  # ← 번역 태스크 큐 등록
+    response.status_code = 202
+    return {"jobId": job_id, "accepted": True, "celeryTaskId": result.id}
 
 
 @router.get("/jobs/{job_id}/sections/{section_id}/inpaint", tags=["Inpaint"], summary="API-INP-01 섹션 인페인팅 결과 조회 (mock·S3 예정)")

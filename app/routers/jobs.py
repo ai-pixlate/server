@@ -12,7 +12,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.schemas import CurrentStep, JobStatus, TaskStatus, TaskType, UserFacingStatus
+from app.schemas import TaskStatus
 
 router = APIRouter(tags=["Jobs"])
 
@@ -134,37 +134,67 @@ def cancel_job(job_id: int, db: Session = Depends(get_db)):
     return {"jobId": r["id"], "status": r["status"]}
 
 
-# ── JOB-05/06/07 · ANL-01: 워커/오케스트레이터 필요 → 아직 mock ──────
-@router.get("/jobs/{job_id}/tasks", summary="API-JOB-05 비동기 큐 상태 조회 (mock·워커 예정)")
-def get_tasks(job_id: int):
+# ── ANL-01 · JOB-05: Celery 큐 / 실제 DB ──────────────────────────
+@router.post("/jobs/{job_id}/analyze", status_code=202, summary="API-ANL-01 분석 시작 (Celery 큐)")
+def analyze(job_id: int, response: Response, db: Session = Depends(get_db)):
+    job = db.execute(
+        text("SELECT id FROM job WHERE id = :id AND seller_id = :s"),
+        {"id": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    from app.tasks import run_analyze  # 지연 임포트(celery 앱 로드)
+    result = run_analyze.delay(job_id)  # ← 실제 큐에 넣음
+    response.status_code = 202
+    return {"jobId": job_id, "accepted": True, "celeryTaskId": result.id}
+
+
+@router.get("/jobs/{job_id}/tasks", summary="API-JOB-05 비동기 큐 상태 조회 (DB)")
+def get_tasks(job_id: int, db: Session = Depends(get_db)):
+    job = db.execute(
+        text("SELECT status, current_step, user_facing_status FROM job WHERE id = :id AND seller_id = :s"),
+        {"id": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    items = db.execute(
+        text(
+            "SELECT id, task_type, unit_type, unit_id, status, retry_count, max_retry, error_code "
+            "FROM job_async_task WHERE job_id = :id ORDER BY id"
+        ),
+        {"id": job_id},
+    ).mappings().all()
+
+    total = len(items)
+    done = sum(1 for i in items if i["status"] == "done")
+    failed = sum(1 for i in items if i["status"] == "failed")
     return {
-        "jobStatus": JobStatus.processing,
-        "currentStep": CurrentStep.N2,
-        "userFacingStatus": UserFacingStatus.analyzing,
-        "progress": 0.5, "total": 2, "done": 1, "failedCount": 0,
-        "stages": [
-            {"key": "ocr", "label": "OCR", "status": "done"},
-            {"key": "section", "label": "섹션 분해", "status": "running"},
-        ],
+        "jobStatus": job["status"],
+        "currentStep": job["current_step"],
+        "userFacingStatus": job["user_facing_status"],
+        "total": total,
+        "done": done,
+        "failedCount": failed,
+        "progress": round(done / total, 2) if total else 0,
         "items": [
-            {"taskId": "task-001", "taskType": TaskType.ocr, "unitType": "source_image",
-             "unitId": "src-001", "status": TaskStatus.done, "uiStatus": "done",
-             "retryCount": 0, "maxRetry": 3, "retryable": False, "errorCode": None, "revision": 1},
+            {
+                "taskId": i["id"], "taskType": i["task_type"], "unitType": i["unit_type"],
+                "unitId": i["unit_id"], "status": i["status"], "retryCount": i["retry_count"],
+                "maxRetry": i["max_retry"], "errorCode": i["error_code"],
+            }
+            for i in items
         ],
     }
 
 
-@router.post("/jobs/{job_id}/tasks/{task_id}/retry", summary="API-JOB-06 실패 작업 재시도 (mock·워커 예정)")
+# ── JOB-06/07: 아직 mock (재시도·중단 정책은 워커 로직과 함께 추후) ──────
+@router.post("/jobs/{job_id}/tasks/{task_id}/retry", summary="API-JOB-06 실패 작업 재시도 (mock)")
 def retry_task(job_id: int, task_id: str):
     return {"taskId": task_id, "status": TaskStatus.pending, "retryCount": 1, "uiStatus": "retrying"}
 
 
-@router.post("/jobs/{job_id}/abort", summary="API-JOB-07 처리 중단·복귀 (mock·워커 예정)")
+@router.post("/jobs/{job_id}/abort", summary="API-JOB-07 처리 중단·복귀 (mock)")
 def abort_job(job_id: int):
     return {"returnTo": "N1", "jobId": job_id}
-
-
-@router.post("/jobs/{job_id}/analyze", status_code=202, summary="API-ANL-01 분석 시작 (mock·워커 예정)")
-def analyze(job_id: int, response: Response):
-    response.status_code = 202
-    return {"jobId": job_id, "accepted": True}

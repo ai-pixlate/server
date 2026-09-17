@@ -1,0 +1,43 @@
+# KubeSphere: Projects(virl) > Application Workloads > Workloads > Create > Edit YAML 에 붙여넣기
+# <...> 로 표시된 값은 배포 전에 바꾼다. 공개키 외의 비밀 값은 이 파일에 넣지 않는다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixlate-gpu
+  namespace: virl
+  labels:
+    app: pixlate-gpu
+spec:
+  replicas: 1
+  # PVC가 ReadWriteOnce면 새 Pod가 볼륨을 못 잡아 롤링 업데이트가 멈추므로 교체 방식으로 재배포
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: pixlate-gpu
+  template:
+    metadata:
+      labels:
+        app: pixlate-gpu
+    spec:
+      containers:
+        - name: pixlate-gpu
+          image: <DOCKERHUB_USER>/pixlate-gpu:torch2.14-cu126
+          imagePullPolicy: Always
+          ports:
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          env:
+            - name: SSH_PUBLIC_KEY
+              value: "<ssh-ed25519 AAAA... 본인 공개키>"
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pixlate-data

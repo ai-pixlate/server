@@ -1,27 +1,44 @@
-"""MST — 마스터 데이터 (API-MST-01~07, 🟢9월). 모두 mock 응답."""
-from fastapi import APIRouter, Query
+"""MST — 마스터 데이터 (API-MST-01~07, 🟢9월).
+
+MST-01(국가)·MST-02(언어)는 실제 DB(master_country·master_language)에서 조회한다.
+나머지(MST-03~07)는 아직 mock 응답.
+"""
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from app.db import get_db
 
 router = APIRouter(tags=["Master"])
 
 
-@router.get("/master/countries", summary="API-MST-01 타겟 국가 목록")
-def countries():
+@router.get("/master/countries", summary="API-MST-01 타겟 국가 목록 (DB)")
+def countries(db: Session = Depends(get_db)):
+    rows = db.execute(
+        text(
+            "SELECT code, name, has_regulatory_dictionary "
+            "FROM master_country ORDER BY code"
+        )
+    ).mappings().all()
     return [
-        {"code": "US", "nameKo": "미국", "nameEn": "United States", "recommended": True},
-        {"code": "JP", "nameKo": "일본", "nameEn": "Japan", "recommended": True},
-        {"code": "VN", "nameKo": "베트남", "nameEn": "Vietnam", "recommended": False},
+        {
+            "code": r["code"],
+            "name": r["name"],
+            "hasRegulatoryDictionary": r["has_regulatory_dictionary"],
+        }
+        for r in rows
     ]
 
 
-@router.get("/master/languages", summary="API-MST-02 도착 언어 목록")
-def languages():
-    return [
-        {"code": "en", "nameKo": "영어", "nameEn": "English"},
-        {"code": "ja", "nameKo": "일본어", "nameEn": "Japanese"},
-        {"code": "vi", "nameKo": "베트남어", "nameEn": "Vietnamese"},
-    ]
+@router.get("/master/languages", summary="API-MST-02 도착 언어 목록 (DB)")
+def languages(db: Session = Depends(get_db)):
+    rows = db.execute(
+        text("SELECT code, name FROM master_language ORDER BY code")
+    ).mappings().all()
+    return [{"code": r["code"], "name": r["name"]} for r in rows]
 
 
+# ── 아래는 아직 mock (추후 DB로 교체) ─────────────────────────────
 @router.get("/master/regulatory-classes", summary="API-MST-03 규제 분류 목록(국가별)")
 def regulatory_classes(country: str = Query(..., examples=["US"])):
     return [

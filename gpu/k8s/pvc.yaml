@@ -1,12 +1,15 @@
-# KubeSphere: Projects(virl) > Storage > Persistent Volume Claims > Create 로 만들어도 된다.
+# KubeSphere: Projects(estsoft33) > Storage > Persistent Volume Claims > Create 로 만들어도 된다.
 # 계정당 스토리지는 512GB까지 할당된다.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pixlate-data
-  namespace: virl
+  namespace: estsoft33
+  annotations:
+    kubesphere.io/alias-name: Pixlate GPU 데이터
+    kubesphere.io/description: Pixlate GPU 컨테이너의 영구 저장소. /data 에 마운트되며 코드·데이터셋·모델 가중치·캐시를 보관한다.
 spec:
-  storageClassName: sandbox-container
+  storageClassName: sandbox-container-sc
   accessModes:
     - ReadWriteOnce
   resources:

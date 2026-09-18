@@ -1,5 +1,5 @@
 # 학교 GPU 서버(KubeSphere, V100)용 PyTorch 기본 이미지
-# 기본값은 CUDA 12.6 빌드. 서버 드라이버가 낮으면 README의 "CUDA 11.8 빌드"를 참고한다.
+# 기본값은 CUDA 12.6 빌드 (서버 드라이버 580, CUDA 13.0 지원에서 동작 확인)
 ARG BASE_IMAGE=nvidia/cuda:12.6.3-base-ubuntu24.04
 FROM ${BASE_IMAGE}
 

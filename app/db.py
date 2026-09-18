@@ -1,7 +1,7 @@
 """DB 연결 설정 (SQLAlchemy + PostgreSQL).
 
 DATABASE_URL 환경변수로 접속 정보를 받는다. 기본값은 docker 네트워크상의
-pixate-db 컨테이너. 실제 운영에서는 RDS 주소를 환경변수/Secrets로 주입한다.
+pixlate-db 컨테이너. 실제 운영에서는 RDS 주소를 환경변수/Secrets로 주입한다.
 """
 import os
 
@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg://pixate:pixate_dev_pw@pixate-db:5432/pixate",
+    "postgresql+psycopg://pixlate:pixlate_dev_pw@pixlate-db:5432/pixlate",
 )
 
 # create_engine 은 지연 연결이라 앱 임포트 시 DB가 없어도 안전하다.

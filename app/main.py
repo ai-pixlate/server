@@ -1,6 +1,6 @@
-"""Pixate API — FastAPI mock 서버.
+"""Pixlate API — FastAPI mock 서버.
 
-규격서(pixate_db_docs v3.4.2)의 🟢9월 MVP 46개 오퍼레이션을 mock 응답으로 구현.
+규격서(pixlate_db_docs v3.4.2)의 🟢9월 MVP 46개 오퍼레이션을 mock 응답으로 구현.
 Swagger UI: /docs · ReDoc: /redoc · OpenAPI JSON: /openapi.json
 경로 접두어는 servers(/v1)에만 붙인다(규격서 03_API_Inventory).
 """
@@ -37,10 +37,10 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="Pixate API (mock)",
+    title="Pixlate API (mock)",
     version="3.4.2-mock",
     description=(
-        "AI 상세페이지 로컬라이제이션 서비스 Pixate의 백엔드 API — **mock 서버**.\n\n"
+        "AI 상세페이지 로컬라이제이션 서비스 Pixlate의 백엔드 API — **mock 서버**.\n\n"
         "규격서 v3.4.2의 🟢9월 MVP 46개 엔드포인트를 예시 응답으로 제공한다. "
         "FE 연동 배선 테스트용이며 실제 DB·비즈니스 로직은 없다."
     ),
@@ -63,7 +63,7 @@ app.add_middleware(
 
 @app.get("/", tags=["Health"], summary="루트 — 서버 동작 확인")
 def root():
-    return {"service": "pixate-api", "status": "running", "docs": "/docs", "apiPrefix": API_PREFIX}
+    return {"service": "pixlate-api", "status": "running", "docs": "/docs", "apiPrefix": API_PREFIX}
 
 
 @app.get("/health", tags=["Health"], summary="헬스 체크")

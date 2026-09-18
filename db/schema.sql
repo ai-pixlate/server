@@ -1,4 +1,4 @@
--- Pixate DB schema (PostgreSQL 16) — 현재 적용 상태 스냅샷 (Alembic rev 0003 · v3.6)
+-- Pixlate DB schema (PostgreSQL 16) — 현재 적용 상태 스냅샷 (Alembic rev 0003 · v3.6)
 -- ERD_PIX_ateV5 (ERDCloud export) -> PostgreSQL 변환본
 -- 변환: 백틱 제거 · MySQL 인라인 COMMENT 제거 · 탭 정리 · BOM 제거
 -- 반영: 0002(id→IDENTITY) · 0003 v3.6(text_block 라벨/로고 플래그·role CHECK·is_excluded GENERATED, section.content_findings)

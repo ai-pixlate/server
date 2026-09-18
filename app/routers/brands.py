@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app import s3
 from app.db import get_db
 from app.schemas import LogoFormat
 
@@ -34,7 +35,7 @@ def _to_brand(r) -> dict:
 
 class BrandCreate(BaseModel):
     nameKo: str = Field(examples=["픽스에이트"])
-    nameEn: str = Field(examples=["Pixate"])  # 필수 (누락 시 422)
+    nameEn: str = Field(examples=["Pixlate"])  # 필수 (누락 시 422)
     overview: Optional[str] = None
     targetCustomer: Optional[str] = None
 
@@ -118,29 +119,56 @@ def update_brand(brand_id: int, body: BrandUpdate, db: Session = Depends(get_db)
     return _to_brand(r)
 
 
-# ── BRD-05~07: 로고 (S3 필요 → 아직 mock) ──────────────────────────
-class Logo(BaseModel):
-    id: str = "logo-001"
-    format: LogoFormat = LogoFormat.png
-    orderNo: int = 1
-    logoUrl: str = "https://example-bucket.s3.amazonaws.com/logos/logo-001.png?presigned=mock"
-
-
-@router.post("/brands/{brand_id}/logos", response_model=Logo, status_code=201, summary="API-BRD-05 브랜드 로고 추가 (mock·S3 예정)")
-def add_logo(brand_id: int, file: UploadFile = File(...)):
-    fmt = LogoFormat.png
+# ── BRD-05~07: 로고 (실제 S3 + DB) ────────────────────────────────
+@router.post("/brands/{brand_id}/logos", status_code=201, summary="API-BRD-05 브랜드 로고 추가 (S3+DB)")
+def add_logo(brand_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    fmt = "png"
     if file.filename and "." in file.filename:
         ext = file.filename.rsplit(".", 1)[-1].lower()
         if ext in LogoFormat._value2member_map_:
-            fmt = LogoFormat(ext)
-    return Logo(format=fmt)
+            fmt = ext
+
+    base_order = db.execute(
+        text("SELECT COALESCE(MAX(order_no), 0) FROM brand_logo WHERE brand_id = :b"),
+        {"b": brand_id},
+    ).scalar()
+    order_no = int(base_order or 0) + 1
+
+    key = s3.make_key(f"logos/{brand_id}", file.filename)
+    s3.upload_fileobj(file.file, key, content_type=file.content_type)
+
+    row = db.execute(
+        text(
+            "INSERT INTO brand_logo (brand_id, logo_key, format, order_no) "
+            "VALUES (:b, :k, :f, :o) RETURNING id"
+        ),
+        {"b": brand_id, "k": key, "f": fmt, "o": order_no},
+    ).mappings().one()
+    db.commit()
+    return {"id": row["id"], "format": fmt, "orderNo": order_no, "logoUrl": s3.presigned_get(key)}
 
 
-@router.get("/brands/{brand_id}/logos", response_model=list[Logo], summary="API-BRD-06 브랜드 로고 목록 (mock·S3 예정)")
-def list_logos(brand_id: int):
-    return [Logo(id="logo-001", orderNo=1), Logo(id="logo-002", format=LogoFormat.svg, orderNo=2)]
+@router.get("/brands/{brand_id}/logos", summary="API-BRD-06 브랜드 로고 목록 (S3+DB)")
+def list_logos(brand_id: int, db: Session = Depends(get_db)):
+    rows = db.execute(
+        text("SELECT id, logo_key, format, order_no FROM brand_logo WHERE brand_id = :b ORDER BY order_no"),
+        {"b": brand_id},
+    ).mappings().all()
+    return [
+        {"id": r["id"], "format": r["format"], "orderNo": r["order_no"], "logoUrl": s3.presigned_get(r["logo_key"])}
+        for r in rows
+    ]
 
 
-@router.delete("/brands/{brand_id}/logos/{logo_id}", status_code=204, summary="API-BRD-07 브랜드 로고 삭제 (mock·S3 예정)")
-def delete_logo(brand_id: int, logo_id: str):
+@router.delete("/brands/{brand_id}/logos/{logo_id}", status_code=204, summary="API-BRD-07 브랜드 로고 삭제 (S3+DB)")
+def delete_logo(brand_id: int, logo_id: int, db: Session = Depends(get_db)):
+    r = db.execute(
+        text("SELECT logo_key FROM brand_logo WHERE id = :id AND brand_id = :b"),
+        {"id": logo_id, "b": brand_id},
+    ).mappings().first()
+    if not r:
+        raise HTTPException(status_code=404, detail="logo not found")
+    db.execute(text("DELETE FROM brand_logo WHERE id = :id"), {"id": logo_id})
+    db.commit()
+    s3.delete_object(r["logo_key"])
     return None

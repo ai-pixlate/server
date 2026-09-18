@@ -14,7 +14,7 @@ config = context.config
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg://pixate:pixate_dev_pw@pixate-db:5432/pixate",
+    "postgresql+psycopg://pixlate:pixlate_dev_pw@pixlate-db:5432/pixlate",
 )
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 

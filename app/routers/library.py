@@ -4,14 +4,13 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.security import get_current_seller
 
 router = APIRouter(tags=["Library"])
 
-MOCK_SELLER_ID = 1
-
 
 @router.get("/library", summary="API-LIB-01 보관함 카드 목록 (DB)")
-def library(db: Session = Depends(get_db)):
+def library(db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     rows = db.execute(
         text(
             "SELECT j.id, j.product_name, b.name_en AS brand_name, j.target_country, "
@@ -20,7 +19,7 @@ def library(db: Session = Depends(get_db)):
             "WHERE j.seller_id = :s AND j.is_saved = true "
             "ORDER BY j.saved_at DESC NULLS LAST, j.id DESC"
         ),
-        {"s": MOCK_SELLER_ID},
+        {"s": seller_id},
     ).mappings().all()
     return [
         {

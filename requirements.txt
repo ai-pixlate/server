@@ -7,3 +7,5 @@ alembic
 celery[redis]
 boto3
 pillow
+pytest
+httpx

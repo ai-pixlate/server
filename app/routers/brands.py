@@ -1,7 +1,7 @@
 """BRD — 브랜드/로고 (API-BRD-01~07, 🟢9월).
 
-BRD-01~04(브랜드 CRUD)는 실제 DB(brand 테이블). BRD-05~07(로고)은 S3가 필요해
-아직 mock. 인증(Cognito) 도입 전이라 seller_id는 임시 상수(MOCK_SELLER_ID)를 쓴다.
+BRD-01~04(브랜드 CRUD)·BRD-05~07(로고 S3)은 실제 DB/S3. seller_id는 Bearer
+토큰에서 추출(get_current_seller)하며, 브랜드는 셀러 소유 범위로 제한한다.
 """
 from typing import Optional
 
@@ -13,12 +13,20 @@ from sqlalchemy.orm import Session
 from app import s3
 from app.db import get_db
 from app.schemas import LogoFormat
+from app.security import get_current_seller
 
 router = APIRouter(tags=["Brands"])
 
-MOCK_SELLER_ID = 1  # 인증 도입 전 임시 셀러 (Cognito 연동 시 토큰에서 추출)
-
 _BRAND_COLS = "id, name_ko, name_en, brand_overview, core_audience, created_at, updated_at"
+
+
+def _require_brand_owned(db: Session, brand_id: int, seller_id: int) -> None:
+    owned = db.execute(
+        text("SELECT 1 FROM brand WHERE id = :b AND seller_id = :s"),
+        {"b": brand_id, "s": seller_id},
+    ).first()
+    if not owned:
+        raise HTTPException(status_code=404, detail="brand not found")
 
 
 def _to_brand(r) -> dict:
@@ -49,16 +57,16 @@ class BrandUpdate(BaseModel):
 
 # ── BRD-01~04: 실제 DB ────────────────────────────────────────────
 @router.get("/brands", summary="API-BRD-01 브랜드 목록 조회 (DB)")
-def list_brands(db: Session = Depends(get_db)):
+def list_brands(db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     rows = db.execute(
         text(f"SELECT {_BRAND_COLS} FROM brand WHERE seller_id = :s ORDER BY id"),
-        {"s": MOCK_SELLER_ID},
+        {"s": seller_id},
     ).mappings().all()
     return [_to_brand(r) for r in rows]
 
 
 @router.post("/brands", status_code=201, summary="API-BRD-02 브랜드 등록 (DB)")
-def create_brand(body: BrandCreate, db: Session = Depends(get_db)):
+def create_brand(body: BrandCreate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     if not body.nameEn.strip():
         raise HTTPException(status_code=400, detail="nameEn is required")
     r = db.execute(
@@ -67,7 +75,7 @@ def create_brand(body: BrandCreate, db: Session = Depends(get_db)):
             "VALUES (:s, :ko, :en, :ov, :tc) "
             f"RETURNING {_BRAND_COLS}"
         ),
-        {"s": MOCK_SELLER_ID, "ko": body.nameKo, "en": body.nameEn,
+        {"s": seller_id, "ko": body.nameKo, "en": body.nameEn,
          "ov": body.overview, "tc": body.targetCustomer},
     ).mappings().one()
     db.commit()
@@ -75,10 +83,10 @@ def create_brand(body: BrandCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/brands/{brand_id}", summary="API-BRD-03 브랜드 상세 조회 (DB)")
-def get_brand(brand_id: int, db: Session = Depends(get_db)):
+def get_brand(brand_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     r = db.execute(
         text(f"SELECT {_BRAND_COLS} FROM brand WHERE id = :id AND seller_id = :s"),
-        {"id": brand_id, "s": MOCK_SELLER_ID},
+        {"id": brand_id, "s": seller_id},
     ).mappings().first()
     if not r:
         raise HTTPException(status_code=404, detail="brand not found")
@@ -86,7 +94,7 @@ def get_brand(brand_id: int, db: Session = Depends(get_db)):
 
 
 @router.patch("/brands/{brand_id}", summary="API-BRD-04 브랜드 정보 수정 (DB)")
-def update_brand(brand_id: int, body: BrandUpdate, db: Session = Depends(get_db)):
+def update_brand(brand_id: int, body: BrandUpdate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     # nameEn 을 빈값/null 로 바꾸는 요청은 차단 (규격 F-BRD-07)
     if body.nameEn is not None and not body.nameEn.strip():
         raise HTTPException(status_code=400, detail="nameEn must not be empty")
@@ -102,10 +110,10 @@ def update_brand(brand_id: int, body: BrandUpdate, db: Session = Depends(get_db)
         fields["core_audience"] = body.targetCustomer
 
     if not fields:  # 바꿀 게 없으면 현재 값 반환
-        return get_brand(brand_id, db)
+        return get_brand(brand_id, db, seller_id)
 
     set_clause = ", ".join(f"{k} = :{k}" for k in fields)
-    params = {**fields, "id": brand_id, "s": MOCK_SELLER_ID}
+    params = {**fields, "id": brand_id, "s": seller_id}
     r = db.execute(
         text(
             f"UPDATE brand SET {set_clause}, updated_at = now() "
@@ -121,7 +129,8 @@ def update_brand(brand_id: int, body: BrandUpdate, db: Session = Depends(get_db)
 
 # ── BRD-05~07: 로고 (실제 S3 + DB) ────────────────────────────────
 @router.post("/brands/{brand_id}/logos", status_code=201, summary="API-BRD-05 브랜드 로고 추가 (S3+DB)")
-def add_logo(brand_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+def add_logo(brand_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_brand_owned(db, brand_id, seller_id)
     fmt = "png"
     if file.filename and "." in file.filename:
         ext = file.filename.rsplit(".", 1)[-1].lower()
@@ -149,7 +158,8 @@ def add_logo(brand_id: int, file: UploadFile = File(...), db: Session = Depends(
 
 
 @router.get("/brands/{brand_id}/logos", summary="API-BRD-06 브랜드 로고 목록 (S3+DB)")
-def list_logos(brand_id: int, db: Session = Depends(get_db)):
+def list_logos(brand_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_brand_owned(db, brand_id, seller_id)
     rows = db.execute(
         text("SELECT id, logo_key, format, order_no FROM brand_logo WHERE brand_id = :b ORDER BY order_no"),
         {"b": brand_id},
@@ -161,7 +171,8 @@ def list_logos(brand_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/brands/{brand_id}/logos/{logo_id}", status_code=204, summary="API-BRD-07 브랜드 로고 삭제 (S3+DB)")
-def delete_logo(brand_id: int, logo_id: int, db: Session = Depends(get_db)):
+def delete_logo(brand_id: int, logo_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_brand_owned(db, brand_id, seller_id)
     r = db.execute(
         text("SELECT logo_key FROM brand_logo WHERE id = :id AND brand_id = :b"),
         {"id": logo_id, "b": brand_id},

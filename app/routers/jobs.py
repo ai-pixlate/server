@@ -1,8 +1,6 @@
 """JOB — 작업 (API-JOB-02~07, 🟢9월) + ANL-01 분석 시작.
 
-JOB-02(생성)·JOB-03(조회)·JOB-04(취소)는 실제 DB(job·job_keyword).
-JOB-05/06/07·ANL-01 은 워커/오케스트레이터(Celery+Redis)가 필요해 아직 mock.
-인증 도입 전이라 seller_id는 임시 상수(MOCK_SELLER_ID).
+JOB-02~07·ANL-01 실제 DB/Celery. seller_id는 Bearer 토큰에서 추출(get_current_seller).
 """
 from typing import Optional
 
@@ -12,10 +10,9 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.security import get_current_seller
 
 router = APIRouter(tags=["Jobs"])
-
-MOCK_SELLER_ID = 1  # 인증(Cognito) 도입 전 임시 셀러
 
 
 class JobCreate(BaseModel):
@@ -34,7 +31,7 @@ class JobCreate(BaseModel):
 
 # ── JOB-02·03·04: 실제 DB ─────────────────────────────────────────
 @router.post("/jobs", status_code=201, summary="API-JOB-02 작업 생성(draft) = N1 완료 (DB)")
-def create_job(body: JobCreate, db: Session = Depends(get_db)):
+def create_job(body: JobCreate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     if not body.productName.strip():
         raise HTTPException(status_code=400, detail="productName is required")
 
@@ -48,7 +45,7 @@ def create_job(body: JobCreate, db: Session = Depends(get_db)):
             "RETURNING id, status, current_step, user_facing_status, product_name, product_code"
         ),
         {
-            "s": MOCK_SELLER_ID, "brand": body.brandId, "pname": body.productName,
+            "s": seller_id, "brand": body.brandId, "pname": body.productName,
             "pcode": body.productCode, "country": body.targetCountry,
             "regclass": body.regulatoryClass, "lang": body.targetLanguage,
             "spec": body.specType, "chspec": body.channelSpecId, "cat": body.categoryId,
@@ -74,7 +71,7 @@ def create_job(body: JobCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/jobs/{job_id}", summary="API-JOB-03 작업 조회(상태+N1 입력값) (DB)")
-def get_job(job_id: int, db: Session = Depends(get_db)):
+def get_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     r = db.execute(
         text(
             "SELECT id, status, current_step, user_facing_status, product_name, product_code, "
@@ -83,7 +80,7 @@ def get_job(job_id: int, db: Session = Depends(get_db)):
             "created_at, updated_at "
             "FROM job WHERE id = :id AND seller_id = :s"
         ),
-        {"id": job_id, "s": MOCK_SELLER_ID},
+        {"id": job_id, "s": seller_id},
     ).mappings().first()
     if not r:
         raise HTTPException(status_code=404, detail="job not found")
@@ -119,13 +116,13 @@ def get_job(job_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/jobs/{job_id}", summary="API-JOB-04 작업 취소 (DB · archived)")
-def cancel_job(job_id: int, db: Session = Depends(get_db)):
+def cancel_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     r = db.execute(
         text(
             "UPDATE job SET status = 'archived', updated_at = now() "
             "WHERE id = :id AND seller_id = :s RETURNING id, status"
         ),
-        {"id": job_id, "s": MOCK_SELLER_ID},
+        {"id": job_id, "s": seller_id},
     ).mappings().first()
     if not r:
         raise HTTPException(status_code=404, detail="job not found")
@@ -135,10 +132,10 @@ def cancel_job(job_id: int, db: Session = Depends(get_db)):
 
 # ── ANL-01 · JOB-05: Celery 큐 / 실제 DB ──────────────────────────
 @router.post("/jobs/{job_id}/analyze", status_code=202, summary="API-ANL-01 분석 시작 (Celery 큐)")
-def analyze(job_id: int, response: Response, db: Session = Depends(get_db)):
+def analyze(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     job = db.execute(
         text("SELECT id FROM job WHERE id = :id AND seller_id = :s"),
-        {"id": job_id, "s": MOCK_SELLER_ID},
+        {"id": job_id, "s": seller_id},
     ).mappings().first()
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
@@ -150,10 +147,10 @@ def analyze(job_id: int, response: Response, db: Session = Depends(get_db)):
 
 
 @router.get("/jobs/{job_id}/tasks", summary="API-JOB-05 비동기 큐 상태 조회 (DB)")
-def get_tasks(job_id: int, db: Session = Depends(get_db)):
+def get_tasks(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     job = db.execute(
         text("SELECT status, current_step, user_facing_status FROM job WHERE id = :id AND seller_id = :s"),
-        {"id": job_id, "s": MOCK_SELLER_ID},
+        {"id": job_id, "s": seller_id},
     ).mappings().first()
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
@@ -190,7 +187,12 @@ def get_tasks(job_id: int, db: Session = Depends(get_db)):
 
 # ── JOB-06/07: 실제 DB (재시도·중단) ──────────────────────────────
 @router.post("/jobs/{job_id}/tasks/{task_id}/retry", summary="API-JOB-06 실패 작업 재시도 (DB)")
-def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db)):
+def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    if not db.execute(
+        text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": seller_id},
+    ).first():
+        raise HTTPException(status_code=404, detail="job not found")
     t = db.execute(
         text("SELECT status, retry_count, max_retry FROM job_async_task WHERE id = :t AND job_id = :j"),
         {"t": task_id, "j": job_id},
@@ -215,10 +217,10 @@ def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/jobs/{job_id}/abort", summary="API-JOB-07 처리 중단·복귀 (DB)")
-def abort_job(job_id: int, db: Session = Depends(get_db)):
+def abort_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     job = db.execute(
         text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).mappings().first()
     if not job:
         raise HTTPException(status_code=404, detail="job not found")

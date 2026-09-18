@@ -1,7 +1,7 @@
 """SEC — 섹션 (API-SEC-01~04, 🟢9월) + INP-01 인페인팅 조회.
 
 SEC-01(목록)·SEC-02(상세)·SEC-03(제외/되살리기)는 실제 DB(section·section_verdict).
-SEC-04(이대로 진행)은 번역 워커, INP-01은 S3가 필요해 아직 mock.
+SEC-04(이대로 진행)은 번역 워커(cpu 큐), INP-01은 인페인팅 워커(gpu 큐) 결과를 실제 DB에서 조회.
 """
 from typing import Literal, Optional
 
@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app import s3
 from app.db import get_db
 from app.schemas import SectionBucket
 
@@ -145,12 +146,21 @@ def proceed(job_id: int, response: Response, db: Session = Depends(get_db)):
     return {"jobId": job_id, "accepted": True, "celeryTaskId": result.id}
 
 
-@router.get("/jobs/{job_id}/sections/{section_id}/inpaint", tags=["Inpaint"], summary="API-INP-01 섹션 인페인팅 결과 조회 (mock·S3 예정)")
-def get_inpaint(job_id: int, section_id: int):
+@router.get("/jobs/{job_id}/sections/{section_id}/inpaint", tags=["Inpaint"], summary="API-INP-01 섹션 인페인팅 결과 조회 (DB+S3)")
+def get_inpaint(job_id: int, section_id: int, db: Session = Depends(get_db)):
+    r = db.execute(
+        text(
+            "SELECT inpaint_status, residual_ratio, warning_badge, inpaint_image_url "
+            "FROM section WHERE id = :sid AND job_id = :j"
+        ),
+        {"sid": section_id, "j": job_id},
+    ).mappings().first()
+    if not r:
+        raise HTTPException(status_code=404, detail="section not found")
     return {
         "sectionId": section_id,
-        "inpaintStatus": "done",
-        "residualRatio": 0.02,
-        "warningBadge": None,
-        "inpaintImageUrl": "https://example-bucket.s3.amazonaws.com/inpaint/sec.png?presigned=mock",
+        "inpaintStatus": r["inpaint_status"],
+        "residualRatio": float(r["residual_ratio"]) if r["residual_ratio"] is not None else None,
+        "warningBadge": r["warning_badge"],
+        "inpaintImageUrl": s3.presigned_get(r["inpaint_image_url"]),
     }

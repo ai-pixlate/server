@@ -41,13 +41,14 @@ def run_analyze(job_id: int) -> dict:
         time.sleep(3)
 
         # 4) 산출물(섹션) 1개 생성 (source_image 없음 → 0, FK 미적용)
-        db.execute(
+        sec = db.execute(
             text(
-                "INSERT INTO section (job_id, source_image_id, section_order, bucket) "
-                "VALUES (:j, 0, 1, 'include')"
+                "INSERT INTO section (job_id, source_image_id, section_order, bucket, inpaint_status) "
+                "VALUES (:j, 0, 1, 'include', 'pending') RETURNING id"
             ),
             {"j": job_id},
-        )
+        ).mappings().one()
+        section_id = sec["id"]
         # 5) 태스크 완료 + job → 검수대기(N3)
         db.execute(
             text("UPDATE job_async_task SET status='done', finished_at=now() WHERE id=:t"),
@@ -61,6 +62,9 @@ def run_analyze(job_id: int) -> dict:
             {"id": job_id},
         )
         db.commit()
+
+        # 6) 인페인팅(GPU 큐)으로 섹션 배경 처리 위임 — ocr 워커가 gpu 태스크를 큐잉
+        run_inpaint.delay(section_id)
         return {"jobId": job_id, "producedSections": 1}
     except Exception:
         db.rollback()
@@ -68,6 +72,67 @@ def run_analyze(job_id: int) -> dict:
             text("UPDATE job SET status='failed', updated_at=now() WHERE id=:id"),
             {"id": job_id},
         )
+        db.commit()
+        raise
+    finally:
+        db.close()
+
+
+@celery_app.task(name="app.tasks.run_inpaint")
+def run_inpaint(section_id: int) -> dict:
+    """N4 인페인팅(스텁·GPU 큐): 섹션 배경에서 원문 텍스트를 지운 이미지 생성.
+
+    실제 LaMa(GPU) 모델은 모델팀이 붙일 자리. 지금은 배선만: inpaint 태스크 행 →
+    (스텁 처리) → section.inpaint_status='done' + 결과 키/잔여율 기록.
+    """
+    db = SessionLocal()
+    task_row_id = None
+    try:
+        job_id = db.execute(
+            text("SELECT job_id FROM section WHERE id = :sid"),
+            {"sid": section_id},
+        ).scalar()
+        row = db.execute(
+            text(
+                "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status, started_at) "
+                "VALUES (:j, 'inpaint', 'section', :sid, 'running', now()) RETURNING id"
+            ),
+            {"j": job_id, "sid": section_id},
+        ).mappings().one()
+        task_row_id = row["id"]
+        db.execute(
+            text("UPDATE section SET inpaint_status='running', updated_at=now() WHERE id=:sid"),
+            {"sid": section_id},
+        )
+        db.commit()
+
+        # 실제 인페인팅(LaMa GPU) 대체(스텁)
+        time.sleep(2)
+
+        db.execute(
+            text(
+                "UPDATE section SET inpaint_status='done', residual_ratio=0.02, "
+                "inpaint_image_url=:url, warning_badge=NULL, updated_at=now() WHERE id=:sid"
+            ),
+            {"url": f"inpaint/section-{section_id}.png", "sid": section_id},
+        )
+        db.execute(
+            text("UPDATE job_async_task SET status='done', finished_at=now() WHERE id=:t"),
+            {"t": task_row_id},
+        )
+        db.commit()
+        return {"sectionId": section_id, "inpaintStatus": "done"}
+    except Exception:
+        db.rollback()
+        db.execute(
+            text("UPDATE section SET inpaint_status='failed', updated_at=now() WHERE id=:sid"),
+            {"sid": section_id},
+        )
+        if task_row_id is not None:
+            db.execute(
+                text("UPDATE job_async_task SET status='failed', finished_at=now() WHERE id=:t"),
+                {"t": task_row_id},
+            )
         db.commit()
         raise
     finally:

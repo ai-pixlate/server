@@ -9,25 +9,26 @@ from sqlalchemy.orm import Session
 
 from app import s3
 from app.db import get_db
+from app.security import get_current_seller
 
 router = APIRouter(tags=["SourceImages"])
-
-MOCK_SELLER_ID = 1
 
 
 class ReorderRequest(BaseModel):
     orderedIds: list[int] = [2, 1]
 
 
-def _job_owned(db: Session, job_id: int) -> bool:
+def _job_owned(db: Session, job_id: int, seller_id: int) -> bool:
     return db.execute(
         text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).first() is not None
 
 
 @router.get("/jobs/{job_id}/source-images", summary="API-SRC-01 원본 이미지 목록 (S3+DB)")
-def list_source_images(job_id: int, db: Session = Depends(get_db)):
+def list_source_images(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    if not _job_owned(db, job_id, seller_id):
+        raise HTTPException(status_code=404, detail="job not found")
     rows = db.execute(
         text(
             "SELECT id, upload_order, image_type, file_url, width, height "
@@ -49,8 +50,8 @@ def list_source_images(job_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/jobs/{job_id}/source-images", summary="API-SRC-02 원본 이미지 업로드(다중) (S3+DB)")
-def upload_source_images(job_id: int, files: list[UploadFile] = File(...), db: Session = Depends(get_db)):
-    if not _job_owned(db, job_id):
+def upload_source_images(job_id: int, files: list[UploadFile] = File(...), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    if not _job_owned(db, job_id, seller_id):
         raise HTTPException(status_code=404, detail="job not found")
 
     base_order = db.execute(
@@ -94,8 +95,8 @@ def upload_source_images(job_id: int, files: list[UploadFile] = File(...), db: S
 
 
 @router.patch("/jobs/{job_id}/source-images/reorder", summary="API-SRC-03 원본 순서 재정렬 (DB)")
-def reorder_source_images(job_id: int, body: ReorderRequest, db: Session = Depends(get_db)):
-    if not _job_owned(db, job_id):
+def reorder_source_images(job_id: int, body: ReorderRequest, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    if not _job_owned(db, job_id, seller_id):
         raise HTTPException(status_code=404, detail="job not found")
     for i, sid in enumerate(body.orderedIds, start=1):
         db.execute(
@@ -107,7 +108,9 @@ def reorder_source_images(job_id: int, body: ReorderRequest, db: Session = Depen
 
 
 @router.delete("/jobs/{job_id}/source-images/{image_id}", status_code=204, summary="API-SRC-04 원본 이미지 삭제 (S3+DB)")
-def delete_source_image(job_id: int, image_id: int, db: Session = Depends(get_db)):
+def delete_source_image(job_id: int, image_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    if not _job_owned(db, job_id, seller_id):
+        raise HTTPException(status_code=404, detail="job not found")
     r = db.execute(
         text("SELECT file_url FROM source_image WHERE id = :id AND job_id = :j"),
         {"id": image_id, "j": job_id},

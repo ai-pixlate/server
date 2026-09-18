@@ -13,28 +13,31 @@ from sqlalchemy.orm import Session
 
 from app import s3
 from app.db import get_db
+from app.security import get_current_seller
 
 router = APIRouter(tags=["Finalize"])
-
-MOCK_SELLER_ID = 1
 
 
 class ExportRequest(BaseModel):
     components: list[str] = ["content.csv"]
 
 
-def _job_owned(db: Session, job_id: int) -> bool:
+def _job_owned(db: Session, job_id: int, seller_id: int) -> bool:
     return db.execute(
         text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).first() is not None
+
+
+def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
+    if not _job_owned(db, job_id, seller_id):
+        raise HTTPException(status_code=404, detail="job not found")
 
 
 # ── FIN-01·02: Celery 큐 / 실제 DB ────────────────────────────────
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
-def render(job_id: int, response: Response, db: Session = Depends(get_db)):
-    if not _job_owned(db, job_id):
-        raise HTTPException(status_code=404, detail="job not found")
+def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     from app.tasks import run_render  # 지연 임포트
     result = run_render.delay(job_id)
     response.status_code = 202
@@ -42,7 +45,8 @@ def render(job_id: int, response: Response, db: Session = Depends(get_db)):
 
 
 @router.get("/jobs/{job_id}/deliverables", summary="API-FIN-02 산출물 목록 (DB)")
-def deliverables(job_id: int, db: Session = Depends(get_db)):
+def deliverables(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
             "SELECT id, usage_type, image_url, render_status FROM deliverable "
@@ -63,7 +67,8 @@ def deliverables(job_id: int, db: Session = Depends(get_db)):
 
 # ── FIN-03·04·05·06: 실제 DB / S3 ─────────────────────────────────
 @router.get("/jobs/{job_id}/validation", summary="API-FIN-03 규격 검증 상세 (DB)")
-def validation(job_id: int, db: Session = Depends(get_db)):
+def validation(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
             "SELECT id, usage_type, validation_result FROM deliverable "
@@ -81,10 +86,8 @@ def validation(job_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/jobs/{job_id}/export", status_code=201, summary="API-FIN-04 산출물 묶음 생성(content.csv → S3)")
-def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db)):
-    if not _job_owned(db, job_id):
-        raise HTTPException(status_code=404, detail="job not found")
-
+def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     blocks = db.execute(
         text(
             "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1 "
@@ -117,7 +120,8 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/jobs/{job_id}/exports/{artifact_id}/download", summary="API-FIN-05 산출물 다운로드(presigned) (DB+S3)")
-def download(job_id: int, artifact_id: int, db: Session = Depends(get_db)):
+def download(job_id: int, artifact_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     r = db.execute(
         text(
             "SELECT file_url, artifact_type FROM export_artifact "
@@ -135,14 +139,14 @@ def download(job_id: int, artifact_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/jobs/{job_id}/save", summary="API-FIN-06 저장(보관함) (DB)")
-def save(job_id: int, db: Session = Depends(get_db)):
+def save(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     r = db.execute(
         text(
             "UPDATE job SET is_saved = true, saved_at = now(), status = 'done', "
             "user_facing_status = 'done', updated_at = now() "
             "WHERE id = :j AND seller_id = :s RETURNING id, is_saved, saved_at"
         ),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).mappings().first()
     if not r:
         raise HTTPException(status_code=404, detail="job not found")

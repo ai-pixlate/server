@@ -13,10 +13,17 @@ from sqlalchemy.orm import Session
 from app import s3
 from app.db import get_db
 from app.schemas import SectionBucket
+from app.security import get_current_seller
 
 router = APIRouter(tags=["Sections"])
 
-MOCK_SELLER_ID = 1
+
+def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
+    if not db.execute(
+        text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": seller_id},
+    ).first():
+        raise HTTPException(status_code=404, detail="job not found")
 
 
 def _to_section(r) -> dict:
@@ -36,7 +43,8 @@ class SectionAction(BaseModel):
 
 # ── SEC-01~03: 실제 DB ────────────────────────────────────────────
 @router.get("/jobs/{job_id}/sections", summary="API-SEC-01 섹션 목록(버킷·배지) (DB)")
-def list_sections(job_id: int, bucket: Optional[SectionBucket] = Query(default=None), db: Session = Depends(get_db)):
+def list_sections(job_id: int, bucket: Optional[SectionBucket] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
             "SELECT id, bucket, exclusion_reason, excluded_stage, warning_badge, section_order "
@@ -54,7 +62,8 @@ def list_sections(job_id: int, bucket: Optional[SectionBucket] = Query(default=N
 
 
 @router.get("/jobs/{job_id}/sections/{section_id}", summary="API-SEC-02 섹션 상세(판정 근거) (DB)")
-def get_section(job_id: int, section_id: int, db: Session = Depends(get_db)):
+def get_section(job_id: int, section_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     r = db.execute(
         text(
             "SELECT id, bucket, exclusion_reason, excluded_stage, warning_badge, section_order, "
@@ -85,10 +94,10 @@ def get_section(job_id: int, section_id: int, db: Session = Depends(get_db)):
 
 
 @router.patch("/jobs/{job_id}/sections/{section_id}", summary="API-SEC-03 섹션 되살리기/제외(N3·N5 공용) (DB)")
-def update_section(job_id: int, section_id: int, body: SectionAction, db: Session = Depends(get_db)):
+def update_section(job_id: int, section_id: int, body: SectionAction, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     job = db.execute(
         text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).mappings().first()
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
@@ -122,10 +131,10 @@ def update_section(job_id: int, section_id: int, body: SectionAction, db: Sessio
 
 # ── SEC-04: 번역 큐 연결 (N3→N4) ──────────────────────────────────
 @router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (Celery 번역 큐)")
-def proceed(job_id: int, response: Response, db: Session = Depends(get_db)):
+def proceed(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     job = db.execute(
         text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).mappings().first()
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
@@ -147,7 +156,8 @@ def proceed(job_id: int, response: Response, db: Session = Depends(get_db)):
 
 
 @router.get("/jobs/{job_id}/sections/{section_id}/inpaint", tags=["Inpaint"], summary="API-INP-01 섹션 인페인팅 결과 조회 (DB+S3)")
-def get_inpaint(job_id: int, section_id: int, db: Session = Depends(get_db)):
+def get_inpaint(job_id: int, section_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     r = db.execute(
         text(
             "SELECT inpaint_status, residual_ratio, warning_badge, inpaint_image_url "

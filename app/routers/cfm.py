@@ -13,22 +13,23 @@ from sqlalchemy.orm import Session
 
 from app import render, s3
 from app.db import get_db
+from app.security import get_current_seller
 
 router = APIRouter(tags=["Review"])
 
-MOCK_SELLER_ID = 1
+
+def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
+    if not db.execute(
+        text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": seller_id},
+    ).first():
+        raise HTTPException(status_code=404, detail="job not found")
 
 
 # ── CFM-01: 실제 DB ───────────────────────────────────────────────
 @router.get("/jobs/{job_id}/blocks", summary="API-CFM-01 텍스트 블록 표(대조) (DB)")
-def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db)):
-    # job 소유 확인
-    job = db.execute(
-        text("SELECT id FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
-    ).mappings().first()
-    if not job:
-        raise HTTPException(status_code=404, detail="job not found")
+def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
 
     sql = (
         "SELECT tb.id, tb.section_id, tb.block_order, tb.role, "
@@ -76,7 +77,8 @@ class BlockUpdate(BaseModel):
 
 
 @router.patch("/jobs/{job_id}/blocks/{block_id}", summary="API-CFM-02 번역문 셀 수정 (DB·낙관적 잠금)")
-def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = Depends(get_db)):
+def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     cur = db.execute(
         text(
             "SELECT tb.revision FROM text_block tb JOIN section s ON s.id = tb.section_id "
@@ -109,14 +111,8 @@ def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = De
 
 
 @router.get("/jobs/{job_id}/preview", summary="API-CFM-03 검수 뷰어 프리뷰(다폭) (DB+S3)")
-def preview(job_id: int, db: Session = Depends(get_db)):
-    job = db.execute(
-        text("SELECT id FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
-    ).mappings().first()
-    if not job:
-        raise HTTPException(status_code=404, detail="job not found")
-
+def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
             "SELECT id, section_order, source_image_id, bucket, height, "
@@ -152,14 +148,8 @@ def preview(job_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/jobs/{job_id}/confirm", summary="API-CFM-04 검수 확정(N5→N6) (DB)")
-def confirm(job_id: int, db: Session = Depends(get_db)):
-    job = db.execute(
-        text("SELECT id FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": MOCK_SELLER_ID},
-    ).mappings().first()
-    if not job:
-        raise HTTPException(status_code=404, detail="job not found")
-
+def confirm(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
     counts = db.execute(
         text(
             "SELECT count(*) FILTER (WHERE bucket='include') AS inc, count(*) AS total "
@@ -175,7 +165,7 @@ def confirm(job_id: int, db: Session = Depends(get_db)):
             "UPDATE job SET status='review', current_step='N6', user_facing_status='reviewing', "
             "updated_at=now() WHERE id=:j AND seller_id=:s RETURNING id, status, current_step"
         ),
-        {"j": job_id, "s": MOCK_SELLER_ID},
+        {"j": job_id, "s": seller_id},
     ).mappings().first()
     db.commit()
     return {"jobId": r["id"], "status": r["status"], "currentStep": r["current_step"]}

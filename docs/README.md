@@ -22,15 +22,62 @@ python -m http.server 8080 --directory docs
 브라우저에서 **http://localhost:8080/** (또는 `/index.html`) 접속 → Swagger UI 렌더.
 Swagger UI 자산은 `swagger-ui-dist@5.17.14` CDN(jsDelivr)에서 로드합니다(인터넷 필요).
 
-### GitHub Pages 배포
-이 브랜치(`feature/api-tracking`)의 `docs/`를 Pages 소스로 두면 배포됩니다.
-- Settings → Environments → `github-pages` → Deployment branches 에 `feature/api-tracking` 허용
-- Actions → Deploy API Docs → Run workflow → Branch `feature/api-tracking`
-- 배포 주소: https://ai-pixlate.github.io/server/
+---
+
+## 2. 문서 작업 흐름
+
+API 명세(`docs/openapi.yaml`)는 서버 코드와 분리해 **`feature/api-tracking` 브랜치**에서 관리합니다.
+여기에 머지되면 문서 사이트(https://ai-pixlate.github.io/server/)가 자동으로 갱신됩니다.
+
+| 브랜치 | 역할 |
+| --- | --- |
+| `feature/api-tracking` | **API 문서 전용 브랜치.** 머지되면 문서 사이트가 자동 배포됩니다. |
+| `docs/*` | 문서 작업 브랜치. `feature/api-tracking` 으로 PR 을 올립니다. |
+
+```bash
+git switch feature/api-tracking
+git pull
+git switch -c docs/add-xxx-endpoint
+
+# docs/openapi.yaml 수정 후
+git add docs/openapi.yaml
+git commit -m "docs(api): XXX 엔드포인트 추가"
+git push -u origin docs/add-xxx-endpoint
+```
+
+이후 GitHub 에서 `feature/api-tracking` 대상으로 PR 을 올리면 자동 검증이 돌고,
+어떤 엔드포인트가 추가/삭제됐는지 PR 코멘트로 요약됩니다.
+
+### 자동화 (GitHub Actions)
+
+| 워크플로 | 트리거 | 하는 일 |
+| --- | --- | --- |
+| [`api-docs-validate.yml`](../.github/workflows/api-docs-validate.yml) | `feature/api-tracking` 대상 PR / push | YAML 파싱 · Redocly lint · 추적 필드(`x-feature-id`, `x-release`) 점검 · PR 에 변경 엔드포인트 요약 코멘트 |
+| [`deploy-api-docs.yml`](../.github/workflows/deploy-api-docs.yml) | `feature/api-tracking` push (`docs/**`) | Swagger UI 를 GitHub Pages 로 배포 |
+
+수동 배포가 필요하면 Actions → Deploy API Docs → Run workflow → Branch `feature/api-tracking` 으로 실행합니다.
+
+### 최초 1회 설정 (관리자)
+
+1. **Settings → Pages → Source** 를 `GitHub Actions` 로 지정
+2. **Settings → Environments → github-pages → Deployment branches** 에 `feature/api-tracking` 추가
+3. (권장) **Settings → Branches → Add rule** 로 `develop` 보호 — PR 필수 + `OpenAPI 검증` 체크 통과 필수
+
+### 추적 규약
+
+각 오퍼레이션에 아래 확장 필드를 붙여 릴리스와 근거를 추적합니다.
+
+- `x-feature-id` — 요구사항정의서 기능ID (예: `F-SRC-10`)
+- `x-release` — `9월` / `9월 should` / `12월` / `이후`
+- `x-priority` — `P0`~`P3`
+- `x-mvp` — MVP 포함 여부
+- `x-stub` — 향후 활성 예정(미구현) 스텁 여부
+
+`x-feature-id` 또는 `x-release` 가 빠지면 PR 검증에서 경고가 표시됩니다.
 
 ---
 
-## 2. 스펙 개요
+## 3. 스펙 개요
 
 - **OpenAPI**: 3.1.0 · 단일 파일 `openapi.yaml`
 - **Base-path**: 경로는 접두어 없는 상대경로. 호스트·버전은 `servers`에서만: `https://api.pixate.example.com/v1`
@@ -53,7 +100,7 @@ Swagger UI 자산은 `swagger-ui-dist@5.17.14` CDN(jsDelivr)에서 로드합니�
 
 ---
 
-## 3. 오퍼레이션 개수 대조 (인벤토리 ↔ 스펙)
+## 4. 오퍼레이션 개수 대조 (인벤토리 ↔ 스펙)
 
 인벤토리 표기 = **59 오퍼레이션**(v3.4.0 57 + BRD-05 재설계 +2) · 🟢9월 46 · 🟡should 1 · 🔵12월 12 · 📌조건부 1(resume · **개수 미합산**).
 
@@ -81,7 +128,7 @@ Swagger UI 자산은 `swagger-ui-dist@5.17.14` CDN(jsDelivr)에서 로드합니�
 
 ---
 
-## 4. 검증 결과 (redocly lint)
+## 5. 검증 결과 (redocly lint)
 
 ```
 Woohoo! Your API description is valid. 🎉  — 0 errors
@@ -101,7 +148,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 
 ---
 
-## 5. 미확정(TODO) 요약
+## 6. 미확정(TODO) 요약
 스펙 내 `TODO` 주석으로 표시된 미확정 항목:
 - **Error code 전체 15종** — 근거(회신문 종합 1-C-5) 확정 시 `Error.code`를 enum으로 고정.
 - **🔵12월 스텁**: AUTH-06 · JOB-01 · INP-02 · LIB-02 · LIB-03 · ADM-01~07 — 상세 Request/Response 12월 확정.

@@ -3,3 +3,9 @@ uvicorn[standard]
 python-multipart
 sqlalchemy
 psycopg[binary]
+alembic
+celery[redis]
+boto3
+pillow
+pytest
+httpx

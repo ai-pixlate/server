@@ -79,7 +79,7 @@ def export(job_id: str, body: ExportRequest):
 def download(job_id: str, artifact_id: str):
     return {
         "url": f"https://example-bucket.s3.amazonaws.com/export/{artifact_id}.zip?presigned=mock",
-        "fileName": "pixate_export.zip",
+        "fileName": "pixlate_export.zip",
         "expiresAt": "2026-09-16T00:05:00Z",
     }
 

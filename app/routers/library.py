@@ -10,7 +10,7 @@ def library():
         {
             "jobId": "job-001",
             "productName": "수분 크림 50ml",
-            "brandName": "Pixate",
+            "brandName": "Pixlate",
             "targetCountry": "US",
             "targetLanguage": "en",
             "specType": "original",

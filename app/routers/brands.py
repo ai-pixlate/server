@@ -35,7 +35,7 @@ def _to_brand(r) -> dict:
 
 class BrandCreate(BaseModel):
     nameKo: str = Field(examples=["픽스에이트"])
-    nameEn: str = Field(examples=["Pixate"])  # 필수 (누락 시 422)
+    nameEn: str = Field(examples=["Pixlate"])  # 필수 (누락 시 422)
     overview: Optional[str] = None
     targetCustomer: Optional[str] = None
 

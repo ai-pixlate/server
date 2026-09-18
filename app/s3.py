@@ -1,7 +1,7 @@
 """S3 유틸 (boto3).
 
 인증은 EC2 인스턴스 IAM 역할이 자동 제공(액세스 키 미사용). 버킷·리전은
-환경변수로 주입하며 기본값은 pixate-storage-2026 / ap-northeast-2.
+환경변수로 주입하며 기본값은 pixlate-storage-2026 / ap-northeast-2.
 DB에는 S3 오브젝트 키만 저장하고, 조회 시 presigned URL을 발급한다.
 """
 import os
@@ -10,7 +10,7 @@ import uuid
 import boto3
 from botocore.config import Config
 
-S3_BUCKET = os.getenv("S3_BUCKET", "pixate-storage-2026")
+S3_BUCKET = os.getenv("S3_BUCKET", "pixlate-storage-2026")
 S3_REGION = os.getenv("AWS_REGION", "ap-northeast-2")
 PRESIGN_TTL = int(os.getenv("S3_PRESIGN_TTL", "300"))  # 5분
 

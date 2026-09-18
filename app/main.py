@@ -1,14 +1,16 @@
-"""Pixlate API — FastAPI mock 서버.
+"""Pixlate API — FastAPI 서버.
 
-규격서(pixlate_db_docs v3.4.2)의 🟢9월 MVP 46개 오퍼레이션을 mock 응답으로 구현.
+규격서(pixlate_db_docs v3.4.2)의 🟢9월 MVP 오퍼레이션을 실제 DB/S3/Celery로 구현.
 Swagger UI: /docs · ReDoc: /redoc · OpenAPI JSON: /openapi.json
 경로 접두어는 servers(/v1)에만 붙인다(규격서 03_API_Inventory).
+에러 응답은 전부 {"error": {"code", "message"}} 형식으로 표준화(app.errors).
 """
 import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.errors import install_error_handlers
 from app.routers import (
     auth,
     brands,
@@ -37,15 +39,17 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="Pixlate API (mock)",
-    version="3.4.2-mock",
+    title="Pixlate API",
+    version="3.4.2",
     description=(
-        "AI 상세페이지 로컬라이제이션 서비스 Pixlate의 백엔드 API — **mock 서버**.\n\n"
-        "규격서 v3.4.2의 🟢9월 MVP 46개 엔드포인트를 예시 응답으로 제공한다. "
-        "FE 연동 배선 테스트용이며 실제 DB·비즈니스 로직은 없다."
+        "AI 상세페이지 로컬라이제이션 서비스 Pixlate의 백엔드 API.\n\n"
+        "규격서 v3.4.2의 🟢9월 MVP 엔드포인트를 실제 DB(PostgreSQL)·S3·Celery로 구현. "
+        "인증은 Bearer JWT(간이). 에러는 `{\"error\": {\"code\", \"message\"}}` 형식."
     ),
     openapi_tags=tags_metadata,
 )
+
+install_error_handlers(app)
 
 # CORS — FE(다른 오리진)에서 호출 허용.
 # 환경변수 FRONTEND_ORIGINS(콤마 구분)로 제한 가능. 기본은 전체 허용(테스트용).

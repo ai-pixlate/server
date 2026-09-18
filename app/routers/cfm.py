@@ -11,7 +11,6 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.schemas import BlockStatus
 
 router = APIRouter(tags=["Review"])
 
@@ -68,21 +67,46 @@ def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db:
     ]
 
 
-# ── CFM-02·03·04: 재렌더 큐/S3/전이 → 아직 mock ────────────────────
+# ── CFM-02: 셀 수정 (DB · 낙관적 잠금) ────────────────────────────
 class BlockUpdate(BaseModel):
     trans1: str = "Helps care for the look of wrinkles"
-    revision: int = 1
+    revision: int = 0  # 낙관적 잠금: 현재 블록 revision과 일치해야 함
 
 
-@router.patch("/jobs/{job_id}/blocks/{block_id}", summary="API-CFM-02 번역문 셀 수정 (mock·재렌더 큐 예정)")
-def update_block(job_id: int, block_id: int, body: BlockUpdate):
+@router.patch("/jobs/{job_id}/blocks/{block_id}", summary="API-CFM-02 번역문 셀 수정 (DB·낙관적 잠금)")
+def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = Depends(get_db)):
+    cur = db.execute(
+        text(
+            "SELECT tb.revision FROM text_block tb JOIN section s ON s.id = tb.section_id "
+            "WHERE tb.id = :b AND s.job_id = :j"
+        ),
+        {"b": block_id, "j": job_id},
+    ).mappings().first()
+    if not cur:
+        raise HTTPException(status_code=404, detail="block not found")
+    if cur["revision"] != body.revision:
+        # 낙관적 잠금 충돌 — 최신 revision을 details로 반환
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "REVISION_CONFLICT", "current": cur["revision"]},
+        )
+
+    r = db.execute(
+        text(
+            "UPDATE text_block SET trans_1 = :t, block_status = 'edited', "
+            "char_count = char_length(:t), revision = revision + 1, updated_at = now() "
+            "WHERE id = :b RETURNING id, trans_1, block_status, revision"
+        ),
+        {"t": body.trans1, "b": block_id},
+    ).mappings().one()
+    db.commit()
     return {
-        "block": {"id": block_id, "trans1": body.trans1, "blockStatus": BlockStatus.edited, "revision": body.revision + 1},
-        "rerenderTaskId": "task-rerender-001",
+        "block": {"id": r["id"], "trans1": r["trans_1"], "blockStatus": r["block_status"], "revision": r["revision"]},
+        "rerenderTaskId": None,  # 재렌더 큐 연결은 렌더 엔진 단계에서
     }
 
 
-@router.get("/jobs/{job_id}/preview", summary="API-CFM-03 검수 뷰어 프리뷰(다폭) (mock·S3 예정)")
+@router.get("/jobs/{job_id}/preview", summary="API-CFM-03 검수 뷰어 프리뷰(다폭) (mock·렌더 엔진 예정)")
 def preview(job_id: int):
     return {
         "previewWidth": 500, "maxOriginalWidth": 1000, "scale": 0.5, "previewHeight": 1500, "align": "left",

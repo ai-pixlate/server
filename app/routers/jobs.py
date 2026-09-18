@@ -12,7 +12,6 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.schemas import TaskStatus
 
 router = APIRouter(tags=["Jobs"])
 
@@ -189,12 +188,61 @@ def get_tasks(job_id: int, db: Session = Depends(get_db)):
     }
 
 
-# ── JOB-06/07: 아직 mock (재시도·중단 정책은 워커 로직과 함께 추후) ──────
-@router.post("/jobs/{job_id}/tasks/{task_id}/retry", summary="API-JOB-06 실패 작업 재시도 (mock)")
-def retry_task(job_id: int, task_id: str):
-    return {"taskId": task_id, "status": TaskStatus.pending, "retryCount": 1, "uiStatus": "retrying"}
+# ── JOB-06/07: 실제 DB (재시도·중단) ──────────────────────────────
+@router.post("/jobs/{job_id}/tasks/{task_id}/retry", summary="API-JOB-06 실패 작업 재시도 (DB)")
+def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db)):
+    t = db.execute(
+        text("SELECT status, retry_count, max_retry FROM job_async_task WHERE id = :t AND job_id = :j"),
+        {"t": task_id, "j": job_id},
+    ).mappings().first()
+    if not t:
+        raise HTTPException(status_code=404, detail="task not found")
+    if t["status"] != "failed":
+        raise HTTPException(status_code=409, detail="RETRY_NOT_ALLOWED")  # 실패 상태만 재시도
+    if t["retry_count"] >= t["max_retry"]:
+        raise HTTPException(status_code=409, detail="RETRY_LIMIT_EXCEEDED")
+
+    r = db.execute(
+        text(
+            "UPDATE job_async_task SET status='pending', retry_count = retry_count + 1, "
+            "started_at = NULL, finished_at = NULL, error_code = NULL, error_message = NULL "
+            "WHERE id = :t RETURNING id, status, retry_count"
+        ),
+        {"t": task_id},
+    ).mappings().one()
+    db.commit()
+    return {"taskId": r["id"], "status": r["status"], "retryCount": r["retry_count"], "uiStatus": "retrying"}
 
 
-@router.post("/jobs/{job_id}/abort", summary="API-JOB-07 처리 중단·복귀 (mock)")
-def abort_job(job_id: int):
-    return {"returnTo": "N1", "jobId": job_id}
+@router.post("/jobs/{job_id}/abort", summary="API-JOB-07 처리 중단·복귀 (DB)")
+def abort_job(job_id: int, db: Session = Depends(get_db)):
+    job = db.execute(
+        text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
+        {"j": job_id, "s": MOCK_SELLER_ID},
+    ).mappings().first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+
+    # 진행 중 태스크 취소(cancelled ≠ failed)
+    db.execute(
+        text("UPDATE job_async_task SET status='cancelled', finished_at=now() "
+             "WHERE job_id = :j AND status IN ('pending', 'running')"),
+        {"j": job_id},
+    )
+    # 단계별 복귀: N2 중단 → draft/N1, N4 중단 → review/N3, 그 외 유지
+    step = job["current_step"]
+    if step == "N2":
+        return_to, status, ufs = "N1", "draft", "draft"
+    elif step == "N4":
+        return_to, status, ufs = "N3", "review", "section_review"
+    else:
+        return_to, status, ufs = step, None, None
+
+    if status:
+        db.execute(
+            text("UPDATE job SET status=:st, current_step=:cs, user_facing_status=:ufs, updated_at=now() "
+                 "WHERE id=:j"),
+            {"st": status, "cs": return_to, "ufs": ufs, "j": job_id},
+        )
+    db.commit()
+    return {"returnTo": return_to, "jobId": job_id}

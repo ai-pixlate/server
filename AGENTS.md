@@ -9,6 +9,10 @@ API 트래킹 문서(OpenAPI 명세·Swagger 사이트)는 `feature/api-tracking
 
 - 모든 응답과 설명은 한국어로 작성한다.
 
+## AI 파이프라인
+
+- AI 파이프라인(docs/ai) 관련 작업은 시작 전에 `docs/ai/README.md`를 읽고 그 규칙을 따른다.
+
 ## Git Remote
 
 - `origin`: https://github.com/ai-pixlate/server.git — 팀 공식 repository. pull/push/PR 기준.

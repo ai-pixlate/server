@@ -4,7 +4,7 @@
 > 범위: MVP — 원본 규격 유지 · 미국 · 영어. 12월 범위(규격 변경 경로·썸네일·정밀 누끼)는 이 문서에 없다.
 > 우선순위: 서비스 흐름은 이 문서 → 산출 값·함수 경계는 `contract.md` → 컬럼 타입·제약은 BE 정본 ERD.
 > 표기: `확정` 그대로 구현 / `미정` `open-questions.md` 참조 / `BE 확인 필요` BE와 합의 후 구현.
-> 파라미터 값의 정본은 별도 config 파일로 두고, 이 문서의 값은 기본값 기록이다. 실험 중 값 변경은 문서에 반영하지 않는다. **config 파일 경로·프롬프트 디렉터리는 세 정본에 없는 레포 구조 결정이며 미정**이다 — 본문의 `{{PROMPTS_DIR}}`와 3절의 키 이름은 제안값.
+> 파라미터 값의 정본은 `pipeline/config/default.toml`이고, 이 문서의 값은 기본값 기록이다. 실험 중 값 변경은 문서에 반영하지 않는다. config 파일 경로·프롬프트 디렉터리(`pipeline/prompts/`)는 세 정본에 없는 레포 구조 결정이며 `dev.md` 2절이 소유한다.
 
 ---
 
@@ -51,9 +51,9 @@
 
 ## 3. 실행 파라미터 기본값
 
-값의 정본은 코드가 아닌 별도 config 파일이다(방향 확정). **파일 경로와 키 이름은 미정** — 아래 키는 제안값이며 구현 시 확정한다. 확정 후 값을 바꾸면 이 표와 config를 함께 갱신한다.
+값의 정본은 코드가 아닌 `pipeline/config/default.toml`이다 [`dev.md` 2절]. 아래 키는 그 파일의 `표.키`와 같다(`ocr.tile_px` ↔ `[ocr] tile_px`). 값을 바꾸면 이 표와 config를 함께 갱신한다. 표에 `미정`·`확인 필요`인 키는 config에도 없다.
 
-| 단계 | 키(가칭) | 기본값 | 의미 · 제약 | 출처 |
+| 단계 | 키 | 기본값 | 의미 · 제약 | 출처 |
 |---|---|---|---|---|
 | ① | `section.granularity` | `subheading` | 의미 섹션 입도 | [PoC 0장] |
 | ① | `section.vlm_model` | **확인 필요** | 긴 구간 경계 선택 모델. 정본 문서에 모델명 없음 — PoC 코드에서 확인 | [PoC 9장] |
@@ -69,7 +69,7 @@
 | ⑥ | `inpaint.score_min` / `inpaint.require_text` | `0.5` / `true` | **파라미터화 필수.** `erase_all`↔`erase_s50` 차이는 이 필터 한 줄 | [개발계획 6장] [PoC 0장] |
 | ⑥ | `inpaint.dilate_ratio` / `inpaint.dilate_retry` | `0.15` / `false` | 글자 높이 대비 팽창. 확대 재시도 금지 | [개발계획 6장] |
 | ⑦ | `style.method` / `style.em_ratio` / `style.align_tolerance` | `otsu_border` / `1.35` / `0.12` | 정렬 허용 오차는 블록 폭 비율 | [개발계획 6장] |
-| ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | `gemini-3.8-flash` / `rag` / `{{PROMPTS_DIR}}/translate.md` | 프롬프트 미정 | [개발계획 6장] |
+| ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | `gemini-3.8-flash` / `rag` / `pipeline/prompts/translate.md` | 프롬프트 미정 | [개발계획 6장] |
 | 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | — | 실행마다 `event_log.payload`에 기록 | [계약 9장] |
 
 ## 4. 순서를 바꾸면 안 되는 지점
@@ -139,4 +139,4 @@
 - ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙
 - ① 섹션 분해 VLM 모델명 — PoC 코드 확인
 - ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
-- config 파일 경로·프롬프트 디렉터리(레포 구조 결정), 출력 분할 한도 값
+- 출력 분할 한도 값

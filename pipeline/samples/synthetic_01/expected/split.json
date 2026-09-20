@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "source_image_id": 1,
+  "source_width": 600,
+  "source_height": 1000,
+  "sections": [
+    {
+      "section_key": "sec_1_01",
+      "source_image_id": 1,
+      "section_order": 1,
+      "top_offset": 0,
+      "height": 560,
+      "width": 600,
+      "image_path": "pipeline/samples/synthetic_01/expected/sections/sec_1_01.png"
+    },
+    {
+      "section_key": "sec_1_02",
+      "source_image_id": 1,
+      "section_order": 2,
+      "top_offset": 560,
+      "height": 440,
+      "width": 600,
+      "image_path": "pipeline/samples/synthetic_01/expected/sections/sec_1_02.png"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+# AI 파이프라인 실행 파라미터 기본값 — 값의 정본 (docs/ai/README.md 4.1).
+# 키 이름과 기본값은 docs/ai/pipeline.md 3절과 같아야 한다. 사용자가 "확정"이라고 말할 때만 둘을 함께 바꾼다.
+# 실험 중 값 변경은 이 파일이 아니라 실행 인자 `--set 표.키=값`으로만 한다.
+# 여기 없는 키는 미정이며 코드에서 정하지 않는다(open-questions.md).
+
+[section]                      # ① 섹션 분해
+granularity = "subheading"
+# vlm_model — open-questions #21 미정. PoC 코드에서 확인 후 추가.
+
+[ocr]                          # ② 텍스트 추출
+det_model = "PP-OCRv5_server_det"
+rec_model = "korean_PP-OCRv5_mobile_rec"
+preprocess = "none"
+split_threshold_px = 4000
+tile_px = 2000
+tile_overlap_px = 300
+
+[merge]                        # ③ 줄·문단 병합 + 역할 분류
+line_gap = 0.7
+para_gap = 0.6
+h_ratio = 1.5
+overlap = 0.5
+gutter = true                  # pipeline.md 표기 `on`
+llm_model = "gemini-3.8-flash"
+llm_temperature = 0
+llm_split = false              # 분할 금지 고정
+
+# [judge] ③-1 AI 섹션 판정 — 판정 방식 미정(open-questions #5). 기본값을 두지 않는다.
+
+[label]                        # ④ 제품 라벨 판정
+model = "gemini-3.8-flash"
+long_side_px = 1024
+bias = "label"
+
+[logo]                         # ⑤ 브랜드 로고 제외
+normalize = ["nfkc", "lower", "strip_space_punct"]
+
+[inpaint]                      # ⑥ 인페인팅
+model = "lama"
+score_min = 0.5
+require_text = true
+dilate_ratio = 0.15
+dilate_retry = false
+
+[style]                        # ⑦ 스타일 추출
+method = "otsu_border"
+em_ratio = 1.35
+align_tolerance = 0.12
+
+[translate]                    # ⑧ 로컬라이징 번역
+model = "gemini-3.8-flash"
+glossary = "rag"
+prompt_path = "pipeline/prompts/translate.md"   # 프롬프트 미정(open-questions #11)

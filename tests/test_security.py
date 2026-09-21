@@ -1,6 +1,7 @@
 """간이 인증(JWT) 단위 테스트 — DB 불필요."""
 import pytest
 from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 
 from app import security as s
 
@@ -36,7 +37,7 @@ def test_expired_token_rejected(monkeypatch):
     assert e.value.detail["code"] == "TOKEN_EXPIRED"
 
 
-def test_get_current_seller_missing_header():
+def test_get_current_seller_missing_credentials():
     with pytest.raises(HTTPException) as e:
         s.get_current_seller(None)
     assert e.value.status_code == 401
@@ -45,4 +46,5 @@ def test_get_current_seller_missing_header():
 
 def test_get_current_seller_from_bearer():
     tok = s.create_token(42, "x@y.com")
-    assert s.get_current_seller(f"Bearer {tok}") == 42
+    cred = HTTPAuthorizationCredentials(scheme="Bearer", credentials=tok)
+    assert s.get_current_seller(cred) == 42

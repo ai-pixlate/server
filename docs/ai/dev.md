@@ -28,6 +28,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   config.py                  config 로더 · --set override
   config/default.toml        실행 파라미터 정본 — 2절
   prompts/                   프롬프트 원문 (문서에는 경로만) — 2절
+  vlm.py                     VLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택. 실패 처리는 #25 미정
   stages/
     section_split.py         ① 섹션 분해
     ocr.py                   ② 텍스트 추출
@@ -54,7 +55,7 @@ docs/ai/                     정본 문서
 
 - TOML 표 이름 = `pipeline.md` 3절 키의 접두어(`[ocr]` `split_threshold_px` ↔ `ocr.split_threshold_px`). 두 곳의 키와 기본값은 항상 같아야 한다.
 - 실험 중 값 변경은 `--set 표.키=값`(반복 가능)으로만 한다. 파일과 `pipeline.md` 3절은 사용자가 "확정"이라고 말할 때만 함께 고친다.
-- 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. 현재 없는 키: `section.vlm_model`(#21) · ③-1 판정(#5).
+- 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. 현재 없는 키: ③-1 판정(#5). `[section]`의 임계값·기준값은 키는 있으나 값이 잠정이다(#26).
 - 통째로 바꾸려면 `--config PATH`(실험용 사본). 사본은 커밋하지 않는다.
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
@@ -67,7 +68,7 @@ docs/ai/                     정본 문서
 
 | 단계 | 함수 | 입력 | 출력 |
 |---|---|---|---|
-| ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일) |
+| ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
 | ② 텍스트 추출 | `stages.ocr.run(section, cfg)` | `Section` | `OcrResult` |
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg)` | `Section` + `OcrResult` | `MergeResult` |
 | 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError` |
@@ -108,7 +109,8 @@ docs/ai/                     정본 문서
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
 
-- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계.
+- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계 · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다).
+- VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
 - 출력 디렉터리 기본은 `pipeline/out/`(git 제외). 레이아웃은 5절과 같다.
 - 부분 재실행: 이전 단계 JSON을 손으로 고쳐 다음 단계에 넣을 수 있다(예: OCR 결과의 오인식을 고치고 `merge`만 다시). 파라미터 비교는 `--set`으로 같은 입력을 여러 `--out`에 돌린다.
 
@@ -135,8 +137,8 @@ pipeline/samples/<이름>/
 
 | 환경 | 설치 | 되는 것 | 안 되는 것 |
 |---|---|---|---|
-| 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 | 모델 단계 실행 |
-| 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ①③ 휴리스틱) | ⑥ |
+| 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 · ① 섹션 분해(numpy · google-genai, VLM은 API 키 필요) | 로컬 모델 단계 실행 |
+| 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ③ 휴리스틱) | ⑥ |
 | GPU 서버 | `gpu/` 이미지 + `pip install -r pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).

@@ -56,7 +56,12 @@
 | 단계 | 키 | 기본값 | 의미 · 제약 | 출처 |
 |---|---|---|---|---|
 | ① | `section.granularity` | `subheading` | 의미 섹션 입도 | [PoC 0장] |
-| ① | `section.vlm_model` | **확인 필요** | 긴 구간 경계 선택 모델. 정본 문서에 모델명 없음 — PoC 코드에서 확인 | [PoC 9장] |
+| ① | `section.vlm_model` / `section.vlm_temperature` | `gemini-3.8-flash` / `0` | 긴 구간 경계 선택 모델. 사용자 확정 2026-09-21 | [PoC 9장] [`open-questions.md` 5절 #21] |
+| ① | `section.color_window_px` / `section.color_delta` | `8` / `12` | 행 배경색(행 픽셀 중앙값)을 창으로 평활해 앞 창과 비교. RGB 거리가 `color_delta` 이상이면 전환 후보. 후보 앞뒤 `min_section_px` 폭의 중앙값 차이도 `color_delta` 이상이고, 전환 행 앞뒤 중 한 행이 균일 행이어야 확정. **값은 잠정** | [`open-questions.md` #26] |
+| ① | `section.min_section_px` | `200` | 최소 섹션 높이. 더 짧은 구간을 만드는 뒤 경계는 버리고 앞 구간에 붙인다. **잠정** | [`open-questions.md` #26] |
+| ① | `section.long_section_px` | `1500` | 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택. **잠정** | [`open-questions.md` #26] |
+| ① | `section.blank_row_std` / `section.snap_radius_px` | `6.0` / `40` | 행 색 표준편차가 `blank_row_std` 이하이면 균일 행(여백). VLM의 y는 반경 안 가장 가까운 여백 구간 중앙으로 보정, 없으면 폐기. **잠정** | [`open-questions.md` #26] |
+| ① | `section.vlm_long_side_px` / `section.prompt_path` | `1536` / `pipeline/prompts/section_boundary.md` | VLM 입력은 긴 변을 이 값으로 줄이고 왼쪽에 y 눈금 띠를 붙여 전달. 프롬프트는 초안 | [`open-questions.md` #26] |
 | ② | `ocr.det_model` / `ocr.rec_model` | `PP-OCRv5_server_det` / `korean_PP-OCRv5_mobile_rec` | 한국어 인식은 mobile만 존재 | [PoC 1장] |
 | ② | `ocr.preprocess` | `none` | 전처리 적용 안 함 | [PoC 1장] |
 | ② | `ocr.split_threshold_px` / `ocr.tile_px` / `ocr.tile_overlap_px` | `4000` / `2000` / `300` | 임시 분할 규칙. 여백 우선 | [개발계획 2.1] [계약 3.2] |
@@ -137,7 +142,7 @@
 - 정책 적용 로직의 구현 소유자 — AI 서버 / BE
 - 부적합 내용이 섹션 일부에만 있을 때 섹션 전체 제외 / 부분 처리
 - ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙
-- ① 섹션 분해 VLM 모델명 — PoC 코드 확인
+- ① 색 전환 임계값 · 최소 섹션 높이 · 긴 구간 기준 · 보정 반경의 실측 확정 — config 초기값은 잠정
 - ① VLM 호출 실패 처리 — 대체 처리 허용 여부 · 오류·경고 코드 · 실패 유형별 재시도 조건 (BE 합의)
 - ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
 - 출력 분할 한도 값

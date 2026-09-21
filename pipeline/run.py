@@ -9,6 +9,7 @@
 
 모든 하위 명령은 --config PATH(정본 대신 다른 파일)와 --set 표.키=값(값만 덮어씀)을 받는다.
 실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시를 남긴다(계약 9장의 event_log.payload에 해당).
+종료 코드: 0 성공 · 2 AnalyzeError · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
 """
 from __future__ import annotations
 
@@ -23,6 +24,7 @@ from typing import Any
 from pipeline import config as cfgmod
 from pipeline import inspect as insp
 from pipeline.errors import AnalyzeError
+from pipeline.vlm import VlmError
 from pipeline.types import MergeResult, OcrResult, Section, SourceImage, SplitResult
 
 
@@ -208,6 +210,10 @@ def main(argv: list[str] | None = None) -> int:
     except NotImplementedError as e:
         print(f"미구현: {e}", file=sys.stderr)
         return 3
+    except VlmError as e:
+        # open-questions #25 미정 — 오류 코드·재시도 정책 결정 전까지 AnalyzeError로 바꾸지 않는다.
+        print(f"VLM 실패(#25 미정): {e}", file=sys.stderr)
+        return 4
 
 
 if __name__ == "__main__":

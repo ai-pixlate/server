@@ -1,5 +1,7 @@
-# AI 파이프라인 — 로컬 기본 (타입 · CLI · 오버레이 · 테스트). 모델 없음.
+# AI 파이프라인 — 로컬 기본 (타입 · CLI · 오버레이 · 테스트 · ① 섹션 분해). 로컬 모델 없음.
 # BE 스택(FastAPI·DB·Celery)은 루트 requirements.txt. 워커에서 파이프라인을 부를 때는 둘 다 설치한다.
 pydantic>=2,<3
 pillow>=10
+numpy>=1.26          # ① 행 프로파일
+google-genai>=1      # ① 긴 구간 VLM 경계 선택 (API 키 GEMINI_API_KEY). 호출 시점에만 import
 pytest

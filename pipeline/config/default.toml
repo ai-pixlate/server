@@ -3,9 +3,18 @@
 # 실험 중 값 변경은 이 파일이 아니라 실행 인자 `--set 표.키=값`으로만 한다.
 # 여기 없는 키는 미정이며 코드에서 정하지 않는다(open-questions.md).
 
-[section]                      # ① 섹션 분해
+[section]                      # ① 섹션 분해 — color_snap_vlm2. 임계값·기준값은 open-questions #26 잠정(실측 후 확정)
 granularity = "subheading"
-# vlm_model — open-questions #21 미정. PoC 코드에서 확인 후 추가.
+color_window_px = 8            # 행 색 평활 창. 앞 창과 뒤 창의 평균색을 비교
+color_delta = 12               # 창 평균색 RGB 유클리드 거리가 이 값 이상이면 배경색 전환. 흰색↔연회색(#ecf0f5) 거리 ≈ 26
+min_section_px = 200           # 최소 섹션 높이. 더 짧은 구간을 만드는 뒤 경계는 버림
+long_section_px = 1500         # 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택
+blank_row_std = 6.0            # 행 색 표준편차가 이 값 이하이면 균일 행(여백)
+snap_radius_px = 40            # VLM 경계를 반경 안 가장 가까운 여백 구간 중앙으로 보정. 없으면 폐기
+vlm_model = "gemini-3.8-flash" # #21 확정(2026-09-21)
+vlm_temperature = 0
+vlm_long_side_px = 1536        # VLM 입력 리사이즈. 왼쪽에 y 눈금 띠를 붙여 전달
+prompt_path = "pipeline/prompts/section_boundary.md"
 
 [ocr]                          # ② 텍스트 추출
 det_model = "PP-OCRv5_server_det"

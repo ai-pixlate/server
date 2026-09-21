@@ -1,6 +1,6 @@
 # open-questions.md — 미결 · 확인 필요 · 상위 문서 수정 필요
 
-> 근거: 개발계획 v3.6 · 스키마 계약 문서 v3.5 · PoC 검증 결과 요약 2026-09-17 · `pipeline.md` `contract.md` `db-map.md`(2026-09-18) · `dev.md`(2026-09-20) · 갱신 2026-09-21(#25)
+> 근거: 개발계획 v3.6 · 스키마 계약 문서 v3.5 · PoC 검증 결과 요약 2026-09-17 · `pipeline.md` `contract.md` `db-map.md`(2026-09-18) · `dev.md`(2026-09-20) · 갱신 2026-09-21(#21 해결 · #25 · #26)
 > 성격: **목록**이다. 해결 방안·추천안은 적지 않는다. 닫힌 항목은 5절로 옮기고 해당 정본을 갱신한다.
 > 담당: 세 정본에 적힌 것만 채웠다. 적혀 있지 않으면 `미정`.
 > 상태: `미정` 결정 필요 / `BE 확인 필요` / `데이터 담당` 데이터 정의 대기. 결정 후 상위 정본에 반영해야 닫히는 항목은 상태와 별개로 3절에 등재한다.
@@ -68,7 +68,7 @@
 
 | # | 항목 | 영향 | 담당 | 상태 | 출처 |
 |---|---|---|---|---|---|
-| 21 | ① 섹션 분해 VLM 모델명 — 정본 문서에 없음, PoC 코드에서 확인 | `pipeline.md` 3절 | AI | 미정 | [`pipeline.md` 3절] |
+| 26 | ① 섹션 분해 알고리즘 파라미터 값의 실측 확정 — 색 전환 임계값(`color_delta`·`color_window_px`) · 최소 섹션 높이 · 긴 구간 기준 · 균일 행 기준 · 보정 반경 · VLM 입력 크기 · 프롬프트. 정본에 값이 없어 config 초기값은 잠정이며 `samples/local/` 표본 실측 후 확정 | `pipeline.md` 3절 · `pipeline/config/default.toml` `[section]` | AI | 미정 | [`pipeline.md` 3절] [PoC 9장] |
 | 23 | BE 정본 ERD의 경로·버전, `db-map.md` 참조 색인의 테이블·컬럼명 일치 여부 | `db-map.md` 전체 | BE | BE 확인 필요 | [`db-map.md` 3절] |
 
 ## 3. 상위 문서 수정 필요
@@ -98,4 +98,5 @@ MVP 완성 후 다룬다. 상세는 여기 두지 않는다.
 | # | 결정 | 반영 | 날짜 |
 |---|---|---|---|
 | 3절 C | 조항 번호 안정성 규칙은 개발계획이 아니라 문서 운영 규칙으로 둠 | `README.md` 4.3 | 2026-09-19 |
+| 21 | ① 섹션 분해 VLM 모델명 `gemini-3.8-flash`(사용자 확정) | `pipeline.md` 3절 · `pipeline/config/default.toml` `section.vlm_model` | 2026-09-21 |
 | 22 | AI 코드 `pipeline/`, config `pipeline/config/default.toml`(키 = `pipeline.md` 3절 키), 프롬프트 `pipeline/prompts/` | `dev.md` 1·2절 · `pipeline.md` 헤더·3절·⑧행·9절 · `README.md` 3·4·6절 | 2026-09-20 |

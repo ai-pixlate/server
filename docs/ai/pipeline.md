@@ -115,7 +115,7 @@
 - 심볼형 로고는 텍스트 대조로 못 잡음 — 미검증, MVP 이후. [PoC 0장]
 - 주의문구 미탐 위험 — 시험 조건 각주는 캡션으로, 경고 문장은 본문으로 가는 경향. 범위는 **미정**. [PoC 5장] [개발계획 4.1]
 - 가격 `role`은 표본 부족으로 사실상 미검증. [PoC 5장]
-- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장]
+- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] ① VLM 호출 실패의 처리(대체 처리 · 코드 · 재시도)는 **미정**(`open-questions.md` #25).
 
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 
@@ -138,5 +138,6 @@
 - 부적합 내용이 섹션 일부에만 있을 때 섹션 전체 제외 / 부분 처리
 - ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙
 - ① 섹션 분해 VLM 모델명 — PoC 코드 확인
+- ① VLM 호출 실패 처리 — 대체 처리 허용 여부 · 오류·경고 코드 · 실패 유형별 재시도 조건 (BE 합의)
 - ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
 - 출력 분할 한도 값

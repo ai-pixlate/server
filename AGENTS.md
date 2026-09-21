@@ -27,7 +27,7 @@ API 트래킹 문서(OpenAPI 명세·Swagger 사이트)는 `feature/api-tracking
 
 ## AI 파이프라인
 
-- AI 파이프라인(docs/ai) 관련 작업은 시작 전에 `docs/ai/README.md`를 읽고 그 규칙을 따른다. 그 외 작업에는 이 규칙을 적용하지 않는다.
+- AI 파이프라인(문서 `docs/ai`, 코드 `pipeline/`) 관련 작업은 시작 전에 `docs/ai/README.md`를 읽고 그 규칙을 따른다. 그 외 작업에는 이 규칙을 적용하지 않는다.
 
 ## Git Remote
 

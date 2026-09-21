@@ -1,0 +1,5 @@
+# AI 파이프라인 — 로컬 기본 (타입 · CLI · 오버레이 · 테스트). 모델 없음.
+# BE 스택(FastAPI·DB·Celery)은 루트 requirements.txt. 워커에서 파이프라인을 부를 때는 둘 다 설치한다.
+pydantic>=2,<3
+pillow>=10
+pytest

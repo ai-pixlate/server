@@ -14,3 +14,9 @@ venv/
 
 # Node
 node_modules/
+
+# AI 파이프라인 — 실행 출력·실제 표본·모델 캐시
+pipeline/out/
+pipeline/samples/local/
+.paddleocr/
+.cache/

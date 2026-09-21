@@ -49,8 +49,9 @@ flowchart LR
 | [`migrations/`](migrations/) | BE | Alembic 마이그레이션 (스키마의 정본) |
 | [`db/`](db/) | BE | 스키마 참고 스냅샷(`schema.sql`), 마스터 시드(`seed.sql`) |
 | [`docs/`](docs/) | BE | OpenAPI 명세, Swagger UI — [docs/README.md](docs/README.md) |
+| [`docs/ai/`](docs/ai/) | AI | AI 파이프라인 정본 문서 — [docs/ai/README.md](docs/ai/README.md) |
 | [`gpu/`](gpu/) | AI | 학교 GPU 서버(KubeSphere · V100) 컨테이너, k8s 매니페스트 — [gpu/README.md](gpu/README.md) |
-| `pipeline/` | AI | (예정) OCR · 번역 · 인페인팅 모델 코드 |
+| [`pipeline/`](pipeline/) | AI | AI 파이프라인 코드 — 단계 간 타입, 단계별 실행 CLI, 샘플. 구조·실행법은 [docs/ai/dev.md](docs/ai/dev.md), 현황은 [docs/ai/status.md](docs/ai/status.md) |
 
 ## 빠른 시작 (BE 로컬)
 
@@ -91,9 +92,15 @@ celery -A app.celery_app worker -Q gpu -n gpu@%h
 
 > S3 인증은 EC2 IAM 역할을 사용합니다. 로컬에서는 AWS 자격 증명이 따로 필요합니다. `.env`와 키는 커밋하지 않습니다.
 
-## 빠른 시작 (AI · GPU 서버)
+## 빠른 시작 (AI)
 
-GPU 컨테이너 빌드, 배포, SSH 접속 방법은 [gpu/README.md](gpu/README.md)를 참고하세요.
+```bash
+pip install -r pipeline/requirements.txt
+python -m pytest tests/test_pipeline_*.py
+python -m pipeline.run --help
+```
+
+단계별 실행·샘플·환경 구분은 [docs/ai/dev.md](docs/ai/dev.md), GPU 컨테이너 빌드·배포·SSH 접속은 [gpu/README.md](gpu/README.md)를 참고하세요.
 
 ## 현재 상태
 

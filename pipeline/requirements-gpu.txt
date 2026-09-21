@@ -1,0 +1,4 @@
+# ⑥ 인페인팅 — LaMa(iopaint). GPU 서버(gpu/) 전용. torch·torchvision은 gpu/Dockerfile 이미지에 이미 있다.
+# 아직 설치 검증 전이다. 서버에서 동작하는 버전을 확인하면 여기서 고정하고 gpu/Dockerfile에 반영한다.
+-r requirements-ocr.txt
+iopaint

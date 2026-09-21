@@ -172,3 +172,53 @@ def test_cli_split_writes_sections_and_run_record(tmp_path):
     assert (tmp_path / "sections/sec_1_02.png").exists()
     record = json.loads((tmp_path / "run.json").read_text(encoding="utf-8"))
     assert "section_boundary.md" in record["prompt_hashes"]
+
+
+# ---- 회귀 -----------------------------------------------------------------------------
+def test_snap_searches_blank_rows_within_current_color_segment_only(cfg):
+    # 흰 0-3000 · 회색 3000-5000. 텍스트 띠 100-160, 3600-3660. 원본 전체로 여백을 찾으면 [160, 3600)이
+    # 한 구간이 되어 두 번째 구간의 VLM 후보(약 3300)가 그 중앙 1880으로 옮겨진 뒤 구간 밖이라 버려졌다.
+    im = _image(5000, [(3000, 5000, GRAY)])
+    _text_rows(im, 100, h=60)
+    _text_rows(im, 3600, h=60)
+    seen: list[int] = []
+
+    def fake_vlm(image: Image.Image, prompt: str) -> list[int]:
+        seen.append(image.height)
+        return [] if len(seen) == 1 else [round(300 * 1536 / 2000)]  # 두 번째 구간(2000px) 로컬 300 → 원본 3300
+
+    assert ss.decide_boundaries(im, cfg["section"], vlm=fake_vlm) == [3000, 3300]
+    assert seen == [1536, 1536]  # 두 구간 모두 긴 구간이라 VLM 호출
+
+
+def test_gemini_client_init_failure_becomes_vlm_error(monkeypatch):
+    from pipeline.vlm import GeminiBoundaryPicker
+
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+
+    class BrokenGenai:
+        @staticmethod
+        def Client(api_key):  # noqa: N802 — SDK 이름 그대로
+            raise ValueError("Unsupported proxy scheme")
+
+    monkeypatch.setitem(__import__("sys").modules, "google.genai", BrokenGenai)
+    monkeypatch.setattr(__import__("google"), "genai", BrokenGenai, raising=False)
+    with pytest.raises(VlmError, match="VLM 호출 실패"):
+        GeminiBoundaryPicker("gemini-3.8-flash", 0)(Image.new("RGB", (10, 10)), "p")
+
+
+def test_cli_returns_4_when_vlm_client_init_fails(tmp_path, monkeypatch):
+    from pipeline import run as cli
+
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+
+    class BrokenGenai:
+        @staticmethod
+        def Client(api_key):  # noqa: N802
+            raise ValueError("Unsupported proxy scheme")
+
+    monkeypatch.setitem(__import__("sys").modules, "google.genai", BrokenGenai)
+    monkeypatch.setattr(__import__("google"), "genai", BrokenGenai, raising=False)
+    src = tmp_path / "long.png"
+    _long_image().save(src)  # 3000px 흰 배경 → 전체가 긴 구간 → VLM 호출
+    assert cli.main(["split", "--source", str(src), "--out", str(tmp_path / "out")]) == 4

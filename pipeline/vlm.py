@@ -71,8 +71,8 @@ class GeminiBoundaryPicker:
         return self._client
 
     def __call__(self, image: Image.Image, prompt: str) -> list[int]:
-        client = self._client_or_raise()
         try:
+            client = self._client_or_raise()  # 키 확인 · SDK import · Client 생성(프록시 설정 오류 등)까지 감싼다
             from google.genai import types as gtypes  # noqa: PLC0415
 
             resp = client.models.generate_content(

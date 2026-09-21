@@ -13,7 +13,8 @@
 4. 긴 구간 VLM — 색 전환만으로 자른 구간이 `long_section_px`보다 길면 그 구간 이미지를 긴 변 `vlm_long_side_px`로
    줄이고 왼쪽에 y 눈금 띠를 붙여 VLM에 준다(프롬프트 `prompt_path`). 받은 y는 원본 좌표로 되돌린다.
 5. 보정(snap) — VLM의 y를 반경 `snap_radius_px` 안에서 가장 가까운 균일 행(표준편차 ≤ `blank_row_std`, 여백)
-   구간의 중앙으로 옮긴다. 반경 안에 여백이 없으면 후보를 버린다. 색 전환 경계와 합쳐 3을 다시 적용한다.
+   구간의 중앙으로 옮긴다. 여백 구간은 **현재 색 구간 안에서만** 찾는다(색 전환 경계 양쪽 여백이 합쳐지지 않게).
+   반경 안에 여백이 없으면 후보를 버린다. 색 전환 경계와 합쳐 3을 다시 적용한다.
 
 VLM 실패는 #25 미정 — `pipeline.vlm.VlmError`를 그대로 전파하고 대체 처리를 하지 않는다.
 """
@@ -192,7 +193,6 @@ def decide_boundaries(im: Image.Image, sc: dict[str, Any], vlm: BoundaryPicker |
     fixed = color_boundaries(color, std, window, delta, min_section, blank_std)
     h = im.height
     edges = [0, *fixed, h]
-    runs = blank_runs(std, blank_std)
 
     candidates: list[int] = []
     for top, bottom in zip(edges, edges[1:]):
@@ -200,6 +200,9 @@ def decide_boundaries(im: Image.Image, sc: dict[str, Any], vlm: BoundaryPicker |
             continue
         if vlm is None:
             vlm = default_picker(sc)
+        # 여백 구간은 현재 색 구간 안에서만 찾는다. 원본 전체로 찾으면 색 전환 경계 양쪽 여백이 한 구간으로
+        # 합쳐져 그 중앙(다른 색 구간)으로 보정된 뒤 폐기된다.
+        runs = [(top + s, top + e) for s, e in blank_runs(std[top:bottom], blank_std)]
         for y in vlm_boundaries(im.crop((0, top, im.width, bottom)), sc, vlm):
             snapped = snap_to_blank(top + y, runs, radius)
             if snapped is not None and top < snapped < bottom:

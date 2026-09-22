@@ -155,6 +155,7 @@ pipeline/samples/<이름>/
 - `requirements-ocr.txt` · `-gpu.txt`는 아직 **설치 미검증**이다. 첫 설치에서 동작한 버전을 고정하고 `status.md`에 적는다.
 - LLM·VLM 호출 단계(① 경계 선택 · ③ `llm_assist` · ③-1 · ④ · ⑧)는 API 키를 환경변수 **`GEMINI_API_KEY`**로 받는다(2026-09-21, ① 착수 시 결정). 이름은 BE·배포 담당에게 전달하고, 워커에 키를 주입하는 작업은 배포 담당과 맞춘다. 키는 커밋하지 않는다.
 - Python 3.11 이상(`tomllib`). BE와 GPU 이미지는 3.12.
+- `pipeline/requirements*.txt`의 주석은 ASCII로 유지한다. 일부 pip 버전은 이 파일을 로케일 인코딩(한국어 Windows는 cp949)으로 읽어 한글 주석에서 `UnicodeDecodeError`가 난다. 그래도 문제가 나면 `PYTHONUTF8=1`을 켜고 설치한다.
 - 테스트: `python -m pytest tests/test_pipeline_*.py` (루트 `pytest`에도 포함된다).
 - 워커에서 파이프라인을 부를 때는 루트 `requirements.txt`와 `pipeline/requirements*.txt`를 함께 설치한다. 워커 이미지 구성은 BE와 합의한다.
 

@@ -103,7 +103,7 @@ docs/ai/                     정본 문서
 | 명령 | 하는 일 | 출력 |
 |---|---|---|
 | `python -m pipeline.run config [--set ...]` | 유효 config 출력 | stdout |
-| `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합 · VLM 창별 호출·보정·폐기) |
+| `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합(`empty_merged` 색 단계 · `empty_merged_after_vlm` 보정 뒤) · VLM 창별 호출·보정·폐기) |
 | `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② | `DIR/ocr/<key>.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |

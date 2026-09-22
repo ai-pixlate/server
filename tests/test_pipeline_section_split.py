@@ -281,18 +281,20 @@ def test_parse_boundaries_validates_shape():
 
 # ---- 회귀 -----------------------------------------------------------------------------
 def test_snap_searches_blank_rows_within_current_color_segment_only(cfg):
-    # 흰 0-3000 · 회색 3000-5000. 텍스트 띠 100-160, 3600-3660. 원본 전체로 여백을 찾으면 [160, 3600)이
-    # 한 구간이 되어 두 번째 구간의 VLM 후보(약 3300)가 그 중앙 1880으로 옮겨진 뒤 구간 밖이라 버려졌다.
+    # 흰 0-3000 · 회색 3000-5000. 텍스트 띠 100-160, 3050-3110, 3600-3660. 원본 전체로 여백을 찾으면 [160, 3050)이
+    # 한 구간이 되어 두 번째 구간의 VLM 후보(약 3300)가 그 중앙으로 옮겨진 뒤 구간 밖이라 버려졌다.
+    # (3050-3110 띠는 색 경계 3000과 VLM 경계 사이에 내용을 두어 보정 뒤 빈 구간 병합이 끼어들지 않게 한다)
     im = _image(5000, [(3000, 5000, GRAY)])
     _text_rows(im, 100, h=60)
+    _text_rows(im, 3050, h=60)
     _text_rows(im, 3600, h=60)
     seen: list[int] = []
 
     def fake_vlm(image: Image.Image, prompt: str) -> list[int]:
         seen.append(image.height)
-        return [] if len(seen) == 1 else [300]  # 두 번째 구간(2000px) 로컬 300 → 원본 3300
+        return [] if len(seen) == 1 else [300]  # 두 번째 구간(2000px) 로컬 300 → 원본 3300 → 여백 [3110,3600) 중앙 3355
 
-    assert ss.decide_boundaries(im, cfg["section"], vlm=fake_vlm) == [3000, 3300]
+    assert ss.decide_boundaries(im, cfg["section"], vlm=fake_vlm) == [3000, 3355]
     assert seen == [3000, 2000]  # 두 구간 모두 긴 구간이라 VLM 호출(폭 기준이라 무축소)
 
 
@@ -484,3 +486,49 @@ def test_cli_split_replays_previous_debug_record(cfg, tmp_path):
     assert json.loads((out / "split_debug.json").read_text(encoding="utf-8"))["vlm_replay"] == str(debug)
     # 설정이 다르면 종료 코드 4(VlmError 계열)
     assert cli.main(["split", "--source", src.path, "--out", str(out), "--vlm-replay", str(debug), "--set", "section.vlm_width_px=512"]) == 4
+
+
+# ---- VLM 보정 뒤 빈 구간 병합 ---------------------------------------------------------------
+def test_vlm_boundary_inside_leading_blank_is_merged(cfg):
+    # 첫 900px이 여백. VLM이 500을 제안 → 여백 [0,1000) 중앙 500 → [0,500)이 여백뿐인 구간 → 병합
+    im = _image(3000, [])
+    for y in range(1000, 3000, 300):
+        _text_rows(im, y, h=60)
+    diag: dict = {}
+    assert ss.decide_boundaries(im, cfg["section"], vlm=lambda image, prompt: [500], diag=diag) == []
+    assert diag["empty_merged_after_vlm"] == [{"top": 0, "bottom": 500, "dropped": 500}]
+
+
+def test_vlm_boundary_in_blank_after_color_boundary_keeps_color_boundary(cfg):
+    # 흰(글) 0-1000 · 회색 1000-: 1000-1400 여백, 1400부터 글. 색 경계 1000 뒤 여백 안에 VLM 1250 → 중앙 1200
+    # → [1000,1200)이 여백뿐 → 색 경계 1000을 지키고 VLM 경계 1200을 지운다
+    im = _image(3000, [(1000, 3000, GRAY)])
+    _text_lines(im, 0, 1000)
+    for y in range(1400, 3000, 300):
+        _text_rows(im, y, h=60)
+    diag: dict = {}
+    calls: list[int] = []
+
+    def fake_vlm(image, prompt):
+        calls.append(image.height)
+        return [250] if image.height == 2000 else []
+
+    assert ss.decide_boundaries(im, cfg["section"], vlm=fake_vlm, diag=diag) == [1000]
+    assert diag["empty_merged_after_vlm"] == [{"top": 1000, "bottom": 1200, "dropped": 1200}]
+
+
+def test_vlm_boundary_inside_trailing_blank_is_merged(cfg):
+    # 마지막 글 띠 1900-1960, 이후 여백. VLM 2500 → 여백 [1960,3000) 중앙 2480 → [2480,3000)이 여백뿐 → 앞 구간에 붙인다
+    im = _image(3000, [])
+    for y in range(100, 2000, 300):
+        _text_rows(im, y, h=60)
+    diag: dict = {}
+    assert ss.decide_boundaries(im, cfg["section"], vlm=lambda image, prompt: [2500], diag=diag) == []
+    assert diag["empty_merged_after_vlm"] == [{"top": 2480, "bottom": 3000, "dropped": 2480}]
+
+
+def test_post_vlm_merge_keeps_segments_with_content_and_min_height(cfg):
+    bounds = ss.decide_boundaries(_long_image(), cfg["section"], vlm=lambda image, prompt: [1220, 2420])
+    assert bounds == [1180, 2380]  # 내용이 있는 구간은 그대로
+    edges = [0, *bounds, 3000]
+    assert all(b - a >= cfg["section"]["min_section_px"] for a, b in zip(edges, edges[1:]))

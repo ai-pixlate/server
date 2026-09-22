@@ -19,8 +19,11 @@
 6. 긴 구간 VLM — 위 결과 구간이 `long_section_px`보다 길면 VLM에 준다. 입력은 폭을 `vlm_width_px` 이하로 줄이고
    (긴 변 기준이 아니다 — 긴 띠를 긴 변 기준으로 줄이면 글자가 판독 불가), 높이가 `vlm_window_px`(원본 px)를 넘으면
    `vlm_window_overlap_px` 겹침으로 창을 나눠 여러 번 호출한 뒤 합친다. 왼쪽에 y 눈금 띠를 붙인다(프롬프트 `prompt_path`).
-7. 보정(snap) — VLM의 y를 반경 `snap_radius_px` 안에서 가장 가까운 균일 행 구간의 중앙으로 옮긴다. 여백 구간은
-   **현재 구간 안에서만** 찾는다. 반경 안에 여백이 없으면 후보를 버리고 진단에 남긴다. 색 전환 경계와 합쳐 4를 다시 적용한다.
+7. 보정(snap) — VLM의 y에서 반경 `snap_radius_px` 안에 균일 행 구간(여백)이 있으면 그 구간의 **중앙**으로 옮긴다.
+   반경은 여백을 찾는 거리이고 목적지는 여백 중앙이므로, 넓은 여백에서는 반경보다 멀리 움직인다(같은 여백을 가리킨
+   여러 응답이 한 점으로 모이게 하는 설계). 여백 구간은 **현재 구간 안에서만** 찾는다. 반경 안에 여백이 없으면 후보를
+   버리고 진단에 남긴다. 색 전환 경계와 합쳐 4를 다시 적용한 뒤, 5를 한 번 더 적용한다(VLM 경계가 여백 안에 놓여
+   색 경계·구간 끝과의 사이가 여백뿐이면 VLM 경계를 지운다).
 
 진단: `decide_boundaries(..., diag={})`에 dict를 주면 후보·기각 사유·빈 구간 병합·VLM 호출·보정 결과를 채운다.
 CLI는 이를 `split_debug.json`으로 남긴다(dev.md 4절). 계약 값이 아니라 개발 확인용이다.
@@ -194,9 +197,18 @@ def enforce_min_section(
 
 # ---- 5. 빈 구간 병합 ------------------------------------------------------------------
 def merge_empty_segments(
-    boundaries: list[int], std: np.ndarray, blank_std: float, diag: dict[str, Any] | None = None
+    boundaries: list[int],
+    std: np.ndarray,
+    blank_std: float,
+    diag: dict[str, Any] | None = None,
+    diag_key: str = "empty_merged",
+    keep: set[int] | frozenset[int] = frozenset(),
 ) -> list[int]:
-    """모든 행이 균일한 구간(여백뿐인 띠)을 앞 구간에 붙인다. 첫 구간이면 뒤 구간에 붙인다."""
+    """모든 행이 균일한 구간(여백뿐인 띠)을 앞 구간에 붙인다. 첫 구간이면 뒤 구간에 붙인다.
+
+    `keep`에 든 경계(색 전환 경계)는 지키고, 빈 구간의 위 경계가 그것이면 아래 경계(VLM 보정 경계)를 대신 지운다.
+    경계를 지우기만 하므로 구간은 길어질 뿐이며 최소 높이 조건이 새로 깨지지 않는다.
+    """
     h = len(std)
     edges = [0, *boundaries, h]
     merged: list[dict[str, int]] = []
@@ -207,13 +219,16 @@ def merge_empty_segments(
             top, bottom = edges[i], edges[i + 1]
             if uniform_ratio(std[top:bottom], blank_std) < 1.0:
                 continue
-            drop = edges[i] if i > 0 else edges[i + 1]  # 앞 구간에 붙이려면 위 경계를, 첫 구간이면 아래 경계를 지운다
+            if i == 0 or (top in keep and bottom not in keep and bottom != h):
+                drop = bottom  # 첫 구간이거나 위 경계를 지켜야 하면 아래 경계를 지운다(뒤 구간에 붙인다)
+            else:
+                drop = top  # 앞 구간에 붙인다
             merged.append({"top": top, "bottom": bottom, "dropped": drop})
             edges.remove(drop)
             changed = True
             break
     if diag is not None:
-        diag["empty_merged"] = merged
+        diag[diag_key] = merged
     return edges[1:-1]
 
 
@@ -400,6 +415,9 @@ def decide_boundaries(
     if finish_hook is not None:
         finish_hook()
     result = enforce_min_section(candidates, h, min_section, fixed=fixed)
+    # VLM 보정 경계가 여백 구간 안에 놓이면 색 경계·구간 끝과 그 사이가 여백뿐인 구간이 될 수 있다. 한 번 더 병합한다.
+    # 색 경계는 지키고 VLM 경계를 지운다. 경계를 지우기만 하므로 최소 높이는 다시 적용하지 않는다.
+    result = merge_empty_segments(result, std, blank_std, diag, diag_key="empty_merged_after_vlm", keep=set(fixed))
     if diag is not None:
         diag["vlm"] = vlm_records
         diag["boundaries"] = result

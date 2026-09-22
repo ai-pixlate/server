@@ -7,7 +7,10 @@
 1. 행 프로파일 — 행마다 배경색(픽셀 중앙값 RGB)과 색 표준편차를 구한다. 중앙값이라 글자가 있어도 배경이 남는다.
    표준편차 ≤ `blank_row_std`인 행을 **균일 행**(여백·빈 배경)이라 부른다.
 2. 색 전환 후보 — 행 색을 `color_window_px` 창으로 평활해 앞 창과 비교, RGB 거리 ≥ `color_delta`인 구간의
-   최댓값 행을 후보로 잡는다. 경계 = 새 색의 첫 행.
+   최댓값 행을 후보로 잡는다. 경계 = 새 색의 첫 행. 그 행과 바로 위 행이 모두 균일 행이 아니면(글자 위에 놓임)
+   반경 `snap_radius_px` 안 **위쪽 여백의 끝 행**(글자 바로 위)으로 옮기고, 위쪽에 없으면 아래쪽 여백의 시작 행으로
+   옮긴다. 반경 안에 여백이 없으면 기각(`no_blank_row`). 전환 행의 글자는 새 배경 위에 있어 아래 섹션에 속하므로
+   위쪽을 우선한다. 글자를 가르는 절단은 ② OCR을 망친다.
 3. 후보 확정 — 후보 양쪽 구간(이웃 후보까지, 최대 `min_section_px`. 창의 4배보다 가까운 이웃은 얇은 바·구분선의
    반대편 모서리로 보고 건너뛴다)에 대해
    (a) 두 구간의 행 색 **중앙값** 거리 ≥ `color_delta` (큰 제목 글자가 만드는 짧은 색 튐 제거) 이고
@@ -111,9 +114,12 @@ def color_candidates(color: np.ndarray, window: int, delta: float) -> list[tuple
     return out
 
 
-def _neighbor_bounds(ys: list[int], idx: int, h: int, min_gap: int) -> tuple[int, int]:
-    """후보 idx의 앞뒤 이웃 후보 y. `min_gap`보다 가까운 이웃(얇은 바·구분선의 반대편 모서리)은 건너뛴다."""
-    y = ys[idx]
+def _neighbor_bounds(ys: list[int], idx: int, h: int, min_gap: int, y: int | None = None) -> tuple[int, int]:
+    """후보 idx의 앞뒤 이웃 후보 y. `min_gap`보다 가까운 이웃(얇은 바·구분선의 반대편 모서리)은 건너뛴다.
+
+    `y`를 주면(여백 보정 뒤 좌표) 그 위치를 기준으로 거리를 잰다.
+    """
+    y = ys[idx] if y is None else y
     prev_y = 0
     for k in range(idx - 1, -1, -1):
         if y - ys[k] >= min_gap:
@@ -127,6 +133,21 @@ def _neighbor_bounds(ys: list[int], idx: int, h: int, min_gap: int) -> tuple[int
     return prev_y, next_y
 
 
+def snap_color_boundary(y: int, runs: list[tuple[int, int]], radius: int) -> int | None:
+    """글자 위에 놓인 색 경계를 여백으로 옮긴다. VLM 보정(여백 중앙)과 달리 **여백의 끝 행**을 쓴다.
+
+    전환 행의 글자는 새 배경 위에 있으므로 아래 섹션에 속한다. 그래서 반경 안 **위쪽** 여백 구간의 끝(글자 바로 위 행)을
+    우선하고, 위쪽에 없으면 아래쪽 여백 구간의 시작(글자 바로 아래 행)을 쓴다. 둘 다 없으면 None(후보 기각).
+    """
+    above = [e for s, e in runs if e <= y and y - e <= radius]
+    if above:
+        return max(above)
+    below = [s for s, e in runs if s >= y and s - y <= radius]
+    if below:
+        return min(below)
+    return None
+
+
 def color_boundaries(
     color: np.ndarray,
     std: np.ndarray,
@@ -136,17 +157,36 @@ def color_boundaries(
     blank_std: float,
     bg_ratio: float,
     diag: dict[str, Any] | None = None,
+    snap_radius: int = 0,
 ) -> tuple[list[int], dict[int, float]]:
-    """배경색 전환 경계(오름차순, 0과 h 제외, 최소 높이 적용)와 경계별 강도를 돌려준다."""
+    """배경색 전환 경계(오름차순, 0과 h 제외, 최소 높이 적용)와 경계별 강도를 돌려준다.
+
+    `snap_radius` > 0 이면 글자 위에 놓인 경계 행을 반경 안 여백으로 옮기고(`snap_color_boundary`), 없으면 기각한다.
+    """
     h = len(color)
     cands = color_candidates(color, window, delta)
     ys = [y for y, _ in cands]
     accepted: dict[int, float] = {}
     records: list[dict[str, Any]] = []
     min_gap = _SIDE_MIN_FACTOR * window
-    for idx, (y, narrow) in enumerate(cands):
-        prev_y, next_y = _neighbor_bounds(ys, idx, h, min_gap)
+    runs = blank_runs(std, blank_std)
+    for idx, (y_raw, narrow) in enumerate(cands):
+        # 경계 행이 글자 위(y와 y-1 모두 균일 행 아님)면 여백으로 옮긴다. 옮길 여백이 반경 안에 없으면 기각.
+        y = y_raw
+        snapped = False
+        if not (std[y] <= blank_std or std[y - 1] <= blank_std):
+            moved = snap_color_boundary(y, runs, snap_radius)
+            if moved is None or moved <= 0 or moved >= h:
+                records.append({"y": y_raw, "y_raw": y_raw, "narrow": round(narrow, 1), "wide": None, "bg_before": None,
+                                "bg_after": None, "accepted": False, "reason": "no_blank_row"})
+                continue
+            y, snapped = moved, True
+        prev_y, next_y = _neighbor_bounds(ys, idx, h, min_gap, y=y)
         a0, b1 = max(prev_y, y - min_section), min(next_y, y + min_section)
+        if a0 >= y or b1 <= y:
+            records.append({"y": y, "y_raw": y_raw, "narrow": round(narrow, 1), "wide": None, "bg_before": None,
+                            "bg_after": None, "accepted": False, "reason": "no_window"})
+            continue
         wide = float(np.linalg.norm(np.median(color[y:b1], axis=0) - np.median(color[a0:y], axis=0)))
         r_before = uniform_ratio(std[a0:y], blank_std)
         r_after = uniform_ratio(std[y:b1], blank_std)
@@ -156,10 +196,10 @@ def color_boundaries(
             reason = "bg_ratio"
         else:
             reason = "ok"
-            accepted[y] = wide
+            accepted[y] = max(wide, accepted.get(y, 0.0))  # 두 후보가 같은 여백 행으로 모이면 하나로
         records.append(
-            {"y": y, "narrow": round(narrow, 1), "wide": round(wide, 1), "bg_before": round(r_before, 2),
-             "bg_after": round(r_after, 2), "accepted": reason == "ok", "reason": reason}
+            {"y": y, "y_raw": y_raw, "snapped": snapped, "narrow": round(narrow, 1), "wide": round(wide, 1),
+             "bg_before": round(r_before, 2), "bg_after": round(r_after, 2), "accepted": reason == "ok", "reason": reason}
         )
     kept = enforce_min_section(list(accepted), h, min_section, strengths=accepted)
     for r in records:
@@ -387,7 +427,7 @@ def decide_boundaries(
     bg_ratio = float(sc["bg_row_ratio"])
 
     color, std = row_profile(im)
-    fixed, strengths = color_boundaries(color, std, window, delta, min_section, blank_std, bg_ratio, diag)
+    fixed, strengths = color_boundaries(color, std, window, delta, min_section, blank_std, bg_ratio, diag, snap_radius=radius)
     fixed = merge_empty_segments(fixed, std, blank_std, diag)
     h = im.height
     edges = [0, *fixed, h]

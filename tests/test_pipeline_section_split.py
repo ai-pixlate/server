@@ -100,8 +100,9 @@ def test_photo_band_between_title_and_caption_stays_in_one_section(cfg):
     _text_lines(im, 800, 1400)
     diag: dict = {}
     assert ss.decide_boundaries(im, cfg["section"], diag=diag) == []
-    # 무작위 사진은 내부 전체가 전환 구간이라 후보 위치는 사진 안쪽에 잡힌다. 기각 사유가 배경다움(bg_ratio)인지만 본다.
-    assert diag["color_candidates"] and all(r["reason"] == "bg_ratio" for r in diag["color_candidates"])
+    # 무작위 사진은 내부 전체가 전환 구간이라 후보 위치는 사진 안쪽에 잡힌다. 기각 사유는 반경 안에 여백이 없어서(no_blank_row)
+    # 또는 배경다움(bg_ratio) 둘 중 하나여야 한다.
+    assert diag["color_candidates"] and all(r["reason"] in ("no_blank_row", "bg_ratio") for r in diag["color_candidates"])
 
 
 def test_colored_band_with_text_is_a_section(cfg):
@@ -532,3 +533,55 @@ def test_post_vlm_merge_keeps_segments_with_content_and_min_height(cfg):
     assert bounds == [1180, 2380]  # 내용이 있는 구간은 그대로
     edges = [0, *bounds, 3000]
     assert all(b - a >= cfg["section"]["min_section_px"] for a, b in zip(edges, edges[1:]))
+
+
+# ---- 글자 위에 놓인 색 경계 보정 --------------------------------------------------------------
+def _profile(h: int, transition: int, text_rows: list[tuple[int, int]]):
+    """행 프로파일을 직접 만든다: 흰→회색 전환, text_rows 구간은 균일 행이 아니다(std 20)."""
+    import numpy as np
+
+    color = np.full((h, 3), 255.0, dtype=np.float32)
+    color[transition:] = (236.0, 240.0, 245.0)
+    std = np.zeros(h, dtype=np.float32)
+    for a, b in text_rows:
+        std[a:b] = 20.0
+    return color, std
+
+
+def test_color_boundary_on_text_moves_to_blank_row_above(cfg):
+    # 전환 1000, 글자가 990-1030에 걸쳐 있다 → 경계 행 1000과 999가 모두 글자 → 위쪽 여백 끝 990으로
+    color, std = _profile(2000, 1000, [(990, 1030), (1100, 1120)])
+    diag: dict = {}
+    kept, _ = ss.color_boundaries(color, std, 8, 12, 200, 6.0, 0.25, diag, snap_radius=40)
+    assert kept == [990]
+    rec = next(r for r in diag["color_candidates"] if r["y"] == 990)
+    assert rec["snapped"] is True and rec["y_raw"] == 1000 and rec["accepted"]
+
+
+def test_color_boundary_falls_back_to_blank_row_below(cfg):
+    # 위쪽 40px 안에 여백이 없다(글자 950-1030) → 아래 여백 시작 1030
+    color, std = _profile(2000, 1000, [(950, 1030)])
+    kept, _ = ss.color_boundaries(color, std, 8, 12, 200, 6.0, 0.25, snap_radius=40)
+    assert kept == [1030]
+
+
+def test_color_boundary_without_nearby_blank_is_rejected(cfg):
+    color, std = _profile(2000, 1000, [(950, 1050)])
+    diag: dict = {}
+    kept, _ = ss.color_boundaries(color, std, 8, 12, 200, 6.0, 0.25, diag, snap_radius=40)
+    assert kept == []
+    assert [r["reason"] for r in diag["color_candidates"]] == ["no_blank_row"]
+
+
+def test_color_boundary_next_to_blank_row_is_not_moved(cfg):
+    # 999가 균일 행(전환 바로 위가 여백)이면 글자가 1000부터 시작해도 자르는 자리는 글자 위라 그대로 둔다
+    color, std = _profile(2000, 1000, [(1000, 1040)])
+    kept, _ = ss.color_boundaries(color, std, 8, 12, 200, 6.0, 0.25, snap_radius=40)
+    assert kept == [1000]
+
+
+def test_snap_color_boundary_prefers_above_then_below():
+    runs = [(0, 950), (1030, 1100)]
+    assert ss.snap_color_boundary(1000, runs, 40) == 1030  # 위쪽 여백 끝 950은 50px 밖
+    assert ss.snap_color_boundary(1000, runs, 60) == 950
+    assert ss.snap_color_boundary(1000, [(0, 900)], 40) is None

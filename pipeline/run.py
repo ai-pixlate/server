@@ -97,9 +97,7 @@ def cmd_split(args) -> int:
             args.vlm_replay, section_split.source_fingerprint(args.source), section_split.vlm_context(cfg["section"])
         )
         diag["vlm_replay"] = str(args.vlm_replay)
-    res = section_split.run(src, cfg, out / "sections", vlm=vlm, diag=diag)
-    if vlm is not None and vlm.remaining:
-        print(f"경고: 재생 기록 {vlm.remaining}회가 쓰이지 않았다(구간이 줄었다)", file=sys.stderr)
+    res = section_split.run(src, cfg, out / "sections", vlm=vlm, diag=diag)  # 재생 기록이 남으면 여기서 VlmReplayMismatch
     p = _write_json(out / "split.json", res)
     out.mkdir(parents=True, exist_ok=True)
     (out / "split_debug.json").write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -47,6 +47,12 @@ def prompt_sha256(prompt: str) -> str:
     return hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
 
 
+def image_sha256(image: Image.Image) -> str:
+    """VLM에 실제로 넘기는 이미지(눈금 띠 포함)의 픽셀 해시. 같은 크기라도 내용이 다르면 다르다."""
+    rgb = image if image.mode == "RGB" else image.convert("RGB")
+    return hashlib.sha256(rgb.tobytes()).hexdigest()[:16]
+
+
 def parse_boundaries(text: str) -> list[int]:
     """응답 본문(JSON)에서 정수 y 목록을 꺼낸다. 형식이 다르면 VlmError."""
     try:
@@ -113,7 +119,9 @@ class ReplayBoundaryPicker:
     """이전 `split_debug.json`의 VLM 응답을 순서대로 재생한다. API를 부르지 않는다.
 
     생성 시 원본 지문(`input`)과 VLM 설정(`vlm_config`)이 기록과 같은지 확인하고, 호출마다 다음 기록의
-    입력 크기·프롬프트 해시와 맞는지 확인한다. 색 전환 경계가 달라져 구간·창이 바뀌면 그 자리에서 멈춘다.
+    구간·창 좌표(`expect()`로 미리 받음) · 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시와 맞는지 확인한다.
+    색 전환 경계가 달라져 구간·창이 바뀌면 그 자리에서 멈추고, 기록이 다 쓰이지 않으면 `finish()`가 멈춘다
+    (호출 구성이 달라진 비교를 성공으로 오인하지 않게).
     """
 
     def __init__(self, record: dict[str, Any], expect_input: dict[str, Any], expect_config: dict[str, Any]) -> None:
@@ -126,6 +134,7 @@ class ReplayBoundaryPicker:
                 raise VlmReplayMismatch(f"{key} 불일치 (기록, 현재): {diff}")
         self._calls: list[dict[str, Any]] = [c for seg in record.get("vlm", []) for c in seg.get("calls", [])]
         self._pos = 0
+        self._meta: dict[str, Any] | None = None
 
     @classmethod
     def from_file(cls, path: str | Path, expect_input: dict[str, Any], expect_config: dict[str, Any]) -> "ReplayBoundaryPicker":
@@ -136,13 +145,30 @@ class ReplayBoundaryPicker:
     def remaining(self) -> int:
         return len(self._calls) - self._pos
 
+    def expect(self, meta: dict[str, Any]) -> None:
+        """다음 호출의 구간·창 좌표(원본 기준). `vlm_boundaries`가 호출 직전에 알려 준다."""
+        self._meta = meta
+
+    def finish(self) -> None:
+        """모든 호출이 끝난 뒤. 기록이 남아 있으면 호출 구성이 달라진 것이므로 실패."""
+        if self.remaining:
+            raise VlmReplayMismatch(f"재생 기록 {self.remaining}회가 쓰이지 않았다 — 구간·창 구성이 기록과 다르다")
+
     def __call__(self, image: Image.Image, prompt: str) -> list[int]:
         if self._pos >= len(self._calls):
             raise VlmReplayMismatch(f"재생할 기록이 남아 있지 않다 (기록 {len(self._calls)}회, 현재 {self._pos + 1}번째 호출)")
         call = self._calls[self._pos]
         self._pos += 1
-        expect = {"input_size": list(image.size), "prompt_sha256": prompt_sha256(prompt)}
+        expect = {
+            "segment": (self._meta or {}).get("segment"),
+            "abs_window": (self._meta or {}).get("abs_window"),
+            "input_size": list(image.size),
+            "image_sha256": image_sha256(image),
+            "prompt_sha256": prompt_sha256(prompt),
+        }
+        self._meta = None
         got = {k: call.get(k) for k in expect}
         if got != expect:
-            raise VlmReplayMismatch(f"{self._pos}번째 호출 불일치 (기록, 현재): {got} vs {expect} — 구간·창·프롬프트가 달라졌다")
+            diff = {k: (got[k], expect[k]) for k in expect if got[k] != expect[k]}
+            raise VlmReplayMismatch(f"{self._pos}번째 호출 불일치 (기록, 현재): {diff} — 구간·창·입력 이미지·프롬프트가 달라졌다")
         return list(call["raw"])

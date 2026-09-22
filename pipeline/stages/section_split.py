@@ -38,7 +38,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pipeline.errors import image_open_failed
 from pipeline.types import Section, SourceImage, SplitResult, section_key
-from pipeline.vlm import BoundaryPicker, GeminiBoundaryPicker, prompt_sha256
+from pipeline.vlm import BoundaryPicker, GeminiBoundaryPicker, image_sha256, prompt_sha256
 
 RULER_W = 48  # VLM 입력 왼쪽 눈금 띠 폭(px)
 _SIDE_MIN_FACTOR = 4  # 후보 확정 창을 자르는 이웃 후보의 최소 거리 = color_window_px × 이 값. 더 가까운 후보(얇은 바·선)는 무시
@@ -285,22 +285,35 @@ def vlm_windows(height: int, window: int, overlap: int) -> list[tuple[int, int]]
 
 
 def vlm_boundaries(
-    segment: Image.Image, sc: dict[str, Any], vlm: BoundaryPicker, diag_entry: dict[str, Any] | None = None
+    segment: Image.Image,
+    sc: dict[str, Any],
+    vlm: BoundaryPicker,
+    diag_entry: dict[str, Any] | None = None,
+    segment_top: int = 0,
 ) -> list[int]:
-    """긴 구간 하나에 VLM을 (창마다) 호출해 구간 로컬 원본 좌표의 경계 y 목록을 받는다."""
+    """긴 구간 하나에 VLM을 (창마다) 호출해 구간 로컬 원본 좌표의 경계 y 목록을 받는다.
+
+    `segment_top`은 구간의 원본 기준 시작 행. 기록·재생 검증용 절대 좌표에 쓴다.
+    """
     wins = vlm_windows(segment.height, int(sc["vlm_window_px"]), int(sc["vlm_window_overlap_px"]))
     found: set[int] = set()
     calls: list[dict[str, Any]] = []
+    seg_abs = [segment_top, segment_top + segment.height]
+    expect_hook = getattr(vlm, "expect", None)  # ReplayBoundaryPicker만 가진다
     for top, bottom in wins:
         part = segment if (top, bottom) == (0, segment.height) else segment.crop((0, top, segment.width, bottom))
         img, scale = prepare_vlm_image(part, int(sc["vlm_width_px"]))
         prompt = load_prompt(sc["prompt_path"], img.width - RULER_W, img.height)
+        abs_window = [segment_top + top, segment_top + bottom]
+        if expect_hook is not None:
+            expect_hook({"segment": seg_abs, "abs_window": abs_window})
         ys = vlm(img, prompt)
         local = sorted({top + round(y / scale) for y in ys if 0 < y < img.height})
         found.update(local)
         calls.append(
-            {"window": [top, bottom], "input_size": list(img.size), "scale": round(scale, 6),
-             "prompt_sha256": prompt_sha256(prompt), "raw": list(ys), "mapped": local}
+            {"segment": seg_abs, "window": [top, bottom], "abs_window": abs_window, "input_size": list(img.size),
+             "scale": round(scale, 6), "image_sha256": image_sha256(img), "prompt_sha256": prompt_sha256(prompt),
+             "raw": list(ys), "mapped": local}
         )
     if diag_entry is not None:
         diag_entry["calls"] = calls
@@ -375,7 +388,7 @@ def decide_boundaries(
         # 여백 구간은 현재 구간 안에서만 찾는다. 원본 전체로 찾으면 색 전환 경계 양쪽 여백이 한 구간으로
         # 합쳐져 그 중앙(다른 색 구간)으로 보정된 뒤 폐기된다.
         runs = [(top + s, top + e) for s, e in blank_runs(std[top:bottom], blank_std)]
-        for y in vlm_boundaries(im.crop((0, top, im.width, bottom)), sc, vlm, rec):
+        for y in vlm_boundaries(im.crop((0, top, im.width, bottom)), sc, vlm, rec, segment_top=top):
             snapped = snap_to_blank(top + y, runs, radius)
             if snapped is not None and top < snapped < bottom:
                 candidates.append(snapped)
@@ -383,6 +396,9 @@ def decide_boundaries(
             else:
                 rec["dropped"].append(top + y)
         vlm_records.append(rec)
+    finish_hook = getattr(vlm, "finish", None)  # ReplayBoundaryPicker: 기록이 남으면 실패
+    if finish_hook is not None:
+        finish_hook()
     result = enforce_min_section(candidates, h, min_section, fixed=fixed)
     if diag is not None:
         diag["vlm"] = vlm_records

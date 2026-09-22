@@ -426,6 +426,51 @@ def test_replay_rejects_changed_input_config_or_windows(cfg, tmp_path):
         ss.decide_boundaries(Image.open(src.path), sc2, vlm=replay)
 
 
+def test_replay_rejects_same_size_segment_at_different_position_or_content(cfg, tmp_path):
+    from pipeline.vlm import ReplayBoundaryPicker, VlmReplayMismatch
+
+    sc = {**cfg["section"], "long_section_px": 1000}
+    # A: 흰(글) 0-1000 · 회색(글) 1000-4000 · 흰(글) 4000-5000. 긴 구간 기준 1000이라 [1000,4000)만 VLM 1창 호출
+    im_a = _image(5000, [(1000, 4000, GRAY)])
+    for a, b in ((0, 1000), (1000, 4000), (4000, 5000)):
+        _text_lines(im_a, a, b)
+    diag: dict = {}
+    ss.decide_boundaries(im_a, sc, vlm=lambda image, prompt: [300], diag=diag)
+    assert [c["abs_window"] for r in diag["vlm"] for c in r["calls"]] == [[1000, 4000]]
+    record = {**diag, "input": {"x": 1}, "vlm_config": {"y": 2}}
+
+    # B: 같은 크기의 구간이 [2000,5000]에 있다 → 좌표·이미지 해시 불일치
+    im_b = _image(6000, [(2000, 5000, GRAY)])
+    for a, b in ((0, 2000), (2000, 5000), (5000, 6000)):
+        _text_lines(im_b, a, b)
+    with pytest.raises(VlmReplayMismatch, match="segment"):
+        ss.decide_boundaries(im_b, sc, vlm=ReplayBoundaryPicker(record, {"x": 1}, {"y": 2}))
+
+    # C: 같은 좌표·크기지만 내용이 다르다(글줄 위치 변경) → 이미지 해시 불일치
+    im_c = _image(5000, [(1000, 4000, GRAY)])
+    for a, b in ((0, 1000), (1000, 4000), (4000, 5000)):
+        _text_lines(im_c, a, b, margin=60)
+    with pytest.raises(VlmReplayMismatch, match="image_sha256"):
+        ss.decide_boundaries(im_c, sc, vlm=ReplayBoundaryPicker(record, {"x": 1}, {"y": 2}))
+
+
+def test_replay_fails_when_records_are_left_unused(cfg, tmp_path):
+    from pipeline import run as cli
+    from pipeline.vlm import ReplayBoundaryPicker, VlmReplayMismatch
+
+    src, diag, _ = _record_run(cfg, tmp_path, lambda image, prompt: [1220])
+    fp, ctx = ss.source_fingerprint(src.path), ss.vlm_context(cfg["section"])
+    sc = {**cfg["section"], "long_section_px": 999999}  # VLM 호출 없음 → 기록 3회가 남는다
+    with pytest.raises(VlmReplayMismatch, match="쓰이지 않았다"):
+        ss.decide_boundaries(Image.open(src.path), sc, vlm=ReplayBoundaryPicker(diag, fp, ctx))
+    debug = tmp_path / "dbg.json"
+    debug.write_text(json.dumps(diag), encoding="utf-8")
+    out = tmp_path / "cli_unused"
+    rc = cli.main(["split", "--source", src.path, "--out", str(out), "--vlm-replay", str(debug),
+                   "--set", "section.long_section_px=999999"])
+    assert rc == 4 and not (out / "split.json").exists() and not (out / "sections").exists()
+
+
 def test_cli_split_replays_previous_debug_record(cfg, tmp_path):
     from pipeline import run as cli
 

@@ -31,7 +31,7 @@
 
 | 날짜 | 세션 | 한 일 | 결정·문서 |
 |---|---|---|---|
-| 2026-09-22 | ① 실험 도구 | 2차 실측(34장) 검토 후 실험 분리 도구 추가: `split --vlm-replay`(이전 VLM 응답 재생, 원본·설정·창·프롬프트 검증) · `vlm_seed` 키(기본 미전송) · 진단 기록에 원본 지문·VLM 설정·프롬프트 해시. requirements 주석 ASCII화(cp949 pip). 정답 기준을 `dev.md` 5절에 기록. 알고리즘·기본값 변경 없음 | `pipeline.md` 3절(`vlm_seed`), `dev.md` 4·5·6절 |
+| 2026-09-22 | ① 실험 도구 | 2차 실측(34장) 검토 후 실험 분리 도구 추가: `split --vlm-replay`(이전 VLM 응답 재생, 원본·설정·구간·창 좌표·입력 이미지 해시·프롬프트 검증, 기록 미소진 시 실패) · `vlm_seed` 키(기본 미전송) · 진단 기록에 원본 지문·VLM 설정·프롬프트 해시. requirements 주석 ASCII화(cp949 pip). 정답 기준을 `dev.md` 5절에 기록. 알고리즘·기본값 변경 없음 | `pipeline.md` 3절(`vlm_seed`), `dev.md` 4·5·6절 |
 | 2026-09-22 | ① 1차 실측 반영 | 34장 실측 결과로 경계 결정 개정: 후보 양쪽 배경다움 조건(사진·표 띠 3분할 제거) · 빈 구간 병합 · 이웃 구간 중앙값 · 강도 기준 최소 높이 · 후보 위치를 행 변화 최대점으로 · VLM 입력 폭 기준·창 분할 · 보정 폐기 진단 · `run.json` 소요 시간 · SDK 경고 억제 · 프롬프트에 소항목 제외. 실측 기록 자체는 PoC 레포 | `[section]` 키 추가·교체(`bg_row_ratio` · `vlm_width_px` · `vlm_window_px` · `vlm_window_overlap_px`, `vlm_long_side_px` 제거). `pipeline.md` 3절, `open-questions.md` #26, `dev.md` 2·4·5절 |
 | 2026-09-21 | ① 코드 검증 수정 | 여백 보정을 현재 색 구간 안에서만 탐색(색 전환 양쪽 여백이 합쳐져 유효한 VLM 경계가 소실되던 문제) · Gemini 클라이언트 생성 예외도 `VlmError`로 감싸 CLI 종료 코드 4 보장. 회귀 테스트 3개 추가 | 알고리즘 기본값 · #25 정책 변경 없음. `status.md` 1·4절 |
 | 2026-09-21 | ① 섹션 분해 구현 | `color_snap_vlm2` 경계 결정 구현(행 프로파일 · 색 전환 · 최소 높이 · 긴 구간 VLM · 여백 보정), `pipeline/vlm.py` · `prompts/section_boundary.md` · `[section]` config 키 · 테스트 15개 추가. `color_delta` 30→12(흰색↔연회색 26이 잡히도록) | #21 해결(5절), #26 추가. `pipeline.md` 3절·9절, `dev.md` 1·2·3·4·6절, `requirements.txt`(numpy · google-genai) |

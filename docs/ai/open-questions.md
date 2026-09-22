@@ -68,8 +68,8 @@
 
 | # | 항목 | 영향 | 담당 | 상태 | 출처 |
 |---|---|---|---|---|---|
-| 26 | ① 섹션 분해 `[section]` 값의 실측 확정. 3차 실측(2026-09-22, 34장, 정답 70경계)까지의 상태 — **확정 후보(대안 비교 실험 있음)**: `bg_row_ratio` 0.25(0.35 기각) · `snap_radius_px` 40(80과 동일) · `color_delta` 12(20·24 기각). **유지 권장·독립 비교 미완료**: `blank_row_std` 6.0(8은 반경 80과 동시 변경). **기준값 유지·미검증**: `min_section_px` · `long_section_px` · `color_window_px` · `vlm_width_px` · `vlm_window_px` · `vlm_window_overlap_px`. **실험 옵션**: `vlm_seed`(-1 미사용, seed=1은 채택 근거 부족). 대안 기각은 현재값 유지 근거이지 최적값 증명이 아니다. 확정 후보는 사용자 "확정" 시 config·`pipeline.md` 3절 반영 | `pipeline.md` 3절 · `pipeline/config/default.toml` `[section]` | AI | 미정 | [`pipeline.md` 3절] [PoC 9장] |
-| 27 | ① 목록 항목별 절단(FAQ·후기·Q&A, 실측 유형 B) 규칙 — 색 전환 경계 단계의 실험 가설. 정하기 전 결정할 것: 약한·강한 후보의 수치 기준, 강한 후보의 기각 사유 범위(`bg_ratio`는 사진·도형도 포함), 반복을 세는 범위(인접 열 / 이미지 전체), 강한 후보 둘을 하나의 띠로 짝짓는 방법과 실제 띠 높이 분포(GS-03_018 질문 띠 123px), 같은 색 쌍 유사성 기준, 독립 주제가 같은 패턴을 반복할 때의 보호 조건. 채택은 실제 VLM 포함 34장 전체를 정답 목록으로 채점해 판단 | `pipeline/stages/section_split.py` · `pipeline.md` 3절 | AI | 미정 | [`pipeline.md` 3절] |
+| 26 | ① 섹션 분해 `[section]` 값의 실측 확정. 3차 실측(2026-09-22, 34장, 정답 70경계)까지의 상태 — `bg_row_ratio` · `snap_radius_px` · `color_delta`는 확정(5절). **유지 권장·독립 비교 미완료**: `blank_row_std` 6.0(8은 반경 80과 동시 변경). **기준값 유지·미검증**: `min_section_px` · `long_section_px` · `color_window_px` · `vlm_width_px` · `vlm_window_px` · `vlm_window_overlap_px`. **실험 옵션**: `vlm_seed`(-1 미사용, seed=1은 채택 근거 부족). 대안 기각은 현재값 유지 근거이지 최적값 증명이 아니다. 확정 후보는 사용자 "확정" 시 config·`pipeline.md` 3절 반영 | `pipeline.md` 3절 · `pipeline/config/default.toml` `[section]` | AI | 미정 | [`pipeline.md` 3절] [PoC 9장] |
+| 27 | ① 목록 항목별 절단(FAQ·후기·Q&A, 실측 유형 B) 규칙 — 색 전환 경계 단계의 실험 가설. **구현 보류, 분석만 진행**(띠 시작·끝 짝짓기 → 분포 측정 → 구분 가능성 → 보호 조건. 구분되는 특징이 없으면 미채택도 정상 결론). 정하기 전 결정할 것: 약한·강한 후보의 수치 기준, 강한 후보의 기각 사유 범위(`bg_ratio`는 사진·도형도 포함), 반복을 세는 범위(인접 열 / 이미지 전체), 강한 후보 둘을 하나의 띠로 짝짓는 방법과 실제 띠 높이 분포(GS-03_018 질문 띠 123px), 같은 색 쌍 유사성 기준, 독립 주제가 같은 패턴을 반복할 때의 보호 조건. 채택은 실제 VLM 포함 34장 전체를 정답 목록으로 채점해 판단 | `pipeline/stages/section_split.py` · `pipeline.md` 3절 | AI | 미정 | [`pipeline.md` 3절] |
 | 28 | ① VLM 경계 선택 프롬프트 개정 — 3차 실측 잔존 오절단(브랜드 하위 카드 3 · 히어로 안 제품 사진 1 · 로고 띠 1)과 누락 2(GS-02_014 2891 · GS-03_002 4601). 제외 예시 추가와 함께 포함 기준(고유 소제목이 있는 독립 주제)을 보강. 원인에 창 절단·입력 해상도·모델 한계가 섞여 있어 프롬프트만으로 해결된다고 가정하지 않음 | `pipeline/prompts/section_boundary.md` | AI | 미정 | [`pipeline.md` 3절] |
 | 23 | BE 정본 ERD의 경로·버전, `db-map.md` 참조 색인의 테이블·컬럼명 일치 여부 | `db-map.md` 전체 | BE | BE 확인 필요 | [`db-map.md` 3절] |
 
@@ -100,5 +100,6 @@ MVP 완성 후 다룬다. 상세는 여기 두지 않는다.
 | # | 결정 | 반영 | 날짜 |
 |---|---|---|---|
 | 3절 C | 조항 번호 안정성 규칙은 개발계획이 아니라 문서 운영 규칙으로 둠 | `README.md` 4.3 | 2026-09-19 |
+| 26(일부) | ① `bg_row_ratio` 0.25 · `snap_radius_px` 40 · `color_delta` 12를 **현재 MVP 기본값**으로 확정. 근거는 3차 실측(34장, 정답 70경계)의 대안 비교(0.35 · 80 · 20/24 기각). 변경 금지가 아니며 새 표본에서 문제가 확인되면 비교 실험을 거쳐 바꾼다. 검증 범위는 34장 | `pipeline/config/default.toml` · `pipeline.md` 3절 | 2026-09-22 |
 | 21 | ① 섹션 분해 VLM 모델명 `gemini-3.8-flash`(사용자 확정) | `pipeline.md` 3절 · `pipeline/config/default.toml` `section.vlm_model` | 2026-09-21 |
 | 22 | AI 코드 `pipeline/`, config `pipeline/config/default.toml`(키 = `pipeline.md` 3절 키), 프롬프트 `pipeline/prompts/` | `dev.md` 1·2절 · `pipeline.md` 헤더·3절·⑧행·9절 · `README.md` 3·4·6절 | 2026-09-20 |

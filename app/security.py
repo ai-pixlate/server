@@ -10,8 +10,10 @@ import hmac
 import json
 import os
 import time
+from typing import Optional
 
-from fastapi import Header, HTTPException
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 JWT_SECRET = os.getenv("JWT_SECRET", "pixlate_dev_jwt_secret_change_me")
 JWT_TTL = int(os.getenv("JWT_TTL", "86400"))  # 액세스 토큰 유효기간(초), 기본 24h
@@ -58,12 +60,22 @@ def decode_token(token: str) -> dict:
     return payload
 
 
-def get_current_seller(authorization: str = Header(default=None)) -> int:
-    """`Authorization: Bearer <jwt>` 헤더에서 인증된 seller_id를 추출하는 의존성."""
-    if not authorization or not authorization.startswith("Bearer "):
+# HTTPBearer: Swagger UI에 🔓 Authorize 버튼을 띄운다. auto_error=False 로 두어
+# 토큰이 없을 때 기본 403 대신 우리 표준 401(UNAUTHORIZED) 을 반환한다.
+_bearer_scheme = HTTPBearer(
+    auto_error=False,
+    description="로그인(POST /v1/auth/login)으로 받은 accessToken 값을 그대로 입력",
+)
+
+
+def get_current_seller(
+    cred: Optional[HTTPAuthorizationCredentials] = Depends(_bearer_scheme),
+) -> int:
+    """Bearer 토큰(JWT)에서 인증된 seller_id를 추출하는 의존성."""
+    if cred is None or not cred.credentials:
         raise HTTPException(
             status_code=401,
             detail={"code": "UNAUTHORIZED", "message": "missing bearer token"},
         )
-    payload = decode_token(authorization[len("Bearer "):])
+    payload = decode_token(cred.credentials)
     return int(payload["sub"])

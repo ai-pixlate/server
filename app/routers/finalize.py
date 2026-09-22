@@ -5,14 +5,16 @@ FIN-05(다운로드 presigned)·FIN-06(저장) 실제 DB/S3.
 """
 import csv
 import io
+from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app import s3
 from app.db import get_db
+from app.schemas import ArtifactType
 from app.security import get_current_seller
 
 router = APIRouter(tags=["Finalize"])
@@ -38,10 +40,45 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
 def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     _require_job_owned(db, job_id, seller_id)
-    from app.tasks import run_render  # 지연 임포트
-    result = run_render.delay(job_id)
+    from app.tasks import register_render_task  # 지연 임포트
+    # 계약(FIN-01): renderTaskId는 job_async_task.id(int64) — celery uuid가 아니다.
+    # 행을 여기서 동기로 upsert(unit당 1행·멱등)해야 202 직후 폴링이 그 행을 본다.
+    task_id = register_render_task(db, job_id)
     response.status_code = 202
-    return {"jobId": job_id, "accepted": True, "renderTaskId": result.id}
+    return {"jobId": job_id, "accepted": True, "renderTaskId": task_id}
+
+
+# 계약(DeliverableList.components[].type)의 닫힌 4종. N6 내보내기 패널은 이
+# 목록으로 행을 그리므로, 아직 생성 전인 타입도 artifactId=null·status='pending'
+# 으로 함께 내려준다(계약이 artifactId nullable·status pending을 허용하는 이유).
+_COMPONENT_TYPES = ("images", "csv", "html", "psd")
+
+
+def _components(db: Session, job_id: int) -> list[dict]:
+    rows = db.execute(
+        text(
+            "SELECT id, artifact_type, is_generated, is_active FROM export_artifact "
+            "WHERE job_id = :j ORDER BY id"
+        ),
+        {"j": job_id},
+    ).mappings().all()
+    by_type = {r["artifact_type"]: r for r in rows}
+
+    out = []
+    for t in _COMPONENT_TYPES:
+        r = by_type.get(t)
+        is_generated = bool(r["is_generated"]) if r else False
+        out.append({
+            "artifactId": r["id"] if r else None,
+            "type": t,
+            "status": "generated" if is_generated else "pending",
+            "isGenerated": is_generated,
+            # 행이 없으면 export_artifact.is_active의 스키마 기본값(true)을 따른다.
+            "isActive": bool(r["is_active"]) if r else True,
+            "failedCount": 0,
+            "retryAction": None,
+        })
+    return out
 
 
 @router.get("/jobs/{job_id}/deliverables", summary="API-FIN-02 산출물 목록 (DB)")
@@ -49,7 +86,8 @@ def deliverables(job_id: int, db: Session = Depends(get_db), seller_id: int = De
     _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
-            "SELECT id, usage_type, image_url, render_status FROM deliverable "
+            "SELECT id, source_image_id, usage_type, image_url, format, color_space, "
+            "file_size, render_status, validation_result FROM deliverable "
             "WHERE job_id = :j ORDER BY id"
         ),
         {"j": job_id},
@@ -57,11 +95,21 @@ def deliverables(job_id: int, db: Session = Depends(get_db), seller_id: int = De
     return {
         "deliverables": [
             {
-                "id": r["id"], "usageType": r["usage_type"],
-                "imageUrl": s3.presigned_get(r["image_url"]), "renderStatus": r["render_status"],
+                "id": r["id"],
+                "sourceImageId": r["source_image_id"],
+                "usageType": r["usage_type"],
+                "imageUrl": s3.presigned_get(r["image_url"]),
+                "format": r["format"],
+                "colorSpace": r["color_space"],
+                "fileSize": r["file_size"],
+                "renderStatus": r["render_status"],
+                "validationResult": r["validation_result"],
             }
             for r in rows
-        ]
+        ],
+        # 계약 필수 필드. 빠져 있으면 FE N6 내보내기 패널이 행 0개로 비어
+        # 선택할 산출물이 없어 "선택 항목 내보내기"가 영구 비활성된다.
+        "components": _components(db, job_id),
     }
 
 
@@ -76,13 +124,23 @@ def validation(job_id: int, db: Session = Depends(get_db), seller_id: int = Depe
         ),
         {"j": job_id},
     ).mappings().all()
-    # validation_result(JSONB)는 렌더 엔진이 채운다. 없으면 빈 결과.
-    return {
-        "deliverables": [
-            {"id": r["id"], "usageType": r["usage_type"], "validationResult": r["validation_result"]}
-            for r in rows
-        ]
-    }
+    # 계약(FIN-03)은 ValidationDetail[] 배열이다 — {deliverables:[...]} 래퍼가 아니다.
+    # validation_result(JSONB)는 렌더 엔진이 채운다(checks[]). 없으면 빈 배열.
+    # scope는 계약 enum(detail·thumbnail_main·thumbnail_sub·all)이라 deliverable의
+    # usage_type을 쓴다 — checks[].scope('image')는 계약 enum 값이 아니다.
+    out = []
+    for r in rows:
+        vr = r["validation_result"] or {}
+        for c in vr.get("checks", []):
+            actual = c.get("actual")
+            out.append({
+                "itemKey": c.get("key"),
+                "scope": r["usage_type"],
+                "passed": c.get("passed"),
+                "measuredValue": None if actual is None else str(actual),
+                "severity": c.get("severity", "error"),
+            })
+    return out
 
 
 @router.post("/jobs/{job_id}/export", status_code=201, summary="API-FIN-04 산출물 묶음 생성(content.csv → S3)")
@@ -128,6 +186,33 @@ def download(job_id: int, artifact_id: int, db: Session = Depends(get_db), selle
             "WHERE id = :a AND job_id = :j AND is_distributable = true AND is_generated = true"
         ),
         {"a": artifact_id, "j": job_id},
+    ).mappings().first()
+    if not r or not r["file_url"]:
+        raise HTTPException(status_code=404, detail="artifact not found")
+    return {
+        "url": s3.presigned_get(r["file_url"]),
+        "fileName": f"pixlate_export_{job_id}.{r['artifact_type']}",
+        "expiresIn": s3.PRESIGN_TTL,
+    }
+
+
+@router.get("/jobs/{job_id}/export/download", summary="API-FIN-05 산출물 개별 다운로드(타입별 presigned) (DB+S3)")
+def download_by_type(
+    job_id: int,
+    artifactType: ArtifactType = Query(default="zip"),
+    db: Session = Depends(get_db),
+    seller_id: int = Depends(get_current_seller),
+):
+    """N6 행별 개별 다운로드. 계약에 있는데 구현이 없어 FE "개별 다운로드"가 404였다."""
+    _require_job_owned(db, job_id, seller_id)
+    r = db.execute(
+        text(
+            "SELECT file_url, artifact_type FROM export_artifact "
+            "WHERE job_id = :j AND artifact_type = :t "
+            "AND is_distributable = true AND is_generated = true "
+            "ORDER BY id DESC LIMIT 1"
+        ),
+        {"j": job_id, "t": artifactType},
     ).mappings().first()
     if not r or not r["file_url"]:
         raise HTTPException(status_code=404, detail="artifact not found")

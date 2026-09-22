@@ -140,6 +140,19 @@ def analyze(job_id: int, response: Response, db: Session = Depends(get_db), sell
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
 
+    # 큐 수락 시점에 N2로 올린다. 워커(run_analyze)가 시작될 때도 같은 값을
+    # 다시 쓰지만, 워커가 없거나 시작 전인 동안 GET /tasks 가 N1(draft)을
+    # 주면 FE job 페이지는 분석중 화면을 그리지 못하고 폴링도 멈춘다.
+    db.execute(
+        text(
+            "UPDATE job SET status='processing', current_step='N2', "
+            "user_facing_status='analyzing', updated_at=now() "
+            "WHERE id = :id AND seller_id = :s"
+        ),
+        {"id": job_id, "s": seller_id},
+    )
+    db.commit()
+
     from app.tasks import run_analyze  # 지연 임포트(celery 앱 로드)
     result = run_analyze.delay(job_id)  # ← 실제 큐에 넣음
     response.status_code = 202

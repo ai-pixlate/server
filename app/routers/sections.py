@@ -149,6 +149,20 @@ def proceed(job_id: int, response: Response, db: Session = Depends(get_db), sell
     if counts["total"] == 0 or counts["inc"] == 0:
         raise HTTPException(status_code=409, detail="ALL_SECTIONS_EXCLUDED")
 
+    # 큐 수락 시점에 N4로 올린다(analyze→N2와 같은 이유). 워커(run_translate)가
+    # 시작될 때 같은 값을 다시 쓰지만, 워커가 아직 시작 전인 동안 GET /tasks가
+    # N3를 그대로 주면 FE는 N3 화면에 머문 채 폴링까지 멈춘다(N3는 사용자 입력
+    # 대기 단계라 폴링 대상이 아니다) — 그러면 번역이 끝나도 화면이 넘어가지 않는다.
+    db.execute(
+        text(
+            "UPDATE job SET status='processing', current_step='N4', "
+            "user_facing_status='translating', updated_at=now() "
+            "WHERE id = :j AND seller_id = :s"
+        ),
+        {"j": job_id, "s": seller_id},
+    )
+    db.commit()
+
     from app.tasks import run_translate  # 지연 임포트
     result = run_translate.delay(job_id)  # ← 번역 태스크 큐 등록
     response.status_code = 202

@@ -115,33 +115,43 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
     _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
-            "SELECT id, section_order, source_image_id, bucket, height, "
+            "SELECT id, section_order, source_image_id, bucket, excluded_stage, height, "
             "image_key, render_image_key "
             "FROM section WHERE job_id = :j ORDER BY section_order, id"
         ),
         {"j": job_id},
     ).mappings().all()
 
+    # 섹션 식별자는 계약(ReviewPreview.sections[].id)대로 `id`로 내보낸다 —
+    # `sectionId`로 주면 FE N5 어댑터가 식별자 없음으로 보고 예외를 던진다.
+    # height/sectionOrder/excludedStage도 계약 필드라 함께 채운다(FE는
+    # section.height * scale로 프리뷰 슬라이스 높이를 잡는다 — 없으면 0이 된다).
     sections = []
     display_top = 0
     for r in rows:
+        height = r["height"] or 1500
         sections.append({
-            "sectionId": r["id"],
+            "id": r["id"],
+            "sectionOrder": r["section_order"],
             "sourceImageId": r["source_image_id"],
+            "bucket": r["bucket"],
+            "excludedStage": r["excluded_stage"],
             "width": render.CANVAS_WIDTH,
             "displayTop": display_top,
-            "bucket": r["bucket"],
+            "height": height,
             "originalUrl": s3.presigned_get(r["image_key"]),
             "renderedUrl": s3.presigned_get(r["render_image_key"]),
             "signals": [],
         })
-        display_top += r["height"] or 1500
+        display_top += height
 
+    scale = round(500 / render.CANVAS_WIDTH, 2)
     return {
         "previewWidth": 500,
         "maxOriginalWidth": render.CANVAS_WIDTH,
-        "scale": round(500 / render.CANVAS_WIDTH, 2),
-        "previewHeight": display_top,
+        "originalHeight": display_top,
+        "scale": scale,
+        "previewHeight": round(display_top * scale),
         "align": "left",
         "sections": sections,
     }
@@ -168,4 +178,10 @@ def confirm(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
         {"j": job_id, "s": seller_id},
     ).mappings().first()
     db.commit()
+
+    # 계약(CFM-04): confirm이 렌더 task를 자동 등록한다 — "FE는 N6에서 JOB-05
+    # 폴링만". 등록을 빼면 FE가 N6에 들어간 순간 render task가 없어 폴링을 멈춘다.
+    from app.tasks import register_render_task  # 지연 임포트(celery 앱 로드)
+    register_render_task(db, job_id)
+
     return {"jobId": r["id"], "status": r["status"], "currentStep": r["current_step"]}

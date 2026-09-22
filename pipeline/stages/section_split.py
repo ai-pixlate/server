@@ -28,6 +28,7 @@ VLM 실패는 #25 미정 — `pipeline.vlm.VlmError`를 그대로 전파하고 �
 """
 from __future__ import annotations
 
+import hashlib
 import math
 from pathlib import Path
 from typing import Any
@@ -37,7 +38,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pipeline.errors import image_open_failed
 from pipeline.types import Section, SourceImage, SplitResult, section_key
-from pipeline.vlm import BoundaryPicker, GeminiBoundaryPicker
+from pipeline.vlm import BoundaryPicker, GeminiBoundaryPicker, prompt_sha256
 
 RULER_W = 48  # VLM 입력 왼쪽 눈금 띠 폭(px)
 _SIDE_MIN_FACTOR = 4  # 후보 확정 창을 자르는 이웃 후보의 최소 거리 = color_window_px × 이 값. 더 가까운 후보(얇은 바·선)는 무시
@@ -297,14 +298,48 @@ def vlm_boundaries(
         ys = vlm(img, prompt)
         local = sorted({top + round(y / scale) for y in ys if 0 < y < img.height})
         found.update(local)
-        calls.append({"window": [top, bottom], "input_size": list(img.size), "raw": list(ys), "mapped": local})
+        calls.append(
+            {"window": [top, bottom], "input_size": list(img.size), "scale": round(scale, 6),
+             "prompt_sha256": prompt_sha256(prompt), "raw": list(ys), "mapped": local}
+        )
     if diag_entry is not None:
         diag_entry["calls"] = calls
     return sorted(found)
 
 
+def vlm_seed(sc: dict[str, Any]) -> int | None:
+    """`vlm_seed` 키. 음수면 보내지 않는다(기본)."""
+    seed = int(sc["vlm_seed"])
+    return None if seed < 0 else seed
+
+
 def default_picker(sc: dict[str, Any]) -> BoundaryPicker:
-    return GeminiBoundaryPicker(model=str(sc["vlm_model"]), temperature=float(sc["vlm_temperature"]))
+    return GeminiBoundaryPicker(model=str(sc["vlm_model"]), temperature=float(sc["vlm_temperature"]), seed=vlm_seed(sc))
+
+
+def vlm_context(sc: dict[str, Any]) -> dict[str, Any]:
+    """VLM 응답에 영향을 주는 설정. 진단 기록과 재생 검증에 쓴다."""
+    prompt_file = Path(sc["prompt_path"])
+    return {
+        "model": str(sc["vlm_model"]),
+        "temperature": float(sc["vlm_temperature"]),
+        "seed": vlm_seed(sc),
+        "width_px": int(sc["vlm_width_px"]),
+        "window_px": int(sc["vlm_window_px"]),
+        "window_overlap_px": int(sc["vlm_window_overlap_px"]),
+        "prompt_path": str(sc["prompt_path"]),
+        "prompt_file_sha256": hashlib.sha256(prompt_file.read_bytes()).hexdigest()[:16] if prompt_file.is_file() else None,
+        "ruler_w": RULER_W,
+        "ruler_step": RULER_STEP,
+    }
+
+
+def source_fingerprint(path: str | Path) -> dict[str, Any]:
+    """원본 지문(파일 해시 · 크기). 진단 기록과 재생 검증에 쓴다."""
+    p = Path(path)
+    with Image.open(p) as im:
+        w, h = im.size
+    return {"sha256": hashlib.sha256(p.read_bytes()).hexdigest()[:16], "width": w, "height": h}
 
 
 # ---- 조립 ---------------------------------------------------------------------------------
@@ -392,5 +427,8 @@ def run(
     """① 실행. `vlm`을 주면 기본 Gemini 호출자 대신 쓴다(테스트·실험용). 긴 구간이 없으면 VLM을 부르지 않는다.
     `diag`에 dict를 주면 경계 결정 진단을 채운다."""
     im = open_source(src)
+    if diag is not None:
+        diag["input"] = source_fingerprint(src.path)
+        diag["vlm_config"] = vlm_context(cfg["section"])
     boundaries = decide_boundaries(im, cfg["section"], vlm, diag)
     return crop_sections(src, im, boundaries, out_dir)

@@ -1,7 +1,8 @@
 """단계별 실행 CLI — 전체 서버(FastAPI·Celery·DB) 없이 특정 단계만 돌린다.
 
     python -m pipeline.run config  [--set 표.키=값 ...]                      # 유효 config 출력
-    python -m pipeline.run split   --source IMG [--source-id N] --out DIR   # ① → DIR/split.json, DIR/sections/*.png, DIR/split_debug.json
+    python -m pipeline.run split   --source IMG [--source-id N] --out DIR [--vlm-replay DIR0/split_debug.json]
+                                   # ① → DIR/split.json, DIR/sections/*.png, DIR/split_debug.json. --vlm-replay는 이전 VLM 응답 재생(실험용)
     python -m pipeline.run ocr     --split DIR/split.json [--section KEY] --out DIR   # ② → DIR/ocr/<KEY>.json
     python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR  # ③ → DIR/merge/<KEY>.json
     python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR # ①→②→③ → DIR/analyze.json
@@ -88,7 +89,17 @@ def cmd_split(args) -> int:
     src = SourceImage(source_image_id=args.source_id, upload_order=1, path=args.source)
     started = datetime.now(timezone.utc)
     diag: dict[str, Any] = {}
-    res = section_split.run(src, cfg, out / "sections", diag=diag)
+    vlm = None
+    if args.vlm_replay:
+        from pipeline.vlm import ReplayBoundaryPicker
+
+        vlm = ReplayBoundaryPicker.from_file(
+            args.vlm_replay, section_split.source_fingerprint(args.source), section_split.vlm_context(cfg["section"])
+        )
+        diag["vlm_replay"] = str(args.vlm_replay)
+    res = section_split.run(src, cfg, out / "sections", vlm=vlm, diag=diag)
+    if vlm is not None and vlm.remaining:
+        print(f"경고: 재생 기록 {vlm.remaining}회가 쓰이지 않았다(구간이 줄었다)", file=sys.stderr)
     p = _write_json(out / "split.json", res)
     out.mkdir(parents=True, exist_ok=True)
     (out / "split_debug.json").write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -183,6 +194,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--source", required=True)
     sp.add_argument("--source-id", type=int, default=1)
     sp.add_argument("--out", required=True)
+    sp.add_argument("--vlm-replay", metavar="split_debug.json", help="이전 실행의 VLM 응답을 재생(실험용). API 호출 없음")
     sp.set_defaults(fn=cmd_split)
 
     sp = sub.add_parser("ocr", help="② 텍스트 추출")

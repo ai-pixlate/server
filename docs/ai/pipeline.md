@@ -57,6 +57,7 @@
 |---|---|---|---|---|
 | ① | `section.granularity` | `subheading` | 의미 섹션 입도 | [PoC 0장] |
 | ① | `section.vlm_model` / `section.vlm_temperature` | `gemini-3.8-flash` / `0` | 긴 구간 경계 선택 모델. 사용자 확정 2026-09-21 | [PoC 9장] [`open-questions.md` 5절 #21] |
+| ① | `section.vlm_seed` | `-1` | 실험용. 음수면 보내지 않는다(기본). 고정해도 동일 응답은 보장되지 않는다. 재현성 실험(`dev.md` 4절)에서만 `--set` | [`open-questions.md` #26] |
 | ① | `section.color_window_px` / `section.color_delta` | `8` / `12` | 행 배경색(행 픽셀 중앙값)을 창으로 평활해 앞 창과 비교. RGB 거리가 `color_delta` 이상이면 전환 후보(경계 = 행 간 변화가 가장 큰 행). 후보 양쪽 구간(이웃 후보까지, 최대 `min_section_px`)의 중앙값 차이도 `color_delta` 이상이어야 확정. **값은 잠정** | [`open-questions.md` #26] |
 | ① | `section.blank_row_std` / `section.bg_row_ratio` | `6.0` / `0.25` | 행 색 표준편차가 `blank_row_std` 이하이면 균일 행(여백). 후보 양쪽 구간 **모두** 균일 행 비율이 `bg_row_ratio` 이상이어야 배경 전환으로 확정 — 사진·표·일러스트 띠는 균일 행이 없어 그 위아래 경계가 기각된다. 모든 행이 균일한 구간(여백뿐인 띠)은 앞 구간에 붙인다. **잠정** | [`open-questions.md` #26] |
 | ① | `section.min_section_px` | `200` | 최소 섹션 높이. 더 짧은 구간을 만드는 경계 중 **강도(중앙값 거리)가 약한 쪽**을 버린다(같으면 위쪽을 남김). **잠정** | [`open-questions.md` #26] |

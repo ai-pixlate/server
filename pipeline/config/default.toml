@@ -14,6 +14,7 @@ bg_row_ratio = 0.25            # 전환 후보 양쪽 구간의 균일 행 비�
 snap_radius_px = 40            # VLM 경계를 반경 안 가장 가까운 여백 구간 중앙으로 보정. 없으면 폐기
 vlm_model = "gemini-3.8-flash" # #21 확정(2026-09-21)
 vlm_temperature = 0
+vlm_seed = -1                  # 실험용. 음수 = 보내지 않음(기본). 고정해도 동일 응답 보장은 없음
 vlm_width_px = 768             # VLM 입력은 폭 기준으로 줄인다(비율 유지). 왼쪽에 y 눈금 띠를 붙여 전달
 vlm_window_px = 4000           # 구간 높이(원본 px)가 이 값을 넘으면 창으로 나눠 여러 번 호출
 vlm_window_overlap_px = 300    # 창 겹침

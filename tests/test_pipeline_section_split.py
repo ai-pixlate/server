@@ -341,3 +341,101 @@ def test_cli_returns_4_when_vlm_client_init_fails(tmp_path, monkeypatch):
     src = tmp_path / "long.png"
     _long_image().save(src)  # 3000px 흰 배경 → 전체가 긴 구간 → VLM 호출
     assert cli.main(["split", "--source", str(src), "--out", str(tmp_path / "out")]) == 4
+
+
+# ---- 실험 도구: seed · replay ------------------------------------------------------------
+def test_seed_is_sent_only_when_configured(cfg, monkeypatch):
+    import sys
+    from types import SimpleNamespace
+
+    from pipeline.vlm import GeminiBoundaryPicker
+
+    assert ss.vlm_seed(cfg["section"]) is None  # 기본 -1 → 보내지 않음
+    assert ss.vlm_seed({**cfg["section"], "vlm_seed": 7}) == 7
+
+    seen: list = []
+
+    class FakeModels:
+        @staticmethod
+        def generate_content(model, contents, config):
+            seen.append(config)
+            return SimpleNamespace(text='{"boundaries": [10]}')
+
+    from google.genai import types as real_types
+
+    class FakeGenai:
+        types = real_types  # `from google.genai import types`가 계속 되게 실제 types를 붙인다
+
+        @staticmethod
+        def Client(api_key):  # noqa: N802
+            return SimpleNamespace(models=FakeModels())
+
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    monkeypatch.setitem(sys.modules, "google.genai", FakeGenai)
+    monkeypatch.setattr(__import__("google"), "genai", FakeGenai, raising=False)
+    img = Image.new("RGB", (10, 10))
+    assert GeminiBoundaryPicker("m", 0)(img, "p") == [10]
+    assert GeminiBoundaryPicker("m", 0, seed=42)(img, "p") == [10]
+    assert seen[0].seed is None and seen[1].seed == 42
+    assert seen[0].automatic_function_calling.disable is True
+
+
+def _record_run(cfg, tmp_path, fake_vlm):
+    src_path = tmp_path / "long.png"
+    _long_image(9000).save(src_path)  # 창 3개
+    src = SourceImage(source_image_id=1, upload_order=1, path=str(src_path))
+    diag: dict = {}
+    res = ss.run(src, cfg, tmp_path / "first", vlm=fake_vlm, diag=diag)
+    return src, diag, [s.top_offset for s in res.sections]
+
+
+def test_replay_reproduces_boundaries_without_calling_vlm(cfg, tmp_path):
+    from pipeline.vlm import ReplayBoundaryPicker
+
+    calls = {"n": 0}
+
+    def fake_vlm(image, prompt):
+        calls["n"] += 1
+        return [1220] if calls["n"] == 1 else [500]
+
+    src, diag, offsets = _record_run(cfg, tmp_path, fake_vlm)
+    assert diag["input"]["height"] == 9000 and diag["vlm_config"]["model"] == "gemini-3.8-flash"
+    assert diag["vlm"][0]["calls"][0]["prompt_sha256"]
+
+    replay = ReplayBoundaryPicker(diag, ss.source_fingerprint(src.path), ss.vlm_context(cfg["section"]))
+    res2 = ss.run(src, cfg, tmp_path / "second", vlm=replay)
+    assert [s.top_offset for s in res2.sections] == offsets
+    assert replay.remaining == 0 and calls["n"] == 3  # 재생 중 가짜 VLM은 다시 불리지 않았다
+
+
+def test_replay_rejects_changed_input_config_or_windows(cfg, tmp_path):
+    from pipeline.vlm import ReplayBoundaryPicker, VlmReplayMismatch
+
+    src, diag, _ = _record_run(cfg, tmp_path, lambda image, prompt: [])
+    fp, ctx = ss.source_fingerprint(src.path), ss.vlm_context(cfg["section"])
+    with pytest.raises(VlmReplayMismatch, match="input"):
+        ReplayBoundaryPicker(diag, {**fp, "sha256": "0000"}, ctx)
+    with pytest.raises(VlmReplayMismatch, match="vlm_config"):
+        ReplayBoundaryPicker(diag, fp, {**ctx, "width_px": 512})
+    with pytest.raises(VlmReplayMismatch, match="지원하지 않는"):
+        ReplayBoundaryPicker({"vlm": []}, fp, ctx)
+    # 창 크기를 바꾸면 호출 순서·입력 크기가 달라진다 → 첫 호출에서 멈춘다
+    sc2 = {**cfg["section"], "vlm_window_px": 5000}
+    replay = ReplayBoundaryPicker(diag, fp, ctx)
+    with pytest.raises(VlmReplayMismatch, match="호출 불일치"):
+        ss.decide_boundaries(Image.open(src.path), sc2, vlm=replay)
+
+
+def test_cli_split_replays_previous_debug_record(cfg, tmp_path):
+    from pipeline import run as cli
+
+    src, diag, offsets = _record_run(cfg, tmp_path, lambda image, prompt: [1220])
+    debug = tmp_path / "first_debug.json"
+    debug.write_text(json.dumps(diag), encoding="utf-8")
+    out = tmp_path / "cli"
+    assert cli.main(["split", "--source", src.path, "--out", str(out), "--vlm-replay", str(debug)]) == 0
+    split = json.loads((out / "split.json").read_text(encoding="utf-8"))
+    assert [s["top_offset"] for s in split["sections"]] == offsets
+    assert json.loads((out / "split_debug.json").read_text(encoding="utf-8"))["vlm_replay"] == str(debug)
+    # 설정이 다르면 종료 코드 4(VlmError 계열)
+    assert cli.main(["split", "--source", src.path, "--out", str(out), "--vlm-replay", str(debug), "--set", "section.vlm_width_px=512"]) == 4

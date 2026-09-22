@@ -223,25 +223,72 @@ def _load_spec(db, job_id: int) -> dict:
     return {"maxWidth": render.CANVAS_WIDTH, "charLimit": row["char_limit"] if row else None}
 
 
+def register_render_task(db, job_id: int) -> int:
+    """렌더 task 행을 요청 스레드에서 동기로 upsert(unit당 1행·멱등)하고 큐에 넣는다.
+
+    행 생성을 워커에 맡기면 202 직후 GET /tasks에 render task가 아직 없다. FE N6은
+    "렌더 task 없음"을 폴링 중단 조건으로 쓰기 때문에(N6은 진행 중 render task가
+    있을 때만 폴링한다) 그 틈에 걸리면 렌더가 끝나도 스피너에서 영구 대기한다.
+    계약(FIN-01)도 renderTaskId를 job_async_task.id(int64)로 규정하므로,
+    celery task uuid가 아니라 이 행의 id를 반환한다.
+    """
+    row = db.execute(
+        text(
+            "SELECT id FROM job_async_task WHERE job_id = :j "
+            "AND task_type = 'render' AND unit_type = 'job' AND unit_id = :j"
+        ),
+        {"j": job_id},
+    ).mappings().first()
+    if row:
+        task_row_id = row["id"]
+        db.execute(
+            text(
+                "UPDATE job_async_task SET status='pending', error_code=NULL, "
+                "error_message=NULL, started_at=NULL, finished_at=NULL WHERE id = :t"
+            ),
+            {"t": task_row_id},
+        )
+    else:
+        task_row_id = db.execute(
+            text(
+                "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status) "
+                "VALUES (:j, 'render', 'job', :j, 'pending') RETURNING id"
+            ),
+            {"j": job_id},
+        ).scalar()
+    db.commit()
+
+    run_render.delay(job_id, task_row_id)
+    return task_row_id
+
+
 @celery_app.task(name="app.tasks.run_render")
-def run_render(job_id: int) -> dict:
+def run_render(job_id: int, task_row_id: int | None = None) -> dict:
     """N6 렌더(실제): include 섹션마다 조판→PNG→S3 업로드→규격검증→deliverable 생성.
 
     job 상태 전이는 하지 않는다(N6 done 전이는 FIN-06 save가 소유 · 아키텍처).
+    task_row_id가 오면 register_render_task가 미리 만든 행을 running으로 올린다.
     """
     from app import render, s3
 
     db = SessionLocal()
-    task_row_id = None
     try:
-        row = db.execute(
-            text(
-                "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status, started_at) "
-                "VALUES (:j, 'render', 'job', :j, 'running', now()) RETURNING id"
-            ),
-            {"j": job_id},
-        ).mappings().one()
-        task_row_id = row["id"]
+        if task_row_id is not None:
+            db.execute(
+                text(
+                    "UPDATE job_async_task SET status='running', started_at=now(), "
+                    "finished_at=NULL WHERE id = :t"
+                ),
+                {"t": task_row_id},
+            )
+        else:
+            task_row_id = db.execute(
+                text(
+                    "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status, started_at) "
+                    "VALUES (:j, 'render', 'job', :j, 'running', now()) RETURNING id"
+                ),
+                {"j": job_id},
+            ).scalar()
         db.commit()
 
         spec = _load_spec(db, job_id)

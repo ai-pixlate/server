@@ -1,14 +1,14 @@
 """단계별 실행 CLI — 전체 서버(FastAPI·Celery·DB) 없이 특정 단계만 돌린다.
 
     python -m pipeline.run config  [--set 표.키=값 ...]                      # 유효 config 출력
-    python -m pipeline.run split   --source IMG [--source-id N] --out DIR   # ① → DIR/split.json, DIR/sections/*.png
+    python -m pipeline.run split   --source IMG [--source-id N] --out DIR   # ① → DIR/split.json, DIR/sections/*.png, DIR/split_debug.json
     python -m pipeline.run ocr     --split DIR/split.json [--section KEY] --out DIR   # ② → DIR/ocr/<KEY>.json
     python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR  # ③ → DIR/merge/<KEY>.json
     python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR # ①→②→③ → DIR/analyze.json
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
 
 모든 하위 명령은 --config PATH(정본 대신 다른 파일)와 --set 표.키=값(값만 덮어씀)을 받는다.
-실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시를 남긴다(계약 9장의 event_log.payload에 해당).
+실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간을 남긴다(계약 9장의 event_log.payload에 해당).
 종료 코드: 0 성공 · 2 AnalyzeError · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
 """
 from __future__ import annotations
@@ -38,12 +38,17 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
 
 
-def _write_run_record(out_dir: Path, stage: str, cfg: dict[str, Any], inputs: dict[str, Any]) -> None:
+def _write_run_record(
+    out_dir: Path, stage: str, cfg: dict[str, Any], inputs: dict[str, Any], started: datetime | None = None
+) -> None:
     prompts_dir = Path(__file__).parent / "prompts"
     prompt_hashes = {p.name: _sha256(p) for p in sorted(prompts_dir.glob("*.md")) if p.name != "README.md"}
+    ended = datetime.now(timezone.utc)
     record = {
         "stage": stage,
-        "ran_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "started_at": started.isoformat(timespec="seconds") if started else None,
+        "ran_at": ended.isoformat(timespec="seconds"),  # 종료 시각
+        "duration_s": round((ended - started).total_seconds(), 3) if started else None,
         "config": cfgmod.snapshot(cfg),
         "inputs": inputs,
         "prompt_hashes": prompt_hashes,
@@ -81,9 +86,13 @@ def cmd_split(args) -> int:
     cfg = _load_cfg(args)
     out = Path(args.out)
     src = SourceImage(source_image_id=args.source_id, upload_order=1, path=args.source)
-    res = section_split.run(src, cfg, out / "sections")
+    started = datetime.now(timezone.utc)
+    diag: dict[str, Any] = {}
+    res = section_split.run(src, cfg, out / "sections", diag=diag)
     p = _write_json(out / "split.json", res)
-    _write_run_record(out, "split", cfg, {"source": args.source})
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "split_debug.json").write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_run_record(out, "split", cfg, {"source": args.source}, started)
     print(f"섹션 {len(res.sections)}개 → {p}")
     return 0
 
@@ -92,6 +101,7 @@ def cmd_ocr(args) -> int:
     from pipeline.stages import ocr
 
     cfg = _load_cfg(args)
+    started = datetime.now(timezone.utc)
     out = Path(args.out)
     split = SplitResult.model_validate_json(Path(args.split).read_text(encoding="utf-8"))
     targets = [_find_section(split, args.section)] if args.section else split.sections
@@ -99,7 +109,7 @@ def cmd_ocr(args) -> int:
         res = ocr.run(sec, cfg)
         p = _write_json(out / "ocr" / f"{sec.section_key}.json", res)
         print(f"{sec.section_key}: 영역 {len(res.regions)}개 → {p}")
-    _write_run_record(out, "ocr", cfg, {"split": args.split, "section": args.section})
+    _write_run_record(out, "ocr", cfg, {"split": args.split, "section": args.section}, started)
     return 0
 
 
@@ -107,13 +117,14 @@ def cmd_merge(args) -> int:
     from pipeline.stages import merge
 
     cfg = _load_cfg(args)
+    started = datetime.now(timezone.utc)
     out = Path(args.out)
     split = SplitResult.model_validate_json(Path(args.split).read_text(encoding="utf-8"))
     ocr_res = OcrResult.model_validate_json(Path(args.ocr).read_text(encoding="utf-8"))
     sec = _find_section(split, ocr_res.section_key)
     res = merge.run(sec, ocr_res, cfg)
     p = _write_json(out / "merge" / f"{sec.section_key}.json", res)
-    _write_run_record(out, "merge", cfg, {"split": args.split, "ocr": args.ocr})
+    _write_run_record(out, "merge", cfg, {"split": args.split, "ocr": args.ocr}, started)
     print(f"{sec.section_key}: 블록 {len(res.blocks)}개 → {p}")
     return 0
 
@@ -122,6 +133,7 @@ def cmd_analyze(args) -> int:
     from pipeline.analyze import analyze
 
     cfg = _load_cfg(args)
+    started = datetime.now(timezone.utc)
     out = Path(args.out)
     sources = [
         SourceImage(source_image_id=i + 1, upload_order=i + 1, path=p) for i, p in enumerate(args.source)
@@ -132,7 +144,7 @@ def cmd_analyze(args) -> int:
         print(json.dumps(e.to_dict(), ensure_ascii=False), file=sys.stderr)
         return 2
     p = _write_json(out / "analyze.json", res)
-    _write_run_record(out, "analyze", cfg, {"sources": args.source})
+    _write_run_record(out, "analyze", cfg, {"sources": args.source}, started)
     print(f"섹션 {len(res.sections)}개 · 블록 {len(res.blocks)}개 · 경고 {len(res.warnings)}개 → {p}")
     return 0
 

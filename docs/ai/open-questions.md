@@ -68,7 +68,7 @@
 
 | # | 항목 | 영향 | 담당 | 상태 | 출처 |
 |---|---|---|---|---|---|
-| 26 | ① 섹션 분해 알고리즘 파라미터 값의 실측 확정 — 색 전환 임계값(`color_delta`·`color_window_px`) · 최소 섹션 높이 · 긴 구간 기준 · 균일 행 기준 · 보정 반경 · VLM 입력 크기 · 프롬프트. 정본에 값이 없어 config 초기값은 잠정이며 `samples/local/` 표본 실측 후 확정 | `pipeline.md` 3절 · `pipeline/config/default.toml` `[section]` | AI | 미정 | [`pipeline.md` 3절] [PoC 9장] |
+| 26 | ① 섹션 분해 알고리즘 파라미터 값의 실측 확정 — 색 전환 임계값(`color_delta`·`color_window_px`) · 배경다움 비율(`bg_row_ratio`) · 최소 섹션 높이 · 긴 구간 기준 · 균일 행 기준 · 보정 반경 · VLM 입력 폭·창 크기·겹침 · 프롬프트. 정본에 값이 없어 config 초기값은 잠정이며 `samples/local/` 표본 실측 후 확정. 1차 실측(2026-09-21, 34장)으로 알고리즘을 개정했고 값은 2차 실측 뒤 확정 | `pipeline.md` 3절 · `pipeline/config/default.toml` `[section]` | AI | 미정 | [`pipeline.md` 3절] [PoC 9장] |
 | 23 | BE 정본 ERD의 경로·버전, `db-map.md` 참조 색인의 테이블·컬럼명 일치 여부 | `db-map.md` 전체 | BE | BE 확인 필요 | [`db-map.md` 3절] |
 
 ## 3. 상위 문서 수정 필요

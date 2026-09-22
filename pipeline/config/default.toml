@@ -10,10 +10,13 @@ color_delta = 12               # 창 평균색 RGB 유클리드 거리가 이 �
 min_section_px = 200           # 최소 섹션 높이. 더 짧은 구간을 만드는 뒤 경계는 버림
 long_section_px = 1500         # 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택
 blank_row_std = 6.0            # 행 색 표준편차가 이 값 이하이면 균일 행(여백)
+bg_row_ratio = 0.25            # 전환 후보 양쪽 구간의 균일 행 비율이 둘 다 이 값 이상이어야 배경 전환으로 인정(사진·표 띠 배제)
 snap_radius_px = 40            # VLM 경계를 반경 안 가장 가까운 여백 구간 중앙으로 보정. 없으면 폐기
 vlm_model = "gemini-3.8-flash" # #21 확정(2026-09-21)
 vlm_temperature = 0
-vlm_long_side_px = 1536        # VLM 입력 리사이즈. 왼쪽에 y 눈금 띠를 붙여 전달
+vlm_width_px = 768             # VLM 입력은 폭 기준으로 줄인다(비율 유지). 왼쪽에 y 눈금 띠를 붙여 전달
+vlm_window_px = 4000           # 구간 높이(원본 px)가 이 값을 넘으면 창으로 나눠 여러 번 호출
+vlm_window_overlap_px = 300    # 창 겹침
 prompt_path = "pipeline/prompts/section_boundary.md"
 
 [ocr]                          # ② 텍스트 추출

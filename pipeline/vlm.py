@@ -82,6 +82,8 @@ class GeminiBoundaryPicker:
                     temperature=self.temperature,
                     response_mime_type="application/json",
                     response_schema=_RESPONSE_SCHEMA,
+                    # 도구 호출을 쓰지 않는데 SDK가 매 호출 "AFC ... not recommended" 경고를 stderr에 찍는다. 끈다.
+                    automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
                 ),
             )
             text = resp.text

@@ -60,7 +60,7 @@ docs/ai/                     정본 문서
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
 
-**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시각)을 남긴다. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
+**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s`)을 남긴다. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
 
 ## 3. 단계 간 타입 (`pipeline/types.py`)
 
@@ -103,7 +103,7 @@ docs/ai/                     정본 문서
 | 명령 | 하는 일 | 출력 |
 |---|---|---|
 | `python -m pipeline.run config [--set ...]` | 유효 config 출력 | stdout |
-| `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` |
+| `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합 · VLM 창별 호출·보정·폐기) |
 | `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② | `DIR/ocr/<key>.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
@@ -120,7 +120,7 @@ docs/ai/                     정본 문서
 pipeline/samples/<이름>/
   source.png                 원본 (여러 장이면 source_01.png …)
   expected/                  기대 결과 — 실행 출력 DIR도 같은 레이아웃
-    split.json  sections/<key>.png  ocr/<key>.json  merge/<key>.json  [analyze.json  run.json]
+    split.json  sections/<key>.png  ocr/<key>.json  merge/<key>.json  [analyze.json  run.json  split_debug.json]
 ```
 
 | 디렉터리 | 내용 | git |
@@ -128,7 +128,7 @@ pipeline/samples/<이름>/
 | `samples/synthetic_01/` | 합성 원본(600×1000, 배경색 2구간, 영문) + 단계별 기대 JSON. `python -m pipeline.samples.make_synthetic`로 재생성 | 포함 |
 | `samples/local/` | 실제 한국어 상세페이지 표본 | **제외** |
 
-확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
+확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 섹션 경계가 이상하면 `split_debug.json`에서 그 y의 후보 기각 사유(`median_delta` · `bg_ratio` · `min_section`)나 VLM 폐기(`dropped`) 기록을 먼저 본다. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
 
 - `expected/`는 지금 **형식 예시**다. 단계가 구현되면 같은 입력의 실행 결과와 비교하는 회귀 테스트로 승격한다.
 - 실제 표본으로 한 실험의 결과·판단은 이 레포가 아니라 PoC 레포에 기록한다(`README.md` 4.1).

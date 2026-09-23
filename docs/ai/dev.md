@@ -70,7 +70,7 @@ docs/ai/                     정본 문서
 | 단계 | 함수 | 입력 | 출력 |
 |---|---|---|---|
 | ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
-| ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None)` | `Section` | `OcrResult`. `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 `NotImplementedError`(임시 분할 #31 · #32 미구현, 조용히 통과시키지 않음) |
+| ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None)` | `Section` | `OcrResult`. `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 `NotImplementedError`(임시 분할 #31 · #32 미구현, 조용히 통과시키지 않음). 실제 이미지 크기가 `Section.width`·`height`와 다르면 `IMAGE_OPEN_FAILED`(재시도 불가) — 분할 판단과 좌표 범위가 메타데이터와 어긋나지 않게. 엔진 반환값이 dict가 아니거나 배열이 아니면 `OCR_FAILED` |
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg)` | `Section` + `OcrResult` | `MergeResult` |
 | 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError` |
 

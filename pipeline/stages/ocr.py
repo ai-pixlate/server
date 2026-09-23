@@ -8,7 +8,7 @@
 - 좌표는 섹션 로컬 정수. 폴리곤 점은 섹션 범위 [0, W]×[0, H]로 자르고 bbox는 자른 폴리곤에서 만든다.
 - 영역 순서는 라이브러리 정렬(위→아래, 왼→오른쪽) 그대로, region_key는 그 순서로 부여한다.
 - 4,000px 초과 섹션의 임시 분할(#31 · #32)은 미구현 — 조용히 통과시키지 않고 NotImplementedError.
-- 텍스트 0개는 오류가 아니다(regions=[]). 섹션 이미지를 열 수 없으면 IMAGE_OPEN_FAILED,
+- 텍스트 0개는 오류가 아니다(regions=[]). 섹션 이미지를 열 수 없거나 크기가 Section의 width·height와 다르면 IMAGE_OPEN_FAILED,
   엔진 초기화·추론·출력 형식 오류는 OCR_FAILED. retryable은 errors.ERROR_POLICY 기본값(#33 미결).
 
 의존성은 pipeline/requirements-ocr.txt (CPU로 로컬 실행 가능). paddle은 엔진을 만들 때만 import한다.
@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Mapping
 from typing import Any, Callable
 
 import numpy as np
@@ -116,11 +117,16 @@ def _clip_poly(poly: Any, w: int, h: int) -> list[tuple[int, int]]:
 
 
 def to_result(section: Section, raw: dict[str, Any], width: int, height: int) -> OcrResult:
-    """엔진 결과 dict → OcrResult. 배열 길이 불일치 · 형식 오류는 OCR_FAILED."""
+    """엔진 결과 dict → OcrResult. 반환값 · 배열의 형식 오류와 길이 불일치는 모두 OCR_FAILED."""
+    if not isinstance(raw, Mapping):
+        raise _ocr_failed(section, f"엔진 결과가 dict가 아님({type(raw).__name__})")
     missing = [k for k in _REQUIRED_KEYS if k not in raw]
     if missing:
         raise _ocr_failed(section, f"엔진 결과에 키 없음 {missing}")
-    polys, texts, scores = (list(raw[k]) for k in _REQUIRED_KEYS)
+    try:
+        polys, texts, scores = (list(raw[k]) for k in _REQUIRED_KEYS)
+    except TypeError as e:
+        raise _ocr_failed(section, "엔진 결과 형식 오류(배열 아님)", e) from e
     if not (len(polys) == len(texts) == len(scores)):
         raise _ocr_failed(section, f"배열 길이 불일치 rec_polys={len(polys)} rec_texts={len(texts)} rec_scores={len(scores)}")
     regions = []
@@ -142,6 +148,13 @@ def run(section: Section, cfg: dict[str, Any], engine: Engine | None = None) -> 
         )
     image = load_section_image(section)
     h, w = image.shape[:2]
+    if (w, h) != (section.width, section.height):
+        # 메타데이터와 실제 이미지가 다르면 분할 판단·좌표 범위가 어긋난다 — 입력 불량으로 재시도 불가(계약 8장 코드)
+        raise AnalyzeError(
+            "IMAGE_OPEN_FAILED",
+            f"섹션 이미지 크기 불일치 {section.section_key}: 이미지 {w}x{h} ≠ Section {section.width}x{section.height} ({section.image_path})",
+            section.source_image_id,
+        )
     if engine is None:
         try:
             engine = build_engine(cfg)

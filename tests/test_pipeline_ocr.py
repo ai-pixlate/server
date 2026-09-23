@@ -119,6 +119,23 @@ def test_malformed_engine_output_is_ocr_failed(cfg, tmp_path, raw, match):
     assert ei.value.code == "OCR_FAILED" and ei.value.source_image_id == 7
 
 
+@pytest.mark.parametrize("raw", [None, [], "text", {"rec_polys": None, "rec_texts": [], "rec_scores": []},
+                                 {"rec_polys": [], "rec_texts": 3, "rec_scores": []}])
+def test_non_dict_or_non_array_output_is_ocr_failed(cfg, tmp_path, raw):
+    with pytest.raises(AnalyzeError) as ei:
+        ocr.run(_section(tmp_path), cfg, engine=FakeEngine(raw) if raw is not None else lambda img: None)
+    assert ei.value.code == "OCR_FAILED"
+
+
+def test_image_size_must_match_section_metadata(cfg, tmp_path):
+    sec = _section(tmp_path, h=200, w=100)
+    Image.new("RGB", (100, 4500), (255, 255, 255)).save(sec.image_path)  # 메타데이터 200, 실제 4500
+    eng = FakeEngine(_raw(([[1, 4100], [9, 4100], [9, 4110], [1, 4110]], "a", 1.0)))
+    with pytest.raises(AnalyzeError, match="크기 불일치") as ei:
+        ocr.run(sec, cfg, engine=eng)
+    assert (ei.value.code, ei.value.retryable) == ("IMAGE_OPEN_FAILED", False) and not eng.calls
+
+
 def test_inference_exception_is_ocr_failed(cfg, tmp_path):
     with pytest.raises(AnalyzeError, match="추론 실패") as ei:
         ocr.run(_section(tmp_path), cfg, engine=FakeEngine(exc=RuntimeError("boom")))
@@ -213,6 +230,26 @@ def test_cli_ocr_section_failure_continues_and_marks_partial(tmp_path, fake_engi
     assert s["sec_1_02"]["status"] == "failed" and s["sec_1_02"]["code"] == "IMAGE_OPEN_FAILED" and s["sec_1_02"]["retryable"] is False
     assert not (out / "ocr" / "sec_1_02.json").exists()  # 실패를 빈 결과로 바꿔치지 않는다
     assert json.loads(capsys.readouterr().err.strip().splitlines()[-1])["code"] == "IMAGE_OPEN_FAILED"
+
+
+def test_cli_ocr_malformed_output_keeps_going_and_writes_record(tmp_path, monkeypatch):
+    calls = iter([None, _raw(([[1, 1], [9, 1], [9, 9], [1, 9]], "a", 0.9)), {"rec_polys": None, "rec_texts": [], "rec_scores": []}])
+    monkeypatch.setattr(ocr, "build_engine", lambda cfg: FakeEngineFn(lambda img: next(calls)))
+    out = tmp_path / "out"
+    assert cli.main(["ocr", "--split", str(_split_dir(tmp_path)), "--out", str(out)]) == 2
+    rec = _record(out)
+    assert rec["status"] == "partial"
+    assert [v["status"] for v in rec["sections"].values()] == ["failed", "ok", "failed"]
+    assert {v.get("code") for v in rec["sections"].values() if v["status"] == "failed"} == {"OCR_FAILED"}
+
+
+class FakeEngineFn:
+    def __init__(self, fn):
+        self.fn = fn
+        self.info = {"engine": "fake"}
+
+    def __call__(self, image):
+        return self.fn(image)
 
 
 def test_cli_ocr_all_failed(tmp_path, fake_engine):

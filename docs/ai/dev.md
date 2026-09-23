@@ -170,7 +170,9 @@ pipeline/samples/<이름>/
 | GPU 서버 | `gpu/` 이미지 + `pip install -r pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).
-- `requirements-ocr.txt` · `-gpu.txt`는 아직 **설치 미검증**이다. 첫 설치에서 동작한 버전을 고정하고 `status.md`에 적는다.
+- `requirements-ocr.txt`는 2026-09-23 검증 버전으로 고정했다: `paddlepaddle==3.3.1` · `paddleocr==3.7.0` · `paddlex==3.7.2`(Windows 11 · Python 3.12.10 · CPU). 버전을 바꾸면 ② 영역 보존(`pipeline.md` 7절)의 코드 근거를 다시 확인한다. `-gpu.txt`는 아직 **설치 미검증**이다.
+- **Windows 로컬 OCR 설치**: paddle 패키지의 파일 경로가 길어 Windows 경로 길이 한도(260자)에 걸릴 수 있다(2026-09-23, 긴 임시 폴더 경로의 가상환경에서 `OSError [Errno 2]`). 짧은 가상환경 경로를 권장한다. 시스템의 Long Path 설정은 이 문서가 요구하지 않는다.
+- **Windows CPU 추론의 oneDNN 우회**: 위 버전의 Windows CPU에서 `predict` 시 `NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support … onednn_instruction.cc`가 났고 `enable_mkldnn=False`로 동작했다(2026-09-23). 원인은 paddle 3.3.1 oneDNN 실행기 문제로 **추정**한다. ② 엔진은 **Windows에서만** oneDNN을 끄고 Linux(워커·GPU 서버)에는 일괄 적용하지 않는다. 실제 적용값은 `run.json`에 남긴다. 알고리즘 파라미터가 아니라 실행 환경 설정이므로 config 키로 두지 않는다.
 - LLM·VLM 호출 단계(① 경계 선택 · ③ `llm_assist` · ③-1 · ④ · ⑧)는 API 키를 환경변수 **`GEMINI_API_KEY`**로 받는다(2026-09-21, ① 착수 시 결정). 이름은 BE·배포 담당에게 전달하고, 워커에 키를 주입하는 작업은 배포 담당과 맞춘다. 키는 커밋하지 않는다.
 - Python 3.11 이상(`tomllib`). BE와 GPU 이미지는 3.12.
 - `pipeline/requirements*.txt`의 주석은 ASCII로 유지한다. 일부 pip 버전은 이 파일을 로케일 인코딩(한국어 Windows는 cp949)으로 읽어 한글 주석에서 `UnicodeDecodeError`가 난다. 그래도 문제가 나면 `PYTHONUTF8=1`을 켜고 설치한다.

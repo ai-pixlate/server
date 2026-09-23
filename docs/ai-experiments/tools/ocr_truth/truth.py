@@ -296,10 +296,16 @@ def cmd_status(args) -> int:
 
 # ---- 저장(화면) -----------------------------------------------------------------------
 _LINE_FIELDS = ("text", "bbox", "tags", "verified", "note")
+_CONTENT_FIELDS = ("text", "bbox", "tags")  # 바뀌면 다시 대조해야 하는 필드
 
 
 def merge_edit(doc: dict[str, Any], new_lines: list[dict[str, Any]], reason: str) -> int:
-    """화면에서 받은 줄 목록을 반영하고 차이를 history에 남긴다. 반환: 기록한 변경 수."""
+    """화면에서 받은 줄 목록을 반영하고 차이를 history에 남긴다. 반환: 기록한 변경 수.
+
+    - 텍스트 · bbox · 태그가 바뀐 줄은 미검수로 되돌린다. 화면이 "수정한 뒤 다시 대조했다"(`reverified: true`)고
+      보낸 경우에만 검수를 유지한다 — 검수 뒤 바뀐 내용이 재확인 없이 동결되지 않게.
+    - 줄 순서가 바뀌면 전후 줄 ID 목록을 `reorder`로 남긴다.
+    """
     if doc["review"]["status"] == "frozen":
         raise ValueError("동결된 정답은 고칠 수 없다")
     old = {l["line_id"]: l for l in doc["lines"]}
@@ -313,25 +319,44 @@ def merge_edit(doc: dict[str, Any], new_lines: list[dict[str, Any]], reason: str
                 "note": str(nl.get("note", "")), "source": old.get(lid, {}).get("source", "human")}
         seen.add(lid)
         if lid not in old:
+            if line["verified"] and not nl.get("reverified"):
+                line["verified"] = False
             doc["history"].append({"at": now(), "by": "human", "action": "add", "line_id": lid, "after": line, "reason": reason})
             changes += 1
         else:
+            content_changed = any(old[lid].get(k) != line.get(k) for k in _CONTENT_FIELDS)
+            reset = content_changed and line["verified"] and not nl.get("reverified")
+            if reset:
+                line["verified"] = False
             before = {k: old[lid].get(k) for k in _LINE_FIELDS}
             after = {k: line.get(k) for k in _LINE_FIELDS}
             diff = {k: {"before": before[k], "after": after[k]} for k in _LINE_FIELDS if before[k] != after[k]}
             if diff:
-                doc["history"].append({"at": now(), "by": "human", "action": "edit", "line_id": lid, "changes": diff, "reason": reason})
+                entry = {"at": now(), "by": "human", "action": "edit", "line_id": lid, "changes": diff, "reason": reason}
+                if reset:
+                    entry["verified_reset"] = "내용이 바뀌어 미검수로 되돌림(수정 뒤 재대조 표시 없음)"
+                doc["history"].append(entry)
                 changes += 1
         out_lines.append(line)
     for lid, l in old.items():
         if lid not in seen:
             doc["history"].append({"at": now(), "by": "human", "action": "delete", "line_id": lid, "before": l, "reason": reason})
             changes += 1
+    kept_before = [l["line_id"] for l in doc["lines"] if l["line_id"] in seen]
+    kept_after = [l["line_id"] for l in out_lines if l["line_id"] in old]
+    if kept_before != kept_after:
+        doc["history"].append({"at": now(), "by": "human", "action": "reorder",
+                               "before": [l["line_id"] for l in doc["lines"]], "after": [l["line_id"] for l in out_lines],
+                               "reason": reason})
+        changes += 1
     doc["lines"] = out_lines
     all_verified = bool(out_lines) and all(l["verified"] for l in out_lines)
     status_before = doc["review"]["status"]
     doc["review"]["status"] = "reviewed" if all_verified else ("draft" if out_lines else "empty")
-    doc["review"]["reviewed_at"] = now() if all_verified and status_before != "reviewed" else (doc["review"]["reviewed_at"] if all_verified else None)
+    if not all_verified:
+        doc["review"]["reviewed_at"] = None
+    elif status_before != "reviewed" or changes:
+        doc["review"]["reviewed_at"] = now()  # 검수 완료 상태에서 내용이 바뀌어 다시 확인됐으면 시각을 갱신
     if doc["review"]["status"] != status_before:
         doc["history"].append({"at": now(), "by": "tool", "action": "status", "before": status_before, "after": doc["review"]["status"]})
     return changes

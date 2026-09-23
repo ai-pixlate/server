@@ -34,6 +34,7 @@
   button { font:inherit; padding:3px 9px; cursor:pointer; }
   .dirty { color:var(--warn); font-weight:600; }
   .hint { color:var(--muted); font-size:12px; }
+  body.saving main { pointer-events:none; opacity:.6; }
 </style>
 </head>
 <body>
@@ -62,11 +63,13 @@
 </main>
 <script>
 const $ = s => document.querySelector(s);
-let TAGS = [], doc = null, sel = -1, dirty = false, img = new Image(), drag = null;
+let TAGS = [], doc = null, sel = -1, dirty = false, img = new Image(), drag = null, saving = false, gen = 0;
 const cv = $('#cv'), ctx = cv.getContext('2d');
 const zoom = () => parseFloat($('#zoom').value);
 
-function setDirty(v) { dirty = v; $('#dirty').textContent = v ? '저장 안 됨' : ''; $('#dirty').className = v ? 'dirty' : ''; }
+function setDirty(v) { if (v) gen++; dirty = v; $('#dirty').textContent = v ? '저장 안 됨' : ''; $('#dirty').className = v ? 'dirty' : ''; }
+// 텍스트 · bbox · 태그를 바꾸면 다시 대조해야 한다 — 대조 완료를 해제한다(서버도 같은 규칙으로 되돌린다).
+function markEdited(l) { if (l.verified) { l.verified = false; l.reverified = false; renderLines(); } setDirty(true); draw(); }
 window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
 async function loadList(keep) {
@@ -141,16 +144,22 @@ function renderLines() {
       </div>`;
     d.querySelector('.id').onclick = () => select(i);
     d.querySelector('.t').onfocus = () => select(i, true);
-    d.querySelector('.t').oninput = e => { l.text = e.target.value; setDirty(true); };
-    d.querySelector('.v').onchange = e => { l.verified = e.target.checked; setDirty(true); renderLines(); draw(); };
+    d.querySelector('.t').oninput = e => { l.text = e.target.value; markEditedKeepFocus(l, e.target); };
+    d.querySelector('.v').onchange = e => { l.verified = e.target.checked; l.reverified = e.target.checked; setDirty(true); renderLines(); draw(); };
     d.querySelectorAll('.tg').forEach(cb => cb.onchange = () => {
-      l.tags = [...d.querySelectorAll('.tg:checked')].map(x => x.value); setDirty(true); });
+      l.tags = [...d.querySelectorAll('.tg:checked')].map(x => x.value); markEdited(l); });
     d.querySelectorAll('.num').forEach(inp => inp.onchange = () => {
       const v = parseInt(inp.value, 10); if (Number.isNaN(v)) return;
-      l.bbox = l.bbox || { x: 0, y: 0, w: 1, h: 1 }; l.bbox[inp.dataset.k] = v; setDirty(true); draw(); });
+      l.bbox = l.bbox || { x: 0, y: 0, w: 1, h: 1 }; l.bbox[inp.dataset.k] = v; markEdited(l); });
     d.querySelector('.note').oninput = e => { l.note = e.target.value; setDirty(true); };
     root.appendChild(d);
   });
+}
+
+// 텍스트 입력 중에는 목록을 다시 그리지 않고 체크만 해제한다(입력 커서 유지).
+function markEditedKeepFocus(l, input) {
+  if (l.verified) { l.verified = false; l.reverified = false; const v = input.closest('.ln').querySelector('.v'); v.checked = false; input.closest('.ln').classList.remove('ver'); }
+  setDirty(true); draw();
 }
 
 function select(i, keepFocus) {
@@ -173,7 +182,7 @@ window.onmouseup = () => {
   if (x1 - x0 >= 2 && y1 - y0 >= 2) {
     const clamp = (v, m) => Math.max(0, Math.min(m, Math.round(v)));
     const X0 = clamp(x0, img.width), Y0 = clamp(y0, img.height), X1 = clamp(x1, img.width), Y1 = clamp(y1, img.height);
-    doc.lines[sel].bbox = { x: X0, y: Y0, w: X1 - X0, h: Y1 - Y0 }; setDirty(true); renderLines();
+    doc.lines[sel].bbox = { x: X0, y: Y0, w: X1 - X0, h: Y1 - Y0 }; markEdited(doc.lines[sel]); renderLines();
   }
   draw();
 };
@@ -193,16 +202,30 @@ $('#up').onclick = () => move(-1); $('#down').onclick = () => move(1);
 $('#zoom').onchange = draw; $('#showAll').onchange = draw;
 
 async function save() {
-  if (!doc) return;
-  const r = await fetch('/api/truth/' + encodeURIComponent(doc.id), { method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lines: doc.lines, reason: $('#reason').value }) });
-  const res = await r.json();
-  if (!r.ok) { alert('저장 실패: ' + res.error); return; }
-  const keep = sel; await openDoc(doc.id); sel = keep; draw(); renderLines();
-  showCheck(res.check); $('#reason').value = '';
+  if (!doc || saving) return;
+  // 저장 중에는 편집을 잠근다. 그래도 바뀐 것이 있으면(세대 비교) 서버 데이터로 덮어쓰지 않는다.
+  saving = true; document.body.classList.add('saving'); document.activeElement && document.activeElement.blur();
+  const sentGen = gen, id = doc.id;
+  try {
+    const r = await fetch('/api/truth/' + encodeURIComponent(id), { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lines: doc.lines, reason: $('#reason').value }) });
+    const res = await r.json();
+    if (!r.ok) { alert('저장 실패: ' + res.error); return; }
+    if (gen !== sentGen || !doc || doc.id !== id) {
+      alert('저장하는 동안 바뀐 내용이 있어 화면을 다시 불러오지 않았습니다. 한 번 더 저장하세요.');
+      loadList(); return;
+    }
+    const keep = sel; await openDoc(id); sel = keep; draw(); renderLines();
+    showCheck(res.check); $('#reason').value = '';
+  } finally {
+    saving = false; document.body.classList.remove('saving');
+  }
 }
 $('#save').onclick = save;
-window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); } });
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); return; }
+  if (saving) { e.preventDefault(); e.stopPropagation(); }  // 저장 중 키 입력 차단
+}, true);
 
 function showCheck(errs) {
   $('#check').innerHTML = !errs || !errs.length ? '<span class="good">자동 검사 통과(좌표 · 범위 · 겹침 · 태그). 여백 10%·빠진 글자·셀 경계는 사람이 확인합니다.</span>'

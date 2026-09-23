@@ -4,6 +4,7 @@
 
 | 파일 | 단계 | 상태 |
 |---|---|---|
+| `section_boundary.md` | ① 긴 구간 VLM 경계 선택 — 소제목 위 여백에서 자를 y 목록을 JSON으로. 소항목·목록 항목·라벨 아래는 제외. `{{WIDTH}}` `{{HEIGHT}}`는 실행 시 치환 | 초안 (1차 실측 반영, 2차 실측 전) |
 | `merge_assist.md` | ③ `llm_assist` — 추가 병합·역할 재판정만, 분할 금지 | 미작성 |
 | `label.md` | ④ 제품 라벨 판정 | 미작성 |
 | `translate.md` | ⑧ 로컬라이징 번역 — RAG 용어집 구축 후 기술검증 (open-questions #11) | 미작성 |

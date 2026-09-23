@@ -28,6 +28,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   config.py                  config 로더 · --set override
   config/default.toml        실행 파라미터 정본 — 2절
   prompts/                   프롬프트 원문 (문서에는 경로만) — 2절
+  vlm.py                     VLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택. 실패 처리는 #25 미정
   stages/
     section_split.py         ① 섹션 분해
     ocr.py                   ② 텍스트 추출
@@ -54,12 +55,12 @@ docs/ai/                     정본 문서
 
 - TOML 표 이름 = `pipeline.md` 3절 키의 접두어(`[ocr]` `split_threshold_px` ↔ `ocr.split_threshold_px`). 두 곳의 키와 기본값은 항상 같아야 한다.
 - 실험 중 값 변경은 `--set 표.키=값`(반복 가능)으로만 한다. 파일과 `pipeline.md` 3절은 사용자가 "확정"이라고 말할 때만 함께 고친다.
-- 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. 현재 없는 키: `section.vlm_model`(#21) · ③-1 판정(#5).
+- 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. 현재 없는 키: ③-1 판정(#5). `[section]`의 임계값·기준값은 키는 있으나 값이 잠정이다(#26).
 - 통째로 바꾸려면 `--config PATH`(실험용 사본). 사본은 커밋하지 않는다.
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
 
-**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시각)을 남긴다. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
+**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s`)을 남긴다. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
 
 ## 3. 단계 간 타입 (`pipeline/types.py`)
 
@@ -67,7 +68,7 @@ docs/ai/                     정본 문서
 
 | 단계 | 함수 | 입력 | 출력 |
 |---|---|---|---|
-| ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일) |
+| ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
 | ② 텍스트 추출 | `stages.ocr.run(section, cfg)` | `Section` | `OcrResult` |
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg)` | `Section` + `OcrResult` | `MergeResult` |
 | 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError` |
@@ -102,13 +103,16 @@ docs/ai/                     정본 문서
 | 명령 | 하는 일 | 출력 |
 |---|---|---|
 | `python -m pipeline.run config [--set ...]` | 유효 config 출력 | stdout |
-| `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` |
+| `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합(`empty_merged` 색 단계 · `empty_merged_after_vlm` 보정 뒤) · VLM 창별 호출·보정·폐기) |
 | `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② | `DIR/ocr/<key>.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
 
-- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계.
+- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계 · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다).
+- VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
+- **VLM 응답 재생(실험용)**: `split --vlm-replay DIR0/split_debug.json`은 이전 실행의 창별 응답을 순서대로 재생하고 API를 부르지 않는다. 원본 지문(`input`) · VLM 설정(`vlm_config`) · 호출별 구간·창 좌표 · 실제 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시가 기록과 다르면 종료 코드 4로 멈추고, 기록이 다 쓰이지 않아도(호출 구성이 달라짐) 결과 파일 없이 종료 코드 4다. 보정(snap) 규칙처럼 **VLM 응답 이후** 단계만 바꾸는 비교에 쓴다. 색 경계가 바뀌어 구간·창이 달라지는 실험(`bg_row_ratio` 등)에는 쓸 수 없고, seed 효과 측정에도 쓸 수 없다(그건 실제 반복 호출).
+- **재현성 실험**: `--set section.vlm_seed=N`으로 seed를 보낸다. 기본(-1)은 보내지 않는다. 같은 이미지를 조건별로 3~5회 돌려 필요한 경계의 유지와 잘못된 경계의 고착을 따로 센다.
 - 출력 디렉터리 기본은 `pipeline/out/`(git 제외). 레이아웃은 5절과 같다.
 - 부분 재실행: 이전 단계 JSON을 손으로 고쳐 다음 단계에 넣을 수 있다(예: OCR 결과의 오인식을 고치고 `merge`만 다시). 파라미터 비교는 `--set`으로 같은 입력을 여러 `--out`에 돌린다.
 
@@ -118,7 +122,7 @@ docs/ai/                     정본 문서
 pipeline/samples/<이름>/
   source.png                 원본 (여러 장이면 source_01.png …)
   expected/                  기대 결과 — 실행 출력 DIR도 같은 레이아웃
-    split.json  sections/<key>.png  ocr/<key>.json  merge/<key>.json  [analyze.json  run.json]
+    split.json  sections/<key>.png  ocr/<key>.json  merge/<key>.json  [analyze.json  run.json  split_debug.json]
 ```
 
 | 디렉터리 | 내용 | git |
@@ -126,23 +130,36 @@ pipeline/samples/<이름>/
 | `samples/synthetic_01/` | 합성 원본(600×1000, 배경색 2구간, 영문) + 단계별 기대 JSON. `python -m pipeline.samples.make_synthetic`로 재생성 | 포함 |
 | `samples/local/` | 실제 한국어 상세페이지 표본 | **제외** |
 
-확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
+확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 섹션 경계가 이상하면 `split_debug.json`에서 그 y의 후보 기각 사유(`median_delta` · `bg_ratio` · `min_section`)나 VLM 폐기(`dropped`) 기록을 먼저 본다. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
+
+- `color_candidates` 판독: 글자 위 경계 보정은 경계 행·바로 위 행이 균일 행이 아닌 **모든** 후보에서 발동한다(5차 실측 34장: 후보 1,207건 중 1,033건, 대부분 이동 뒤에도 기각). 기록의 `y`는 이동 후, `y_raw`는 이동 전 좌표이고 `snapped`가 이동 여부다. 실행 간 비교는 개별 기록이 아니라 `accepted` 집합으로 한다. 위쪽 여백 끝으로 옮긴 경계는 첫 글자 행에 놓이므로 `std[y]`가 항상 `blank_row_std`를 넘는다 — 균일 행 검사는 검토 대상 선별용이지 잘림 신호가 아니다.
+- **고정 입력본**(다음 단계 개발에 쓰는 이전 단계 결과): 실험 출력 디렉터리를 덮어쓰거나 골라 바꾸지 않는다. 실험 출력은 보고서가 참조하므로 그대로 두고, 선택한 결과를 별도 폴더(`v1`, `v2` …)에 모은다. 실행마다 어느 출력에서 왔는지(실행 디렉터리 · 여러 번 돌렸으면 어느 회차 · 선택 기준)를 그 폴더에 기록하고, 복사본의 `split.json` `image_path`는 복사한 위치에 맞춘다. 고정 입력본의 선택은 이전 단계 품질의 근거로 쓰지 않는다.
 
 - `expected/`는 지금 **형식 예시**다. 단계가 구현되면 같은 입력의 실행 결과와 비교하는 회귀 테스트로 승격한다.
+- **① 섹션 정답 기준(실측 판정용, 2026-09-22)** — 정본 계약이 아니라 표본을 채점할 때 쓰는 기준이다. 입도는 소제목 단위[`pipeline.md` 단계표 ①].
+  - 독립된 설명 주제(고유한 소제목과 그에 딸린 본문·그림)는 분리한다.
+  - 목록은 형식이 아니라 내용의 위계로 판단한다. POINT n · 카드 · 후기·Q&A·FAQ 항목이라도 상위 주제에 딸린 설명이면 합치고, 각각이 독립 주제면 분리한다.
+  - 그림·표·각주·인증서는 그 내용을 설명하는 주제에 붙인다(제목이 그림 뒤에 오는 배치도 있다).
+  - 제목만 든 색 띠는 그 아래 본문과 같은 섹션이다. 현재 구현이 못 지키는 알려진 한계(#26).
+  - 여백뿐인 띠는 앞 구간에 붙인다. 맨 앞의 여백은 다음 구간에 붙인다.
+  - 두 색 구간 사이의 짧은 브랜드·로고 띠는 앞 주제의 꼬리로 본다. 띠 안에 다음 주제의 제목이 있으면 다음 주제의 머리다.
+  - 채점: 정답 경계마다 허용 오차 안의 실행 경계를 일대일로 짝지어 정답 검출 · 누락 · 오절단 · 알려진 한계 절단을 센다. 오절단과 한계 절단은 둘 다 실제 잘못된 절단이므로 전체 품질에서는 합산해 보인다. **하나의 의미 경계에 유효한 절단 위치가 여럿이면**(예: 사진 끝의 색 경계와 그 아래 여백 중앙의 VLM 경계) 정답에 대체 위치로 기록하고 일대일로 채점한다 — 둘 중 하나를 잡으면 정답 1, 둘 다 잡아도 정답 1이며 중복 절단은 따로 평가한다. 허용 오차를 무조건 넓히지 않는다(중간의 부적절한 절단까지 정답이 된다). 채점 기준 변경은 비교하는 모든 실행에 같이 적용한다.
+  - 표본별 정답 경계 목록과 판정 근거는 PoC 레포에 둔다(`README.md` 4.1).
 - 실제 표본으로 한 실험의 결과·판단은 이 레포가 아니라 PoC 레포에 기록한다(`README.md` 4.1).
 
 ## 6. 환경·의존성
 
 | 환경 | 설치 | 되는 것 | 안 되는 것 |
 |---|---|---|---|
-| 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 | 모델 단계 실행 |
-| 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ①③ 휴리스틱) | ⑥ |
+| 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 · ① 섹션 분해(numpy · google-genai, VLM은 API 키 필요) | 로컬 모델 단계 실행 |
+| 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ③ 휴리스틱) | ⑥ |
 | GPU 서버 | `gpu/` 이미지 + `pip install -r pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).
 - `requirements-ocr.txt` · `-gpu.txt`는 아직 **설치 미검증**이다. 첫 설치에서 동작한 버전을 고정하고 `status.md`에 적는다.
-- LLM·VLM 호출 단계(① 경계 선택 · ③ `llm_assist` · ③-1 · ④ · ⑧)는 API 키를 환경변수로 받는다. 변수 이름은 첫 단계 착수 시 정해 이 절에 적는다. 키는 커밋하지 않는다.
+- LLM·VLM 호출 단계(① 경계 선택 · ③ `llm_assist` · ③-1 · ④ · ⑧)는 API 키를 환경변수 **`GEMINI_API_KEY`**로 받는다(2026-09-21, ① 착수 시 결정). 이름은 BE·배포 담당에게 전달하고, 워커에 키를 주입하는 작업은 배포 담당과 맞춘다. 키는 커밋하지 않는다.
 - Python 3.11 이상(`tomllib`). BE와 GPU 이미지는 3.12.
+- `pipeline/requirements*.txt`의 주석은 ASCII로 유지한다. 일부 pip 버전은 이 파일을 로케일 인코딩(한국어 Windows는 cp949)으로 읽어 한글 주석에서 `UnicodeDecodeError`가 난다. 그래도 문제가 나면 `PYTHONUTF8=1`을 켜고 설치한다.
 - 테스트: `python -m pytest tests/test_pipeline_*.py` (루트 `pytest`에도 포함된다).
 - 워커에서 파이프라인을 부를 때는 루트 `requirements.txt`와 `pipeline/requirements*.txt`를 함께 설치한다. 워커 이미지 구성은 BE와 합의한다.
 

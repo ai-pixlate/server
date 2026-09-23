@@ -56,7 +56,15 @@
 | 단계 | 키 | 기본값 | 의미 · 제약 | 출처 |
 |---|---|---|---|---|
 | ① | `section.granularity` | `subheading` | 의미 섹션 입도 | [PoC 0장] |
-| ① | `section.vlm_model` | **확인 필요** | 긴 구간 경계 선택 모델. 정본 문서에 모델명 없음 — PoC 코드에서 확인 | [PoC 9장] |
+| ① | `section.vlm_model` / `section.vlm_temperature` | `gemini-3.8-flash` / `0` | 긴 구간 경계 선택 모델. 사용자 확정 2026-09-21 | [PoC 9장] [`open-questions.md` 5절 #21] |
+| ① | `section.vlm_seed` | `-1` | 실험용. 음수면 보내지 않는다(기본). 고정해도 동일 응답은 보장되지 않는다. 재현성 실험(`dev.md` 4절)에서만 `--set` | [`open-questions.md` #26] |
+| ① | `section.color_window_px` / `section.color_delta` | `8` / `12` | 행 배경색(행 픽셀 중앙값)을 창으로 평활해 앞 창과 비교. RGB 거리가 `color_delta` 이상이면 전환 후보(경계 = 행 간 변화가 가장 큰 행). 경계 행과 바로 위 행이 모두 균일 행이 아니면(글자 위에 놓임) 반경 `snap_radius_px` 안 위쪽 여백의 끝 행으로, 없으면 아래쪽 여백의 시작 행으로 옮기고, 여백이 없으면 기각 — 글자를 가르는 절단은 ② OCR을 망친다. 여백 구간의 높이는 보지 않으므로 줄 간격도 목적지가 된다(5차 실측 34장 기준 글자 획 절단 0건, 제목 두 줄 분리 1건 잔존 — #29). 후보 양쪽 구간(이웃 후보까지, 최대 `min_section_px`)의 중앙값 차이도 `color_delta` 이상이어야 확정. `color_delta` **확정**(MVP 기본값, 34장 실측: 20·24는 옅은 배경 전환을 놓침) · `color_window_px` 잠정 | [`open-questions.md` 5절 #26] [`open-questions.md` #26] |
+| ① | `section.blank_row_std` / `section.bg_row_ratio` | `6.0` / `0.25` | 행 색 표준편차가 `blank_row_std` 이하이면 균일 행(여백). 후보 양쪽 구간 **모두** 균일 행 비율이 `bg_row_ratio` 이상이어야 배경 전환으로 확정 — 사진·표·일러스트 띠는 균일 행이 없어 그 위아래 경계가 기각된다. 모든 행이 균일한 구간(여백뿐인 띠)은 앞 구간에 붙인다. `bg_row_ratio` **확정**(MVP 기본값, 34장 실측: 0.35는 오절단 2 감소·정상 경계 2 소실) · `blank_row_std` 잠정(단독 비교 예정) | [`open-questions.md` 5절 #26] [`open-questions.md` #26] |
+| ① | `section.min_section_px` | `200` | 최소 섹션 높이. 더 짧은 구간을 만드는 경계 중 **강도(중앙값 거리)가 약한 쪽**을 버린다(같으면 위쪽을 남김). **잠정** | [`open-questions.md` #26] |
+| ① | `section.long_section_px` | `1500` | 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택. **잠정** | [`open-questions.md` #26] |
+| ① | `section.snap_radius_px` | `40` | 반경은 **여백을 찾는 거리**이고 목적지는 그 여백 구간의 **중앙**이다(둘은 별개 — 넓은 여백에서는 반경보다 멀리 움직이며, 같은 여백을 가리킨 응답들이 한 점으로 모인다). 여백은 현재 구간 안에서만 찾고, 반경 안에 없으면 폐기(진단에 기록). 보정 뒤 여백뿐인 구간이 생기면 색 경계를 지키고 VLM 경계를 지운다. **확정**(MVP 기본값, 34장 실측: 80과 결과 동일) | [`open-questions.md` 5절 #26] |
+| ① | `section.vlm_width_px` / `section.vlm_window_px` / `section.vlm_window_overlap_px` | `768` / `4000` / `300` | VLM 입력은 **폭 기준**으로 줄이고(긴 변 기준은 긴 띠에서 글자 판독 불가) 왼쪽에 y 눈금 띠를 붙인다. 구간 높이(원본 px)가 `vlm_window_px`를 넘으면 겹침 창으로 나눠 여러 번 호출해 합친다. **잠정** | [`open-questions.md` #26] |
+| ① | `section.prompt_path` | `pipeline/prompts/section_boundary.md` | 소제목 위 여백에서 자르고 소항목·목록 항목·라벨 아래에서는 자르지 않도록 지시. 초안 | [`open-questions.md` #26] |
 | ② | `ocr.det_model` / `ocr.rec_model` | `PP-OCRv5_server_det` / `korean_PP-OCRv5_mobile_rec` | 한국어 인식은 mobile만 존재 | [PoC 1장] |
 | ② | `ocr.preprocess` | `none` | 전처리 적용 안 함 | [PoC 1장] |
 | ② | `ocr.split_threshold_px` / `ocr.tile_px` / `ocr.tile_overlap_px` | `4000` / `2000` / `300` | 임시 분할 규칙. 여백 우선 | [개발계획 2.1] [계약 3.2] |
@@ -115,7 +123,7 @@
 - 심볼형 로고는 텍스트 대조로 못 잡음 — 미검증, MVP 이후. [PoC 0장]
 - 주의문구 미탐 위험 — 시험 조건 각주는 캡션으로, 경고 문장은 본문으로 가는 경향. 범위는 **미정**. [PoC 5장] [개발계획 4.1]
 - 가격 `role`은 표본 부족으로 사실상 미검증. [PoC 5장]
-- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장]
+- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] ① VLM 호출 실패의 처리(대체 처리 · 코드 · 재시도)는 **미정**(`open-questions.md` #25).
 
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 
@@ -137,6 +145,7 @@
 - 정책 적용 로직의 구현 소유자 — AI 서버 / BE
 - 부적합 내용이 섹션 일부에만 있을 때 섹션 전체 제외 / 부분 처리
 - ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙
-- ① 섹션 분해 VLM 모델명 — PoC 코드 확인
+- ① 색 전환 임계값 · 최소 섹션 높이 · 긴 구간 기준 · 보정 반경의 실측 확정 — config 초기값은 잠정
+- ① VLM 호출 실패 처리 — 대체 처리 허용 여부 · 오류·경고 코드 · 실패 유형별 재시도 조건 (BE 합의)
 - ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
 - 출력 분할 한도 값

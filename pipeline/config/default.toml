@@ -3,9 +3,22 @@
 # 실험 중 값 변경은 이 파일이 아니라 실행 인자 `--set 표.키=값`으로만 한다.
 # 여기 없는 키는 미정이며 코드에서 정하지 않는다(open-questions.md).
 
-[section]                      # ① 섹션 분해
+[section]                      # ① 섹션 분해 — color_snap_vlm2. color_delta·bg_row_ratio·snap_radius_px는 확정(2026-09-22, 34장 실측 기준 MVP 기본값), 나머지는 open-questions #26 잠정
 granularity = "subheading"
-# vlm_model — open-questions #21 미정. PoC 코드에서 확인 후 추가.
+color_window_px = 8            # 행 색 평활 창. 앞 창과 뒤 창의 평균색을 비교
+color_delta = 12               # 확정. 창 평균색 RGB 거리가 이 값 이상이면 배경색 전환. 흰색↔연회색 거리 12~26 대역이라 20·24는 정상 경계를 잃음
+min_section_px = 200           # 최소 섹션 높이. 더 짧은 구간을 만드는 뒤 경계는 버림
+long_section_px = 1500         # 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택
+blank_row_std = 6.0            # 행 색 표준편차가 이 값 이하이면 균일 행(여백)
+bg_row_ratio = 0.25            # 확정. 전환 후보 양쪽 구간의 균일 행 비율이 둘 다 이 값 이상이어야 배경 전환(사진·표 띠 배제). 0.35는 정상 경계도 잃음
+snap_radius_px = 40            # 확정. VLM 경계에서 이 반경 안의 여백 구간을 찾아 그 중앙으로 보정(이동 거리는 여백 폭이 정함). 없으면 폐기. 80과 결과 동일
+vlm_model = "gemini-3.8-flash" # #21 확정(2026-09-21)
+vlm_temperature = 0
+vlm_seed = -1                  # 실험용. 음수 = 보내지 않음(기본). 고정해도 동일 응답 보장은 없음
+vlm_width_px = 768             # VLM 입력은 폭 기준으로 줄인다(비율 유지). 왼쪽에 y 눈금 띠를 붙여 전달
+vlm_window_px = 4000           # 구간 높이(원본 px)가 이 값을 넘으면 창으로 나눠 여러 번 호출
+vlm_window_overlap_px = 300    # 창 겹침
+prompt_path = "pipeline/prompts/section_boundary.md"
 
 [ocr]                          # ② 텍스트 추출
 det_model = "PP-OCRv5_server_det"

@@ -1,5 +1,5 @@
-# ② 텍스트 추출 — PaddleOCR PP-OCRv5. CPU로 로컬 실행 가능.
-# 아직 설치 검증 전이다. 첫 설치에서 동작하는 버전을 확인하면 여기서 고정한다(docs/ai/status.md).
+# Stage 2 text extraction - PaddleOCR PP-OCRv5. Runs on CPU locally.
+# Not yet install-verified. Pin the versions that work on first install (see docs/ai/status.md).
 -r requirements.txt
 numpy
 paddlepaddle

@@ -70,7 +70,7 @@ docs/ai/                     정본 문서
 | 단계 | 함수 | 입력 | 출력 |
 |---|---|---|---|
 | ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
-| ② 텍스트 추출 | `stages.ocr.run(section, cfg)` | `Section` | `OcrResult` |
+| ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None)` | `Section` | `OcrResult`. `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 `NotImplementedError`(임시 분할 #31 · #32 미구현, 조용히 통과시키지 않음) |
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg)` | `Section` + `OcrResult` | `MergeResult` |
 | 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError` |
 
@@ -115,7 +115,7 @@ docs/ai/                     정본 문서
 |---|---|---|
 | `python -m pipeline.run config [--set ...]` | 유효 config 출력 | stdout |
 | `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합(`empty_merged` 색 단계 · `empty_merged_after_vlm` 보정 뒤) · VLM 창별 호출·보정·폐기) |
-| `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② | `DIR/ocr/<key>.json` |
+| `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② — 실행 구조는 아래 "② 실행 구조" | `DIR/ocr/<key>.json`(성공한 섹션만) · `DIR/run.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
@@ -123,7 +123,8 @@ docs/ai/                     정본 문서
 | `python -m pipeline.run freeze-input --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]` | **고정 입력본 생성**(5절). 섹션 PNG를 `INPUT_DIR/sections/`로 복사하고 복사본을 가리키게 한 뒤 검증. 원본은 읽기만 하고 전후 해시 비교. `INPUT_DIR`이 비어 있지 않으면 거부. 버전 1 원본은 `--base` 필요 | `INPUT_DIR/split.json` · `sections/` · `origin/`(원본 `split.json` · `split_debug.json` · `run.json` 사본) · `provenance.json` |
 | `python -m pipeline.run verify-input --dir INPUT_DIR [--relocated]` | 고정 입력본 재검증. `--relocated`는 레포 밖 임시 위치로 통째 복사해 그 복사본만으로 검증 | stdout |
 
-- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계 · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
+- 종료 코드: `0` 성공 · `2` `AnalyzeError`(모든 하위 명령, stderr에 JSON) · `3` 미구현(단계 또는 ② 4,000px 초과 섹션) · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
+- **② 실행 구조(`ocr`, 2026-09-23 결정)**: `--out`에 이전 `run.json`이나 `ocr/`가 있으면 거부한다(실행마다 새 폴더 — 이전 성공 JSON이 이번 실패 섹션의 결과처럼 남지 않게). 엔진을 먼저 한 번 만들고, **초기화가 실패하면 즉시 중단**해 모든 섹션을 `not_run`으로, 실행 수준 오류를 `run_error`로 기록하고 종료 코드 2. 그 뒤 섹션마다 실행하며 **섹션 오류(이미지 열기 · 추론 · 출력 형식)는 기록하고 다음 섹션으로 계속**한다. 실패를 빈 결과로 바꿔치지 않으며 실패 섹션의 `ocr/<key>.json`은 쓰지 않는다. `run.json` 추가 필드: `status`(`ok` 대상 모두 성공 · `partial` 일부 성공 + 실패·미실행 · `failed` 성공 없음) · `sections`(섹션별 `ok`+영역 수 / `failed`+`code` · `retryable` · `exception` · `message`(+`reason`) / `not_run`) · `run_error` · `engine`(버전 · 플랫폼 · 실제 적용 설정, 예: `enable_mkldnn` · `text_rec_score_thresh`). 종료 코드: `AnalyzeError` 실패가 있으면 2, 4,000px 초과 거부만 있으면 3, 없으면 0. stderr에는 첫 오류 JSON. `analyze()`는 계약 8장대로 첫 실패에서 `AnalyzeError`를 던진다. `retryable`은 현재 `errors.ERROR_POLICY` 기본값(`IMAGE_OPEN_FAILED` False · `OCR_FAILED` True)이며 세분은 #33 결정 후.
 - VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
 - **VLM 응답 재생(실험용)**: `split --vlm-replay DIR0/split_debug.json`은 이전 실행의 창별 응답을 순서대로 재생하고 API를 부르지 않는다. 원본 지문(`input`) · VLM 설정(`vlm_config`) · 호출별 구간·창 좌표 · 실제 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시가 기록과 다르면 종료 코드 4로 멈추고, 기록이 다 쓰이지 않아도(호출 구성이 달라짐) 결과 파일 없이 종료 코드 4다. 보정(snap) 규칙처럼 **VLM 응답 이후** 단계만 바꾸는 비교에 쓴다. 색 경계가 바뀌어 구간·창이 달라지는 실험(`bg_row_ratio` 등)에는 쓸 수 없고, seed 효과 측정에도 쓸 수 없다(그건 실제 반복 호출).
 - **재현성 실험**: `--set section.vlm_seed=N`으로 seed를 보낸다. 기본(-1)은 보내지 않는다. 같은 이미지를 조건별로 3~5회 돌려 필요한 경계의 유지와 잘못된 경계의 고착을 따로 센다.

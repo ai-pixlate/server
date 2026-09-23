@@ -14,7 +14,8 @@
 모든 하위 명령은 --config PATH(정본 대신 다른 파일)와 --set 표.키=값(값만 덮어씀)을 받는다.
 실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간·커밋 해시를 남긴다(계약 9장의 event_log.payload에 해당).
 JSON 읽기·쓰기는 pipeline.jsonio를 거친다 — 버전 확인, 상대 image_path는 JSON 파일 폴더 기준(dev.md 3절).
-종료 코드: 0 성공 · 2 AnalyzeError · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
+종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현(단계 또는 ② 4,000px 초과 섹션) · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
+ocr은 섹션 오류를 기록하고 계속하며 run.json에 status(ok · partial · failed)와 섹션별 결과를 남긴다(dev.md 4절).
 """
 from __future__ import annotations
 
@@ -29,7 +30,7 @@ from typing import Any
 from pipeline import config as cfgmod
 from pipeline import inspect as insp
 from pipeline import jsonio
-from pipeline.errors import AnalyzeError
+from pipeline.errors import ERROR_POLICY, AnalyzeError
 from pipeline.vlm import VlmError
 from pipeline.types import Section, SourceImage, SplitResult
 
@@ -43,7 +44,8 @@ def _sha256(path: Path) -> str:
 
 
 def _write_run_record(
-    out_dir: Path, stage: str, cfg: dict[str, Any], inputs: dict[str, Any], started: datetime | None = None
+    out_dir: Path, stage: str, cfg: dict[str, Any], inputs: dict[str, Any], started: datetime | None = None,
+    extra: dict[str, Any] | None = None,
 ) -> None:
     prompts_dir = Path(__file__).parent / "prompts"
     prompt_hashes = {p.name: _sha256(p) for p in sorted(prompts_dir.glob("*.md")) if p.name != "README.md"}
@@ -57,6 +59,7 @@ def _write_run_record(
         "inputs": inputs,
         "prompt_hashes": prompt_hashes,
         **jsonio.git_state(),  # git_commit · git_dirty(추적 파일 변경 여부)
+        **(extra or {}),
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "run.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -110,20 +113,72 @@ def cmd_split(args) -> int:
     return 0
 
 
+def _run_status(sections: dict[str, dict[str, Any]]) -> str:
+    """ok: 대상 모두 성공 · partial: 일부 성공 + 실패·미실행 · failed: 성공 없음 (dev.md 4절)."""
+    n_ok = sum(1 for s in sections.values() if s["status"] == "ok")
+    if n_ok == len(sections):
+        return "ok"
+    return "partial" if n_ok else "failed"
+
+
+def _error_entry(e: BaseException) -> dict[str, Any]:
+    if isinstance(e, AnalyzeError):
+        return {**e.to_dict(), "exception": type(e.__cause__ or e).__name__}
+    return {"code": None, "retryable": None, "message": str(e), "exception": type(e).__name__}
+
+
 def cmd_ocr(args) -> int:
+    """섹션별로 OCR한다. 섹션 오류는 기록하고 계속, 엔진 초기화 실패는 즉시 중단(dev.md 4절)."""
     from pipeline.stages import ocr
 
     cfg = _load_cfg(args)
     started = datetime.now(timezone.utc)
     out = Path(args.out)
+    if (out / "run.json").exists() or (out / "ocr").exists():
+        raise FileExistsError(f"{out}에 이전 실행 결과(run.json 또는 ocr/)가 있음 — 실행마다 새 --out을 쓴다")
     split = jsonio.load_split(args.split)
     targets = [_find_section(split, args.section)] if args.section else split.sections
+    sections: dict[str, dict[str, Any]] = {s.section_key: {"status": "not_run"} for s in targets}
+    inputs = {"split": args.split, "section": args.section}
+    first_error: dict[str, Any] | None = None
+    exit_code = 0
+
+    try:
+        engine = ocr.build_engine(cfg)
+    except Exception as e:  # noqa: BLE001 — 공통 초기화 실패: 남은 섹션은 not_run
+        err = {"code": "OCR_FAILED", "retryable": ERROR_POLICY["OCR_FAILED"],
+               "message": f"엔진 초기화 실패: {e}", "source_image_id": split.source_image_id,
+               "exception": type(e.__cause__ or e).__name__}
+        _write_run_record(out, "ocr", cfg, inputs, started,
+                          {"status": "failed", "run_error": err, "sections": sections, "engine": None})
+        print(json.dumps(err, ensure_ascii=False), file=sys.stderr)
+        return 2
+
     for sec in targets:
-        res = ocr.run(sec, cfg)
+        try:
+            res = ocr.run(sec, cfg, engine=engine)
+        except (AnalyzeError, NotImplementedError) as e:
+            entry = _error_entry(e)
+            if isinstance(e, NotImplementedError):
+                entry["reason"] = "임시 분할 미구현"
+                exit_code = exit_code or 3
+            else:
+                exit_code = 2
+            sections[sec.section_key] = {"status": "failed", **entry}
+            first_error = first_error or entry
+            print(f"{sec.section_key}: 실패 {entry['code'] or entry['exception']} — {entry['message']}")
+            continue
         p = _write_json(out / "ocr" / f"{sec.section_key}.json", res)
+        sections[sec.section_key] = {"status": "ok", "regions": len(res.regions)}
         print(f"{sec.section_key}: 영역 {len(res.regions)}개 → {p}")
-    _write_run_record(out, "ocr", cfg, {"split": args.split, "section": args.section}, started)
-    return 0
+
+    status = _run_status(sections)
+    _write_run_record(out, "ocr", cfg, inputs, started,
+                      {"status": status, "run_error": None, "sections": sections, "engine": engine.info})
+    if first_error:
+        print(json.dumps(first_error, ensure_ascii=False), file=sys.stderr)
+    print(f"상태 {status}: " + " · ".join(f"{k} {sum(1 for s in sections.values() if s['status'] == k)}" for k in ("ok", "failed", "not_run")))
+    return exit_code
 
 
 def cmd_merge(args) -> int:
@@ -151,11 +206,7 @@ def cmd_analyze(args) -> int:
     sources = [
         SourceImage(source_image_id=i + 1, upload_order=i + 1, path=p) for i, p in enumerate(args.source)
     ]
-    try:
-        res = analyze(sources, cfg, out)
-    except AnalyzeError as e:
-        print(json.dumps(e.to_dict(), ensure_ascii=False), file=sys.stderr)
-        return 2
+    res = analyze(sources, cfg, out)  # AnalyzeError는 main()에서 종료 코드 2로
     p = _write_json(out / "analyze.json", res)
     _write_run_record(out, "analyze", cfg, {"sources": args.source}, started)
     print(f"섹션 {len(res.sections)}개 · 블록 {len(res.blocks)}개 · 경고 {len(res.warnings)}개 → {p}")
@@ -281,6 +332,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.fn(args)
+    except AnalyzeError as e:
+        print(json.dumps(e.to_dict(), ensure_ascii=False), file=sys.stderr)
+        return 2
     except NotImplementedError as e:
         print(f"미구현: {e}", file=sys.stderr)
         return 3

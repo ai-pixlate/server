@@ -39,8 +39,8 @@ def test_cli_config_prints_effective_values(capsys):
 
 def test_cli_unimplemented_stage_exits_3(tmp_path):
     exp = SAMPLE / "expected"
-    rc = cli.main(["ocr", "--split", str(exp / "split.json"), "--out", str(tmp_path)])
-    assert rc == 3
+    rc = cli.main(["merge", "--split", str(exp / "split.json"), "--ocr", str(exp / "ocr/sec_1_01.json"), "--out", str(tmp_path)])
+    assert rc == 3  # ③ 미구현
 
 
 def test_cli_inspect_draws_overlays(tmp_path):

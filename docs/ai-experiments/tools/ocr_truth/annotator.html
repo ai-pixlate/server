@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>OCR 정답 작성·검수</title>
+<style>
+  :root { --bg:#f6f6f4; --panel:#fff; --line:#d9d9d4; --text:#1d1d1b; --muted:#6b6b66; --acc:#0b6bcb; --ok:#1f8a4c; --warn:#b3261e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:13px/1.45 system-ui, "Malgun Gothic", sans-serif; color:var(--text); background:var(--bg); }
+  header { display:flex; gap:12px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--line); }
+  header h1 { font-size:14px; margin:0; }
+  header .spacer { flex:1; }
+  main { display:grid; grid-template-columns:200px minmax(0,1fr) minmax(360px,40%); height:calc(100vh - 45px); }
+  #list { overflow:auto; border-right:1px solid var(--line); background:var(--panel); }
+  #list div { padding:7px 10px; border-bottom:1px solid #eee; cursor:pointer; }
+  #list div.sel { background:#e8f1fb; }
+  #list small { color:var(--muted); display:block; }
+  #stage { overflow:auto; position:relative; }
+  #cv { display:block; cursor:crosshair; }
+  #side { display:flex; flex-direction:column; border-left:1px solid var(--line); background:var(--panel); min-height:0; }
+  #tools { padding:8px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  #preview { padding:6px 8px; border-bottom:1px solid var(--line); min-height:60px; max-height:180px; overflow:auto; background:#fafafa; }
+  #preview canvas { max-width:100%; image-rendering:pixelated; border:1px solid var(--line); }
+  #lines { overflow:auto; flex:1; }
+  .ln { display:grid; grid-template-columns:44px 1fr; gap:4px 6px; padding:6px 8px; border-bottom:1px solid #eee; }
+  .ln.sel { background:#fff6d6; }
+  .ln.ver { border-left:4px solid var(--ok); }
+  .ln input[type=text] { width:100%; font:14px "Malgun Gothic", sans-serif; padding:3px 4px; }
+  .ln .id { font-weight:600; color:var(--muted); cursor:pointer; }
+  .ln .row2 { grid-column:2; display:flex; flex-wrap:wrap; gap:4px 10px; color:var(--muted); font-size:12px; }
+  .ln .row2 input.num { width:52px; }
+  #check { padding:6px 8px; border-top:1px solid var(--line); max-height:120px; overflow:auto; font-size:12px; }
+  #check .bad { color:var(--warn); } #check .good { color:var(--ok); }
+  button { font:inherit; padding:3px 9px; cursor:pointer; }
+  .dirty { color:var(--warn); font-weight:600; }
+  .hint { color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>② OCR 정답 작성·검수 <span class="hint">채점 명세 v2 · 1인 검수</span></h1>
+  <span id="cur"></span><span id="dirty"></span>
+  <span class="spacer"></span>
+  <label>배율 <select id="zoom"><option>0.5</option><option selected>1</option><option>1.5</option><option>2</option></select></label>
+  <input id="reason" type="text" placeholder="변경 사유(선택, history에 기록)" size="28">
+  <button id="save">저장 (Ctrl+S)</button>
+</header>
+<main>
+  <div id="list"></div>
+  <div id="stage"><canvas id="cv"></canvas></div>
+  <div id="side">
+    <div id="tools">
+      <button id="add">줄 추가</button><button id="del">선택 줄 삭제</button>
+      <button id="up">▲</button><button id="down">▼</button>
+      <label><input type="checkbox" id="showAll" checked> 모든 상자</label>
+      <span class="hint">줄 선택 후 이미지에서 드래그 = bbox 다시 그리기 · 여백은 잉크 높이의 10% 이하</span>
+    </div>
+    <div id="preview"><span class="hint">줄을 선택하면 bbox 영역을 2배로 보여 줍니다.</span></div>
+    <div id="lines"></div>
+    <div id="check"></div>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+let TAGS = [], doc = null, sel = -1, dirty = false, img = new Image(), drag = null;
+const cv = $('#cv'), ctx = cv.getContext('2d');
+const zoom = () => parseFloat($('#zoom').value);
+
+function setDirty(v) { dirty = v; $('#dirty').textContent = v ? '저장 안 됨' : ''; $('#dirty').className = v ? 'dirty' : ''; }
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+async function loadList(keep) {
+  const r = await (await fetch('/api/list')).json();
+  TAGS = r.tags;
+  $('#list').innerHTML = '';
+  r.items.forEach(it => {
+    const d = document.createElement('div');
+    d.innerHTML = `<b>${it.id}</b><small>${it.kind}</small><small>${it.status} · 줄 ${it.lines} · 검수 ${it.verified}</small>`;
+    if (doc && it.id === doc.id) d.className = 'sel';
+    d.onclick = () => { if (dirty && !confirm('저장하지 않은 변경이 있습니다. 버릴까요?')) return; openDoc(it.id); };
+    $('#list').appendChild(d);
+  });
+}
+
+async function openDoc(id) {
+  doc = await (await fetch('/api/truth/' + encodeURIComponent(id))).json();
+  sel = doc.lines.length ? 0 : -1; setDirty(false);
+  $('#cur').textContent = `${doc.id} · ${doc.image.width}×${doc.image.height} · ${doc.review.status}`;
+  img = new Image(); img.onload = () => { draw(); renderLines(); showCheck(doc.check); };
+  img.src = '/image/' + encodeURIComponent(id);
+  loadList();
+}
+
+function draw() {
+  if (!doc) return;
+  const z = zoom();
+  cv.width = Math.round(img.width * z); cv.height = Math.round(img.height * z);
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  doc.lines.forEach((l, i) => {
+    if (!l.bbox || (!$('#showAll').checked && i !== sel)) return;
+    const b = l.bbox;
+    ctx.lineWidth = i === sel ? 3 : 1.5;
+    ctx.strokeStyle = i === sel ? '#e0a800' : (l.verified ? '#1f8a4c' : '#0b6bcb');
+    ctx.strokeRect(b.x * z, b.y * z, b.w * z, b.h * z);
+    ctx.fillStyle = ctx.strokeStyle; ctx.font = '11px sans-serif';
+    ctx.fillText(l.line_id, b.x * z, Math.max(10, b.y * z - 2));
+  });
+  if (drag) { ctx.strokeStyle = '#e0a800'; ctx.setLineDash([4, 3]); ctx.strokeRect(drag.x0, drag.y0, drag.x1 - drag.x0, drag.y1 - drag.y0); ctx.setLineDash([]); }
+  preview();
+}
+
+function preview() {
+  const box = $('#preview'); const l = doc.lines[sel];
+  if (!l || !l.bbox) { box.innerHTML = '<span class="hint">bbox가 없습니다. 이미지에서 드래그해 그리세요.</span>'; return; }
+  const b = l.bbox, pad = Math.round(b.h * 0.5), s = 2;
+  const x = Math.max(0, b.x - pad), y = Math.max(0, b.y - pad);
+  const w = Math.min(img.width - x, b.w + 2 * pad), h = Math.min(img.height - y, b.h + 2 * pad);
+  const c = document.createElement('canvas'); c.width = w * s; c.height = h * s;
+  const cx = c.getContext('2d'); cx.imageSmoothingEnabled = false; cx.drawImage(img, x, y, w, h, 0, 0, w * s, h * s);
+  cx.strokeStyle = '#e0a800'; cx.lineWidth = 1; cx.strokeRect((b.x - x) * s + .5, (b.y - y) * s + .5, b.w * s, b.h * s);
+  box.innerHTML = ''; box.appendChild(c);
+}
+
+function renderLines() {
+  const root = $('#lines'); root.innerHTML = '';
+  doc.lines.forEach((l, i) => {
+    const d = document.createElement('div');
+    d.className = 'ln' + (i === sel ? ' sel' : '') + (l.verified ? ' ver' : '');
+    const b = l.bbox || { x: '', y: '', w: '', h: '' };
+    d.innerHTML = `
+      <span class="id">${l.line_id}</span>
+      <input type="text" class="t" value="${(l.text || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">
+      <div class="row2">
+        <label><input type="checkbox" class="v" ${l.verified ? 'checked' : ''}> 이미지와 대조 완료</label>
+        ${TAGS.map(t => `<label><input type="checkbox" class="tg" value="${t}" ${l.tags.includes(t) ? 'checked' : ''}>${t}</label>`).join('')}
+      </div>
+      <div class="row2">bbox
+        ${['x','y','w','h'].map(k => `${k}<input class="num" data-k="${k}" type="number" value="${b[k]}">`).join('')}
+        <span>${l.source || ''}</span>
+        <input type="text" class="note" placeholder="메모" value="${(l.note || '').replace(/"/g,'&quot;')}" style="flex:1;min-width:120px">
+      </div>`;
+    d.querySelector('.id').onclick = () => select(i);
+    d.querySelector('.t').onfocus = () => select(i, true);
+    d.querySelector('.t').oninput = e => { l.text = e.target.value; setDirty(true); };
+    d.querySelector('.v').onchange = e => { l.verified = e.target.checked; setDirty(true); renderLines(); draw(); };
+    d.querySelectorAll('.tg').forEach(cb => cb.onchange = () => {
+      l.tags = [...d.querySelectorAll('.tg:checked')].map(x => x.value); setDirty(true); });
+    d.querySelectorAll('.num').forEach(inp => inp.onchange = () => {
+      const v = parseInt(inp.value, 10); if (Number.isNaN(v)) return;
+      l.bbox = l.bbox || { x: 0, y: 0, w: 1, h: 1 }; l.bbox[inp.dataset.k] = v; setDirty(true); draw(); });
+    d.querySelector('.note').oninput = e => { l.note = e.target.value; setDirty(true); };
+    root.appendChild(d);
+  });
+}
+
+function select(i, keepFocus) {
+  if (i === sel) return;
+  sel = i; draw();
+  document.querySelectorAll('.ln').forEach((el, k) => el.classList.toggle('sel', k === sel));
+  const l = doc.lines[sel];
+  if (l && l.bbox) { const z = zoom(), st = $('#stage'); st.scrollTop = Math.max(0, l.bbox.y * z - st.clientHeight / 3); }
+}
+
+cv.onmousedown = e => {
+  if (sel < 0) return;
+  const r = cv.getBoundingClientRect(); drag = { x0: e.clientX - r.left, y0: e.clientY - r.top, x1: e.clientX - r.left, y1: e.clientY - r.top };
+};
+cv.onmousemove = e => { if (!drag) return; const r = cv.getBoundingClientRect(); drag.x1 = e.clientX - r.left; drag.y1 = e.clientY - r.top; draw(); };
+window.onmouseup = () => {
+  if (!drag) return;
+  const z = zoom(); const x0 = Math.min(drag.x0, drag.x1) / z, y0 = Math.min(drag.y0, drag.y1) / z;
+  const x1 = Math.max(drag.x0, drag.x1) / z, y1 = Math.max(drag.y0, drag.y1) / z; drag = null;
+  if (x1 - x0 >= 2 && y1 - y0 >= 2) {
+    const clamp = (v, m) => Math.max(0, Math.min(m, Math.round(v)));
+    const X0 = clamp(x0, img.width), Y0 = clamp(y0, img.height), X1 = clamp(x1, img.width), Y1 = clamp(y1, img.height);
+    doc.lines[sel].bbox = { x: X0, y: Y0, w: X1 - X0, h: Y1 - Y0 }; setDirty(true); renderLines();
+  }
+  draw();
+};
+
+$('#add').onclick = () => {
+  const at = sel < 0 ? doc.lines.length : sel + 1;
+  doc.lines.splice(at, 0, { line_id: null, text: '', bbox: null, tags: [], verified: false, note: '', source: 'human' });
+  sel = at; setDirty(true); renderLines(); draw();
+};
+$('#del').onclick = () => {
+  if (sel < 0 || !confirm(`${doc.lines[sel].line_id || '새 줄'}을 삭제할까요? (history에 기록됩니다)`)) return;
+  doc.lines.splice(sel, 1); sel = Math.min(sel, doc.lines.length - 1); setDirty(true); renderLines(); draw();
+};
+function move(dlt) { const j = sel + dlt; if (sel < 0 || j < 0 || j >= doc.lines.length) return;
+  [doc.lines[sel], doc.lines[j]] = [doc.lines[j], doc.lines[sel]]; sel = j; setDirty(true); renderLines(); draw(); }
+$('#up').onclick = () => move(-1); $('#down').onclick = () => move(1);
+$('#zoom').onchange = draw; $('#showAll').onchange = draw;
+
+async function save() {
+  if (!doc) return;
+  const r = await fetch('/api/truth/' + encodeURIComponent(doc.id), { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lines: doc.lines, reason: $('#reason').value }) });
+  const res = await r.json();
+  if (!r.ok) { alert('저장 실패: ' + res.error); return; }
+  const keep = sel; await openDoc(doc.id); sel = keep; draw(); renderLines();
+  showCheck(res.check); $('#reason').value = '';
+}
+$('#save').onclick = save;
+window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); } });
+
+function showCheck(errs) {
+  $('#check').innerHTML = !errs || !errs.length ? '<span class="good">자동 검사 통과(좌표 · 범위 · 겹침 · 태그). 여백 10%·빠진 글자·셀 경계는 사람이 확인합니다.</span>'
+    : errs.map(e => `<div class="bad">${e.replace(/</g,'&lt;')}</div>`).join('');
+}
+
+loadList();
+</script>
+</body>
+</html>

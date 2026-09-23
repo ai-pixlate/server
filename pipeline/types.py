@@ -15,7 +15,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"  # 2: split·analyze의 상대 image_path = JSON 파일 폴더 기준. 타입별 읽기 허용 버전은 jsonio.READ_VERSIONS
 
 Role = Literal["title", "body", "caption", "price", "caution"]
 ROLES: tuple[str, ...] = ("title", "body", "caption", "price", "caution")

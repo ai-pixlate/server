@@ -7,9 +7,13 @@
     python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR  # ③ → DIR/merge/<KEY>.json
     python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR # ①→②→③ → DIR/analyze.json
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
+    python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
+    python -m pipeline.run freeze-input  --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]  # 고정 입력본 생성·검증
+    python -m pipeline.run verify-input  --dir INPUT_DIR [--relocated]                    # 고정 입력본 재검증
 
 모든 하위 명령은 --config PATH(정본 대신 다른 파일)와 --set 표.키=값(값만 덮어씀)을 받는다.
-실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간을 남긴다(계약 9장의 event_log.payload에 해당).
+실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간·커밋 해시를 남긴다(계약 9장의 event_log.payload에 해당).
+JSON 읽기·쓰기는 pipeline.jsonio를 거친다 — 버전 확인, 상대 image_path는 JSON 파일 폴더 기준(dev.md 3절).
 종료 코드: 0 성공 · 2 AnalyzeError · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
 """
 from __future__ import annotations
@@ -24,15 +28,14 @@ from typing import Any
 
 from pipeline import config as cfgmod
 from pipeline import inspect as insp
+from pipeline import jsonio
 from pipeline.errors import AnalyzeError
 from pipeline.vlm import VlmError
-from pipeline.types import MergeResult, OcrResult, Section, SourceImage, SplitResult
+from pipeline.types import Section, SourceImage, SplitResult
 
 
 def _write_json(path: Path, model) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(model.model_dump_json(indent=2), encoding="utf-8")
-    return path
+    return jsonio.write_model(path, model)
 
 
 def _sha256(path: Path) -> str:
@@ -53,6 +56,7 @@ def _write_run_record(
         "config": cfgmod.snapshot(cfg),
         "inputs": inputs,
         "prompt_hashes": prompt_hashes,
+        **jsonio.git_state(),  # git_commit · git_dirty(추적 파일 변경 여부)
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "run.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -112,7 +116,7 @@ def cmd_ocr(args) -> int:
     cfg = _load_cfg(args)
     started = datetime.now(timezone.utc)
     out = Path(args.out)
-    split = SplitResult.model_validate_json(Path(args.split).read_text(encoding="utf-8"))
+    split = jsonio.load_split(args.split)
     targets = [_find_section(split, args.section)] if args.section else split.sections
     for sec in targets:
         res = ocr.run(sec, cfg)
@@ -128,8 +132,8 @@ def cmd_merge(args) -> int:
     cfg = _load_cfg(args)
     started = datetime.now(timezone.utc)
     out = Path(args.out)
-    split = SplitResult.model_validate_json(Path(args.split).read_text(encoding="utf-8"))
-    ocr_res = OcrResult.model_validate_json(Path(args.ocr).read_text(encoding="utf-8"))
+    split = jsonio.load_split(args.split)
+    ocr_res = jsonio.load_ocr(args.ocr)
     sec = _find_section(split, ocr_res.section_key)
     res = merge.run(sec, ocr_res, cfg)
     p = _write_json(out / "merge" / f"{sec.section_key}.json", res)
@@ -163,14 +167,43 @@ def cmd_inspect(args) -> int:
     if len(given) != 1:
         raise SystemExit("--split / --ocr / --merge 중 하나만 지정")
     kind, path = given[0]
-    text = Path(path).read_text(encoding="utf-8")
     if kind == "split":
-        out = insp.overlay_split(args.image, SplitResult.model_validate_json(text), args.out)
+        out = insp.overlay_split(args.image, jsonio.load_split(path), args.out)
     elif kind == "ocr":
-        out = insp.overlay_ocr(args.image, OcrResult.model_validate_json(text), args.out)
+        out = insp.overlay_ocr(args.image, jsonio.load_ocr(path), args.out)
     else:
-        out = insp.overlay_merge(args.image, MergeResult.model_validate_json(text), args.out)
+        out = insp.overlay_merge(args.image, jsonio.load_merge(path), args.out)
     print(f"→ {out}")
+    return 0
+
+
+def _parse_meta(items: list[str] | None) -> dict[str, str]:
+    meta = {}
+    for item in items or []:
+        if "=" not in item:
+            raise SystemExit(f"--meta 형식은 키=값 — 받은 값: {item!r}")
+        k, v = item.split("=", 1)
+        meta[k.strip()] = v.strip()
+    return meta
+
+
+def cmd_convert_split(args) -> int:
+    original = jsonio.convert_split(args.inp, args.out, args.base, overwrite=args.overwrite)
+    print(f"버전 2로 전환 → {args.out} (이미지 대상은 그대로)")
+    for key, old in original.items():
+        print(f"  {key}: 원래 image_path {old}")
+    return 0
+
+
+def cmd_freeze_input(args) -> int:
+    prov = jsonio.freeze_input(args.split, args.out, base=args.base, meta=_parse_meta(args.meta))
+    print(f"고정 입력본 섹션 {len(prov['sections'])}개 → {args.out} (검증 통과, 원본 해시 불변)")
+    return 0
+
+
+def cmd_verify_input(args) -> int:
+    res = jsonio.verify_relocated(args.dir) if args.relocated else jsonio.verify_input(args.dir)
+    print(f"검증 통과: 섹션 {res['sections']}개{' (레포 밖 복사본 기준)' if args.relocated else ''}")
     return 0
 
 
@@ -222,6 +255,25 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--image", required=True, help="split은 원본, ocr·merge는 섹션 이미지")
     sp.add_argument("--out", required=True, help="출력 PNG")
     sp.set_defaults(fn=cmd_inspect)
+
+    sp = sub.add_parser("convert-split", help="버전 1 split.json → 버전 2 (경로 표기만, 이미지 대상 유지)")
+    sp.add_argument("--in", dest="inp", required=True, help="버전 1 split.json")
+    sp.add_argument("--base", required=True, help="옛 상대 경로의 기준 폴더(보통 레포 루트)")
+    sp.add_argument("--out", required=True, help="버전 2 split.json")
+    sp.add_argument("--overwrite", action="store_true", help="--out이 이미 있으면 덮어쓴다")
+    sp.set_defaults(fn=cmd_convert_split)
+
+    sp = sub.add_parser("freeze-input", help="고정 입력본 생성: 섹션 이미지 복사·경로 재지정·검증")
+    sp.add_argument("--split", required=True, help="원본 실행의 split.json (버전 1 또는 2, 읽기만 함)")
+    sp.add_argument("--base", help="버전 1일 때 옛 상대 경로의 기준 폴더")
+    sp.add_argument("--out", required=True, help="입력본 폴더(비어 있어야 함)")
+    sp.add_argument("--meta", action="append", metavar="키=값", help="출처 기록(실행 디렉터리·회차·선택 기준·커밋 등, 반복 가능)")
+    sp.set_defaults(fn=cmd_freeze_input)
+
+    sp = sub.add_parser("verify-input", help="고정 입력본 재검증")
+    sp.add_argument("--dir", required=True, help="입력본 폴더(split.json · provenance.json)")
+    sp.add_argument("--relocated", action="store_true", help="레포 밖 임시 위치로 복사해 그 복사본만으로 검증")
+    sp.set_defaults(fn=cmd_verify_input)
     return p
 
 

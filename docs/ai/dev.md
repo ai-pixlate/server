@@ -34,6 +34,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     ocr.py                   ② 텍스트 추출
     merge.py                 ③ 줄·문단 병합 + 역할 분류
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]
+  jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 — 3·5절
   run.py                     단계별 실행 CLI — 4절
   inspect.py                 결과 오버레이 — 5절
   samples/                   샘플 입력·기대 결과 — 5절
@@ -60,7 +61,7 @@ docs/ai/                     정본 문서
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
 
-**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s`)을 남긴다. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
+**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s` · 커밋 `git_commit` · 추적 파일 변경 여부 `git_dirty`)을 남긴다. git을 쓸 수 없으면 두 값은 `null`. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
 
 ## 3. 단계 간 타입 (`pipeline/types.py`)
 
@@ -93,8 +94,18 @@ docs/ai/                     정본 문서
 - 모든 모델은 `extra="forbid"` — 계약 밖 키가 조용히 섞이지 않는다. `role`은 5종 Literal.
 - 계약이 미정으로 둔 값은 필드가 없다: 섹션 `range`(#13), `style`(#14). 결정되면 추가한다.
 - 계약이 정한 계산만 도우미로 둔다: `ocr_confidence_of()`(영역 score 최솟값, 없으면 None) · `BBox.union()` · `BBox.from_poly()`.
-- 직렬화는 `model_dump_json()` / `model_validate_json()`. 단계 사이 파일 형식 = 워커에 넘기는 형식 = 사람이 읽는 형식, 셋이 같다.
-- `schema_version`은 `"1"`. 타입을 호환 불가로 바꾸면 올린다.
+- 직렬화는 `model_dump_json()`. 단계 사이 파일 형식 = 워커에 넘기는 형식 = 사람이 읽는 형식, 셋이 같다.
+- **파일 읽기·쓰기는 `pipeline/jsonio.py`를 거친다**(`load_split` · `load_analyze` · `load_ocr` · `load_merge` · `write_model`). `model_validate_json()`으로 파일을 직접 읽지 않는다 — 버전 필드가 없으면 pydantic 기본값이 현재 버전을 조용히 채우기 때문에, 로더가 모델 검증 전에 원본 JSON의 버전을 확인한다.
+- **`image_path` 기준(2026-09-23 결정)**: `split.json` · `analyze.json`의 상대 `image_path`는 **그 JSON 파일이 있는 폴더 기준**이다. 절대 경로는 그대로 쓴다. 작업 디렉터리 기준으로 되돌아가 찾지 않는다(없으면 해석한 경로와 함께 실패). 쓸 때는 JSON 폴더 기준 상대 경로(`/` 구분)로 기록하고, 만들 수 없으면(다른 드라이브) 절대 경로. 메모리의 `Section.image_path`는 로더가 절대 경로로 바꾼 값이다.
+- **`schema_version`** = `"2"`(2026-09-23, 위 경로 기준 변경). 타입을 호환 불가로 바꾸면 올린다. 타입별 읽기 허용 버전(`jsonio.READ_VERSIONS`):
+
+  | 타입 | 경로 필드 | 읽기 허용 | 쓰기 |
+  |---|---|---|---|
+  | `SplitResult` | 있음 | `"2"` | `"2"` |
+  | `AnalyzeResult` | 있음 | `"2"` — `"1"`은 이 도구에서 전환 미지원 | `"2"` |
+  | `OcrResult` · `MergeResult` | 없음 | `"1"` · `"2"` | `"2"` |
+
+  버전 필드가 없거나 표에 없는 버전이면 `SchemaVersionError`. **버전 1 `split.json`(옛 상대 경로 = 레포 루트·작업 디렉터리 기준)은 새 코드에서 읽히지 않는다** — `convert-split` 또는 `freeze-input`으로 전환한다(4절). 원본 실측 출력은 전환하지 않고 보존한다.
 
 ## 4. 단계별 실행
 
@@ -108,8 +119,11 @@ docs/ai/                     정본 문서
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
+| `python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json [--overwrite]` | 버전 1 → 2 **일반 전환**. 옛 상대 경로를 `--base` 기준으로 해석(대상이 없으면 실패)해 새 JSON 위치 기준으로 다시 쓴다. **이미지는 옮기지 않으며 결과는 원래 이미지를 가리킨다.** `--out`이 있으면 `--overwrite` 없이는 거부. 원래 값은 stdout에 출력 | `NEW/split.json` |
+| `python -m pipeline.run freeze-input --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]` | **고정 입력본 생성**(5절). 섹션 PNG를 `INPUT_DIR/sections/`로 복사하고 복사본을 가리키게 한 뒤 검증. 원본은 읽기만 하고 전후 해시 비교. `INPUT_DIR`이 비어 있지 않으면 거부. 버전 1 원본은 `--base` 필요 | `INPUT_DIR/split.json` · `sections/` · `origin/`(원본 `split.json` · `split_debug.json` · `run.json` 사본) · `provenance.json` |
+| `python -m pipeline.run verify-input --dir INPUT_DIR [--relocated]` | 고정 입력본 재검증. `--relocated`는 레포 밖 임시 위치로 통째 복사해 그 복사본만으로 검증 | stdout |
 
-- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계 · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다).
+- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계 · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
 - VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
 - **VLM 응답 재생(실험용)**: `split --vlm-replay DIR0/split_debug.json`은 이전 실행의 창별 응답을 순서대로 재생하고 API를 부르지 않는다. 원본 지문(`input`) · VLM 설정(`vlm_config`) · 호출별 구간·창 좌표 · 실제 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시가 기록과 다르면 종료 코드 4로 멈추고, 기록이 다 쓰이지 않아도(호출 구성이 달라짐) 결과 파일 없이 종료 코드 4다. 보정(snap) 규칙처럼 **VLM 응답 이후** 단계만 바꾸는 비교에 쓴다. 색 경계가 바뀌어 구간·창이 달라지는 실험(`bg_row_ratio` 등)에는 쓸 수 없고, seed 효과 측정에도 쓸 수 없다(그건 실제 반복 호출).
 - **재현성 실험**: `--set section.vlm_seed=N`으로 seed를 보낸다. 기본(-1)은 보내지 않는다. 같은 이미지를 조건별로 3~5회 돌려 필요한 경계의 유지와 잘못된 경계의 고착을 따로 센다.
@@ -133,9 +147,9 @@ pipeline/samples/<이름>/
 확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 섹션 경계가 이상하면 `split_debug.json`에서 그 y의 후보 기각 사유(`median_delta` · `bg_ratio` · `min_section`)나 VLM 폐기(`dropped`) 기록을 먼저 본다. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
 
 - `color_candidates` 판독: 글자 위 경계 보정은 경계 행·바로 위 행이 균일 행이 아닌 **모든** 후보에서 발동한다(5차 실측 34장: 후보 1,207건 중 1,033건, 대부분 이동 뒤에도 기각). 기록의 `y`는 이동 후, `y_raw`는 이동 전 좌표이고 `snapped`가 이동 여부다. 실행 간 비교는 개별 기록이 아니라 `accepted` 집합으로 한다. 위쪽 여백 끝으로 옮긴 경계는 첫 글자 행에 놓이므로 `std[y]`가 항상 `blank_row_std`를 넘는다 — 균일 행 검사는 검토 대상 선별용이지 잘림 신호가 아니다.
-- **고정 입력본**(다음 단계 개발에 쓰는 이전 단계 결과): 실험 출력 디렉터리를 덮어쓰거나 골라 바꾸지 않는다. 실험 출력은 보고서가 참조하므로 그대로 두고, 선택한 결과를 별도 폴더(`v1`, `v2` …)에 모은다. 실행마다 어느 출력에서 왔는지(실행 디렉터리 · 여러 번 돌렸으면 어느 회차 · 선택 기준)를 그 폴더에 기록하고, 복사본의 `split.json` `image_path`는 복사한 위치에 맞춘다. 고정 입력본의 선택은 이전 단계 품질의 근거로 쓰지 않는다.
+- **고정 입력본**(다음 단계 개발에 쓰는 이전 단계 결과): 실험 출력 디렉터리를 덮어쓰거나 골라 바꾸지 않는다. 실험 출력은 보고서가 참조하므로 그대로 두고, 선택한 결과를 별도 폴더(`v1`, `v2` …)에 `freeze-input`으로 모은다(4절). 실행마다 어느 출력에서 왔는지(실행 디렉터리 · 여러 번 돌렸으면 어느 회차 · 선택 기준 · 실행 커밋)를 `--meta`로 `provenance.json`에 남긴다. `freeze-input`의 검증: 모든 `image_path`가 입력본 폴더 **내부**를 가리킴 · 이미지 SHA-256이 원본과 같음 · 이미지 크기 = `width`·`height` · 섹션 연속성(`top_offset` 순으로 첫 시작 0, 앞 끝 = 다음 시작, 마지막 끝 = `source_height`, 폭 = `source_width`) · 레포 밖으로 통째 복사한 사본에서 같은 검증(옮긴 폴더 기준으로 경로가 내부인지 다시 확인) · 원본 전후 해시 불변. 고정 입력본의 선택은 이전 단계 품질의 근거로 쓰지 않는다. 다음 단계의 출력은 입력본 폴더가 아닌 별도 위치에 쓴다.
 
-- `expected/`는 지금 **형식 예시**다. 단계가 구현되면 같은 입력의 실행 결과와 비교하는 회귀 테스트로 승격한다.
+- `expected/`는 지금 **형식 예시**다. 단계가 구현되면 같은 입력의 실행 결과와 비교하는 회귀 테스트로 승격한다. `expected/ocr/`는 합성 좌표로 만든 형식 예시이며 **OCR 정답이 아니다**(합성 영문 · 고정 score 0.97). 실제 표본의 OCR 정답(줄 텍스트·bbox)과 채점 명세는 PoC 레포에 둔다(`README.md` 4.1). DejaVu가 없는 PC에서 `make_synthetic`으로 `expected/`를 다시 만들면 글자 bbox가 바뀌므로, 형식 변경은 `convert-split`처럼 해당 필드만 바꾼다.
 - **① 섹션 정답 기준(실측 판정용, 2026-09-22)** — 정본 계약이 아니라 표본을 채점할 때 쓰는 기준이다. 입도는 소제목 단위[`pipeline.md` 단계표 ①].
   - 독립된 설명 주제(고유한 소제목과 그에 딸린 본문·그림)는 분리한다.
   - 목록은 형식이 아니라 내용의 위계로 판단한다. POINT n · 카드 · 후기·Q&A·FAQ 항목이라도 상위 주제에 딸린 설명이면 합치고, 각각이 독립 주제면 분리한다.

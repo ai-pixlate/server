@@ -14,6 +14,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from pipeline.jsonio import write_model
 from pipeline.stages.section_split import crop_sections
 from pipeline.types import (
     BBox,
@@ -77,10 +78,8 @@ def main(root: Path | None = None) -> Path:
 
     src = SourceImage(source_image_id=1, upload_order=1, path=str(src_path))
     split = crop_sections(src, im, [BOUNDARY], exp / "sections")
-    # image_path를 레포 상대경로로 기록(어느 PC에서 열어도 같게)
-    for s in split.sections:
-        s.image_path = str(Path(s.image_path).relative_to(root.parent.parent.parent))
-    (exp / "split.json").write_text(split.model_dump_json(indent=2), encoding="utf-8")
+    # image_path는 split.json 폴더 기준 상대 경로로 기록(어느 PC·폴더에서 열어도 같게, dev.md 3절)
+    write_model(exp / "split.json", split)
 
     for sec in split.sections:
         regions: list[OcrRegion] = []

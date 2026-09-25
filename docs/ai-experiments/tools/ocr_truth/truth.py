@@ -1,4 +1,4 @@
-"""② OCR 품질 표본 정답 도구 — 채점 명세 v2(`docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md`)용.
+"""② OCR 품질 표본 정답 도구 — 채점 명세 v3(`docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md`)용.
 
 레포 루트에서 실행한다(pipeline 패키지를 쓴다).
 
@@ -38,9 +38,9 @@ EXP = REPO / "docs" / "ai-experiments"
 TRUTH_DIR = EXP / "ocr_truth" / "v1"
 RUNS = EXP / "runs" / "ocr_truth_v1"
 V1 = REPO / "pipeline" / "out" / "ocr_input" / "v1"
-SPEC = "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md"
-TAGS = ("illegible", "section_cut", "source_cut", "logo", "product_label", "ink_overlap")
-MARGIN_MAX = 0.10  # 채점 명세 v2 1.2 — 사람 검수 항목(자동 검사하지 않음)
+SPEC = "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md"
+TAGS = ("illegible", "section_cut", "source_cut", "logo", "product_label", "ink_overlap", "rotated")
+MARGIN_MAX = 0.10  # 채점 명세 v3 1.2 — 사람 검수 항목(자동 검사하지 않음)
 
 # 품질 표본 12개 (2026-09-23 사용자 확정, status.md 4절)
 SAMPLES = [
@@ -264,13 +264,13 @@ def check_doc(doc: dict[str, Any]) -> list[str]:
             continue
         if b["x"] < 0 or b["y"] < 0 or b["x"] + b["w"] > W or b["y"] + b["h"] > H:
             errs.append(f"{lid}: bbox가 섹션 밖 {b} (섹션 {W}x{H})")
-        boxes.append((lid, b, "ink_overlap" in l["tags"]))
-    for i, (la, a, oa) in enumerate(boxes):
-        for lb, b, ob in boxes[i + 1:]:
+        boxes.append((lid, b, "ink_overlap" in l["tags"], "rotated" in l["tags"]))
+    for i, (la, a, oa, ra) in enumerate(boxes):
+        for lb, b, ob, rb in boxes[i + 1:]:
             ix = min(a["x"] + a["w"], b["x"] + b["w"]) - max(a["x"], b["x"])
             iy = min(a["y"] + a["h"], b["y"] + b["h"]) - max(a["y"], b["y"])
-            if ix > 0 and iy > 0 and not (oa and ob):
-                errs.append(f"{la}·{lb}: bbox 겹침 {ix}x{iy}px (둘 다 ink_overlap이어야 허용)")
+            if ix > 0 and iy > 0 and not (oa and ob) and not (ra or rb):
+                errs.append(f"{la}·{lb}: bbox 겹침 {ix}x{iy}px (둘 다 ink_overlap이거나 하나라도 rotated여야 허용)")
     return errs
 
 

@@ -1,0 +1,1129 @@
+{
+  "truth_format": 1,
+  "id": "GS-02_007__sec_1_02",
+  "sample": "GS-02_007",
+  "section_key": "sec_1_02",
+  "kind": "얼굴 사진 위 수치",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-02_007/sections/sec_1_02.png",
+    "sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+    "width": 830,
+    "height": 2457
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "압도적인 흡수력,",
+      "bbox": {
+        "x": 48,
+        "y": 113,
+        "w": 428,
+        "h": 71
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "차원이 다른 효과",
+      "bbox": {
+        "x": 49,
+        "y": 214,
+        "w": 431,
+        "h": 66
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "깊고 확실하게 흡수되어",
+      "bbox": {
+        "x": 48,
+        "y": 342,
+        "w": 336,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "특수 관리 이상의 효과를 볼 수 있어요",
+      "bbox": {
+        "x": 49,
+        "y": 403,
+        "w": 530,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "이마 주름",
+      "bbox": {
+        "x": 356,
+        "y": 818,
+        "w": 83,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "-28.54%▼",
+      "bbox": {
+        "x": 354,
+        "y": 857,
+        "w": 141,
+        "h": 28
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "각질층 착색",
+      "bbox": {
+        "x": 474,
+        "y": 912,
+        "w": 107,
+        "h": 24
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "-79.63%▼",
+      "bbox": {
+        "x": 474,
+        "y": 948,
+        "w": 139,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "눈가 주름",
+      "bbox": {
+        "x": 548,
+        "y": 1005,
+        "w": 84,
+        "h": 24
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "-14.31%▼",
+      "bbox": {
+        "x": 548,
+        "y": 1042,
+        "w": 131,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "모공깊이",
+      "bbox": {
+        "x": 591,
+        "y": 1096,
+        "w": 79,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "-7.80%▼",
+      "bbox": {
+        "x": 590,
+        "y": 1133,
+        "w": 117,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "가로모공",
+      "bbox": {
+        "x": 605,
+        "y": 1187,
+        "w": 79,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "-13.13%▼",
+      "bbox": {
+        "x": 605,
+        "y": 1226,
+        "w": 130,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "볼 리프팅",
+      "bbox": {
+        "x": 588,
+        "y": 1283,
+        "w": 84,
+        "h": 24
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "+3.32%▲",
+      "bbox": {
+        "x": 587,
+        "y": 1317,
+        "w": 129,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "팔자 주름",
+      "bbox": {
+        "x": 555,
+        "y": 1373,
+        "w": 85,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "-18.49%▼",
+      "bbox": {
+        "x": 558,
+        "y": 1408,
+        "w": 136,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "입꼬리 리프팅",
+      "bbox": {
+        "x": 494,
+        "y": 1464,
+        "w": 124,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "+3.21%▲",
+      "bbox": {
+        "x": 496,
+        "y": 1501,
+        "w": 122,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "피부 3단 깊이 탄력",
+      "bbox": {
+        "x": 391,
+        "y": 1558,
+        "w": 167,
+        "h": 24
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "+7.54%▲",
+      "bbox": {
+        "x": 396,
+        "y": 1592,
+        "w": 124,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "• 즉각적(일시적) 피부 모공 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.05.28 / 성인남녀 22명 / (주)",
+      "bbox": {
+        "x": 46,
+        "y": 2034,
+        "w": 726,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "스킨메드 임상시험센터",
+      "bbox": {
+        "x": 47,
+        "y": 2064,
+        "w": 150,
+        "h": 24
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "• 피부 3단 깊이 탄력 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.13 / 성인남녀 21명 / (주)스킨메",
+      "bbox": {
+        "x": 46,
+        "y": 2096,
+        "w": 723,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "드 임상시험센터",
+      "bbox": {
+        "x": 49,
+        "y": 2128,
+        "w": 105,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "• 피부 각질층 개선(턴오버개선) 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.05 / 성인남녀 22명 /",
+      "bbox": {
+        "x": 47,
+        "y": 2155,
+        "w": 725,
+        "h": 24
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "(주)스킨메드 임상시험센터",
+      "bbox": {
+        "x": 48,
+        "y": 2187,
+        "w": 175,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "• 깊게 패인 피부 주름 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.13 / 성인남녀 21명 / (주)스킨메",
+      "bbox": {
+        "x": 47,
+        "y": 2216,
+        "w": 726,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "드 임상시험센터",
+      "bbox": {
+        "x": 47,
+        "y": 2246,
+        "w": 106,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "• 피부 리프팅(눈꼬리, 볼, 입꼬리, 턱리프팅) 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.13 / 성인",
+      "bbox": {
+        "x": 46,
+        "y": 2275,
+        "w": 724,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "남녀 21명 / 킨메드 임상시험센터",
+      "bbox": {
+        "x": 46,
+        "y": 2307,
+        "w": 214,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "압도적인 흡수력,",
+        "bbox": {
+          "x": 48,
+          "y": 113,
+          "w": 428,
+          "h": 71
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "차원이 다른 효과",
+        "bbox": {
+          "x": 49,
+          "y": 214,
+          "w": 431,
+          "h": 66
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "깊고 확실하게 흡수되어",
+        "bbox": {
+          "x": 48,
+          "y": 342,
+          "w": 336,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "특수 관리 이상의 효과를 볼 수 있어요",
+        "bbox": {
+          "x": 49,
+          "y": 403,
+          "w": 530,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "이마 주름",
+        "bbox": {
+          "x": 356,
+          "y": 818,
+          "w": 83,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "-28.54%▼",
+        "bbox": {
+          "x": 354,
+          "y": 857,
+          "w": 141,
+          "h": 28
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "각질층 착색",
+        "bbox": {
+          "x": 474,
+          "y": 912,
+          "w": 107,
+          "h": 24
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "-79.63%▼",
+        "bbox": {
+          "x": 474,
+          "y": 948,
+          "w": 139,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "눈가 주름",
+        "bbox": {
+          "x": 548,
+          "y": 1005,
+          "w": 84,
+          "h": 24
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "-14.31%▼",
+        "bbox": {
+          "x": 548,
+          "y": 1042,
+          "w": 131,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "모공깊이",
+        "bbox": {
+          "x": 591,
+          "y": 1096,
+          "w": 79,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "-7.80%▼",
+        "bbox": {
+          "x": 590,
+          "y": 1133,
+          "w": 117,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "가로모공",
+        "bbox": {
+          "x": 605,
+          "y": 1187,
+          "w": 79,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "-13.13%▼",
+        "bbox": {
+          "x": 605,
+          "y": 1226,
+          "w": 130,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "볼 리프팅",
+        "bbox": {
+          "x": 588,
+          "y": 1283,
+          "w": 84,
+          "h": 24
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "+3.32%▲",
+        "bbox": {
+          "x": 587,
+          "y": 1317,
+          "w": 129,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "팔자 주름",
+        "bbox": {
+          "x": 555,
+          "y": 1373,
+          "w": 85,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "-18.49%▼",
+        "bbox": {
+          "x": 558,
+          "y": 1408,
+          "w": 136,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "입꼬리 리프팅",
+        "bbox": {
+          "x": 494,
+          "y": 1464,
+          "w": 124,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "+3.21%▲",
+        "bbox": {
+          "x": 496,
+          "y": 1501,
+          "w": 122,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "피부 3단 깊이 탄력",
+        "bbox": {
+          "x": 391,
+          "y": 1558,
+          "w": 167,
+          "h": 24
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "+7.54%▲",
+        "bbox": {
+          "x": 396,
+          "y": 1592,
+          "w": 124,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "• 즉각적(일시적) 피부 모공 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.05.28 / 성인남녀 22명 / (주)",
+        "bbox": {
+          "x": 46,
+          "y": 2034,
+          "w": 726,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "스킨메드 임상시험센터",
+        "bbox": {
+          "x": 47,
+          "y": 2064,
+          "w": 150,
+          "h": 24
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "• 피부 3단 깊이 탄력 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.13 / 성인남녀 21명 / (주)스킨메",
+        "bbox": {
+          "x": 46,
+          "y": 2096,
+          "w": 723,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "드 임상시험센터",
+        "bbox": {
+          "x": 49,
+          "y": 2128,
+          "w": 105,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "• 피부 각질층 개선(턴오버개선) 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.05 / 성인남녀 22명 /",
+        "bbox": {
+          "x": 47,
+          "y": 2155,
+          "w": 725,
+          "h": 24
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "(주)스킨메드 임상시험센터",
+        "bbox": {
+          "x": 48,
+          "y": 2187,
+          "w": 175,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "• 깊게 패인 피부 주름 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.13 / 성인남녀 21명 / (주)스킨메",
+        "bbox": {
+          "x": 47,
+          "y": 2216,
+          "w": 726,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "드 임상시험센터",
+        "bbox": {
+          "x": 47,
+          "y": 2246,
+          "w": 106,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "• 피부 리프팅(눈꼬리, 볼, 입꼬리, 턱리프팅) 개선 효과에 대한 인체적용시험 / 2024.05.27~2024.06.13 / 성인",
+        "bbox": {
+          "x": 46,
+          "y": 2275,
+          "w": 724,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:16+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "남녀 21명 / 킨메드 임상시험센터",
+        "bbox": {
+          "x": 46,
+          "y": 2307,
+          "w": 214,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

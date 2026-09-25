@@ -1,0 +1,245 @@
+{
+  "truth_format": 1,
+  "id": "GS-01_002__sec_1_16",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_16",
+  "kind": "흰 배경 목록 본문",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-01_002/sections/sec_1_16.png",
+    "sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+    "width": 1000,
+    "height": 848
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "Recommend",
+      "bbox": {
+        "x": 407,
+        "y": 107,
+        "w": 193,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "이런 분들에게 추천합니다",
+      "bbox": {
+        "x": 209,
+        "y": 170,
+        "w": 583,
+        "h": 59
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "· 자외선차단지수 검증 완료된 선크림을 찾으시는 분",
+      "bbox": {
+        "x": 109,
+        "y": 366,
+        "w": 679,
+        "h": 33
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "· 민감피부가 사용 가능한 저자극 순한 선크림을 찾으시는 분",
+      "bbox": {
+        "x": 109,
+        "y": 436,
+        "w": 783,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "· 건조한 무기자차가 부담되어 촉촉한 무기자차를 찾으시는 분",
+      "bbox": {
+        "x": 109,
+        "y": 505,
+        "w": 772,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "· 환경을 생각한 순한 진정 선크림을 찾으시는 분",
+      "bbox": {
+        "x": 109,
+        "y": 576,
+        "w": 628,
+        "h": 33
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:00:02+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "Recommend",
+        "bbox": {
+          "x": 407,
+          "y": 107,
+          "w": 193,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:02+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "이런 분들에게 추천합니다",
+        "bbox": {
+          "x": 209,
+          "y": 170,
+          "w": 583,
+          "h": 59
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:02+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "· 자외선차단지수 검증 완료된 선크림을 찾으시는 분",
+        "bbox": {
+          "x": 109,
+          "y": 366,
+          "w": 679,
+          "h": 33
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:02+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "· 민감피부가 사용 가능한 저자극 순한 선크림을 찾으시는 분",
+        "bbox": {
+          "x": 109,
+          "y": 436,
+          "w": 783,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:02+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "· 건조한 무기자차가 부담되어 촉촉한 무기자차를 찾으시는 분",
+        "bbox": {
+          "x": 109,
+          "y": 505,
+          "w": 772,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:02+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "· 환경을 생각한 순한 진정 선크림을 찾으시는 분",
+        "bbox": {
+          "x": 109,
+          "y": 576,
+          "w": 628,
+          "h": 33
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

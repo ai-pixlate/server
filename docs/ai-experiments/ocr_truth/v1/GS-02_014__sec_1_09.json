@@ -1,0 +1,1133 @@
+{
+  "truth_format": 1,
+  "id": "GS-02_014__sec_1_09",
+  "sample": "GS-02_014",
+  "section_key": "sec_1_09",
+  "kind": "흰·연회색 본문(Q&A 밀집)",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-02_014/sections/sec_1_09.png",
+    "sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+    "width": 830,
+    "height": 3272
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "셀리맥스 레티날 샷",
+      "bbox": {
+        "x": 191,
+        "y": 222,
+        "w": 448,
+        "h": 56
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "타이트닝 부스터 Q&A",
+      "bbox": {
+        "x": 159,
+        "y": 304,
+        "w": 511,
+        "h": 49
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "Q) 아침, 저녁 모두 사용해도 되나요?",
+      "bbox": {
+        "x": 281,
+        "y": 537,
+        "w": 400,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "A) 레티날 성분은 빛과 열에 약하므로 저녁",
+      "bbox": {
+        "x": 97,
+        "y": 677,
+        "w": 457,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "사용을 권장드립니다. 다만, 아침에 사용을 할",
+      "bbox": {
+        "x": 98,
+        "y": 730,
+        "w": 487,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "경우엔 자외선 차단제를 꼭 발라주시는 것이",
+      "bbox": {
+        "x": 97,
+        "y": 779,
+        "w": 472,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "좋습니다.",
+      "bbox": {
+        "x": 97,
+        "y": 831,
+        "w": 109,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "",
+      "bbox": {
+        "x": 393,
+        "y": 903,
+        "w": 116,
+        "h": 46
+      },
+      "tags": [
+        "illegible"
+      ],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "Q) 첫 사용 시 자극이 없으면",
+      "bbox": {
+        "x": 329,
+        "y": 991,
+        "w": 303,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "더 많이 사용해도 되나요?",
+      "bbox": {
+        "x": 343,
+        "y": 1044,
+        "w": 277,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "A) 첫 사용 시 자극이 없더라도 레티날에 의한",
+      "bbox": {
+        "x": 98,
+        "y": 1207,
+        "w": 488,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "피부 적응 반응이 뒤늦게 나타날 수 있습니다.",
+      "bbox": {
+        "x": 98,
+        "y": 1263,
+        "w": 483,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "반응이 나타나지 않더라도 사용량이나 빈도를",
+      "bbox": {
+        "x": 98,
+        "y": 1319,
+        "w": 489,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "늘리지 말고 초기 2주까지는 올바른 사용법에",
+      "bbox": {
+        "x": 98,
+        "y": 1374,
+        "w": 487,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "맞춰 사용하시길 권장드립니다.",
+      "bbox": {
+        "x": 97,
+        "y": 1430,
+        "w": 345,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "Q) 레티날 적응 반응은 어떤 증상으로",
+      "bbox": {
+        "x": 280,
+        "y": 1600,
+        "w": 402,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "나타나나요?",
+      "bbox": {
+        "x": 415,
+        "y": 1652,
+        "w": 133,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "A) 레티날을 처음 사용한다면 2주까지 피부",
+      "bbox": {
+        "x": 98,
+        "y": 1816,
+        "w": 466,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "적응 과정을 가져야 합니다.",
+      "bbox": {
+        "x": 98,
+        "y": 1868,
+        "w": 293,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "적응 기간 동안 일시적으로 붉어짐, 각질탈락,",
+      "bbox": {
+        "x": 98,
+        "y": 1924,
+        "w": 483,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "간지러움, 화끈거림, 따가움 등의 피부 반응이",
+      "bbox": {
+        "x": 98,
+        "y": 1976,
+        "w": 483,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "나타날 수 있습니다.",
+      "bbox": {
+        "x": 98,
+        "y": 2032,
+        "w": 215,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "Q) 임산부도 사용 가능한가요?",
+      "bbox": {
+        "x": 315,
+        "y": 2212,
+        "w": 332,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "A) 임산부, 수유부는 호르몬 변화로 인하여",
+      "bbox": {
+        "x": 98,
+        "y": 2379,
+        "w": 456,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "피부가 예민해지는 시기로 인해 사용을",
+      "bbox": {
+        "x": 98,
+        "y": 2431,
+        "w": 416,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "권장하지 않습니다.",
+      "bbox": {
+        "x": 98,
+        "y": 2487,
+        "w": 209,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "Q) 같이 쓰면 안되는 성분이 있나요?",
+      "bbox": {
+        "x": 286,
+        "y": 2683,
+        "w": 390,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "A) 고함량의 비타민 C 혹은 스크럽제 및",
+      "bbox": {
+        "x": 98,
+        "y": 2850,
+        "w": 427,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "각질제거 성분이 포함된 제품과 동시 사용은",
+      "bbox": {
+        "x": 98,
+        "y": 2902,
+        "w": 471,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "권장하지 않습니다. 함께 사용할 경우 사용",
+      "bbox": {
+        "x": 98,
+        "y": 2958,
+        "w": 453,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "주기를 알맞게 조절하여 (격일) 사용하실 것을",
+      "bbox": {
+        "x": 98,
+        "y": 3014,
+        "w": 489,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "권장 드립니다.",
+      "bbox": {
+        "x": 97,
+        "y": 3069,
+        "w": 162,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "셀리맥스 레티날 샷",
+        "bbox": {
+          "x": 191,
+          "y": 222,
+          "w": 448,
+          "h": 56
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "타이트닝 부스터 Q&A",
+        "bbox": {
+          "x": 159,
+          "y": 304,
+          "w": 511,
+          "h": 49
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "Q) 아침, 저녁 모두 사용해도 되나요?",
+        "bbox": {
+          "x": 281,
+          "y": 537,
+          "w": 400,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "A) 레티날 성분은 빛과 열에 약하므로 저녁",
+        "bbox": {
+          "x": 97,
+          "y": 677,
+          "w": 457,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "사용을 권장드립니다. 다만, 아침에 사용을 할",
+        "bbox": {
+          "x": 98,
+          "y": 730,
+          "w": 487,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "경우엔 자외선 차단제를 꼭 발라주시는 것이",
+        "bbox": {
+          "x": 97,
+          "y": 779,
+          "w": 472,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "좋습니다.",
+        "bbox": {
+          "x": 97,
+          "y": 831,
+          "w": 109,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "",
+        "bbox": {
+          "x": 393,
+          "y": 903,
+          "w": 116,
+          "h": 46
+        },
+        "tags": [
+          "illegible"
+        ],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "Q) 첫 사용 시 자극이 없으면",
+        "bbox": {
+          "x": 329,
+          "y": 991,
+          "w": 303,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "더 많이 사용해도 되나요?",
+        "bbox": {
+          "x": 343,
+          "y": 1044,
+          "w": 277,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "A) 첫 사용 시 자극이 없더라도 레티날에 의한",
+        "bbox": {
+          "x": 98,
+          "y": 1207,
+          "w": 488,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "피부 적응 반응이 뒤늦게 나타날 수 있습니다.",
+        "bbox": {
+          "x": 98,
+          "y": 1263,
+          "w": 483,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "반응이 나타나지 않더라도 사용량이나 빈도를",
+        "bbox": {
+          "x": 98,
+          "y": 1319,
+          "w": 489,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "늘리지 말고 초기 2주까지는 올바른 사용법에",
+        "bbox": {
+          "x": 98,
+          "y": 1374,
+          "w": 487,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "맞춰 사용하시길 권장드립니다.",
+        "bbox": {
+          "x": 97,
+          "y": 1430,
+          "w": 345,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "Q) 레티날 적응 반응은 어떤 증상으로",
+        "bbox": {
+          "x": 280,
+          "y": 1600,
+          "w": 402,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "나타나나요?",
+        "bbox": {
+          "x": 415,
+          "y": 1652,
+          "w": 133,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "A) 레티날을 처음 사용한다면 2주까지 피부",
+        "bbox": {
+          "x": 98,
+          "y": 1816,
+          "w": 466,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "적응 과정을 가져야 합니다.",
+        "bbox": {
+          "x": 98,
+          "y": 1868,
+          "w": 293,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "적응 기간 동안 일시적으로 붉어짐, 각질탈락,",
+        "bbox": {
+          "x": 98,
+          "y": 1924,
+          "w": 483,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "간지러움, 화끈거림, 따가움 등의 피부 반응이",
+        "bbox": {
+          "x": 98,
+          "y": 1976,
+          "w": 483,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "나타날 수 있습니다.",
+        "bbox": {
+          "x": 98,
+          "y": 2032,
+          "w": 215,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "Q) 임산부도 사용 가능한가요?",
+        "bbox": {
+          "x": 315,
+          "y": 2212,
+          "w": 332,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "A) 임산부, 수유부는 호르몬 변화로 인하여",
+        "bbox": {
+          "x": 98,
+          "y": 2379,
+          "w": 456,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "피부가 예민해지는 시기로 인해 사용을",
+        "bbox": {
+          "x": 98,
+          "y": 2431,
+          "w": 416,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "권장하지 않습니다.",
+        "bbox": {
+          "x": 98,
+          "y": 2487,
+          "w": 209,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "Q) 같이 쓰면 안되는 성분이 있나요?",
+        "bbox": {
+          "x": 286,
+          "y": 2683,
+          "w": 390,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "A) 고함량의 비타민 C 혹은 스크럽제 및",
+        "bbox": {
+          "x": 98,
+          "y": 2850,
+          "w": 427,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "각질제거 성분이 포함된 제품과 동시 사용은",
+        "bbox": {
+          "x": 98,
+          "y": 2902,
+          "w": 471,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "권장하지 않습니다. 함께 사용할 경우 사용",
+        "bbox": {
+          "x": 98,
+          "y": 2958,
+          "w": 453,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "주기를 알맞게 조절하여 (격일) 사용하실 것을",
+        "bbox": {
+          "x": 98,
+          "y": 3014,
+          "w": 489,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T08:59:58+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "권장 드립니다.",
+        "bbox": {
+          "x": 97,
+          "y": 3069,
+          "w": 162,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

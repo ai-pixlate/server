@@ -314,3 +314,6 @@ def test_real_paddleocr_on_synthetic_section(cfg):
         assert all(0 <= x <= sec.width and 0 <= y <= sec.height for x, y in r.poly)
     info = ocr.build_engine(cfg).info
     assert info["settings"]["text_rec_score_thresh"] == 0.0
+    assert info["device"] in ("cpu", "gpu:0")
+    if info["device"] != "cpu":  # oneDNN 우회는 Windows CPU에만
+        assert info["enable_mkldnn"] == "library default"

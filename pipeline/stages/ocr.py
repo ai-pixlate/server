@@ -56,21 +56,26 @@ class PaddleOcrEngine:
             use_textline_orientation=False,
             text_rec_score_thresh=REC_SCORE_THRESH,
         )
-        if sys.platform == "win32":
-            kwargs["enable_mkldnn"] = False  # Windows CPU oneDNN 실행기 오류 회피(원인 추정, dev.md 6절)
         try:
             import paddle
             import paddleocr
             import paddlex
             from paddleocr import PaddleOCR
+            from paddlex.utils.device import get_default_device
 
+            # 장치는 설치된 paddle 빌드가 정한다: GPU 빌드 + GPU 있음 → gpu:0, 아니면 cpu (dev.md 6절).
+            device = get_default_device()
+            if sys.platform == "win32" and device == "cpu":
+                kwargs["enable_mkldnn"] = False  # Windows CPU oneDNN 실행기 오류 회피(원인 추정, dev.md 6절)
             self._ocr = PaddleOCR(**kwargs)
         except Exception as e:  # noqa: BLE001 — 초기화 실패는 유형과 무관하게 실행 전체 중단
             raise OcrEngineInitError(f"{type(e).__name__}: {e}") from e
         self.info = {
             "engine": "paddleocr",
-            "versions": {"paddle": paddle.__version__, "paddleocr": paddleocr.__version__, "paddlex": paddlex.__version__},
+            "versions": {"paddle": paddle.__version__, "paddleocr": paddleocr.__version__, "paddlex": paddlex.__version__,
+                         "cuda": paddle.version.cuda() if paddle.device.is_compiled_with_cuda() else None},
             "platform": sys.platform,
+            "device": device,
             "settings": {k: v for k, v in kwargs.items()},
             "enable_mkldnn": kwargs.get("enable_mkldnn", "library default"),
         }

@@ -168,12 +168,15 @@ pipeline/samples/<이름>/
 |---|---|---|---|
 | 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 · ① 섹션 분해(numpy · google-genai, VLM은 API 키 필요) | 로컬 모델 단계 실행 |
 | 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ③ 휴리스틱) | ⑥ |
+| 로컬 OCR (Windows GPU) | 아래 "Windows 로컬 GPU" | ② — 장치는 설치된 paddle 빌드가 자동 선택 | ⑥ |
 | GPU 서버 | `gpu/` 이미지 + `pip install -r pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).
 - `requirements-ocr.txt`는 2026-09-23 검증 버전으로 고정했다: `paddlepaddle==3.3.1` · `paddleocr==3.7.0` · `paddlex==3.7.2`(Windows 11 · Python 3.12.10 · CPU). 버전을 바꾸면 ② 영역 보존(`pipeline.md` 7절)의 코드 근거를 다시 확인한다. `-gpu.txt`는 아직 **설치 미검증**이다.
 - **Windows 로컬 OCR 설치**: paddle 패키지의 파일 경로가 길어 Windows 경로 길이 한도(260자)에 걸릴 수 있다(2026-09-23, 긴 임시 폴더 경로의 가상환경에서 `OSError [Errno 2]`). 짧은 가상환경 경로를 권장한다. 시스템의 Long Path 설정은 이 문서가 요구하지 않는다.
-- **Windows CPU 추론의 oneDNN 우회**: 위 버전의 Windows CPU에서 `predict` 시 `NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support … onednn_instruction.cc`가 났고 `enable_mkldnn=False`로 동작했다(2026-09-23). 원인은 paddle 3.3.1 oneDNN 실행기 문제로 **추정**한다. ② 엔진은 **Windows에서만** oneDNN을 끄고 Linux(워커·GPU 서버)에는 일괄 적용하지 않는다. 실제 적용값은 `run.json`에 남긴다. 알고리즘 파라미터가 아니라 실행 환경 설정이므로 config 키로 두지 않는다.
+- **Windows CPU 추론의 oneDNN 우회**: 위 버전의 Windows CPU에서 `predict` 시 `NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support … onednn_instruction.cc`가 났고 `enable_mkldnn=False`로 동작했다(2026-09-23). 원인은 paddle 3.3.1 oneDNN 실행기 문제로 **추정**한다. ② 엔진은 **Windows이면서 CPU로 돌 때만** oneDNN을 끄고, GPU나 Linux(워커·GPU 서버)에는 적용하지 않는다. 실제 적용값은 `run.json`에 남긴다. 알고리즘 파라미터가 아니라 실행 환경 설정이므로 config 키로 두지 않는다.
+- **② 장치 선택(2026-09-25 결정)**: 코드에서 장치를 지정하지 않는다. PaddleX 기본 규칙대로 **GPU 빌드 paddle이 설치되고 GPU가 보이면 `gpu:0`, 아니면 `cpu`**이며, 실제 장치는 `run.json` `engine.device`(와 CUDA 버전)에 남는다. 강제로 CPU를 쓰려면 CPU 빌드 환경에서 실행한다. 장치 지정 설정(config 키·환경변수)은 두지 않았다 — 필요해지면 먼저 결정한다.
+- **Windows 로컬 GPU(2026-09-25 검증: RTX 4060 Laptop 8GB · 드라이버 555.97(CUDA 12.5까지) · Python 3.12.10)**: CPU 환경과 섞지 않도록 별도 가상환경(짧은 경로)을 쓴다. 설치 순서: `pip install -r pipeline/requirements.txt paddleocr==3.7.0 paddlex==3.7.2` → `pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/`(휠 약 767MB, 받다 끊기면 `curl -C -`로 이어받아 파일로 설치). CUDA 11.8 빌드를 쓴 이유: 이 드라이버는 CUDA 12.6 빌드를 보장하지 않지만 11.8은 지원한다. CUDA·cuDNN 런타임은 `nvidia-*-cu11` pip 패키지로 함께 설치되며 별도 설치는 필요 없었다(`nvidia-cudnn-cu11 8.9.4.19`는 PyPI에서 철회된 버전이라는 경고가 나오지만 paddle 의존성이 요구하는 버전이며 `paddle.utils.run_check()` 통과). 검증: 1a 프로브 4개 섹션에서 CPU(oneDNN 끔)와 비교해 영역 수·텍스트 75/75 동일, 폴리곤 73/75 동일(나머지 2개 1px), score 차 최대 0.014, 섹션당 시간(엔진 로딩 포함) CPU 11~30초 → GPU 약 6초. 이 비교 범위(4개 섹션) 밖의 동일성 보장은 아니므로 기준선은 한 환경에서 잰다.
 - LLM·VLM 호출 단계(① 경계 선택 · ③ `llm_assist` · ③-1 · ④ · ⑧)는 API 키를 환경변수 **`GEMINI_API_KEY`**로 받는다(2026-09-21, ① 착수 시 결정). 이름은 BE·배포 담당에게 전달하고, 워커에 키를 주입하는 작업은 배포 담당과 맞춘다. 키는 커밋하지 않는다.
 - Python 3.11 이상(`tomllib`). BE와 GPU 이미지는 3.12.
 - `pipeline/requirements*.txt`의 주석은 ASCII로 유지한다. 일부 pip 버전은 이 파일을 로케일 인코딩(한국어 Windows는 cp949)으로 읽어 한글 주석에서 `UnicodeDecodeError`가 난다. 그래도 문제가 나면 `PYTHONUTF8=1`을 켜고 설치한다.

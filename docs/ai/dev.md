@@ -34,6 +34,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     ocr.py                   ② 텍스트 추출
     merge.py                 ③ 줄·문단 병합 + 역할 분류
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]
+  jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 — 3·5절
   run.py                     단계별 실행 CLI — 4절
   inspect.py                 결과 오버레이 — 5절
   samples/                   샘플 입력·기대 결과 — 5절
@@ -60,7 +61,7 @@ docs/ai/                     정본 문서
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
 
-**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s`)을 남긴다. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
+**실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s` · 커밋 `git_commit` · 추적 파일 변경 여부 `git_dirty`)을 남긴다. git을 쓸 수 없으면 두 값은 `null`. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
 
 ## 3. 단계 간 타입 (`pipeline/types.py`)
 
@@ -69,7 +70,7 @@ docs/ai/                     정본 문서
 | 단계 | 함수 | 입력 | 출력 |
 |---|---|---|---|
 | ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
-| ② 텍스트 추출 | `stages.ocr.run(section, cfg)` | `Section` | `OcrResult` |
+| ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None)` | `Section` | `OcrResult`. `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 `NotImplementedError`(임시 분할 #31 · #32 미구현, 조용히 통과시키지 않음). 실제 이미지 크기가 `Section.width`·`height`와 다르면 `IMAGE_OPEN_FAILED`(재시도 불가) — 분할 판단과 좌표 범위가 메타데이터와 어긋나지 않게. 엔진 반환값이 dict가 아니거나 배열이 아니면 `OCR_FAILED` |
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg)` | `Section` + `OcrResult` | `MergeResult` |
 | 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError` |
 
@@ -93,8 +94,22 @@ docs/ai/                     정본 문서
 - 모든 모델은 `extra="forbid"` — 계약 밖 키가 조용히 섞이지 않는다. `role`은 5종 Literal.
 - 계약이 미정으로 둔 값은 필드가 없다: 섹션 `range`(#13), `style`(#14). 결정되면 추가한다.
 - 계약이 정한 계산만 도우미로 둔다: `ocr_confidence_of()`(영역 score 최솟값, 없으면 None) · `BBox.union()` · `BBox.from_poly()`.
-- 직렬화는 `model_dump_json()` / `model_validate_json()`. 단계 사이 파일 형식 = 워커에 넘기는 형식 = 사람이 읽는 형식, 셋이 같다.
-- `schema_version`은 `"1"`. 타입을 호환 불가로 바꾸면 올린다.
+- 직렬화는 `model_dump_json()`. **워커에 넘기는 형식 = `analyze()`가 반환하는 `AnalyzeResult`(파일로 쓰면 `analyze.json`)이며, 이 형식은 버전 `"1"` · 경로 변환 없이 모델 그대로다.** 단계 사이의 개발용 파일(`split.json` · `ocr/*.json` · `merge/*.json`)은 사람이 읽는 형식과 같고, 그중 `split.json`에만 아래 경로 규칙이 붙는다(2026-09-26 범위 분리 — BE 인계 형식은 바꾸지 않는다).
+- **개발용 파일 읽기·쓰기는 `pipeline/jsonio.py`를 거친다**(`load_split` · `load_ocr` · `load_merge` · `write_model`). 로더는 모델 검증 전에 원본 JSON의 버전을 확인한다(버전 필드가 없으면 pydantic 기본값이 조용히 채우기 때문). `AnalyzeResult`는 이 로더의 대상이 아니다(파일 읽기 도구 없음 — PR 이전과 같음).
+- **`split.json` `image_path` 기준(2026-09-23 결정, 2026-09-26 Split 한정으로 축소)**: `split.json`의 상대 `image_path`는 **그 JSON 파일이 있는 폴더 기준**이다. 절대 경로는 그대로 쓴다. 작업 디렉터리 기준으로 되돌아가 찾지 않는다(없으면 해석한 경로와 함께 실패). 쓸 때는 JSON 폴더 기준 상대 경로(`/` 구분)로 기록하고, 만들 수 없으면(다른 드라이브) 절대 경로. `load_split`이 돌려주는 `Section.image_path`는 절대 경로다. `write_model`은 상대화한 **복사본**을 쓰므로 넘겨준 `SplitResult`와 그 안의 `Section`(→ `analyze()`가 `AnalyzeResult`에 담는 같은 객체)은 바뀌지 않는다. `AnalyzeResult`·`analyze.json`에는 이 규칙을 적용하지 않는다.
+- **버전 상수 두 개**(`pipeline/types.py`):
+  - `SCHEMA_VERSION = "1"` — 공통 결과 버전. `AnalyzeResult` · `OcrResult` · `MergeResult`의 기본 출력. 타입을 호환 불가로 바꾸면 올리되, `AnalyzeResult`는 워커 인계 형식이므로 **BE 합의 없이 올리지 않는다.**
+  - `SPLIT_SCHEMA_VERSION = "2"` — **Split 파일 버전.** `SplitResult`(① `section_split.run()`의 출력 타입이자 `split.json` 파일)에만 붙는 경로 규칙 버전이다. `SplitResult`는 `analyze()` 안에서만 쓰이고 워커에는 `sections`만 `AnalyzeResult`로 넘어가므로 인계 형식에는 들어가지 않는다. 워커가 `analyze()` 대신 단계 함수를 직접 부르는 방식은 계약에 없다(그럴 경우 이 버전 필드가 노출되므로 BE 확인 필요 #35).
+  - 계약(`contract.md` 4.1 · 6.1)의 `schema_version`은 DB에 저장하는 JSON의 구조 버전이며 위 두 상수와 **다른 것**이다. 이름이 같아 생기는 혼동과 인계 형식의 경로 규칙은 `open-questions.md` #35(BE 확인 필요).
+
+  | 타입 | 기본 출력 버전 | 로더 읽기 허용 | 경로 규칙 |
+  |---|---|---|---|
+  | `SplitResult`(`split.json`) | `"2"` | `"2"`만 — `"1"`(옛 상대 경로 = 작업 디렉터리·레포 루트 기준)은 거부, `convert-split`·`freeze-input`으로 전환(4절) | JSON 폴더 기준 |
+  | `OcrResult` · `MergeResult` | `"1"` | `"1"` · `"2"`(2026-09-23~25 사이 생성된 파일, 구조 동일) | 없음 |
+  | `AnalyzeResult`(`analyze.json`) | `"1"` | 로더 대상 아님(PR 이전과 같이 모델 그대로 쓰고, 읽기 도구 없음) | 없음 |
+
+  버전 필드가 없거나 표에 없는 버전이면 `SchemaVersionError`. 원본 실측 출력(버전 1 `split.json`)은 전환하지 않고 보존한다.
+- **② `score` 구현값**: `stages/ocr.py`는 영역 `score`에 PaddleOCR `rec_scores[i]`(인식 신뢰도)를 넣는다. 설치 버전(paddlex 3.7.2) 출력에 영역별 점수는 이것뿐이고 텍스트·폴리곤과 같은 인덱스로 만들어진다(1a 프로브·코드 확인). **이는 현재 구현값이며 공유 계약의 `score` 정의로 확정된 것이 아니다** — `contract.md` 2.5 · `open-questions.md` #34(BE 확인 필요). 사용자가 허용한 범위는 "현재 OCR 구현값 유지"까지다.
 
 ## 4. 단계별 실행
 
@@ -104,12 +119,16 @@ docs/ai/                     정본 문서
 |---|---|---|
 | `python -m pipeline.run config [--set ...]` | 유효 config 출력 | stdout |
 | `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합(`empty_merged` 색 단계 · `empty_merged_after_vlm` 보정 뒤) · VLM 창별 호출·보정·폐기) |
-| `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② | `DIR/ocr/<key>.json` |
+| `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② — 실행 구조는 아래 "② 실행 구조" | `DIR/ocr/<key>.json`(성공한 섹션만) · `DIR/run.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
+| `python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json [--overwrite]` | 버전 1 → 2 **일반 전환**. 옛 상대 경로를 `--base` 기준으로 해석(대상이 없으면 실패)해 새 JSON 위치 기준으로 다시 쓴다. **이미지는 옮기지 않으며 결과는 원래 이미지를 가리킨다.** `--out`이 있으면 `--overwrite` 없이는 거부. 원래 값은 stdout에 출력 | `NEW/split.json` |
+| `python -m pipeline.run freeze-input --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]` | **고정 입력본 생성**(5절). 섹션 PNG를 `INPUT_DIR/sections/`로 복사하고 복사본을 가리키게 한 뒤 검증. 원본은 읽기만 하고 전후 해시 비교. `INPUT_DIR`이 비어 있지 않으면 거부. 버전 1 원본은 `--base` 필요 | `INPUT_DIR/split.json` · `sections/` · `origin/`(원본 `split.json` · `split_debug.json` · `run.json` 사본) · `provenance.json` |
+| `python -m pipeline.run verify-input --dir INPUT_DIR [--relocated]` | 고정 입력본 재검증. `--relocated`는 레포 밖 임시 위치로 통째 복사해 그 복사본만으로 검증 | stdout |
 
-- 종료 코드: `0` 성공 · `2` `AnalyzeError`(stderr에 JSON) · `3` 미구현 단계 · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다).
+- 종료 코드: `0` 성공 · `2` `AnalyzeError`(모든 하위 명령, stderr에 JSON) · `3` 미구현(단계 또는 ② 4,000px 초과 섹션) · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
+- **② 실행 구조(`ocr`, 2026-09-23 결정)**: `--out`에 이전 `run.json`이나 `ocr/`가 있으면 거부한다(실행마다 새 폴더 — 이전 성공 JSON이 이번 실패 섹션의 결과처럼 남지 않게). 엔진을 먼저 한 번 만들고, **초기화가 실패하면 즉시 중단**해 모든 섹션을 `not_run`으로, 실행 수준 오류를 `run_error`로 기록하고 종료 코드 2. 그 뒤 섹션마다 실행하며 **섹션 오류(이미지 열기 · 추론 · 출력 형식)는 기록하고 다음 섹션으로 계속**한다. 실패를 빈 결과로 바꿔치지 않으며 실패 섹션의 `ocr/<key>.json`은 쓰지 않는다. `run.json` 추가 필드: `status`(`ok` 대상 모두 성공 · `partial` 일부 성공 + 실패·미실행 · `failed` 성공 없음) · `sections`(섹션별 `ok`+영역 수 / `failed`+`code` · `retryable` · `exception` · `message`(+`reason`) / `not_run`) · `run_error` · `engine`(버전 · 플랫폼 · 실제 적용 설정, 예: `enable_mkldnn` · `text_rec_score_thresh`). 종료 코드: `AnalyzeError` 실패가 있으면 2, 4,000px 초과 거부만 있으면 3, 없으면 0. stderr에는 첫 오류 JSON. `analyze()`는 계약 8장대로 첫 실패에서 `AnalyzeError`를 던진다. `retryable`은 현재 `errors.ERROR_POLICY` 기본값(`IMAGE_OPEN_FAILED` False · `OCR_FAILED` True)이며 세분은 #33 결정 후.
 - VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
 - **VLM 응답 재생(실험용)**: `split --vlm-replay DIR0/split_debug.json`은 이전 실행의 창별 응답을 순서대로 재생하고 API를 부르지 않는다. 원본 지문(`input`) · VLM 설정(`vlm_config`) · 호출별 구간·창 좌표 · 실제 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시가 기록과 다르면 종료 코드 4로 멈추고, 기록이 다 쓰이지 않아도(호출 구성이 달라짐) 결과 파일 없이 종료 코드 4다. 보정(snap) 규칙처럼 **VLM 응답 이후** 단계만 바꾸는 비교에 쓴다. 색 경계가 바뀌어 구간·창이 달라지는 실험(`bg_row_ratio` 등)에는 쓸 수 없고, seed 효과 측정에도 쓸 수 없다(그건 실제 반복 호출).
 - **재현성 실험**: `--set section.vlm_seed=N`으로 seed를 보낸다. 기본(-1)은 보내지 않는다. 같은 이미지를 조건별로 3~5회 돌려 필요한 경계의 유지와 잘못된 경계의 고착을 따로 센다.
@@ -133,9 +152,9 @@ pipeline/samples/<이름>/
 확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 섹션 경계가 이상하면 `split_debug.json`에서 그 y의 후보 기각 사유(`median_delta` · `bg_ratio` · `min_section`)나 VLM 폐기(`dropped`) 기록을 먼저 본다. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
 
 - `color_candidates` 판독: 글자 위 경계 보정은 경계 행·바로 위 행이 균일 행이 아닌 **모든** 후보에서 발동한다(5차 실측 34장: 후보 1,207건 중 1,033건, 대부분 이동 뒤에도 기각). 기록의 `y`는 이동 후, `y_raw`는 이동 전 좌표이고 `snapped`가 이동 여부다. 실행 간 비교는 개별 기록이 아니라 `accepted` 집합으로 한다. 위쪽 여백 끝으로 옮긴 경계는 첫 글자 행에 놓이므로 `std[y]`가 항상 `blank_row_std`를 넘는다 — 균일 행 검사는 검토 대상 선별용이지 잘림 신호가 아니다.
-- **고정 입력본**(다음 단계 개발에 쓰는 이전 단계 결과): 실험 출력 디렉터리를 덮어쓰거나 골라 바꾸지 않는다. 실험 출력은 보고서가 참조하므로 그대로 두고, 선택한 결과를 별도 폴더(`v1`, `v2` …)에 모은다. 실행마다 어느 출력에서 왔는지(실행 디렉터리 · 여러 번 돌렸으면 어느 회차 · 선택 기준)를 그 폴더에 기록하고, 복사본의 `split.json` `image_path`는 복사한 위치에 맞춘다. 고정 입력본의 선택은 이전 단계 품질의 근거로 쓰지 않는다.
+- **고정 입력본**(다음 단계 개발에 쓰는 이전 단계 결과): 실험 출력 디렉터리를 덮어쓰거나 골라 바꾸지 않는다. 실험 출력은 보고서가 참조하므로 그대로 두고, 선택한 결과를 별도 폴더(`v1`, `v2` …)에 `freeze-input`으로 모은다(4절). 실행마다 어느 출력에서 왔는지(실행 디렉터리 · 여러 번 돌렸으면 어느 회차 · 선택 기준 · 실행 커밋)를 `--meta`로 `provenance.json`에 남긴다. `freeze-input`의 검증: 모든 `image_path`가 입력본 폴더 **내부**를 가리킴 · 이미지 SHA-256이 원본과 같음 · 이미지 크기 = `width`·`height` · 섹션 연속성(`top_offset` 순으로 첫 시작 0, 앞 끝 = 다음 시작, 마지막 끝 = `source_height`, 폭 = `source_width`) · 레포 밖으로 통째 복사한 사본에서 같은 검증(옮긴 폴더 기준으로 경로가 내부인지 다시 확인) · 원본 전후 해시 불변. 고정 입력본의 선택은 이전 단계 품질의 근거로 쓰지 않는다. 다음 단계의 출력은 입력본 폴더가 아닌 별도 위치에 쓴다.
 
-- `expected/`는 지금 **형식 예시**다. 단계가 구현되면 같은 입력의 실행 결과와 비교하는 회귀 테스트로 승격한다.
+- `expected/`는 지금 **형식 예시**다. 단계가 구현되면 같은 입력의 실행 결과와 비교하는 회귀 테스트로 승격한다. `expected/ocr/`는 합성 좌표로 만든 형식 예시이며 **OCR 정답이 아니다**(합성 영문 · 고정 score 0.97). 실제 표본의 OCR 정답(줄 텍스트·bbox)과 채점 명세는 `README.md` 4.1의 실험 기록 폴더(`docs/ai-experiments/`)에 둔다. DejaVu가 없는 PC에서 `make_synthetic`으로 `expected/`를 다시 만들면 글자 bbox가 바뀌므로, 형식 변경은 `convert-split`처럼 해당 필드만 바꾼다.
 - **① 섹션 정답 기준(실측 판정용, 2026-09-22)** — 정본 계약이 아니라 표본을 채점할 때 쓰는 기준이다. 입도는 소제목 단위[`pipeline.md` 단계표 ①].
   - 독립된 설명 주제(고유한 소제목과 그에 딸린 본문·그림)는 분리한다.
   - 목록은 형식이 아니라 내용의 위계로 판단한다. POINT n · 카드 · 후기·Q&A·FAQ 항목이라도 상위 주제에 딸린 설명이면 합치고, 각각이 독립 주제면 분리한다.
@@ -153,10 +172,15 @@ pipeline/samples/<이름>/
 |---|---|---|---|
 | 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 · ① 섹션 분해(numpy · google-genai, VLM은 API 키 필요) | 로컬 모델 단계 실행 |
 | 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ③ 휴리스틱) | ⑥ |
+| 로컬 OCR (Windows GPU) | 아래 "Windows 로컬 GPU" | ② — 장치는 설치된 paddle 빌드가 자동 선택 | ⑥ |
 | GPU 서버 | `gpu/` 이미지 + `pip install -r pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).
-- `requirements-ocr.txt` · `-gpu.txt`는 아직 **설치 미검증**이다. 첫 설치에서 동작한 버전을 고정하고 `status.md`에 적는다.
+- `requirements-ocr.txt`는 2026-09-23 검증 버전으로 고정했다: `paddlepaddle==3.3.1` · `paddleocr==3.7.0` · `paddlex==3.7.2`(Windows 11 · Python 3.12.10 · CPU). 버전을 바꾸면 ② 영역 보존(`pipeline.md` 7절)의 코드 근거를 다시 확인한다. `-gpu.txt`는 아직 **설치 미검증**이다.
+- **Windows 로컬 OCR 설치**: paddle 패키지의 파일 경로가 길어 Windows 경로 길이 한도(260자)에 걸릴 수 있다(2026-09-23, 긴 임시 폴더 경로의 가상환경에서 `OSError [Errno 2]`). 짧은 가상환경 경로를 권장한다. 시스템의 Long Path 설정은 이 문서가 요구하지 않는다.
+- **Windows CPU 추론의 oneDNN 우회**: 위 버전의 Windows CPU에서 `predict` 시 `NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support … onednn_instruction.cc`가 났고 `enable_mkldnn=False`로 동작했다(2026-09-23). 원인은 paddle 3.3.1 oneDNN 실행기 문제로 **추정**한다. ② 엔진은 **Windows이면서 CPU로 돌 때만** oneDNN을 끄고, GPU나 Linux(워커·GPU 서버)에는 적용하지 않는다. 실제 적용값은 `run.json`에 남긴다. 알고리즘 파라미터가 아니라 실행 환경 설정이므로 config 키로 두지 않는다.
+- **② 장치 선택(2026-09-25 결정)**: 코드에서 장치를 지정하지 않는다. PaddleX 기본 규칙대로 **GPU 빌드 paddle이 설치되고 GPU가 보이면 `gpu:0`, 아니면 `cpu`**이며, 실제 장치는 `run.json` `engine.device`(와 CUDA 버전)에 남는다. 강제로 CPU를 쓰려면 CPU 빌드 환경에서 실행한다. 장치 지정 설정(config 키·환경변수)은 두지 않았다 — 필요해지면 먼저 결정한다.
+- **Windows 로컬 GPU(2026-09-25 검증: RTX 4060 Laptop 8GB · 드라이버 555.97(CUDA 12.5까지) · Python 3.12.10)**: CPU 환경과 섞지 않도록 별도 가상환경(짧은 경로)을 쓴다. 설치 순서: `pip install -r pipeline/requirements.txt paddleocr==3.7.0 paddlex==3.7.2` → `pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/`(휠 약 767MB, 받다 끊기면 `curl -C -`로 이어받아 파일로 설치). CUDA 11.8 빌드를 쓴 이유: 이 드라이버는 CUDA 12.6 빌드를 보장하지 않지만 11.8은 지원한다. CUDA·cuDNN 런타임은 `nvidia-*-cu11` pip 패키지로 함께 설치되며 별도 설치는 필요 없었다(`nvidia-cudnn-cu11 8.9.4.19`는 PyPI에서 철회된 버전이라는 경고가 나오지만 paddle 의존성이 요구하는 버전이며 `paddle.utils.run_check()` 통과). 검증: 1a 프로브 4개 섹션에서 CPU(oneDNN 끔)와 비교해 영역 수·텍스트 75/75 동일, 폴리곤 73/75 동일(나머지 2개 1px), score 차 최대 0.014, 섹션당 시간(엔진 로딩 포함) CPU 11~30초 → GPU 약 6초. 이 비교 범위(4개 섹션) 밖의 동일성 보장은 아니므로 기준선은 한 환경에서 잰다.
 - LLM·VLM 호출 단계(① 경계 선택 · ③ `llm_assist` · ③-1 · ④ · ⑧)는 API 키를 환경변수 **`GEMINI_API_KEY`**로 받는다(2026-09-21, ① 착수 시 결정). 이름은 BE·배포 담당에게 전달하고, 워커에 키를 주입하는 작업은 배포 담당과 맞춘다. 키는 커밋하지 않는다.
 - Python 3.11 이상(`tomllib`). BE와 GPU 이미지는 3.12.
 - `pipeline/requirements*.txt`의 주석은 ASCII로 유지한다. 일부 pip 버전은 이 파일을 로케일 인코딩(한국어 Windows는 cp949)으로 읽어 한글 주석에서 `UnicodeDecodeError`가 난다. 그래도 문제가 나면 `PYTHONUTF8=1`을 켜고 설치한다.

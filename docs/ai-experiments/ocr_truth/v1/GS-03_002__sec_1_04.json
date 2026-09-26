@@ -1,0 +1,1673 @@
+{
+  "truth_format": 1,
+  "id": "GS-03_002__sec_1_04",
+  "sample": "GS-03_002",
+  "section_key": "sec_1_04",
+  "kind": "노란 배경 큰 제목+배지",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-03_002/sections/sec_1_04.png",
+    "sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+    "width": 1000,
+    "height": 2856
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "SOLUTION",
+      "bbox": {
+        "x": 408,
+        "y": 134,
+        "w": 184,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "b.clinicx",
+      "bbox": {
+        "x": 396,
+        "y": 263,
+        "w": 209,
+        "h": 48
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "내추럴 톤업*부터 착색 케어까지",
+      "bbox": {
+        "x": 172,
+        "y": 383,
+        "w": 657,
+        "h": 54
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "브라이트닝 세럼",
+      "bbox": {
+        "x": 206,
+        "y": 477,
+        "w": 583,
+        "h": 83
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "톤 코렉팅 바디로션",
+      "bbox": {
+        "x": 151,
+        "y": 591,
+        "w": 690,
+        "h": 83
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "TONE UP",
+      "bbox": {
+        "x": 393,
+        "y": 880,
+        "w": 167,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "BODY",
+      "bbox": {
+        "x": 148,
+        "y": 1002,
+        "w": 106,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "BRIGHTENING",
+      "bbox": {
+        "x": 180,
+        "y": 1051,
+        "w": 264,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "b.clinicx",
+      "bbox": {
+        "x": 575,
+        "y": 1131,
+        "w": 95,
+        "h": 54
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "b3+",
+      "bbox": {
+        "x": 545,
+        "y": 1194,
+        "w": 233,
+        "h": 151
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "BRIGHTENING SERUM",
+      "bbox": {
+        "x": 526,
+        "y": 1362,
+        "w": 142,
+        "h": 66
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "BODY LOTION",
+      "bbox": {
+        "x": 517,
+        "y": 1379,
+        "w": 146,
+        "h": 66
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "TONE CORRECTING",
+      "bbox": {
+        "x": 519,
+        "y": 1411,
+        "w": 135,
+        "h": 57
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "TXA-MA",
+      "bbox": {
+        "x": 703,
+        "y": 1437,
+        "w": 53,
+        "h": 105
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "M.E.L.A Spotless Ex™",
+      "bbox": {
+        "x": 509,
+        "y": 1428,
+        "w": 140,
+        "h": 63
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "BODY CARE",
+      "bbox": {
+        "x": 803,
+        "y": 1459,
+        "w": 88,
+        "h": 26
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "Niacinamide 5%,",
+      "bbox": {
+        "x": 503,
+        "y": 1451,
+        "w": 90,
+        "h": 48
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "+Glutathione & Vitamin C",
+      "bbox": {
+        "x": 502,
+        "y": 1465,
+        "w": 119,
+        "h": 49
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "올리브영",
+      "bbox": {
+        "x": 805,
+        "y": 1499,
+        "w": 85,
+        "h": 23
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "1위",
+      "bbox": {
+        "x": 806,
+        "y": 1528,
+        "w": 82,
+        "h": 66
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "b.clinicx",
+      "bbox": {
+        "x": 147,
+        "y": 1428,
+        "w": 96,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "b3+",
+      "bbox": {
+        "x": 163,
+        "y": 1459,
+        "w": 228,
+        "h": 166
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "2024",
+      "bbox": {
+        "x": 843,
+        "y": 1731,
+        "w": 68,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "OLIVE YOUNG",
+      "bbox": {
+        "x": 778,
+        "y": 1762,
+        "w": 133,
+        "h": 17
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "AWARDS",
+      "bbox": {
+        "x": 779,
+        "y": 1788,
+        "w": 133,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "BRIGHTENING SERUM",
+      "bbox": {
+        "x": 208,
+        "y": 1668,
+        "w": 173,
+        "h": 54
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "BODY LOTION",
+      "bbox": {
+        "x": 209,
+        "y": 1685,
+        "w": 179,
+        "h": 60
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "TXA-MA",
+      "bbox": {
+        "x": 456,
+        "y": 1651,
+        "w": 63,
+        "h": 148
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "TONE CORRECTING",
+      "bbox": {
+        "x": 222,
+        "y": 1725,
+        "w": 174,
+        "h": 51
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "MD'S PICK",
+      "bbox": {
+        "x": 790,
+        "y": 1839,
+        "w": 111,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "M.E.L.A Spotless Ex™",
+      "bbox": {
+        "x": 230,
+        "y": 1762,
+        "w": 173,
+        "h": 54
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "바디보습",
+      "bbox": {
+        "x": 822,
+        "y": 1876,
+        "w": 47,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L033",
+      "text": "올리브영 매출(23.07~24.06)+내부 기준 적용",
+      "bbox": {
+        "x": 793,
+        "y": 1891,
+        "w": 106,
+        "h": 11
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L034",
+      "text": "Niacinamide 5%",
+      "bbox": {
+        "x": 238,
+        "y": 1811,
+        "w": 106,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L035",
+      "text": "+Glutathione & Vitamin C",
+      "bbox": {
+        "x": 245,
+        "y": 1811,
+        "w": 156,
+        "h": 51
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L036",
+      "text": "BEST OF BEAUTY",
+      "bbox": {
+        "x": 755,
+        "y": 1936,
+        "w": 183,
+        "h": 95
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L037",
+      "text": "KOREA",
+      "bbox": {
+        "x": 812,
+        "y": 1976,
+        "w": 69,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L038",
+      "text": "allure",
+      "bbox": {
+        "x": 781,
+        "y": 1993,
+        "w": 132,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L039",
+      "text": "BEAUTY & STYLE EXPERT",
+      "bbox": {
+        "x": 782,
+        "y": 2033,
+        "w": 130,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L040",
+      "text": "2024",
+      "bbox": {
+        "x": 818,
+        "y": 2053,
+        "w": 58,
+        "h": 23
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L041",
+      "text": "AWARD WINNER",
+      "bbox": {
+        "x": 757,
+        "y": 2039,
+        "w": 178,
+        "h": 74
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L042",
+      "text": "올리브영 바디케어 판매랭킹 1위**",
+      "bbox": {
+        "x": 233,
+        "y": 2273,
+        "w": 537,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L043",
+      "text": "2024년 올리브영 어워즈",
+      "bbox": {
+        "x": 299,
+        "y": 2365,
+        "w": 403,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L044",
+      "text": "바디 보습 부문 MD'S PICK 수상",
+      "bbox": {
+        "x": 239,
+        "y": 2419,
+        "w": 522,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L045",
+      "text": "2024년 allure 어워즈",
+      "bbox": {
+        "x": 327,
+        "y": 2505,
+        "w": 347,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L046",
+      "text": "바디로션 WINNER 선정",
+      "bbox": {
+        "x": 305,
+        "y": 2559,
+        "w": 389,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L047",
+      "text": "*커버에 의한 톤업 효과",
+      "bbox": {
+        "x": 419,
+        "y": 2659,
+        "w": 160,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L048",
+      "text": "**2025.7.11 올리브영 온라인몰 판매 랭킹 바디케어 카테고리 일간 1위",
+      "bbox": {
+        "x": 260,
+        "y": 2685,
+        "w": 477,
+        "h": 17
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "SOLUTION",
+        "bbox": {
+          "x": 408,
+          "y": 134,
+          "w": 184,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "b.clinicx",
+        "bbox": {
+          "x": 396,
+          "y": 263,
+          "w": 209,
+          "h": 48
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "내추럴 톤업*부터 착색 케어까지",
+        "bbox": {
+          "x": 172,
+          "y": 383,
+          "w": 657,
+          "h": 54
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "브라이트닝 세럼",
+        "bbox": {
+          "x": 206,
+          "y": 477,
+          "w": 583,
+          "h": 83
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "톤 코렉팅 바디로션",
+        "bbox": {
+          "x": 151,
+          "y": 591,
+          "w": 690,
+          "h": 83
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "TONE UP",
+        "bbox": {
+          "x": 393,
+          "y": 880,
+          "w": 167,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "BODY",
+        "bbox": {
+          "x": 148,
+          "y": 1002,
+          "w": 106,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "BRIGHTENING",
+        "bbox": {
+          "x": 180,
+          "y": 1051,
+          "w": 264,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "b.clinicx",
+        "bbox": {
+          "x": 575,
+          "y": 1131,
+          "w": 95,
+          "h": 54
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "b3+",
+        "bbox": {
+          "x": 545,
+          "y": 1194,
+          "w": 233,
+          "h": 151
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "BRIGHTENING SERUM",
+        "bbox": {
+          "x": 526,
+          "y": 1362,
+          "w": 142,
+          "h": 66
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "BODY LOTION",
+        "bbox": {
+          "x": 517,
+          "y": 1379,
+          "w": 146,
+          "h": 66
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "TONE CORRECTING",
+        "bbox": {
+          "x": 519,
+          "y": 1411,
+          "w": 135,
+          "h": 57
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "TXA-MA",
+        "bbox": {
+          "x": 703,
+          "y": 1437,
+          "w": 53,
+          "h": 105
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "M.E.L.A Spotless Ex™",
+        "bbox": {
+          "x": 509,
+          "y": 1428,
+          "w": 140,
+          "h": 63
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "BODY CARE",
+        "bbox": {
+          "x": 803,
+          "y": 1459,
+          "w": 88,
+          "h": 26
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "Niacinamide 5%,",
+        "bbox": {
+          "x": 503,
+          "y": 1451,
+          "w": 90,
+          "h": 48
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "+Glutathione & Vitamin C",
+        "bbox": {
+          "x": 502,
+          "y": 1465,
+          "w": 119,
+          "h": 49
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "올리브영",
+        "bbox": {
+          "x": 805,
+          "y": 1499,
+          "w": 85,
+          "h": 23
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "1위",
+        "bbox": {
+          "x": 806,
+          "y": 1528,
+          "w": 82,
+          "h": 66
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "b.clinicx",
+        "bbox": {
+          "x": 147,
+          "y": 1428,
+          "w": 96,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "b3+",
+        "bbox": {
+          "x": 163,
+          "y": 1459,
+          "w": 228,
+          "h": 166
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "2024",
+        "bbox": {
+          "x": 843,
+          "y": 1731,
+          "w": 68,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "OLIVE YOUNG",
+        "bbox": {
+          "x": 778,
+          "y": 1762,
+          "w": 133,
+          "h": 17
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "AWARDS",
+        "bbox": {
+          "x": 779,
+          "y": 1788,
+          "w": 133,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "BRIGHTENING SERUM",
+        "bbox": {
+          "x": 208,
+          "y": 1668,
+          "w": 173,
+          "h": 54
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "BODY LOTION",
+        "bbox": {
+          "x": 209,
+          "y": 1685,
+          "w": 179,
+          "h": 60
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "TXA-MA",
+        "bbox": {
+          "x": 456,
+          "y": 1651,
+          "w": 63,
+          "h": 148
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "TONE CORRECTING",
+        "bbox": {
+          "x": 222,
+          "y": 1725,
+          "w": 174,
+          "h": 51
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "MD'S PICK",
+        "bbox": {
+          "x": 790,
+          "y": 1839,
+          "w": 111,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "M.E.L.A Spotless Ex™",
+        "bbox": {
+          "x": 230,
+          "y": 1762,
+          "w": 173,
+          "h": 54
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "바디보습",
+        "bbox": {
+          "x": 822,
+          "y": 1876,
+          "w": 47,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L033",
+      "after": {
+        "line_id": "L033",
+        "text": "올리브영 매출(23.07~24.06)+내부 기준 적용",
+        "bbox": {
+          "x": 793,
+          "y": 1891,
+          "w": 106,
+          "h": 11
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L034",
+      "after": {
+        "line_id": "L034",
+        "text": "Niacinamide 5%",
+        "bbox": {
+          "x": 238,
+          "y": 1811,
+          "w": 106,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L035",
+      "after": {
+        "line_id": "L035",
+        "text": "+Glutathione & Vitamin C",
+        "bbox": {
+          "x": 245,
+          "y": 1811,
+          "w": 156,
+          "h": 51
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L036",
+      "after": {
+        "line_id": "L036",
+        "text": "BEST OF BEAUTY",
+        "bbox": {
+          "x": 755,
+          "y": 1936,
+          "w": 183,
+          "h": 95
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L037",
+      "after": {
+        "line_id": "L037",
+        "text": "KOREA",
+        "bbox": {
+          "x": 812,
+          "y": 1976,
+          "w": 69,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L038",
+      "after": {
+        "line_id": "L038",
+        "text": "allure",
+        "bbox": {
+          "x": 781,
+          "y": 1993,
+          "w": 132,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L039",
+      "after": {
+        "line_id": "L039",
+        "text": "BEAUTY & STYLE EXPERT",
+        "bbox": {
+          "x": 782,
+          "y": 2033,
+          "w": 130,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L040",
+      "after": {
+        "line_id": "L040",
+        "text": "2024",
+        "bbox": {
+          "x": 818,
+          "y": 2053,
+          "w": 58,
+          "h": 23
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L041",
+      "after": {
+        "line_id": "L041",
+        "text": "AWARD WINNER",
+        "bbox": {
+          "x": 757,
+          "y": 2039,
+          "w": 178,
+          "h": 74
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L042",
+      "after": {
+        "line_id": "L042",
+        "text": "올리브영 바디케어 판매랭킹 1위**",
+        "bbox": {
+          "x": 233,
+          "y": 2273,
+          "w": 537,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L043",
+      "after": {
+        "line_id": "L043",
+        "text": "2024년 올리브영 어워즈",
+        "bbox": {
+          "x": 299,
+          "y": 2365,
+          "w": 403,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L044",
+      "after": {
+        "line_id": "L044",
+        "text": "바디 보습 부문 MD'S PICK 수상",
+        "bbox": {
+          "x": 239,
+          "y": 2419,
+          "w": 522,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L045",
+      "after": {
+        "line_id": "L045",
+        "text": "2024년 allure 어워즈",
+        "bbox": {
+          "x": 327,
+          "y": 2505,
+          "w": 347,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L046",
+      "after": {
+        "line_id": "L046",
+        "text": "바디로션 WINNER 선정",
+        "bbox": {
+          "x": 305,
+          "y": 2559,
+          "w": 389,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L047",
+      "after": {
+        "line_id": "L047",
+        "text": "*커버에 의한 톤업 효과",
+        "bbox": {
+          "x": 419,
+          "y": 2659,
+          "w": 160,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:34+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L048",
+      "after": {
+        "line_id": "L048",
+        "text": "**2025.7.11 올리브영 온라인몰 판매 랭킹 바디케어 카테고리 일간 1위",
+        "bbox": {
+          "x": 260,
+          "y": 2685,
+          "w": 477,
+          "h": 17
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

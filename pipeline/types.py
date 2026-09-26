@@ -15,7 +15,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "1"  # 공통 결과 버전(AnalyzeResult · OcrResult · MergeResult). 워커 인계 형식은 이 값을 따른다
+SPLIT_SCHEMA_VERSION = "2"  # SplitResult(① 출력 타입이자 split.json 파일)만: 상대 image_path = split.json 폴더 기준. 읽기 허용 버전은 jsonio.READ_VERSIONS
 
 Role = Literal["title", "body", "caption", "price", "caution"]
 ROLES: tuple[str, ...] = ("title", "body", "caption", "price", "caution")
@@ -84,9 +85,9 @@ class Section(_Model):
 
 
 class SplitResult(_Model):
-    """① 출력: 원본 한 장 → 섹션 목록(section_order 순)."""
+    """① 출력: 원본 한 장 → 섹션 목록(section_order 순). 파일 버전은 SPLIT_SCHEMA_VERSION(경로 규칙, dev.md 3절) — 워커 인계 형식(AnalyzeResult)에는 들어가지 않는다."""
 
-    schema_version: str = SCHEMA_VERSION
+    schema_version: str = SPLIT_SCHEMA_VERSION
     source_image_id: int
     source_width: int = Field(gt=0)
     source_height: int = Field(gt=0)

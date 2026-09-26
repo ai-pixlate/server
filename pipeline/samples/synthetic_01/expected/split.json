@@ -1,5 +1,5 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
   "source_image_id": 1,
   "source_width": 600,
   "source_height": 1000,
@@ -11,7 +11,7 @@
       "top_offset": 0,
       "height": 560,
       "width": 600,
-      "image_path": "pipeline/samples/synthetic_01/expected/sections/sec_1_01.png"
+      "image_path": "sections/sec_1_01.png"
     },
     {
       "section_key": "sec_1_02",
@@ -20,7 +20,7 @@
       "top_offset": 560,
       "height": 440,
       "width": 600,
-      "image_path": "pipeline/samples/synthetic_01/expected/sections/sec_1_02.png"
+      "image_path": "sections/sec_1_02.png"
     }
   ]
 }

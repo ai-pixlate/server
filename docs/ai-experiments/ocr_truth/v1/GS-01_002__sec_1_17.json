@@ -1,0 +1,1197 @@
+{
+  "truth_format": 1,
+  "id": "GS-01_002__sec_1_17",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_17",
+  "kind": "사진 배경 큰 제목+본문",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-01_002/sections/sec_1_17.png",
+    "sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+    "width": 1000,
+    "height": 2067
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "무기자차 선크림",
+      "bbox": {
+        "x": 222,
+        "y": 192,
+        "w": 550,
+        "h": 91
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "이렇게 사용해보세요",
+      "bbox": {
+        "x": 149,
+        "y": 304,
+        "w": 703,
+        "h": 91
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "얼굴은 물론, 바디 선 케어까지!",
+      "bbox": {
+        "x": 195,
+        "y": 490,
+        "w": 609,
+        "h": 56
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "스킨케어 마지막 단계에서 얼굴과",
+      "bbox": {
+        "x": 251,
+        "y": 583,
+        "w": 496,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "자외선에 노출되기 쉬운",
+      "bbox": {
+        "x": 321,
+        "y": 639,
+        "w": 356,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "바디 부위에 골고루 펴발라주세요.",
+      "bbox": {
+        "x": 248,
+        "y": 697,
+        "w": 505,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "남녀 모두 데일리 선크림",
+      "bbox": {
+        "x": 245,
+        "y": 814,
+        "w": 507,
+        "h": 56
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "끈적임 걱정 없는 촉촉한 마무리감으로",
+      "bbox": {
+        "x": 214,
+        "y": 907,
+        "w": 571,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "남녀 모두 편안한 사용감으로 데일리 선케어하세요.",
+      "bbox": {
+        "x": 120,
+        "y": 965,
+        "w": 758,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "밀림 걱정 없는 촉촉한 제형으로",
+      "bbox": {
+        "x": 185,
+        "y": 1087,
+        "w": 631,
+        "h": 54
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "메이크업 부스터 역할!",
+      "bbox": {
+        "x": 281,
+        "y": 1160,
+        "w": 439,
+        "h": 51
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "가볍고 촉촉하게 밀림 걱정 없이 마무리되는 제형이",
+      "bbox": {
+        "x": 120,
+        "y": 1251,
+        "w": 757,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "메이크업 부스터 역할까지 해줄거에요.",
+      "bbox": {
+        "x": 215,
+        "y": 1306,
+        "w": 571,
+        "h": 38
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "HEARTLEAF",
+      "bbox": {
+        "x": 706,
+        "y": 1528,
+        "w": 74,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "HEARTLEAF",
+      "bbox": {
+        "x": 463,
+        "y": 1548,
+        "w": 71,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "HEARTLEAF",
+      "bbox": {
+        "x": 169,
+        "y": 1552,
+        "w": 74,
+        "h": 11
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "Calming",
+      "bbox": {
+        "x": 709,
+        "y": 1556,
+        "w": 90,
+        "h": 40
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "Soothing",
+      "bbox": {
+        "x": 451,
+        "y": 1575,
+        "w": 96,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "Soothing",
+      "bbox": {
+        "x": 156,
+        "y": 1577,
+        "w": 99,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "Tone Up",
+      "bbox": {
+        "x": 715,
+        "y": 1583,
+        "w": 87,
+        "h": 38
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "Moisture",
+      "bbox": {
+        "x": 450,
+        "y": 1602,
+        "w": 96,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "MINERAL FILTER",
+      "bbox": {
+        "x": 163,
+        "y": 1608,
+        "w": 86,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "SUN CREAM",
+      "bbox": {
+        "x": 729,
+        "y": 1608,
+        "w": 69,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "SUN CREAM",
+      "bbox": {
+        "x": 172,
+        "y": 1627,
+        "w": 68,
+        "h": 14
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "SUN CREAM",
+      "bbox": {
+        "x": 465,
+        "y": 1631,
+        "w": 67,
+        "h": 14
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "SPF 50+",
+      "bbox": {
+        "x": 758,
+        "y": 1705,
+        "w": 56,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "SPF 50+",
+      "bbox": {
+        "x": 176,
+        "y": 1724,
+        "w": 57,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "SPF 50+",
+      "bbox": {
+        "x": 471,
+        "y": 1724,
+        "w": 56,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "PA++++",
+      "bbox": {
+        "x": 768,
+        "y": 1740,
+        "w": 54,
+        "h": 29
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "PA++++",
+      "bbox": {
+        "x": 176,
+        "y": 1761,
+        "w": 56,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "PA++++",
+      "bbox": {
+        "x": 471,
+        "y": 1761,
+        "w": 55,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "goodal",
+      "bbox": {
+        "x": 784,
+        "y": 1809,
+        "w": 68,
+        "h": 41
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L033",
+      "text": "goodal",
+      "bbox": {
+        "x": 169,
+        "y": 1835,
+        "w": 68,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L034",
+      "text": "goodal",
+      "bbox": {
+        "x": 466,
+        "y": 1835,
+        "w": 65,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "무기자차 선크림",
+        "bbox": {
+          "x": 222,
+          "y": 192,
+          "w": 550,
+          "h": 91
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "이렇게 사용해보세요",
+        "bbox": {
+          "x": 149,
+          "y": 304,
+          "w": 703,
+          "h": 91
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "얼굴은 물론, 바디 선 케어까지!",
+        "bbox": {
+          "x": 195,
+          "y": 490,
+          "w": 609,
+          "h": 56
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "스킨케어 마지막 단계에서 얼굴과",
+        "bbox": {
+          "x": 251,
+          "y": 583,
+          "w": 496,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "자외선에 노출되기 쉬운",
+        "bbox": {
+          "x": 321,
+          "y": 639,
+          "w": 356,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "바디 부위에 골고루 펴발라주세요.",
+        "bbox": {
+          "x": 248,
+          "y": 697,
+          "w": 505,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "남녀 모두 데일리 선크림",
+        "bbox": {
+          "x": 245,
+          "y": 814,
+          "w": 507,
+          "h": 56
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "끈적임 걱정 없는 촉촉한 마무리감으로",
+        "bbox": {
+          "x": 214,
+          "y": 907,
+          "w": 571,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "남녀 모두 편안한 사용감으로 데일리 선케어하세요.",
+        "bbox": {
+          "x": 120,
+          "y": 965,
+          "w": 758,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "밀림 걱정 없는 촉촉한 제형으로",
+        "bbox": {
+          "x": 185,
+          "y": 1087,
+          "w": 631,
+          "h": 54
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "메이크업 부스터 역할!",
+        "bbox": {
+          "x": 281,
+          "y": 1160,
+          "w": 439,
+          "h": 51
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "가볍고 촉촉하게 밀림 걱정 없이 마무리되는 제형이",
+        "bbox": {
+          "x": 120,
+          "y": 1251,
+          "w": 757,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "메이크업 부스터 역할까지 해줄거에요.",
+        "bbox": {
+          "x": 215,
+          "y": 1306,
+          "w": 571,
+          "h": 38
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "HEARTLEAF",
+        "bbox": {
+          "x": 706,
+          "y": 1528,
+          "w": 74,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "HEARTLEAF",
+        "bbox": {
+          "x": 463,
+          "y": 1548,
+          "w": 71,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "HEARTLEAF",
+        "bbox": {
+          "x": 169,
+          "y": 1552,
+          "w": 74,
+          "h": 11
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "Calming",
+        "bbox": {
+          "x": 709,
+          "y": 1556,
+          "w": 90,
+          "h": 40
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "Soothing",
+        "bbox": {
+          "x": 451,
+          "y": 1575,
+          "w": 96,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "Soothing",
+        "bbox": {
+          "x": 156,
+          "y": 1577,
+          "w": 99,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "Tone Up",
+        "bbox": {
+          "x": 715,
+          "y": 1583,
+          "w": 87,
+          "h": 38
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "Moisture",
+        "bbox": {
+          "x": 450,
+          "y": 1602,
+          "w": 96,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "MINERAL FILTER",
+        "bbox": {
+          "x": 163,
+          "y": 1608,
+          "w": 86,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "SUN CREAM",
+        "bbox": {
+          "x": 729,
+          "y": 1608,
+          "w": 69,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "SUN CREAM",
+        "bbox": {
+          "x": 172,
+          "y": 1627,
+          "w": 68,
+          "h": 14
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "SUN CREAM",
+        "bbox": {
+          "x": 465,
+          "y": 1631,
+          "w": 67,
+          "h": 14
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "SPF 50+",
+        "bbox": {
+          "x": 758,
+          "y": 1705,
+          "w": 56,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "SPF 50+",
+        "bbox": {
+          "x": 176,
+          "y": 1724,
+          "w": 57,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "SPF 50+",
+        "bbox": {
+          "x": 471,
+          "y": 1724,
+          "w": 56,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "PA++++",
+        "bbox": {
+          "x": 768,
+          "y": 1740,
+          "w": 54,
+          "h": 29
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "PA++++",
+        "bbox": {
+          "x": 176,
+          "y": 1761,
+          "w": 56,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "PA++++",
+        "bbox": {
+          "x": 471,
+          "y": 1761,
+          "w": 55,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "goodal",
+        "bbox": {
+          "x": 784,
+          "y": 1809,
+          "w": 68,
+          "h": 41
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L033",
+      "after": {
+        "line_id": "L033",
+        "text": "goodal",
+        "bbox": {
+          "x": 169,
+          "y": 1835,
+          "w": 68,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:20+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L034",
+      "after": {
+        "line_id": "L034",
+        "text": "goodal",
+        "bbox": {
+          "x": 466,
+          "y": 1835,
+          "w": 65,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

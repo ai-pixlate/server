@@ -70,6 +70,7 @@
 | ② | `ocr.split_threshold_px` / `ocr.tile_px` / `ocr.tile_overlap_px` | `4000` / `2000` / `300` | 임시 분할 규칙. 여백 우선 | [개발계획 2.1] [계약 3.2] |
 | ③ | `merge.line_gap` / `para_gap` / `h_ratio` / `overlap` / `gutter` | `0.7` / `0.6` / `1.5` / `0.5` / `on` | `heuristic_v2` | [PoC 5장] |
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `gemini-3.8-flash` / `0` / `false` | 분할 금지 고정 | [개발계획 6장] |
+| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 미작성. 2026-09-26 사용자 승인 | [`dev.md` 2절] |
 | ③-1 | (판정 방식 미정 — 키 없음) | — | 기본값을 두지 않는다. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉)는 참고값이며 production 채택 아님 | [개발계획 6장] [PoC 10-1장] |
 | ④ | `label.model` / `label.long_side_px` / `label.bias` | `gemini-3.8-flash` / `1024` / `label` | 애매하면 라벨 | [개발계획 6장] |
 | ⑤ | `logo.normalize` | `nfkc, lower, strip_space_punct` | 정규화 결과 빈 문자열은 비교 제외 | [계약 2.3] |
@@ -118,13 +119,15 @@
 - 인페인팅 **마스크를 넓혀 다시 지우지 말 것** — 팽창 50%에서 얼룩이 늘고 좋은 섹션이 가장 크게 나빠짐. 잔존율 측정·재시도는 MVP 이후. [PoC 0장] [개발계획 4.1]
 - **빈 텍스트·저신뢰 영역을 "글자 아님"으로 읽지 말 것** — 빈 텍스트 40개 중 28개가 실제 글자였음. `score_min`에서 제외된 영역은 원문을 보존한다. **제외된 저신뢰 글자를 번역·렌더에서 어떻게 다룰지는 미정** — 정합성 확인이 필요하다는 방향만 정본에 있음. [PoC 1장] [개발계획 6장]
 - **② OCR은 빈 텍스트·낮은 인식 신뢰도만을 이유로 영역을 제거하지 않는다**(2026-09-23 확정, 조건 충족은 **paddlex 3.7.2 · 인식 신뢰도 임계값 0** 한정) — 임계값은 기본값에 기대지 않고 0으로 명시하고 실제 값을 `run.json`에 남긴다. 타일 겹침 중복 정리는 별도 규칙(`open-questions.md` #32)이다. 근거 구분: 배열 대응(`rec_polys` · `rec_texts` · `rec_scores` 길이·순서, `rec_polys` = `dt_polys`)은 프로브 4개 섹션 **실측**과 코드 확인, 빈 텍스트 보존은 **코드 확인**(빈 인식 결과 → score 0.0 → 임계값 0에서 유지)에 더해 2026-09-25 육안 확인 실행(v1 섹션 100개, GPU)에서 빈 텍스트 39개가 모두 score 0.0으로 반환·보존된 것으로 **실측 확인**했다(이 버전·설정·표본 범위). 예외: 크기 0인 잘라낸 이미지는 라이브러리가 인식 전에 제외한다. 인식 결과 없이 검출만 된 박스의 추가 복원은 **현재 버전에서 구현하지 않는다.** [PoC 1장] [`open-questions.md` #32, #34]
+- **③ 텍스트 결합**(2026-09-26 사용자 결정): 한 줄 안의 영역은 공백 1개로 이어 `Line.text`를 만들고, 블록 `source_ko`는 줄 사이를 줄바꿈(`\n`)으로 보존해 잇는다. 한국어는 어절 중간에서 줄이 바뀌기도 하므로 줄 사이를 공백으로 잇지 않는다. ⑤ 로고 비교의 공백 제거는 줄바꿈도 지워야 한다. BE·FE에 `source_ko`에 줄바꿈이 들어간다는 점을 공유한다. [`open-questions.md` 5절 #24] [계약 2장, 2.3]
+- **③ 빈 텍스트 영역과 LLM 실패**: 빈 텍스트 영역은 단독 블록으로 두고, `llm_assist` 호출 실패는 휴리스틱 결과로 대체하지 않고 전파한다 — 둘 다 BE 합의 전 구현 방침이다. [`open-questions.md` #36, #37]
 - 인페인팅 대상 판정은 블록 `ocr_confidence`가 아니라 **원시 영역별 `score`**. [계약 2.5]
 - **섹션 판정은 텍스트만으로 안 됨** — 비포·애프터 절반이 라벨 없는 사진 짝·그래프. 섹션 이미지를 항상 동봉. [PoC 0장, 11장]
 - VLM은 **항목별 해당·애매·근거만** 낸다. 정책 데이터를 항목 on/off로 구조화하는 것은 PoC 실험 방식이며 **미정**. [계약 1.3] [PoC 0장]
 - 심볼형 로고는 텍스트 대조로 못 잡음 — 미검증, MVP 이후. [PoC 0장]
 - 주의문구 미탐 위험 — 시험 조건 각주는 캡션으로, 경고 문장은 본문으로 가는 경향. 범위는 **미정**. [PoC 5장] [개발계획 4.1]
 - 가격 `role`은 표본 부족으로 사실상 미검증. [PoC 5장]
-- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] ① VLM 호출 실패의 처리(대체 처리 · 코드 · 재시도)는 **미정**(`open-questions.md` #25).
+- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] ① VLM 호출 실패의 처리(대체 처리 · 코드 · 재시도)는 **미정**(`open-questions.md` #25). ③ `llm_assist` 호출 실패도 같다(`open-questions.md` #37).
 
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 

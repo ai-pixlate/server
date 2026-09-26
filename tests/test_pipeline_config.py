@@ -9,6 +9,7 @@ def test_default_config_matches_pipeline_md_keys():
     assert flat["ocr.det_model"] == "PP-OCRv5_server_det"
     assert flat["ocr.split_threshold_px"] == 4000
     assert flat["merge.llm_split"] is False
+    assert flat["merge.prompt_path"] == "pipeline/prompts/merge_assist.md"
     assert flat["inpaint.score_min"] == 0.5
     assert flat["translate.prompt_path"] == "pipeline/prompts/translate.md"
     assert flat["section.vlm_model"] == "gemini-3.8-flash"  # open-questions #21 확정 2026-09-21

@@ -62,7 +62,7 @@ def test_regions_keep_index_correspondence_and_order(cfg, tmp_path):
     assert [r.region_key for r in res.regions] == ["reg_0001", "reg_0002"]
     assert [(r.text, r.score) for r in res.regions] == [("첫째", 0.9), ("둘째", 0.5)]
     assert res.regions[1].poly == [(5, 50), (90, 50), (90, 70), (5, 70)]
-    assert res.section_key == "sec_1_01" and res.schema_version == "2"
+    assert res.section_key == "sec_1_01" and res.schema_version == "1"  # 공통 결과 버전
 
 
 def test_empty_text_and_zero_score_are_kept(cfg, tmp_path):

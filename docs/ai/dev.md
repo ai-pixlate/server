@@ -94,18 +94,22 @@ docs/ai/                     정본 문서
 - 모든 모델은 `extra="forbid"` — 계약 밖 키가 조용히 섞이지 않는다. `role`은 5종 Literal.
 - 계약이 미정으로 둔 값은 필드가 없다: 섹션 `range`(#13), `style`(#14). 결정되면 추가한다.
 - 계약이 정한 계산만 도우미로 둔다: `ocr_confidence_of()`(영역 score 최솟값, 없으면 None) · `BBox.union()` · `BBox.from_poly()`.
-- 직렬화는 `model_dump_json()`. 단계 사이 파일 형식 = 워커에 넘기는 형식 = 사람이 읽는 형식, 셋이 같다.
-- **파일 읽기·쓰기는 `pipeline/jsonio.py`를 거친다**(`load_split` · `load_analyze` · `load_ocr` · `load_merge` · `write_model`). `model_validate_json()`으로 파일을 직접 읽지 않는다 — 버전 필드가 없으면 pydantic 기본값이 현재 버전을 조용히 채우기 때문에, 로더가 모델 검증 전에 원본 JSON의 버전을 확인한다.
-- **`image_path` 기준(2026-09-23 결정)**: `split.json` · `analyze.json`의 상대 `image_path`는 **그 JSON 파일이 있는 폴더 기준**이다. 절대 경로는 그대로 쓴다. 작업 디렉터리 기준으로 되돌아가 찾지 않는다(없으면 해석한 경로와 함께 실패). 쓸 때는 JSON 폴더 기준 상대 경로(`/` 구분)로 기록하고, 만들 수 없으면(다른 드라이브) 절대 경로. 메모리의 `Section.image_path`는 로더가 절대 경로로 바꾼 값이다.
-- **`schema_version`** = `"2"`(2026-09-23, 위 경로 기준 변경). 타입을 호환 불가로 바꾸면 올린다. 타입별 읽기 허용 버전(`jsonio.READ_VERSIONS`):
+- 직렬화는 `model_dump_json()`. **워커에 넘기는 형식 = `analyze()`가 반환하는 `AnalyzeResult`(파일로 쓰면 `analyze.json`)이며, 이 형식은 버전 `"1"` · 경로 변환 없이 모델 그대로다.** 단계 사이의 개발용 파일(`split.json` · `ocr/*.json` · `merge/*.json`)은 사람이 읽는 형식과 같고, 그중 `split.json`에만 아래 경로 규칙이 붙는다(2026-09-26 범위 분리 — BE 인계 형식은 바꾸지 않는다).
+- **개발용 파일 읽기·쓰기는 `pipeline/jsonio.py`를 거친다**(`load_split` · `load_ocr` · `load_merge` · `write_model`). 로더는 모델 검증 전에 원본 JSON의 버전을 확인한다(버전 필드가 없으면 pydantic 기본값이 조용히 채우기 때문). `AnalyzeResult`는 이 로더의 대상이 아니다(파일 읽기 도구 없음 — PR 이전과 같음).
+- **`split.json` `image_path` 기준(2026-09-23 결정, 2026-09-26 Split 한정으로 축소)**: `split.json`의 상대 `image_path`는 **그 JSON 파일이 있는 폴더 기준**이다. 절대 경로는 그대로 쓴다. 작업 디렉터리 기준으로 되돌아가 찾지 않는다(없으면 해석한 경로와 함께 실패). 쓸 때는 JSON 폴더 기준 상대 경로(`/` 구분)로 기록하고, 만들 수 없으면(다른 드라이브) 절대 경로. `load_split`이 돌려주는 `Section.image_path`는 절대 경로다. `write_model`은 상대화한 **복사본**을 쓰므로 넘겨준 `SplitResult`와 그 안의 `Section`(→ `analyze()`가 `AnalyzeResult`에 담는 같은 객체)은 바뀌지 않는다. `AnalyzeResult`·`analyze.json`에는 이 규칙을 적용하지 않는다.
+- **버전 상수 두 개**(`pipeline/types.py`):
+  - `SCHEMA_VERSION = "1"` — 공통 결과 버전. `AnalyzeResult` · `OcrResult` · `MergeResult`의 기본 출력. 타입을 호환 불가로 바꾸면 올리되, `AnalyzeResult`는 워커 인계 형식이므로 **BE 합의 없이 올리지 않는다.**
+  - `SPLIT_SCHEMA_VERSION = "2"` — **Split 파일 버전.** `SplitResult`(① `section_split.run()`의 출력 타입이자 `split.json` 파일)에만 붙는 경로 규칙 버전이다. `SplitResult`는 `analyze()` 안에서만 쓰이고 워커에는 `sections`만 `AnalyzeResult`로 넘어가므로 인계 형식에는 들어가지 않는다. 워커가 `analyze()` 대신 단계 함수를 직접 부르는 방식은 계약에 없다(그럴 경우 이 버전 필드가 노출되므로 BE 확인 필요 #35).
+  - 계약(`contract.md` 4.1 · 6.1)의 `schema_version`은 DB에 저장하는 JSON의 구조 버전이며 위 두 상수와 **다른 것**이다. 이름이 같아 생기는 혼동과 인계 형식의 경로 규칙은 `open-questions.md` #35(BE 확인 필요).
 
-  | 타입 | 경로 필드 | 읽기 허용 | 쓰기 |
+  | 타입 | 기본 출력 버전 | 로더 읽기 허용 | 경로 규칙 |
   |---|---|---|---|
-  | `SplitResult` | 있음 | `"2"` | `"2"` |
-  | `AnalyzeResult` | 있음 | `"2"` — `"1"`은 이 도구에서 전환 미지원 | `"2"` |
-  | `OcrResult` · `MergeResult` | 없음 | `"1"` · `"2"` | `"2"` |
+  | `SplitResult`(`split.json`) | `"2"` | `"2"`만 — `"1"`(옛 상대 경로 = 작업 디렉터리·레포 루트 기준)은 거부, `convert-split`·`freeze-input`으로 전환(4절) | JSON 폴더 기준 |
+  | `OcrResult` · `MergeResult` | `"1"` | `"1"` · `"2"`(2026-09-23~25 사이 생성된 파일, 구조 동일) | 없음 |
+  | `AnalyzeResult`(`analyze.json`) | `"1"` | 로더 대상 아님(PR 이전과 같이 모델 그대로 쓰고, 읽기 도구 없음) | 없음 |
 
-  버전 필드가 없거나 표에 없는 버전이면 `SchemaVersionError`. **버전 1 `split.json`(옛 상대 경로 = 레포 루트·작업 디렉터리 기준)은 새 코드에서 읽히지 않는다** — `convert-split` 또는 `freeze-input`으로 전환한다(4절). 원본 실측 출력은 전환하지 않고 보존한다.
+  버전 필드가 없거나 표에 없는 버전이면 `SchemaVersionError`. 원본 실측 출력(버전 1 `split.json`)은 전환하지 않고 보존한다.
+- **② `score` 구현값**: `stages/ocr.py`는 영역 `score`에 PaddleOCR `rec_scores[i]`(인식 신뢰도)를 넣는다. 설치 버전(paddlex 3.7.2) 출력에 영역별 점수는 이것뿐이고 텍스트·폴리곤과 같은 인덱스로 만들어진다(1a 프로브·코드 확인). **이는 현재 구현값이며 공유 계약의 `score` 정의로 확정된 것이 아니다** — `contract.md` 2.5 · `open-questions.md` #34(BE 확인 필요). 사용자가 허용한 범위는 "현재 OCR 구현값 유지"까지다.
 
 ## 4. 단계별 실행
 

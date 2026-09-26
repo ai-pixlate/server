@@ -1,10 +1,12 @@
-"""단계 JSON 파일 읽기·쓰기 — 버전 확인 · image_path 해석 · 고정 입력본 (dev.md 3·4·5절).
+"""개발용 단계 JSON 파일 읽기·쓰기 — 버전 확인 · split.json image_path 해석 · 고정 입력본 (dev.md 3·4·5절).
 
-- 경로를 담는 파일(split.json · analyze.json)의 상대 image_path는 **그 JSON 파일이 있는 폴더 기준**이다(버전 "2").
+- **split.json(SplitResult, 파일 버전 "2")만** 상대 image_path를 **그 JSON 파일이 있는 폴더 기준**으로 해석·기록한다.
   작업 디렉터리 기준으로 되돌아가 찾지 않는다. 절대 경로는 그대로 쓴다.
-- 읽기는 반드시 load_*()를 거친다. 버전 필드가 없거나 지원하지 않는 버전이면 SchemaVersionError.
+- AnalyzeResult(워커 인계 형식 · analyze.json)는 이 모듈의 대상이 아니다: 버전 "1", 경로 변환 없음(PR 이전 동작 그대로).
+- OcrResult · MergeResult 파일은 버전 "1"(기본 출력) · "2"(2026-09-23~25 사이 생성, 구조 동일)를 읽는다.
+- 읽기는 load_*()를 거친다. 버전 필드가 없거나 지원하지 않는 버전이면 SchemaVersionError.
   (pydantic 기본값이 빠진 버전을 조용히 채우지 않게, 모델 검증 전에 원본 JSON을 본다.)
-- 쓰기는 write_model()을 거친다. 경로는 JSON 폴더 기준 상대 경로(다른 드라이브 등 불가하면 절대 경로)로 기록한다.
+- 쓰기는 write_model()을 거친다. SplitResult만 경로를 JSON 폴더 기준 상대 경로(다른 드라이브 등 불가하면 절대 경로)로 기록한다.
 - convert_split(): 버전 1 split.json의 경로 표기만 바꾼다. 이미지 대상은 그대로다.
 - freeze_input(): 섹션 이미지를 입력본 폴더로 복사하고 복사본을 가리키게 한 뒤 검증한다(verify_input).
 """
@@ -23,16 +25,15 @@ from typing import Any
 from PIL import Image
 from pydantic import BaseModel
 
-from pipeline.types import SCHEMA_VERSION, AnalyzeResult, MergeResult, OcrResult, SplitResult
+from pipeline.types import SPLIT_SCHEMA_VERSION, MergeResult, OcrResult, SplitResult
 
-# 타입별 읽기 허용 버전. 경로 필드가 있는 타입만 "1"을 거부한다(상대 경로 의미가 바뀌었으므로).
+# 타입별 읽기 허용 버전. SplitResult만 "1"을 거부한다(상대 경로 의미가 바뀌었으므로). AnalyzeResult는 여기 없다(워커 인계 형식, 파일 읽기 도구 없음).
 READ_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
-    SplitResult: frozenset({"2"}),
-    AnalyzeResult: frozenset({"2"}),
+    SplitResult: frozenset({SPLIT_SCHEMA_VERSION}),
     OcrResult: frozenset({"1", "2"}),
     MergeResult: frozenset({"1", "2"}),
 }
-_PATH_TYPES = (SplitResult, AnalyzeResult)
+_PATH_TYPES = (SplitResult,)  # 경로 규칙을 적용하는 타입 — AnalyzeResult에는 적용하지 않는다
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -55,8 +56,6 @@ def _check_version(raw: dict[str, Any], cls: type[BaseModel], path: Path) -> Non
     hint = ""
     if found == "1" and cls is SplitResult:
         hint = " — 버전 1은 상대 경로 기준이 다르다. `python -m pipeline.run convert-split` 또는 `freeze-input`으로 전환"
-    elif found == "1" and cls is AnalyzeResult:
-        hint = " — 이 도구에서는 analyze.json 버전 1 전환을 지원하지 않음"
     raise SchemaVersionError(f"{path}: {cls.__name__} schema_version {found!r} 미지원 (지원 {supported}){hint}")
 
 
@@ -66,6 +65,8 @@ def resolve_image_path(image_path: str, json_dir: Path) -> str:
 
 
 def load_model(path: str | Path, cls: type[BaseModel]):
+    if cls not in READ_VERSIONS:
+        raise TypeError(f"{cls.__name__}는 이 로더의 대상이 아니다(READ_VERSIONS 참고)")
     path = Path(path)
     raw = json.loads(path.read_text(encoding="utf-8"))
     _check_version(raw, cls, path)
@@ -79,10 +80,6 @@ def load_model(path: str | Path, cls: type[BaseModel]):
 
 def load_split(path: str | Path) -> SplitResult:
     return load_model(path, SplitResult)
-
-
-def load_analyze(path: str | Path) -> AnalyzeResult:
-    return load_model(path, AnalyzeResult)
 
 
 def load_ocr(path: str | Path) -> OcrResult:
@@ -104,6 +101,7 @@ def relative_image_path(image_path: str, json_dir: Path) -> str:
 
 
 def write_model(path: str | Path, model: BaseModel) -> Path:
+    """모델을 JSON 파일로 쓴다. SplitResult만 경로를 상대화한 **복사본**을 쓰므로 넘겨준 객체(공용 Section 포함)는 바뀌지 않는다."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     if isinstance(model, _PATH_TYPES):
@@ -182,7 +180,7 @@ def _source_split(path: Path, base: Path | None) -> tuple[SplitResult, dict[str,
         if base is None:
             raise SchemaVersionError(f"{path}: 버전 1은 옛 상대 경로의 기준 폴더(--base)가 필요")
         raw, targets = _read_v1_split(path, base)
-        raw = {**raw, "schema_version": SCHEMA_VERSION}
+        raw = {**raw, "schema_version": SPLIT_SCHEMA_VERSION}
         split = SplitResult.model_validate(raw)
         for s in split.sections:
             s.image_path = str(targets[s.section_key])
@@ -205,7 +203,7 @@ def convert_split(src: str | Path, dst: str | Path, base: str | Path, overwrite:
         raise FileExistsError(f"{dst} 이미 있음 — 덮어쓰려면 overwrite")
     raw, targets = _read_v1_split(src, Path(base))
     original = {s["section_key"]: s["image_path"] for s in raw["sections"]}
-    split = SplitResult.model_validate({**raw, "schema_version": SCHEMA_VERSION})
+    split = SplitResult.model_validate({**raw, "schema_version": SPLIT_SCHEMA_VERSION})
     for s in split.sections:
         s.image_path = str(targets[s.section_key])
     write_model(dst, split)

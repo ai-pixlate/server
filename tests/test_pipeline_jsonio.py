@@ -8,7 +8,7 @@ from PIL import Image
 
 from pipeline import jsonio
 from pipeline import run as cli
-from pipeline.types import OcrResult, Section, SplitResult
+from pipeline.types import AnalyzeResult, MergeResult, OcrResult, Section, SplitResult
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLE = ROOT / "pipeline" / "samples" / "synthetic_01"
@@ -63,17 +63,59 @@ def test_missing_or_unsupported_version_is_rejected(tmp_path, raw_version, cls, 
         jsonio.load_model(p, cls)
 
 
-def test_analyze_v1_is_rejected_as_unsupported_conversion(tmp_path):
+def _sec(image_path: str) -> Section:
+    return Section(section_key="sec_1_01", source_image_id=1, section_order=1, top_offset=0, height=10, width=10,
+                   image_path=image_path)
+
+
+def test_default_output_versions_common_1_split_2():
+    # 공통 결과 버전(워커 인계 형식 포함)은 "1", split.json 파일 버전만 "2"
+    assert AnalyzeResult(sections=[], blocks=[]).schema_version == "1"
+    assert OcrResult(section_key="s", regions=[]).schema_version == "1"
+    assert MergeResult(section_key="s", blocks=[]).schema_version == "1"
+    assert SplitResult(source_image_id=1, source_width=10, source_height=10, sections=[_sec("x.png")]).schema_version == "2"
+
+
+def test_analyze_result_is_written_verbatim_without_path_rule(tmp_path):
+    # AnalyzeResult(워커 인계 형식)는 PR 이전과 같이 버전 1, image_path를 손대지 않고 쓴다(JSON 폴더 기준 상대화 없음)
+    given = "pipeline/out/run7/sections/sec_1_01.png"  # 실행 시점의 경로 문자열 그대로(작업 디렉터리 기준 표기)
+    res = AnalyzeResult(sections=[_sec(given)], blocks=[])
+    out = tmp_path / "deep" / "analyze.json"
+    jsonio.write_model(out, res)
+    raw = json.loads(out.read_text(encoding="utf-8"))
+    assert raw["schema_version"] == "1" and raw["sections"][0]["image_path"] == given
+    assert raw == json.loads(res.model_dump_json())  # 쓴 내용 = 모델 그대로
+
+
+def test_analyze_result_is_not_a_loader_target(tmp_path):
     p = tmp_path / "analyze.json"
     p.write_text(json.dumps({"schema_version": "1", "sections": [], "blocks": [], "warnings": []}), encoding="utf-8")
-    with pytest.raises(jsonio.SchemaVersionError, match="전환을 지원하지 않음"):
-        jsonio.load_analyze(p)
+    with pytest.raises(TypeError, match="로더의 대상이 아니다"):
+        jsonio.load_model(p, AnalyzeResult)
+    assert not hasattr(jsonio, "load_analyze")
 
 
-def test_ocr_and_merge_accept_version_1(tmp_path):
+def test_split_path_rule_does_not_propagate_through_shared_sections(tmp_path):
+    # analyze()는 split.sections를 그대로 AnalyzeResult에 담는다. split.json을 쓰더라도 그 Section 객체가 바뀌면 안 된다.
+    img = (tmp_path / "sections" / "sec_1_01.png").resolve()
+    img.parent.mkdir()
+    Image.new("RGB", (10, 10)).save(img)
+    sec = _sec(str(img))
+    split = SplitResult(source_image_id=1, source_width=10, source_height=10, sections=[sec])
+    jsonio.write_model(tmp_path / "split.json", split)
+    assert json.loads((tmp_path / "split.json").read_text(encoding="utf-8"))["sections"][0]["image_path"] == "sections/sec_1_01.png"
+    assert sec.image_path == str(img) and split.sections[0] is sec  # 공용 Section은 그대로
+    res = AnalyzeResult(sections=split.sections, blocks=[])
+    jsonio.write_model(tmp_path / "analyze.json", res)
+    assert json.loads((tmp_path / "analyze.json").read_text(encoding="utf-8"))["sections"][0]["image_path"] == str(img)
+
+
+@pytest.mark.parametrize("version", ["1", "2"])  # "2"는 2026-09-23~25 사이 생성된 파일(구조 동일)
+def test_ocr_and_merge_accept_version_1_and_2(tmp_path, version):
     for sub in ("ocr", "merge"):
         raw = json.loads((SAMPLE / "expected" / sub / "sec_1_01.json").read_text(encoding="utf-8"))
-        raw["schema_version"] = "1"
+        assert raw["schema_version"] == "1"  # 레포 기대 파일은 기본 출력 버전
+        raw["schema_version"] = version
         p = tmp_path / f"{sub}.json"
         p.write_text(json.dumps(raw), encoding="utf-8")
         assert jsonio.load_model(p, jsonio.OcrResult if sub == "ocr" else jsonio.MergeResult).section_key == "sec_1_01"

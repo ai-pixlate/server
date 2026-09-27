@@ -5,7 +5,7 @@
                                    # ① → DIR/split.json, DIR/sections/*.png, DIR/split_debug.json. --vlm-replay는 이전 VLM 응답 재생(실험용)
     python -m pipeline.run ocr     --split DIR/split.json [--section KEY] --out DIR   # ② → DIR/ocr/<KEY>.json
     python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR [--no-llm]  # ③ → DIR/merge/<KEY>.json. --no-llm은 휴리스틱만
-    python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR # ①→②→③ → DIR/analyze.json
+    python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR [--no-llm]  # ①→②→③ → DIR/analyze.json
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
     python -m pipeline.run freeze-input  --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]  # 고정 입력본 생성·검증
@@ -207,9 +207,9 @@ def cmd_analyze(args) -> int:
     sources = [
         SourceImage(source_image_id=i + 1, upload_order=i + 1, path=p) for i, p in enumerate(args.source)
     ]
-    res = analyze(sources, cfg, out)  # AnalyzeError는 main()에서 종료 코드 2로
+    res = analyze(sources, cfg, out, use_llm=not args.no_llm)  # AnalyzeError는 main()에서 종료 코드 2로
     p = _write_json(out / "analyze.json", res)
-    _write_run_record(out, "analyze", cfg, {"sources": args.source}, started)
+    _write_run_record(out, "analyze", cfg, {"sources": args.source}, started, extra={"use_llm": not args.no_llm})
     print(f"섹션 {len(res.sections)}개 · 블록 {len(res.blocks)}개 · 경고 {len(res.warnings)}개 → {p}")
     return 0
 
@@ -299,6 +299,7 @@ def build_parser() -> argparse.ArgumentParser:
     common(sp)
     sp.add_argument("--source", action="append", required=True, help="원본 이미지 (업로드 순서대로 반복)")
     sp.add_argument("--out", required=True)
+    sp.add_argument("--no-llm", action="store_true", help="③을 heuristic_v2만 실행(llm_assist 생략, 개발·실측용)")
     sp.set_defaults(fn=cmd_analyze)
 
     sp = sub.add_parser("inspect", help="결과 JSON을 이미지 위에 그림")

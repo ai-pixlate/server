@@ -14,8 +14,12 @@ from pipeline.stages import merge, ocr, section_split
 from pipeline.types import AnalyzeResult, AnalyzeWarning, SourceImage, block_key
 
 
-def analyze(sources: list[SourceImage], cfg: dict[str, Any], out_dir: Path) -> AnalyzeResult:
+def analyze(sources: list[SourceImage], cfg: dict[str, Any], out_dir: Path, *, use_llm: bool = True) -> AnalyzeResult:
+    """use_llm은 ③ merge.run에 그대로 전달한다(CLI analyze --no-llm → False)."""
     merge.validate_config(cfg)
+    if use_llm:
+        # llm_assist 미구현 — ①·②를 돌린 뒤 ③에서 실패하지 않게 먼저 멈춘다. llm_assist 구현 시 이 검사를 지운다.
+        raise NotImplementedError("③ llm_assist 미구현 — 휴리스틱만은 use_llm=False(CLI analyze --no-llm) · docs/ai/status.md")
     sections = []
     blocks = []
     warnings: list[AnalyzeWarning] = []
@@ -25,7 +29,7 @@ def analyze(sources: list[SourceImage], cfg: dict[str, Any], out_dir: Path) -> A
         for sec in split.sections:
             ocr_res = ocr.run(sec, cfg)
             text_found = text_found or bool(ocr_res.regions)
-            merged = merge.run(sec, ocr_res, cfg)
+            merged = merge.run(sec, ocr_res, cfg, use_llm=use_llm)
             sections.append(sec)
             blocks.extend(merged.blocks)
         if not text_found:

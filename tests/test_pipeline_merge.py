@@ -396,15 +396,42 @@ def test_analyze_numbers_block_keys_across_the_run(monkeypatch, tmp_path):
     secs = [SEC(key="sec_1_01", order=1, top=0, height=500), SEC(key="sec_1_02", order=2, top=500, height=500)]
     split = SplitResult(source_image_id=1, source_width=1000, source_height=1000, sections=secs)
     regions = [R("reg_0001", 100, 0, 400, 20, "위"), R("reg_0002", 100, 300, 400, 20, "아래")]  # 섹션마다 블록 2개
-    real_run = merge.run
     monkeypatch.setattr(an.section_split, "run", lambda src, cfg, out: split)
     monkeypatch.setattr(an.ocr, "run", lambda sec, cfg: OcrResult(section_key=sec.section_key, regions=regions))
-    monkeypatch.setattr(an.merge, "run", lambda sec, o, cfg: real_run(sec, o, cfg, use_llm=False))
-    res = an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(), tmp_path)
+    # merge.run은 바꿔 끼우지 않는다 — use_llm이 analyze()에서 merge.run까지 전달되는지가 검증 대상
+    res = an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(), tmp_path, use_llm=False)
     assert [b.block_key for b in res.blocks] == ["blk_001", "blk_002", "blk_003", "blk_004"]
     assert [(b.section_key, b.block_order) for b in res.blocks] == [
         ("sec_1_01", 1), ("sec_1_01", 2), ("sec_1_02", 1), ("sec_1_02", 2),
     ]
+
+
+def test_analyze_with_llm_stops_before_split_and_ocr(monkeypatch, tmp_path):
+    from pipeline import analyze as an
+
+    calls: list[str] = []
+    monkeypatch.setattr(an.section_split, "run", lambda *a, **k: calls.append("split"))
+    monkeypatch.setattr(an.ocr, "run", lambda *a, **k: calls.append("ocr"))
+    with pytest.raises(NotImplementedError):
+        an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(), tmp_path)
+    assert calls == []
+
+
+@pytest.mark.parametrize("argv_extra, use_llm", [(["--no-llm"], False), ([], True)])
+def test_cli_analyze_passes_no_llm(monkeypatch, tmp_path, argv_extra, use_llm):
+    import pipeline.analyze as an
+    from pipeline.types import AnalyzeResult
+
+    seen: dict[str, bool] = {}
+
+    def fake(sources, cfg, out, *, use_llm=True):
+        seen["use_llm"] = use_llm
+        return AnalyzeResult(sections=[], blocks=[])
+
+    monkeypatch.setattr(an, "analyze", fake)
+    assert cli.main(["analyze", "--source", "unused.png", "--out", str(tmp_path), *argv_extra]) == 0
+    assert seen["use_llm"] is use_llm
+    assert json.loads((tmp_path / "run.json").read_text(encoding="utf-8"))["use_llm"] is use_llm
 
 
 def test_cli_merge_no_llm_writes_blocks_and_records_it(tmp_path):

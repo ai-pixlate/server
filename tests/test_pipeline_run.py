@@ -40,7 +40,7 @@ def test_cli_config_prints_effective_values(capsys):
 def test_cli_unimplemented_stage_exits_3(tmp_path):
     exp = SAMPLE / "expected"
     rc = cli.main(["merge", "--split", str(exp / "split.json"), "--ocr", str(exp / "ocr/sec_1_01.json"), "--out", str(tmp_path)])
-    assert rc == 3  # ③ 미구현
+    assert rc == 3  # ③ llm_assist 미구현 — --no-llm 없이는 종료 코드 3
 
 
 def test_cli_inspect_draws_overlays(tmp_path):

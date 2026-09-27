@@ -71,8 +71,8 @@ docs/ai/                     정본 문서
 |---|---|---|---|
 | ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
 | ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None)` | `Section` | `OcrResult`. `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 `NotImplementedError`(임시 분할 #31 · #32 미구현, 조용히 통과시키지 않음). 실제 이미지 크기가 `Section.width`·`height`와 다르면 `IMAGE_OPEN_FAILED`(재시도 불가) — 분할 판단과 좌표 범위가 메타데이터와 어긋나지 않게. 엔진 반환값이 dict가 아니거나 배열이 아니면 `OCR_FAILED` |
-| ③ 병합·역할 | `stages.merge.run(section, ocr, cfg)` | `Section` + `OcrResult` | `MergeResult` |
-| 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError` |
+| ③ 병합·역할 | `stages.merge.run(section, ocr, cfg, *, use_llm=True)` | `Section` + `OcrResult` | `MergeResult`. 먼저 `validate_config(cfg)`(`pipeline.md` 7.1절 "설정 값 검증", 어기면 `ValueError`). `use_llm=False`면 `heuristic_v2`만. `llm_assist`는 미구현이라 `use_llm=True`면 `NotImplementedError` — 조용히 건너뛰지 않는다 |
+| 초기 분석 | `analyze(sources, cfg, out_dir)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError`. ① 전에 ③ 설정을 검증하고, 끝에 `block_key`를 실행 전체에서 다시 매긴다(아래 임시 식별자) |
 
 | 타입 | 필드 | 계약 |
 |---|---|---|
@@ -90,7 +90,7 @@ docs/ai/                     정본 문서
 규칙:
 
 - 좌표는 정수 픽셀, 섹션 안은 **섹션 로컬**. 원본 세로 = `top_offset + y`. `Section.image_path`는 ②·③-1·④·⑥·⑦이 그대로 읽는 잘라낸 섹션 이미지다.
-- 임시 식별자: `sec_{source_image_id}_{order:02d}` · `reg_0001` · `line_001` · `blk_001`. 유일 범위(2026-09-27, `open-questions.md` #38 G): `section_key` · `block_key`는 한 실행 안에서 유일, `region_key` · `line_key`는 **섹션 안에서** 유일하며(② 구현과 고정 입력본 v1이 섹션마다 `reg_0001`부터 매긴다) 섹션 밖에서 참조할 때는 `(section_key, key)` 쌍으로 쓴다. `analyze()`의 `block_key` 실행 단위 재부여(#38 H)는 ③ 구현 커밋에서 이 절에 반영한다.
+- 임시 식별자: `sec_{source_image_id}_{order:02d}` · `reg_0001` · `line_001` · `blk_001`. 유일 범위(2026-09-27, `open-questions.md` #38 G): `section_key` · `block_key`는 한 실행 안에서 유일, `region_key` · `line_key`는 **섹션 안에서** 유일하며(② 구현과 고정 입력본 v1이 섹션마다 `reg_0001`부터 매긴다) 섹션 밖에서 참조할 때는 `(section_key, key)` 쌍으로 쓴다. ③ `merge.run`은 섹션 안에서 `blk_001` · `line_001`부터 매기고(CLI `merge` 1회 = 섹션 하나라 실행 안 유일), `analyze()`는 최종 순서(`upload_order` → `section_order` → `block_order`)로 `block_key`를 실행 전체에서 한 번 다시 매긴다(#38 H). `block_order`는 섹션별로 유지하며, CLI `merge` 출력과 `analyze.json`의 같은 블록은 `(section_key, block_order)`로 대응한다. 재부여 전에 `block_key`를 참조하는 결과가 생기면 같은 단계에서 대응표로 바꾼다.
 - 모든 모델은 `extra="forbid"` — 계약 밖 키가 조용히 섞이지 않는다. `role`은 5종 Literal.
 - 계약이 미정으로 둔 값은 필드가 없다: 섹션 `range`(#13), `style`(#14). 결정되면 추가한다.
 - 계약이 정한 계산만 도우미로 둔다: `ocr_confidence_of()`(영역 score 최솟값, 없으면 None) · `BBox.union()` · `BBox.from_poly()`.
@@ -120,14 +120,14 @@ docs/ai/                     정본 문서
 | `python -m pipeline.run config [--set ...]` | 유효 config 출력 | stdout |
 | `python -m pipeline.run split --source IMG --out DIR` | ① | `DIR/split.json` · `DIR/sections/<key>.png` · `DIR/split_debug.json`(경계 결정 진단: 색 전환 후보와 기각 사유 · 빈 구간 병합(`empty_merged` 색 단계 · `empty_merged_after_vlm` 보정 뒤) · VLM 창별 호출·보정·폐기) |
 | `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② — 실행 구조는 아래 "② 실행 구조" | `DIR/ocr/<key>.json`(성공한 섹션만) · `DIR/run.json` |
-| `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR` | ③ | `DIR/merge/<key>.json` |
+| `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR [--no-llm]` | ③. `--no-llm`은 `heuristic_v2`만(개발·실측용, 2026-09-27 결정). 없으면 `llm_assist` 미구현으로 종료 코드 3. 잘못된 `[merge]` 설정은 `ValueError`로 traceback과 종료 코드 1 | `DIR/merge/<key>.json` · `DIR/run.json`(`use_llm`) |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR` | ①→②→③ | `DIR/analyze.json` |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
 | `python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json [--overwrite]` | 버전 1 → 2 **일반 전환**. 옛 상대 경로를 `--base` 기준으로 해석(대상이 없으면 실패)해 새 JSON 위치 기준으로 다시 쓴다. **이미지는 옮기지 않으며 결과는 원래 이미지를 가리킨다.** `--out`이 있으면 `--overwrite` 없이는 거부. 원래 값은 stdout에 출력 | `NEW/split.json` |
 | `python -m pipeline.run freeze-input --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]` | **고정 입력본 생성**(5절). 섹션 PNG를 `INPUT_DIR/sections/`로 복사하고 복사본을 가리키게 한 뒤 검증. 원본은 읽기만 하고 전후 해시 비교. `INPUT_DIR`이 비어 있지 않으면 거부. 버전 1 원본은 `--base` 필요 | `INPUT_DIR/split.json` · `sections/` · `origin/`(원본 `split.json` · `split_debug.json` · `run.json` 사본) · `provenance.json` |
 | `python -m pipeline.run verify-input --dir INPUT_DIR [--relocated]` | 고정 입력본 재검증. `--relocated`는 레포 밖 임시 위치로 통째 복사해 그 복사본만으로 검증 | stdout |
 
-- 종료 코드: `0` 성공 · `2` `AnalyzeError`(모든 하위 명령, stderr에 JSON) · `3` 미구현(단계 또는 ② 4,000px 초과 섹션) · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
+- 종료 코드: `0` 성공 · `2` `AnalyzeError`(모든 하위 명령, stderr에 JSON) · `3` 미구현(단계 · ② 4,000px 초과 섹션 · ③ `--no-llm` 없는 `merge`) · `4` VLM 호출 실패(`VlmError`, #25 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)와 잘못된 `[merge]` 설정(`ValueError`)은 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
 - **② 실행 구조(`ocr`, 2026-09-23 결정)**: `--out`에 이전 `run.json`이나 `ocr/`가 있으면 거부한다(실행마다 새 폴더 — 이전 성공 JSON이 이번 실패 섹션의 결과처럼 남지 않게). 엔진을 먼저 한 번 만들고, **초기화가 실패하면 즉시 중단**해 모든 섹션을 `not_run`으로, 실행 수준 오류를 `run_error`로 기록하고 종료 코드 2. 그 뒤 섹션마다 실행하며 **섹션 오류(이미지 열기 · 추론 · 출력 형식)는 기록하고 다음 섹션으로 계속**한다. 실패를 빈 결과로 바꿔치지 않으며 실패 섹션의 `ocr/<key>.json`은 쓰지 않는다. `run.json` 추가 필드: `status`(`ok` 대상 모두 성공 · `partial` 일부 성공 + 실패·미실행 · `failed` 성공 없음) · `sections`(섹션별 `ok`+영역 수 / `failed`+`code` · `retryable` · `exception` · `message`(+`reason`) / `not_run`) · `run_error` · `engine`(버전 · 플랫폼 · 실제 적용 설정, 예: `enable_mkldnn` · `text_rec_score_thresh`). 종료 코드: `AnalyzeError` 실패가 있으면 2, 4,000px 초과 거부만 있으면 3, 없으면 0. stderr에는 첫 오류 JSON. `analyze()`는 계약 8장대로 첫 실패에서 `AnalyzeError`를 던진다. `retryable`은 현재 `errors.ERROR_POLICY` 기본값(`IMAGE_OPEN_FAILED` False · `OCR_FAILED` True)이며 세분은 #33 결정 후.
 - VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
 - **VLM 응답 재생(실험용)**: `split --vlm-replay DIR0/split_debug.json`은 이전 실행의 창별 응답을 순서대로 재생하고 API를 부르지 않는다. 원본 지문(`input`) · VLM 설정(`vlm_config`) · 호출별 구간·창 좌표 · 실제 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시가 기록과 다르면 종료 코드 4로 멈추고, 기록이 다 쓰이지 않아도(호출 구성이 달라짐) 결과 파일 없이 종료 코드 4다. 보정(snap) 규칙처럼 **VLM 응답 이후** 단계만 바꾸는 비교에 쓴다. 색 경계가 바뀌어 구간·창이 달라지는 실험(`bg_row_ratio` 등)에는 쓸 수 없고, seed 효과 측정에도 쓸 수 없다(그건 실제 반복 호출).

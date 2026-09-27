@@ -37,6 +37,7 @@ gutter = true                  # pipeline.md 표기 `on`
 llm_model = "gemini-3.8-flash"
 llm_temperature = 0
 llm_split = false              # 분할 금지 고정
+prompt_path = "pipeline/prompts/merge_assist.md"   # llm_assist 프롬프트(미작성)
 
 # [judge] ③-1 AI 섹션 판정 — 판정 방식 미정(open-questions #5). 기본값을 두지 않는다.
 

@@ -34,6 +34,18 @@ para_gap = 0.6
 h_ratio = 1.5
 overlap = 0.5
 gutter = true                  # pipeline.md 표기 `on`
+# 아래 11개는 PoC 코드의 고정 상수를 config 키로 둔 것 — 잠정(open-questions #38). 계산식은 pipeline.md 7.1절
+line_v_overlap = 0.5           # 줄 병합 세로 겹침 하한(겹친 길이 ÷ 작은 높이). overlap과 별개
+line_gap_min = -0.5            # 줄 가로 간격 하한(base 비율)
+para_gap_min = -0.3            # 블록 세로 간격 하한(base 비율)
+left_align_tol = 0.5           # 블록 좌정렬 왼쪽 끝 허용 오차(base 비율)
+gutter_min_px = 20             # gutter 최소 폭 = max(gutter_min_px, 섹션 폭 // gutter_width_div)
+gutter_width_div = 16
+title_pct = 75                 # 역할 판정 높이 백분위(선형 보간)
+caption_pct = 25
+title_max_lines = 2
+caption_max_chars = 25
+price_max_chars = 40
 llm_model = "gemini-3.8-flash"
 llm_temperature = 0
 llm_split = false              # 분할 금지 고정

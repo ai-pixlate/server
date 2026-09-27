@@ -90,7 +90,7 @@ docs/ai/                     정본 문서
 규칙:
 
 - 좌표는 정수 픽셀, 섹션 안은 **섹션 로컬**. 원본 세로 = `top_offset + y`. `Section.image_path`는 ②·③-1·④·⑥·⑦이 그대로 읽는 잘라낸 섹션 이미지다.
-- 임시 식별자: `sec_{source_image_id}_{order:02d}` · `reg_0001` · `line_001` · `blk_001`. 한 실행 안에서만 유일하면 된다.
+- 임시 식별자: `sec_{source_image_id}_{order:02d}` · `reg_0001` · `line_001` · `blk_001`. 유일 범위(2026-09-27, `open-questions.md` #38 G): `section_key` · `block_key`는 한 실행 안에서 유일, `region_key` · `line_key`는 **섹션 안에서** 유일하며(② 구현과 고정 입력본 v1이 섹션마다 `reg_0001`부터 매긴다) 섹션 밖에서 참조할 때는 `(section_key, key)` 쌍으로 쓴다. `analyze()`의 `block_key` 실행 단위 재부여(#38 H)는 ③ 구현 커밋에서 이 절에 반영한다.
 - 모든 모델은 `extra="forbid"` — 계약 밖 키가 조용히 섞이지 않는다. `role`은 5종 Literal.
 - 계약이 미정으로 둔 값은 필드가 없다: 섹션 `range`(#13), `style`(#14). 결정되면 추가한다.
 - 계약이 정한 계산만 도우미로 둔다: `ocr_confidence_of()`(영역 score 최솟값, 없으면 None) · `BBox.union()` · `BBox.from_poly()`.

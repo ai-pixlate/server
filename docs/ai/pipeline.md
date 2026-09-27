@@ -154,7 +154,7 @@
 | 빈 텍스트 | `text.strip() == ""` | 불참 — 단독 블록 | 참여(잠정) | 제외(잠정) |
 | 크기 0 | `w == 0` 또는 `h == 0` | 불참 — 단독 블록 | 제외 | 제외 |
 
-빈 텍스트 단독 블록은 `open-questions.md` #36의 잠정 방침이다. 크기 0 처리 · 빈 텍스트의 gutter 포함과 통계 제외는 효과가 검증되지 않은 잠정 설계다. [`open-questions.md` #36, #38]
+두 조건을 모두 만족하는 영역(빈 텍스트이면서 크기 0)은 **크기 0으로 분류한다** — 차지하는 열이 없거나 기하 정보가 없어 gutter · 높이 통계에 쓸 수 없다. 빈 텍스트 단독 블록은 `open-questions.md` #36의 잠정 방침이다. 크기 0 처리 · 빈 텍스트의 gutter 포함과 통계 제외는 효과가 검증되지 않은 잠정 설계다. [`open-questions.md` #36, #38]
 
 **정렬과 동률** — 병합 처리 순서와 줄 안 영역 순서는 (x, y, `region_key`), 줄 순서는 (첫 영역 y, 첫 영역 x, 첫 영역 `region_key`), 블록 순서는 (블록 bbox y, 블록 bbox x, 첫 줄 첫 영역 `region_key`) 오름차순이다. 앞 두 성분은 PoC 순서(영역 x1 · 줄 첫 영역 (y1, x1) · 블록 bbox (y1, x1))이고 `region_key` 동률 기준은 우리 결정이다 — 입력 배열 위치가 결과에 들어가지 않는다. 섹션 안에서 `region_key`가 중복되면 입력 오류다. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
 
@@ -200,6 +200,23 @@
 | 주의 | 주의 · 경고 · 유의 · 금지 · 삼가 · 반드시 · 사용을 중지 · 보관 · 직사광선 · 어린이 · 알레르기 · 이상 · 증상 · 전문의 · 상담 · 문의 · ※ | 같은 목록에서 `유의` → `유의\s*사항` · `유의하(?!게)`, `이상` → `이상\s*(이\|증상\|반응)`, `문의` → `(?<!전)문의`로 좁힘(입력 스캔에서 "특유의" · "유의한" · "이상의" · "전문의"에 걸림) |
 
 **출력 순서** — 블록은 위 블록 순서로 `block_order` 1부터, 블록 안 줄은 줄 순서, 줄 안 영역은 영역 순서다. 임시 키와 유일 범위는 `dev.md` 3절. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
+
+**설정 값 검증** — 병합 모듈의 검증 함수가 `merge.run` 시작 시(입력을 건드리기 전) 그리고 `analyze()` 시작 시(① 섹션 분해 전) 아래 기준을 검사하고, 어기면 `ValueError`를 낸다. 범용 config 로더는 값을 검사하지 않는다. Python 호출에서는 `ValueError`가 전파되고, CLI 프로세스는 traceback을 출력하고 종료 코드 1로 끝난다(`run.py` `main()`이 잡지 않음). [`open-questions.md` #38]
+
+| 대상 | 기준 |
+|---|---|
+| 휴리스틱 수치 키(아래 행의 키) | `int` 또는 `float`, bool 제외, 유한값(`NaN` · `±inf` 거부) |
+| 정수 전용 키 `gutter_min_px` · `gutter_width_div` · `title_max_lines` · `caption_max_chars` · `price_max_chars` | 실제 `int`, bool 제외(`20.0`을 정수로 바꾸지 않음) |
+| `line_v_overlap` · `overlap` | 0 ≤ 값 ≤ 1 |
+| `line_gap_min` · `line_gap` / `para_gap_min` · `para_gap` | 하한 ≤ 상한 |
+| `h_ratio` | ≥ 1 |
+| `left_align_tol` · `gutter_min_px` · `caption_max_chars` · `price_max_chars` | ≥ 0 |
+| `gutter_width_div` · `title_max_lines` | ≥ 1 |
+| `title_pct` · `caption_pct` | 0 ≤ 값 ≤ 100, `caption_pct` ≤ `title_pct` |
+| `gutter` | 정확히 bool 타입 |
+| `llm_split` | `False` 그 자체(`is False`) — 숫자 0 등은 거부 |
+
+`llm_model` · `llm_temperature` · `prompt_path`는 `llm_assist` 착수 때 기준을 정한다. [`open-questions.md` #38]
 
 **알려진 위험** — 처리 순서 의존(가장 잘 맞는 줄이 아니라 처음 맞는 줄) · 섹션 전체 gutter가 전폭 영역 하나로 사라짐 · gutter는 0.7·h ≥ 최소 폭인 큰 글자에서만 효과 · 블록 단계 gutter 미사용 · 오른쪽 정렬 미판정 · 기울어진 글자의 bbox 높이 부풀림은 PoC 정의에서 논리적으로 예상되는 위험이며 우리 입력에서 확인되지 않았다. 초기 검증 항목이고 유지할 요구사항이 아니다. [`open-questions.md` #38]
 

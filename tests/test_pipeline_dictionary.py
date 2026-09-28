@@ -59,7 +59,7 @@ def test_loader_rejects_missing_file_and_wrong_schema_version(tmp_path):
     with pytest.raises(D.DictionaryError, match="사전 파일이 없다"):
         D.load_dictionaries(tmp_path)
     for name in D.DICT_FILES:
-        (tmp_path / name).write_text((SYNTH / name).read_text(encoding="utf-8"), encoding="utf-8")
+        (tmp_path / name).write_bytes((SYNTH / name).read_bytes())  # 바이트 복사 — 줄 끝(LF)을 보존해야 해시가 맞는다
     raw = json.loads((tmp_path / D.LOCAL_FILE).read_text(encoding="utf-8"))
     raw["schema_version"] = "9"
     (tmp_path / D.LOCAL_FILE).write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
@@ -69,7 +69,7 @@ def test_loader_rejects_missing_file_and_wrong_schema_version(tmp_path):
 
 def test_loader_rejects_override_pointing_to_unknown_entry(tmp_path):
     for name in D.DICT_FILES:
-        (tmp_path / name).write_text((SYNTH / name).read_text(encoding="utf-8"), encoding="utf-8")
+        (tmp_path / name).write_bytes((SYNTH / name).read_bytes())  # 바이트 복사 — 줄 끝(LF)을 보존해야 해시가 맞는다
     raw = json.loads((tmp_path / D.RULES_FILE).read_text(encoding="utf-8"))
     raw["overrides"] = [{"keep": "RG-903", "drop": ["RG-999"], "basis": "x"}]
     (tmp_path / D.RULES_FILE).write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
@@ -79,7 +79,7 @@ def test_loader_rejects_override_pointing_to_unknown_entry(tmp_path):
 
 def test_verify_detects_tampering(tmp_path):
     for name in (*D.DICT_FILES, B.SUMS_FILE):
-        (tmp_path / name).write_text((SYNTH / name).read_text(encoding="utf-8"), encoding="utf-8")
+        (tmp_path / name).write_bytes((SYNTH / name).read_bytes())  # 바이트 복사 — 줄 끝(LF)을 보존해야 해시가 맞는다
     B.verify_bundle(tmp_path)
     p = tmp_path / D.LOCAL_FILE
     p.write_text(p.read_text(encoding="utf-8").replace("합성 안내문 1", "바뀐 안내문"), encoding="utf-8")

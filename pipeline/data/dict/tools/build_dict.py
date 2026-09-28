@@ -314,11 +314,12 @@ def build_rules(*, date: str, seq: int) -> PolicyRules:
 # ---------------------------------------------------------------------------
 def write_bundle(out: Path, reg: RegulationDict, loc: LocalDict, rules: PolicyRules) -> dict[str, str]:
     out.mkdir(parents=True, exist_ok=True)
-    (out / REGULATION_FILE).write_text(dump_model(reg), encoding="utf-8")
-    (out / LOCAL_FILE).write_text(dump_model(loc), encoding="utf-8")
-    (out / RULES_FILE).write_text(dump_model(rules), encoding="utf-8")
+    # 줄 끝은 항상 LF — git 정규화 · 다른 OS에서도 SHA256SUMS가 일치하게(Windows 기본 CRLF를 쓰지 않는다)
+    (out / REGULATION_FILE).write_text(dump_model(reg), encoding="utf-8", newline="\n")
+    (out / LOCAL_FILE).write_text(dump_model(loc), encoding="utf-8", newline="\n")
+    (out / RULES_FILE).write_text(dump_model(rules), encoding="utf-8", newline="\n")
     sums = {name: sha256_of(out / name) for name in DICT_FILES}
-    (out / SUMS_FILE).write_text("".join(f"{h}  {n}\n" for n, h in sums.items()), encoding="utf-8")
+    (out / SUMS_FILE).write_text("".join(f"{h}  {n}\n" for n, h in sums.items()), encoding="utf-8", newline="\n")
     return sums
 
 

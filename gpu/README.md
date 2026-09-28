@@ -133,3 +133,21 @@ docker build \
   --build-arg TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118 \
   -t yeram109/pixlate-gpu:torch2.7-cu118 .
 ```
+
+## 4. 백엔드 연동 계약 (gpu 큐 워커)
+
+API는 인페인팅을 `app.tasks.run_inpaint`로 **`gpu` 큐**에 넣고, 이 서버의 워커가 **EC2 Redis에 접속해** 가져갑니다. 학교 서버는 인바운드가 막혀 있어, 워커가 EC2로 나가는 방향만 씁니다.
+
+| 항목 | 값 |
+| --- | --- |
+| 워커 명령 (레포 루트에서) | `celery -A app.celery_app worker -Q gpu -n gpu@%h --loglevel=info` |
+| 환경변수 | `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, `DATABASE_URL` |
+| 코드·의존성 | 이 레포를 `/data` 아래에 두고 `requirements.txt` 설치 (이미지에는 서버 코드·Celery·DB 드라이버가 없습니다) |
+
+- broker·backend는 **EC2 Redis 주소**여야 합니다. 기본값의 `pixlate-redis`는 EC2 docker 내부 이름이라 이 서버에서 해석되지 않습니다.
+- `run_inpaint`가 결과를 DB에 쓰므로 `DATABASE_URL`(RDS)도 필요합니다.
+- 주소·비밀번호는 팀 공유 문서로 받아 `/data` 아래 env 파일에만 둡니다. 레포에 커밋하지 않습니다.
+- EC2는 `ocr`·`cpu` 워커만 띄웁니다. `gpu` 큐는 이 서버만 소비합니다.
+- `feature/gpu-worker-test`의 `worker_test`·`fake_inpaint`·학교 로컬 Redis는 연결 테스트용이며 **이 연동의 성공 기준이 아닙니다.**
+- 연동 확인: 분석을 한 번 돌린 뒤 EC2에서 `redis-cli -n 0 LLEN gpu`가 0으로 줄어야 합니다. 계속 쌓이기만 하면 워커가 EC2 Redis에 붙지 않은 것입니다.
+- 워커가 처리 도중 죽어도 작업은 큐로 돌아와 다시 실행됩니다(`task_acks_late`, 재처리까지 약 90초). 그래서 `run_inpaint`는 두 번 실행돼도 안전하게 만들어져 있습니다.

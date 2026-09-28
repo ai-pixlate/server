@@ -259,8 +259,9 @@ def test_duplicate_region_key_or_other_section_is_rejected():
         merge.run(SEC(), OcrResult(section_key="sec_9_99", regions=[]), CFG(), use_llm=False)
 
 
-def test_run_with_llm_is_not_implemented_yet():
-    with pytest.raises(NotImplementedError):
+def test_run_with_llm_needs_api_key_when_no_caller_is_given(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    with pytest.raises(ValueError, match="GEMINI_API_KEY"):
         merge.run(SEC(), OcrResult(section_key="sec_1_01", regions=[]), CFG())
 
 
@@ -406,13 +407,14 @@ def test_analyze_numbers_block_keys_across_the_run(monkeypatch, tmp_path):
     ]
 
 
-def test_analyze_with_llm_stops_before_split_and_ocr(monkeypatch, tmp_path):
+def test_analyze_with_llm_checks_api_key_before_split_and_ocr(monkeypatch, tmp_path):
     from pipeline import analyze as an
 
     calls: list[str] = []
     monkeypatch.setattr(an.section_split, "run", lambda *a, **k: calls.append("split"))
     monkeypatch.setattr(an.ocr, "run", lambda *a, **k: calls.append("ocr"))
-    with pytest.raises(NotImplementedError):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    with pytest.raises(ValueError, match="GEMINI_API_KEY"):
         an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(), tmp_path)
     assert calls == []
 
@@ -424,7 +426,7 @@ def test_cli_analyze_passes_no_llm(monkeypatch, tmp_path, argv_extra, use_llm):
 
     seen: dict[str, bool] = {}
 
-    def fake(sources, cfg, out, *, use_llm=True):
+    def fake(sources, cfg, out, *, use_llm=True, llm=None):
         seen["use_llm"] = use_llm
         return AnalyzeResult(sections=[], blocks=[])
 

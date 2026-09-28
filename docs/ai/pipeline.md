@@ -73,7 +73,7 @@
 | ③ | `merge.gutter_min_px` / `gutter_width_div` | `20` / `16` | gutter 최소 폭 = max(`gutter_min_px`, 섹션 폭 // `gutter_width_div`). **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
 | ③ | `merge.title_pct` / `caption_pct` / `title_max_lines` / `caption_max_chars` / `price_max_chars` | `75` / `25` / `2` / `25` / `40` | 휴리스틱 역할 판정의 높이 백분위와 줄 수·글자 수 상한. **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `gemini-3.8-flash` / `0` / `false` | 분할 금지 고정 | [개발계획 6장] |
-| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 미작성. 2026-09-26 사용자 승인. 상대 경로는 레포 루트 기준(7.2절) | [`dev.md` 2절] [`open-questions.md` #41] |
+| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 초안 v1(2026-09-28, 실측 전). 2026-09-26 사용자 승인. 상대 경로는 레포 루트 기준(7.2절) | [`dev.md` 2절] [`open-questions.md` #41] |
 | ③ | `merge.llm_timeout_s` | `60` | `llm_assist` 호출 시간 제한(초). 개발용 **잠정값** — 무기한 대기를 막기 위한 값이며 운영 값은 #37에서 정한다 | [`open-questions.md` #37, #41] |
 | ③-1 | (판정 방식 미정 — 키 없음) | — | 기본값을 두지 않는다. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉)는 참고값이며 production 채택 아님 | [개발계획 6장] [PoC 10-1장] |
 | ④ | `label.model` / `label.long_side_px` / `label.bias` | `gemini-3.8-flash` / `1024` / `label` | 애매하면 라벨 | [개발계획 6장] |

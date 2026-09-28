@@ -4,7 +4,8 @@
     python -m pipeline.run split   --source IMG [--source-id N] --out DIR [--vlm-replay DIR0/split_debug.json]
                                    # ① → DIR/split.json, DIR/sections/*.png, DIR/split_debug.json. --vlm-replay는 이전 VLM 응답 재생(실험용)
     python -m pipeline.run ocr     --split DIR/split.json [--section KEY] --out DIR   # ② → DIR/ocr/<KEY>.json
-    python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR [--no-llm]  # ③ → DIR/merge/<KEY>.json. --no-llm은 휴리스틱만
+    python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR [--no-llm | --llm-replay DIR0/merge_debug/<KEY>.json]
+                                   # ③ → DIR/merge/<KEY>.json, DIR/merge_debug/<KEY>.json. --no-llm은 휴리스틱만, --llm-replay는 기록 재생
     python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR [--no-llm]  # ①→②→③ → DIR/analyze.json
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
@@ -191,9 +192,20 @@ def cmd_merge(args) -> int:
     split = jsonio.load_split(args.split)
     ocr_res = jsonio.load_ocr(args.ocr)
     sec = _find_section(split, ocr_res.section_key)
-    res = merge.run(sec, ocr_res, cfg, use_llm=not args.no_llm)  # llm_assist 미구현 — --no-llm 없이는 종료 코드 3
+    llm = None
+    if args.llm_replay:  # --no-llm과 동시 지정은 argparse가 거부한다
+        from pipeline.vlm import ReplayMergeAssistant
+
+        llm = ReplayMergeAssistant.from_file(args.llm_replay, merge.llm_config(cfg))
+    recorder = None if args.no_llm else merge.json_recorder(out / "merge_debug")
+    res = merge.run(sec, ocr_res, cfg, use_llm=not args.no_llm, llm=llm, recorder=recorder)
+    if llm is not None:
+        llm.finish()  # 기록이 호출을 기대했는데 쓰이지 않았으면 VlmReplayMismatch
     p = _write_json(out / "merge" / f"{sec.section_key}.json", res)
-    _write_run_record(out, "merge", cfg, {"split": args.split, "ocr": args.ocr}, started, extra={"use_llm": not args.no_llm})
+    _write_run_record(
+        out, "merge", cfg, {"split": args.split, "ocr": args.ocr}, started,
+        extra={"use_llm": not args.no_llm, "llm_replay": args.llm_replay},
+    )
     print(f"{sec.section_key}: 블록 {len(res.blocks)}개 → {p}")
     return 0
 
@@ -292,7 +304,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--split", required=True, help="split.json")
     sp.add_argument("--ocr", required=True, help="ocr/<section_key>.json")
     sp.add_argument("--out", required=True)
-    sp.add_argument("--no-llm", action="store_true", help="heuristic_v2만 실행(llm_assist 생략, 개발·실측용)")
+    mode = sp.add_mutually_exclusive_group()
+    mode.add_argument("--no-llm", action="store_true", help="heuristic_v2만 실행(llm_assist 생략, 개발·실측용)")
+    mode.add_argument("--llm-replay", metavar="merge_debug/<KEY>.json", help="이전 llm_assist 기록의 응답을 재생(API 호출 없음)")
     sp.set_defaults(fn=cmd_merge)
 
     sp = sub.add_parser("analyze", help="①→②→③ 초기 분석")

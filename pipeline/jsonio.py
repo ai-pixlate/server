@@ -25,13 +25,17 @@ from typing import Any
 from PIL import Image
 from pydantic import BaseModel
 
-from pipeline.types import SPLIT_SCHEMA_VERSION, MergeResult, OcrResult, SplitResult
+from pipeline.types import SPLIT_SCHEMA_VERSION, DetectionResult, JudgeResult, MergeResult, OcrResult, PolicyResult, SplitResult
 
 # 타입별 읽기 허용 버전. SplitResult만 "1"을 거부한다(상대 경로 의미가 바뀌었으므로). AnalyzeResult는 여기 없다(워커 인계 형식, 파일 읽기 도구 없음).
+# ③-1 · ③-1' 파일(judge/ · judge_detect/ · policy/)은 개발용 잠정 형식(open-questions #60)이며 버전 "1"만 읽는다.
 READ_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
     SplitResult: frozenset({SPLIT_SCHEMA_VERSION}),
     OcrResult: frozenset({"1", "2"}),
     MergeResult: frozenset({"1", "2"}),
+    JudgeResult: frozenset({"1"}),
+    DetectionResult: frozenset({"1"}),
+    PolicyResult: frozenset({"1"}),
 }
 _PATH_TYPES = (SplitResult,)  # 경로 규칙을 적용하는 타입 — AnalyzeResult에는 적용하지 않는다
 REPO_ROOT = Path(__file__).resolve().parent.parent

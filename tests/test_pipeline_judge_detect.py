@@ -213,11 +213,6 @@ def test_judge_result_requires_matches_bound_to_findings():
     JudgeResult(section_key="s", status="ok", content_findings=ContentFindings(findings=[f]), matches=[Match(**{**m.model_dump(), "finding_key": "f_01"})], checked=checked)
 
 
-def test_run_still_not_implemented(cfg):
-    with pytest.raises(NotImplementedError, match="detect_only"):
-        judge.run(_section(), [_block("blk_001", "x", 1)], JudgeContext(), cfg)
-
-
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -259,14 +254,9 @@ def test_cli_output_survives_cp949_console(tmp_path, monkeypatch):
     sys.stdout.flush()
     assert code == 0 and (out / "judge_detect" / "sec_1_01.json").exists()
     assert "sec_1_01" in buf_out.getvalue().decode("cp949")
-    # --no-llm 없는 경로의 미구현 메시지도 stderr(cp949)에서 실패하지 않는다
-    code = runmod.main(["judge", "--merge", str(mp), "--out", str(tmp_path / "out2"), "--set", f"judge.dict_dir={SYNTH}"])
-    sys.stderr.flush()
-    assert code == 3 and "--no-llm" in buf_err.getvalue().decode("cp949")
 
 
-def test_cli_judge_without_no_llm_is_not_implemented(tmp_path, capsys):
+def test_cli_judge_full_mode_requires_split(tmp_path, capsys):
     mp = _write_merge(tmp_path, "x")
-    code = runmod.main(["judge", "--merge", str(mp), "--out", str(tmp_path / "out"), "--set", f"judge.dict_dir={SYNTH}"])
-    assert code == 3
-    assert "미구현" in capsys.readouterr().err
+    with pytest.raises(SystemExit, match="--split"):
+        runmod.main(["judge", "--merge", str(mp), "--out", str(tmp_path / "out"), "--set", f"judge.dict_dir={SYNTH}"])

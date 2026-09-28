@@ -69,10 +69,11 @@ def test_policy_validate_rejects_bad_problem_text_limit(value):
 
 
 def test_llm_config_requires_prompt_file_and_key(cfg, tmp_path, monkeypatch):
-    # 기본 prompt_path는 아직 없는 파일(초안은 ③-1b 구현 시) — LLM 모드 검증이 이를 잡는다
     monkeypatch.delenv(judge.API_KEY_ENV, raising=False)
+    assert judge.validate_llm_config(cfg, need_api_key=False).strip()  # 기본 prompt_path = 초안 pipeline/prompts/judge_context.md
+    missing = cfgmod.load_config(overrides=[f"judge.dict_dir={SYNTH_DIR}", "judge.prompt_path='pipeline/prompts/does-not-exist.md'"])
     with pytest.raises(ValueError, match="prompt_path"):
-        judge.validate_llm_config(cfg, need_api_key=False)
+        judge.validate_llm_config(missing, need_api_key=False)
     p = tmp_path / "prompt.md"
     p.write_text("판정 프롬프트", encoding="utf-8")
     c = cfgmod.load_config(overrides=[f"judge.dict_dir={SYNTH_DIR}", f"judge.prompt_path='{p.as_posix()}'"])
@@ -105,12 +106,10 @@ def _section_and_block():
     return sec, [blk]
 
 
-def test_run_stubs_validate_config_then_refuse(cfg):
+def test_run_validates_config_first(cfg):
     sec, blocks = _section_and_block()
-    with pytest.raises(NotImplementedError, match="judge.run"):
-        judge.run(sec, blocks, JudgeContext(regulatory_class="cosmetic"), cfg)
     bad = cfgmod.load_config(overrides=["judge.match_mode='regex'"])
-    with pytest.raises(ValueError):  # 설정 검증이 먼저다
+    with pytest.raises(ValueError, match="match_mode"):  # 설정 검증이 사전 로드 · 검출보다 먼저다
         judge.run(sec, blocks, JudgeContext(), bad)
     with pytest.raises(ValueError, match="problem_text_max_chars"):
         policy.run(None, blocks, JudgeContext(), cfgmod.load_config(overrides=["policy.problem_text_max_chars=0"]), dicts=None)

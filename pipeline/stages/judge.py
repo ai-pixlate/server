@@ -1,4 +1,4 @@
-"""③-1 AI 섹션 판정 — ③-1a 검출(규칙) 구현 · ③-1b 맥락 판정은 다음 착수 범위.
+"""③-1 AI 섹션 판정 — ③-1a 검출(규칙) + ③-1b 맥락 판정(LLM) + 조립(2026-09-29).
 
 pipeline.md 단계표 ③-1 · 7.3절, 설계 docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md(잠정, open-questions.md #60).
 
@@ -13,10 +13,18 @@ pipeline.md 단계표 ③-1 · 7.3절, 설계 docs/ai-experiments/2026-09-28_03-
 - 출력은 `DetectionResult`(status `detect_only`) — 판정 결과가 아니며 ③-1'의 입력이 될 수 없다. 원료 · 연구원 매칭은 의도된 후보다.
 - `eojeol_prefix`는 비교 실험용 대안 값이며 미구현(NotImplementedError).
 
-③-1b(LLM) · finding 조립 · run()은 다음 착수 범위다(NotImplementedError).
+③-1b 맥락 판정(설계 2.3~2.7절, 승인 조건 2026-09-29):
+- LLM 판정 항목은 현지부적합 LC 항목뿐(call_scope `all`이면 8개 전부, `matched`면 매칭된 항목만). 규제 항목은 보내지 않는다.
+- 페이로드: 현재 섹션 블록(임시 ID b1…) · 항목(이름 · 맥락 2열 · 후보 블록 · 매칭 패턴) · 앞뒤 섹션 텍스트(context_sections>0, **해석 참고용**이며
+  근거로 귀속하지 않는다 — 응답의 evidence는 현재 섹션 블록 ID만 허용) · 섹션 이미지(폭 image_width_px로 축소).
+- 응답 검증: 보낸 항목 ID가 정확히 한 번씩(누락 · 중복 · 모르는 ID 거부) · status 3종 · evidence_source 3종(실제 근거) · evidence는 현재 섹션
+  블록만 · text 근거면 1개 이상 · reason 비어 있지 않음. 실패 · 미검사를 absent로 바꾸지 않는다.
+- 실패(호출 · 시간 초과 · 검증 · 재생 불일치)는 예외가 아니라 status=failed 결과(content_findings=None, 매칭은 기록에만)로 돌려준다(D7).
+- 기록 judge_debug/<section_key>.json(페이로드 · 프롬프트 · 이미지 해시 · 모델 설정 · 원응답 · 검증 결과 · 조립 결과), 재생 ReplayJudgeAssistant.
 """
 from __future__ import annotations
 
+import json
 import math
 import os
 import unicodedata
@@ -24,8 +32,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from pipeline.dictionary import Dictionaries, JudgeDictView, JudgeItem, load_dictionaries
-from pipeline.types import DetectionResult, JudgeChecked, JudgeContext, JudgeResult, Match, Section, Span, TextBlock, match_key
+from PIL import Image
+
+from pipeline.dictionary import Dictionaries, JudgeDictView, load_dictionaries
+from pipeline.types import (
+    ContentFinding,
+    ContentFindings,
+    DetectionResult,
+    JudgeChecked,
+    JudgeContext,
+    JudgeResult,
+    Match,
+    Section,
+    Span,
+    TextBlock,
+    finding_key,
+    match_key,
+)
+from pipeline.vlm import GeminiJudgeAssistant, JudgeAssistant, LlmReply, VlmError, image_sha256, sha256_text
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 API_KEY_ENV = "GEMINI_API_KEY"
@@ -167,8 +191,12 @@ def detect(section_key: str, blocks: list[TextBlock], view: JudgeDictView, cfg: 
     matches: list[Match] = []
     n = 0
     for item in view.items:
+        seen_norm: set[str] = set()  # 같은 항목 안에서 정규화 결과가 같은 패턴(예 "가짜방수" · "가짜 방수")은 한 번만 — 같은 구간의 중복 매칭을 막는다
         for pattern in item.patterns_ko:
             npat = normalize_pattern(pattern)
+            if npat in seen_norm:
+                continue
+            seen_norm.add(npat)
             for block, ntext, offsets in normalized:
                 for p in find_all(ntext, npat):
                     n += 1
@@ -235,7 +263,6 @@ def detect_only(
 
 def json_recorder(debug_dir: Path) -> Recorder:
     """`<debug_dir>/<section_key>.json`에 기록을 쓴다."""
-    import json
 
     def write(rec: dict[str, Any]) -> None:
         debug_dir.mkdir(parents=True, exist_ok=True)
@@ -244,8 +271,261 @@ def json_recorder(debug_dir: Path) -> Recorder:
     return write
 
 
-def run(section: Section, blocks: list[TextBlock], ctx: JudgeContext, cfg: dict[str, Any], *, dicts: Dictionaries | None = None,
-        llm=None, recorder: Recorder | None = None) -> JudgeResult:
-    """③-1 전체(검출 → 맥락 판정 → 조립) — 맥락 판정 · 조립은 다음 착수 범위(설계 9절 4번). 검출만은 detect_only()."""
+# ---------------------------------------------------------------------------
+# ③-1b 맥락 판정 — 페이로드 · 응답 검증 · 조립 · 기록 (설계 2.3~2.7절, D3-2 · D4 · D5 · D7)
+# ---------------------------------------------------------------------------
+STATUSES = ("present", "absent", "uncertain")
+EVIDENCE_SOURCES = ("text", "image", "image_and_text")
+
+
+class JudgeResponseError(VlmError):
+    """LLM 응답이 응답 검증(설계 2.6절)을 통과하지 못했다. reasons = 어긴 항목 목록. 실패는 absent로 바꾸지 않는다."""
+
+    def __init__(self, reasons: list[str]) -> None:
+        self.reasons = reasons
+        super().__init__("③-1 응답 검증 실패: " + "; ".join(reasons))
+
+
+def llm_config(cfg: dict[str, Any]) -> dict[str, Any]:
+    j = cfg["judge"]
+    return {"model": j["llm_model"], "temperature": j["llm_temperature"], "timeout_s": j["llm_timeout_s"]}
+
+
+def default_assistant(cfg: dict[str, Any]) -> GeminiJudgeAssistant:
+    c = llm_config(cfg)
+    return GeminiJudgeAssistant(model=c["model"], temperature=c["temperature"], timeout_s=c["timeout_s"])
+
+
+def prepare_image(section: Section, width_px: int) -> tuple[Image.Image, dict[str, Any]]:
+    """섹션 이미지를 폭 기준으로 줄인다(D4). 원본 폭이 작으면 그대로. 파일을 못 열면 VlmError가 아니라 입력 오류(OSError)다."""
+    img = Image.open(section.image_path)
+    img = img.convert("RGB")
+    ow, oh = img.size
+    if ow > width_px:
+        nh = max(1, round(oh * width_px / ow))
+        img = img.resize((width_px, nh), Image.LANCZOS)
+    return img, {"original_size": [ow, oh], "sent_size": list(img.size), "width_px": width_px}
+
+
+def build_payload(
+    section_key: str, blocks: list[TextBlock], view: JudgeDictView, ctx: JudgeContext, cfg: dict[str, Any], matches: list[Match],
+) -> tuple[dict[str, Any], dict[str, str], list[str]]:
+    """LLM에 보낼 페이로드. 반환: (페이로드, 임시 블록 ID → block_key, 보낸 LC 항목 ID). 규제 항목 · 판정값 · 안내문 · kr_freq는 보내지 않는다."""
+    ordered = sorted(blocks, key=lambda b: b.block_order)
+    block_ids = {f"b{i + 1}": b.block_key for i, b in enumerate(ordered)}
+    key_to_tmp = {v: k for k, v in block_ids.items()}
+    lc_matches: dict[str, list[Match]] = {}
+    for m in matches:
+        if m.dictionary_ref.startswith("LC-"):
+            lc_matches.setdefault(m.dictionary_ref, []).append(m)
+    scope = cfg["judge"]["call_scope"]
+    items = [i for i in view.local_items() if scope == "all" or i.id in lc_matches]
+    payload_items = []
+    for it in items:
+        ms = lc_matches.get(it.id, [])
+        payload_items.append(
+            {
+                "id": it.id,
+                "name": it.name,
+                "exclude_when": it.exclusion_context,
+                "keep_when": it.keep_context,
+                "candidate_blocks": sorted({key_to_tmp[m.block_key] for m in ms}, key=lambda s: int(s[1:])),
+                "matched_patterns": sorted({m.pattern for m in ms}),
+            }
+        )
+    payload: dict[str, Any] = {
+        "section": section_key,
+        "blocks": [{"id": key_to_tmp[b.block_key], "role": b.role, "text": b.source_ko} for b in ordered],
+        "items": payload_items,
+    }
+    if cfg["judge"]["context_sections"] > 0:
+        payload["context"] = {
+            "note": "앞뒤 섹션 텍스트는 해석 참고용이다. 현재 섹션의 근거로 삼지 않는다",
+            "prev": ctx.prev_section_text,
+            "next": ctx.next_section_text,
+        }
+    return payload, block_ids, [it.id for it in items]
+
+
+def payload_text(payload: dict[str, Any]) -> str:
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def parse_items(text: str, sent_ids: list[str], block_ids: dict[str, str]) -> dict[str, dict[str, Any]]:
+    """응답 검증(설계 2.6절). 하나라도 어기면 JudgeResponseError. 통과하면 항목 ID → {status, evidence_source, evidence(block_key 목록), reason}."""
+    reasons: list[str] = []
+    try:
+        data = json.loads(text)
+    except ValueError as e:
+        raise JudgeResponseError([f"JSON 아님: {e}"]) from e
+    items = data.get("items") if isinstance(data, dict) else None
+    if not isinstance(items, list):
+        raise JudgeResponseError(["최상위 items 배열이 없다"])
+    seen: dict[str, dict[str, Any]] = {}
+    for i, item in enumerate(items):
+        if not isinstance(item, dict):
+            reasons.append(f"items[{i}] 객체가 아니다")
+            continue
+        iid = item.get("id")
+        if not isinstance(iid, str) or iid not in sent_ids:
+            reasons.append(f"items[{i}] 모르는 항목 ID {iid!r}")
+            continue
+        if iid in seen:
+            reasons.append(f"{iid} 중복 응답")
+            continue
+        st = item.get("status")
+        if st not in STATUSES:
+            reasons.append(f"{iid} status {st!r}")
+        src = item.get("evidence_source")
+        if src not in EVIDENCE_SOURCES:
+            reasons.append(f"{iid} evidence_source {src!r}")
+        ev = item.get("evidence")
+        ev_keys: list[str] = []
+        if not isinstance(ev, list) or not all(isinstance(x, str) for x in ev):
+            reasons.append(f"{iid} evidence는 문자열 배열이어야 한다")
+        else:
+            unknown = [x for x in ev if x not in block_ids]
+            if unknown:
+                reasons.append(f"{iid} 현재 섹션에 없는 블록 참조 {unknown}(앞뒤 섹션 · 모르는 ID는 근거가 될 수 없다)")
+            if len(set(ev)) != len(ev):
+                reasons.append(f"{iid} evidence 중복")
+            ev_keys = [block_ids[x] for x in ev if x in block_ids]
+            if src in ("text", "image_and_text") and not ev:
+                reasons.append(f"{iid} evidence_source={src}인데 근거 블록이 없다")
+        rs = item.get("reason")
+        if not isinstance(rs, str) or not rs.strip():
+            reasons.append(f"{iid} reason이 비어 있다")
+        seen[iid] = {"status": st, "evidence_source": src, "evidence": ev_keys, "reason": rs if isinstance(rs, str) else ""}
+    missing = [x for x in sent_ids if x not in seen]
+    if missing:
+        reasons.append(f"응답에 없는 항목 {missing}(누락은 absent가 아니다)")
+    if reasons:
+        raise JudgeResponseError(reasons)
+    return seen
+
+
+def assemble(
+    view: JudgeDictView, matches: list[Match], judged: dict[str, dict[str, Any]] | None,
+) -> tuple[ContentFindings, list[Match]]:
+    """finding 조립(설계 2.5절): 판정된 LC 항목(뷰 순서) → 매칭이 있는 RG 항목. 매칭은 해당 finding에 묶는다.
+    judged=None이면 LLM을 부르지 않은 것(skipped)이며 RG finding만 만든다. 판정되지 않은 LC 항목은 finding을 만들지 않는다(누락 ≠ absent)."""
+    by_ref: dict[str, list[Match]] = {}
+    for m in matches:
+        by_ref.setdefault(m.dictionary_ref, []).append(m)
+    findings: list[ContentFinding] = []
+    bound: list[Match] = []
+    n = 0
+    for it in view.local_items():
+        if judged is None or it.id not in judged:
+            continue
+        n += 1
+        fk = finding_key(n)
+        j = judged[it.id]
+        findings.append(ContentFinding(finding_key=fk, content_type=it.id, status=j["status"], evidence_block_ids=j["evidence"],
+                                       evidence_source=j["evidence_source"], reason=j["reason"]))
+        bound.extend(m.model_copy(update={"finding_key": fk}) for m in by_ref.get(it.id, []))
+    for it in view.regulatory_items():
+        ms = by_ref.get(it.id)
+        if not ms:
+            continue
+        n += 1
+        fk = finding_key(n)
+        blocks_ = []
+        for m in ms:
+            if m.block_key not in blocks_:
+                blocks_.append(m.block_key)
+        findings.append(ContentFinding(finding_key=fk, content_type=it.id, status="present", evidence_block_ids=blocks_,
+                                       evidence_source="text", reason="패턴 매칭: " + ", ".join(sorted({m.pattern for m in ms}))))
+        bound.extend(m.model_copy(update={"finding_key": fk}) for m in ms)
+    order = {m.match_key: i for i, m in enumerate(matches)}
+    bound.sort(key=lambda m: order[m.match_key])
+    return ContentFindings(findings=findings), bound
+
+
+def _emit(recorder: Recorder | None, rec: dict[str, Any], failed: bool) -> None:
+    """기록 저장. 실패 결과의 기록 저장 오류는 결과의 error에 덧붙이고, 성공 결과의 기록 저장 오류는 실행 실패다(기록 없는 결과를 남기지 않는다)."""
+    if recorder is None:
+        return
+    try:
+        recorder(rec)
+    except Exception as w:  # noqa: BLE001
+        if failed:
+            rec["error"] = f"{rec.get('error')} (기록 저장 실패: {w.__class__.__name__}: {w})"
+        else:
+            raise
+
+
+def run(
+    section: Section, blocks: list[TextBlock], ctx: JudgeContext, cfg: dict[str, Any], *,
+    dicts: Dictionaries | None = None, llm: JudgeAssistant | None = None, recorder: Recorder | None = None,
+) -> JudgeResult:
+    """③-1 전체: 검출 → (호출 범위) → 맥락 판정 → 조립. 실패는 예외가 아니라 status=failed 결과로 돌려준다(D7: 다른 섹션은 계속).
+
+    llm을 주지 않으면 기본 Gemini 호출자(API 키 필요). 재생은 ReplayJudgeAssistant. skipped(call_scope=matched · LC 매칭 없음)는
+    RG finding만 든 content_findings를 낸다. failed는 content_findings=None · matches=[](매칭은 기록에만).
+    """
     validate_config(cfg)
-    raise NotImplementedError("③-1 judge.run(맥락 판정 · 조립)은 아직 구현되지 않았다. 검출만은 judge.detect_only / CLI judge --no-llm")
+    started = datetime.now(timezone.utc)
+    d = dicts if dicts is not None else load_dicts(cfg)
+    view = d.judge_view()
+    bad = [b.block_key for b in blocks if b.section_key != section.section_key]
+    if bad:
+        raise ValueError(f"블록의 section_key가 섹션과 다르다: {bad}")
+    matches = detect(section.section_key, blocks, view, cfg)
+    payload, block_ids, sent_ids = build_payload(section.section_key, blocks, view, ctx, cfg, matches)
+    rec: dict[str, Any] = {
+        "stage": "judge", "section_key": section.section_key, "status": None, "blocks": len(blocks),
+        "dictionary_version": dict(view.dictionary_version), "dictionary_fingerprint": dict(view.fingerprint),
+        "match_rules_version": MATCH_RULES_VERSION, "match_mode": cfg["judge"]["match_mode"], "normalization": NORMALIZATION,
+        "call_scope": cfg["judge"]["call_scope"], "items_sent": sent_ids, "matches": [m.model_dump(mode="json") for m in matches],
+        "started_at": started.isoformat(timespec="seconds"),
+    }
+
+    def checked(llm_called: bool) -> JudgeChecked:
+        return JudgeChecked(dictionary_version=dict(view.dictionary_version), dictionary_fingerprint=dict(view.fingerprint),
+                            match_rules_version=MATCH_RULES_VERSION, items=[i.id for i in view.regulatory_items()] + sent_ids,
+                            llm_called=llm_called)
+
+    def done(status: str) -> None:
+        rec["status"] = status
+        rec["duration_s"] = round((datetime.now(timezone.utc) - started).total_seconds(), 3)
+
+    if not sent_ids:  # call_scope=matched · LC 매칭 없음 → 호출하지 않는다. RG finding만(검사 완료로 보는 범위는 D3-3 승인 2번)
+        cf, bound = assemble(view, matches, None)
+        done("skipped")
+        rec["result"] = cf.model_dump(mode="json")
+        _emit(recorder, rec, failed=False)
+        return JudgeResult(section_key=section.section_key, status="skipped", content_findings=cf, matches=bound, checked=checked(False))
+
+    prompt = validate_llm_config(cfg, need_api_key=llm is None)
+    ptext = payload_text(payload)
+    image, image_meta = prepare_image(section, int(cfg["judge"]["image_width_px"]))
+    rec.update({
+        "payload": payload, "payload_sha256": sha256_text(ptext), "prompt_sha256": sha256_text(prompt),
+        "image": image_meta, "image_sha256": image_sha256(image), "model_config": llm_config(cfg),
+        "response_text": None, "usage": None, "error": None,
+    })
+    assistant = llm if llm is not None else default_assistant(cfg)
+
+    def failed(status: str, err: str) -> JudgeResult:
+        done(status)
+        rec["error"] = err
+        _emit(recorder, rec, failed=True)
+        return JudgeResult(section_key=section.section_key, status="failed", content_findings=None, matches=[],
+                           checked=checked(True), error=rec["error"])
+
+    try:
+        reply: LlmReply = assistant(prompt, ptext, image)
+    except VlmError as e:  # 호출 실패 · 시간 초과 · 재생 불일치 — 대체 처리 없음, 이 섹션만 실패
+        return failed("call_failed", str(e))
+    rec["response_text"] = reply.text
+    rec["usage"] = reply.usage
+    try:
+        judged = parse_items(reply.text, sent_ids, block_ids)
+    except JudgeResponseError as e:
+        return failed("validation_failed", "; ".join(e.reasons))
+    cf, bound = assemble(view, matches, judged)
+    done("ok")
+    rec["result"] = cf.model_dump(mode="json")
+    _emit(recorder, rec, failed=False)
+    return JudgeResult(section_key=section.section_key, status="ok", content_findings=cf, matches=bound, checked=checked(True))

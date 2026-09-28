@@ -7,8 +7,12 @@
     python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR [--no-llm | --llm-replay DIR0/merge_debug/<KEY>.json]
                                    # ③ → DIR/merge/<KEY>.json, DIR/merge_debug/<KEY>.json. --no-llm은 휴리스틱만, --llm-replay는 기록 재생
     python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR [--no-llm]  # ①→②→③ → DIR/analyze.json
-    python -m pipeline.run judge   --merge DIR/merge/<KEY>.json --out DIR --no-llm      # ③-1a 검출만 → DIR/judge_detect/<KEY>.json, DIR/judge_debug/<KEY>.json
-                                   # --no-llm은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다(status detect_only, 판정 결과 아님). 전체 판정은 미구현(종료 코드 3)
+    python -m pipeline.run judge   --merge DIR/merge/<KEY>.json --split DIR/split.json --out DIR [--llm-replay DIR0/judge_debug/<KEY>.json]
+                                   # ③-1 검출 → 맥락 판정(LLM) → 조립 → DIR/judge/<KEY>.json, DIR/judge_debug/<KEY>.json. 판정 실패는 status=failed로 저장하고 종료 코드 4
+    python -m pipeline.run judge   --merge DIR/merge/<KEY>.json --out DIR --no-llm      # ③-1a 검출만 → DIR/judge_detect/<KEY>.json
+                                   # --no-llm은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다(status detect_only, 판정 결과 아님)
+    python -m pipeline.run policy  --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json --regulatory-class cosmetic|otc|combination|unknown --out DIR
+                                   # ③-1' → DIR/policy/<KEY>.json (section_verdict 후보 · 버킷 권고). 미완료 · 분류 누락은 권고 없이 저장하고 종료 코드 2
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
     python -m pipeline.run freeze-input  --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]  # 고정 입력본 생성·검증
@@ -212,26 +216,100 @@ def cmd_merge(args) -> int:
     return 0
 
 
+def _neighbor_texts(split: SplitResult, sec: Section, merge_path: Path, n: int) -> tuple[str | None, str | None]:
+    """같은 원본 안 앞뒤 n개 섹션의 블록 텍스트(참고 문맥, D5). merge/<key>.json이 옆에 없으면 None."""
+    if n <= 0:
+        return None, None
+    keys = [s.section_key for s in sorted(split.sections, key=lambda s: s.section_order)]
+    i = keys.index(sec.section_key)
+
+    def text_of(ks: list[str]) -> str | None:
+        parts = []
+        for k in ks:
+            p = merge_path.parent / f"{k}.json"
+            if p.exists():
+                parts.append("\n".join(b.source_ko for b in jsonio.load_merge(p).blocks))
+        return "\n\n".join(parts) if parts else None
+
+    return text_of(keys[max(0, i - n):i]), text_of(keys[i + 1:i + 1 + n])
+
+
 def cmd_judge(args) -> int:
-    """③-1. 현재는 --no-llm(③-1a 검출만)만 있다. 출력은 DetectionResult — 판정 결과가 아니며 policy 입력이 될 수 없다."""
+    """③-1. --no-llm은 ③-1a 검출만(DetectionResult, 판정 아님). 없으면 검출 → 맥락 판정 → 조립(JudgeResult, --split 필요)."""
     from pipeline.stages import judge
+    from pipeline.types import JudgeContext
 
     cfg = _load_cfg(args)
     started = datetime.now(timezone.utc)
     out = Path(args.out)
     merged = jsonio.load_merge(args.merge)
-    if not args.no_llm:
-        raise NotImplementedError("③-1 전체 판정(맥락 판정 · 조립)은 미구현. 검출만 하려면 --no-llm")
     dicts = judge.load_dicts(cfg)
     key = merged.section_key
-    res = judge.detect_only(key, merged.blocks, cfg, dicts=dicts, recorder=judge.json_recorder(out / "judge_debug"))
-    p = _write_json(out / "judge_detect" / f"{key}.json", res)
+    if args.no_llm:
+        res = judge.detect_only(key, merged.blocks, cfg, dicts=dicts, recorder=judge.json_recorder(out / "judge_debug"))
+        p = _write_json(out / "judge_detect" / f"{key}.json", res)
+        _write_run_record(
+            out, "judge", cfg, {"merge": args.merge}, started,
+            extra={"mode": "detect_only", "use_llm": False, "dictionary_version": dicts.dictionary_version,
+                   "dictionary_fingerprint": dicts.fingerprint, "match_rules_version": judge.MATCH_RULES_VERSION},
+        )
+        print(f"{key}: 검출 전용, 매칭 {len(res.matches)}개 · 항목 {len(res.candidates)}개 → {p} (판정 결과 아님)")
+        return 0
+    if not args.split:
+        raise SystemExit("--split DIR/split.json 필요: 맥락 판정은 섹션 이미지를 쓴다(--no-llm이면 불필요)")
+    split = jsonio.load_split(args.split)
+    sec = _find_section(split, key)
+    prev_t, next_t = _neighbor_texts(split, sec, Path(args.merge), int(cfg["judge"]["context_sections"]))
+    ctx = JudgeContext(prev_section_text=prev_t, next_section_text=next_t)
+    llm = None
+    if args.llm_replay:
+        from pipeline.vlm import ReplayJudgeAssistant
+
+        llm = ReplayJudgeAssistant.from_file(args.llm_replay, judge.llm_config(cfg))
+    res = judge.run(sec, merged.blocks, ctx, cfg, dicts=dicts, llm=llm, recorder=judge.json_recorder(out / "judge_debug"))
+    if llm is not None:
+        llm.finish()
+    p = _write_json(out / "judge" / f"{key}.json", res)
     _write_run_record(
-        out, "judge", cfg, {"merge": args.merge}, started,
-        extra={"mode": "detect_only", "use_llm": False, "dictionary_version": dicts.dictionary_version,
-               "dictionary_fingerprint": dicts.fingerprint, "match_rules_version": judge.MATCH_RULES_VERSION},
+        out, "judge", cfg, {"merge": args.merge, "split": args.split}, started,
+        extra={"mode": "full", "use_llm": True, "llm_replay": args.llm_replay, "status": res.status,
+               "dictionary_version": dicts.dictionary_version, "dictionary_fingerprint": dicts.fingerprint,
+               "match_rules_version": judge.MATCH_RULES_VERSION},
     )
-    print(f"{key}: 검출 전용, 매칭 {len(res.matches)}개 · 항목 {len(res.candidates)}개 → {p} (판정 결과 아님)")
+    if res.status == "failed":
+        print(f"{key}: 판정 실패({res.error}) → {p} (content_findings=null)", file=sys.stderr)
+        return 4
+    n = len(res.content_findings.findings) if res.content_findings else 0
+    print(f"{key}: 판정 {res.status}, finding {n}개 · 매칭 {len(res.matches)}개 → {p}")
+    return 0
+
+
+def cmd_policy(args) -> int:
+    """③-1'. judge/<key>.json(JudgeResult) + merge/<key>.json(블록) + 상품 규제 분류 → policy/<key>.json. 분류 누락은 input_error(종료 코드 2)."""
+    from pipeline.stages import judge, policy
+    from pipeline.types import JudgeContext, JudgeResult
+
+    cfg = _load_cfg(args)
+    started = datetime.now(timezone.utc)
+    out = Path(args.out)
+    jr = jsonio.load_model(args.judge, JudgeResult)
+    merged = jsonio.load_merge(args.merge)
+    if merged.section_key != jr.section_key:
+        raise SystemExit(f"section_key 불일치: judge {jr.section_key} · merge {merged.section_key}")
+    dicts = judge.load_dicts(cfg)
+    ctx = JudgeContext(regulatory_class=args.regulatory_class)
+    res = policy.run(jr, merged.blocks, ctx, cfg, dicts=dicts)
+    p = _write_json(out / "policy" / f"{jr.section_key}.json", res)
+    _write_run_record(
+        out, "policy", cfg, {"judge": args.judge, "merge": args.merge}, started,
+        extra={"regulatory_class": args.regulatory_class, "status": res.status, "dictionary_version": dicts.dictionary_version,
+               "dictionary_fingerprint": dicts.fingerprint, "rules_version": dicts.rules.rules_version,
+               "policy_impl_version": policy.RULES_IMPL_VERSION},
+    )
+    if res.status != "ok":
+        print(f"{jr.section_key}: 정책 {res.status}({res.error}) → {p} (권고 없음)", file=sys.stderr)
+        return 2
+    print(f"{jr.section_key}: 권고 {res.bucket_recommendation}, verdict {len(res.verdicts)}개 · 충돌 {len(res.conflicts)}개 · 억제 {len(res.suppressed)}개 → {p}")
     return 0
 
 
@@ -334,12 +412,23 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--llm-replay", metavar="merge_debug/<KEY>.json", help="이전 llm_assist 기록의 응답을 재생(API 호출 없음)")
     sp.set_defaults(fn=cmd_merge)
 
-    sp = sub.add_parser("judge", help="③-1 AI 섹션 판정 (현재 --no-llm 검출만)")
+    sp = sub.add_parser("judge", help="③-1 AI 섹션 판정")
     common(sp)
-    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 출력)")
+    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 출력). 앞뒤 문맥은 같은 폴더의 이웃 섹션 파일에서 읽는다")
+    sp.add_argument("--split", help="split.json (섹션 이미지 · 이웃 섹션). 맥락 판정에 필요, --no-llm이면 불필요")
     sp.add_argument("--out", required=True)
-    sp.add_argument("--no-llm", action="store_true", help="③-1a 검출만 실행(후보 검출, 판정 아님). 없으면 미구현(종료 코드 3)")
+    mode = sp.add_mutually_exclusive_group()
+    mode.add_argument("--no-llm", action="store_true", help="③-1a 검출만 실행(후보 검출, 판정 아님 → judge_detect/)")
+    mode.add_argument("--llm-replay", metavar="judge_debug/<KEY>.json", help="이전 기록의 응답을 재생(API 호출 없음)")
     sp.set_defaults(fn=cmd_judge)
+
+    sp = sub.add_parser("policy", help="③-1' 정책 적용")
+    common(sp)
+    sp.add_argument("--judge", required=True, help="judge/<section_key>.json (③-1 출력, JudgeResult)")
+    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 출력, 블록 텍스트)")
+    sp.add_argument("--regulatory-class", choices=["cosmetic", "otc", "combination", "unknown"], help="상품 규제 분류(job.regulatory_class). 없으면 input_error")
+    sp.add_argument("--out", required=True)
+    sp.set_defaults(fn=cmd_policy)
 
     sp = sub.add_parser("analyze", help="①→②→③ 초기 분석")
     common(sp)

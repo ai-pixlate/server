@@ -389,8 +389,10 @@ class ReplayJudgeAssistant:
     모델 설정 · 프롬프트 SHA-256 · 페이로드 SHA-256 · 이미지 픽셀 해시가 기록과 같아야 하고, 응답은 실제 호출과 같은 검증을 거친다."""
 
     def __init__(self, record: dict[str, Any], expect_config: dict[str, Any]) -> None:
+        self.skipped = record.get("status") == "skipped"
         got = record.get("model_config")
-        if got != expect_config:
+        # 호출 생략 기록(skipped)은 모델 설정이 없을 수 있다(호출하지 않았으므로). 있으면 비교하고 없으면 건너뛴다
+        if got != expect_config and not (self.skipped and got is None):
             raise VlmReplayMismatch(f"모델 설정 불일치 (기록, 현재): {got}, {expect_config}")
         self.record = record
         self.config = expect_config
@@ -404,6 +406,8 @@ class ReplayJudgeAssistant:
         if self.used:
             raise VlmReplayMismatch("재생 기록은 호출 1회분이다")
         self.used = True
+        if self.skipped:
+            raise VlmReplayMismatch("재생 기록은 호출 생략(skipped)인데 현재 실행은 LLM을 부른다. 호출 범위 · 매칭이 달라졌다")
         expect = {
             "prompt_sha256": sha256_text(prompt),
             "payload_sha256": sha256_text(payload),

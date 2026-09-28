@@ -22,7 +22,7 @@ from pipeline.types import (
 
 def _checked(**over):
     base = {"dictionary_version": {"regulation": "regulation@2026-09-28.0", "local": "local@2026-09-28.0", "rules": "policy@2026-09-28.0"},
-            "dictionary_fingerprint": {"regulation.json": "a" * 64}, "match_rules_version": "match@2026-09-28.1", "items": ["LC-91"], "llm_called": False}
+            "dictionary_fingerprint": {"regulation.json": "a" * 64}, "match_rules_version": "match@2026-09-29.1", "items": ["LC-91"], "llm_called": False, "input_fingerprint": "0" * 64}
     base.update(over)
     return JudgeChecked(**base)
 

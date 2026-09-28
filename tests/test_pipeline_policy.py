@@ -25,6 +25,7 @@ from pipeline.types import (
     OcrRegion,
     Span,
     TextBlock,
+    blocks_fingerprint,
 )
 
 SYNTH = "pipeline/data/dict/synthetic"
@@ -48,7 +49,8 @@ def _block(key: str, text: str, order: int, section="sec_1_01") -> TextBlock:
 
 
 BLOCKS = [_block("blk_001", "가짜센터 문의 0000-1234", 1), _block("blk_002", "가짜 방수 시험 통과", 2), _block("blk_003", "가짜치료 효과", 3)]
-CHECKED = JudgeChecked(dictionary_version={"regulation": "r", "local": "l", "rules": "p"}, dictionary_fingerprint={}, match_rules_version="m", items=[], llm_called=True)
+CHECKED = JudgeChecked(dictionary_version={"regulation": "r", "local": "l", "rules": "p"}, dictionary_fingerprint={}, match_rules_version="m", items=[], llm_called=True,
+                       input_fingerprint=blocks_fingerprint(BLOCKS))
 
 
 def _f(n, ref, status="present", blocks=("blk_001",), src="text", reason="r"):
@@ -195,6 +197,17 @@ def test_input_errors(dicts, cfg):
         _run(_judge([_f(1, "RG-901", blocks=("blk_003",))]), "cosmetic", dicts, cfg)
     with pytest.raises(policy.PolicyInputError, match="section_key"):
         _run(_judge([_f(1, "LC-91")]), "cosmetic", dicts, cfg, blocks=[_block("blk_001", "x", 1, section="sec_9_09")])
+
+
+def test_policy_refuses_blocks_changed_since_judgement(dicts, cfg):
+    """같은 ID의 텍스트가 바뀐 블록에 이전 finding을 적용하지 않는다(2026-09-29 검토). 순서 · 구성 변경도 같다."""
+    jr = _judge([_f(1, "LC-91")])
+    changed = [_block("blk_001", "바뀐 텍스트", 1), *BLOCKS[1:]]
+    with pytest.raises(policy.PolicyInputError, match="판정 당시 블록과 다르다"):
+        _run(jr, "cosmetic", dicts, cfg, blocks=changed)
+    with pytest.raises(policy.PolicyInputError, match="판정 당시 블록과 다르다"):
+        _run(jr, "cosmetic", dicts, cfg, blocks=BLOCKS[:2])
+    assert _run(jr, "cosmetic", dicts, cfg, blocks=list(reversed(BLOCKS))).status == "ok"  # 순서만 다른 목록은 block_order로 정렬되므로 같다
 
 
 # ---------------------------------------------------------------------------

@@ -33,6 +33,7 @@ from pipeline.types import (
     SuppressedMatch,
     TextBlock,
     VerdictDraft,
+    blocks_fingerprint,
     verdict_key,
 )
 
@@ -167,6 +168,12 @@ def run(judge_result: JudgeResult, blocks: list[TextBlock], ctx: JudgeContext, c
     bad_blocks = [b.block_key for b in blocks if b.section_key != key]
     if bad_blocks:
         raise PolicyInputError(f"블록의 section_key가 섹션과 다르다: {bad_blocks}")
+    current_fp = blocks_fingerprint(blocks)
+    if current_fp != judge_result.checked.input_fingerprint:
+        raise PolicyInputError(
+            "현재 블록이 판정 당시 블록과 다르다(텍스트 · 순서 · 구성 변경). 이전 finding으로 정책을 계산하지 않는다 — ③-1 재실행 대상"
+            f" (판정 {judge_result.checked.input_fingerprint[:12]}… · 현재 {current_fp[:12]}…)"
+        )
     blocks_by_key = {b.block_key: b for b in blocks}
 
     # 1. 적용 행 선택

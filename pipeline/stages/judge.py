@@ -46,6 +46,7 @@ from pipeline.types import (
     Section,
     Span,
     TextBlock,
+    blocks_fingerprint,
     finding_key,
     match_key,
 )
@@ -55,7 +56,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 API_KEY_ENV = "GEMINI_API_KEY"
 CALL_SCOPES = ("all", "matched")
 MATCH_MODES = ("substring", "eojeol_prefix")
-MATCH_RULES_VERSION = "match@2026-09-28.1"  # 정규화 · 부분 문자열 규칙의 버전. 규칙을 바꾸면 올린다(설계 1절 재실행 조건)
+MATCH_RULES_VERSION = "match@2026-09-29.1"  # 정규화 · 부분 문자열 규칙의 버전. 규칙을 바꾸면 올린다(설계 1절 재실행 조건). 2026-09-29.1: 같은 항목의 정규화 동일 패턴 1회 매칭
 NORMALIZATION = "per-char NFKC -> lower -> drop whitespace(str.isspace) ; substring, overlapping ; span=[start,end) code points"
 
 Recorder = Callable[[dict[str, Any]], None]
@@ -234,6 +235,7 @@ def detect_only(
     checked = JudgeChecked(
         dictionary_version=dict(view.dictionary_version), dictionary_fingerprint=dict(view.fingerprint),
         match_rules_version=MATCH_RULES_VERSION, items=[i.id for i in view.items], llm_called=False,
+        input_fingerprint=blocks_fingerprint(blocks),
     )
     result = DetectionResult(section_key=section_key, matches=matches, candidates=candidates_of(matches), checked=checked)
     if recorder is not None:
@@ -481,10 +483,13 @@ def run(
         "started_at": started.isoformat(timespec="seconds"),
     }
 
+    input_fp = blocks_fingerprint(blocks)
+    rec["input_fingerprint"] = input_fp
+
     def checked(llm_called: bool) -> JudgeChecked:
         return JudgeChecked(dictionary_version=dict(view.dictionary_version), dictionary_fingerprint=dict(view.fingerprint),
                             match_rules_version=MATCH_RULES_VERSION, items=[i.id for i in view.regulatory_items()] + sent_ids,
-                            llm_called=llm_called)
+                            llm_called=llm_called, input_fingerprint=input_fp)
 
     def done(status: str) -> None:
         rec["status"] = status
@@ -493,6 +498,7 @@ def run(
     if not sent_ids:  # call_scope=matched · LC 매칭 없음 → 호출하지 않는다. RG finding만(검사 완료로 보는 범위는 D3-3 승인 2번)
         cf, bound = assemble(view, matches, None)
         done("skipped")
+        rec["model_config"] = llm_config(cfg) if all(k in cfg["judge"] for k in ("llm_model", "llm_temperature", "llm_timeout_s")) else None
         rec["result"] = cf.model_dump(mode="json")
         _emit(recorder, rec, failed=False)
         return JudgeResult(section_key=section.section_key, status="skipped", content_findings=cf, matches=bound, checked=checked(False))

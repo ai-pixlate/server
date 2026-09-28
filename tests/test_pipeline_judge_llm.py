@@ -223,6 +223,24 @@ def test_replay_reproduces_and_detects_drift(cfg, section):
         ReplayJudgeAssistant(records[0], {**judge.llm_config(cfg), "temperature": 1})
 
 
+def test_replay_of_skipped_record(cfg, section):
+    """호출 생략 기록(call_scope=matched · LC 매칭 없음)도 재생할 수 있고, 현재 실행이 호출하면 불일치다(2026-09-29 검토)."""
+    c = cfgmod.load_config(overrides=[f"judge.dict_dir={SYNTH}", "judge.call_scope='matched'", f"judge.prompt_path='{cfg['judge']['prompt_path']}'"])
+    only_rg = [_block("blk_001", "가짜방수만 있음", 1)]
+    records = []
+    first = judge.run(section, only_rg, JudgeContext(), c, llm=FakeLlm(_ok_items()), recorder=records.append)
+    assert first.status == "skipped" and records[0]["status"] == "skipped" and records[0]["model_config"] == judge.llm_config(c)
+    replay = ReplayJudgeAssistant(records[0], judge.llm_config(c))
+    again = judge.run(section, only_rg, JudgeContext(), c, llm=replay)
+    replay.finish()
+    assert again.status == "skipped" and again.content_findings == first.content_findings
+    rec_no_cfg = {**records[0], "model_config": None}
+    ReplayJudgeAssistant(rec_no_cfg, judge.llm_config(c)).finish()  # 모델 설정 없는 생략 기록도 생성 · 종료 가능
+    drift = ReplayJudgeAssistant(records[0], judge.llm_config(c))
+    res = judge.run(section, BLOCKS, JudgeContext(), c, llm=drift)  # 이번엔 LC 매칭이 있어 호출한다
+    assert res.status == "failed" and "호출 생략" in res.error
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------

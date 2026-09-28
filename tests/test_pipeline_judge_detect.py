@@ -205,7 +205,7 @@ def test_policy_refuses_detection_result(cfg):
 def test_judge_result_requires_matches_bound_to_findings():
     from pipeline.types import ContentFinding, ContentFindings, JudgeResult
 
-    checked = JudgeChecked(dictionary_version={}, dictionary_fingerprint={}, match_rules_version="m", items=[], llm_called=True)
+    checked = JudgeChecked(dictionary_version={}, dictionary_fingerprint={}, match_rules_version="m", items=[], llm_called=True, input_fingerprint="0" * 64)
     m = Match(match_key="m_001", finding_key=None, dictionary_ref="RG-902", pattern="p", block_key="b", raw_span=Span(start=0, end=1), matched_text="x")
     with pytest.raises(ValidationError, match="묶여야"):
         JudgeResult(section_key="s", status="ok", content_findings=ContentFindings(), matches=[m], checked=checked)

@@ -14,7 +14,7 @@
 | 입력 | `blocks-input-v1`(③ `llm_assist` v1 실제 출력, 정답 아님 — #57) 원본 32개 · 섹션 100개 · 텍스트 없는 섹션 0 |
 | 사전 묶음 | `regulation@2026-09-28.1`(16행) · `local@2026-09-28.1`(8행) · `policy@2026-09-28.1` |
 | 사전 파일 SHA-256 | regulation `228ecee3…2210` · local `3b8fa266…1b85` · policy_rules `ed457bad…530d`(전체 값은 `summary.json`) |
-| 매칭 규칙 | `match@2026-09-28.1` · `judge.match_mode=substring` · 블록 안 · 겹침 · 반복 보존 |
+| 매칭 규칙 | 실행 시 기록된 버전 문자열은 `match@2026-09-28.1`이나 실제 동작은 "같은 항목의 정규화 동일 패턴 1회 매칭"이 포함된 **`match@2026-09-29.1`** 과 같다(버전 올림 누락, 2026-09-29 검토로 정정) · `judge.match_mode=substring` · 블록 안 · 겹침 · 반복 보존 |
 
 ## 3. 조건
 

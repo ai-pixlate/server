@@ -286,6 +286,16 @@ class JudgeChecked(_Model):
     match_rules_version: str
     items: list[str]  # 검사한 사전 항목 ID
     llm_called: bool
+    input_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")  # 판정 당시 블록(block_key · source_ko, 순서)의 SHA-256. ③-1'이 현재 블록과 대조한다
+
+
+def blocks_fingerprint(blocks: list["TextBlock"]) -> str:
+    """③-1 입력 블록의 지문 — block_order 순 (block_key, source_ko)의 JSON SHA-256. 텍스트가 바뀐 블록에 이전 판정을 적용하지 않기 위한 것."""
+    import hashlib
+    import json
+
+    payload = [[b.block_key, b.source_ko] for b in sorted(blocks, key=lambda b: b.block_order)]
+    return hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
 class JudgeResult(_Model):

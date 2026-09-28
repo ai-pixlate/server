@@ -75,7 +75,13 @@
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `gemini-3.8-flash` / `0` / `false` | 분할 금지 고정 | [개발계획 6장] |
 | ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 초안 v1(2026-09-28, 실측 전). 2026-09-26 사용자 승인. 상대 경로는 레포 루트 기준(7.2절) | [`dev.md` 2절] [`open-questions.md` #41] |
 | ③ | `merge.llm_timeout_s` | `60` | `llm_assist` 호출 시간 제한(초). 개발용 **잠정값** — 무기한 대기를 막기 위한 값이며 운영 값은 #37에서 정한다 | [`open-questions.md` #37, #41] |
-| ③-1 | (판정 방식 미정 — 키 없음) | — | 기본값을 두지 않는다. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉)는 참고값이며 production 채택 아님 | [개발계획 6장] [PoC 10-1장] |
+| ③-1 | `judge.llm_model` / `judge.llm_temperature` / `judge.llm_timeout_s` / `judge.prompt_path` | `gemini-3.8-flash` / `0` / `60` / `pipeline/prompts/judge_context.md` | ③과 같은 계열의 **실험 기준값**. 판정 방식 채택(#5)은 실측 후. 프롬프트 초안은 ③-1b 구현 시. PoC 최선 후보 `sec_adj`는 참고값 | [개발계획 6장] [PoC 10-1장] [`open-questions.md` #60] |
+| ③-1 | `judge.call_scope` | `all` | LLM 호출 섹션 범위 — `all` 전 섹션(LLM 판정 항목은 현지부적합 8개) / `matched` 매칭 섹션만. 실측 1회는 `all`(D3-2). 운영값은 실측 후(D3-3) | [`open-questions.md` #60] [계약 1.3] |
+| ③-1 | `judge.image_width_px` | `768` | 섹션 이미지를 폭 기준으로 축소해 동봉(①과 같은 근거 — 긴 띠에서 긴 변 기준은 판독 불가). 잠정 | [`open-questions.md` #60] |
+| ③-1 | `judge.context_sections` | `1` | 같은 원본 안 앞뒤 섹션 텍스트 수(참고 문맥, 근거 지정 불가). 0이면 없음. 잠정 | [`open-questions.md` #60] [PoC 13장] |
+| ③-1 | `judge.match_mode` | `substring` | 사전 패턴 매칭 — 공백 제거 부분 문자열(실험 기준). 비교 실험용 대안 `eojeol_prefix`(가격 표기 미탐이 있어 기본값 후보 아님) | [`open-questions.md` #42 · #60] [설명서 §2 · 잠정] |
+| ③-1 | `judge.dict_dir` | `pipeline/samples/local/dict/normalized` | 정규화 사전 JSON 3개의 위치(실제 값은 git 제외 · 로컬 배치). 테스트는 `pipeline/data/dict/synthetic` | [`open-questions.md` #3 · #60] [`dev.md` 5절] |
+| ③-1' | `policy.problem_text_max_chars` | `300` | 현지부적합 `problem_text`(근거 블록 텍스트) 길이 상한. 잠정 | [`open-questions.md` #60] |
 | ④ | `label.model` / `label.long_side_px` / `label.bias` | `gemini-3.8-flash` / `1024` / `label` | 애매하면 라벨 | [개발계획 6장] |
 | ⑤ | `logo.normalize` | `nfkc, lower, strip_space_punct` | 정규화 결과 빈 문자열은 비교 제외 | [계약 2.3] |
 | ⑥ | `inpaint.model` | `lama` (iopaint) | | [PoC 2장] |
@@ -269,6 +275,50 @@
 
 **프롬프트** — 원문은 `pipeline/prompts/merge_assist.md`. 역할의 의미는 이번 프롬프트의 잠정 정의로 적는다: title 제목·소제목·강조 헤드라인 / body 본문 문장 / caption 보조 라벨·짧은 설명·일반 각주·출처·시험 정보·이미지 주석 / price 가격 / caution 사용상 주의·경고·보관·이상 시 대응 문구. 이 caution 정의는 #9(주의문구 범위)의 확정이 아니며 7.1절 탐지 정규식의 동작과도 같지 않다. #9가 정해지면 프롬프트를 고친다. [`open-questions.md` #9, #41]
 
+### 7.3 ③-1 · ③-1' 잠정 설계 v1 — 승인된 규칙만
+
+설계 검토 · 대안 · 이력은 `docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md`(초안 파일)에 있고, 여기에는 사용자가 조건부 · 잠정 승인한 규칙(2026-09-28)만 옮긴다. 결정 항목 번호(D1~D13)와 승인 조건은 `open-questions.md` #60. **어느 것도 BE가 확정한 저장 · 인계 계약이 아니다** — BE 합의 · 원문 확인 대기 항목은 끝의 "미확정 경계"에 있다. 실측 후 채택 · 변경 결정과 검증 범위는 실측 뒤에 적는다. [`open-questions.md` #60]
+
+**범위** — 판정 데이터는 사전 2종(규제사전 16행 · 현지부적합 8행, `README.md` 2.1)이며 지원 항목은 현지부적합 LC-01~08(LLM 맥락 판정)과 규제사전 16행(규칙 매칭만)이다(D3-1). 기존 #4-2 항목(비포·애프터 · 시술 비유 · 타사 비교 · 외부 플랫폼 표시)은 v1 미지원이고 사이트별 게시 정책은 MVP 이후(4절)다. [`open-questions.md` #60 D3-1] [계약 1.3]
+
+**책임 분리와 재실행 조건** [`open-questions.md` #60] [계약 1.3, 9장]
+
+| 하위 단계 | 책임 | 재실행 조건 |
+|---|---|---|
+| ③-1a 검출(규칙) | 사전의 **모든 행**(판정값 · 규제 분류 · `allowed` 여부와 무관)의 패턴을 블록 `source_ko`에 리터럴 매칭해 원시 매칭만 만든다. 판정 · 억제 · 필터를 하지 않고 **정책 필드를 읽지 않는다**(사전 로더의 `judge_view`) | 블록 텍스트 · 사전 패턴 · 매칭 규칙 버전 변경 |
+| ③-1b 맥락 판정(LLM) | 현지부적합 LC 항목만, 항목별 `present` · `absent` · `uncertain`과 실제 근거(블록 · 근거 출처). 최종 제외를 결정하지 않는다 | 매칭 · 사전 맥락 2열 · 프롬프트 · 모델 · 입력 구성 변경 |
+| ③-1' 정책 적용(규칙) | (1) 상품 규제 분류로 적용 행 선택 → (2) 적용 행 사이의 중복 · 허용 예외(개별 매칭 단위) → (3) 매핑(`policy_rules.json`) → (4) 집계. 미완료 입력에서는 포함 권고를 만들지 않는다 | 사전 판정값 · 대체 표현 · 안내문 · 근거 · 매핑 · 예외 규칙 · `regulatory_class` 변경. **AI 재호출 없음** |
+
+**③-1 입력 · 검출 · 호출** (D1 · D3-2 · D4 · D5 · D9, 값은 3절 `[judge]` 실험 기준)
+
+- 정규화: 블록 `source_ko`와 패턴 모두 NFKC → 줄바꿈 · 공백 제거 → 소문자. 정규화 문자열 각 문자가 원문의 몇 번째 문자인지 **오프셋 대응표**를 만들어 매칭 구간을 원문 좌표(`raw_span`)로 되돌린다. 매칭은 **공백 제거 부분 문자열**(실험 기준 — 접두 일치는 `10,000원` · `3만원` · `5천원`을 놓친다), 블록 안에서만, 같은 항목 · 같은 블록의 여러 매칭은 각각 보존. `matched_text`는 원문 구간이다. [`open-questions.md` #42 · #60 D1] [설명서 §2 · 잠정]
+- 검출은 규제 분류를 보지 않고 전체 규제 행으로 매칭한다(분류 변경 시 정책만 재계산하기 위해). 필터는 ③-1'. [`open-questions.md` #47 · #60 D9]
+- LLM 호출: `judge.call_scope=all`이면 모든 섹션(텍스트 없는 섹션 포함)에 LC 8개 전체를 보내고 매칭은 참고 표시만, `matched`면 현지부적합 매칭이 있는 섹션에 매칭된 LC 항목만. 규제 항목은 어느 쪽도 LLM에 보내지 않는다. 실측 1회는 `all`. [`open-questions.md` #5 · #60 D3-2] [계약 1.2]
+- 이미지는 폭 768px(잠정)로 축소해 동봉하되 `evidence_source`는 AI가 실제로 쓴 근거를 보고한 값이다. 앞뒤 섹션 텍스트는 같은 원본 안 ±1을 참고 문맥으로만 주고 근거 블록으로 지정하지 못한다(원본 경계를 넘지 않음). 사전 맥락 2열 · 항목명은 그대로 전달하고 안내문 · `kr_freq` · 판정값은 보내지 않는다. [`open-questions.md` #60 D4 · D5] [계약 1.3]
+
+**③-1 출력** (`JudgeResult`, `dev.md` 3절)
+
+- `content_findings`는 계약 구조 그대로(6키). finding은 **사전 항목당 1개**(근거 블록은 합집합), 항목은 서로 독립. `allowed` 행의 매칭도 finding이 된다(③-1은 판정값을 모른다). 규칙 finding은 `status=present` · `evidence_source=text`. `content_type` 값은 잠정으로 사전 항목 ID(`LC-xx` · `RG-xxx`, D6 — 값 목록 등재는 BE 합의). [계약 4.1] [`open-questions.md` #4 · #60 D6]
+- **누락 · absent · NULL 구분**: 매칭이 없어 검사되지 않은 항목은 finding을 만들지 않고(누락), `absent`는 검사해서 해당 없음, `content_findings=NULL`은 실패 · 미실행뿐. 검사 범위(사전 버전 · 해시 · 매칭 규칙 버전 · 항목 집합 · LLM 호출 여부)는 `JudgeResult.checked`와 실행 기록 · `event_log.payload`에 남긴다. [계약 4.1, 9장] [`open-questions.md` #45 · #60]
+- 규칙 매칭 근거 `matches`(항목 · 패턴 · 블록 · 원문 구간 · 원문 텍스트)는 `content_findings` 밖의 형제 필드이며 ③-1'의 **정상 입력**이다(디버그 기록이 아님). 저장 위치는 BE 합의(D13). [`open-questions.md` #48 · #60 D13]
+- 혼합 섹션(살려야 할 내용이 섞임)에서 AI가 판정값을 낮추지 않는다. `reason` 서술로만 남긴다. [설명서 §3 · 잠정] [`open-questions.md` #45]
+
+**③-1 실패** (D7, ① · ③ 방침 승계 아님) — 호출 실패 · 시간 초과 · 응답 검증 실패는 그 섹션을 `status=failed` · `content_findings=null`(판정 미완료)로 두고 오류를 기록한 뒤 **다른 섹션은 계속** 처리한다. 규칙 매칭이 성공했어도 부분 결과를 `content_findings`에 넣지 않는다. 애플리케이션 재시도 없음, 시간 제한은 개발용 잠정 60초. 오류 코드 · 워커 재시도 · 미완료 섹션의 표시는 BE 합의. [계약 4.1, 7.2, 8장] [`open-questions.md` #46 · #60 D7]
+
+**③-1' 정책 적용** (`PolicyResult`, `dev.md` 3절)
+
+- 적용 행 선택: 규제 항목은 `regulatory_class`에 따라 `cosmetic` → cosmetic + common / `otc` → otc + common / `combination` → otc + common / `unknown` → cosmetic + common, 현지부적합 항목은 전부. **원래 선택값 · 실제 적용 분류 · 검사 범위 값(`dict_coverage`: `selected_class_all_entries` · `partial_class_combination` · `unverified_class`)을 결과 · `audit_log.detail` · `event_log.payload`에 항상 남긴다.** 검사 범위 값은 "선택 분류에 해당하는 현재 사전 항목을 모두 적용했다"는 뜻이지 전체 규제를 검사했다는 뜻이 아니다(사전 범위 #52). `regulatory_class`가 **누락**(None)이면 `unknown`과 구분해 `status=input_error`로 두고 정상 권고를 만들지 않으며 입력 보완 전 자동 재시도하지 않는다 — 누락 처리는 설명서에 없는 우리 제안이다. [설명서 §4 · 잠정] [`open-questions.md` #47 · #60 D9]
+- 중복 · 허용 예외: **개별 매칭 단위**로, `policy_rules.json`의 명시적 예외 쌍(`overrides`)만 적용한다. 억제되지 않은 매칭이 하나라도 남은 finding은 verdict를 유지하고 `problem_text`는 남은 매칭에서 고른다. `allowed` 행은 예외자로만 쓰이고 verdict를 만들지 않는다. **근거 확인 전 `overrides`는 빈 목록**이며 도구가 채우지 않는다. [`open-questions.md` #43 · #60 D2] [설명서 §4 · 잠정]
+- 미확정 겹침(예: RG-015 조건형 안의 RG-013 금지형)은 **보수적으로 모두 계산에 넣고**(금지형이면 제외 권고) 관련 verdict에 `conflict_group`(관련 사전 ID · 매칭 근거 포함)을 붙여 "규칙 충돌에 따른 잠정 제외"로 구분한다 — 확정된 규제 위반이 아니며 사용자 확인 화면까지 전달돼야 한다. 독립 금지형 매칭은 정상 반영. 평가에서 충돌 제외는 별도 집계한다. 예외 쌍 확인 전의 실험용 방침이며 규제 해석 확정이 아니다. [`open-questions.md` #60 D2-b] [설명서 §0 · 잠정]
+- 매핑(설명서 §3 · §4 기반 잠정, `policy_rules.json`): 규제 `allowed` → 판정 행 없음 / `conditional` → `conditional` · 포함 / `rewritable` → 출력 `regulated`로 정규화하고 원값을 `source_verdict_status`에 보존 · 포함 / `regulated` + 대체 표현 있음 → 포함 / `regulated` + 대체 표현 없음 → 제외. 현지부적합 `irrelevant` · `needs_fix` → 각 값 그대로 · 제외. `absent`는 verdict 없음. `verdict_type` · `exclusion_reason`은 ③-1'이 내지 않는다(`verdict_status` + 대체 표현 유무에서 BE가 파생). [`contract.md` 4.2] [`open-questions.md` #7 · #60 D10 · D11] [설명서 §3 · §4 · 잠정]
+- `uncertain`: 제외 버킷 권고 + 해당 사전 판정값 그대로. 확신 상태는 `finding.status`(저장)와 verdict `finding_status`로 보존하고 **`reason`은 어느 경우에도 사전 사유의 스냅샷만**(AI 서술 · 확신 표시 · 처리 메모를 섞지 않는다). [`open-questions.md` #45 · #60 D12]
+- 집계: `status=ok`에서만 "제외형 verdict가 하나라도 있으면 `exclude`, 아니면 `include`". `JudgeResult.status != ok`면 `PolicyResult.status=incomplete`로 verdict · 권고를 만들지 않는다. verdict 후보는 전부 보존(정렬은 BE). `problem_text`: 규제 = 억제되지 않은 첫 매칭의 원문, 현지부적합 = 근거 블록 `source_ko`를 이은 것(상한 `policy.problem_text_max_chars`), 이미지 전용 근거 = `null`. 현재 섹션 블록은 ③-1'의 정상 입력이다. `reason` · `basis_article` · `evidence_url`은 판정 시점 사전 값의 스냅샷. [`open-questions.md` #44 · #60 D7 · D13] [설명서 §4 · 잠정]
+- 부분 부적합은 섹션 전체 제외(5절).
+
+**사전 데이터** (D8) — 스키마 · 로더 · 변환 도구 · 합성 데이터는 `pipeline/dictionary.py` · `pipeline/data/dict/`, 실제 값이 든 정규화 JSON과 원본은 git 밖 `pipeline/samples/local/dict/`(`dev.md` 5절). 버전은 셋을 구분한다: `schema_version`(JSON 구조) · `dictionary_version` / `rules_version`(데이터 묶음 고유 식별자, 예 `regulation@2026-09-28.1`) · 원본이 주장하는 버전과 확인 상태(`source.claimed_version` · `version_status` · `version_note`, 현지부적합 v5/v7 불일치는 `mismatch_pending`). 실행마다 묶음 버전 + 파일 SHA-256을 기록하고 묶음을 고정 입력본처럼 별도 보관한다. 허용 열은 목록으로 정하며 `confidence`는 검증(high만)에만 쓰고 출력하지 않는다. [`open-questions.md` #3 · #60 D8] [`pipeline/data/dict/README.md`]
+
+**미확정 경계** — 아래는 잠정 구현하되 확정으로 표기하지 않는다. (BE 합의) 호출 단위 · 인계 형식 · `regulatory_class` 전달(#47) · `content_type` 값 목록(D6) · `matches` 저장 위치(D13) · `rewritable` 저장(D11) · `finding_status` · `conflict_group` · `dict_coverage`의 저장과 신호 파생(D12 · D2-b · D9) · 미완료 섹션 표시와 재시도(D7) · `verdict_type` · `exclusion_reason` 파생 전제 · 운영 시 사전 공급 파일/DB(#3) · 맥락 2열 저장 위치. (원문 확인) 결정기록 · PRD F-LOC-01·02 · F-TXT-05 · F-SEC-04(#51) — 매핑표 · 매칭 엔진 정의 · 불확실 처리. (데이터 담당) 매칭 엔진의 실제 정의와 `kr_freq` 집계 엔진(D1) · 예외 쌍 목록과 근거(D2) · #50 · #53 · #54 · #55 · #56. (실측 후) 운영 호출 방식(D3-3) · 모델 · 프롬프트 · 매칭 방식 · 이미지 · 문맥 효과 · 비용. [`open-questions.md` #60 · 2.7절]
+
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 
 | 하류 단계 | AI가 넘기는 것 | AI가 받는 것 | 담당 | 출처 |
@@ -285,8 +335,7 @@
 
 세부는 `open-questions.md`. 이 문서에서 `미정`·`확인 필요`로 표기된 것:
 
-- ③-1 판정 방식(#5) · 판정 항목과 사전 항목의 연결 · 항목 경계(#4) · 정책 데이터 구조(#3) · 정책 계약 담당과 `section_verdict` 매핑(#7)
-- ③-1 한국어 매칭 경계(#42) · 규제 패턴 중복(#43) · 섹션 결과 집계(#44) · 불확실 판정(#45) · 실행 실패(#46, BE 합의) · 상품 규제 분류 입력(#47, BE 합의) · 근거 블록 대응(#48) · 사전 버전과 캐시(#49)
+- ③-1 · ③-1' 잠정 설계 v1(7.3절, #60)의 실측 확정 — 판정 방식(#5) · 운영 호출 방식(D3-3) · 매칭 방식(#42) · `[judge]` `[policy]` 값. 잠정 결정이 있는 미결: 판정 항목과 사전 연결(#4 D6) · 정책 데이터 구조(#3 D8) · 정책 계약 매핑(#7 D10 · D11) · 규제 패턴 중복(#43 D2 · D2-b) · 섹션 집계(#44) · 불확실 판정(#45 D12) · 실행 실패(#46 D7) · 규제 분류 입력(#47 D9) · 근거 대응(#48 D13) · 사전 버전과 캐시(#49 재실행표) — 모두 BE 합의 · 원문 확인 전
 - 전달 자료의 불일치 · 한계(#50~#59, 데이터 담당 확인)
 - (해결) 정책 적용 구현 소유자 = AI 서버(5절 #6) · 부분 부적합은 MVP 섹션 전체 제외(5절 #8) · 사이트별 게시 정책은 MVP 이후(4절, 구 #2)
 - ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙

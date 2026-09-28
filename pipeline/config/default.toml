@@ -52,7 +52,19 @@ llm_split = false              # 분할 금지 고정
 prompt_path = "pipeline/prompts/merge_assist.md"   # llm_assist 프롬프트(초안 v1). 상대 경로는 레포 루트 기준(pipeline.md 7.2절)
 llm_timeout_s = 60             # llm_assist 호출 시간 제한(초). 개발용 잠정값 — 운영 값은 open-questions #37
 
-# [judge] ③-1 AI 섹션 판정 — 판정 방식 미정(open-questions #5). 기본값을 두지 않는다.
+[judge]                        # ③-1 AI 섹션 판정 — 설계 v1 잠정값(open-questions #60, docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md 5절). 판정 방식 채택은 실측 후(#5). 값은 전부 실험 기준
+llm_model = "gemini-3.8-flash"
+llm_temperature = 0
+llm_timeout_s = 60             # 개발용 잠정값(③과 같은 계열)
+prompt_path = "pipeline/prompts/judge_context.md"   # 초안은 ③-1b 구현 시 작성(설계 6절). 레포 루트 기준
+call_scope = "all"             # D3-2: all = 전 섹션 호출(LLM 항목은 LC 8개) / matched = 매칭 섹션만. 실측 기본 all
+image_width_px = 768           # D4: 섹션 이미지를 폭 기준으로 축소(①과 같은 근거)
+context_sections = 1           # D5: 같은 원본 안 앞뒤 섹션 텍스트 수(참고용, 근거 지정 불가). 0이면 없음
+match_mode = "substring"       # D1: 공백 제거 부분 문자열(실험 기준). 비교 실험용 대안 eojeol_prefix
+dict_dir = "pipeline/samples/local/dict/normalized"   # 실제 사전 JSON(git 제외, 로컬 배치). 테스트는 --set judge.dict_dir=pipeline/data/dict/synthetic
+
+[policy]                       # ③-1' 정책 적용 — 규칙 데이터는 judge.dict_dir의 policy_rules.json(설명서 §3 · §4 기반 잠정, D10)
+problem_text_max_chars = 300   # 현지부적합 problem_text 길이 상한(설계 3.3절)
 
 [label]                        # ④ 제품 라벨 판정
 model = "gemini-3.8-flash"

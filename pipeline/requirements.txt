@@ -5,4 +5,5 @@ pydantic>=2,<3
 pillow>=10
 numpy>=1.26          # stage 1 row profile
 google-genai>=1      # stage 1 VLM boundary picking (API key: GEMINI_API_KEY env var). Imported lazily at call time.
+openpyxl>=3.1        # dictionary build tool only (pipeline/data/dict/tools/build_dict.py reads the source xlsx)
 pytest

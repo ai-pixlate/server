@@ -162,3 +162,41 @@ cd /data/server && /data/venv/bin/pip install -r requirements.txt
 - `feature/gpu-worker-test`의 `worker_test`·`fake_inpaint`·학교 로컬 Redis는 연결 테스트용이며 **이 연동의 성공 기준이 아닙니다.**
 - 연동 확인: 분석을 한 번 돌린 뒤 EC2에서 `redis-cli -n 0 LLEN gpu`가 0으로 줄어야 합니다. 계속 쌓이기만 하면 워커가 EC2 Redis에 붙지 않은 것입니다.
 - 워커가 처리 도중 죽어도 작업은 큐로 돌아와 다시 실행됩니다(`task_acks_late`). 다만 워커 전체가 죽으면 `CELERY_VISIBILITY_TIMEOUT`(기본 3600초)이 지나야 다시 전달됩니다 — 학교 서버 재시작 때 처리 중이던 작업은 약 1시간 뒤 재처리됩니다. 재전달로 두 번 실행될 수 있어 `run_inpaint`는 두 번 실행돼도 안전하게 만들어져 있습니다.
+
+### 환경변수 파일
+
+`/data/pixlate/worker.env`에 둡니다(`chmod 600`). `«»` 자리는 팀 공유 문서의 값으로 채웁니다.
+
+```
+CELERY_BROKER_URL=redis://:«Redis비번»@«EC2주소»:6379/0
+CELERY_RESULT_BACKEND=redis://:«Redis비번»@«EC2주소»:6379/1
+DATABASE_URL=postgresql+psycopg://«DB사용자»:«RDS비번»@«RDS주소»:5432/«DB이름»
+CELERY_VISIBILITY_TIMEOUT=3600
+```
+
+- 비밀번호에 `@ : / # % ?`가 있으면 URL 인코딩합니다(예: `@` → `%40`, `#` → `%23`).
+- «EC2주소»는 EC2 탄력적 IP입니다. docker 내부 이름(`pixlate-redis`)은 쓰지 않습니다.
+
+### 연결 확인과 실행
+
+```bash
+cd /data/server && set -a && . /data/pixlate/worker.env && set +a
+/data/venv/bin/python -c "from app.celery_app import celery_app as c; c.connection().ensure_connection(max_retries=1); print('Redis OK')"
+/data/venv/bin/python -c "import os; from sqlalchemy import create_engine, text; print('RDS OK', create_engine(os.environ['DATABASE_URL']).connect().execute(text('select 1')).scalar())"
+nohup /data/venv/bin/celery -A app.celery_app worker -Q gpu -n gpu@%h --loglevel=info >> /data/pixlate/worker.log 2>&1 &
+```
+
+- 웹 터미널에서 그냥 띄운 워커는 터미널을 닫으면 꺼지므로 `nohup ... &`로 띄웁니다. 로그는 `/data/pixlate/worker.log`입니다.
+- **컨테이너(pod)가 재시작되면 워커가 꺼집니다.** 위 명령을 다시 실행합니다. 자동 기동은 아직 없습니다.
+- EC2 Redis가 재시작되면 워커는 스스로 다시 붙습니다(EC2 재부팅으로 확인).
+
+### 연동 확인 결과 (2026-09-28)
+
+| 확인 (EC2에서 실행) | 결과 |
+| --- | --- |
+| `docker exec pixlate-worker-ocr celery -A app.celery_app inspect ping` | `ocr@…`, `cpu@…`, `gpu@pixlate-gpu-…` — 3 nodes online |
+| `redis-cli -n 0 LLEN gpu` | 대기 1건 → 0 |
+| 테스트(`pytest tests --ignore-glob='tests/test_pipeline_*'`) 후 `job_async_task`(inpaint) | 새 행 `done`, 소요 약 2초(스텁 `sleep(2)`) |
+| EC2 재부팅 후 `inspect ping` | `gpu@…` 자동 재접속 |
+
+EC2에는 gpu 워커가 없으므로 gpu 큐를 비운 것은 학교 GPU 워커입니다. 지금 `run_inpaint`는 스텁(2초 대기 후 결과 경로만 기록)이라, 이 결과는 **EC2 Redis ↔ GPU ↔ RDS 경로가 열렸다**는 뜻입니다. 실제 LaMa 인페인팅과 GPU에서의 S3 업로드(자격 증명)는 남은 작업입니다.

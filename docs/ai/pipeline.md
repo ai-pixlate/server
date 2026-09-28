@@ -73,7 +73,8 @@
 | ③ | `merge.gutter_min_px` / `gutter_width_div` | `20` / `16` | gutter 최소 폭 = max(`gutter_min_px`, 섹션 폭 // `gutter_width_div`). **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
 | ③ | `merge.title_pct` / `caption_pct` / `title_max_lines` / `caption_max_chars` / `price_max_chars` | `75` / `25` / `2` / `25` / `40` | 휴리스틱 역할 판정의 높이 백분위와 줄 수·글자 수 상한. **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `gemini-3.8-flash` / `0` / `false` | 분할 금지 고정 | [개발계획 6장] |
-| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 미작성. 2026-09-26 사용자 승인 | [`dev.md` 2절] |
+| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 미작성. 2026-09-26 사용자 승인. 상대 경로는 레포 루트 기준(7.2절) | [`dev.md` 2절] [`open-questions.md` #41] |
+| ③ | `merge.llm_timeout_s` | `60` | `llm_assist` 호출 시간 제한(초). 개발용 **잠정값** — 무기한 대기를 막기 위한 값이며 운영 값은 #37에서 정한다 | [`open-questions.md` #37, #41] |
 | ③-1 | (판정 방식 미정 — 키 없음) | — | 기본값을 두지 않는다. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉)는 참고값이며 production 채택 아님 | [개발계획 6장] [PoC 10-1장] |
 | ④ | `label.model` / `label.long_side_px` / `label.bias` | `gemini-3.8-flash` / `1024` / `label` | 애매하면 라벨 | [개발계획 6장] |
 | ⑤ | `logo.normalize` | `nfkc, lower, strip_space_punct` | 정규화 결과 빈 문자열은 비교 제외 | [계약 2.3] |
@@ -216,9 +217,54 @@
 | `gutter` | 정확히 bool 타입 |
 | `llm_split` | `False` 그 자체(`is False`) — 숫자 0 등은 거부 |
 
-`llm_model` · `llm_temperature` · `prompt_path`는 `llm_assist` 착수 때 기준을 정한다. [`open-questions.md` #38]
+`llm_model` · `llm_temperature` · `llm_timeout_s` · `prompt_path`의 기준과 검증 시점(실행 모드별)은 7.2절. [`open-questions.md` #38, #41]
 
 **알려진 위험** — 처리 순서 의존(가장 잘 맞는 줄이 아니라 처음 맞는 줄) · 섹션 전체 gutter가 전폭 영역 하나로 사라짐 · gutter는 0.7·h ≥ 최소 폭인 큰 글자에서만 효과 · 블록 단계 gutter 미사용 · 오른쪽 정렬 미판정 · 기울어진 글자의 bbox 높이 부풀림은 PoC 정의에서 논리적으로 예상되는 위험이며 우리 입력에서 확인되지 않았다. 초기 검증 항목이고 유지할 요구사항이 아니다. [`open-questions.md` #38]
+
+### 7.2 ③ `llm_assist` 정의
+
+`heuristic_v2` 블록을 LLM이 **추가 병합하고 역할을 다시 판정**한다. 분할은 하지 않는다. [`pipeline.md` 단계표 ③] [개발계획 6장] PoC에서 분할을 허용한 초기 조건에서도 휴리스틱의 과병합이 해소되지 않고 남았고, 병합만 맡기는 조건이 확정 조건이다. [PoC 5장] 그 결과 휴리스틱 과병합은 이 단계에서 복구되지 않는다. PoC 자료에는 입력·출력 형식·프롬프트가 없으므로 아래 세부는 모두 우리 잠정 설계다(v1). [`open-questions.md` #41]
+
+**호출** — 섹션마다 1회. 보낼 블록이 0개면 호출하지 않는다(기록 `skipped`). 모델·온도는 `merge.llm_model` · `merge.llm_temperature`, 호출 시간 제한은 `merge.llm_timeout_s`(개발용 잠정값, 운영 값은 #37). 애플리케이션은 재시도하지 않으며, 설치된 `google-genai` 2.24.0은 `retry_options`를 지정하지 않으면 1회만 시도한다(코드 확인 — SDK 버전을 바꾸면 다시 확인). [`open-questions.md` #37, #41]
+
+**입력** — 텍스트가 있고 크기가 0이 아닌 휴리스틱 블록만 보낸다. 블록마다 임시 ID(`b1`… 블록 순서) · `source_ko`(줄바꿈 포함) · bbox · 줄 수 · font_h, 그리고 섹션 폭·높이. 섹션 이미지와 휴리스틱 역할은 보내지 않는다(초기 비교 기준이며, 이미지 사용을 금지한다는 뜻은 아니다 — 둘 다 비교 실험 후보). 빈 텍스트 블록은 #36 방침으로, 크기 0 블록은 기하 정보가 유효하지 않고 단독 보존 방침을 따르므로 보내지 않고 그대로 둔다. [`open-questions.md` #36, #41]
+
+**출력** — `{"blocks": [{"members": ["b1", "b2"], "role": "body"}, …]}`(JSON 스키마 강제). 텍스트는 받지 않는다 — LLM은 원문을 쓰지 않고, 휴리스틱 블록을 통째로만 묶으므로 블록 분할도 표현할 수 없다. [`open-questions.md` #41]
+
+**응답 검증** — 하나라도 어기면 실패(`validation_failed`): JSON · 스키마 형식 · 모든 입력 ID가 정확히 한 번 · 모르는 ID 없음 · 빈 `members` 없음 · `role`이 5종 중 하나. 인접하지 않은 블록의 병합은 허용한다(2단 배치). 잘못된 병합은 평가에서 따로 판정한다. [`open-questions.md` #41]
+
+**로컬 조립(v1 — 블록 병합만)** — 묶음마다 멤버를 휴리스틱 블록 순서로 정렬해 줄을 그 순서대로 이어 붙인다. 휴리스틱 블록 안의 줄 순서와 줄 안의 영역 순서는 바꾸지 않는다. `source_ko`는 줄 텍스트를 `\n`으로 다시 잇고, bbox는 합집합, `ocr_confidence`는 최솟값, `role`은 LLM 값이다. 보내지 않은 단독 블록은 그대로 두고, 블록 순서와 키는 7.1절 규칙대로 다시 매긴다. **같은 줄 조각의 줄 복구는 하지 않는다** — "98" | "%"나 "…성분" | "으로"처럼 같은 줄의 조각이 한 블록으로 합쳐져도 별도 줄로 남는다(v2에서 판단). [`open-questions.md` #41]
+
+**불변식(테스트)** — 모든 원시 영역이 정확히 한 번 · 영역의 키 · 텍스트 · score · poly · bbox가 입력과 같음 · 휴리스틱 블록 하나의 영역이 여러 출력 블록으로 나뉘지 않음 · 보내지 않은 단독 블록이 그대로 · LLM이 준 `members` · `blocks` 순서에 관계없이 조립 결과가 같음 · 휴리스틱 블록 안의 줄 순서와 줄 안의 영역 순서 유지. [계약 2.5] [`open-questions.md` #41]
+
+**실패** — 호출 실패(`call_failed`, 시간 초과 포함)와 응답 검증 실패는 휴리스틱 결과로 대체하지 않고 ①과 같은 `VlmError`로 전파한다(CLI 종료 코드 4). [`open-questions.md` #37, #41]
+
+**기록** — 섹션마다 호출 기록을 남기며, 실패해도 기록을 먼저 쓴 뒤 예외를 전파한다. [`open-questions.md` #41]
+
+| 필드 | 내용 |
+|---|---|
+| `status` | `ok` · `validation_failed` · `call_failed` · `skipped` |
+| 입력 | 보낸 페이로드 전문 · 프롬프트 SHA-256 · 모델 설정(모델 · 온도 · 시간 제한) |
+| 원응답 | 받은 텍스트. `call_failed`면 `null` |
+| 실패 이유 | 검증 실패 항목 또는 호출 예외 |
+| 결과 | 해석한 묶음 · 역할과 **휴리스틱 블록 키 → 섹션 최종 블록 키** 대응 |
+| 사용량 | 응답의 토큰 사용량 |
+
+- 경로: CLI `merge`는 `DIR/merge_debug/<section_key>.json`, `analyze()`는 `out_dir/merge_debug/<section_key>.json`(`section_key`에 원본 ID가 들어 있어 한 실행 안에서 겹치지 않는다). `analyze()`는 `merge_debug/block_keys.json`에 **(`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키** 대응을 남긴다 — 키 문자열만으로는 섹션마다 반복되는 `blk_001`을 구분할 수 없다.
+- 기록 저장 자체가 실패하면: 호출·검증이 **실패한 경우** 원래 `VlmError`를 전파하고 기록 저장 오류는 그 예외의 부가 설명(note)으로 붙인다(종료 코드 4 유지). 호출·검증이 **성공한 경우** 기록 저장 오류(`OSError`)를 그대로 전파해 실행을 실패시킨다 — 기록 없는 결과를 남기지 않는다.
+- 재생: `merge --llm-replay <기록>`은 섹션 하나의 응답을 API 호출 없이 재생한다. 입력 페이로드 · 프롬프트 SHA-256 · 모델 설정이 기록과 같아야 하고, 재생한 응답도 실제 호출과 같은 검증을 거친다. `--no-llm`과 함께 지정하면 거부한다. `analyze()` 재생은 v1 범위 밖이다.
+
+**설정 검증(실행 모드별, 어기면 `ValueError`)** [`open-questions.md` #41]
+
+| 모드 | 검증 |
+|---|---|
+| 공통(`--no-llm` 포함) | 7.1절 휴리스틱 설정만. 프롬프트 파일 · API 키를 요구하지 않는다 |
+| LLM 실행 · 재생 | `llm_model` 비어 있지 않은 문자열 · `llm_temperature` 수치(bool 제외) · 유한값 · 0 이상 2 이하 · `llm_timeout_s` 수치(bool 제외) · 유한값 · 0 초과 · `prompt_path` 문자열이고, 상대 경로는 `pipeline` 패키지의 상위 폴더(레포 루트) 기준, 절대 경로는 그대로 해석해 실제 파일이며 UTF-8로 읽히고 비어 있지 않음 |
+| 실제 호출 | 위에 더해 환경변수 `GEMINI_API_KEY`가 있음 |
+
+`analyze()`는 해당 모드의 검증을 모두 ① 실행 전에 마친다. ① `section.prompt_path`는 현재 작업 디렉터리 기준이며 같은 기준으로 맞추는 일은 별도 작업이다.
+
+**프롬프트** — 원문은 `pipeline/prompts/merge_assist.md`. 역할의 의미는 이번 프롬프트의 잠정 정의로 적는다: title 제목·소제목·강조 헤드라인 / body 본문 문장 / caption 보조 라벨·짧은 설명·일반 각주·출처·시험 정보·이미지 주석 / price 가격 / caution 사용상 주의·경고·보관·이상 시 대응 문구. 이 caution 정의는 #9(주의문구 범위)의 확정이 아니며 7.1절 탐지 정규식의 동작과도 같지 않다. #9가 정해지면 프롬프트를 고친다. [`open-questions.md` #9, #41]
 
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 
@@ -243,5 +289,6 @@
 - ① 색 전환 임계값 · 최소 섹션 높이 · 긴 구간 기준 · 보정 반경의 실측 확정 — config 초기값은 잠정
 - ① VLM 호출 실패 처리 — 대체 처리 허용 여부 · 오류·경고 코드 · 실패 유형별 재시도 조건 (BE 합의)
 - ③ `heuristic_v2` 잠정 설계(7.1절)의 실측 확정 — config 초기값 · 역할 패턴은 잠정 (#38)
+- ③ `llm_assist` 잠정 설계(7.2절) v1 — 입력 구성 · 같은 줄 조각 미복구 · 시간 제한 잠정값 (#41)
 - ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
 - 출력 분할 한도 값

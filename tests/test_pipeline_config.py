@@ -22,6 +22,7 @@ def test_default_config_matches_pipeline_md_keys():
     assert flat["merge.title_max_lines"] == 2
     assert flat["merge.caption_max_chars"] == 25
     assert flat["merge.price_max_chars"] == 40
+    assert flat["merge.llm_timeout_s"] == 60  # llm_assist 개발용 잠정값(open-questions #41 · #37)
     assert flat["inpaint.score_min"] == 0.5
     assert flat["translate.prompt_path"] == "pipeline/prompts/translate.md"
     assert flat["section.vlm_model"] == "gemini-3.8-flash"  # open-questions #21 확정 2026-09-21

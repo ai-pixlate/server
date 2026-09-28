@@ -27,10 +27,16 @@ BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://pixlate-redis:6379/0")
 RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://pixlate-redis:6379/1")
 
 # 완료 신호(ack) 없이 이 시간이 지나면 Redis가 작업을 다른 워커에게 다시 준다.
-# 가장 긴 태스크 실행 시간보다 길어야 한다(짧으면 실행 중인 작업이 중복 실행됨).
-# worker-test에서 재처리에 약 90초가 걸린 것과 맞춰 90초. 실제 인페인팅 모델이
-# 섹션 1개를 90초 넘게 처리하게 되면 값을 올려야 한다.
-VISIBILITY_TIMEOUT = int(os.getenv("CELERY_VISIBILITY_TIMEOUT", "90"))
+# 모든 큐에 공통 적용되므로 **가장 긴 태스크보다 길어야** 한다. 짧으면 아직 처리 중인
+# 작업이 재전달돼 중복 실행된다(run_analyze·run_translate는 멱등이 아니라 행이 중복됨).
+# 실제 OCR은 긴 원본을 타일로 나눠 처리해 수 분이 걸릴 수 있어 Celery 기본값 3600초.
+#
+# 대가: 워커 전체가 처리 도중 죽으면 그 작업은 이 시간이 지나야 다시 전달된다.
+# 로컬 실측(celery 5.6.3, kill 후 새 워커 기동): 10·45초 → 93초, 150초 → 192초.
+# 약 90초 이하는 바닥 시간이 있고, 그보다 크면 대략 이 값 + 40초가 걸린다.
+# 멈춘 작업 감지는 재전달이 아니라 DB 기준 점검으로 분리한다(후속).
+# 값을 바꿀 때는 API·EC2 워커·GPU 워커가 같은 값을 쓰게 한다.
+VISIBILITY_TIMEOUT = int(os.getenv("CELERY_VISIBILITY_TIMEOUT", "3600"))
 
 celery_app = Celery(
     "pixlate",

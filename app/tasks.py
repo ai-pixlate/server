@@ -83,23 +83,62 @@ def run_inpaint(section_id: int) -> dict:
     """N4 인페인팅(스텁·GPU 큐): 섹션 배경에서 원문 텍스트를 지운 이미지 생성.
 
     실제 LaMa(GPU) 모델은 모델팀이 붙일 자리. 지금은 배선만: inpaint 태스크 행 →
-    (스텁 처리) → section.inpaint_status='done' + 결과 키/잔여율 기록.
+    (스텁 처리) → section.inpaint_status='done' + 결과 S3 키/잔여율 기록.
+
+    멱등: acks_late 재전달로 같은 섹션이 두 번 실행될 수 있다(app.celery_app 참고).
+    - 이미 done이면 아무것도 하지 않고 반환한다
+    - running/pending 인페인트 태스크 행이 있으면 새로 만들지 않고 그 행을 이어서 처리한다
+    - 섹션 행을 FOR UPDATE로 잠가, 동시에 두 번 전달돼도 태스크 행이 하나만 생기게 한다
     """
     db = SessionLocal()
     task_row_id = None
     try:
-        job_id = db.execute(
-            text("SELECT job_id FROM section WHERE id = :sid"),
+        sec = db.execute(
+            text("SELECT job_id, inpaint_status FROM section WHERE id = :sid FOR UPDATE"),
             {"sid": section_id},
-        ).scalar()
-        row = db.execute(
+        ).mappings().first()
+        if sec is None:  # 작업 취소 등으로 섹션이 사라짐 — 다시 할 일이 없다
+            db.rollback()
+            return {"sectionId": section_id, "inpaintStatus": "missing"}
+
+        task = db.execute(
             text(
-                "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status, started_at) "
-                "VALUES (:j, 'inpaint', 'section', :sid, 'running', now()) RETURNING id"
+                "SELECT id, status FROM job_async_task "
+                "WHERE task_type = 'inpaint' AND unit_type = 'section' AND unit_id = :sid "
+                "ORDER BY id DESC LIMIT 1"
             ),
-            {"j": job_id, "sid": section_id},
-        ).mappings().one()
-        task_row_id = row["id"]
+            {"sid": section_id},
+        ).mappings().first()
+        unfinished = task is not None and task["status"] in ("pending", "running")
+
+        if sec["inpaint_status"] == "done" or (task is not None and task["status"] == "done"):
+            if unfinished:  # 결과는 이미 기록됐는데 태스크 행만 남은 경우 정리
+                db.execute(
+                    text("UPDATE job_async_task SET status='done', finished_at=now() WHERE id=:t"),
+                    {"t": task["id"]},
+                )
+                db.commit()
+            else:
+                db.rollback()
+            return {"sectionId": section_id, "inpaintStatus": "done", "alreadyDone": True}
+
+        if unfinished:  # 재전달: 앞선 실행이 남긴 행을 이어서 쓴다
+            task_row_id = task["id"]
+            db.execute(
+                text(
+                    "UPDATE job_async_task SET status='running', started_at=now(), "
+                    "finished_at=NULL WHERE id=:t"
+                ),
+                {"t": task_row_id},
+            )
+        else:
+            task_row_id = db.execute(
+                text(
+                    "INSERT INTO job_async_task (job_id, task_type, unit_type, unit_id, status, started_at) "
+                    "VALUES (:j, 'inpaint', 'section', :sid, 'running', now()) RETURNING id"
+                ),
+                {"j": sec["job_id"], "sid": section_id},
+            ).scalar()
         db.execute(
             text("UPDATE section SET inpaint_status='running', updated_at=now() WHERE id=:sid"),
             {"sid": section_id},

@@ -221,7 +221,7 @@ def cmd_judge(args) -> int:
     out = Path(args.out)
     merged = jsonio.load_merge(args.merge)
     if not args.no_llm:
-        raise NotImplementedError("③-1 전체 판정(맥락 판정 · 조립)은 미구현 — 검출만 하려면 --no-llm")
+        raise NotImplementedError("③-1 전체 판정(맥락 판정 · 조립)은 미구현. 검출만 하려면 --no-llm")
     dicts = judge.load_dicts(cfg)
     key = merged.section_key
     res = judge.detect_only(key, merged.blocks, cfg, dicts=dicts, recorder=judge.json_recorder(out / "judge_debug"))
@@ -231,7 +231,7 @@ def cmd_judge(args) -> int:
         extra={"mode": "detect_only", "use_llm": False, "dictionary_version": dicts.dictionary_version,
                "dictionary_fingerprint": dicts.fingerprint, "match_rules_version": judge.MATCH_RULES_VERSION},
     )
-    print(f"{key}: 검출 전용 — 매칭 {len(res.matches)}개 · 항목 {len(res.candidates)}개 → {p} (판정 결과 아님)")
+    print(f"{key}: 검출 전용, 매칭 {len(res.matches)}개 · 항목 {len(res.candidates)}개 → {p} (판정 결과 아님)")
     return 0
 
 
@@ -377,7 +377,21 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _safe_console() -> None:
+    """콘솔 인코딩이 cp949 등이어도 메시지의 특수문자(—, → 등) 때문에 결과 저장 뒤 프로세스가 실패하지 않게 한다.
+    인코딩은 그대로 두고 표현할 수 없는 문자만 '?'로 바꾼다(Windows 파이프 출력에서 재현된 문제, 2026-09-29)."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(errors="replace")
+        except (ValueError, OSError):  # 닫힌 스트림 등
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _safe_console()
     args = build_parser().parse_args(argv)
     try:
         return args.fn(args)

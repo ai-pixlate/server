@@ -248,4 +248,4 @@ def run(section: Section, blocks: list[TextBlock], ctx: JudgeContext, cfg: dict[
         llm=None, recorder: Recorder | None = None) -> JudgeResult:
     """③-1 전체(검출 → 맥락 판정 → 조립) — 맥락 판정 · 조립은 다음 착수 범위(설계 9절 4번). 검출만은 detect_only()."""
     validate_config(cfg)
-    raise NotImplementedError("③-1 judge.run(맥락 판정 · 조립)은 아직 구현되지 않았다 — 검출만은 judge.detect_only / CLI judge --no-llm")
+    raise NotImplementedError("③-1 judge.run(맥락 판정 · 조립)은 아직 구현되지 않았다. 검출만은 judge.detect_only / CLI judge --no-llm")

@@ -245,6 +245,26 @@ def test_cli_judge_no_llm_writes_detect_only_outputs(tmp_path, capsys):
     assert "판정 결과 아님" in capsys.readouterr().out
 
 
+def test_cli_output_survives_cp949_console(tmp_path, monkeypatch):
+    """Windows cp949 파이프에서 완료 메시지의 특수문자 때문에 저장 뒤 프로세스가 실패하던 문제(2026-09-29 검토)."""
+    import io
+    import sys
+
+    mp = _write_merge(tmp_path, "10,000원")
+    out = tmp_path / "out"
+    buf_out, buf_err = io.BytesIO(), io.BytesIO()
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(buf_out, encoding="cp949", errors="strict"))
+    monkeypatch.setattr(sys, "stderr", io.TextIOWrapper(buf_err, encoding="cp949", errors="strict"))
+    code = runmod.main(["judge", "--merge", str(mp), "--out", str(out), "--no-llm", "--set", f"judge.dict_dir={SYNTH}"])
+    sys.stdout.flush()
+    assert code == 0 and (out / "judge_detect" / "sec_1_01.json").exists()
+    assert "sec_1_01" in buf_out.getvalue().decode("cp949")
+    # --no-llm 없는 경로의 미구현 메시지도 stderr(cp949)에서 실패하지 않는다
+    code = runmod.main(["judge", "--merge", str(mp), "--out", str(tmp_path / "out2"), "--set", f"judge.dict_dir={SYNTH}"])
+    sys.stderr.flush()
+    assert code == 3 and "--no-llm" in buf_err.getvalue().decode("cp949")
+
+
 def test_cli_judge_without_no_llm_is_not_implemented(tmp_path, capsys):
     mp = _write_merge(tmp_path, "x")
     code = runmod.main(["judge", "--merge", str(mp), "--out", str(tmp_path / "out"), "--set", f"judge.dict_dir={SYNTH}"])

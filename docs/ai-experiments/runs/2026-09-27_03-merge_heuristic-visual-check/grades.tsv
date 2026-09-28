@@ -1,0 +1,101 @@
+그룹	원본	섹션	병합등급	역할등급	핵심병합오류	핵심역할오류	제외L	제외D	제외N	비고
+g1	GS-01_001	sec_1_01	B	C	N	Y	31	0	1	역할 C는 안내 본문 blk_036이 title인 것 포함 4건
+g1	GS-01_002	sec_1_01	A	B	N	N	7	0	0	-
+g1	GS-01_002	sec_1_02	C	B	Y	N	0	0	0	핵심 본문이 같은 줄에서 분리됨
+g1	GS-01_002	sec_1_03	A	B	N	N	0	0	0	-
+g1	GS-01_002	sec_1_04	C	B	N	N	12	0	0	병합 C는 건수 6건 기준
+g1	GS-01_002	sec_1_06	C	B	N	N	4	0	3	병합 C는 건수 4건 기준
+g1	GS-01_002	sec_1_07	A	A	N	N	0	0	0	-
+g1	GS-01_002	sec_1_08	C	C	Y	N	0	0	1	핵심 본문이 3블록으로 분리됨. N=+ 기호
+g1	GS-01_002	sec_1_09	B	C	N	N	0	0	0	역할 C는 건수 4건 기준
+g1	GS-01_002	sec_1_10	A	B	N	N	0	0	0	-
+g1	GS-01_002	sec_1_11	A	B	N	N	2	0	2	N=빈 텍스트 블록 2개
+g1	GS-01_002	sec_1_12	C	C	N	N	0	0	0	배지 3개의 분할·병합이 서로 다름
+g1	GS-01_002	sec_1_13	A	B	N	N	0	0	0	-
+g1	GS-01_002	sec_1_14	C	B	Y	N	0	0	0	핵심 본문 첫 구절이 분리됨
+g1	GS-01_002	sec_1_18	A	A	N	N	30	0	0	-
+g1	GS-01_002	sec_1_19	C	B	N	N	14	0	0	병합 C는 건수 3건 기준
+g1	GS-01_002	sec_1_20	A	B	N	N	7	0	0	-
+g1	GS-01_002	sec_1_21	B	B	N	N	9	0	0	-
+g1	GS-01_002	sec_1_22	B	B	N	N	19	0	1	L에 FSC·SOYINK 로고와 TM 포함
+g1	GS-01_002	sec_1_23	C	C	Y	N	5	0	1	핵심 본문 문장이 분리됨. 역할 C는 건수 3건 기준
+g2	GS-01_002	sec_1_24	-	-	N	N	6	0	0	수정: 본문 없음(로고·튜브 인쇄만)이라 A/A→-/-
+g2	GS-02_001	sec_1_01	B	B	N	N	0	0	0	blk_001 body↔title 애매, 미집계
+g2	GS-02_001	sec_1_02	A	A	N	N	2	0	1	blk_005 body↔caption 애매, 미집계
+g2	GS-02_003	sec_1_01	A	B	N	N	0	0	0	blk_002 제품명 body↔title 애매, 미집계
+g2	GS-02_004	sec_1_01	C	A	Y	N	0	0	0	리뷰 본문 과분할 5
+g2	GS-02_004	sec_1_02	A	B	N	N	0	0	0	
+g2	GS-02_005	sec_1_01	B	C	N	N	0	9	1	축 눈금은 D; BEFORE/AFTER OCR 깨짐
+g2	GS-02_006	sec_1_01	B	C	N	N	0	0	0	
+g2	GS-02_006	sec_1_02	A	B	N	N	0	0	1	"blk_005 ""C"" 사진 위 오검출(title)"
+g2	GS-02_006	sec_1_03	A	A	N	N	0	0	0	
+g2	GS-02_007	sec_1_01	A	B	N	N	0	0	0	
+g2	GS-02_007	sec_1_03	A	C	N	Y	6	0	0	메인 헤드라인 body
+g2	GS-02_008	sec_1_01	B	C	N	Y	11	0	0	메인 헤드라인 body
+g2	GS-02_008	sec_1_02	A	C	N	Y	0	2	0	메인 헤드라인 body; WD 표기 D
+g2	GS-02_008	sec_1_03	A	A	N	N	0	0	0	
+g2	GS-02_008	sec_1_04	B	C	N	N	6	33	26	논문 캡처 위 빈 블록 다수 title; blk_003 caption 애매 미집계
+g2	GS-02_008	sec_1_05	A	C	N	Y	0	7	4	메인 헤드라인 body; blk_007 body↔title 애매 미집계
+g2	GS-02_008	sec_1_06	C	C	N	N	0	0	0	
+g2	GS-02_009	sec_1_01	B	C	N	N	0	0	0	차트 수치 004~007 body↔caption 애매 미집계
+g2	GS-02_009	sec_1_02	A	A	N	N	0	0	0	
+g3	GS-02_009	sec_1_03	B	C	N	Y	0	0	0	헤드라인 blk_001 body; 뱃지 대부분 미검출; 역할오류 1→2 수정
+g3	GS-02_009	sec_1_04	A	C	N	N	0	0	0	역할오류 4→5 수정(blk_003 추가)
+g3	GS-02_009	sec_1_05	B	B	N	N	0	0	0	-
+g3	GS-02_009	sec_1_06	C	C	N	N	0	0	0	역할오류 3→5 수정(블록 단위 집계)
+g3	GS-02_009	sec_1_07	A	A	N	N	0	0	0	-
+g3	GS-02_010	sec_1_01	A	B	N	N	0	0	0	-
+g3	GS-02_010	sec_1_02	A	C	N	N	0	0	0	-
+g3	GS-02_010	sec_1_03	A	A	N	N	0	0	0	-
+g3	GS-02_011	sec_1_01	B	B	N	N	0	0	0	-
+g3	GS-02_011	sec_1_02	A	C	N	N	0	0	0	-
+g3	GS-02_011	sec_1_03	A	A	N	N	0	0	0	-
+g3	GS-02_012	sec_1_01	B	B	N	N	0	0	0	-
+g3	GS-02_013	sec_1_01	A	C	N	Y	6	0	0	제품명 헤드라인 caption
+g3	GS-02_013	sec_1_02	B	B	N	N	0	9	0	D=인증서 이미지 blk_002~010
+g3	GS-02_014	sec_1_01	A	B	N	N	0	0	0	-
+g3	GS-02_014	sec_1_02	B	B	N	N	4	0	0	-
+g3	GS-02_014	sec_1_03	B	B	N	N	0	0	0	-
+g3	GS-02_014	sec_1_04	B	C	N	N	0	0	1	N=blk_011 YL
+g3	GS-02_014	sec_1_05	A	B	N	N	5	0	1	"N=blk_003 ""+"""
+g3	GS-02_014	sec_1_06	B	C	N	N	0	2	0	"D=사진 내 각도값 018/019(애매); 헤드라인 ""+"" 분리는 기호라 경미로 봄; 역할오류 9→11 수정"
+g4	GS-02_014	sec_1_07	A	A	N	N	0	0	0	blk_001 제품명 아이브로우 caption은 애매하여 미집계
+g4	GS-02_014	sec_1_08	B	C	N	N	4	0	0	역할 C는 3건 이상(소제목 3개 body, 각주 body)
+g4	GS-02_014	sec_1_10	A	A	N	N	0	0	0	
+g4	GS-02_014	sec_1_11	C	A	Y	N	10	3	2	본문 3문단 과분할 7; D=사진 속 손글씨 메모 001·008·009
+g4	GS-03_001	sec_1_01	A	A	N	N	0	0	0	키커+헤드라인 병합(blk_001)은 애매하여 미집계
+g4	GS-03_002	sec_1_01	C	C	N	Y	6	0	3	메인 헤드라인 blk_002 body; 24H 아이콘 blk_013 미채점
+g4	GS-03_002	sec_1_02	A	B	N	N	0	0	0	
+g4	GS-03_002	sec_1_03	A	C	N	Y	0	0	0	헤드라인 blk_001 body
+g4	GS-03_002	sec_1_05	A	C	N	Y	6	0	0	메인 헤드라인 blk_003 body; blk_001 애매
+g4	GS-03_002	sec_1_06	A	C	N	Y	8	0	0	메인 헤드라인 blk_001 body; 라벨 blk_004·006, blk_016 애매
+g4	GS-03_002	sec_1_07	A	C	N	Y	0	0	0	유일 헤드라인 blk_001 body
+g4	GS-03_003	sec_1_01	-	-	N	N	0	0	2	본문 없음
+g4	GS-03_004	sec_1_01	B	C	N	N	0	0	0	라벨·각주 역할오류 8건
+g4	GS-03_005	sec_1_01	A	B	N	N	0	0	1	"blk_005 ""3"" 사진 오검출"
+g4	GS-03_006	sec_1_01	A	A	N	N	0	0	0	
+g4	GS-03_007	sec_1_01	-	-	N	N	0	0	2	본문 없음
+g4	GS-03_008	sec_1_01	A	B	N	N	0	0	0	VITAMIN C/비타민C 분리·역할은 애매하여 미집계
+g4	GS-03_008	sec_1_02	B	A	N	N	0	0	0	blk_002 중복 조각
+g4	GS-03_009	sec_1_01	A	B	N	N	0	0	0	
+g4	GS-03_010	sec_1_01	A	B	N	N	0	0	0	
+g5	GS-03_010	sec_1_02	B	C	N	N	0	0	0	역할 C는 오류 4건(각주·라벨 body)
+g5	GS-03_010	sec_1_03	B	B	N	N	7	0	0	L=blk_003~009 용기
+g5	GS-03_011	sec_1_01	A	A	N	N	0	0	1	N=blk_004 사진 전체 검출
+g5	GS-03_012	sec_1_01	B	B	N	N	0	0	0	
+g5	GS-03_013	sec_1_01	A	B	N	N	5	0	0	L=blk_004~008
+g5	GS-03_014	sec_1_01	A	A	N	N	0	25	0	D=blk_007~031(확대박스 025·026 포함)
+g5	GS-03_014	sec_1_02	A	B	N	N	0	0	0	
+g5	GS-03_014	sec_1_03	C	A	Y	N	0	0	0	핵심 헤드라인 blk_006/007 분할
+g5	GS-03_015	sec_1_01	A	B	N	N	0	0	0	
+g5	GS-03_017	sec_1_01	A	A	N	N	1	0	0	blk_001 섹션경계 절단 헤드라인(미집계)
+g5	GS-03_018	sec_1_01	A	B	N	N	0	0	0	
+g5	GS-03_018	sec_1_02	A	A	N	N	0	0	1	N=blk_003
+g5	GS-03_018	sec_1_03	A	C	N	N	0	0	0	역할 C는 오류 5건(체크리스트 불일치)
+g5	GS-03_018	sec_1_04	A	B	N	N	0	0	0	
+g5	GS-03_018	sec_1_05	A	A	N	N	0	0	0	
+g5	GS-03_018	sec_1_06	A	A	N	N	0	0	0	
+g5	GS-03_018	sec_1_07	A	A	N	N	0	0	0	
+g5	GS-03_018	sec_1_08	B	C	N	N	27	0	0	역할 C는 오류 9건; L에 반사 blk_022 포함
+g5	GS-03_018	sec_1_09	-	-	N	N	1	0	0	로고만 있음
+g5	GS-03_018	sec_1_10	A	A	N	N	8	0	0	표 행/열 제목 역할은 애매해 미집계

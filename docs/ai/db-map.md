@@ -46,6 +46,7 @@
 | `excluded_stage` | `review_status`의 일부 | [계약 0장] |
 | `content_findings` | 정책 적용 전 AI 섹션 판정 결과 JSON. `NULL` = 판정 미완료 | [계약 4.1] |
 | `original_verdict` | 되살린 섹션의 최초 판정 보존 | [계약 4.2] |
+| `exclusion_reason` | 자동 제외 사유 코드. API enum은 `auto_regulatory` · `auto_channel` · `auto_local_irrelevant` · `user_manual` · `restored_by_user`. 현지부적합 `needs_fix`용 코드는 설명서 제안(`auto_local_needs_check`)이며 미확정(`open-questions.md` #7) | [설명서 §3] [`docs/openapi.yaml` `ExclusionReason`] |
 | `residual_ratio` | 인페인팅 잔존율. MVP 필수 아님, `NULL` 허용 | [계약 5.2] |
 
 ### 3.3 `text_block`
@@ -75,8 +76,10 @@
 | 이름 | 계약이 기대하는 의미 | 절 |
 |---|---|---|
 | `id` | `audit_log.detail`에 생성 목록으로 기록, `compliance_flags.section_verdict_id`가 참조 | [계약 4.2, 7.1] |
-| `verdict_status` · `verdict_type` · `reason` · `basis_article` · `evidence_url` | 정책 적용 결과. 허용값·매핑은 정책 계약 소유(담당 미정) | [계약 4.2] |
+| `verdict_status` · `verdict_type` · `reason` · `basis_article` · `evidence_url` | 정책 적용 결과. 허용값·매핑은 정책 계약 소유(담당 미정, `open-questions.md` #7). 설명서 §3 · §4에 매핑안이 있고 `docs/openapi.yaml`에 `VerdictStatus` 5값 · `VerdictType` 6값(파생)이 있으나 대조 · 합의 전 | [계약 4.2] [설명서 §3 · §4] |
 | `dictionary_id` | 실제 `expression_dictionary` 항목을 근거로 쓴 경우에만 기록 | [계약 4.2] |
+| (`rewritable`) | 규제사전의 판정값(2행). 저장 시 보존할지 `regulated`로 변환할지 미정 — 엑셀 읽는법과 설명서가 선택지를 다르게 제시(#7) | [규제사전 00_읽는법] [설명서 §4] |
+| (`exclusion_context` · `keep_context`) | 현지부적합의 "제외하는 맥락" · "제외하지 않는 맥락" 2열을 담을 저장 필드 — **설명서의 신설 제안**이며 확정 필드가 아니다(#7) | [설명서 §3] |
 
 ### 3.5 `deliverable_section`
 
@@ -101,7 +104,8 @@
 | `brand.name_ko` · `brand.name_en` | 로고 제외 비교 대상 브랜드명 | [계약 2.3] |
 | `glossary.id` | 번역 입력 용어의 참조. `compliance_flags.glossary_id`가 참조 | [계약 5.1, 7.1] |
 | (`enforcement`) | 번역 입력에 함께 전달되는 **값**. DB 컬럼 존재 여부는 계약만으로 확인 불가 — 컬럼으로 전제하지 않는다 | [계약 5.1] |
-| `expression_dictionary` | `section_verdict.dictionary_id` · `compliance_flags.dictionary_id`의 참조 대상 | [계약 4.2, 7.1] |
+| `expression_dictionary` | `section_verdict.dictionary_id` · `compliance_flags.dictionary_id`의 참조 대상. 마이그레이션 0001의 컬럼은 `external_id` · `source_expression` · `variant_ko` · `forbidden_en` · `target_country` · `regulatory_class` · `dict_type` · `verdict_status` · `alternative_expression` · `reason` · `confirmed_date`(근거는 `expression_dictionary_evidence`). 전달 자료 열과의 대응(`id`→`external_id` · `variant_expressions.ko`→`variant_ko` · `variant_expressions.en`→`forbidden_en` · `verified_at`→`confirmed_date` · `dict_type` regulatory/local)은 설명서 §3의 매핑안이며 **BE 확인 필요**(`open-questions.md` #3 · #7) | [계약 4.2, 7.1] [migrations 0001] [설명서 §3] |
+| `job.regulatory_class` | 상품 규제 분류(API enum `cosmetic` · `otc` · `combination` · `unknown`). 규제사전 조회 키 `(target_country, regulatory_class)`의 입력 후보. ③-1 · ③-1'에 어떻게 전달할지 미정(`open-questions.md` #47) | [설명서 §4] [`docs/openapi.yaml` `RegulatoryClass`] |
 | `audit_log.detail` | 정책 적용 실행 정보, 영역 변경 전후 | [계약 4.2, 6.3] |
 | `edit_signal.before_text` · `after_text` | 텍스트 수정 기록 | [계약 6.3] |
 | `event_log.payload` | 실행에 쓴 모델·프롬프트·용어집·정책 버전과 캐시 키 | [계약 9장] |

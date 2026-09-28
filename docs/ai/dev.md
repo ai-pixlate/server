@@ -48,7 +48,7 @@ docs/ai/                     정본 문서
 
 - `pipeline/`은 `app/`(BE)을 import하지 않는다. 워커(`app/tasks.py`)가 `pipeline.analyze`를 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
 - 단계 파일 하나 = `pipeline.md` 단계표 한 행. 파일은 `run()` 하나를 노출하고 타입은 `types.py`만 쓴다.
-- 후속 단계 파일명은 예약해 둔다: `judge.py`(③-1) · `policy.py`(③-1', 구현 소유자 미정 #6) · `label.py`(④) · `logo.py`(⑤) · `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
+- 후속 단계 파일명은 예약해 둔다: `judge.py`(③-1) · `policy.py`(③-1', 구현 소유자 AI 서버 — `open-questions.md` 5절 #6. 사전 데이터의 레포 내 위치 · 형식은 미정 #3) · `label.py`(④) · `logo.py`(⑤) · `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
 
 ## 2. 설정과 프롬프트
 

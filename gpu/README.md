@@ -141,8 +141,19 @@ API는 인페인팅을 `app.tasks.run_inpaint`로 **`gpu` 큐**에 넣고, 이 �
 | 항목 | 값 |
 | --- | --- |
 | 워커 명령 (레포 루트에서) | `celery -A app.celery_app worker -Q gpu -n gpu@%h --loglevel=info` |
-| 환경변수 | `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, `DATABASE_URL` |
-| 코드·의존성 | 이 레포를 `/data` 아래에 두고 `requirements.txt` 설치 (이미지에는 서버 코드·Celery·DB 드라이버가 없습니다) |
+| 환경변수 | `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, `DATABASE_URL`, `CELERY_VISIBILITY_TIMEOUT`(선택, 기본 3600) |
+| 코드·의존성 | 이 레포와 venv를 모두 `/data` 아래에 둡니다 (이미지에는 서버 코드·Celery·DB 드라이버가 없고, `/data` 밖은 재시작 시 지워집니다) |
+
+설치 (최초 1회, `/data` 아래 venv — `feature/gpu-worker-test` 브랜치 `gpu/worker-test/README.md` 9절과 같은 방법):
+
+```bash
+git clone https://github.com/ai-pixlate/server.git /data/server   # 레포는 /data/server 로 가정
+python -m venv /data/venv
+echo /opt/venv/lib/python3.12/site-packages > /data/venv/lib/python3.12/site-packages/opt-venv.pth  # 이미지의 PyTorch 연결
+cd /data/server && /data/venv/bin/pip install -r requirements.txt
+```
+
+`CELERY_VISIBILITY_TIMEOUT`은 워커마다 각자 읽는 값입니다. 바꿀 때는 EC2(API·워커)와 같은 값을 넣어야 동작이 어긋나지 않습니다.
 
 - broker·backend는 **EC2 Redis 주소**여야 합니다. 기본값의 `pixlate-redis`는 EC2 docker 내부 이름이라 이 서버에서 해석되지 않습니다.
 - `run_inpaint`가 결과를 DB에 쓰므로 `DATABASE_URL`(RDS)도 필요합니다.
@@ -150,4 +161,4 @@ API는 인페인팅을 `app.tasks.run_inpaint`로 **`gpu` 큐**에 넣고, 이 �
 - EC2는 `ocr`·`cpu` 워커만 띄웁니다. `gpu` 큐는 이 서버만 소비합니다.
 - `feature/gpu-worker-test`의 `worker_test`·`fake_inpaint`·학교 로컬 Redis는 연결 테스트용이며 **이 연동의 성공 기준이 아닙니다.**
 - 연동 확인: 분석을 한 번 돌린 뒤 EC2에서 `redis-cli -n 0 LLEN gpu`가 0으로 줄어야 합니다. 계속 쌓이기만 하면 워커가 EC2 Redis에 붙지 않은 것입니다.
-- 워커가 처리 도중 죽어도 작업은 큐로 돌아와 다시 실행됩니다(`task_acks_late`, 재처리까지 약 90초). 그래서 `run_inpaint`는 두 번 실행돼도 안전하게 만들어져 있습니다.
+- 워커가 처리 도중 죽어도 작업은 큐로 돌아와 다시 실행됩니다(`task_acks_late`). 다만 워커 전체가 죽으면 `CELERY_VISIBILITY_TIMEOUT`(기본 3600초)이 지나야 다시 전달됩니다 — 학교 서버 재시작 때 처리 중이던 작업은 약 1시간 뒤 재처리됩니다. 재전달로 두 번 실행될 수 있어 `run_inpaint`는 두 번 실행돼도 안전하게 만들어져 있습니다.

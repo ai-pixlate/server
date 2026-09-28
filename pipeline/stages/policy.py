@@ -14,6 +14,10 @@ from pipeline.dictionary import Dictionaries
 from pipeline.types import JudgeContext, JudgeResult, PolicyResult, TextBlock
 
 
+class PolicyInputError(ValueError):
+    """③-1' 입력이 판정 결과가 아니다(검출 전용 결과 등). 포함 권고를 만들 수 없다."""
+
+
 def validate_config(cfg: dict[str, Any]) -> None:
     """[policy] 설정 검증. 어기면 ValueError."""
     if "policy" not in cfg:
@@ -27,6 +31,14 @@ def validate_config(cfg: dict[str, Any]) -> None:
 
 
 def run(judge_result: JudgeResult, blocks: list[TextBlock], ctx: JudgeContext, cfg: dict[str, Any], *, dicts: Dictionaries) -> PolicyResult:
-    """③-1' 실행 — 적용 행 선택 · 예외 · 매핑 · 집계는 다음 착수 범위(설계 9절 5번). 시그니처만 고정한다(블록은 정상 입력, 3.5절)."""
+    """③-1' 실행 — 적용 행 선택 · 예외 · 매핑 · 집계는 다음 착수 범위(설계 9절 5번). 시그니처만 고정한다(블록은 정상 입력, 3.5절).
+
+    입력은 반드시 `JudgeResult`다. `DetectionResult`(검출 전용)는 판정 결과가 아니므로 거부한다 — 검출만 끝난 상태로 포함 권고를 만들지 않는다.
+    """
     validate_config(cfg)
+    if not isinstance(judge_result, JudgeResult):
+        raise PolicyInputError(
+            f"③-1' 입력은 JudgeResult여야 한다 — 받은 것: {type(judge_result).__name__}. "
+            "검출 전용 결과(DetectionResult, judge --no-llm)는 판정 결과가 아니며 정책 입력이 될 수 없다"
+        )
     raise NotImplementedError("③-1' policy.run은 아직 구현되지 않았다 — docs/ai/status.md 2절 · 설계 v1 9절")

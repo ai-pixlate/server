@@ -262,10 +262,15 @@ class Span(_Model):
 
 
 class Match(_Model):
-    """[잠정 · BE 합의 D13] 규칙 매칭 근거 — finding과 별개로 보존하며 ③-1'의 정상 입력(problem_text · 겹침 처리)."""
+    """[잠정 · BE 합의 D13] 규칙 매칭 근거 — finding과 별개로 보존하며 ③-1'의 정상 입력(problem_text · 겹침 처리).
+
+    raw_span은 원문 `source_ko`의 **문자(코드 포인트) 인덱스 반개구간 [start, end)** 이며 정규화 전 좌표다.
+    matched_text = source_ko[start:end] (원문의 공백 · 줄바꿈이 그대로 들어 있을 수 있다).
+    finding_key는 ③-1이 finding을 조립할 때 채운다. 검출 전용 결과(DetectionResult)에서는 None이다.
+    """
 
     match_key: str
-    finding_key: str
+    finding_key: str | None = None
     dictionary_ref: str  # 사전 항목 ID(RG-xxx · LC-xx). DB id 변환은 워커
     pattern: str
     block_key: str
@@ -302,6 +307,47 @@ class JudgeResult(_Model):
             raise ValueError("failed면 content_findings는 None(판정 미완료)이어야 한다")
         if status in ("ok", "skipped") and v is None:
             raise ValueError(f"{status}면 content_findings가 있어야 한다(빈 목록 허용)")
+        return v
+
+    @field_validator("matches")
+    @classmethod
+    def _matches_bound_to_findings(cls, v: list[Match], info) -> list[Match]:
+        cf = info.data.get("content_findings")
+        keys = {f.finding_key for f in cf.findings} if cf is not None else set()
+        loose = [m.match_key for m in v if m.finding_key is None or m.finding_key not in keys]
+        if loose:
+            raise ValueError(f"JudgeResult의 매칭은 finding에 묶여야 한다(검출 전용 결과가 아니다): {loose}")
+        return v
+
+
+class DetectionResult(_Model):
+    """[잠정] ③-1a **검출 전용** 출력 — 판정 결과가 아니다.
+
+    `content_findings`가 없고 status는 `detect_only`뿐이다. `judge --no-llm`의 출력이며, "규칙만으로 최종 판정"이 아니라
+    "후보 검출만 수행"을 뜻한다. `findings=[]` · `status=ok`로 판정 완료처럼 전달하지 않으며, ③-1'(`policy.run`)의 입력이 될 수 없다.
+    원료 · 연구원 같은 매칭은 의도된 후보 생성이지 부적합 판정 성공이 아니다.
+    """
+
+    schema_version: str = SCHEMA_VERSION
+    section_key: str
+    status: Literal["detect_only"] = "detect_only"
+    matches: list[Match] = Field(default_factory=list)
+    candidates: dict[str, list[str]] = Field(default_factory=dict)  # 사전 항목 ID → match_key 목록(매칭된 항목만)
+    checked: JudgeChecked  # llm_called는 항상 False
+
+    @field_validator("matches")
+    @classmethod
+    def _no_finding_keys(cls, v: list[Match]) -> list[Match]:
+        bound = [m.match_key for m in v if m.finding_key is not None]
+        if bound:
+            raise ValueError(f"검출 전용 결과의 매칭은 finding에 묶이지 않는다: {bound}")
+        return v
+
+    @field_validator("checked")
+    @classmethod
+    def _llm_not_called(cls, v: JudgeChecked) -> JudgeChecked:
+        if v.llm_called:
+            raise ValueError("검출 전용 결과는 LLM을 부르지 않는다")
         return v
 
 

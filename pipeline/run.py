@@ -7,6 +7,8 @@
     python -m pipeline.run merge   --split DIR/split.json --ocr DIR/ocr/<KEY>.json --out DIR [--no-llm | --llm-replay DIR0/merge_debug/<KEY>.json]
                                    # ③ → DIR/merge/<KEY>.json, DIR/merge_debug/<KEY>.json. --no-llm은 휴리스틱만, --llm-replay는 기록 재생
     python -m pipeline.run analyze --source IMG [--source IMG ...] --out DIR [--no-llm]  # ①→②→③ → DIR/analyze.json
+    python -m pipeline.run judge   --merge DIR/merge/<KEY>.json --out DIR --no-llm      # ③-1a 검출만 → DIR/judge_detect/<KEY>.json, DIR/judge_debug/<KEY>.json
+                                   # --no-llm은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다(status detect_only, 판정 결과 아님). 전체 판정은 미구현(종료 코드 3)
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
     python -m pipeline.run freeze-input  --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]  # 고정 입력본 생성·검증
@@ -210,6 +212,29 @@ def cmd_merge(args) -> int:
     return 0
 
 
+def cmd_judge(args) -> int:
+    """③-1. 현재는 --no-llm(③-1a 검출만)만 있다. 출력은 DetectionResult — 판정 결과가 아니며 policy 입력이 될 수 없다."""
+    from pipeline.stages import judge
+
+    cfg = _load_cfg(args)
+    started = datetime.now(timezone.utc)
+    out = Path(args.out)
+    merged = jsonio.load_merge(args.merge)
+    if not args.no_llm:
+        raise NotImplementedError("③-1 전체 판정(맥락 판정 · 조립)은 미구현 — 검출만 하려면 --no-llm")
+    dicts = judge.load_dicts(cfg)
+    key = merged.section_key
+    res = judge.detect_only(key, merged.blocks, cfg, dicts=dicts, recorder=judge.json_recorder(out / "judge_debug"))
+    p = _write_json(out / "judge_detect" / f"{key}.json", res)
+    _write_run_record(
+        out, "judge", cfg, {"merge": args.merge}, started,
+        extra={"mode": "detect_only", "use_llm": False, "dictionary_version": dicts.dictionary_version,
+               "dictionary_fingerprint": dicts.fingerprint, "match_rules_version": judge.MATCH_RULES_VERSION},
+    )
+    print(f"{key}: 검출 전용 — 매칭 {len(res.matches)}개 · 항목 {len(res.candidates)}개 → {p} (판정 결과 아님)")
+    return 0
+
+
 def cmd_analyze(args) -> int:
     from pipeline.analyze import analyze
 
@@ -308,6 +333,13 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--no-llm", action="store_true", help="heuristic_v2만 실행(llm_assist 생략, 개발·실측용)")
     mode.add_argument("--llm-replay", metavar="merge_debug/<KEY>.json", help="이전 llm_assist 기록의 응답을 재생(API 호출 없음)")
     sp.set_defaults(fn=cmd_merge)
+
+    sp = sub.add_parser("judge", help="③-1 AI 섹션 판정 (현재 --no-llm 검출만)")
+    common(sp)
+    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 출력)")
+    sp.add_argument("--out", required=True)
+    sp.add_argument("--no-llm", action="store_true", help="③-1a 검출만 실행(후보 검출, 판정 아님). 없으면 미구현(종료 코드 3)")
+    sp.set_defaults(fn=cmd_judge)
 
     sp = sub.add_parser("analyze", help="①→②→③ 초기 분석")
     common(sp)

@@ -29,10 +29,14 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   config/default.toml        실행 파라미터 정본 — 2절
   prompts/                   프롬프트 원문 (문서에는 경로만) — 2절
   vlm.py                     VLM·LLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택(실패 처리 #25 미정) · ③ llm_assist 호출 · 재생(#37 · #41)
+  dictionary.py              ③-1 · ③-1' 사전 데이터 스키마 · 로더 · 두 뷰(judge_view/policy_view) — 개발용 잠정 스키마(#60)
+  data/dict/                 사전 변환 도구(tools/build_dict.py) · 합성 테스트 데이터(synthetic/) · README. 실제 값은 samples/local/dict/ (git 제외)
   stages/
     section_split.py         ① 섹션 분해
     ocr.py                   ② 텍스트 추출
     merge.py                 ③ 줄·문단 병합 + 역할 분류
+    judge.py                 ③-1 AI 섹션 판정 — 설정 검증 · 사전 로드 · 뼈대(run 미구현, #60)
+    policy.py                ③-1' 정책 적용 — 설정 검증 · 뼈대(run 미구현, #60)
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 — 3·5절
   run.py                     단계별 실행 CLI — 4절
@@ -48,7 +52,7 @@ docs/ai/                     정본 문서
 
 - `pipeline/`은 `app/`(BE)을 import하지 않는다. 워커(`app/tasks.py`)가 `pipeline.analyze`를 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
 - 단계 파일 하나 = `pipeline.md` 단계표 한 행. 파일은 `run()` 하나를 노출하고 타입은 `types.py`만 쓴다.
-- 후속 단계 파일명은 예약해 둔다: `judge.py`(③-1) · `policy.py`(③-1', 구현 소유자 미정 #6) · `label.py`(④) · `logo.py`(⑤) · `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
+- 후속 단계 파일명은 예약해 둔다: `label.py`(④) · `logo.py`(⑤) · `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
 
 ## 2. 설정과 프롬프트
 
@@ -56,7 +60,8 @@ docs/ai/                     정본 문서
 
 - TOML 표 이름 = `pipeline.md` 3절 키의 접두어(`[ocr]` `split_threshold_px` ↔ `ocr.split_threshold_px`). 두 곳의 키와 기본값은 항상 같아야 한다.
 - 실험 중 값 변경은 `--set 표.키=값`(반복 가능)으로만 한다. 파일과 `pipeline.md` 3절은 사용자가 "확정"이라고 말할 때만 함께 고친다.
-- 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. 현재 없는 키: ③-1 판정(#5). `[section]`의 임계값·기준값은 키는 있으나 값이 잠정이다(#26).
+- 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. `[section]`의 임계값·기준값은 키는 있으나 값이 잠정이다(#26). `[judge]` · `[policy]`는 설계 v1의 **실험 기준값**이며 판정 방식 채택(#5)은 실측 후다(#60).
+- `judge.dict_dir`은 실제 사전 JSON의 **로컬 위치**(git 제외, `pipeline/samples/local/dict/normalized`)를 가리킨다. 테스트는 `pipeline/data/dict/synthetic`(합성, 실제 값 아님)만 쓴다. 상대 경로는 레포 루트 기준.
 - 통째로 바꾸려면 `--config PATH`(실험용 사본). 사본은 커밋하지 않는다.
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
@@ -72,6 +77,8 @@ docs/ai/                     정본 문서
 | ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
 | ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None)` | `Section` | `OcrResult`. `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 `NotImplementedError`(임시 분할 #31 · #32 미구현, 조용히 통과시키지 않음). 실제 이미지 크기가 `Section.width`·`height`와 다르면 `IMAGE_OPEN_FAILED`(재시도 불가) — 분할 판단과 좌표 범위가 메타데이터와 어긋나지 않게. 엔진 반환값이 dict가 아니거나 배열이 아니면 `OCR_FAILED` |
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg, *, use_llm=True)` | `Section` + `OcrResult` | `MergeResult`. 먼저 `validate_config(cfg)`(`pipeline.md` 7.1절 "설정 값 검증", 어기면 `ValueError`). `use_llm=False`면 `heuristic_v2`만(프롬프트 · API 키 불필요). `use_llm=True`면 `validate_llm_config`(7.2절, `llm`을 주지 않으면 API 키까지) 뒤 `heuristic_v2` → `llm_assist`. 전체 시그니처 `run(section, ocr, cfg, *, use_llm=True, llm=None, recorder=None)` — `llm`은 호출자 주입(테스트 · 재생, 기본 `vlm.GeminiMergeAssistant`), `recorder`는 섹션 기록을 받는 함수(`merge.json_recorder(dir)`). 호출 · 응답 검증 실패는 `VlmError`(검증 실패는 하위 클래스 `LlmResponseError`) |
+| ③-1 AI 섹션 판정 | `stages.judge.run(section, blocks, ctx, cfg, *, dicts=None, llm=None, recorder=None)` | `Section` + `TextBlock[]` + `JudgeContext` (+ 사전 핸들 `dictionary.Dictionaries`, 기본 `judge.load_dicts(cfg)`) | `JudgeResult`(2026-09-29 구현). 검출(`detect`) → 호출 범위(`judge.call_scope`) → 맥락 판정(LLM, LC 항목만) → 조립(`assemble`). 실패(호출 · 시간 초과 · 응답 검증 · 재생 불일치)는 예외가 아니라 `status=failed` 결과(`content_findings=None` · 매칭은 기록에만). `llm`은 호출자 주입(기본 `vlm.GeminiJudgeAssistant`, 재생 `vlm.ReplayJudgeAssistant`), `recorder`는 `judge.json_recorder(dir)`. 검출만은 `judge.detect_only(section_key, blocks, cfg, *, dicts=None, recorder=None) -> DetectionResult`(status `detect_only`, 판정 결과 아님 · `policy.run` 입력 불가). 설정 검증 `validate_config` · `validate_llm_config`(#60, `pipeline.md` 7.3절) |
+| ③-1' 정책 적용 | `stages.policy.run(judge_result, blocks, ctx, cfg, *, dicts)` | `JudgeResult` + 현재 섹션 `TextBlock[]`(정상 입력, 설계 3.5절) + `JudgeContext`(`regulatory_class`) + 사전 핸들 | `PolicyResult`(2026-09-29 구현). 적용 행 선택 → 예외 쌍 · 충돌(개별 매칭 단위) → 매핑(`policy_rules.json`) → 집계. `JudgeResult.status`가 ok · skipped가 아니면 `incomplete`, `regulatory_class`가 None이면 `input_error`(둘 다 권고 · verdict 없음). `DetectionResult`는 `PolicyInputError`로 거부. 처리 순서 버전 `policy.RULES_IMPL_VERSION`(#60, `pipeline.md` 7.3절) |
 | 초기 분석 | `analyze(sources, cfg, out_dir, *, use_llm=True)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError`. ① 전에 ③ 설정(`use_llm`이면 LLM 설정 · API 키까지)을 검증하고, 끝에 `block_key`를 실행 전체에서 다시 매긴다(아래 임시 식별자). 전체 시그니처 `analyze(sources, cfg, out_dir, *, use_llm=True, llm=None)`. `use_llm`이면 `out_dir/merge_debug/<section_key>.json`(섹션 기록)과 `merge_debug/block_keys.json`((`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키)을 남긴다. `analyze()` 재생은 없다 |
 
 | 타입 | 필드 | 계약 |
@@ -86,6 +93,12 @@ docs/ai/                     정본 문서
 | `MergeResult` | `section_key` `blocks[]` | 1.1 |
 | `AnalyzeResult` | `sections[]` `blocks[]` `warnings[]`(`NO_TEXT_DETECTED`) | 1.1 · 8장 |
 | `AnalyzeError` | `code` `retryable` `message` `source_image_id` — `IMAGE_OPEN_FAILED`(재시도 불가) · `OCR_FAILED`(가능) | 8장 |
+| `ContentFinding` · `ContentFindings` | 계약 4.1의 6키(`finding_key` `content_type` `status` `evidence_block_ids` `evidence_source` `reason`) · `schema_version` + `findings[]` | 4.1 |
+| `Match` · `Span` | **[개발용 잠정 · BE 합의 D13]** 규칙 매칭 근거 — `match_key` `finding_key` `dictionary_ref` `pattern` `block_key` `raw_span{start,end}`(원문 오프셋) `matched_text` | (계약 없음, #48) |
+| `JudgeResult` · `JudgeChecked` | **[잠정]** `section_key` `status`(`ok`·`skipped`·`failed`) `content_findings`(failed면 `None`) `matches[]`(모두 finding에 묶여야 함) `checked`(사전 버전 · 해시 · 매칭 규칙 버전 · 검사 항목 · LLM 호출 여부 · **입력 블록 지문** `input_fingerprint`) `error` | 4.1(NULL) · #60 |
+| `DetectionResult` | **[잠정]** ③-1a 검출 전용 출력 — `section_key` `status`(`detect_only`뿐) `matches[]`(`finding_key` 없음) `candidates`(항목 ID → `match_key` 목록) `checked`(`llm_called=False` 강제). `content_findings` 없음. 판정 결과가 아니며 `policy.run`이 거부한다 | #60 · `pipeline.md` 7.3절 |
+| `JudgeContext` | **[잠정 · BE 합의 #47]** `regulatory_class`(None = 누락, `unknown`과 구분) `prev_section_text` `next_section_text` | #47 |
+| `VerdictDraft` · `ConflictGroup` · `SuppressedMatch` · `PolicyApplied` · `PolicyResult` | **[계약 4.2 + 잠정]** verdict 후보(`verdict_status` `source_verdict_status` `finding_status` `problem_text` `alternative_expression` `basis_article` `evidence_url` `reason` `conflict_group`) · 충돌 집합 · 억제 매칭 · 적용 정보(`regulatory_class` `applied_classes` `dict_coverage` 버전 · 해시) · 결과(`status` ok가 아니면 권고 · verdict 없음). `verdict_type` · `exclusion_reason`은 BE 파생이라 없다 | 4.2 · #60 |
 
 규칙:
 
@@ -122,6 +135,9 @@ docs/ai/                     정본 문서
 | `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② — 실행 구조는 아래 "② 실행 구조" | `DIR/ocr/<key>.json`(성공한 섹션만) · `DIR/run.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR [--no-llm \| --llm-replay DIR0/merge_debug/<key>.json]` | ③. 기본은 `heuristic_v2` → `llm_assist`(API 키 필요). `--no-llm`은 `heuristic_v2`만(개발·실측용, 2026-09-27 결정). `--llm-replay`는 이전 기록의 응답을 API 호출 없이 재생 — 모델 설정 · 프롬프트 · 페이로드 SHA-256이 기록과 같아야 하고 응답은 같은 검증을 거친다. 둘을 함께 주면 인자 오류. 잘못된 `[merge]` 설정은 `ValueError`로 traceback과 종료 코드 1, 호출 · 응답 검증 실패와 재생 불일치는 종료 코드 4 | `DIR/merge/<key>.json` · `DIR/merge_debug/<key>.json`(LLM 실행 · 재생) · `DIR/run.json`(`use_llm` · `llm_replay`) |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR [--no-llm]` | ①→②→③. `--no-llm`은 ③을 `heuristic_v2`만(`merge`와 같음). 없으면 `llm_assist`까지(API 키 필요, 없으면 ① 전에 `ValueError`) | `DIR/analyze.json` · `DIR/merge_debug/`(LLM 실행) · `DIR/run.json`(`use_llm`) |
+| `python -m pipeline.run judge --merge DIR/merge/<key>.json --split DIR/split.json --out DIR [--llm-replay DIR0/judge_debug/<key>.json]` | ③-1 전체(2026-09-29): 검출 → 맥락 판정(LLM, API 키 필요) → 조립. `--split`은 섹션 이미지 · 이웃 섹션용(앞뒤 문맥은 `--merge`와 같은 폴더의 이웃 `merge/<key>.json`에서 읽고 없으면 없음). `--llm-replay`는 이전 기록 재생(모델 설정 · 프롬프트 · 페이로드 · 이미지 해시 일치 필요). 판정 실패는 `status=failed`로 저장하고 종료 코드 4 | `DIR/judge/<key>.json`(`JudgeResult`) · `DIR/judge_debug/<key>.json`(페이로드 · 프롬프트 · 이미지 해시 · 모델 설정 · 원응답 · 검증 · 조립 결과) · `DIR/run.json`(`mode=full` · `status` · 사전 버전 · 해시) |
+| `python -m pipeline.run judge --merge DIR/merge/<key>.json --out DIR --no-llm` | ③-1a **검출만**(2026-09-28). `--no-llm`은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다 — 출력은 `DetectionResult`(status `detect_only`, `content_findings` 없음)이며 `policy`의 입력이 될 수 없다. 사전은 `judge.dict_dir`(레포 루트 기준, 없으면 `DictionaryError`) | `DIR/judge_detect/<key>.json` · `DIR/judge_debug/<key>.json`(원시 매칭 · 사전 버전 · 해시 · 매칭 규칙 · 정규화 규칙) · `DIR/run.json`(`mode=detect_only`) |
+| `python -m pipeline.run policy --judge DIR/judge/<key>.json --merge DIR/merge/<key>.json --regulatory-class cosmetic\|otc\|combination\|unknown --out DIR` | ③-1'(2026-09-29). `--regulatory-class`가 없으면 `input_error`(사용자가 고른 `unknown`과 구분), `judge`가 failed면 `incomplete` — 둘 다 권고 없이 저장하고 종료 코드 2. 실측용 분류는 `docs/ai-experiments/2026-09-29_03-1-judge_regulatory-class-candidates.md`(사람 확인 전 가정) | `DIR/policy/<key>.json`(`PolicyResult`: verdict 후보 · 버킷 권고 · 억제 · 충돌 · 적용 정보) · `DIR/run.json`(`regulatory_class` · `status` · 사전 · 규칙 · 구현 버전) |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이 | PNG |
 | `python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json [--overwrite]` | 버전 1 → 2 **일반 전환**. 옛 상대 경로를 `--base` 기준으로 해석(대상이 없으면 실패)해 새 JSON 위치 기준으로 다시 쓴다. **이미지는 옮기지 않으며 결과는 원래 이미지를 가리킨다.** `--out`이 있으면 `--overwrite` 없이는 거부. 원래 값은 stdout에 출력 | `NEW/split.json` |
 | `python -m pipeline.run freeze-input --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]` | **고정 입력본 생성**(5절). 섹션 PNG를 `INPUT_DIR/sections/`로 복사하고 복사본을 가리키게 한 뒤 검증. 원본은 읽기만 하고 전후 해시 비교. `INPUT_DIR`이 비어 있지 않으면 거부. 버전 1 원본은 `--base` 필요 | `INPUT_DIR/split.json` · `sections/` · `origin/`(원본 `split.json` · `split_debug.json` · `run.json` 사본) · `provenance.json` |
@@ -148,6 +164,8 @@ pipeline/samples/<이름>/
 |---|---|---|
 | `samples/synthetic_01/` | 합성 원본(600×1000, 배경색 2구간, 영문) + 단계별 기대 JSON. `python -m pipeline.samples.make_synthetic`로 재생성 | 포함 |
 | `samples/local/` | 실제 한국어 상세페이지 표본 | **제외** |
+| `samples/local/dict/` | ③-1 · ③-1' 사전 데이터 — `source/`(전달 원본 xlsx 2개 · 설명서 md, 수정 없이 보관) · `normalized/`(실제 값이 든 정규화 JSON 3개 + `SHA256SUMS`, = `judge.dict_dir`). 절차 · 버전 · 묶음 보관 규칙은 `pipeline/data/dict/README.md`. 정규화 JSON은 고정 입력본처럼 묶음으로 별도 보관하고 옮긴 뒤 `build_dict verify`로 해시를 대조한다(2026-09-28 사용자 결정: 로컬 배치, git 포함은 미룸) | **제외** |
+| `data/dict/synthetic/` | 합성 사전(실제 값 아님). 테스트 전용 | 포함 |
 
 확인 순서: ① JSON을 읽는다(원문·역할·score) → ② `inspect`로 오버레이 PNG를 만들어 좌표를 본다 → ③ 판단. 섹션 경계가 이상하면 `split_debug.json`에서 그 y의 후보 기각 사유(`median_delta` · `bg_ratio` · `min_section`)나 VLM 폐기(`dropped`) 기록을 먼저 본다. 오버레이 색: 영역 초록 / 블록 `title` 빨강 · `body` 파랑 · `caption` 회색 · `price` 주황 · `caution` 보라 / 섹션 경계 빨간 선. 라벨은 키·숫자만 그린다(한글 폰트가 없어도 깨지지 않게).
 

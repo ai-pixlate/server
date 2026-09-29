@@ -27,7 +27,8 @@ def test_default_config_matches_pipeline_md_keys():
     assert flat["translate.prompt_path"] == "pipeline/prompts/translate.md"
     assert flat["section.vlm_model"] == "gemini-3.8-flash"  # open-questions #21 확정 2026-09-21
     assert flat["section.prompt_path"] == "pipeline/prompts/section_boundary.md"
-    assert not any(k.startswith("judge.") for k in flat)  # ③-1 미정
+    assert flat["judge.match_mode"] == "substring"  # ③-1 설계 v1 잠정값(open-questions #60) — 실험 기준
+    assert flat["policy.problem_text_max_chars"] == 300
 
 
 def test_override_parses_toml_literals_and_strings():
@@ -41,4 +42,6 @@ def test_override_rejects_unknown_key():
     with pytest.raises(cfgmod.ConfigKeyError):
         cfgmod.load_config(overrides=["merge.typo=1"])
     with pytest.raises(cfgmod.ConfigKeyError):
-        cfgmod.load_config(overrides=["judge.model=x"])  # ③-1 미정 키
+        cfgmod.load_config(overrides=["judge.model=x"])  # 없는 키(③-1 모델 키는 judge.llm_model)
+    with pytest.raises(cfgmod.ConfigKeyError):
+        cfgmod.load_config(overrides=["label.foo=1"])

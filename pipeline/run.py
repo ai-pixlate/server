@@ -13,7 +13,11 @@
                                    # --no-llm은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다(status detect_only, 판정 결과 아님)
     python -m pipeline.run policy  --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json --regulatory-class cosmetic|otc|combination|unknown --out DIR
                                    # ③-1' → DIR/policy/<KEY>.json (section_verdict 후보 · 버킷 권고). 미완료 · 분류 누락은 권고 없이 저장하고 종료 코드 2
+    python -m pipeline.run label   --merge DIR/merge/<KEY>.json --split DIR/split.json --out NEW_DIR [--llm-replay DIR0/label_debug/<KEY>.json]
+                                   # ④ 제품 라벨 판정 → NEW_DIR/label/<KEY>.json, NEW_DIR/label_debug/<KEY>.json. 실패는 status=failed로 저장하고 종료 코드 4.
+                                   # 실행마다 새 --out(이전 run.json · label/이 있으면 거부)
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
+    python -m pipeline.run inspect --label DIR/label/<KEY>.json --merge DIR/merge/<KEY>.json --image IMG --out PNG
     python -m pipeline.run inspect --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json [--policy DIR/policy/<KEY>.json] --image IMG --out PNG
     python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
     python -m pipeline.run freeze-input  --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]  # 고정 입력본 생성·검증
@@ -314,6 +318,41 @@ def cmd_policy(args) -> int:
     return 0
 
 
+def cmd_label(args) -> int:
+    """④. merge/<key>.json(블록) + split.json(섹션 이미지) → label/<key>.json. 판정 실패는 status=failed로 저장하고 종료 코드 4."""
+    from pipeline.stages import label
+    from pipeline.vlm import sdk_info
+
+    cfg = _load_cfg(args)
+    started = datetime.now(timezone.utc)
+    out = Path(args.out)
+    if (out / "run.json").exists() or (out / "label").exists():
+        raise FileExistsError(f"{out}에 이전 실행 결과(run.json 또는 label/)가 있음 — 실행마다 새 --out을 쓴다")
+    label.validate_config(cfg)
+    merged = jsonio.load_merge(args.merge)
+    split = jsonio.load_split(args.split)
+    sec = _find_section(split, merged.section_key)
+    llm = None
+    if args.llm_replay:
+        from pipeline.vlm import ReplayLabelAssistant
+
+        llm = ReplayLabelAssistant.from_file(args.llm_replay, label.llm_config(cfg))
+    res = label.run(sec, merged.blocks, cfg, llm=llm, recorder=label.json_recorder(out / "label_debug"))
+    if llm is not None and res.status == "ok":
+        llm.finish()  # 기록은 호출을 기대했는데 이번 실행이 부르지 않았으면 VlmReplayMismatch
+    p = _write_json(out / "label" / f"{sec.section_key}.json", res)
+    _write_run_record(
+        out, "label", cfg, {"merge": args.merge, "split": args.split}, started,
+        extra={"status": res.status, "llm_called": res.checked.llm_called, "llm_replay": args.llm_replay, "sdk": sdk_info()},
+    )
+    if res.status == "failed":
+        print(f"{sec.section_key}: 라벨 판정 실패({res.error}) → {p} (labels=null, 미판정)", file=sys.stderr)
+        return 4
+    n_true = sum(1 for d in res.labels if d.is_product_label)
+    print(f"{sec.section_key}: 라벨 판정 ok, 블록 {len(res.labels)}개 중 라벨 {n_true}개 (호출 {'함' if res.checked.llm_called else '안 함'}) → {p}")
+    return 0
+
+
 def cmd_analyze(args) -> int:
     from pipeline.analyze import analyze
 
@@ -331,6 +370,14 @@ def cmd_analyze(args) -> int:
 
 
 def cmd_inspect(args) -> int:
+    if args.label:
+        if not args.merge:
+            raise SystemExit("--label에는 --merge(블록 좌표)가 필요하다")
+        from pipeline.types import LabelResult
+
+        out = insp.overlay_label(args.image, jsonio.load_merge(args.merge), jsonio.load_model(args.label, LabelResult), args.out)
+        print(f"→ {out}")
+        return 0
     if args.judge:
         if not args.merge:
             raise SystemExit("--judge에는 --merge(블록 좌표)가 필요하다")
@@ -441,6 +488,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", required=True)
     sp.set_defaults(fn=cmd_policy)
 
+    sp = sub.add_parser("label", help="④ 제품 라벨 판정")
+    common(sp)
+    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 출력, 판정 대상 블록)")
+    sp.add_argument("--split", required=True, help="split.json (섹션 이미지)")
+    sp.add_argument("--out", required=True, help="새 출력 폴더(이전 실행 결과가 있으면 거부)")
+    sp.add_argument("--llm-replay", metavar="label_debug/<KEY>.json", help="이전 기록의 응답을 재생(API 호출 없음, 입력 · 응답 다시 검증)")
+    sp.set_defaults(fn=cmd_label)
+
     sp = sub.add_parser("analyze", help="①→②→③ 초기 분석")
     common(sp)
     sp.add_argument("--source", action="append", required=True, help="원본 이미지 (업로드 순서대로 반복)")
@@ -454,7 +509,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--merge")
     sp.add_argument("--judge", help="judge/<key>.json — --merge와 함께. 매칭 후보 · finding 상태(P/A/U 색 구분) · 실패")
     sp.add_argument("--policy", help="policy/<key>.json — --judge와 함께. 권고 · verdict · 충돌")
-    sp.add_argument("--image", required=True, help="split은 원본, ocr·merge·judge는 섹션 이미지")
+    sp.add_argument("--label", help="label/<key>.json — --merge와 함께. 라벨 true(빨강) · false(초록) · 공백 규칙(회색) · 실패")
+    sp.add_argument("--image", required=True, help="split은 원본, ocr·merge·judge·label은 섹션 이미지")
     sp.add_argument("--out", required=True, help="출력 PNG")
     sp.set_defaults(fn=cmd_inspect)
 

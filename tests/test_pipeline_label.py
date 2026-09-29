@@ -1,4 +1,4 @@
-"""④ 제품 라벨 판정 — 응답 검증 · 섹션 단위 실패 · 경계 사례 · 입력 불변성 · 재생 · 설정 · 타입(가짜 호출자, 실제 API 호출 없음).
+"""④ 제품 라벨 판정 — 응답 검증 · 섹션 단위 실패 · 경계 사례 · 입력 불변성 · 재생 · 설정 · 타입 · CLI · 오버레이(가짜 호출자, 실제 API 호출 없음).
 
 단독 개발 방침(open-questions #66, 사용자 승인 2026-09-29): 블록마다 정확히 하나의 JSON boolean · 누락 · 중복 · 미등록 키 · 잘못된 타입은 실패 ·
 실패는 섹션 전체 실패(labels=None)이며 false · 부분 성공으로 바꾸지 않는다 · 공백 블록은 VLM에 보내지 않고 false · 블록 없음은 호출 없이 빈 목록.
@@ -13,8 +13,9 @@ from pydantic import ValidationError
 
 from pipeline import config as cfgmod
 from pipeline import jsonio
+from pipeline import run as runmod
 from pipeline.stages import label
-from pipeline.types import BBox, LabelChecked, LabelDecision, LabelResult, Line, MergeResult, OcrRegion, Section, TextBlock
+from pipeline.types import BBox, LabelChecked, LabelDecision, LabelResult, Line, MergeResult, OcrRegion, Section, SplitResult, TextBlock
 from pipeline.vlm import LlmReply, ReplayLabelAssistant, VlmError, VlmReplayMismatch
 
 W, H = 1000, 3000  # 세로로 긴 섹션 — 긴 변 1024 기준이면 341x1024로 줄어든다
@@ -337,3 +338,58 @@ def test_replay_of_failed_and_skipped_records(cfg, section):
     assert again.status == "ok" and again.labels[0].basis == "blank_text"
     res = label.run(section, BLOCKS, cfg, llm=ReplayLabelAssistant(records[0], label.llm_config(cfg)))  # 이번엔 호출이 필요
     assert res.status == "failed" and "input_fingerprint" in res.error
+
+
+# ---------------------------------------------------------------------------
+# CLI · 오버레이 · 파일
+# ---------------------------------------------------------------------------
+def _write_inputs(tmp_path: Path, section: Section) -> tuple[Path, Path]:
+    sp = tmp_path / "split.json"
+    sp.write_text(SplitResult(source_image_id=1, source_width=W, source_height=H, sections=[section]).model_dump_json(indent=2), encoding="utf-8")
+    mp = tmp_path / "merge" / "sec_1_01.json"
+    mp.parent.mkdir()
+    mp.write_text(MergeResult(section_key="sec_1_01", blocks=BLOCKS).model_dump_json(indent=2), encoding="utf-8")
+    return sp, mp
+
+
+def test_cli_label_with_replay_and_new_folder_rule(tmp_path, section, cfg, capsys):
+    sp, mp = _write_inputs(tmp_path, section)
+    records = []
+    label.run(section, BLOCKS, cfg, llm=FakeLlm(OK), recorder=records.append)
+    rec = tmp_path / "rec.json"
+    rec.write_text(json.dumps(records[0], ensure_ascii=False), encoding="utf-8")
+    out = tmp_path / "out"
+    args = ["label", "--merge", str(mp), "--split", str(sp), "--out", str(out), "--llm-replay", str(rec),
+            "--set", f"label.prompt_path='{cfg['label']['prompt_path']}'"]
+    assert runmod.main(args) == 0
+    res = jsonio.load_model(out / "label" / "sec_1_01.json", LabelResult)
+    assert res.status == "ok" and [d.is_product_label for d in res.labels] == [False, False, True, False, True]
+    run = json.loads((out / "run.json").read_text(encoding="utf-8"))
+    assert run["stage"] == "label" and run["status"] == "ok" and run["llm_replay"] == str(rec)
+    assert run["sdk"]["retry_options"] is None and run["sdk"]["app_retry"] is False
+    assert (out / "label_debug" / "sec_1_01.json").exists()
+    assert "라벨 판정 ok" in capsys.readouterr().out
+    with pytest.raises(FileExistsError):  # 실행마다 새 폴더
+        runmod.main(args)
+    png = tmp_path / "ov.png"
+    assert runmod.main(["inspect", "--label", str(out / "label" / "sec_1_01.json"), "--merge", str(mp), "--image", section.image_path, "--out", str(png)]) == 0
+    im = Image.open(png)
+    assert im.width == W and im.height > H  # 위에 요약 띠
+
+
+def test_cli_label_failed_exit_code(tmp_path, section, cfg, capsys):
+    sp, mp = _write_inputs(tmp_path, section)
+    records = []
+    label.run(section, BLOCKS, cfg, llm=FakeLlm(exc=VlmError("504 DEADLINE_EXCEEDED")), recorder=records.append)
+    rec = tmp_path / "rec.json"
+    rec.write_text(json.dumps(records[0], ensure_ascii=False), encoding="utf-8")
+    out = tmp_path / "out"
+    code = runmod.main(["label", "--merge", str(mp), "--split", str(sp), "--out", str(out), "--llm-replay", str(rec),
+                        "--set", f"label.prompt_path='{cfg['label']['prompt_path']}'"])
+    assert code == 4
+    res = json.loads((out / "label" / "sec_1_01.json").read_text(encoding="utf-8"))
+    assert res["status"] == "failed" and res["labels"] is None
+    assert "라벨 판정 실패" in capsys.readouterr().err
+    png = tmp_path / "failed.png"
+    runmod.main(["inspect", "--label", str(out / "label" / "sec_1_01.json"), "--merge", str(mp), "--image", section.image_path, "--out", str(png)])
+    assert png.exists()

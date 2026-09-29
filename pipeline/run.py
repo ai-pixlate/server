@@ -14,6 +14,7 @@
     python -m pipeline.run policy  --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json --regulatory-class cosmetic|otc|combination|unknown --out DIR
                                    # ③-1' → DIR/policy/<KEY>.json (section_verdict 후보 · 버킷 권고). 미완료 · 분류 누락은 권고 없이 저장하고 종료 코드 2
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
+    python -m pipeline.run inspect --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json [--policy DIR/policy/<KEY>.json] --image IMG --out PNG
     python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json  # 버전 1 → 2 (이미지 대상 유지)
     python -m pipeline.run freeze-input  --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]  # 고정 입력본 생성·검증
     python -m pipeline.run verify-input  --dir INPUT_DIR [--relocated]                    # 고정 입력본 재검증
@@ -330,6 +331,16 @@ def cmd_analyze(args) -> int:
 
 
 def cmd_inspect(args) -> int:
+    if args.judge:
+        if not args.merge:
+            raise SystemExit("--judge에는 --merge(블록 좌표)가 필요하다")
+        from pipeline.types import JudgeResult, PolicyResult
+
+        judge = jsonio.load_model(args.judge, JudgeResult)
+        policy = jsonio.load_model(args.policy, PolicyResult) if args.policy else None
+        out = insp.overlay_judge(args.image, jsonio.load_merge(args.merge), judge, args.out, policy=policy)
+        print(f"→ {out}")
+        return 0
     given = [(k, v) for k, v in (("split", args.split), ("ocr", args.ocr), ("merge", args.merge)) if v]
     if len(given) != 1:
         raise SystemExit("--split / --ocr / --merge 중 하나만 지정")
@@ -441,7 +452,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--split")
     sp.add_argument("--ocr")
     sp.add_argument("--merge")
-    sp.add_argument("--image", required=True, help="split은 원본, ocr·merge는 섹션 이미지")
+    sp.add_argument("--judge", help="judge/<key>.json — --merge와 함께. 매칭 후보 · finding 상태(P/A/U 색 구분) · 실패")
+    sp.add_argument("--policy", help="policy/<key>.json — --judge와 함께. 권고 · verdict · 충돌")
+    sp.add_argument("--image", required=True, help="split은 원본, ocr·merge·judge는 섹션 이미지")
     sp.add_argument("--out", required=True, help="출력 PNG")
     sp.set_defaults(fn=cmd_inspect)
 

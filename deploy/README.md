@@ -90,6 +90,11 @@ RP=$(sudo grep '^REDIS_PASSWORD=' /etc/pixlate/pixlate.env | cut -d= -f2-); dock
 
 컨테이너가 안 뜨면 `sudo journalctl -u pixlate -n 50 --no-pager`로 스크립트 로그를 봅니다.
 
+## 용어집 적재
+
+데이터팀 용어집 xlsx를 RDS `glossary`에 넣는 절차(마이그레이션 `0005` → 파일 검증 → 적재 → 확인)는
+[glossary-ingestion.md](glossary-ingestion.md)에 있습니다. DB 작업만 하므로 서비스 재시작은 필요 없습니다.
+
 ## AMI로 새 인스턴스 띄우기
 
 아래 세 가지는 AMI에 들어가지 않으므로 시작할 때 직접 지정합니다.

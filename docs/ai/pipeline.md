@@ -337,7 +337,7 @@
 
 **입력** — 블록마다 임시 ID(`b1`… `block_order` 순) · `source_ko` · `box_2d`(`[ymin, xmin, ymax, xmax]`, 이미지 기준 0~1000 정규화 정수 — 축소와 무관)만 보낸다. 역할 · 신뢰도는 보내지 않는다. 섹션 이미지 크기가 `Section` 메타데이터와 다르면 좌표를 대응시킬 수 없으므로 입력 오류다. [`open-questions.md` #66]
 
-**출력** — `{"labels": [{"id": "b1", "is_product_label": true}, …]}`(JSON 스키마 강제). **응답 검증**: 보낸 ID마다 정확히 하나 · 누락 · 중복 · 미등록 ID · 모르는 키(최상위 · 항목) · boolean이 아닌 값(`"true"` · `1` · `null`)은 실패, 묵시 변환 없음. [`open-questions.md` #66 K3]
+**출력** — `{"labels": [{"id": "b1", "is_product_label": true}, …]}`(JSON 스키마 강제). **응답 검증**: 보낸 ID마다 정확히 하나 · 누락 · 중복 · 미등록 ID · 모르는 키(최상위 · 항목) · boolean이 아닌 값(`"true"` · `1` · `null`) · **JSON 객체 안의 중복 키**(예 한 항목에 `is_product_label`이 두 번 — 표준 파서는 마지막 값으로 덮어써 상충을 숨긴다)는 실패, 묵시 변환 없음. [`open-questions.md` #66 K3]
 
 **결과** — `LabelResult`(`dev.md` 3절): 분석 결과와 분리한 섹션별 판정 목록(`block_key` · `is_product_label` · `basis`)이며 원문 · 좌표 · 역할 · 블록 구성 · 원시 OCR을 담지 않고 바꾸지 않는다. 파일 버전은 공통 `SCHEMA_VERSION`을 그대로 쓰며 `AnalyzeResult`는 바꾸지 않는다. `ok`면 섹션의 모든 블록에 판정이 하나씩, `failed`면 `labels=null`(미판정). [`open-questions.md` #66 K2] [계약 2.4]
 

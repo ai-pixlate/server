@@ -103,6 +103,10 @@ def test_parse_labels_accepts_exactly_one_boolean_per_block():
         (_raw([{"id": x, "is_product_label": True} for x in SENT], note="x"), "최상위에 모르는 키"),
         (_raw([{"id": 1, "is_product_label": True}]), "미등록 블록 ID"),
         (_raw(["b1"]), "객체가 아니다"),
+        ('{"labels":[{"id":"b1","is_product_label":true,"is_product_label":false},{"id":"b2","is_product_label":true},'
+         '{"id":"b3","is_product_label":true}]}', "중복 키"),  # 상충 판정을 마지막 값(false)으로 덮어쓰지 않는다
+        ('{"labels":[{"id":"b1","id":"b2","is_product_label":true},{"id":"b3","is_product_label":true}]}', "중복 키"),
+        ('{"labels":[],"labels":[{"id":"b1","is_product_label":true},{"id":"b2","is_product_label":true},{"id":"b3","is_product_label":true}]}', "중복 키"),
         ("not json", "JSON"),
         (json.dumps({"result": []}), "labels 배열"),
         (json.dumps([]), "labels 배열"),
@@ -322,6 +326,10 @@ def test_replay_revalidates_response(cfg, section):
     bad = {**records[0], "response_text": json.dumps({"labels": [{"id": "b1", "is_product_label": "false"}]})}
     res = label.run(section, BLOCKS, cfg, llm=ReplayLabelAssistant(bad, label.llm_config(cfg)))
     assert res.status == "failed" and "boolean" in res.error
+    dup = {**records[0], "response_text": '{"labels":[{"id":"b1","is_product_label":true,"is_product_label":false},'
+           '{"id":"b2","is_product_label":true},{"id":"b3","is_product_label":true}]}'}
+    res = label.run(section, BLOCKS, cfg, llm=ReplayLabelAssistant(dup, label.llm_config(cfg)))
+    assert res.status == "failed" and res.labels is None and "중복 키" in res.error
 
 
 def test_replay_of_failed_and_skipped_records(cfg, section):

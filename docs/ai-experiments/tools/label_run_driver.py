@@ -102,6 +102,9 @@ def main(argv=None) -> int:
         sent = [b for b in sorted(merged.blocks, key=lambda b: b.block_order) if not label.is_blank(b)]
         row = {"source": src.name, "section": key, "blocks": len(merged.blocks), "sent": len(sent), "blank": len(blank),
                "size": [sec.width, sec.height]}
+        if not a.dry_run:  # 모든 행이 같은 키를 갖게 한다 — 입력 오류(driver_error) 행도 집계에서 빠지지 않게
+            row.update({"status": None, "record_status": None, "error": None, "llm_called": False, "true": None, "false_vlm": None,
+                        "sent_size": None, "duration_s": None, "call_duration_s": None, "usage": None, "result": None})
         if a.dry_run:
             scale = min(1.0, cfg["label"]["long_side_px"] / max(sec.width, sec.height))
             payload, _ = label.build_payload(sec, sent)
@@ -119,7 +122,8 @@ def main(argv=None) -> int:
             continue
         dur = round(time.perf_counter() - t0, 3)
         lp = jsonio.write_model(out / src.name / "label" / f"{key}.json", res)
-        rec = json.loads((out / src.name / "label_debug" / f"{key}.json").read_text(encoding="utf-8"))
+        rec_path = out / src.name / "label_debug" / f"{key}.json"
+        rec = json.loads(rec_path.read_text(encoding="utf-8")) if rec_path.exists() else {}  # 실패 결과의 기록 저장 실패는 결과 error에 남는다
         usage = rec.get("usage")
         if isinstance(usage, dict):
             for k, v in usage.items():
@@ -154,13 +158,14 @@ def main(argv=None) -> int:
         summary.update({
             "status": dict(st), "run_status": "ok" if st.get("ok", 0) == len(rows) else ("partial" if st.get("ok") else "failed"),
             "record_status": dict(Counter(r.get("record_status") for r in rows)),
-            "failed_sections": [f"{r['source']}/{r['section']}" for r in rows if r["status"] != "ok"],
+            "failed_sections": [f"{r['source']}/{r['section']}" for r in rows if r["status"] == "failed"],
+            "driver_error_sections": [f"{r['source']}/{r['section']}" for r in rows if r["status"] == "driver_error"],
             "llm_calls": sum(1 for r in rows if r.get("llm_called")),
             "blocks": sum(r["blocks"] for r in rows), "true": sum(r["true"] or 0 for r in rows),
             "false_vlm": sum(r["false_vlm"] or 0 for r in rows), "blank": sum(r["blank"] for r in rows if r["status"] == "ok"),
             "usage_total": dict(usage_total),
             "call_duration_s": {"median": round(statistics.median(call_d), 2), "max": max(call_d)} if call_d else None,
-            "duration_s_total": round(sum(r.get("duration_s", 0) for r in rows), 1),
+            "duration_s_total": round(sum(r["duration_s"] or 0 for r in rows), 1),
         })
     (out / "sections.json").write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     (out / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")

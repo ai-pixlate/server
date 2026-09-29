@@ -176,10 +176,29 @@ class LabelResponseError(VlmError):
         super().__init__("④ 응답 검증 실패: " + "; ".join(reasons))
 
 
+class _DuplicateKeys(Exception):
+    """JSON 객체 안의 중복 키. json.loads는 기본으로 마지막 값만 남기므로(상충하는 판정이 조용히 사라짐) 파싱 단계에서 막는다."""
+
+    def __init__(self, keys: list[str]) -> None:
+        self.keys = keys
+        super().__init__(f"중복 키 {keys}")
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    keys = [k for k, _ in pairs]
+    dups = sorted({k for k in keys if keys.count(k) > 1})
+    if dups:
+        raise _DuplicateKeys(dups)
+    return dict(pairs)
+
+
 def parse_labels(text: str, sent_ids: list[str]) -> dict[str, bool]:
-    """응답 검증. 하나라도 어기면 LabelResponseError. 통과하면 임시 ID → bool(보낸 ID 전부)."""
+    """응답 검증. 하나라도 어기면 LabelResponseError. 통과하면 임시 ID → bool(보낸 ID 전부).
+    JSON 객체 안의 중복 키(예 한 항목에 is_product_label이 두 번)도 거부한다 — 표준 파서가 마지막 값으로 덮어써 상충을 숨기기 때문."""
     try:
-        data = json.loads(text)
+        data = json.loads(text, object_pairs_hook=_reject_duplicate_keys)
+    except _DuplicateKeys as e:
+        raise LabelResponseError([f"JSON 객체에 중복 키 {e.keys}(상충 판정을 마지막 값으로 덮어쓰지 않는다)"]) from e
     except ValueError as e:
         raise LabelResponseError([f"JSON 아님: {e}"]) from e
     if not isinstance(data, dict) or not isinstance(data.get("labels"), list):

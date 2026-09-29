@@ -8,9 +8,9 @@
 | 구분 | 내용 |
 | --- | --- |
 | 마이그레이션 `0005` | `term_ko`·`term_target` VARCHAR(200) → TEXT. 원본 열 13개 추가(모두 NULL 허용). `UNIQUE(external_id)` · `UNIQUE(target_lang, internal_category, term_ko)` · `CHECK(enforcement IN ('enforced','reference'))` |
-| 로더 | `app/glossary_ingest.py` — `validate`(파일만) · `plan`(DB 조회·비교만, 읽기 전용·잠금 없음) · `load`(잠금 후 비교를 다시 하고 적재) |
+| 로더 | `app/glossary_ingest.py` — `validate`(파일만) · `plan`(DB 조회·비교만, 읽기 전용 트랜잭션·명시적 쓰기 차단 잠금 없음) · `load`(잠금 후 비교를 다시 하고 적재) |
 | 의존성 | `openpyxl` (xlsx 읽기) |
-| API·앱 코드 | 이 저장소에서 glossary를 읽는 코드는 없고 이번에 바꾼 소비 코드도 없다. 단 마이그레이션 DDL은 잠금을 잡으므로, 운영에서 glossary를 쓰는 다른 곳(수동 조회·다른 서비스)이 있는지 적용 전에 확인한다 |
+| API·앱 코드 | 이번 적재 로더 외에 API·워커의 glossary 조회 로직 변경은 없다. 마이그레이션 DDL 잠금과 운영에서의 실제 사용 여부(수동 조회·다른 서비스)는 적용 전에 확인한다 |
 
 ### 저장 열 (데이터팀 9/28 확정)
 
@@ -62,7 +62,8 @@ python -m app.glossary_ingest validate `
   --phrase        "C:\경로\glossary_phrase.xlsx"
 ```
 
-테스트는 운영 DB가 아니라 **따로 만든 테스트 DB**에서만 돈다. 두 환경변수가 없으면 해당 테스트는 건너뛴다.
+DB 테스트는 `GLOSSARY_TEST_DATABASE_URL`이 있을 때만 실행하며, 테스트마다 전용 DB를 만들고 지운다. `DATABASE_URL`만 설정된 경우에는 실행하지 않는다.
+로더가 운영 주소인지 자동으로 판별하지는 않으므로, 테스트용 접속 주소에 운영 DB 환경을 지정하지 않는다. 두 환경변수가 없으면 해당 테스트는 건너뛴다.
 
 | 환경변수 | 쓰는 테스트 |
 | --- | --- |
@@ -220,7 +221,7 @@ sudo docker run --rm -v ~/glossary-input:/input:ro $IMG python -m app.glossary_i
 
 이번 전달본 기대값: 인증 22 · 성분 20566 · 문구 65(제외 27) · 합계 20653 · 200자 초과 41 · `결과: 파일 검증 통과`.
 
-**E-3. DB와 비교만** (읽기 전용 트랜잭션, 잠금 없음 — 다른 쓰기를 막지 않는다):
+**E-3. DB와 비교만** (읽기 전용 트랜잭션, 명시적 쓰기 차단 잠금 없음 — 다른 쓰기 트랜잭션을 기다리지 않는다):
 
 ```bash
 sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env -v ~/glossary-input:/input:ro $IMG python -m app.glossary_ingest plan $FILES
@@ -289,7 +290,7 @@ PY
   UNIQUE 인덱스 생성은 표 전체를 읽는다. 운영 RDS에서의 소요 시간은 실측하지 않았다. 잠금 대기는 `lock_timeout 5s`로 끊긴다.
 - 이 저장소에는 glossary를 읽는 코드가 없고 이번에 바꾼 소비 코드도 없어 API·워커 재시작은 필요 없다.
   다만 운영에서 glossary를 쓰는 다른 곳(수동 조회·다른 서비스)이 있는지는 적용 전에 확인한다.
-- `plan`은 잠금을 잡지 않는다. `load`는 적재하는 동안 다른 쓰기를 막는다(읽기는 된다).
+- `plan`은 명시적 쓰기 차단 잠금을 잡지 않는다(일반 조회가 쓰는 읽기 잠금만). `load`는 적재하는 동안 다른 쓰기를 막는다(읽기는 된다).
 
 **문제가 생겼을 때 — 먼저 검토할 것**
 1. **전진 수정**: 잘못된 부분을 새 마이그레이션이나 새 전달본(version을 올린 재적재)으로 고친다. 기존 행과 PK가 유지된다.
@@ -311,7 +312,7 @@ PY
 | 같은 원본 ID의 한국어·카테고리 정정(오타 수정) | 로더가 막는다. 수동 정정 절차 필요 |
 | 자연키 인덱스 항목 크기 한도(테스트 환경 관찰값 2,704바이트, `term_ko` 단독 한도 아님) | 로더 사전 제한 없음 — 넘으면 load에서 전체 롤백. 사전 제한·해시 인덱스 등 대응은 결정 필요 |
 | `external_id` NOT NULL | 예전 행이 없음을 확인한 뒤 별도 마이그레이션 |
-| 카테고리 CHECK (8개 값) | 값 목록이 레포 정본에 없음 |
+| 카테고리 CHECK 추가 | 이번 범위에서 제외. 허용 목록과 적용 여부 별도 확정 |
 | 임베딩·pgvector·번역 프롬프트 | 범위 밖 |
 | 규제사전·현지부적합 적재 | 범위 밖 (사용설명서 §9 백엔드 항목) |
 | 성분 원천 데이터 이용허락(공공데이터) | 사용설명서 §6 "미확인" — PM 확인 |

@@ -25,7 +25,7 @@ DB 접속은 DATABASE_URL 환경변수(plan·load). 접속 정보는 출력하�
 - 이번 파일에 없는 기존 행은 지우지 않고 건수만 보고한다.
 - 같은 ID의 한국어·카테고리 정정(오타 수정 포함)도 막는다. 로더로는 반영되지 않으며 별도 검토 절차가 필요하다.
 
-plan 은 읽기 전용 트랜잭션으로 조회만 하고 잠금을 잡지 않는다. load 는 쓰기를 막는 잠금을 잡은 뒤
+plan 은 읽기 전용 트랜잭션으로 조회만 하고 명시적 쓰기 차단 잠금을 잡지 않는다. load 는 쓰기를 막는 잠금을 잡은 뒤
 DB 비교를 처음부터 다시 한다(plan 이후 DB가 바뀌었을 수 있다).
 term_ko 길이는 로더가 제한하지 않는다. 자연키 UNIQUE 인덱스에는 항목 크기 한도가 있다(테스트한
 PostgreSQL 16 에서 2,704바이트로 관찰. term_ko 단독 한도가 아니며 압축·복합 키 구성에 따라 달라진다).
@@ -532,7 +532,7 @@ def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -
             trans = conn.begin()
             try:
                 if args.mode == "plan":
-                    # 조회만 한다. 쓰기를 막는 잠금을 잡지 않는다.
+                    # 조회만 한다. 명시적 쓰기 차단 잠금을 잡지 않는다(일반 조회의 읽기 잠금만).
                     conn.execute(text("SET TRANSACTION READ ONLY"))
                 _require_schema(conn)
                 if args.mode == "load":

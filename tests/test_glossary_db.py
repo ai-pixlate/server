@@ -1,7 +1,8 @@
 """용어집 마이그레이션(0005)·적재 — 격리된 테스트 DB에서만 실행.
 
 GLOSSARY_TEST_DATABASE_URL(CREATE DATABASE 권한이 있는 접속, 예: 로컬 postgres:16)이 있을 때만 돈다.
-테스트마다 새 데이터베이스를 만들고 지운다. 운영 DATABASE_URL 은 쓰지 않는다.
+테스트마다 새 데이터베이스를 만들고 지운다. DATABASE_URL 만 설정된 경우에는 실행하지 않는다.
+운영 주소인지 자동으로 판별하지 않으므로, 이 환경변수에 운영 DB 를 지정하지 않는다.
 
   $env:GLOSSARY_TEST_DATABASE_URL = "postgresql+psycopg://<user>:<pw>@localhost:5432/postgres"
   python -m pytest tests/test_glossary_db.py -q

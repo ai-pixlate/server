@@ -1,4 +1,10 @@
-"""VLM 호출 — ① 섹션 분해의 긴 구간 경계 선택 [pipeline.md 단계표 ①].
+"""VLM·LLM 호출 — ① 섹션 분해의 긴 구간 경계 선택 [pipeline.md 단계표 ①] · ③ `llm_assist` [pipeline.md 7.2절].
+
+③ 호출자(`GeminiMergeAssistant` · `ReplayMergeAssistant`)는 파일 끝에 있다. 실패는 ①과 같은 `VlmError`로 전파한다
+(open-questions #37). ③ 호출자는 시간 제한(`merge.llm_timeout_s`)을 SDK `HttpOptions.timeout`으로 넘기고, 재시도 옵션은
+주지 않는다 — 설치된 google-genai 2.24.0은 `retry_options`가 없으면 1회만 시도한다.
+
+아래는 ① 설명이다.
 
 - 모델·온도는 config `[section]`(`vlm_model` · `vlm_temperature`)에서 받는다. API 키는 환경변수
   `GEMINI_API_KEY` [dev.md 6절]. 키는 커밋하지 않는다.
@@ -18,6 +24,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Any, Protocol
 
 from PIL import Image
@@ -172,3 +179,129 @@ class ReplayBoundaryPicker:
             diff = {k: (got[k], expect[k]) for k in expect if got[k] != expect[k]}
             raise VlmReplayMismatch(f"{self._pos}번째 호출 불일치 (기록, 현재): {diff} — 구간·창·입력 이미지·프롬프트가 달라졌다")
         return list(call["raw"])
+
+
+# ---------------------------------------------------------------------------
+# ③ llm_assist 호출자 [pipeline.md 7.2절 · open-questions #41]
+# ---------------------------------------------------------------------------
+ROLES_FOR_SCHEMA = ["title", "body", "caption", "price", "caution"]
+
+MERGE_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "blocks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "members": {"type": "array", "items": {"type": "string"}},
+                    "role": {"type": "string", "enum": ROLES_FOR_SCHEMA},
+                },
+                "required": ["members", "role"],
+            },
+        }
+    },
+    "required": ["blocks"],
+}
+
+
+def sha256_text(text: str) -> str:
+    """③ 기록용 전체 SHA-256(①의 `prompt_sha256`은 16자로 줄인 값이라 따로 둔다)."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+@dataclass
+class LlmReply:
+    """③ 호출 응답. text는 원응답 그대로(비어 있을 수 있다 — 검증에서 걸린다), usage는 토큰 사용량."""
+
+    text: str
+    usage: dict[str, Any] | None = None
+
+
+class MergeAssistant(Protocol):
+    config: dict[str, Any]
+
+    def __call__(self, prompt: str, payload: str) -> LlmReply: ...
+
+
+class GeminiMergeAssistant:
+    """google-genai로 ③ 병합 묶음·역할 JSON을 받는 기본 호출자. 호출 1회 = 섹션 1개."""
+
+    def __init__(self, model: str, temperature: float, timeout_s: float) -> None:
+        self.config = {"model": model, "temperature": temperature, "timeout_s": timeout_s}
+        self._client = None
+
+    def _client_or_raise(self):
+        if self._client is None:
+            key = os.environ.get(API_KEY_ENV)
+            if not key:
+                raise VlmError(f"환경변수 {API_KEY_ENV}가 없다 — llm_assist를 실행할 수 없다")
+            try:
+                from google import genai  # noqa: PLC0415
+                from google.genai import types as gtypes  # noqa: PLC0415
+            except ImportError as e:
+                raise VlmError("google-genai가 설치되지 않았다 (pipeline/requirements.txt)", e) from e
+            timeout_ms = int(round(self.config["timeout_s"] * 1000))
+            self._client = genai.Client(api_key=key, http_options=gtypes.HttpOptions(timeout=timeout_ms))
+        return self._client
+
+    def __call__(self, prompt: str, payload: str) -> LlmReply:
+        try:
+            client = self._client_or_raise()
+            from google.genai import types as gtypes  # noqa: PLC0415
+
+            config = gtypes.GenerateContentConfig(
+                temperature=self.config["temperature"],
+                response_mime_type="application/json",
+                response_schema=MERGE_RESPONSE_SCHEMA,
+                automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
+            )
+            resp = client.models.generate_content(model=self.config["model"], contents=[prompt, payload], config=config)
+            text = resp.text or ""
+            um = getattr(resp, "usage_metadata", None)
+            usage = um.model_dump(mode="json", exclude_none=True) if um is not None and hasattr(um, "model_dump") else None
+        except VlmError:
+            raise
+        except Exception as e:  # noqa: BLE001 — 실패 분류는 #37 결정 전에는 하지 않는다(시간 초과 포함)
+            raise VlmError(f"LLM 호출 실패 model={self.config['model']}", e) from e
+        return LlmReply(text=text, usage=usage)
+
+
+class ReplayMergeAssistant:
+    """이전 `merge_debug/<section_key>.json` 기록의 응답을 재생한다. API를 부르지 않는다.
+
+    모델 설정 · 프롬프트 SHA-256 · 페이로드 SHA-256이 기록과 같아야 하고, 재생한 응답은 실제 호출과 같은 검증을 거친다
+    (검증은 호출하는 쪽 — merge.assist). 호출 실패 기록은 같은 실패로 재생한다. 기록 1개 = 호출 1회.
+    """
+
+    def __init__(self, record: dict[str, Any], expect_config: dict[str, Any]) -> None:
+        got = record.get("model_config")
+        if got != expect_config:
+            raise VlmReplayMismatch(f"모델 설정 불일치 (기록, 현재): {got}, {expect_config}")
+        self.record = record
+        self.config = expect_config
+        self.used = False
+
+    @classmethod
+    def from_file(cls, path: str | Path, expect_config: dict[str, Any]) -> "ReplayMergeAssistant":
+        return cls(json.loads(Path(path).read_text(encoding="utf-8")), expect_config)
+
+    def __call__(self, prompt: str, payload: str) -> LlmReply:
+        if self.used:
+            raise VlmReplayMismatch("재생 기록은 호출 1회분이다")
+        self.used = True
+        expect = {"prompt_sha256": sha256_text(prompt), "payload_sha256": sha256_text(payload)}
+        diff = {k: (self.record.get(k), v) for k, v in expect.items() if self.record.get(k) != v}
+        if diff:
+            raise VlmReplayMismatch(f"재생 입력 불일치 (기록, 현재): {diff} — 프롬프트나 휴리스틱 결과가 달라졌다")
+        if self.record.get("status") == "call_failed":
+            raise VlmError(f"기록된 호출 실패를 재생: {self.record.get('error')}")
+        text = self.record.get("response_text")
+        if text is None:
+            raise VlmReplayMismatch(f"재생 기록에 응답이 없다 (status={self.record.get('status')!r})")
+        return LlmReply(text=text, usage=self.record.get("usage"))
+
+    def finish(self) -> None:
+        """실행이 끝난 뒤. 호출이 있어야 하는 기록이 쓰이지 않았으면 입력이 달라진 것이므로 실패."""
+        if not self.used and self.record.get("status") != "skipped":
+            raise VlmReplayMismatch("재생 기록이 쓰이지 않았다 — 이번 실행은 LLM에 보낼 블록이 없었다")

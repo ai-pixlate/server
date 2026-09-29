@@ -22,6 +22,7 @@
 - **워커가 저장 시** `section_key` → `section.id`, `block_key` → `text_block.id`로 변환한다.
 - `content_findings.evidence_block_ids`는 저장 시 `text_block.id` 목록이 된다. 함수 반환 시점의 값은 임시 `block_key`다. [계약 4.1]
 - `line_key` · `region_key` · `finding_key`는 JSON 내부 식별자다. 별도 DB 컬럼 매핑은 정의하지 않으며 JSON 내부 식별자로 유지한다. [계약 0장, 2.5, 4.1]
+- `line_key` · `region_key`의 유일 범위는 섹션이다. 섹션 밖에서 참조할 때는 `section_key`와 쌍으로 쓴다 — BE 확인 필요. [`open-questions.md` #38]
 
 ## 3. 참조 색인 — 계약이 의존하는 DB 이름
 

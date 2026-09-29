@@ -3,7 +3,8 @@
 근거: contract.md 1.1(출력 단위) · 2장(블록 필드) · 2.5(source_lines) · 3.1(좌표계) · 8장(경고).
 규칙:
 - 좌표는 정수 픽셀. 섹션 안의 모든 좌표는 **섹션 로컬**이며 원본 기준 세로 = top_offset + y.
-- section_key · block_key · line_key · region_key는 한 번의 실행 안에서만 유일한 임시 식별자다.
+- section_key · block_key · line_key · region_key는 임시 식별자다. section_key · block_key는 한 번의 실행 안에서,
+  region_key · line_key는 섹션 안에서 유일하다(섹션 밖에서 참조하면 section_key와 쌍으로) — dev.md 3절.
   DB id 변환은 워커가 한다(db-map.md 2절). 이 파일은 DB 컬럼을 모른다.
 - 파일은 워커가 준비한 로컬 경로로만 주고받는다. 함수는 S3를 모른다(contract.md 1.1).
 - 계약이 미정으로 둔 값(섹션 range #13, style #14 등)은 여기에 두지 않는다. 결정되면 필드를 추가한다.
@@ -187,7 +188,7 @@ def bbox_of_lines(lines: list[Line]) -> BBox:
     return BBox.union([ln.bbox for ln in lines])
 
 
-# 임시 식별자 규칙 — 실행 안에서 유일하면 된다
+# 임시 식별자 규칙 — 유일 범위는 위 모듈 설명(dev.md 3절)
 def section_key(source_image_id: int, section_order: int) -> str:
     return f"sec_{source_image_id}_{section_order:02d}"
 

@@ -68,9 +68,13 @@
 | ② | `ocr.det_model` / `ocr.rec_model` | `PP-OCRv5_server_det` / `korean_PP-OCRv5_mobile_rec` | 한국어 인식은 mobile만 존재 | [PoC 1장] |
 | ② | `ocr.preprocess` | `none` | 전처리 적용 안 함 | [PoC 1장] |
 | ② | `ocr.split_threshold_px` / `ocr.tile_px` / `ocr.tile_overlap_px` | `4000` / `2000` / `300` | 임시 분할 규칙. 여백 우선 | [개발계획 2.1] [계약 3.2] |
-| ③ | `merge.line_gap` / `para_gap` / `h_ratio` / `overlap` / `gutter` | `0.7` / `0.6` / `1.5` / `0.5` / `on` | `heuristic_v2` | [PoC 5장] |
+| ③ | `merge.line_gap` / `para_gap` / `h_ratio` / `overlap` / `gutter` | `0.7` / `0.6` / `1.5` / `0.5` / `on` | `heuristic_v2`. 줄 가로 간격 상한 · 블록 세로 간격 상한(base 비율) · 줄·블록 높이비 상한 · 블록 가로 겹침 하한(겹친 폭 ÷ 좁은 폭) · 줄 병합의 gutter 사용. 계산식은 7.1절 | [PoC 5장] [PoC 5장 · heuristic_v2 코드] |
+| ③ | `merge.line_v_overlap` / `line_gap_min` / `para_gap_min` / `left_align_tol` | `0.5` / `-0.5` / `-0.3` / `0.5` | 줄 병합 세로 겹침 하한(겹친 길이 ÷ 작은 높이) · 줄 가로 간격 하한 · 블록 세로 간격 하한 · 좌정렬 왼쪽 끝 허용 오차(모두 base 비율). 값은 PoC 코드의 고정 상수, config 키화는 우리 결정. **잠정**. `overlap`과 별개 키 | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
+| ③ | `merge.gutter_min_px` / `gutter_width_div` | `20` / `16` | gutter 최소 폭 = max(`gutter_min_px`, 섹션 폭 // `gutter_width_div`). **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
+| ③ | `merge.title_pct` / `caption_pct` / `title_max_lines` / `caption_max_chars` / `price_max_chars` | `75` / `25` / `2` / `25` / `40` | 휴리스틱 역할 판정의 높이 백분위와 줄 수·글자 수 상한. **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `gemini-3.8-flash` / `0` / `false` | 분할 금지 고정 | [개발계획 6장] |
-| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 미작성. 2026-09-26 사용자 승인 | [`dev.md` 2절] |
+| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 초안 v1(2026-09-28, 실측 전). 2026-09-26 사용자 승인. 상대 경로는 레포 루트 기준(7.2절) | [`dev.md` 2절] [`open-questions.md` #41] |
+| ③ | `merge.llm_timeout_s` | `60` | `llm_assist` 호출 시간 제한(초). 개발용 **잠정값** — 무기한 대기를 막기 위한 값이며 운영 값은 #37에서 정한다 | [`open-questions.md` #37, #41] |
 | ③-1 | (판정 방식 미정 — 키 없음) | — | 기본값을 두지 않는다. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉)는 참고값이며 production 채택 아님 | [개발계획 6장] [PoC 10-1장] |
 | ④ | `label.model` / `label.long_side_px` / `label.bias` | `gemini-3.8-flash` / `1024` / `label` | 애매하면 라벨 | [개발계획 6장] |
 | ⑤ | `logo.normalize` | `nfkc, lower, strip_space_punct` | 정규화 결과 빈 문자열은 비교 제외 | [계약 2.3] |
@@ -129,6 +133,139 @@
 - 가격 `role`은 표본 부족으로 사실상 미검증. [PoC 5장]
 - 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] ① VLM 호출 실패의 처리(대체 처리 · 코드 · 재시도)는 **미정**(`open-questions.md` #25). ③ `llm_assist` 호출 실패도 같다(`open-questions.md` #37).
 
+### 7.1 ③ `heuristic_v2` 정의
+
+목적은 PoC 결과의 정확한 재현이 아니라 PoC에서 확인한 접근법을 참고해 병합 단계를 개발하는 것이다. PoC 자료로 확인한 동작은 `[PoC 5장 · heuristic_v2 코드]`, 그 밖의 우리 잠정 설계는 `[open-questions.md #38]`로 구분한다. 잠정 설계는 실측으로 다듬으며 값·규칙 확정은 사용자 "확정" 시에만 한다. 수치 임계값은 3절 키 이름으로 적는다. [`open-questions.md` #38]
+
+**높이의 세 정의** — 모두 bbox 높이 기반이다. [PoC 5장 · heuristic_v2 코드]
+
+| 이름 | 정의 | 쓰이는 곳 |
+|---|---|---|
+| 영역 높이 | 영역 bbox의 `h`(= y2 − y1) | 줄 병합의 base · 높이비, 역할 판정의 백분위 |
+| 줄 높이 | 줄에 속한 영역 높이의 최댓값. 줄 bbox 높이와 다르다 | 블록 병합의 base · 높이비 |
+| font_h | 블록을 구성하는 모든 원시 영역(줄 구분 없음)의 높이를 오름차순 정렬한 배열에서 0부터 센 위치 `n // 2`(n = 영역 수)의 값 — 홀수 개면 중앙값, 짝수 개면 가운데 두 값 중 큰 값, 1개면 그 값 | 역할 판정의 제목 · 캡션 조건 |
+
+**좌표** — 판단에는 bbox만 쓰고 poly는 읽지 않으며 기울기 보정은 하지 않는다. [PoC 5장 · heuristic_v2 코드] bbox는 `BBox{x,y,w,h}`, x2 = x + w, y2 = y + h로 계산한다. [`open-questions.md` #38]
+
+**입력 영역 분류** — 원시 영역은 모두 정확히 한 블록의 `source_lines`에 한 번 들어가고 키 · 텍스트 · score · poly · bbox를 바꾸지 않는다. [계약 2.5]
+
+| 영역 | 판정 | 병합 | gutter 계산 | 높이 통계(백분위) |
+|---|---|---|---|---|
+| 텍스트 있음(저신뢰 포함) | 아래 두 경우가 아닌 영역 | 참여 | 참여 | 참여 |
+| 빈 텍스트 | `text.strip() == ""` | 불참 — 단독 블록 | 참여(잠정) | 제외(잠정) |
+| 크기 0 | `w == 0` 또는 `h == 0` | 불참 — 단독 블록 | 제외 | 제외 |
+
+두 조건을 모두 만족하는 영역(빈 텍스트이면서 크기 0)은 **크기 0으로 분류한다** — 차지하는 열이 없거나 기하 정보가 없어 gutter · 높이 통계에 쓸 수 없다. 빈 텍스트 단독 블록은 `open-questions.md` #36의 잠정 방침이다. 크기 0 처리 · 빈 텍스트의 gutter 포함과 통계 제외는 효과가 검증되지 않은 잠정 설계다. [`open-questions.md` #36, #38]
+
+**정렬과 동률** — 병합 처리 순서와 줄 안 영역 순서는 (x, y, `region_key`), 줄 순서는 (첫 영역 y, 첫 영역 x, 첫 영역 `region_key`), 블록 순서는 (블록 bbox y, 블록 bbox x, 첫 줄 첫 영역 `region_key`) 오름차순이다. 앞 두 성분은 PoC 순서(영역 x1 · 줄 첫 영역 (y1, x1) · 블록 bbox (y1, x1))이고 `region_key` 동률 기준은 우리 결정이다 — 입력 배열 위치가 결과에 들어가지 않는다. 섹션 안에서 `region_key`가 중복되면 입력 오류다. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
+
+**줄 병합** — 병합 참여 영역을 위 순서로 하나씩 처리한다. 이미 만든 줄을 만든 순서대로 보며 그 줄에 마지막으로 붙은 영역 a와 새 영역 b를 비교하고, 조건을 모두 만족하는 **첫 번째 줄**에 붙인다. 맞는 줄이 없으면 새 줄을 만든다. base = min(a.h, b.h). 조건(검사 순서대로): [PoC 5장 · heuristic_v2 코드]
+
+1. 세로 겹침 max(0, min(a.y2, b.y2) − max(a.y, b.y)) ÷ max(1, min(a.h, b.h)) ≥ `line_v_overlap`
+2. `line_gap_min`·base ≤ b.x − a.x2 ≤ `line_gap`·base
+3. max(a.h, b.h) ÷ min(a.h, b.h) ≤ `h_ratio`
+4. `gutter`가 켜져 있으면 a.x2 ≤ g0 이고 g1 ≤ b.x인 gutter 구간 [g0, g1)이 없다
+
+**gutter** — 섹션 폭 W 전체에서 gutter 계산 참여 영역의 bbox가 차지하지 않는 열이 이어진 구간 중 폭이 max(`gutter_min_px`, W // `gutter_width_div`) 이상이고 x = 0 · x = W에 붙지 않은 구간. 섹션마다 한 번 계산하고 줄 병합에만 쓴다. [PoC 5장 · heuristic_v2 코드] 영역이 차지하는 열은 [x, x2)다. [`open-questions.md` #38]
+
+**블록 병합** — 줄을 위 순서로 하나씩 처리한다. 이미 만든 그룹을 만든 순서대로 보며 그 그룹의 마지막 줄 P와 새 줄 L을 비교하고, 조건을 모두 만족하는 **첫 번째 그룹**에 붙인다. 맞는 그룹이 없으면 새 그룹을 만든다. base = min(P 줄 높이, L 줄 높이). 조건(검사 순서대로): [PoC 5장 · heuristic_v2 코드]
+
+1. `para_gap_min`·base ≤ L.y − P.y2 ≤ `para_gap`·base (줄 bbox 기준 — 세로 간격 계산 대상을 줄 bbox로 둔 것은 우리 결정) [`open-questions.md` #38]
+2. max(줄 높이) ÷ min(줄 높이) ≤ `h_ratio`
+3. 가로 겹침(겹친 폭 ÷ 좁은 줄 폭) ≥ `overlap` 이거나 |P.x − L.x| ≤ `left_align_tol`·base
+
+**줄·블록 구성**
+- `Line.text` = 줄 안 영역 텍스트의 앞뒤 공백을 제거해 공백 1개로 이은 것(내부 공백 보존), `source_ko` = 줄 텍스트를 `\n`으로 이은 것. [`open-questions.md` 5절 #24, #38]
+- 빈 텍스트 단독 블록의 `Line.text` · `source_ko`는 `""`. [`open-questions.md` #36, #38]
+- 줄 bbox · 블록 bbox = 구성 영역 bbox의 합집합. 블록 bbox는 PoC와 같고 줄 bbox는 우리 결정이다. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
+- `ocr_confidence` = 구성 영역 score의 최솟값 — 단독 블록은 그 영역의 score 그대로다. [계약 2장]
+
+**역할 판정** — 블록마다 아래 순서로 처음 맞는 규칙 하나를 적용하고 어디에도 맞지 않으면 `body`다. 규칙 순서와 제목·캡션 조건의 형태는 PoC와 같다. [PoC 5장 · heuristic_v2 코드]
+
+| 순서 | role | 조건 |
+|---|---|---|
+| 1 | `price` | 가격 패턴이 `source_ko`에 있고(부분 일치) 글자 수 ≤ `price_max_chars` |
+| 2 | `caution` | 주의 패턴 중 하나가 `source_ko`에 있음(부분 일치, 길이 조건 없음) |
+| 3 | `title` | font_h ≥ h_big 이고 줄 수 ≤ `title_max_lines` |
+| 4 | `caption` | font_h ≤ h_small 이고 글자 수 ≤ `caption_max_chars` |
+| 5 | `body` | 나머지 |
+
+- 경계값은 포함한다(≤ · ≥). [PoC 5장 · heuristic_v2 코드]
+- h_big · h_small = 섹션의 높이 통계 대상 영역 높이에 대한 `title_pct` · `caption_pct` 백분위, 선형 보간(`numpy.percentile`, `method="linear"`). 대상이 0개이거나 h_big == h_small이면 3 · 4 규칙을 건너뛴다(PoC와 다름 — 크기로 구별할 정보가 없는데 2줄 이하 블록이 모두 제목이 되는 것을 막는다). 글자 수 = `len(source_ko)`(정규화 없이 줄바꿈·공백 포함). [`open-questions.md` #38]
+- 빈 텍스트 · 크기 0 단독 블록도 같은 규칙에 넣은 결과를 쓴다. [`open-questions.md` #36, #38]
+- 탐지 패턴(우리 개선안). 주의문구의 의미 범위는 #9에서 정하며 여기서 바꾸지 않는다. [`open-questions.md` #9, #38]
+
+| 패턴 | PoC | 현재 |
+|---|---|---|
+| 가격 | `₩` · `\d[\d,]*\s*원` · `\d+\s*%` · `\d+\s*개월` | `₩` · `\d[\d,]*\s*원` — `%` · `개월` 제거(가격 = 통화 금액 표기. `%`는 입력 스캔에서 만족도·개선율 표기에 걸림) |
+| 주의 | 주의 · 경고 · 유의 · 금지 · 삼가 · 반드시 · 사용을 중지 · 보관 · 직사광선 · 어린이 · 알레르기 · 이상 · 증상 · 전문의 · 상담 · 문의 · ※ | 같은 목록에서 `유의` → `유의\s*사항` · `유의하(?!게)`, `이상` → `이상\s*(이\|증상\|반응)`, `문의` → `(?<!전)문의`로 좁힘(입력 스캔에서 "특유의" · "유의한" · "이상의" · "전문의"에 걸림) |
+
+**출력 순서** — 블록은 위 블록 순서로 `block_order` 1부터, 블록 안 줄은 줄 순서, 줄 안 영역은 영역 순서다. 임시 키와 유일 범위는 `dev.md` 3절. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
+
+**설정 값 검증** — 병합 모듈의 검증 함수가 `merge.run` 시작 시(입력을 건드리기 전) 그리고 `analyze()` 시작 시(① 섹션 분해 전) 아래 기준을 검사하고, 어기면 `ValueError`를 낸다. 범용 config 로더는 값을 검사하지 않는다. Python 호출에서는 `ValueError`가 전파되고, CLI 프로세스는 traceback을 출력하고 종료 코드 1로 끝난다(`run.py` `main()`이 잡지 않음). [`open-questions.md` #38]
+
+| 대상 | 기준 |
+|---|---|
+| 휴리스틱 수치 키(아래 행의 키) | `int` 또는 `float`, bool 제외, 유한값(`NaN` · `±inf` 거부) |
+| 정수 전용 키 `gutter_min_px` · `gutter_width_div` · `title_max_lines` · `caption_max_chars` · `price_max_chars` | 실제 `int`, bool 제외(`20.0`을 정수로 바꾸지 않음) |
+| `line_v_overlap` · `overlap` | 0 ≤ 값 ≤ 1 |
+| `line_gap_min` · `line_gap` / `para_gap_min` · `para_gap` | 하한 ≤ 상한 |
+| `h_ratio` | ≥ 1 |
+| `left_align_tol` · `gutter_min_px` · `caption_max_chars` · `price_max_chars` | ≥ 0 |
+| `gutter_width_div` · `title_max_lines` | ≥ 1 |
+| `title_pct` · `caption_pct` | 0 ≤ 값 ≤ 100, `caption_pct` ≤ `title_pct` |
+| `gutter` | 정확히 bool 타입 |
+| `llm_split` | `False` 그 자체(`is False`) — 숫자 0 등은 거부 |
+
+`llm_model` · `llm_temperature` · `llm_timeout_s` · `prompt_path`의 기준과 검증 시점(실행 모드별)은 7.2절. [`open-questions.md` #38, #41]
+
+**알려진 위험** — 처리 순서 의존(가장 잘 맞는 줄이 아니라 처음 맞는 줄) · 섹션 전체 gutter가 전폭 영역 하나로 사라짐 · gutter는 0.7·h ≥ 최소 폭인 큰 글자에서만 효과 · 블록 단계 gutter 미사용 · 오른쪽 정렬 미판정 · 기울어진 글자의 bbox 높이 부풀림은 PoC 정의에서 논리적으로 예상되는 위험이며 우리 입력에서 확인되지 않았다. 초기 검증 항목이고 유지할 요구사항이 아니다. [`open-questions.md` #38]
+
+### 7.2 ③ `llm_assist` 정의
+
+`heuristic_v2` 블록을 LLM이 **추가 병합하고 역할을 다시 판정**한다. 분할은 하지 않는다. [`pipeline.md` 단계표 ③] [개발계획 6장] PoC에서 분할을 허용한 초기 조건에서도 휴리스틱의 과병합이 해소되지 않고 남았고, 병합만 맡기는 조건이 확정 조건이다. [PoC 5장] 그 결과 휴리스틱 과병합은 이 단계에서 복구되지 않는다. PoC 자료에는 입력·출력 형식·프롬프트가 없으므로 아래 세부는 모두 우리 잠정 설계다(v1). [`open-questions.md` #41]
+
+**호출** — 섹션마다 1회. 보낼 블록이 0개면 호출하지 않는다(기록 `skipped`). 모델·온도는 `merge.llm_model` · `merge.llm_temperature`, 호출 시간 제한은 `merge.llm_timeout_s`(개발용 잠정값, 운영 값은 #37). 애플리케이션은 재시도하지 않으며, 설치된 `google-genai` 2.24.0은 `retry_options`를 지정하지 않으면 1회만 시도한다(코드 확인 — SDK 버전을 바꾸면 다시 확인). [`open-questions.md` #37, #41]
+
+**입력** — 텍스트가 있고 크기가 0이 아닌 휴리스틱 블록만 보낸다. 블록마다 임시 ID(`b1`… 블록 순서) · `source_ko`(줄바꿈 포함) · bbox · 줄 수 · font_h, 그리고 섹션 폭·높이. 섹션 이미지와 휴리스틱 역할은 보내지 않는다(초기 비교 기준이며, 이미지 사용을 금지한다는 뜻은 아니다 — 둘 다 비교 실험 후보). 빈 텍스트 블록은 #36 방침으로, 크기 0 블록은 기하 정보가 유효하지 않고 단독 보존 방침을 따르므로 보내지 않고 그대로 둔다. [`open-questions.md` #36, #41]
+
+**출력** — `{"blocks": [{"members": ["b1", "b2"], "role": "body"}, …]}`(JSON 스키마 강제). 텍스트는 받지 않는다 — LLM은 원문을 쓰지 않고, 휴리스틱 블록을 통째로만 묶으므로 블록 분할도 표현할 수 없다. [`open-questions.md` #41]
+
+**응답 검증** — 하나라도 어기면 실패(`validation_failed`): JSON · 스키마 형식 · 모든 입력 ID가 정확히 한 번 · 모르는 ID 없음 · 빈 `members` 없음 · `role`이 5종 중 하나. 인접하지 않은 블록의 병합은 허용한다(2단 배치). 잘못된 병합은 평가에서 따로 판정한다. [`open-questions.md` #41]
+
+**로컬 조립(v1 — 블록 병합만)** — 묶음마다 멤버를 휴리스틱 블록 순서로 정렬해 줄을 그 순서대로 이어 붙인다. 휴리스틱 블록 안의 줄 순서와 줄 안의 영역 순서는 바꾸지 않는다. `source_ko`는 줄 텍스트를 `\n`으로 다시 잇고, bbox는 합집합, `ocr_confidence`는 최솟값, `role`은 LLM 값이다. 보내지 않은 단독 블록은 그대로 두고, 블록 순서와 키는 7.1절 규칙대로 다시 매긴다. **같은 줄 조각의 줄 복구는 하지 않는다** — "98" | "%"나 "…성분" | "으로"처럼 같은 줄의 조각이 한 블록으로 합쳐져도 별도 줄로 남는다(v2에서 판단). [`open-questions.md` #41]
+
+**불변식(테스트)** — 모든 원시 영역이 정확히 한 번 · 영역의 키 · 텍스트 · score · poly · bbox가 입력과 같음 · 휴리스틱 블록 하나의 영역이 여러 출력 블록으로 나뉘지 않음 · 보내지 않은 단독 블록이 그대로 · LLM이 준 `members` · `blocks` 순서에 관계없이 조립 결과가 같음 · 휴리스틱 블록 안의 줄 순서와 줄 안의 영역 순서 유지. [계약 2.5] [`open-questions.md` #41]
+
+**실패** — 호출 실패(`call_failed`, 시간 초과 포함)와 응답 검증 실패는 휴리스틱 결과로 대체하지 않고 ①과 같은 `VlmError`로 전파한다(CLI 종료 코드 4). [`open-questions.md` #37, #41]
+
+**기록** — 섹션마다 호출 기록을 남기며, 실패해도 기록을 먼저 쓴 뒤 예외를 전파한다. [`open-questions.md` #41]
+
+| 필드 | 내용 |
+|---|---|
+| `status` | `ok` · `validation_failed` · `call_failed` · `skipped` |
+| 입력 | 보낸 페이로드 전문 · 프롬프트 SHA-256 · 모델 설정(모델 · 온도 · 시간 제한) |
+| 원응답 | 받은 텍스트. `call_failed`면 `null` |
+| 실패 이유 | 검증 실패 항목 또는 호출 예외 |
+| 결과 | 해석한 묶음 · 역할과 **휴리스틱 블록 키 → 섹션 최종 블록 키** 대응 |
+| 사용량 | 응답의 토큰 사용량 |
+
+- 경로: CLI `merge`는 `DIR/merge_debug/<section_key>.json`, `analyze()`는 `out_dir/merge_debug/<section_key>.json`(`section_key`에 원본 ID가 들어 있어 한 실행 안에서 겹치지 않는다). `analyze()`는 `merge_debug/block_keys.json`에 **(`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키** 대응을 남긴다 — 키 문자열만으로는 섹션마다 반복되는 `blk_001`을 구분할 수 없다.
+- 기록 저장 자체가 실패하면: 호출·검증이 **실패한 경우** 원래 `VlmError`를 전파하고 기록 저장 오류는 그 예외의 부가 설명(note)으로 붙인다(종료 코드 4 유지). 호출·검증이 **성공한 경우** 기록 저장 오류(`OSError`)를 그대로 전파해 실행을 실패시킨다 — 기록 없는 결과를 남기지 않는다.
+- 재생: `merge --llm-replay <기록>`은 섹션 하나의 응답을 API 호출 없이 재생한다. 입력 페이로드 · 프롬프트 SHA-256 · 모델 설정이 기록과 같아야 하고, 재생한 응답도 실제 호출과 같은 검증을 거친다. `--no-llm`과 함께 지정하면 거부한다. `analyze()` 재생은 v1 범위 밖이다.
+
+**설정 검증(실행 모드별, 어기면 `ValueError`)** [`open-questions.md` #41]
+
+| 모드 | 검증 |
+|---|---|
+| 공통(`--no-llm` 포함) | 7.1절 휴리스틱 설정만. 프롬프트 파일 · API 키를 요구하지 않는다 |
+| LLM 실행 · 재생 | `llm_model` 비어 있지 않은 문자열 · `llm_temperature` 수치(bool 제외) · 유한값 · 0 이상 2 이하 · `llm_timeout_s` 수치(bool 제외) · 유한값 · 0 초과 · `prompt_path` 문자열이고, 상대 경로는 `pipeline` 패키지의 상위 폴더(레포 루트) 기준, 절대 경로는 그대로 해석해 실제 파일이며 UTF-8로 읽히고 비어 있지 않음 |
+| 실제 호출 | 위에 더해 환경변수 `GEMINI_API_KEY`가 있음 |
+
+`analyze()`는 해당 모드의 검증을 모두 ① 실행 전에 마친다. ① `section.prompt_path`는 현재 작업 디렉터리 기준이며 같은 기준으로 맞추는 일은 별도 작업이다.
+
+**프롬프트** — 원문은 `pipeline/prompts/merge_assist.md`. 역할의 의미는 이번 프롬프트의 잠정 정의로 적는다: title 제목·소제목·강조 헤드라인 / body 본문 문장 / caption 보조 라벨·짧은 설명·일반 각주·출처·시험 정보·이미지 주석 / price 가격 / caution 사용상 주의·경고·보관·이상 시 대응 문구. 이 caution 정의는 #9(주의문구 범위)의 확정이 아니며 7.1절 탐지 정규식의 동작과도 같지 않다. #9가 정해지면 프롬프트를 고친다. [`open-questions.md` #9, #41]
+
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 
 | 하류 단계 | AI가 넘기는 것 | AI가 받는 것 | 담당 | 출처 |
@@ -151,5 +288,7 @@
 - ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙
 - ① 색 전환 임계값 · 최소 섹션 높이 · 긴 구간 기준 · 보정 반경의 실측 확정 — config 초기값은 잠정
 - ① VLM 호출 실패 처리 — 대체 처리 허용 여부 · 오류·경고 코드 · 실패 유형별 재시도 조건 (BE 합의)
+- ③ `heuristic_v2` 잠정 설계(7.1절)의 실측 확정 — config 초기값 · 역할 패턴은 잠정 (#38)
+- ③ `llm_assist` 잠정 설계(7.2절) v1 — 입력 구성 · 같은 줄 조각 미복구 · 시간 제한 잠정값 (#41)
 - ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
 - 출력 분할 한도 값

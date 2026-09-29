@@ -37,10 +37,11 @@ def test_cli_config_prints_effective_values(capsys):
     assert "merge.line_gap = 0.9" in out
 
 
-def test_cli_unimplemented_stage_exits_3(tmp_path):
+def test_cli_merge_with_llm_requires_api_key(tmp_path, monkeypatch):
     exp = SAMPLE / "expected"
-    rc = cli.main(["merge", "--split", str(exp / "split.json"), "--ocr", str(exp / "ocr/sec_1_01.json"), "--out", str(tmp_path)])
-    assert rc == 3  # ③ 미구현
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    with pytest.raises(ValueError, match="GEMINI_API_KEY"):  # 실제 호출 전에 설정 검증에서 멈춘다(pipeline.md 7.2절)
+        cli.main(["merge", "--split", str(exp / "split.json"), "--ocr", str(exp / "ocr/sec_1_01.json"), "--out", str(tmp_path)])
 
 
 def test_cli_inspect_draws_overlays(tmp_path):

@@ -339,7 +339,11 @@ class JudgeAssistant(Protocol):
 
 
 class GeminiJudgeAssistant:
-    """google-genai로 ③-1 항목별 판정 JSON을 받는 기본 호출자. 호출 1회 = 섹션 1개. 이미지는 있으면 함께 보낸다."""
+    """google-genai로 ③-1 항목별 판정 JSON을 받는 기본 호출자. 호출 1회 = 섹션 1개. 이미지는 있으면 함께 보낸다.
+    응답 스키마 · 단계 이름은 클래스 속성이다(④ `GeminiLabelAssistant`가 바꿔 쓴다)."""
+
+    response_schema: dict[str, Any] = JUDGE_RESPONSE_SCHEMA
+    stage_name = "③-1 맥락 판정"
 
     def __init__(self, model: str, temperature: float, timeout_s: float) -> None:
         self.config = {"model": model, "temperature": temperature, "timeout_s": timeout_s}
@@ -349,7 +353,7 @@ class GeminiJudgeAssistant:
         if self._client is None:
             key = os.environ.get(API_KEY_ENV)
             if not key:
-                raise VlmError(f"환경변수 {API_KEY_ENV}가 없다. ③-1 맥락 판정을 실행할 수 없다")
+                raise VlmError(f"환경변수 {API_KEY_ENV}가 없다. {self.stage_name}을 실행할 수 없다")
             try:
                 from google import genai  # noqa: PLC0415
                 from google.genai import types as gtypes  # noqa: PLC0415
@@ -367,7 +371,7 @@ class GeminiJudgeAssistant:
             config = gtypes.GenerateContentConfig(
                 temperature=self.config["temperature"],
                 response_mime_type="application/json",
-                response_schema=JUDGE_RESPONSE_SCHEMA,
+                response_schema=self.response_schema,
                 automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
             )
             contents: list[Any] = [prompt, payload]
@@ -407,7 +411,7 @@ class ReplayJudgeAssistant:
             raise VlmReplayMismatch("재생 기록은 호출 1회분이다")
         self.used = True
         if self.skipped:
-            raise VlmReplayMismatch("재생 기록은 호출 생략(skipped)인데 현재 실행은 LLM을 부른다. 호출 범위 · 매칭이 달라졌다")
+            raise VlmReplayMismatch("재생 기록은 호출 생략(skipped)인데 현재 실행은 LLM을 부른다. 호출 범위 · 입력이 달라졌다")
         expect = {
             "prompt_sha256": sha256_text(prompt),
             "payload_sha256": sha256_text(payload),
@@ -426,3 +430,56 @@ class ReplayJudgeAssistant:
     def finish(self) -> None:
         if not self.used and self.record.get("status") != "skipped":
             raise VlmReplayMismatch("재생 기록이 쓰이지 않았다. 이번 실행은 LLM을 부르지 않았다")
+
+
+# ---------------------------------------------------------------------------
+# ④ 제품 라벨 판정 호출자 [pipeline.md 7.4절 · open-questions #66] — 블록 페이로드 + 섹션 이미지(긴 변 label.long_side_px)
+# 호출 1회 = 섹션 1개. 시간 제한은 SDK HttpOptions.timeout, 재시도 옵션은 주지 않는다(google-genai 2.24.0은 retry_options가 없으면
+# tenacity stop_after_attempt(1) — 1회만 시도. 코드 확인 2026-09-29, SDK 버전을 바꾸면 다시 확인).
+# ---------------------------------------------------------------------------
+LABEL_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "labels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"id": {"type": "string"}, "is_product_label": {"type": "boolean"}},
+                "required": ["id", "is_product_label"],
+            },
+        }
+    },
+    "required": ["labels"],
+}
+
+
+class GeminiLabelAssistant(GeminiJudgeAssistant):
+    """google-genai로 ④ 블록별 라벨 판정 JSON을 받는 기본 호출자. 호출 규약은 ③-1 호출자와 같다(prompt, payload, image) → LlmReply."""
+
+    response_schema = LABEL_RESPONSE_SCHEMA
+    stage_name = "④ 제품 라벨 판정"
+
+
+class ReplayLabelAssistant(ReplayJudgeAssistant):
+    """이전 `label_debug/<section_key>.json` 기록을 재생한다. API를 부르지 않는다.
+
+    모델 설정 · 프롬프트 · 페이로드 · 이미지 픽셀 해시가 기록과 같아야 하고(③-1 재생과 같은 검사), 판정 입력 블록 전체의 지문
+    (`input_fingerprint` — 공백 블록처럼 VLM에 보내지 않는 블록까지 포함)도 같아야 한다. 응답은 실제 호출과 같은 검증을 거친다(label.parse_labels).
+    호출 생략(skipped: 블록 없음 · 공백 블록만) 기록도 재생할 수 있다."""
+
+    def check_input(self, fingerprint: str) -> None:
+        got = self.record.get("input_fingerprint")
+        if got != fingerprint:
+            raise VlmReplayMismatch(f"재생 입력 불일치 (기록, 현재): input_fingerprint {got!r}, {fingerprint!r}. 블록이 달라졌다")
+
+
+def sdk_info() -> dict[str, Any]:
+    """실행 기록용 SDK 정보. 재시도는 애플리케이션 · SDK 모두 하지 않는다(retry_options 미지정 → 1회 시도)."""
+    try:
+        from importlib.metadata import version  # noqa: PLC0415
+
+        ver: str | None = version("google-genai")
+    except Exception:  # noqa: BLE001 — 설치되지 않은 환경(가짜 호출자 테스트)
+        ver = None
+    return {"google_genai": ver, "retry_options": None, "sdk_attempts": 1, "app_retry": False,
+            "note": "google-genai 2.24.0: retry_options 미지정이면 stop_after_attempt(1) — 코드 확인 2026-09-29"}

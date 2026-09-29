@@ -66,10 +66,13 @@ dict_dir = "pipeline/samples/local/dict/normalized"   # 실제 사전 JSON(git �
 [policy]                       # ③-1' 정책 적용 — 규칙 데이터는 judge.dict_dir의 policy_rules.json(설명서 §3 · §4 기반 잠정, D10)
 problem_text_max_chars = 300   # 현지부적합 problem_text 길이 상한(설계 3.3절)
 
-[label]                        # ④ 제품 라벨 판정
+[label]                        # ④ 제품 라벨 판정 — model · long_side_px · bias는 정본(개발계획 6장). 아래 3개는 단독 개발 기준값(open-questions #66, 운영값 아님 #65)
 model = "gemini-3.8-flash"
-long_side_px = 1024
-bias = "label"
+long_side_px = 1024            # 섹션 이미지 긴 변 기준 축소
+bias = "label"                 # 애매하면 라벨. 정의된 값은 "label"뿐
+temperature = 0                # 개발 기준(#66)
+timeout_s = 60                 # 호출 시간 제한(초). 개발 기준 — 운영값은 #65. 애플리케이션 재시도 없음
+prompt_path = "pipeline/prompts/label.md"   # 초안 v1. 상대 경로는 레포 루트 기준
 
 [logo]                         # ⑤ 브랜드 로고 제외
 normalize = ["nfkc", "lower", "strip_space_punct"]

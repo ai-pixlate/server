@@ -52,4 +52,4 @@ python -m pipeline.data.dict.tools.build_dict diff --old <이전 묶음> --new <
 
 ## 현재 실제 묶음(2026-09-28, 로컬)
 
-`local@2026-09-28.1` 8행 · `regulation@2026-09-28.1` 16행(cosmetic 6 · otc 10, allowed 2 · conditional 4 · rewritable 2 · regulated 8) · `policy@2026-09-28.1`. 원본 SHA-256과 파일 해시는 묶음의 `source.sha256` · `SHA256SUMS`에 있다. 현지부적합 버전 표기 불일치(#50)는 `version_status=mismatch_pending`으로 기록했다. 원본 `근거` 탭의 모노그래프 행은 `verified_at`이 비어 있어 해당 `evidence.verified_at`이 `null`이다(설명서 §9 데이터 담당 정리 항목).
+`local@2026-09-28.1` 8행 · `regulation@2026-09-28.1` 16행(cosmetic 6 · otc 10, allowed 2 · conditional 4 · rewritable 2 · regulated 8) · `policy@2026-09-28.1`. 원본 SHA-256과 파일 해시는 묶음의 `source.sha256` · `SHA256SUMS`에 있다. 현지부적합 버전 표기 불일치(#50)는 생성 시점에 `version_status=mismatch_pending`으로 기록했다. 2026-09-29 데이터 담당 확인으로 전달본은 **v5**가 맞다 — 현재 묶음은 실측 기록이 참조하므로 다시 만들지 않고, 다음 묶음부터 `--local-version-status as_claimed`로 만든다. 원본이 주장하는 버전(v5) · `dictionary_version` · 파일 해시는 서로 다른 식별 정보다. 원본 `근거` 탭의 모노그래프 행은 `verified_at`이 비어 있어 해당 `evidence.verified_at`이 `null`이다(설명서 §9 데이터 담당 정리 항목).

@@ -400,9 +400,28 @@ def _logo_finish(out: Path, record: dict[str, Any], started: datetime, status: s
     return code
 
 
+# 사전 검사에서 "정상적으로 검출한 입력 · 설정 오류"로 보는 예외(#68 확정 3). LogoInputError · SchemaVersionError · pydantic ValidationError ·
+# JSON · 인코딩 오류는 ValueError, 파일 없음 · 읽기 실패는 OSError, 없는 config 키 override는 ConfigKeyError. 그 밖의 예외는 내부 오류다.
+LOGO_INPUT_ERRORS: tuple[type[BaseException], ...] = (ValueError, OSError, cfgmod.ConfigKeyError)
+
+
 def logo_input_error(out: Path, record: dict[str, Any], started: datetime, error: str) -> int:
     """사전 검사 실패 — 판정 결과를 만들지 않고 run.json(status input_error)만 남긴다. 종료 코드 2."""
     return _logo_finish(out, record, started, "input_error", error, 2)
+
+
+def logo_internal_error(out: Path, record: dict[str, Any], started: datetime, e: BaseException) -> int:
+    """사전 검사(입력 로딩 · 해시 검사 · 검증 포함) 중 예상하지 못한 내부 예외 — run.json status failed · 종료 코드 4(#68 확정 3)."""
+    return _logo_finish(out, record, started, "failed", f"사전 검사 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
+
+
+def duplicate_logo_jobs(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """같은 (image_id, section_key)가 두 번 이상 나오는 쌍. 같은 출력 경로에 덮어쓰지 않도록 사전 검사에서 거부한다."""
+    seen: set[tuple[str, str]] = set()
+    dups: set[tuple[str, str]] = set()
+    for p in pairs:
+        (dups if p in seen else seen).add(p)
+    return sorted(dups)
 
 
 def execute_logo(out: Path, jobs: list[dict[str, Any]], brand_meta: Any, cfg: dict[str, Any], record: dict[str, Any], started: datetime) -> int:
@@ -413,12 +432,15 @@ def execute_logo(out: Path, jobs: list[dict[str, Any]], brand_meta: Any, cfg: di
     from pipeline.stages import logo
 
     try:
+        dups = duplicate_logo_jobs([(job["image_id"], job["merged"].section_key) for job in jobs])
+        if dups:
+            raise logo.LogoInputError(f"같은 원본 · 섹션 작업이 두 번 이상 있다(같은 출력 경로) {dups}")
         for job in jobs:
             logo.validate_inputs(job["image_id"], job["merged"], job["label"], brand_meta, cfg)
     except logo.LogoInputError as e:
         return logo_input_error(out, record, started, f"사전 검사 실패: {e}")
     except Exception as e:  # noqa: BLE001 — 검증 코드 자체의 예기치 않은 오류
-        return _logo_finish(out, record, started, "failed", f"사전 검사 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
+        return logo_internal_error(out, record, started, e)
 
     totals = {k: 0 for k in ("product_label", "empty_text", "exact_match", "no_match", "compared")}
     counts = {"sections_total": len(jobs), "sections_ok": 0, "sections_failed": 0, "blocks": 0, **totals}
@@ -477,23 +499,28 @@ def cmd_logo(args) -> int:
     if out.exists():
         print(f"출력 폴더가 이미 있다 — 실행마다 새 --out을 쓴다: {out}", file=sys.stderr)
         return 2
-    cfg = None
-    record = logo_run_base("single", None, started)
-    record["inputs"] = {"image_id": args.image_id, "merge": args.merge, "label": args.label, "brand_meta": args.brand_meta}
+    inputs = {"image_id": args.image_id, "merge": args.merge, "label": args.label, "brand_meta": args.brand_meta}
+    record: dict[str, Any] = {"stage": "logo", "mode": "single", "inputs": inputs}
+    try:
+        record = {**logo_run_base("single", None, started), "inputs": inputs}
+    except Exception as e:  # noqa: BLE001 — 기록 머리조차 못 만들면 최소 기록으로 내부 오류
+        return logo_internal_error(out, record, started, e)
     try:
         cfg = _load_cfg(args)
         record["config"] = cfgmod.snapshot(cfg)
         logo.validate_config(cfg)
         paths = {"merge": Path(args.merge), "label": Path(args.label), "brand_meta": Path(args.brand_meta)}
-        record["inputs"]["sha256"] = {k: jsonio.sha256_file(p) for k, p in paths.items()}
+        inputs["sha256"] = {k: jsonio.sha256_file(p) for k, p in paths.items()}
         merged = jsonio.load_merge(paths["merge"])
         label_res = jsonio.load_model(paths["label"], LabelResult)
         brand_meta = json.loads(paths["brand_meta"].read_text(encoding="utf-8"))
-    except (ValueError, OSError, KeyError) as e:  # 입력 · 설정 오류(ConfigKeyError는 KeyError)
+        if isinstance(brand_meta, dict):
+            inputs["brand_version"] = brand_meta.get("version")
+            inputs["brand_for_input"] = brand_meta.get("for_input")  # 자료에 적힌 연결 입력본(출처 기록)
+    except LOGO_INPUT_ERRORS as e:  # 검출한 입력 · 설정 오류
         return logo_input_error(out, record, started, f"{e.__class__.__name__}: {e}")
-    if isinstance(brand_meta, dict):
-        record["inputs"]["brand_version"] = brand_meta.get("version")
-        record["inputs"]["brand_for_input"] = brand_meta.get("for_input")  # 자료에 적힌 연결 입력본(출처 기록)
+    except Exception as e:  # noqa: BLE001 — 입력 로딩 중 예상하지 못한 내부 예외
+        return logo_internal_error(out, record, started, e)
     return execute_logo(out, [{"image_id": args.image_id, "merged": merged, "label": label_res}], brand_meta, cfg, record, started)
 
 

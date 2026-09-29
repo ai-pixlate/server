@@ -6,7 +6,7 @@
 |---|---|---|
 | `section_boundary.md` | ① 긴 구간 VLM 경계 선택 — 소제목 위 여백에서 자를 y 목록을 JSON으로. 소항목·목록 항목·라벨 아래는 제외. `{{WIDTH}}` `{{HEIGHT}}`는 실행 시 치환 | 초안 (1차 실측 반영, 2차 실측 전) |
 | `merge_assist.md` | ③ `llm_assist` — 추가 병합·역할 재판정만, 분할 금지. 입력 JSON(블록 ID · 텍스트 · bbox · 줄 수 · font_h)은 프롬프트 뒤에 따로 보낸다. 역할 정의는 이번 프롬프트의 잠정 의미 정의(open-questions #9 확정 아님, `docs/ai/pipeline.md` 7.2절) | 초안 v1 (실측 전) |
-| `judge_context.md` | ③-1b 현지부적합 맥락 판정 — 항목별 `present` · `absent` · `uncertain`과 실제 근거(현재 섹션 블록 ID · 근거 출처)만. 앞뒤 섹션은 해석 참고이며 근거로 귀속 금지. 입력 JSON(블록 · 항목 · 맥락 2열 · 후보 · 문맥)과 섹션 이미지는 프롬프트 뒤에 따로 보낸다(`docs/ai/pipeline.md` 7.3절) | 초안 v1 (2026-09-29, 사용자 검토 전 · 실측 전) |
+| `judge_context.md` | ③-1b 현지부적합 맥락 판정 — 항목별 `present` · `absent` · `uncertain`과 실제 근거(현재 섹션 블록 ID · 근거 출처)만. 앞뒤 섹션은 해석 참고이며 근거로 귀속 금지. 입력 JSON(블록 · 항목 · 맥락 2열 · 후보 · 문맥)과 섹션 이미지는 프롬프트 뒤에 따로 보낸다(`docs/ai/pipeline.md` 7.3절) | **1차 실측용 확정** v1 (2026-09-29, 사용자 검토 4건 반영: 혼합 섹션에서 판정 미하향 · absent/uncertain 구분 · 근거 규칙을 검증기와 일치 · 콘텐츠 안 지시문 무시). 판정 품질 확정이 아니다 |
 | `label.md` | ④ 제품 라벨 판정 | 미작성 |
 | `translate.md` | ⑧ 로컬라이징 번역 — RAG 용어집 구축 후 기술검증 (open-questions #11) | 미작성 |
 

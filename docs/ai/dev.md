@@ -28,15 +28,16 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   config.py                  config 로더 · --set override
   config/default.toml        실행 파라미터 정본 — 2절
   prompts/                   프롬프트 원문 (문서에는 경로만) — 2절
-  vlm.py                     VLM·LLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택(실패 처리 #25 미정) · ③ llm_assist 호출 · 재생(#37 · #41)
+  vlm.py                     VLM·LLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택(실패 처리 #25 미정) · ③ llm_assist · ③-1 · ④ 호출 · 재생(#37 · #41 · #60 · #66)
   dictionary.py              ③-1 · ③-1' 사전 데이터 스키마 · 로더 · 두 뷰(judge_view/policy_view) — 개발용 잠정 스키마(#60)
   data/dict/                 사전 변환 도구(tools/build_dict.py) · 합성 테스트 데이터(synthetic/) · README. 실제 값은 samples/local/dict/ (git 제외)
   stages/
     section_split.py         ① 섹션 분해
     ocr.py                   ② 텍스트 추출
     merge.py                 ③ 줄·문단 병합 + 역할 분류
-    judge.py                 ③-1 AI 섹션 판정 — 설정 검증 · 사전 로드 · 뼈대(run 미구현, #60)
-    policy.py                ③-1' 정책 적용 — 설정 검증 · 뼈대(run 미구현, #60)
+    judge.py                 ③-1 AI 섹션 판정(#60)
+    policy.py                ③-1' 정책 적용(#60)
+    label.py                 ④ 제품 라벨 판정 — 단독 개발 v1(#66, 전체 통합 전)
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 — 3·5절
   run.py                     단계별 실행 CLI — 4절
@@ -52,7 +53,7 @@ docs/ai/                     정본 문서
 
 - `pipeline/`은 `app/`(BE)을 import하지 않는다. 워커(`app/tasks.py`)가 `pipeline.analyze`를 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
 - 단계 파일 하나 = `pipeline.md` 단계표 한 행. 파일은 `run()` 하나를 노출하고 타입은 `types.py`만 쓴다.
-- 후속 단계 파일명은 예약해 둔다: `label.py`(④) · `logo.py`(⑤) · `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
+- 후속 단계 파일명은 예약해 둔다: `logo.py`(⑤) · `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
 
 ## 2. 설정과 프롬프트
 
@@ -79,6 +80,7 @@ docs/ai/                     정본 문서
 | ③ 병합·역할 | `stages.merge.run(section, ocr, cfg, *, use_llm=True)` | `Section` + `OcrResult` | `MergeResult`. 먼저 `validate_config(cfg)`(`pipeline.md` 7.1절 "설정 값 검증", 어기면 `ValueError`). `use_llm=False`면 `heuristic_v2`만(프롬프트 · API 키 불필요). `use_llm=True`면 `validate_llm_config`(7.2절, `llm`을 주지 않으면 API 키까지) 뒤 `heuristic_v2` → `llm_assist`. 전체 시그니처 `run(section, ocr, cfg, *, use_llm=True, llm=None, recorder=None)` — `llm`은 호출자 주입(테스트 · 재생, 기본 `vlm.GeminiMergeAssistant`), `recorder`는 섹션 기록을 받는 함수(`merge.json_recorder(dir)`). 호출 · 응답 검증 실패는 `VlmError`(검증 실패는 하위 클래스 `LlmResponseError`) |
 | ③-1 AI 섹션 판정 | `stages.judge.run(section, blocks, ctx, cfg, *, dicts=None, llm=None, recorder=None)` | `Section` + `TextBlock[]` + `JudgeContext` (+ 사전 핸들 `dictionary.Dictionaries`, 기본 `judge.load_dicts(cfg)`) | `JudgeResult`(2026-09-29 구현). 검출(`detect`) → 호출 범위(`judge.call_scope`) → 맥락 판정(LLM, LC 항목만) → 조립(`assemble`). 실패(호출 · 시간 초과 · 응답 검증 · 재생 불일치)는 예외가 아니라 `status=failed` 결과(`content_findings=None` · 매칭은 기록에만). `llm`은 호출자 주입(기본 `vlm.GeminiJudgeAssistant`, 재생 `vlm.ReplayJudgeAssistant`), `recorder`는 `judge.json_recorder(dir)`. 검출만은 `judge.detect_only(section_key, blocks, cfg, *, dicts=None, recorder=None) -> DetectionResult`(status `detect_only`, 판정 결과 아님 · `policy.run` 입력 불가). 설정 검증 `validate_config` · `validate_llm_config`(#60, `pipeline.md` 7.3절) |
 | ③-1' 정책 적용 | `stages.policy.run(judge_result, blocks, ctx, cfg, *, dicts)` | `JudgeResult` + 현재 섹션 `TextBlock[]`(정상 입력, 설계 3.5절) + `JudgeContext`(`regulatory_class`) + 사전 핸들 | `PolicyResult`(2026-09-29 구현). 적용 행 선택 → 예외 쌍 · 충돌(개별 매칭 단위) → 매핑(`policy_rules.json`) → 집계. `JudgeResult.status`가 ok · skipped가 아니면 `incomplete`, `regulatory_class`가 None이면 `input_error`(둘 다 권고 · verdict 없음). `DetectionResult`는 `PolicyInputError`로 거부. 처리 순서 버전 `policy.RULES_IMPL_VERSION`(#60, `pipeline.md` 7.3절) |
+| ④ 제품 라벨 판정 | `stages.label.run(section, blocks, cfg, *, llm=None, recorder=None)` | `Section` + 섹션의 `TextBlock[]` | `LabelResult`(2026-09-29 단독 구현, `pipeline.md` 7.4절). 공백 블록은 VLM에 보내지 않고 false, 블록이 없거나 공백뿐이면 호출 없이 `ok`. 실패(호출 · 시간 초과 · 응답 검증 · 재생 불일치)는 예외가 아니라 `status=failed`(`labels=None`). 입력 오류(섹션 불일치 · 중복 키 · 이미지 크기 불일치 · 설정)는 예외. `llm`은 호출자 주입(기본 `vlm.GeminiLabelAssistant`, 재생 `vlm.ReplayLabelAssistant`), `recorder`는 `label.json_recorder(dir)`. 설정 검증 `validate_config` · `validate_llm_config`. `analyze()` · 워커와 연결하지 않았다(#64) |
 | 초기 분석 | `analyze(sources, cfg, out_dir, *, use_llm=True)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError`. ① 전에 ③ 설정(`use_llm`이면 LLM 설정 · API 키까지)을 검증하고, 끝에 `block_key`를 실행 전체에서 다시 매긴다(아래 임시 식별자). 전체 시그니처 `analyze(sources, cfg, out_dir, *, use_llm=True, llm=None)`. `use_llm`이면 `out_dir/merge_debug/<section_key>.json`(섹션 기록)과 `merge_debug/block_keys.json`((`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키)을 남긴다. `analyze()` 재생은 없다 |
 
 | 타입 | 필드 | 계약 |
@@ -98,6 +100,7 @@ docs/ai/                     정본 문서
 | `JudgeResult` · `JudgeChecked` | **[잠정]** `section_key` `status`(`ok`·`skipped`·`failed`) `content_findings`(failed면 `None`) `matches[]`(모두 finding에 묶여야 함) `checked`(사전 버전 · 해시 · 매칭 규칙 버전 · 검사 항목 · LLM 호출 여부 · **입력 블록 지문** `input_fingerprint`) `error` | 4.1(NULL) · #60 |
 | `DetectionResult` | **[잠정]** ③-1a 검출 전용 출력 — `section_key` `status`(`detect_only`뿐) `matches[]`(`finding_key` 없음) `candidates`(항목 ID → `match_key` 목록) `checked`(`llm_called=False` 강제). `content_findings` 없음. 판정 결과가 아니며 `policy.run`이 거부한다 | #60 · `pipeline.md` 7.3절 |
 | `JudgeContext` | **[잠정 · BE 합의 #47]** `regulatory_class`(None = 누락, `unknown`과 구분) `prev_section_text` `next_section_text` | #47 |
+| `LabelDecision` · `LabelChecked` · `LabelResult` | **[잠정 · #66, 운영 계약 아님 #65]** 판정(`block_key` `is_product_label`(strict bool) `basis`: `vlm` · `blank_text`) · 검사 범위(`input_fingerprint` `llm_called` `sent_block_keys` `blank_block_keys`) · 결과(`section_key` `status`: `ok` · `failed` · `labels`(failed면 `None`) `checked` `error`(failed면 필수)). 분석 결과와 분리 — 원문 · 좌표 · 역할은 담지 않는다 | 2.2 · 2.4 · #66 |
 | `VerdictDraft` · `ConflictGroup` · `SuppressedMatch` · `PolicyApplied` · `PolicyResult` | **[계약 4.2 + 잠정]** verdict 후보(`verdict_status` `source_verdict_status` `finding_status` `problem_text` `alternative_expression` `basis_article` `evidence_url` `reason` `conflict_group`) · 충돌 집합 · 억제 매칭 · 적용 정보(`regulatory_class` `applied_classes` `dict_coverage` 버전 · 해시) · 결과(`status` ok가 아니면 권고 · verdict 없음). `verdict_type` · `exclusion_reason`은 BE 파생이라 없다 | 4.2 · #60 |
 
 규칙:

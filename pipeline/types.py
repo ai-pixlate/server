@@ -8,7 +8,7 @@
   DB id 변환은 워커가 한다(db-map.md 2절). 이 파일은 DB 컬럼을 모른다.
 - 파일은 워커가 준비한 로컬 경로로만 주고받는다. 함수는 S3를 모른다(contract.md 1.1).
 - 계약이 미정으로 둔 값(섹션 range #13, style #14 등)은 여기에 두지 않는다. 결정되면 필드를 추가한다.
-- 후속 단계(④ 라벨 · ⑤ 로고 · ⑥⑦⑧)의 타입은 그 단계에 착수할 때 이 파일에 덧붙인다.
+- 후속 단계(⑤ 로고 · ⑥⑦⑧)의 타입은 그 단계에 착수할 때 이 파일에 덧붙인다. ④ 라벨(파일 끝 절)도 개발용 잠정 타입이다(#66).
 - ③-1 · ③-1'(파일 끝 절)은 **개발용 잠정 타입**이다(2026-09-28 착수, docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md ·
   open-questions.md #60). `ContentFinding`의 6키만 계약(4.1)이고, `matches` · `finding_status` · `conflict_group` · `dict_coverage` ·
   `source_verdict_status` · `bucket_recommendation` · `applied` 등은 BE 합의 전 필드다. BE가 확정한 저장 · 인계 계약으로 읽지 않는다.
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 SCHEMA_VERSION = "1"  # 공통 결과 버전(AnalyzeResult · OcrResult · MergeResult). 워커 인계 형식은 이 값을 따른다
 SPLIT_SCHEMA_VERSION = "2"  # SplitResult(① 출력 타입이자 split.json 파일)만: 상대 image_path = split.json 폴더 기준. 읽기 허용 버전은 jsonio.READ_VERSIONS
@@ -442,6 +442,65 @@ class PolicyResult(_Model):
         if info.data.get("status") != "ok" and v:
             raise ValueError("status가 ok가 아니면 verdicts는 비어 있어야 한다")
         return v
+
+
+# ---------------------------------------------------------------------------
+# ④ 제품 라벨 판정 — 개발용 잠정 타입 (BE 인계 · 저장 계약 아님)
+# 근거: 계약 2.2 · 2.4(is_product_label 3상태) · open-questions.md #66(④ 단독 개발 방침, 사용자 승인 2026-09-29).
+# 운영 결과 형식 · 실패 계약 · DB 저장 대응은 전체 통합 때 정한다(#64 · #65). AnalyzeResult와 공통 버전은 바꾸지 않는다.
+# ---------------------------------------------------------------------------
+LabelStatus = Literal["ok", "failed"]  # [잠정] failed = 섹션 전체 판정 실패(labels=None, 미판정). 부분 성공은 없다
+LabelBasis = Literal["vlm", "blank_text"]  # [잠정] vlm = VLM 응답 / blank_text = 공백 블록(VLM 대상 제외, false 기록)
+
+
+class LabelDecision(_Model):
+    """[계약 2.2 + 잠정] 블록 하나의 판정. is_product_label은 JSON boolean만 받는다(문자열 · 숫자를 묵시 변환하지 않음)."""
+
+    block_key: str
+    is_product_label: bool = Field(strict=True)
+    basis: LabelBasis
+
+
+class LabelChecked(_Model):
+    """[잠정] 검사 범위 기록 — 어떤 블록을 VLM에 보냈고 어떤 블록을 공백 규칙으로 처리했는지. event_log.payload 재료."""
+
+    input_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")  # 판정 당시 블록 전체(원문 · 좌표 · 역할 · 원시 OCR)의 SHA-256
+    llm_called: bool
+    sent_block_keys: list[str] = Field(default_factory=list)
+    blank_block_keys: list[str] = Field(default_factory=list)
+
+
+class LabelResult(_Model):
+    """[잠정] ④ 출력 — 분석 결과(MergeResult)와 분리한 블록별 is_product_label. 원문 · 좌표 · 역할 · 블록 구성은 담지 않는다(바꾸지 않는다).
+
+    ok면 labels가 섹션의 모든 블록(block_order 순)에 하나씩 있다(블록이 없으면 빈 목록). failed면 labels=None — 미판정이며
+    false · 빈 성공 결과로 바꾸지 않는다.
+    """
+
+    schema_version: str = SCHEMA_VERSION
+    section_key: str
+    status: LabelStatus
+    labels: list[LabelDecision] | None
+    checked: LabelChecked
+    error: str | None = None
+
+    @field_validator("labels")
+    @classmethod
+    def _labels_by_status(cls, v: list[LabelDecision] | None, info) -> list[LabelDecision] | None:
+        status = info.data.get("status")
+        if status == "failed" and v is not None:
+            raise ValueError("failed면 labels는 None(미판정)이어야 한다 — 부분 성공 · false 대체 없음")
+        if status == "ok" and v is None:
+            raise ValueError("ok면 labels가 있어야 한다(블록이 없으면 빈 목록)")
+        if v is not None and len({d.block_key for d in v}) != len(v):
+            raise ValueError("labels에 같은 block_key가 두 번 있다")
+        return v
+
+    @model_validator(mode="after")
+    def _error_when_failed(self) -> "LabelResult":
+        if self.status == "failed" and not self.error:
+            raise ValueError("failed면 error가 있어야 한다")
+        return self
 
 
 def finding_key(n: int) -> str:

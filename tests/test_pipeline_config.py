@@ -29,6 +29,8 @@ def test_default_config_matches_pipeline_md_keys():
     assert flat["section.prompt_path"] == "pipeline/prompts/section_boundary.md"
     assert flat["judge.match_mode"] == "substring"  # ③-1 설계 v1 잠정값(open-questions #60) — 실험 기준
     assert flat["policy.problem_text_max_chars"] == 300
+    assert flat["label.long_side_px"] == 1024 and flat["label.bias"] == "label"  # 정본(개발계획 6장)
+    assert flat["label.timeout_s"] == 60 and flat["label.temperature"] == 0  # ④ 단독 개발 기준(open-questions #66)
 
 
 def test_override_parses_toml_literals_and_strings():

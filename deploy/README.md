@@ -95,6 +95,8 @@ RP=$(sudo grep '^REDIS_PASSWORD=' /etc/pixlate/pixlate.env | cut -d= -f2-); dock
 데이터팀 용어집 xlsx를 RDS `glossary`에 넣는 절차(마이그레이션 `0005` → 파일 검증 → 적재 → 확인)는
 [glossary-ingestion.md](glossary-ingestion.md)에 있습니다. DB 작업만 하므로 서비스 재시작은 필요 없습니다.
 
+규제사전·현지부적합 사전(`expression_dictionary`) 적재는 [dictionary-ingestion.md](dictionary-ingestion.md)를 봅니다(마이그레이션 `0006`).
+
 ## AMI로 새 인스턴스 띄우기
 
 아래 세 가지는 AMI에 들어가지 않으므로 시작할 때 직접 지정합니다.

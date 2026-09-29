@@ -8,7 +8,7 @@
   DB id 변환은 워커가 한다(db-map.md 2절). 이 파일은 DB 컬럼을 모른다.
 - 파일은 워커가 준비한 로컬 경로로만 주고받는다. 함수는 S3를 모른다(contract.md 1.1).
 - 계약이 미정으로 둔 값(섹션 range #13, style #14 등)은 여기에 두지 않는다. 결정되면 필드를 추가한다.
-- 후속 단계(⑤ 로고 · ⑥⑦⑧)의 타입은 그 단계에 착수할 때 이 파일에 덧붙인다. ④ 라벨(파일 끝 절)도 개발용 잠정 타입이다(#66).
+- 후속 단계(⑥⑦⑧)의 타입은 그 단계에 착수할 때 이 파일에 덧붙인다. ④ 라벨(#66) · ⑤ 로고(#68, 파일 끝 절)도 개발용 잠정 타입이다.
 - ③-1 · ③-1'(파일 끝 절)은 **개발용 잠정 타입**이다(2026-09-28 착수, docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md ·
   open-questions.md #60). `ContentFinding`의 6키만 계약(4.1)이고, `matches` · `finding_status` · `conflict_group` · `dict_coverage` ·
   `source_verdict_status` · `bucket_recommendation` · `applied` 등은 BE 합의 전 필드다. BE가 확정한 저장 · 인계 계약으로 읽지 않는다.
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
 
 SCHEMA_VERSION = "1"  # 공통 결과 버전(AnalyzeResult · OcrResult · MergeResult). 워커 인계 형식은 이 값을 따른다
 SPLIT_SCHEMA_VERSION = "2"  # SplitResult(① 출력 타입이자 split.json 파일)만: 상대 image_path = split.json 폴더 기준. 읽기 허용 버전은 jsonio.READ_VERSIONS
@@ -500,6 +500,67 @@ class LabelResult(_Model):
     def _error_when_failed(self) -> "LabelResult":
         if self.status == "failed" and not self.error:
             raise ValueError("failed면 error가 있어야 한다")
+        return self
+
+
+# ---------------------------------------------------------------------------
+# ⑤ 브랜드 로고 제외 — 개발용 잠정 타입 (BE 인계 · 저장 계약 아님)
+# 근거: 계약 2.3(block_exact) · 2.4(is_brand_logo 3상태) · open-questions.md #68(⑤ 단독 개발 방침, 사용자 승인 2026-09-29).
+# basis · error는 개발용 기록 값이며 운영 enum · 오류 코드가 아니다. is_excluded는 여기서 계산하지 않는다(DB 자동계산, #63).
+# AnalyzeResult와 공통 SCHEMA_VERSION은 바꾸지 않는다 — 이 결과는 전용 버전 LOGO_SCHEMA_VERSION을 쓴다.
+# ---------------------------------------------------------------------------
+LOGO_SCHEMA_VERSION = "1"  # [잠정 #68] ⑤ 개발용 결과(LogoResult) 전용 버전
+LogoStatus = Literal["ok", "failed"]  # [잠정 #68] failed = 판정 중 예기치 않은 오류로 섹션 판정 없음. 부분 성공은 없다
+# [잠정 #68] product_label = ④ true라 비교 생략(null) / empty_text = 정규화 결과가 빈 문자열(false) /
+# exact_match = 한글명 또는 영문명과 완전 일치(true) / no_match = 정상 불일치(false, 경고 아님)
+LogoBasis = Literal["product_label", "empty_text", "exact_match", "no_match"]
+_LOGO_VALUE_BY_BASIS: dict[str, bool | None] = {"product_label": None, "empty_text": False, "exact_match": True, "no_match": False}
+
+
+class LogoDecision(_Model):
+    """[계약 2.3 + 잠정 #68] 블록 하나의 로고 판정. is_brand_logo는 JSON boolean 또는 null(④ 라벨이라 비교 생략)만 받는다."""
+
+    block_key: str
+    is_brand_logo: StrictBool | None  # 필수 키(기본값 없음) — 누락을 null로 채우지 않는다
+    basis: LogoBasis
+
+    @model_validator(mode="after")
+    def _value_matches_basis(self) -> "LogoDecision":
+        expected = _LOGO_VALUE_BY_BASIS[self.basis]
+        if self.is_brand_logo is not expected:
+            raise ValueError(f"basis {self.basis}이면 is_brand_logo는 {expected}여야 한다(받은 값 {self.is_brand_logo!r})")
+        return self
+
+
+class LogoResult(_Model):
+    """[잠정 #68] ⑤ 출력 — 섹션 하나의 블록별 is_brand_logo. 원문 · 좌표 · 역할 · 원시 OCR · ④ 결과는 담지 않는다(바꾸지 않는다).
+
+    ok면 decisions가 섹션의 모든 블록에 정확히 하나씩(block_order 순, 동률은 block_key 순 — 순서와 누락 여부는 판정 단계가 보장),
+    블록이 없으면 빈 목록이고 error는 None. failed면 decisions=None · error 필수 — 일부 블록만 성공으로 저장하지 않는다.
+    """
+
+    schema_version: str = LOGO_SCHEMA_VERSION
+    image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key + block_key
+    section_key: str
+    status: LogoStatus
+    decisions: list[LogoDecision] | None
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _by_status(self) -> "LogoResult":
+        if self.status == "ok":
+            if self.decisions is None:
+                raise ValueError("ok면 decisions가 있어야 한다(블록이 없으면 빈 목록)")
+            if self.error is not None:
+                raise ValueError("ok면 error는 None이어야 한다")
+            keys = [d.block_key for d in self.decisions]
+            if len(set(keys)) != len(keys):
+                raise ValueError("decisions에 같은 block_key가 두 번 있다")
+        else:
+            if self.decisions is not None:
+                raise ValueError("failed면 decisions는 None이어야 한다 — 부분 성공 · false 대체 없음")
+            if not (self.error and self.error.strip()):
+                raise ValueError("failed면 비어 있지 않은 error가 있어야 한다")
         return self
 
 

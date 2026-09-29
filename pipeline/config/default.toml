@@ -74,7 +74,7 @@ temperature = 0                # 개발 기준(#66)
 timeout_s = 60                 # 호출 시간 제한(초). 개발 기준 — 운영값은 #65. 애플리케이션 재시도 없음
 prompt_path = "pipeline/prompts/label.md"   # 초안 v1. 상대 경로는 레포 루트 기준
 
-[logo]                         # ⑤ 브랜드 로고 제외
+[logo]                         # ⑤ 브랜드 로고 제외 — 정규화 순서는 정본(계약 2.3). 구현 범위(str.lower · 공백 · P* 제거, S* 유지)와 이 목록 외 값 거부는 open-questions #68
 normalize = ["nfkc", "lower", "strip_space_punct"]
 
 [inpaint]                      # ⑥ 인페인팅

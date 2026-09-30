@@ -29,7 +29,7 @@ python -m pipeline.data.dict.tools.build_dict diff --old <이전 묶음> --new <
 
 - **허용 열은 색이 아니라 목록**(`build_dict.REG_COLUMNS` · `LOCAL_COLUMNS`)으로 정한다. 규제사전 `confidence`는 검증(`high`만 적재)에만 쓰고 출력하지 않는다. `source` · `version`(시트 전용) · 현지부적합 `판단 근거` · `kr_freq` · `kr_corpus`(내부 기록용)는 읽지 않는다 — 담당자 실명이 노트에 있다.
 - 규제사전 행마다 `근거` 탭의 대표 근거(`is_primary=Y` · `rg_id` 포함 · `evidence_id` 일치)를 찾아 `quote` · `verified_at`을 붙이고 `article` · `url`이 같은지 검사한다. 보류 탭 · 백업 탭은 읽지 않는다.
-- 다중값 `; `는 배열로. 열 이름은 원본 그대로(별칭) — DB 컬럼명으로 바꾸지 않는다(`docs/ai/db-map.md` 3.7의 대응은 후보이며 BE 확인 전).
+- 다중값 `; `는 배열로. 열 이름은 원본 그대로(별칭) — DB 컬럼명으로 바꾸지 않는다(`docs/ai/db-map.md` 3.7의 원본 열 → DB 열 매핑은 BE 저장 설계다. 이 묶음과 DB 적재본의 변환 · 인계 계약은 `open-questions.md` #71).
 - `policy_rules.json`은 xlsx에 없다. `build_dict.RULES_TEMPLATE`(설명서 §3 · §4 기반 잠정 매핑 · 규제 분류 변환 · `uncertain_bucket`)에서 만들고 **`overrides`는 빈 목록**이다. 실제 예외 쌍은 데이터 담당 확인 후에만 사람이 채운다(도구가 채우지 않는다).
 
 ## 버전 세 가지
@@ -45,6 +45,14 @@ python -m pipeline.data.dict.tools.build_dict diff --old <이전 묶음> --new <
 - 정규화 JSON은 git 밖이므로 이력은 **묶음 보관**으로 대신한다: 출력 폴더(JSON 3개 + `SHA256SUMS`)를 통째로 `merge-input-v1`처럼 별도 보관하고(`docs/ai/dev.md` 5절 고정 입력본 규칙), 다른 PC에 옮긴 뒤 `verify`로 해시를 대조한다.
 - 실행 기록 · `event_log.payload`에는 `dictionary_version` + 파일 SHA-256(`Dictionaries.fingerprint`) + `rules_version`을 남긴다. 어떤 실행이 어떤 묶음을 썼는지 해시로 추적한다.
 - 사전이 바뀌면 `--seq`를 올려 새 묶음을 만들고 `diff`로 바뀐 열의 종류(패턴 / 맥락 / 정책 필드 / 규칙)를 확인한다. 어느 단계를 다시 돌릴지는 설계 1절 재실행 조건표(#49).
+
+## 운영 주의 — 전달본 반영과 DB 적재본
+
+- DB 적재 성공이나 BE 로더의 한국어 경고 해소는 번역 사용 가능을 보장하지 않는다.
+- 자리표시자가 있는 대체 표현(RG-021 · RG-022)은 템플릿으로 취급한다. 최종 출력에는 검증값 치환과 원본 reason에 명시된 적용 조건 확인이 필요하다(`docs/ai/open-questions.md` #56 · #70).
+- 새 전달본을 반영할 때는 원본 파일 SHA-256(전체 값은 묶음의 `source.sha256`) · 원본이 주장하는 파일 버전(`source.claimed_version` · `version_status`) · 묶음 식별자(`dictionary_version` · `rules_version`)를 기록한다. 원본 행별 `version` 열은 읽지 않으므로 묶음에 남지 않는다 — 파일 버전과 행별 버전은 다른 정보다.
+- 기존 실측 묶음은 덮어쓰지 않고 보존한다(`--date` · `--seq`로 새 묶음을 만든다).
+- DB 적재본(BE `expression_dictionary`)과 이 폴더의 정규화 묶음의 대응 · 버전 식별 방식은 합의 전까지 확인 필요다(#49 · #71). 이 폴더의 스키마를 BE 저장 계약으로 쓰지 않는다.
 
 ## 두 뷰
 

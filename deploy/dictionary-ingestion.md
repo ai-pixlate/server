@@ -103,6 +103,7 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 | --- | --- | --- |
 | DB 적재(이 문서) | 가능 — 정정본 검증 후 | — |
 | DB → AI 사전 공급 | 합의 후 | 판정값 대응(`rewritable` 정규화·원값 열), `alternative_expression` 문자열(DB) ↔ 문자열 배열(AI 사전) 변환, 원본 ID를 `section_verdict.dictionary_id`의 내부 PK로 연결하는 책임 주체·변환 시점·조회 방식 |
+| AI 판정 결과의 DB 저장(`section_verdict.dictionary_id`) | 합의 후 | 원본 ID → 내부 PK 연결. AI가 사전 JSON 묶음을 계속 읽더라도 결과를 DB에 저장하려면 필요하다 |
 | RG-021·022 번역 적용 | 합의 후 | 검증된 상품별 수치와 원본 reason에 적힌 적용 조건의 확인·전달 방식, 미확인 시 처리 |
 | 사전 변경 후 기존 결과 재사용 | 합의 후 | 실행에 쓴 사전 버전 식별, 재실행 기준 |
 

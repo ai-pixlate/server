@@ -22,8 +22,8 @@
     python -m pipeline.run inpaint --mode mask-only|inpaint --split IMG/split.json --section KEY --image-id ID --merge M --label L
                                    --logo G --logo-debug GD --out NEW_DIR
                                    # ⑥ 인페인팅(개발용 v1, pipeline.md 7.6절) → NEW_DIR/<ID>/inpaint_mask/ · inpaint_bg/ · inpaint_debug/ · inpaint/.
-                                   # mask-only는 마스크 · 진단만(인페인팅 아님). inpaint는 실제 LaMa 어댑터가 없어 종료 코드 3(#72).
-                                   # 종료 코드 0 성공 · 2 입력 · 설정 오류 · 3 어댑터 미구현 · 4 모델 · 저장 · 내부 오류. --out이 있거나 고정 입력본 안이면 거부
+                                   # mask-only는 마스크 · 진단만(인페인팅 아님). inpaint는 LaMa 어댑터(GPU · FP32, 가중치 미설치 · torch 없음이면 종료 코드 3).
+                                   # 종료 코드 0 성공 · 2 입력 · 설정 오류 · 3 모델 사용 불가 · 4 모델 초기화 · 추론 · 저장 · 내부 오류. --out이 있거나 고정 입력본 안이면 거부
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run inspect --label DIR/label/<KEY>.json --merge DIR/merge/<KEY>.json --image IMG --out PNG
     python -m pipeline.run inspect --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json [--policy DIR/policy/<KEY>.json] --image IMG --out PNG
@@ -532,8 +532,8 @@ def cmd_logo(args) -> int:
 # ---- ⑥ 인페인팅 ---------------------------------------------------------------
 # 실행 계층: 파일 읽기 · 사전 검사 · 모델 초기화 · 마스크 · 추론 · 저장(임시 파일 → 교체, PNG는 다시 읽어 대조) · run.json · 종료 코드.
 # 개발용 v1 형식(사용자 승인 2026-09-30, pipeline.md 7.6절 — 운영 API/DB 계약 아님): 0 성공 · 2 입력 · 설정 오류(결과 없음) ·
-# 3 모델 어댑터 미구현(결과 없음) · 4 모델 초기화 · 추론 · 출력 검증 · 저장 · 내부 오류. 자동 재시도 · 축소 · CPU 대체 · 이어 실행 없음.
-INPAINT_SCOPE_NOTE = ("⑥ 단독 개발 v1 — 개발용 결과 형식(운영 API/DB 계약 아님, pipeline.md 7.6절) · 실제 LaMa 어댑터 미구현(#72) · "
+# 3 모델 사용 불가(어댑터 없음 · torch 미설치 · 가중치 없음, 결과 없음) · 4 모델 초기화 · 추론 · 출력 검증 · 저장 · 내부 오류. 자동 재시도 · 축소 · CPU 대체 · 이어 실행 없음.
+INPAINT_SCOPE_NOTE = ("⑥ 단독 개발 v1 — 개발용 결과 형식(운영 API/DB 계약 아님, pipeline.md 7.6절) · LaMa 어댑터 = iopaint 1.6.0 재현(#72, GPU · FP32 · 원본 해상도) · "
                       "mask_only는 마스크 · 진단만(인페인팅 아님) · 사전 검사 실패 시 결과 없음 · 모델 · 저장 오류면 전체 중단"
                       "(완료 섹션 결과 보존, 실행은 실패) · 자동 재시도 · 축소 · CPU 대체 없음 · 재실행은 새 출력 폴더")
 INPAINT_MODES = {"mask-only": "mask_only", "inpaint": "inpaint"}  # CLI 값 → 기록 값
@@ -658,7 +658,7 @@ def execute_inpaint(out: Path, jobs: list[dict[str, Any]], cfg: dict[str, Any], 
        → 하나라도 실패하면 결과 없이 input_error(2).
     2) 섹션마다 마스크 → (inpaint) 추론 · 합성 → 저장(마스크 → 배경 → 진단 → 결과). model_factory(cfg) -> InpaintModel은 inpaint 모드에서
        **처음으로 비어 있지 않은 최종 마스크를 만났을 때** 한 번 부른다(빈 마스크 섹션만 있으면 모델 없이 unchanged로 끝난다).
-       기본(inpaint.build_model)은 어댑터 미구현이라 ModelNotAvailable → 3, 그 밖의 초기화 실패 → 4 — 그 섹션은 파일 없이 not_run.
+       기본(inpaint.build_model)은 LaMa 어댑터 — 모델 사용 불가(torch 없음 · 가중치 없음)는 ModelNotAvailable → 3, 그 밖의 초기화 실패 → 4 — 그 섹션은 파일 없이 not_run.
        모델 오류는 그 섹션 failed 결과 · 진단을 남기고 전체 중단(4), 저장 오류는 save_failed로 중단(4).
        완료 섹션 결과는 보존하고 남은 섹션은 not_run. 하나라도 ok가 아니면 전체를 ok로 기록하지 않는다."""
     import time
@@ -1011,10 +1011,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", required=True, help="새 출력 폴더(이미 있으면 거부)")
     sp.set_defaults(fn=cmd_logo)
 
-    sp = sub.add_parser("inpaint", help="⑥ 인페인팅(개발용 — mask-only는 마스크만, inpaint는 모델 어댑터 미구현)")
+    sp = sub.add_parser("inpaint", help="⑥ 인페인팅(개발용 — mask-only는 마스크만, inpaint는 LaMa GPU 추론)")
     common(sp)
     sp.add_argument("--mode", required=True, choices=sorted(INPAINT_MODES),
-                    help="mask-only = 마스크 · 진단만(인페인팅 아님) / inpaint = 모델 추론(현재 어댑터 미구현 → 종료 코드 3). 기본값 없음")
+                    help="mask-only = 마스크 · 진단만(인페인팅 아님) / inpaint = LaMa GPU 추론(torch · 가중치가 없으면 종료 코드 3). 기본값 없음")
     sp.add_argument("--split", required=True, help="split.json (섹션 메타데이터 · 이미지)")
     sp.add_argument("--section", required=True, help="section_key")
     sp.add_argument("--image-id", required=True, help="원본 이미지 식별자(예 GS-01_001)")

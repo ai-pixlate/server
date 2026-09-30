@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -103,10 +104,18 @@ def test_empty_mask_unchanged_without_model_call(tmp_path, cfg):
     assert (read_png(tmp_path / "out" / res.files.background) == j["_image"]).all()
 
 
-def test_default_factory_is_not_available_exit_3(tmp_path, cfg):
+@pytest.fixture
+def no_torch(monkeypatch, tmp_path):
+    """torch가 설치된 GPU 환경에서도 '모델 사용 불가' 경로를 재현한다. import torch → ImportError, torch가 있으면 TORCH_HOME을 빈 폴더로
+    돌려 가중치가 없게 한다."""
+    monkeypatch.setitem(sys.modules, "torch", None)
+    monkeypatch.setenv("TORCH_HOME", str(tmp_path / "empty_torch_home"))
+
+
+def test_default_factory_is_not_available_exit_3(tmp_path, cfg, no_torch):
     j = job(tmp_path, "IMG-01")
     code, rec = execute(tmp_path / "out", [j], cfg, "inpaint")
-    assert code == 3 and rec["status"] == "failed" and "어댑터 미구현" in rec["error"]
+    assert code == 3 and rec["status"] == "failed" and "모델 없음" in rec["error"]
     assert [s["status"] for s in rec["sections"]] == ["not_run"]
     assert sorted(p.name for p in (tmp_path / "out").iterdir()) == ["run.json"]
 
@@ -265,7 +274,7 @@ def test_cli_mask_only_and_inputs_unchanged(tmp_path):
     assert ((read_png(tmp_path / "out" / res.files.final_mask) == 255) == WANT_FINAL).all()
 
 
-def test_cli_inpaint_mode_exits_3_without_results(tmp_path):
+def test_cli_inpaint_mode_exits_3_without_results(tmp_path, no_torch):
     paths = write_bundle(tmp_path / "in")
     assert cli(paths, tmp_path / "out", mode="inpaint") == 3
     rec = json.loads((tmp_path / "out/run.json").read_text(encoding="utf-8"))
@@ -415,8 +424,8 @@ def test_execute_refuses_out_inside_bundle_of_input_paths(tmp_path, cfg):
     assert code == 2 and not (bundle / "out2").exists()
 
 
-def test_empty_masks_only_need_no_model(tmp_path, cfg):
-    # 기본 팩토리(어댑터 미구현)라도 빈 마스크 섹션만 있으면 모델을 초기화하지 않고 unchanged로 끝난다
+def test_empty_masks_only_need_no_model(tmp_path, cfg, no_torch):
+    # 기본 팩토리로 모델을 쓸 수 없는 환경이라도 빈 마스크 섹션만 있으면 모델을 초기화하지 않고 unchanged로 끝난다
     j = job(tmp_path, "IMG-01", blocks=LOW_ONLY)
     code, rec = execute(tmp_path / "out", [j], cfg, "inpaint")
     assert code == 0 and rec["status"] == "ok" and rec["model"] is None

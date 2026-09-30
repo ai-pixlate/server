@@ -66,14 +66,18 @@ class InpaintModelError(RuntimeError):
 
 
 class ModelNotAvailable(NotImplementedError):
-    """실제 인페인팅 모델 어댑터가 없다(#72). 실행 계층은 결과 없이 종료 코드 3으로 끝낸다 — 인페인팅 성공으로 표시하지 않는다."""
+    """인페인팅 모델을 쓸 수 없다 — 어댑터 없음 · torch 미설치 · 가중치 파일 없음(#72). 실행 계층은 그 섹션부터 결과 없이 종료 코드 3으로
+    끝낸다 — 인페인팅 성공으로 표시하지 않는다. CUDA 없음 · 가중치 불일치 · 로드 실패는 초기화 실패(그 밖의 예외, 종료 코드 4)다."""
 
 
 def build_model(cfg: dict[str, Any]) -> "InpaintModel":
-    """기본 모델 팩토리. 실제 LaMa(iopaint) 어댑터는 GPU 환경 확인 · 소수 실행 전이라 구현하지 않았다(#72).
-    원본을 그대로 돌려주는 대체 모델을 두지 않는다 — 빈 추론을 정상 동작처럼 보이게 하지 않기 위해서다."""
-    raise ModelNotAvailable(f"inpaint.model={cfg['inpaint']['model']!r} 어댑터 미구현 — 실제 LaMa 연결은 GPU 환경 확인 후(#72). "
-                            "마스크만 만들려면 --mode mask-only")
+    """기본 모델 팩토리 — `inpaint.model=lama`면 LaMa 어댑터(`inpaint_lama.LamaModel`, iopaint 1.6.0 재현 · GPU · FP32)를 초기화한다.
+    가중치는 iopaint 기본 캐시 위치에서 읽고 내려받지 않는다. 원본을 그대로 돌려주는 대체 모델은 두지 않는다."""
+    if cfg["inpaint"]["model"] != "lama":
+        raise ModelNotAvailable(f"inpaint.model={cfg['inpaint']['model']!r} 어댑터 없음 — 마스크만 만들려면 --mode mask-only")
+    from pipeline.stages.inpaint_lama import LamaModel
+
+    return LamaModel()
 
 
 def pixel_sha256(arr: np.ndarray) -> str:

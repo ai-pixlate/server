@@ -556,7 +556,7 @@ def inpaint_run_base(mode: str, cfg: dict[str, Any] | None, started: datetime) -
         "started_at": started.isoformat(timespec="seconds"), "ran_at": None, "duration_s": None,
         "config": cfgmod.snapshot(cfg) if cfg is not None else None, "raster_rule": inpaint.RASTER_RULE,
         "timeout_s": ({k: cfg["inpaint"].get(k) for k in ("init_timeout_s", "infer_timeout_s", "kill_grace_s")} if cfg else None),
-        "timeout_note": "모델 자식 프로세스 시간 제한 — 100섹션 실측용 잠정값(운영값 아님, #71). mask_only는 모델을 만들지 않는다",
+        "timeout_note": "모델 자식 프로세스 시간 제한 — 100섹션 실측용 잠정값(운영값 아님, #75). mask_only는 모델을 만들지 않는다",
         "python": platform.python_version(), "numpy": numpy.__version__, "pillow": PIL.__version__, "platform": platform.platform(),
         **jsonio.git_state(),
         "inputs": {}, "model": None, "counts": None, "sections": [],

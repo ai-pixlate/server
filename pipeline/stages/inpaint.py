@@ -1,4 +1,4 @@
-"""⑥ 인페인팅 — 단독 개발 v1, 로컬 구현(2026-09-30). pipeline.md 단계표 ⑥ · 7.6절, contract.md 5.2, open-questions.md #70~#72.
+"""⑥ 인페인팅 — 단독 개발 v1, 로컬 구현(2026-09-30). pipeline.md 단계표 ⑥ · 7.6절, contract.md 5.2, open-questions.md #72 · #74 · #75.
 
 정본(확정): LaMa(iopaint) + `erase_s50` — 신뢰도 0.5 이상 · 텍스트 있는 **원시 영역**만 마스크, 마스크 = poly 채움 + 글자 높이 15% 팽창,
 ④⑤ 보호 영역은 마스크에서 빼고 팽창이 침범하지 않게 구성, 확대 재시도 없음[개발계획 2.1, 6장][계약 5.2]. 판정은 블록
@@ -46,7 +46,7 @@ from pipeline.stages.logo import sha256_json
 from pipeline.types import BBox, LabelResult, LogoResult, MergeResult, OcrRegion, Section
 
 MODELS = ("lama",)
-TIMEOUT_KEYS = ("init_timeout_s", "infer_timeout_s", "kill_grace_s")  # 모델 자식 프로세스 시간 제한(실측용 잠정값, #71)
+TIMEOUT_KEYS = ("init_timeout_s", "infer_timeout_s", "kill_grace_s")  # 모델 자식 프로세스 시간 제한(실측용 잠정값, #75)
 LAMA_FACTORY = "pipeline.stages.inpaint_lama:LamaModel"  # 정본에 정의된 인페인팅 모델 값은 lama뿐이다[개발계획 6장]
 RASTER_RULE = ("poly: 정수 좌표 = 픽셀 경계, 픽셀 중심 (x+0.5, y+0.5)가 내부(nonzero) 또는 경계 위면 포함 · "
                "bbox: 열 x..x+w-1 · 행 y..y+h-1 · 커널: dx²+dy² ≤ r² · r = ceil(bbox.h × Fraction(str(dilate_ratio))) · "

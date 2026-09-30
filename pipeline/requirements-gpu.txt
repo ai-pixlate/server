@@ -1,4 +1,7 @@
-# Stage 6 inpainting - LaMa (iopaint). GPU server (gpu/) only. torch/torchvision come from the gpu/Dockerfile image.
-# Not yet install-verified. Pin the versions that work on the server and mirror them in gpu/Dockerfile.
+# GPU server (gpu/) - full pipeline. torch/torchvision come from the gpu/Dockerfile image and are not listed here.
+# Stage 6 inpainting uses pipeline/stages/inpaint_lama.py, a minimal re-implementation of the iopaint 1.6.0 LaMa path
+# (same big-lama.pt weights), so the iopaint package is NOT required (it pins Pillow==9.5.0, which has no Python 3.12 wheel).
+# Stage 6 alone needs torch + numpy + pillow (from the image) and pydantic (pipeline/requirements.txt). Verified 2026-09-30
+# on the school V100 in the isolated venv /data/inpaint/venv (docs/ai/dev.md section 6).
+# The OCR requirements below are not install-verified on the GPU server; do not bulk-install them into the running worker env.
 -r requirements-ocr.txt
-iopaint

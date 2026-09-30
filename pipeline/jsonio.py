@@ -26,7 +26,8 @@ from PIL import Image
 from pydantic import BaseModel
 
 from pipeline.types import (
-    SPLIT_SCHEMA_VERSION, DetectionResult, JudgeResult, LabelResult, LogoResult, MergeResult, OcrResult, PolicyResult, SplitResult,
+    SPLIT_SCHEMA_VERSION, DetectionResult, InpaintResult, JudgeResult, LabelResult, LogoResult, MergeResult, OcrResult, PolicyResult,
+    SplitResult,
 )
 
 # 타입별 읽기 허용 버전. SplitResult만 "1"을 거부한다(상대 경로 의미가 바뀌었으므로). AnalyzeResult는 여기 없다(워커 인계 형식, 파일 읽기 도구 없음).
@@ -40,6 +41,7 @@ READ_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
     PolicyResult: frozenset({"1"}),
     LabelResult: frozenset({"1"}),  # ④ 개발용 잠정 형식(open-questions #66) — 워커 인계 형식 아님
     LogoResult: frozenset({"1"}),  # ⑤ 개발용 잠정 형식(open-questions #68, 전용 LOGO_SCHEMA_VERSION) — 워커 인계 형식 아님
+    InpaintResult: frozenset({"1"}),  # ⑥ 개발용 잠정 형식(pipeline.md 7.6절, 전용 INPAINT_SCHEMA_VERSION) — 워커 인계 형식 아님
 }
 _PATH_TYPES = (SplitResult,)  # 경로 규칙을 적용하는 타입 — AnalyzeResult에는 적용하지 않는다
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -129,6 +131,26 @@ def write_text_atomic(path: str | Path, text: str) -> Path:
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
             f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+    return path
+
+
+def write_bytes_atomic(path: str | Path, data: bytes) -> Path:
+    """write_text_atomic의 바이트판 — ⑥ 마스크 · 배경 PNG. 같은 폴더의 임시 파일 → os.replace, 실패하면 임시 파일을 지우고 예외를 올린다."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp, path)

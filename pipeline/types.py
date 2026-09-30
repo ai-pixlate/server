@@ -574,3 +574,81 @@ def match_key(n: int) -> str:
 
 def verdict_key(n: int) -> str:
     return f"v_{n:02d}"
+
+
+# ---------------------------------------------------------------------------
+# ⑥ 인페인팅 — 개발용 잠정 타입 (BE 인계 · 저장 계약 아님)
+# 근거: 계약 5.2 · 2.5(원시 영역 score) · open-questions.md 2.3절(⑥ 단독 개발 계획 승인 2026-09-30) · #72 · #74 · #75,
+# 개발용 v1 형식은 사용자 승인(2026-09-30, pipeline.md 7.6절). status · kind · 오류 문자열은 운영 enum · 오류 코드가 아니다.
+# AnalyzeResult와 공통 SCHEMA_VERSION은 바꾸지 않는다 — 이 결과는 전용 버전 INPAINT_SCHEMA_VERSION을 쓴다.
+# ---------------------------------------------------------------------------
+INPAINT_SCHEMA_VERSION = "1"  # [잠정] ⑥ 개발용 결과(InpaintResult) 전용 버전
+InpaintMode = Literal["mask_only", "inpaint"]  # [잠정] mask_only = 마스크 · 진단만(배경 없음) / inpaint = 모델 추론 경로
+# [잠정] masked = 마스크만 만듦(인페인팅 아님) / inpainted = 모델 1회 호출 후 합성 / unchanged = 빈 마스크라 모델 호출 없이 원본 사본 /
+# failed = 배경 없음 · error 필수
+InpaintStatus = Literal["masked", "inpainted", "unchanged", "failed"]
+
+
+class InpaintFiles(_Model):
+    """[잠정] 산출 파일 — 실행 출력 폴더(--out) 기준 상대 경로('/' 구분). 만들지 않은 파일은 None."""
+
+    final_mask: str | None
+    protect_mask: str | None
+    background: str | None
+
+
+class InpaintCounts(_Model):
+    """[잠정] 영역 분류별 개수와 마스크 픽셀 수. conflict_px = 삭제 합집합 ∩ 보호(보호가 이겨 지우지 않은 픽셀)."""
+
+    regions: int = Field(ge=0)
+    target: int = Field(ge=0)
+    zero_area: int = Field(ge=0)
+    protected_region: int = Field(ge=0)
+    in_protected_block: int = Field(ge=0)
+    protected_blocks: int = Field(ge=0)
+    delete_px: int = Field(ge=0)
+    protect_px: int = Field(ge=0)
+    conflict_px: int = Field(ge=0)
+    final_px: int = Field(ge=0)
+
+
+class InpaintResult(_Model):
+    """[잠정] ⑥ 섹션 하나의 결과. 원문 · 좌표 · 원시 OCR · ④⑤ 판정은 담지 않는다(바꾸지 않는다). 상세 영역 기록은 inpaint_debug.
+
+    상태 불변식: masked(mask_only · 모델 호출 없음 · 배경 없음) / inpainted(inpaint · 호출 · 배경 · final_px > 0) /
+    unchanged(inpaint · 호출 없음 · 배경 = 원본 사본 · final_px = 0) / failed(배경 없음 · error 필수). 성공 상태의 error는 None.
+    """
+
+    schema_version: str = INPAINT_SCHEMA_VERSION
+    image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key
+    section_key: str
+    mode: InpaintMode
+    status: InpaintStatus
+    model_called: StrictBool
+    files: InpaintFiles
+    counts: InpaintCounts | None  # 마스크 계산 전 실패면 None
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _by_status(self) -> "InpaintResult":
+        s, f = self.status, self.files
+        if s == "failed":
+            if f.background is not None:
+                raise ValueError("failed면 background는 None이어야 한다")
+            if not (self.error and self.error.strip()):
+                raise ValueError("failed면 비어 있지 않은 error가 있어야 한다")
+            return self
+        if self.error is not None:
+            raise ValueError(f"{s}이면 error는 None이어야 한다")
+        if self.counts is None or f.final_mask is None or f.protect_mask is None:
+            raise ValueError(f"{s}이면 counts와 두 마스크 파일이 있어야 한다")
+        if s == "masked":
+            if self.mode != "mask_only" or self.model_called or f.background is not None:
+                raise ValueError("masked는 mask_only 모드 · 모델 호출 없음 · 배경 없음이어야 한다")
+        elif self.mode != "inpaint" or f.background is None:
+            raise ValueError(f"{s}은 inpaint 모드 · 배경 파일이 있어야 한다")
+        elif s == "inpainted" and not (self.model_called and self.counts.final_px > 0):
+            raise ValueError("inpainted는 모델 호출 · final_px > 0이어야 한다")
+        elif s == "unchanged" and (self.model_called or self.counts.final_px != 0):
+            raise ValueError("unchanged는 모델 호출 없음 · final_px = 0이어야 한다")
+        return self

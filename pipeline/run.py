@@ -19,6 +19,11 @@
     python -m pipeline.run logo    --merge DIR/merge/<KEY>.json --label DIR/label/<KEY>.json --brand-meta brand_metadata.json --image-id ID --out NEW_DIR
                                    # ⑤ 브랜드 로고 제외(모델 호출 없음) → NEW_DIR/<ID>/logo/<KEY>.json, NEW_DIR/<ID>/logo_debug/<KEY>.json.
                                    # 종료 코드 0 성공 · 2 입력 · 설정 오류 · 4 실행 · 저장 오류(open-questions #68). --out이 이미 있으면 거부
+    python -m pipeline.run inpaint --mode mask-only|inpaint --split IMG/split.json --section KEY --image-id ID --merge M --label L
+                                   --logo G --logo-debug GD --out NEW_DIR
+                                   # ⑥ 인페인팅(개발용 v1, pipeline.md 7.6절) → NEW_DIR/<ID>/inpaint_mask/ · inpaint_bg/ · inpaint_debug/ · inpaint/.
+                                   # mask-only는 마스크 · 진단만(인페인팅 아님). inpaint는 LaMa 어댑터(GPU · FP32, 가중치 미설치 · torch 없음이면 종료 코드 3).
+                                   # 종료 코드 0 성공 · 2 입력 · 설정 오류 · 3 모델 사용 불가 · 4 모델 초기화 · 추론 · 저장 · 내부 오류. --out이 있거나 고정 입력본 안이면 거부
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run inspect --label DIR/label/<KEY>.json --merge DIR/merge/<KEY>.json --image IMG --out PNG
     python -m pipeline.run inspect --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json [--policy DIR/policy/<KEY>.json] --image IMG --out PNG
@@ -524,6 +529,365 @@ def cmd_logo(args) -> int:
     return execute_logo(out, [{"image_id": args.image_id, "merged": merged, "label": label_res}], brand_meta, cfg, record, started)
 
 
+# ---- ⑥ 인페인팅 ---------------------------------------------------------------
+# 실행 계층: 파일 읽기 · 사전 검사 · 모델 초기화 · 마스크 · 추론 · 저장(임시 파일 → 교체, PNG는 다시 읽어 대조) · run.json · 종료 코드.
+# 개발용 v1 형식(사용자 승인 2026-09-30, pipeline.md 7.6절 — 운영 API/DB 계약 아님): 0 성공 · 2 입력 · 설정 오류(결과 없음) ·
+# 3 모델 사용 불가(어댑터 없음 · torch 미설치 · 가중치 없음, 결과 없음) · 4 모델 초기화 · 추론 · 출력 검증 · 저장 · 내부 오류. 자동 재시도 · 축소 · CPU 대체 · 이어 실행 없음.
+INPAINT_SCOPE_NOTE = ("⑥ 단독 개발 v1 — 개발용 결과 형식(운영 API/DB 계약 아님, pipeline.md 7.6절) · LaMa 어댑터 = iopaint 1.6.0 재현(#72, GPU · FP32 · 원본 해상도) · "
+                      "mask_only는 마스크 · 진단만(인페인팅 아님) · 사전 검사 실패 시 결과 없음 · 모델 · 저장 오류면 전체 중단"
+                      "(완료 섹션 결과 보존, 실행은 실패) · 자동 재시도 · 축소 · CPU 대체 없음 · 재실행은 새 출력 폴더")
+INPAINT_MODES = {"mask-only": "mask_only", "inpaint": "inpaint"}  # CLI 값 → 기록 값
+# 사전 검사에서 "검출한 입력 · 설정 오류"로 보는 예외(⑤와 같은 분류): InpaintInputError · SchemaVersionError · ValidationError · JSON 오류는
+# ValueError, 파일 없음 · 이미지 열기 실패는 OSError, 없는 config 키 override는 ConfigKeyError. 그 밖의 예외는 내부 오류다.
+INPAINT_INPUT_ERRORS: tuple[type[BaseException], ...] = (ValueError, OSError, cfgmod.ConfigKeyError)
+
+
+def inpaint_run_base(mode: str, cfg: dict[str, Any] | None, started: datetime) -> dict[str, Any]:
+    """⑥ run.json 공통 머리 — 설정 · 환경 · 코드 버전. 시간 제한은 정하지 않았으므로 null로 남긴다(#72)."""
+    import platform
+
+    import numpy
+    import PIL
+
+    from pipeline.stages import inpaint
+
+    return {
+        "stage": "inpaint", "mode": mode, "scope": INPAINT_SCOPE_NOTE, "status": None, "error": None,
+        "started_at": started.isoformat(timespec="seconds"), "ran_at": None, "duration_s": None,
+        "config": cfgmod.snapshot(cfg) if cfg is not None else None, "raster_rule": inpaint.RASTER_RULE,
+        "timeout_s": ({k: cfg["inpaint"].get(k) for k in ("init_timeout_s", "infer_timeout_s", "kill_grace_s")} if cfg else None),
+        "timeout_note": "모델 자식 프로세스 시간 제한 — 100섹션 실측용 잠정값(운영값 아님, #75). mask_only는 모델을 만들지 않는다",
+        "python": platform.python_version(), "numpy": numpy.__version__, "pillow": PIL.__version__, "platform": platform.platform(),
+        **jsonio.git_state(),
+        "inputs": {}, "model": None, "counts": None, "sections": [],
+    }
+
+
+def _inpaint_finish(out: Path, record: dict[str, Any], started: datetime, status: str, error: str | None, code: int) -> int:
+    """run.json을 임시 파일 → 교체로 쓰고 종료 코드를 돌려준다. run.json 저장 자체가 실패하면 표준 오류로 알리고 4 — 기록을 남겼다고 보고하지 않는다."""
+    ended = datetime.now(timezone.utc)
+    record.update({"status": status, "error": error, "ran_at": ended.isoformat(timespec="seconds"),
+                   "duration_s": round((ended - started).total_seconds(), 3)})
+    secs = record.get("sections") or []
+    c = record.get("counts")
+    if isinstance(c, dict):
+        for k in ("ok", "failed", "save_failed", "not_run"):
+            c[f"sections_{k}"] = sum(1 for s in secs if s.get("status") == k)
+    try:
+        jsonio.write_text_atomic(out / "run.json", json.dumps(record, ensure_ascii=False, indent=2))
+    except Exception as e:  # noqa: BLE001 — 폴더 생성 · 직렬화 · 저장 실패 모두 기록 없음
+        print(f"⑥ run.json 저장 실패 — 실행 기록이 남지 않았다: {e.__class__.__name__}: {e} "
+              f"(상태 {status}{f' · 오류 {error}' if error else ''})", file=sys.stderr)
+        return 4
+    if error:
+        print(f"⑥ {status}: {error} (run.json에 기록)", file=sys.stderr)
+    return code
+
+
+def fixed_bundle_roots(path: Path) -> list[Path]:
+    """path가 속한 **모든** 고정 입력본 루트 — SHA256SUMS가 있는 상위 폴더 전부(가까운 것부터). 입력본 안에 입력본이 묶인 경우
+    (예 downstream-input-v1 안의 upstream_*) 바깥 입력본도 보호해야 하므로 가장 가까운 하나에서 멈추지 않는다(dev.md 5절)."""
+    return [parent for parent in Path(path).resolve().parents if (parent / "SHA256SUMS").is_file()]
+
+
+def inpaint_out_guard(out: Path, input_paths: list[Path]) -> str | None:
+    """출력 폴더 거부 사유. 이미 있는 폴더(덮어쓰기)와 입력 파일이 속한 고정 입력본 안(입력본 변경)을 거부한다. 문제없으면 None."""
+    if out.exists():
+        return f"출력 폴더가 이미 있다 — 실행마다 새 --out을 쓴다: {out}"
+    ro = out.resolve()
+    for p in input_paths:
+        for root in fixed_bundle_roots(p):
+            if ro == root or root in ro.parents:
+                return f"출력 폴더 {out}가 고정 입력본 {root} 안에 있다 — 입력본은 읽기 전용이다"
+    return None
+
+
+def safe_path_component(value: Any) -> bool:
+    """출력 경로의 한 구성 요소로 쓸 수 있는 식별자인가 — 비어 있지 않은 문자열이고 경로 구분자(/ \\) · 드라이브 구분자(:) ·
+    제어 문자(NUL · 줄바꿈 등, str.isprintable) · 앞뒤 공백이 없으며 '.' · '..'이 아니다. image_id · section_key를 파일 경로로 쓰기 전에
+    검사한다(출력 폴더 밖 저장 방지). 최종 경로가 출력 폴더 안인지는 execute_inpaint가 따로 확인한다."""
+    return (isinstance(value, str) and value != "" and value not in (".", "..") and value == value.strip() and value.isprintable()
+            and not any(c in value for c in ("/", "\\", ":")))
+
+
+def inside(root: Path, path: Path) -> bool:
+    """path(해석한 절대 경로)가 root 안인가."""
+    r, p = root.resolve(), path.resolve()
+    return p == r or r in p.parents
+
+
+def save_png_verified(path: Path, arr) -> None:
+    """무손실 PNG를 임시 파일 → 교체로 쓰고 다시 읽어 픽셀을 대조한다. 다르면 OSError(저장 실패)."""
+    import io
+
+    import numpy as np
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.fromarray(arr).save(buf, format="PNG")
+    jsonio.write_bytes_atomic(path, buf.getvalue())
+    with Image.open(path) as im:
+        back = np.array(im)
+    if back.shape != arr.shape or back.dtype != arr.dtype or not np.array_equal(back, arr):
+        raise OSError(f"저장한 PNG를 다시 읽은 픽셀이 원본과 다르다: {path}")
+
+
+def inpaint_output_paths(image_id: str, section_key: str) -> dict[str, Path]:
+    """섹션 하나의 출력 파일(--out 기준 상대 경로). 식별자는 safe_path_component를 통과한 값이어야 한다."""
+    base = Path(image_id)
+    return {"final_mask": base / "inpaint_mask" / f"{section_key}.final.png",
+            "protect_mask": base / "inpaint_mask" / f"{section_key}.protect.png",
+            "background": base / "inpaint_bg" / f"{section_key}.png", "debug": base / "inpaint_debug" / f"{section_key}.json",
+            "result": base / "inpaint" / f"{section_key}.json"}
+
+
+def _last_call(model) -> dict[str, Any] | None:
+    """모델이 남긴 마지막 호출 기록(dict일 때만 — JSON으로 쓸 수 있는 측정값). 없으면 None."""
+    calls = getattr(model, "calls", None)
+    return dict(calls[-1]) if isinstance(calls, list) and calls and isinstance(calls[-1], dict) else None
+
+
+class _InpaintInitStop(Exception):
+    """지연 모델 초기화 실패 — 실행 중단 신호(종료 코드 · 메시지)."""
+
+    def __init__(self, code: int, message: str):
+        super().__init__(message)
+        self.code, self.message = code, message
+
+
+def execute_inpaint(out: Path, jobs: list[dict[str, Any]], cfg: dict[str, Any], mode: str, record: dict[str, Any], started: datetime,
+                    *, model_factory=None) -> int:
+    """⑥ 실행. jobs = [{"image_id", "section": Section, "image_path": Path, "merged", "label", "logo", "logo_record",
+    "input_paths": [읽은 입력 파일 경로 …](선택)}] (이미 읽은 입력). CLI(한 섹션)와 후속 실측 드라이버가 같은 함수를 쓴다.
+    0) 출력 보호(이 함수가 보장 — 호출자에 맡기지 않는다): `out`이 이미 있거나 입력(image_path · input_paths)이 속한 고정 입력본 안이면
+       아무것도 쓰지 않고 2. 통과하면 `out`을 새로 만든다(이미 있으면 2).
+    1) 사전 검사: 모든 섹션의 설정 · 경로 식별자(image_id · section_key) · 출력 경로가 out 안인지 · 이미지(RGB · 크기) · 판정 · 지문 · 기하 검증
+       → 하나라도 실패하면 결과 없이 input_error(2).
+    2) 섹션마다 마스크 → (inpaint) 추론 · 합성 → 저장(마스크 → 배경 → 진단 → 결과). model_factory(cfg) -> InpaintModel은 inpaint 모드에서
+       **처음으로 비어 있지 않은 최종 마스크를 만났을 때** 한 번 부른다(빈 마스크 섹션만 있으면 모델 없이 unchanged로 끝난다).
+       기본(inpaint.build_model)은 LaMa 어댑터 — 모델 사용 불가(torch 없음 · 가중치 없음)는 ModelNotAvailable → 3, 그 밖의 초기화 실패 → 4 — 그 섹션은 파일 없이 not_run.
+       모델 오류는 그 섹션 failed 결과 · 진단을 남기고 전체 중단(4), 저장 오류는 save_failed로 중단(4).
+       완료 섹션 결과는 보존하고 남은 섹션은 not_run. 하나라도 ok가 아니면 전체를 ok로 기록하지 않는다."""
+    import time
+
+    import numpy as np
+    from PIL import Image
+
+    from pipeline.stages import inpaint
+    from pipeline.types import InpaintCounts, InpaintFiles, InpaintResult
+
+    guard_paths = [Path(p) for j in jobs for p in [j.get("image_path"), *j.get("input_paths", [])] if p is not None]
+    guard = inpaint_out_guard(out, guard_paths)
+    if guard:
+        print(guard, file=sys.stderr)
+        return 2
+    try:
+        out.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        print(f"출력 폴더가 이미 있다 — 실행마다 새 --out을 쓴다: {out}", file=sys.stderr)
+        return 2
+    except OSError as e:
+        print(f"출력 폴더를 만들 수 없다: {out}: {e}", file=sys.stderr)
+        return 4
+    record["sections"] = [{"image_id": j.get("image_id"), "section_key": getattr(j.get("section"), "section_key", None), "status": "not_run"}
+                          for j in jobs]
+    record["counts"] = {"sections_total": len(jobs)}
+    plans: list[inpaint.SectionPlan] = []
+    try:
+        if mode not in INPAINT_MODES.values():
+            raise inpaint.InpaintInputError(f"모드 {mode!r} — {sorted(INPAINT_MODES.values())} 중 하나")
+        inpaint.validate_config(cfg)
+        bad_ids = [(j.get("image_id"), getattr(j.get("section"), "section_key", None)) for j in jobs
+                   if not (safe_path_component(j.get("image_id")) and safe_path_component(getattr(j.get("section"), "section_key", None)))]
+        if bad_ids:
+            raise inpaint.InpaintInputError(f"출력 경로로 쓸 수 없는 image_id · section_key(경로 구분자 · 상위 이동 · 드라이브 · 빈 값 금지) {bad_ids!r}")
+        dups = duplicate_logo_jobs([(j["image_id"], j["section"].section_key) for j in jobs])
+        if dups:
+            raise inpaint.InpaintInputError(f"같은 원본 · 섹션 작업이 두 번 이상 있다(같은 출력 경로) {dups}")
+        errors: list[str] = []
+        for j in jobs:
+            try:
+                escaped = [p.as_posix() for p in inpaint_output_paths(j["image_id"], j["section"].section_key).values()
+                           if not inside(out, out / p)]
+                if escaped:
+                    raise inpaint.InpaintInputError(f"출력 경로가 출력 폴더 밖이다 {escaped}")
+                with Image.open(j["image_path"]) as im:
+                    size, imode = im.size, im.mode
+                if imode != "RGB":
+                    raise inpaint.InpaintInputError(f"섹션 이미지 모드 {imode} — RGB만 지원(색 공간 변환 없음)")
+                plans.append(inpaint.validate_inputs(j["image_id"], j["section"], size, j["merged"], j["label"], j["logo"],
+                                                     j["logo_record"], cfg))
+            except INPAINT_INPUT_ERRORS as e:
+                errors.append(f"{j['image_id']}/{j['section'].section_key}: {e.__class__.__name__}: {e}")
+        if errors:
+            raise inpaint.InpaintInputError(" | ".join(errors))
+    except inpaint.InpaintInputError as e:
+        return _inpaint_finish(out, record, started, "input_error", f"사전 검사 실패: {e}", 2)
+    except Exception as e:  # noqa: BLE001 — 검증 코드 자체의 예기치 않은 오류
+        return _inpaint_finish(out, record, started, "failed", f"사전 검사 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
+
+    model = None  # inpaint 모드에서 처음으로 비어 있지 않은 최종 마스크를 만날 때 초기화한다
+
+    def finish(status: str, error: str | None, code: int) -> int:
+        """모델(자식 프로세스)을 먼저 닫고 종료 기록을 남긴 뒤 run.json을 쓴다."""
+        if model is not None and hasattr(model, "close"):
+            try:
+                record["model_termination"] = model.close()
+            except Exception as e:  # noqa: BLE001 — 종료 기록 실패는 실행 결과를 바꾸지 않고 남긴다
+                record["model_termination"] = {"error": f"{e.__class__.__name__}: {e}"}
+        return _inpaint_finish(out, record, started, status, error, code)
+
+    by_result = {s: 0 for s in ("masked", "inpainted", "unchanged", "failed")}
+    record["counts"].update({"by_result": by_result, "final_px": 0})
+    try:
+        for entry, j, plan in zip(record["sections"], jobs, plans):
+            image_id, key = plan.image_id, plan.section_key
+            rel = inpaint_output_paths(image_id, key)
+            files: dict[str, str | None] = {"final_mask": None, "protect_mask": None, "background": None}
+            dbg: dict[str, Any] = {
+                "stage": "inpaint", "image_id": image_id, "section_key": key, "mode": mode, "status": None, "error": None,
+                "raster_rule": inpaint.RASTER_RULE, "config": plan.config, "fingerprints": dict(plan.fingerprints),
+                "protected_blocks": [{"block_key": p.block_key, "reason": p.reason, "bbox": p.bbox.model_dump()} for p in plan.protected_blocks],
+                "regions": None, "counts": None, "model": record["model"], "model_called": False, "inference_s": None,
+            }
+            counts = None
+            model_called = False
+            failure: str | None = None
+            stage = "마스크 계산"
+            try:
+                with Image.open(j["image_path"]) as im:
+                    image = np.array(im)
+                inpaint.check_image(image, plan)
+                dbg["fingerprints"]["image_file_sha256"] = jsonio.sha256_file(j["image_path"])
+                dbg["fingerprints"]["image_pixels"] = inpaint.pixel_sha256(image)
+                masks = inpaint.build_masks(plan)
+                counts = masks.counts
+                dbg["counts"], dbg["regions"] = counts, inpaint.region_diagnostics(plan, masks)
+                final_u8 = masks.final.astype(np.uint8) * 255
+                protect_u8 = masks.protect.astype(np.uint8) * 255
+                dbg["fingerprints"]["final_mask_pixels"] = inpaint.pixel_sha256(final_u8)
+                dbg["fingerprints"]["protect_mask_pixels"] = inpaint.pixel_sha256(protect_u8)
+                if mode == "inpaint" and model is None and masks.final.any():  # 지연 초기화 — 빈 마스크만 있으면 모델이 필요 없다
+                    try:
+                        model = (model_factory or inpaint.build_model)(cfg)
+                        record["model"] = dbg["model"] = model.describe()
+                    except inpaint.ModelNotAvailable as e:
+                        record["model_termination"] = getattr(e, "termination", None)  # 초기화 실패도 자식 종료 기록을 남긴다
+                        raise _InpaintInitStop(3, f"모델 없음: {e}") from e
+                    except Exception as e:  # noqa: BLE001 — 초기화 실패: CPU 대체 없음
+                        record["model_termination"] = getattr(e, "termination", None)
+                        raise _InpaintInitStop(4, f"모델 초기화 실패: {e.__class__.__name__}: {e}") from e
+                stage = "마스크 저장"
+                save_png_verified(out / rel["final_mask"], final_u8)
+                files["final_mask"] = rel["final_mask"].as_posix()
+                save_png_verified(out / rel["protect_mask"], protect_u8)
+                files["protect_mask"] = rel["protect_mask"].as_posix()
+                if mode == "inpaint":
+                    stage = "추론"
+                    t0 = time.perf_counter()
+                    applied = inpaint.apply(image, plan, masks, model)
+                    dbg["inference_s"] = round(time.perf_counter() - t0, 3) if applied.model_called else None
+                    model_called = dbg["model_called"] = applied.model_called
+                    if applied.model_called:
+                        dbg["model_call"] = _last_call(model)  # 호출 번호 n · 구간별 시간 · 최대 메모리(첫 호출과 이후 구분용)
+                    dbg["fingerprints"]["background_pixels"] = inpaint.pixel_sha256(applied.background)
+                    stage = "배경 저장"
+                    save_png_verified(out / rel["background"], applied.background)
+                    files["background"] = rel["background"].as_posix()
+            except _InpaintInitStop as e:  # 이 섹션은 파일 없이 not_run으로 두고 중단(완료 섹션은 보존)
+                return finish("failed", f"{image_id}/{key} {e.message}", e.code)
+            except inpaint.InpaintModelError as e:
+                failure = f"{stage} 실패: {e}"
+                model_called = dbg["model_called"] = True
+                dbg["model_call"] = _last_call(model)
+                if isinstance(getattr(model, "termination", None), dict):
+                    dbg["model_termination"] = model.termination
+            except Exception as e:  # noqa: BLE001
+                if stage.endswith("저장"):  # 저장 오류: 성공으로 보고하지 않고 중단
+                    entry.update({"status": "save_failed", "error": f"{stage} 실패: {e.__class__.__name__}: {e}"})
+                    return finish("failed", f"{image_id}/{key} {stage} 실패: {e.__class__.__name__}: {e}", 4)
+                failure = f"{stage} 중 예기치 않은 오류: {e.__class__.__name__}: {e}"
+            if failure is not None:
+                status = "failed"
+            elif mode == "mask_only":
+                status = "masked"
+            else:
+                status = "inpainted" if model_called else "unchanged"
+            dbg.update({"status": status, "error": failure})
+            try:
+                result = InpaintResult(image_id=image_id, section_key=key, mode=mode, status=status, model_called=model_called,
+                                       files=InpaintFiles(**files), counts=InpaintCounts(**counts) if counts else None, error=failure)
+                jsonio.write_text_atomic(out / rel["debug"], json.dumps(dbg, ensure_ascii=False, indent=2))
+                jsonio.write_text_atomic(out / rel["result"], result.model_dump_json(indent=2))
+            except Exception as e:  # noqa: BLE001 — 결과 · 진단 저장 실패
+                entry.update({"status": "save_failed", "result_status": status, "error": f"결과 저장 실패: {e.__class__.__name__}: {e}"})
+                return finish("failed", f"{image_id}/{key} 결과 저장 실패: {e.__class__.__name__}: {e}", 4)
+            by_result[status] += 1
+            entry.update({"status": "failed" if failure else "ok", "result_status": status, "model_called": model_called,
+                          "result": rel["result"].as_posix(), "debug": rel["debug"].as_posix(), "files": files,
+                          "final_px": counts["final_px"] if counts else None, "fingerprints": dbg["fingerprints"]})
+            if failure is not None:
+                entry["error"] = failure
+                return finish("failed", f"{image_id}/{key} {failure}", 4)
+            record["counts"]["final_px"] += counts["final_px"]
+    except BaseException:
+        if model is not None and hasattr(model, "close"):  # 예기치 않은 예외 — 자식 프로세스를 남기지 않는다
+            model.close()
+        raise
+    if any(s["status"] != "ok" for s in record["sections"]):  # 방어 — 위에서 이미 중단하지만 미처리 섹션을 ok로 기록하지 않는다
+        return finish("failed", "처리되지 않았거나 실패한 섹션이 있다", 4)
+    code = finish("ok", None, 0)
+    if code == 0:
+        what = "마스크만(인페인팅 아님)" if mode == "mask_only" else "인페인팅"
+        print(f"⑥ ok · {what}: 섹션 {len(jobs)} · 결과 {by_result} · 최종 마스크 {record['counts']['final_px']}px → {out}")
+    return code
+
+
+def cmd_inpaint(args) -> int:
+    """⑥ 한 섹션. split.json(섹션 이미지) + merge · label · logo · logo_debug + 원본 식별자 → <out>/<image_id>/inpaint*/.
+    상대 경로는 실행 디렉터리 기준(split.json 안의 image_path는 그 JSON 폴더 기준). --out이 이미 있거나 고정 입력본 안이면 거부(2)."""
+    from pipeline.stages import inpaint
+    from pipeline.types import LabelResult, LogoResult
+
+    started = datetime.now(timezone.utc)
+    out = Path(args.out)
+    mode = INPAINT_MODES[args.mode]
+    paths = {"split": Path(args.split), "merge": Path(args.merge), "label": Path(args.label), "logo": Path(args.logo),
+             "logo_debug": Path(args.logo_debug)}
+    guard = inpaint_out_guard(out, list(paths.values()))
+    if guard:
+        print(guard, file=sys.stderr)
+        return 2
+    inputs: dict[str, Any] = {"image_id": args.image_id, "section": args.section, **{k: str(v) for k, v in paths.items()}}
+    record: dict[str, Any] = {"stage": "inpaint", "mode": mode, "inputs": inputs}
+    try:
+        record = {**inpaint_run_base(mode, None, started), "inputs": inputs}
+    except Exception as e:  # noqa: BLE001 — 기록 머리조차 못 만들면 최소 기록으로 내부 오류
+        return _inpaint_finish(out, record, started, "failed", f"기록 준비 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
+    try:
+        cfg = _load_cfg(args)
+        record["config"] = cfgmod.snapshot(cfg)
+        inpaint.validate_config(cfg)
+        inputs["sha256"] = {k: jsonio.sha256_file(p) for k, p in paths.items()}
+        split = jsonio.load_split(paths["split"])
+        found = [s for s in split.sections if s.section_key == args.section]
+        if len(found) != 1:
+            raise inpaint.InpaintInputError(f"split.json에 section_key {args.section!r}가 {len(found)}개 — 정확히 하나여야 한다")
+        section = found[0]
+        image_path = Path(section.image_path)
+        inputs["image"] = str(image_path)
+        inputs["sha256"]["image"] = jsonio.sha256_file(image_path)
+        job = {"image_id": args.image_id, "section": section, "image_path": image_path, "input_paths": list(paths.values()),
+               "merged": jsonio.load_merge(paths["merge"]), "label": jsonio.load_model(paths["label"], LabelResult),
+               "logo": jsonio.load_model(paths["logo"], LogoResult),
+               "logo_record": json.loads(paths["logo_debug"].read_text(encoding="utf-8"))}
+    except INPAINT_INPUT_ERRORS as e:
+        return _inpaint_finish(out, record, started, "input_error", f"{e.__class__.__name__}: {e}", 2)
+    except Exception as e:  # noqa: BLE001 — 입력 로딩 중 예상하지 못한 내부 예외
+        return _inpaint_finish(out, record, started, "failed", f"입력 로딩 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
+    return execute_inpaint(out, [job], cfg, mode, record, started)
+
+
 def cmd_analyze(args) -> int:
     from pipeline.analyze import analyze
 
@@ -675,6 +1039,20 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--image-id", required=True, help="원본 이미지 식별자(예 GS-01_001)")
     sp.add_argument("--out", required=True, help="새 출력 폴더(이미 있으면 거부)")
     sp.set_defaults(fn=cmd_logo)
+
+    sp = sub.add_parser("inpaint", help="⑥ 인페인팅(개발용 — mask-only는 마스크만, inpaint는 LaMa GPU 추론)")
+    common(sp)
+    sp.add_argument("--mode", required=True, choices=sorted(INPAINT_MODES),
+                    help="mask-only = 마스크 · 진단만(인페인팅 아님) / inpaint = LaMa GPU 추론(torch · 가중치가 없으면 종료 코드 3). 기본값 없음")
+    sp.add_argument("--split", required=True, help="split.json (섹션 메타데이터 · 이미지)")
+    sp.add_argument("--section", required=True, help="section_key")
+    sp.add_argument("--image-id", required=True, help="원본 이미지 식별자(예 GS-01_001)")
+    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 블록 · 원시 OCR 영역)")
+    sp.add_argument("--label", required=True, help="label/<section_key>.json (④ 결과, status ok)")
+    sp.add_argument("--logo", required=True, help="logo/<section_key>.json (⑤ 결과, status ok)")
+    sp.add_argument("--logo-debug", required=True, help="logo_debug/<section_key>.json (⑤ 기록 — 블록 · ④ 지문 대조)")
+    sp.add_argument("--out", required=True, help="새 출력 폴더(이미 있거나 고정 입력본 안이면 거부)")
+    sp.set_defaults(fn=cmd_inpaint)
 
     sp = sub.add_parser("analyze", help="①→②→③ 초기 분석")
     common(sp)

@@ -7,7 +7,7 @@
 
 | 구분 | 내용 |
 | --- | --- |
-| 마이그레이션 `0006` | `expression_dictionary`: `UNIQUE(external_id)` · `UNIQUE(dict_type, target_country, regulatory_class, source_expression)` · `CHECK dict_type IN ('regulatory','local','channel')` · dict_type별 `verdict_status` CHECK · `exclusion_context`·`keep_context` TEXT 추가 |
+| 마이그레이션 `0006` | `expression_dictionary`: `UNIQUE(external_id)` · `UNIQUE(dict_type, target_country, regulatory_class, source_expression)` · `CHECK dict_type IN ('regulatory','local','channel')` · dict_type별 `verdict_status` CHECK · `exclusion_context`·`keep_context` TEXT · `source_verdict_status` VARCHAR(20)(판정 원값) 추가 |
 | | `expression_dictionary_evidence`: `external_id` VARCHAR(32)(원본 근거 ID) · `UNIQUE(dictionary_id, external_id)` · 부분 UNIQUE 인덱스 `uq_expr_evidence_primary`(사전 항목당 대표 근거 최대 1건) |
 | 로더 | `app/dictionary_ingest.py` — `validate`(파일만) · `plan`(DB 조회·비교만, 읽기 전용 트랜잭션·명시적 쓰기 차단 잠금 없음) · `load`(잠금 후 비교를 다시 하고 사전·근거를 한 트랜잭션으로 적재) |
 | API·앱 코드 | 이번 적재 로더 외에 API·워커의 사전 조회 로직 변경은 없다. 마이그레이션 DDL 잠금과 운영에서의 실제 사용 여부는 적용 전에 확인한다 |
@@ -28,8 +28,8 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 | dict_type · target_country · regulatory_class | 같은 이름 | dict_type 은 `regulatory` 만, 분류는 `cosmetic`·`otc`·`common` |
 | source_expression | 같은 이름 | |
 | variant_expressions.ko / .en | `variant_ko` / `forbidden_en` | `; `로 나눈 JSON 배열 |
-| alternative_expression | 같은 이름 | 문자열 그대로(여러 값의 `; ` 포함) |
-| verdict_status | 같은 이름 | `rewritable` → `regulated` 로 바꿔 저장(9/21 PM 결정기록). 원래 값은 DB에 남지 않는다 |
+| alternative_expression | 같은 이름 | 문자열 그대로(여러 값의 `; ` 포함). 번역에 사용할 **대체 문구 또는 값 치환용 템플릿**이다 — `SPF [value]`처럼 자리표시자가 있으면 완성된 번역문이 아니며 조건 확인과 값 치환이 필요하다. 적재 성공이 번역 사용 가능을 뜻하지 않는다 |
+| verdict_status | `verdict_status` + `source_verdict_status` | 서비스 판정은 `verdict_status`: `rewritable` → `regulated` 로 바꿔 저장(9/21 PM 결정기록). 시트 원값은 `source_verdict_status`에 그대로(예: RG-008 `rewritable`). 원값은 **마지막으로 적재한 값**이며 변경 이력이 아니고, 원본에서 이미 합쳐진 분류는 복원하지 못한다 |
 | reason | 같은 이름 | |
 | **verified_at (본문)** | **`confirmed_date`** | 필수 |
 | evidence_id · evidence_source_type · evidence_article · evidence_url | (근거 테이블) | 「근거」 탭 대표 근거 행과 같은지 검사 |
@@ -52,7 +52,7 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 | --- | --- | --- |
 | id | `external_id` | `LC-##` |
 | (고정) | `target_country` = `US`, `regulatory_class` = `common` | **미국 작업의 모든 규제 분류에 공통 적용**한다는 뜻. 국가 범위를 없애는 것이 아니다 |
-| 항목 · 패턴 · 판정 | `source_expression` · `variant_ko`(JSON 배열) · `verdict_status` | `forbidden_en`·`alternative_expression` 은 NULL |
+| 항목 · 패턴 · 판정 | `source_expression` · `variant_ko`(JSON 배열) · `verdict_status`(원값도 `source_verdict_status`) | `forbidden_en`·`alternative_expression` 은 NULL |
 | 제외하는 맥락 · 제외하지 않는 맥락 | `exclusion_context` · `keep_context` | 사용설명서 §3 신규 필드 |
 | 셀러 문장 | `reason` | |
 | **verified_at** | **`confirmed_date`** | 필수 |
@@ -70,7 +70,7 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
   - 근거 탭의 필수값(evidence_id·source_type·quote·url·verified_at)은 **적재할 대표 근거 행**에서 검사한다. 근거 ID 형식·중복은 탭 전체에서 검사한다.
   - 현지부적합 필수: id · 항목 · 패턴 · 판정 · 두 맥락 · 셀러 문장 · verified_at.
 - 재적재
-  - 사전: 같은 `external_id`는 내부 PK를 유지한다. 모든 열이 같으면 변경 없음, 다르면 갱신(9/8 "ON CONFLICT DO UPDATE" 합의).
+  - 사전: 같은 `external_id`는 내부 PK를 유지한다. 모든 열이 같으면 변경 없음, 다르면 갱신(9/8 "ON CONFLICT DO UPDATE" 합의). 정규화 값은 같고 원값(`source_verdict_status`)만 바뀌어도 갱신이다.
     같은 ID의 `dict_type`·국가·규제 분류가 바뀌면 오류(번호 재사용 의심). 같은 내용 키에 다른 ID면 오류.
   - 대표 근거: `(사전 항목, 근거 ID)` 연결 행의 PK 를 유지한다. 대표가 다른 근거로 바뀌면 **이전 대표 연결은 삭제하지 않고 비대표(`is_primary=false`)로 보존**한다.
     **근거 내용의 변경 이력은 별도로 관리하지 않는다** — 같은 연결의 인용문·URL 이 바뀌면 그 행을 갱신한다.
@@ -86,13 +86,25 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 - `source_expression`은 NULL 허용이라 NULL 끼리는 내용 키 UNIQUE 가 막지 못한다(0006 사전 검사도 같은 기준으로 NULL 행을 뺀다). 로더는 필수로 검사한다.
 - 대체 표현에 한국어가 남은 항목은 적재하되 `⚠ 미해결`로 따로 출력한다. **적재됐다고 프롬프트에 쓸 수 있는 상태가 아니다.**
 
-## 4. 현재 전달본(2026-09-28) 상태 — 적재 보류
+## 4. 전달본 현황 — 적재 전
 
-| 항목 | 상태 |
+| 전달본 | 상태 |
 | --- | --- |
-| **대표 근거 날짜 누락** | 「근거」 탭 `MN-001·002·003·004·006·007·008`의 필수 `verified_at`이 비어 있다(사용설명서 §9 데이터팀 미완료 항목). 이 근거를 쓰는 otc 10행(RG-003·011·012·013·014·015·016·020·021·022)이 검증에서 거부되어 **파일 전체를 적재하지 않는다.** 로더는 날짜를 채우지 않는다. 데이터팀이 날짜를 확정해 고치고, **전달본 「근거」 탭에 값이 실제로 들어갔는지** 다시 확인한 뒤 적재한다(「근거」 탭은 원천 탭을 고쳐도 전달본에서 자동으로 바뀌지 않는다) |
-| **RG-021·022 대체 표현 자리표시자** | `[§ M020.80 시험 결과값]`(한국어)이 남아 있다. 적재는 가능하지만 번역 프롬프트에 쓰면 안 된다. 번역 연결 전 데이터 정정 또는 사용 단계의 주입 차단을 확인한다(모델팀·데이터팀 전달) |
-| 날짜 보완 후 기대값 | 사전 24(규제 16: regulated 10·conditional 4·allowed 2, 현지 8: irrelevant 5·needs_fix 3) · 대표 근거 16(원본 근거 ID 13종) · rewritable→regulated 2(RG-008·030) |
+| `regulation_dict.xlsx` (2026-09-28) | **적재 불가.** 「근거」 탭 대표 근거 `MN-001·002·003·004·006·007·008`의 필수 `verified_at`이 비어 otc 10행(RG-003·011·012·013·014·015·016·020·021·022)이 거부된다. 로더는 날짜를 채우지 않는다 |
+| `regulation_dict_20260930.xlsx` (정정본, sha256 `8994c7c1…225be`) | 데이터팀이 구글 시트 원본에서 MN 10행 `verified_at`을 `2026-09-18`로 채우고 전달본 「근거」 탭에 반영(원천 탭과 일치 확인). **로컬 validate 통과** — 규제 16(regulated 10·conditional 4·allowed 2) · 대표 근거 16(원본 13종) · 현지 8(irrelevant 5·needs_fix 3) · rewritable 원값 2(RG-008·030) |
+| 정정본에 아직 남은 것 | ① RG-021·022 대체 표현이 여전히 `[§ M020.80 시험 결과값]`(데이터팀은 `SPF [value]` · `Broad Spectrum SPF [value]`로 바꾸기로 회신). 적재는 가능하나 **번역 사용 준비 완료가 아니다.** `[value]`로 바뀌어도 검증된 상품별 수치로 치환해야 하는 미완성 템플릿이며, 로더의 `⚠ 미해결`은 한국어만 감지하므로 경고가 사라졌다고 사용 가능한 것이 아니다 ② `WL-003·006`, `GD-001·004·007·008` `verified_at` 빈칸 — 이번 적재 항목의 대표 근거가 아니어서 영향 없음 |
+
+권장 순서: 원값 열 반영·최신 develop 기준 검증 → 머지 → 정정본 로컬 검증 → RDS 0006 적용과 적재를 이어서 진행(6절).
+"적재 완료" 기록은 실제 적재·재비교가 성공한 뒤에만 이 절에 남긴다.
+
+**DB 적재 완료와 AI 서비스 연결 완료는 다르다.** 이 문서의 완료 기준은 DB 적재까지다. 아래 연결은 BE·AI 합의 후 진행한다(미결 목록은 `docs/ai/open-questions.md`).
+
+| 단계 | 지금 | 연결 전에 확정할 것 |
+| --- | --- | --- |
+| DB 적재(이 문서) | 가능 — 정정본 검증 후 | — |
+| DB → AI 사전 공급 | 합의 후 | 판정값 대응(`rewritable` 정규화·원값 열), `alternative_expression` 문자열(DB) ↔ 문자열 배열(AI 사전) 변환, 원본 ID를 `section_verdict.dictionary_id`의 내부 PK로 연결하는 책임 주체·변환 시점·조회 방식 |
+| RG-021·022 번역 적용 | 합의 후 | 검증된 상품별 수치와 원본 reason에 적힌 적용 조건의 확인·전달 방식, 미확인 시 처리 |
+| 사전 변경 후 기존 결과 재사용 | 합의 후 | 실행에 쓴 사전 버전 식별, 재실행 기준 |
 
 ## 5. 로컬에서 실행·테스트 (Windows PowerShell)
 
@@ -112,7 +124,7 @@ python -m app.dictionary_ingest validate --regulatory "C:\경로\regulation_dict
 | `<SHA>` | 이 변경이 develop에 머지된 승인된 커밋 |
 | `<날짜>` | 데이터팀 전달본 날짜(S3 폴더 이름) |
 
-DB 작업만 한다. API·워커는 재시작하지 않는다(Redis 큐가 비워진다 — `deploy/README.md`).
+이 작업은 DB 스키마·데이터만 바꾸므로 API·워커 재시작이 필요 없다. (별개로, 현재 `start-pixlate.sh`는 재시작 때 Redis 컨테이너를 볼륨 없이 새로 만들어 대기 중 작업이 사라질 수 있다 — Redis 일반 특성이 아니라 지금 배포 구성의 문제다. `deploy/README.md`)
 
 ### A. 사전 확인 — 쓰기 없음
 
@@ -243,14 +255,19 @@ dict_recheck
 
 - `사전: 삽입 0 · 갱신 0 · 변경 없음 24`, `대표 근거: 삽입 0 · 갱신 0 · 변경 없음 16 · 대표 해제 0`
 - `DB에 있는 행 24/24 · 대표 근거 16` 이고 **PK 지문이 load 출력과 같을 것**
-- `⚠ 미해결` 목록(RG-021·022)을 모델팀·데이터팀에 전달한다.
+- 판정 원값: 아래로 `rewritable` 2행(RG-008·030)과 원값 빈 행 0을 확인한다.
+  ```bash
+  sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env $IMG python -c "from sqlalchemy import text; from app.db import engine; c=engine.connect(); print(c.execute(text(\"SELECT external_id, verdict_status, source_verdict_status FROM expression_dictionary WHERE source_verdict_status IS DISTINCT FROM verdict_status OR source_verdict_status IS NULL ORDER BY 1\")).all())"
+  ```
+  기대: `[('RG-008', 'regulated', 'rewritable'), ('RG-030', 'regulated', 'rewritable')]`
+- `⚠ 미해결` 목록(RG-021·022)은 번역 사용 준비가 안 된 항목으로 모델팀·데이터팀에 전달한다.
 
 ### G. 영향과 복구
 
 - 0006 은 사전 두 테이블에 짧은 배타 잠금을 잡는다(열 추가·제약·인덱스 생성). 운영 소요 시간은 실측하지 않았다. 잠금 대기는 `lock_timeout 5s`로 끊긴다.
 - load 는 적재하는 동안 두 테이블의 다른 쓰기를 막는다(읽기는 된다). plan 은 명시적 쓰기 차단 잠금을 잡지 않는다.
 - 문제가 생기면 전진 수정(새 전달본 재적재·새 마이그레이션) 또는 A-2 스냅샷을 새 인스턴스로 복원해 검토한다.
-  `alembic downgrade 0005`는 추가한 열(현지 맥락·근거 원본 ID)과 그 값을 지운다. 적재한 행을 지우는 것은 영구 삭제이고
+  `alembic downgrade 0005`는 추가한 열(현지 맥락·판정 원값·근거 원본 ID)과 그 값을 지운다. 적재한 행을 지우는 것은 영구 삭제이고
   `section_verdict.dictionary_id`·`compliance_flags.dictionary_id`가 PK 를 참조할 수 있으므로 기본 복구 절차가 아니다.
 
 ## 7. 이번에 하지 않은 것

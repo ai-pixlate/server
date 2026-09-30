@@ -86,16 +86,29 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 - `source_expression`은 NULL 허용이라 NULL 끼리는 내용 키 UNIQUE 가 막지 못한다(0006 사전 검사도 같은 기준으로 NULL 행을 뺀다). 로더는 필수로 검사한다.
 - 대체 표현에 한국어가 남은 항목은 적재하되 `⚠ 미해결`로 따로 출력한다. **적재됐다고 프롬프트에 쓸 수 있는 상태가 아니다.**
 
-## 4. 전달본 현황 — 적재 전
+## 4. 전달본 현황과 적재 기록
 
 | 전달본 | 상태 |
 | --- | --- |
 | `regulation_dict.xlsx` (2026-09-28) | **적재 불가.** 「근거」 탭 대표 근거 `MN-001·002·003·004·006·007·008`의 필수 `verified_at`이 비어 otc 10행(RG-003·011·012·013·014·015·016·020·021·022)이 거부된다. 로더는 날짜를 채우지 않는다 |
-| `regulation_dict_20260930.xlsx` (정정본, sha256 `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be`) | 데이터팀이 구글 시트 원본에서 MN 10행 `verified_at`을 `2026-09-18`로 채우고 전달본 「근거」 탭에 반영(원천 탭과 일치 확인). **로컬 validate 통과** — 규제 16(regulated 10·conditional 4·allowed 2) · 대표 근거 16(원본 13종) · 현지 8(irrelevant 5·needs_fix 3) · rewritable 원값 2(RG-008·030) |
+| `regulation_dict_20260930.xlsx` (정정본, sha256 `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be`) | 데이터팀이 구글 시트 원본에서 MN 10행 `verified_at`을 `2026-09-18`로 채우고 전달본 「근거」 탭에 반영(원천 탭과 일치 확인). **로컬 validate 통과** — 규제 16(regulated 10·conditional 4·allowed 2) · 대표 근거 16(원본 13종) · 현지 8(irrelevant 5·needs_fix 3) · rewritable 원값 2(RG-008·030). **RDS 적재 완료(2026-09-30)** — 아래 적재 기록 |
 | 정정본에 아직 남은 것 | ① RG-021·022 대체 표현이 여전히 `[§ M020.80 시험 결과값]`(데이터팀은 `SPF [value]` · `Broad Spectrum SPF [value]`로 바꾸기로 회신). 적재는 가능하나 **번역 사용 준비 완료가 아니다.** `[value]`로 바뀌어도 검증된 상품별 수치로 치환해야 하는 미완성 템플릿이며, 로더의 `⚠ 미해결`은 한국어만 감지하므로 경고가 사라졌다고 사용 가능한 것이 아니다 ② `WL-003·006`, `GD-001·004·007·008` `verified_at` 빈칸 — 이번 적재 항목의 대표 근거가 아니어서 영향 없음 |
 
-권장 순서: 원값 열 반영·최신 develop 기준 검증 → 머지 → 정정본 로컬 검증 → RDS 0006 적용과 적재를 이어서 진행(6절).
-"적재 완료" 기록은 실제 적재·재비교가 성공한 뒤에만 이 절에 남긴다.
+### 적재 기록 — 2026-09-30 RDS
+
+적재 기록은 실제 적재·재비교가 성공한 뒤에만 남긴다.
+
+| 항목 | 값 |
+| --- | --- |
+| 적재 파일 | `regulation_dict_20260930.xlsx`(sha256 `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be`) · `locale_unsuitable_dict.xlsx`(sha256 `c3e8f97449900f5090978859455242a8e5347458570196033fe75b11ddfb18ab`) — S3 `seed/dictionary/20260930/` |
+| 코드·이미지 | develop `42c4204`(PR #44·#47 머지) · `pixlate-api:dict-42c4204` |
+| 백업 | RDS 스냅샷 `pixlate-db-before-0006-20260930`(적용 전, 사용 가능 확인) |
+| 스키마 | `0005 → 0006`. 적용 전 사전·근거 0행. 적용 후 제약 `ck_expr_dict_dict_type` · `ck_expr_dict_verdict_status` · `uq_expr_dict_content` · `uq_expr_dict_external_id` · `uq_expr_evidence_link`, 인덱스 `uq_expr_evidence_primary` 확인 |
+| 적재(E-4) | 사전 삽입 24(규제 16·현지 8) · 대표 근거 삽입 16 · 갱신 0 · 대표 해제 0 |
+| 재비교(F) | 사전 변경 없음 24 · 대표 근거 변경 없음 16 · PK 지문 `bc20f6a6a8fc7a87f804a4ce699c758d`(load 출력과 같음) |
+| 판정 원값 | `rewritable` 2행(RG-008·030 → `verdict_status=regulated`), 원값 NULL 0행 |
+| 실행 로그 | EC2 `~/dictionary-load-20260930.log`(48줄) — 적재 원본과 같은 S3 폴더에 `dictionary-load-20260930.log`로 보관 |
+| 남은 것 | RG-021·022 대체 표현 미정정(`⚠ 미해결`) — 번역 사용 불가. 정정본을 받으면 새 `<날짜>` 폴더로 E·F를 다시 한다(E-1 해시·E-2 `FILES` 파일명도 새 전달본으로). 데이터팀이 두 행만 고쳤다면 RG-021·022만 갱신, 나머지 22행은 변경 없음이어야 한다 |
 
 **DB 적재 완료와 AI 서비스 연결 완료는 다르다.** 이 문서의 완료 기준은 DB 적재까지다. 아래 연결은 BE·AI 합의 후 진행한다(미결 목록은 `docs/ai/open-questions.md`).
 
@@ -131,7 +144,7 @@ python -m app.dictionary_ingest validate --regulatory "C:\경로\regulation_dict
 
 ```bash
 cd ~/pixlate-api && git status --short; git branch --show-current; git log --oneline -1
-sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env pixlate-api alembic current
+sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env pixlate-api python -c "from sqlalchemy import text; from app.db import engine; c=engine.connect(); print(c.execute(text('SELECT version_num FROM alembic_version')).all())"
 sudo docker run --rm -i --network pixlate-net --env-file /etc/pixlate/pixlate.env pixlate-api python - <<'PY'
 from sqlalchemy import text
 from app.db import engine
@@ -148,8 +161,10 @@ with engine.connect() as c:
 PY
 ```
 
+서비스 이미지(`pixlate-api`)는 DB보다 오래된 코드일 수 있다. 그 이미지로 `alembic current`를 실행하면 DB의 revision 파일이 이미지에 없어 `Can't locate revision`으로 실패한다(2026-09-30 실제 발생: 0005 이전 코드의 서비스 이미지, DB 0005). 그래서 버전표(`alembic_version`)를 직접 읽는다.
+
 판단 — 하나라도 해당하면 **적용하지 않고 공유한다.**
-- DB revision 이 단일 `0005`가 아니다. `(head)` 표시는 실행 이미지에 따라 달라지므로 판정에 쓰지 않는다. 더 낮으면 `upgrade 0006`이 이전 마이그레이션까지 적용한다.
+- 버전표가 `[('0005',)]` 한 행이 아니다. 더 낮으면 `upgrade 0006`이 이전 마이그레이션까지 적용한다.
 - 사전·근거 행이 0이 아니다(기존 행이 있으면 0006 사전 검사·로더 재적재 규칙을 따로 검토).
 
 ### A-2. 백업

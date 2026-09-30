@@ -101,8 +101,10 @@ sudo docker run --rm pixlate-api ls migrations/versions   # 지금 이미지에 
 현재 DB revision (접속 정보는 출력되지 않는다):
 
 ```bash
-sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env pixlate-api alembic current
+sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env pixlate-api python -c "from sqlalchemy import text; from app.db import engine; c=engine.connect(); print(c.execute(text('SELECT version_num FROM alembic_version')).all())"
 ```
+
+서비스 이미지(`pixlate-api`)는 DB보다 오래된 코드일 수 있다. 그 이미지로 `alembic current`를 실행하면 DB의 revision 파일이 이미지에 없어 `Can't locate revision`으로 실패한다(2026-09-30 실제 발생: 0005 이전 코드의 서비스 이미지, DB 0005). 그래서 버전표(`alembic_version`)를 직접 읽는다.
 
 glossary 현재 상태:
 
@@ -127,10 +129,9 @@ PY
 ```
 
 판단 — 아래 중 하나라도 해당하면 **적용하지 않고 결과를 공유한다.**
-- DB의 현재 revision이 단일 `0004`가 아니다. `(head)` 표시는 명령을 실행한 이미지의 마이그레이션 목록에 따라 붙거나 빠지므로
-  합격 조건으로 쓰지 않는다(0005가 든 새 이미지로 확인하면 DB가 정상적으로 `0004`여도 `(head)`가 붙지 않는다).
+- DB의 현재 revision(버전표)이 `[('0004',)]` 한 행이 아니다.
   - 더 낮은 revision(예: `0003`)이면 `upgrade 0005`가 이번 용어집 변경 외의 **이전 마이그레이션까지 함께 적용**한다.
-  - 여러 줄, 빈 출력, 모르는 revision도 같다. 이미지의 `alembic heads`(B)와 DB의 `alembic current`는 서로 다른 확인이다.
+  - 여러 행, 빈 결과, 모르는 revision도 같다. 이미지의 `alembic heads`(B)와 DB의 버전표는 서로 다른 확인이다.
 - glossary 열이 0004 기준(`id`·`term_ko` VARCHAR(200)·`term_target` VARCHAR(200)·`target_lang`·`internal_category`·`enforcement`·`example_sentence` 7개)과 다르다.
 - 행 수가 0이 아니다. 원본 ID가 없는 예전 행이라, 새 데이터와 자연키가 겹치면 로더가 멈춘다(연결 방법을 따로 정한다).
 - 자연키 중복이 있거나 enforcement가 `enforced`/`reference` 외 값이다(`0005`가 멈춘다).
@@ -168,7 +169,7 @@ sudo docker run --rm pixlate-api:glossary-<SHA> python -m app.glossary_ingest --
 
 ### C. 적용할 SQL 검토 — DB 접속 없음
 
-A에서 `alembic current`가 `0004`로 확인된 경우에만, `0004`부터 `0005`까지만:
+A에서 DB 버전표가 `0004`로 확인된 경우에만, `0004`부터 `0005`까지만:
 
 ```bash
 sudo docker run --rm pixlate-api:glossary-<SHA> alembic upgrade 0004:0005 --sql > ~/glossary_0005.sql

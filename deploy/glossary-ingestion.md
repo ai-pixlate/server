@@ -85,8 +85,8 @@ python -m pytest tests/test_glossary_ingest.py tests/test_glossary_db.py -q
 | `<SHA>` | 이 변경이 develop에 머지된 **승인된 커밋**(짧은 해시) |
 | `<버킷>` | S3 버킷 이름 (`/etc/pixlate/pixlate.env`의 `S3_BUCKET`) |
 
-이 절차는 **DB 마이그레이션과 적재만** 한다. 실행 중인 API·워커는 glossary를 쓰지 않으므로 재시작하지 않는다
-(재시작하면 Redis 큐가 비워진다 — `deploy/README.md`). 이미지 교체는 평소 배포 때 따로 한다.
+이 절차는 **DB 마이그레이션과 적재만** 한다. 실행 중인 API·워커는 glossary를 쓰지 않으므로 재시작이 필요 없다.
+(별개로, 현재 `start-pixlate.sh`는 재시작 때 Redis 컨테이너를 볼륨 없이 새로 만들어 대기 중 작업이 사라질 수 있다 — `deploy/README.md`.) 이미지 교체는 평소 배포 때 따로 한다.
 
 ### A. 사전 확인 — 쓰기 없음
 

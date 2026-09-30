@@ -68,7 +68,7 @@ def _insert_legacy(url, term_ko, enforcement="reference", category="common"):
 # ── 마이그레이션 ─────────────────────────────────────────────────────────
 
 def test_upgrade_empty_database_to_0005(db_url):
-    command.upgrade(_alembic(), "head")
+    command.upgrade(_alembic(), "0005")
     assert _revision(db_url) == "0005"
     cols = dict(_q(db_url, "SELECT column_name, data_type FROM information_schema.columns "
                            "WHERE table_name = 'glossary'"))
@@ -110,7 +110,7 @@ def test_upgrade_stops_on_existing_violations(db_url, setup, needle):
 
 
 def test_downgrade_refuses_to_truncate_long_values(db_url):
-    command.upgrade(_alembic(), "head")
+    command.upgrade(_alembic(), "0005")
     _insert_legacy(db_url, "가" * 201)
     with pytest.raises(Exception) as e:
         command.downgrade(_alembic(), "0004")
@@ -119,7 +119,7 @@ def test_downgrade_refuses_to_truncate_long_values(db_url):
 
 
 def test_downgrade_without_long_values(db_url):
-    command.upgrade(_alembic(), "head")
+    command.upgrade(_alembic(), "0005")
     _insert_legacy(db_url, "짧은 용어")
     command.downgrade(_alembic(), "0004")
     assert _revision(db_url) == "0004"

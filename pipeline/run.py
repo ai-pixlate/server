@@ -555,7 +555,8 @@ def inpaint_run_base(mode: str, cfg: dict[str, Any] | None, started: datetime) -
         "stage": "inpaint", "mode": mode, "scope": INPAINT_SCOPE_NOTE, "status": None, "error": None,
         "started_at": started.isoformat(timespec="seconds"), "ran_at": None, "duration_s": None,
         "config": cfgmod.snapshot(cfg) if cfg is not None else None, "raster_rule": inpaint.RASTER_RULE,
-        "timeout_s": None, "timeout_note": "모델 시간 제한 미정 — GPU 예비 실측 후 결정(#72). 이 실행에는 적용하지 않았다",
+        "timeout_s": ({k: cfg["inpaint"].get(k) for k in ("init_timeout_s", "infer_timeout_s", "kill_grace_s")} if cfg else None),
+        "timeout_note": "모델 자식 프로세스 시간 제한 — 100섹션 실측용 잠정값(운영값 아님, #71). mask_only는 모델을 만들지 않는다",
         "python": platform.python_version(), "numpy": numpy.__version__, "pillow": PIL.__version__, "platform": platform.platform(),
         **jsonio.git_state(),
         "inputs": {}, "model": None, "counts": None, "sections": [],
@@ -640,6 +641,12 @@ def inpaint_output_paths(image_id: str, section_key: str) -> dict[str, Path]:
             "result": base / "inpaint" / f"{section_key}.json"}
 
 
+def _last_call(model) -> dict[str, Any] | None:
+    """모델이 남긴 마지막 호출 기록(dict일 때만 — JSON으로 쓸 수 있는 측정값). 없으면 None."""
+    calls = getattr(model, "calls", None)
+    return dict(calls[-1]) if isinstance(calls, list) and calls and isinstance(calls[-1], dict) else None
+
+
 class _InpaintInitStop(Exception):
     """지연 모델 초기화 실패 — 실행 중단 신호(종료 코드 · 메시지)."""
 
@@ -720,94 +727,116 @@ def execute_inpaint(out: Path, jobs: list[dict[str, Any]], cfg: dict[str, Any], 
         return _inpaint_finish(out, record, started, "failed", f"사전 검사 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
 
     model = None  # inpaint 모드에서 처음으로 비어 있지 않은 최종 마스크를 만날 때 초기화한다
+
+    def finish(status: str, error: str | None, code: int) -> int:
+        """모델(자식 프로세스)을 먼저 닫고 종료 기록을 남긴 뒤 run.json을 쓴다."""
+        if model is not None and hasattr(model, "close"):
+            try:
+                record["model_termination"] = model.close()
+            except Exception as e:  # noqa: BLE001 — 종료 기록 실패는 실행 결과를 바꾸지 않고 남긴다
+                record["model_termination"] = {"error": f"{e.__class__.__name__}: {e}"}
+        return _inpaint_finish(out, record, started, status, error, code)
+
     by_result = {s: 0 for s in ("masked", "inpainted", "unchanged", "failed")}
     record["counts"].update({"by_result": by_result, "final_px": 0})
-    for entry, j, plan in zip(record["sections"], jobs, plans):
-        image_id, key = plan.image_id, plan.section_key
-        rel = inpaint_output_paths(image_id, key)
-        files: dict[str, str | None] = {"final_mask": None, "protect_mask": None, "background": None}
-        dbg: dict[str, Any] = {
-            "stage": "inpaint", "image_id": image_id, "section_key": key, "mode": mode, "status": None, "error": None,
-            "raster_rule": inpaint.RASTER_RULE, "config": plan.config, "fingerprints": dict(plan.fingerprints),
-            "protected_blocks": [{"block_key": p.block_key, "reason": p.reason, "bbox": p.bbox.model_dump()} for p in plan.protected_blocks],
-            "regions": None, "counts": None, "model": record["model"], "model_called": False, "inference_s": None,
-        }
-        counts = None
-        model_called = False
-        failure: str | None = None
-        stage = "마스크 계산"
-        try:
-            with Image.open(j["image_path"]) as im:
-                image = np.array(im)
-            inpaint.check_image(image, plan)
-            dbg["fingerprints"]["image_file_sha256"] = jsonio.sha256_file(j["image_path"])
-            dbg["fingerprints"]["image_pixels"] = inpaint.pixel_sha256(image)
-            masks = inpaint.build_masks(plan)
-            counts = masks.counts
-            dbg["counts"], dbg["regions"] = counts, inpaint.region_diagnostics(plan, masks)
-            final_u8 = masks.final.astype(np.uint8) * 255
-            protect_u8 = masks.protect.astype(np.uint8) * 255
-            dbg["fingerprints"]["final_mask_pixels"] = inpaint.pixel_sha256(final_u8)
-            dbg["fingerprints"]["protect_mask_pixels"] = inpaint.pixel_sha256(protect_u8)
-            if mode == "inpaint" and model is None and masks.final.any():  # 지연 초기화 — 빈 마스크만 있으면 모델이 필요 없다
-                try:
-                    model = (model_factory or inpaint.build_model)(cfg)
-                    record["model"] = dbg["model"] = model.describe()
-                except inpaint.ModelNotAvailable as e:
-                    raise _InpaintInitStop(3, f"모델 없음: {e}") from e
-                except Exception as e:  # noqa: BLE001 — 초기화 실패: CPU 대체 없음
-                    raise _InpaintInitStop(4, f"모델 초기화 실패: {e.__class__.__name__}: {e}") from e
-            stage = "마스크 저장"
-            save_png_verified(out / rel["final_mask"], final_u8)
-            files["final_mask"] = rel["final_mask"].as_posix()
-            save_png_verified(out / rel["protect_mask"], protect_u8)
-            files["protect_mask"] = rel["protect_mask"].as_posix()
-            if mode == "inpaint":
-                stage = "추론"
-                t0 = time.perf_counter()
-                applied = inpaint.apply(image, plan, masks, model)
-                dbg["inference_s"] = round(time.perf_counter() - t0, 3) if applied.model_called else None
-                model_called = dbg["model_called"] = applied.model_called
-                dbg["fingerprints"]["background_pixels"] = inpaint.pixel_sha256(applied.background)
-                stage = "배경 저장"
-                save_png_verified(out / rel["background"], applied.background)
-                files["background"] = rel["background"].as_posix()
-        except _InpaintInitStop as e:  # 이 섹션은 파일 없이 not_run으로 두고 중단(완료 섹션은 보존)
-            return _inpaint_finish(out, record, started, "failed", f"{image_id}/{key} {e.message}", e.code)
-        except inpaint.InpaintModelError as e:
-            failure = f"{stage} 실패: {e}"
-            model_called = dbg["model_called"] = True
-        except Exception as e:  # noqa: BLE001
-            if stage.endswith("저장"):  # 저장 오류: 성공으로 보고하지 않고 중단
-                entry.update({"status": "save_failed", "error": f"{stage} 실패: {e.__class__.__name__}: {e}"})
-                return _inpaint_finish(out, record, started, "failed", f"{image_id}/{key} {stage} 실패: {e.__class__.__name__}: {e}", 4)
-            failure = f"{stage} 중 예기치 않은 오류: {e.__class__.__name__}: {e}"
-        if failure is not None:
-            status = "failed"
-        elif mode == "mask_only":
-            status = "masked"
-        else:
-            status = "inpainted" if model_called else "unchanged"
-        dbg.update({"status": status, "error": failure})
-        try:
-            result = InpaintResult(image_id=image_id, section_key=key, mode=mode, status=status, model_called=model_called,
-                                   files=InpaintFiles(**files), counts=InpaintCounts(**counts) if counts else None, error=failure)
-            jsonio.write_text_atomic(out / rel["debug"], json.dumps(dbg, ensure_ascii=False, indent=2))
-            jsonio.write_text_atomic(out / rel["result"], result.model_dump_json(indent=2))
-        except Exception as e:  # noqa: BLE001 — 결과 · 진단 저장 실패
-            entry.update({"status": "save_failed", "result_status": status, "error": f"결과 저장 실패: {e.__class__.__name__}: {e}"})
-            return _inpaint_finish(out, record, started, "failed", f"{image_id}/{key} 결과 저장 실패: {e.__class__.__name__}: {e}", 4)
-        by_result[status] += 1
-        entry.update({"status": "failed" if failure else "ok", "result_status": status, "model_called": model_called,
-                      "result": rel["result"].as_posix(), "debug": rel["debug"].as_posix(), "files": files,
-                      "final_px": counts["final_px"] if counts else None, "fingerprints": dbg["fingerprints"]})
-        if failure is not None:
-            entry["error"] = failure
-            return _inpaint_finish(out, record, started, "failed", f"{image_id}/{key} {failure}", 4)
-        record["counts"]["final_px"] += counts["final_px"]
+    try:
+        for entry, j, plan in zip(record["sections"], jobs, plans):
+            image_id, key = plan.image_id, plan.section_key
+            rel = inpaint_output_paths(image_id, key)
+            files: dict[str, str | None] = {"final_mask": None, "protect_mask": None, "background": None}
+            dbg: dict[str, Any] = {
+                "stage": "inpaint", "image_id": image_id, "section_key": key, "mode": mode, "status": None, "error": None,
+                "raster_rule": inpaint.RASTER_RULE, "config": plan.config, "fingerprints": dict(plan.fingerprints),
+                "protected_blocks": [{"block_key": p.block_key, "reason": p.reason, "bbox": p.bbox.model_dump()} for p in plan.protected_blocks],
+                "regions": None, "counts": None, "model": record["model"], "model_called": False, "inference_s": None,
+            }
+            counts = None
+            model_called = False
+            failure: str | None = None
+            stage = "마스크 계산"
+            try:
+                with Image.open(j["image_path"]) as im:
+                    image = np.array(im)
+                inpaint.check_image(image, plan)
+                dbg["fingerprints"]["image_file_sha256"] = jsonio.sha256_file(j["image_path"])
+                dbg["fingerprints"]["image_pixels"] = inpaint.pixel_sha256(image)
+                masks = inpaint.build_masks(plan)
+                counts = masks.counts
+                dbg["counts"], dbg["regions"] = counts, inpaint.region_diagnostics(plan, masks)
+                final_u8 = masks.final.astype(np.uint8) * 255
+                protect_u8 = masks.protect.astype(np.uint8) * 255
+                dbg["fingerprints"]["final_mask_pixels"] = inpaint.pixel_sha256(final_u8)
+                dbg["fingerprints"]["protect_mask_pixels"] = inpaint.pixel_sha256(protect_u8)
+                if mode == "inpaint" and model is None and masks.final.any():  # 지연 초기화 — 빈 마스크만 있으면 모델이 필요 없다
+                    try:
+                        model = (model_factory or inpaint.build_model)(cfg)
+                        record["model"] = dbg["model"] = model.describe()
+                    except inpaint.ModelNotAvailable as e:
+                        record["model_termination"] = getattr(e, "termination", None)  # 초기화 실패도 자식 종료 기록을 남긴다
+                        raise _InpaintInitStop(3, f"모델 없음: {e}") from e
+                    except Exception as e:  # noqa: BLE001 — 초기화 실패: CPU 대체 없음
+                        record["model_termination"] = getattr(e, "termination", None)
+                        raise _InpaintInitStop(4, f"모델 초기화 실패: {e.__class__.__name__}: {e}") from e
+                stage = "마스크 저장"
+                save_png_verified(out / rel["final_mask"], final_u8)
+                files["final_mask"] = rel["final_mask"].as_posix()
+                save_png_verified(out / rel["protect_mask"], protect_u8)
+                files["protect_mask"] = rel["protect_mask"].as_posix()
+                if mode == "inpaint":
+                    stage = "추론"
+                    t0 = time.perf_counter()
+                    applied = inpaint.apply(image, plan, masks, model)
+                    dbg["inference_s"] = round(time.perf_counter() - t0, 3) if applied.model_called else None
+                    model_called = dbg["model_called"] = applied.model_called
+                    if applied.model_called:
+                        dbg["model_call"] = _last_call(model)  # 호출 번호 n · 구간별 시간 · 최대 메모리(첫 호출과 이후 구분용)
+                    dbg["fingerprints"]["background_pixels"] = inpaint.pixel_sha256(applied.background)
+                    stage = "배경 저장"
+                    save_png_verified(out / rel["background"], applied.background)
+                    files["background"] = rel["background"].as_posix()
+            except _InpaintInitStop as e:  # 이 섹션은 파일 없이 not_run으로 두고 중단(완료 섹션은 보존)
+                return finish("failed", f"{image_id}/{key} {e.message}", e.code)
+            except inpaint.InpaintModelError as e:
+                failure = f"{stage} 실패: {e}"
+                model_called = dbg["model_called"] = True
+                dbg["model_call"] = _last_call(model)
+                if isinstance(getattr(model, "termination", None), dict):
+                    dbg["model_termination"] = model.termination
+            except Exception as e:  # noqa: BLE001
+                if stage.endswith("저장"):  # 저장 오류: 성공으로 보고하지 않고 중단
+                    entry.update({"status": "save_failed", "error": f"{stage} 실패: {e.__class__.__name__}: {e}"})
+                    return finish("failed", f"{image_id}/{key} {stage} 실패: {e.__class__.__name__}: {e}", 4)
+                failure = f"{stage} 중 예기치 않은 오류: {e.__class__.__name__}: {e}"
+            if failure is not None:
+                status = "failed"
+            elif mode == "mask_only":
+                status = "masked"
+            else:
+                status = "inpainted" if model_called else "unchanged"
+            dbg.update({"status": status, "error": failure})
+            try:
+                result = InpaintResult(image_id=image_id, section_key=key, mode=mode, status=status, model_called=model_called,
+                                       files=InpaintFiles(**files), counts=InpaintCounts(**counts) if counts else None, error=failure)
+                jsonio.write_text_atomic(out / rel["debug"], json.dumps(dbg, ensure_ascii=False, indent=2))
+                jsonio.write_text_atomic(out / rel["result"], result.model_dump_json(indent=2))
+            except Exception as e:  # noqa: BLE001 — 결과 · 진단 저장 실패
+                entry.update({"status": "save_failed", "result_status": status, "error": f"결과 저장 실패: {e.__class__.__name__}: {e}"})
+                return finish("failed", f"{image_id}/{key} 결과 저장 실패: {e.__class__.__name__}: {e}", 4)
+            by_result[status] += 1
+            entry.update({"status": "failed" if failure else "ok", "result_status": status, "model_called": model_called,
+                          "result": rel["result"].as_posix(), "debug": rel["debug"].as_posix(), "files": files,
+                          "final_px": counts["final_px"] if counts else None, "fingerprints": dbg["fingerprints"]})
+            if failure is not None:
+                entry["error"] = failure
+                return finish("failed", f"{image_id}/{key} {failure}", 4)
+            record["counts"]["final_px"] += counts["final_px"]
+    except BaseException:
+        if model is not None and hasattr(model, "close"):  # 예기치 않은 예외 — 자식 프로세스를 남기지 않는다
+            model.close()
+        raise
     if any(s["status"] != "ok" for s in record["sections"]):  # 방어 — 위에서 이미 중단하지만 미처리 섹션을 ok로 기록하지 않는다
-        return _inpaint_finish(out, record, started, "failed", "처리되지 않았거나 실패한 섹션이 있다", 4)
-    code = _inpaint_finish(out, record, started, "ok", None, 0)
+        return finish("failed", "처리되지 않았거나 실패한 섹션이 있다", 4)
+    code = finish("ok", None, 0)
     if code == 0:
         what = "마스크만(인페인팅 아님)" if mode == "mask_only" else "인페인팅"
         print(f"⑥ ok · {what}: 섹션 {len(jobs)} · 결과 {by_result} · 최종 마스크 {record['counts']['final_px']}px → {out}")

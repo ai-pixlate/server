@@ -83,6 +83,9 @@ score_min = 0.5
 require_text = true
 dilate_ratio = 0.15
 dilate_retry = false
+init_timeout_s = 60            # 모델 자식 프로세스 시작~준비 완료. 100섹션 실측용 잠정값(운영값 아님, #71)
+infer_timeout_s = 30           # 섹션 1회 요청~결과 수신(전처리 · GPU 추론 · 후처리 포함). 실측용 잠정값(#71)
+kill_grace_s = 5               # 시간 초과 후 종료 요청 → 이 시간 뒤 강제 종료. 실측용 잠정값(#71)
 
 [style]                        # ⑦ 스타일 추출
 method = "otsu_border"

@@ -45,7 +45,9 @@ from pipeline.stages.label import input_fingerprint
 from pipeline.stages.logo import sha256_json
 from pipeline.types import BBox, LabelResult, LogoResult, MergeResult, OcrRegion, Section
 
-MODELS = ("lama",)  # 정본에 정의된 인페인팅 모델 값은 lama뿐이다[개발계획 6장]
+MODELS = ("lama",)
+TIMEOUT_KEYS = ("init_timeout_s", "infer_timeout_s", "kill_grace_s")  # 모델 자식 프로세스 시간 제한(실측용 잠정값, #71)
+LAMA_FACTORY = "pipeline.stages.inpaint_lama:LamaModel"  # 정본에 정의된 인페인팅 모델 값은 lama뿐이다[개발계획 6장]
 RASTER_RULE = ("poly: 정수 좌표 = 픽셀 경계, 픽셀 중심 (x+0.5, y+0.5)가 내부(nonzero) 또는 경계 위면 포함 · "
                "bbox: 열 x..x+w-1 · 행 y..y+h-1 · 커널: dx²+dy² ≤ r² · r = ceil(bbox.h × Fraction(str(dilate_ratio))) · "
                "영역별 팽창 후 합집합 → 보호 차감")
@@ -71,13 +73,15 @@ class ModelNotAvailable(NotImplementedError):
 
 
 def build_model(cfg: dict[str, Any]) -> "InpaintModel":
-    """기본 모델 팩토리 — `inpaint.model=lama`면 LaMa 어댑터(`inpaint_lama.LamaModel`, iopaint 1.6.0 재현 · GPU · FP32)를 초기화한다.
-    가중치는 iopaint 기본 캐시 위치에서 읽고 내려받지 않는다. 원본을 그대로 돌려주는 대체 모델은 두지 않는다."""
-    if cfg["inpaint"]["model"] != "lama":
-        raise ModelNotAvailable(f"inpaint.model={cfg['inpaint']['model']!r} 어댑터 없음 — 마스크만 만들려면 --mode mask-only")
-    from pipeline.stages.inpaint_lama import LamaModel
+    """기본 모델 팩토리 — `inpaint.model=lama`면 LaMa 어댑터(`inpaint_lama.LamaModel`, iopaint 1.6.0 재현 · GPU · FP32)를
+    **모델 전용 자식 프로세스**(`inpaint_proc.SubprocessInpaintModel`, spawn)에서 초기화한다. 시간 제한은 `[inpaint]` `*_timeout_s` ·
+    `kill_grace_s`. 가중치는 iopaint 기본 캐시 위치에서 읽고 내려받지 않는다. 원본을 그대로 돌려주는 대체 모델은 두지 않는다."""
+    ip = cfg["inpaint"]
+    if ip["model"] != "lama":
+        raise ModelNotAvailable(f"inpaint.model={ip['model']!r} 어댑터 없음 — 마스크만 만들려면 --mode mask-only")
+    from pipeline.stages.inpaint_proc import SubprocessInpaintModel
 
-    return LamaModel()
+    return SubprocessInpaintModel(LAMA_FACTORY, **{k: ip[k] for k in TIMEOUT_KEYS})
 
 
 def pixel_sha256(arr: np.ndarray) -> str:
@@ -110,7 +114,7 @@ def validate_config(cfg: dict[str, Any]) -> None:
     if "inpaint" not in cfg:
         raise InpaintInputError("config에 [inpaint] 표가 없다")
     ip = cfg["inpaint"]
-    missing = [k for k in ("model", "score_min", "require_text", "dilate_ratio", "dilate_retry") if k not in ip]
+    missing = [k for k in ("model", "score_min", "require_text", "dilate_ratio", "dilate_retry", *TIMEOUT_KEYS) if k not in ip]
     if missing:
         raise InpaintInputError("잘못된 [inpaint] 설정: 없는 키 " + ", ".join(f"inpaint.{k}" for k in missing))
     errors: list[str] = []
@@ -126,6 +130,10 @@ def validate_config(cfg: dict[str, Any]) -> None:
         errors.append(f"inpaint.dilate_ratio={dr!r} — 0 이상 실수")
     if ip["dilate_retry"] is not False:
         errors.append(f"inpaint.dilate_retry={ip['dilate_retry']!r} — 확대 재시도는 금지(false만)[개발계획 6장]")
+    for k in TIMEOUT_KEYS:
+        v = ip[k]
+        if not (isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v > 0):
+            errors.append(f"inpaint.{k}={v!r} — 0보다 큰 초")
     if errors:
         raise InpaintInputError("잘못된 [inpaint] 설정: " + "; ".join(errors))
 

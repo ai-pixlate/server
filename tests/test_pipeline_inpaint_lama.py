@@ -66,8 +66,9 @@ def test_model_without_torch_is_not_available(monkeypatch):
         lama.LamaModel()
 
 
-def test_build_model_uses_lama_adapter(monkeypatch, tmp_path):
-    # TORCH_HOME을 빈 폴더로 돌려 torch가 있는 GPU 환경에서도 '가중치 없음'(없으면 'torch 없음') → ModelNotAvailable이 되게 한다
+def test_build_model_uses_lama_adapter_in_child_process(monkeypatch, tmp_path):
+    # 모델은 spawn 자식에서 초기화된다 — 자식은 부모의 sys.modules를 물려받지 않으므로 TORCH_HOME을 빈 폴더로 돌려
+    # torch가 있는 GPU 환경에서도 '가중치 없음'(없으면 'torch 없음') → ModelNotAvailable이 되게 한다
     from pipeline import config as cfgmod
     from pipeline.stages import inpaint
 

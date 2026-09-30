@@ -120,7 +120,8 @@ def image_of(W=12, H=10) -> np.ndarray:
 # 설정 · 반경
 # ---------------------------------------------------------------------------
 def test_default_config_values_unchanged(cfg):
-    assert cfg["inpaint"] == {"model": "lama", "score_min": 0.5, "require_text": True, "dilate_ratio": 0.15, "dilate_retry": False}
+    assert cfg["inpaint"] == {"model": "lama", "score_min": 0.5, "require_text": True, "dilate_ratio": 0.15, "dilate_retry": False,
+                              "init_timeout_s": 60, "infer_timeout_s": 30, "kill_grace_s": 5}
     inpaint.validate_config(cfg)
 
 

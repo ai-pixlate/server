@@ -65,7 +65,7 @@ def tree_hashes(root: Path) -> dict[str, str]:
 def test_mask_only_writes_masks_and_no_background(tmp_path, cfg):
     j = job(tmp_path, "IMG-01")
     code, rec = execute(tmp_path / "out", [j], cfg, "mask_only")
-    assert code == 0 and rec["status"] == "ok" and rec["mode"] == "mask_only" and rec["model"] is None and rec["timeout_s"] is None
+    assert code == 0 and rec["status"] == "ok" and rec["mode"] == "mask_only" and rec["model"] is None and rec["timeout_s"] == {"init_timeout_s": 60, "infer_timeout_s": 30, "kill_grace_s": 5}
     res = jsonio.load_model(tmp_path / "out" / "IMG-01/inpaint/sec_1_01.json", InpaintResult)
     assert res.status == "masked" and res.model_called is False and res.files.background is None
     final = read_png(tmp_path / "out" / res.files.final_mask)
@@ -106,8 +106,8 @@ def test_empty_mask_unchanged_without_model_call(tmp_path, cfg):
 
 @pytest.fixture
 def no_torch(monkeypatch, tmp_path):
-    """torch가 설치된 GPU 환경에서도 '모델 사용 불가' 경로를 재현한다. import torch → ImportError, torch가 있으면 TORCH_HOME을 빈 폴더로
-    돌려 가중치가 없게 한다."""
+    """torch가 설치된 GPU 환경에서도 '모델 사용 불가' 경로를 재현한다. 부모는 import torch → ImportError, 모델 자식 프로세스(spawn)는
+    부모의 sys.modules를 물려받지 않으므로 TORCH_HOME을 빈 폴더로 돌려 가중치가 없게 한다(환경 변수는 자식에 전달된다)."""
     monkeypatch.setitem(sys.modules, "torch", None)
     monkeypatch.setenv("TORCH_HOME", str(tmp_path / "empty_torch_home"))
 

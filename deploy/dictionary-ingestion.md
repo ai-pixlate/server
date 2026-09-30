@@ -1,6 +1,6 @@
 # 규제사전·현지부적합 사전 적재 (expression_dictionary)
 
-데이터팀 규제사전(`regulation_dict.xlsx`)·현지부적합 사전(`locale_unsuitable_dict.xlsx`)을 RDS `expression_dictionary`·
+데이터팀 규제사전(`regulation_dict*.xlsx` — 전달본마다 파일명이 다르다, 4절)·현지부적합 사전(`locale_unsuitable_dict.xlsx`)을 RDS `expression_dictionary`·
 `expression_dictionary_evidence`에 넣는 방법입니다. 스키마는 Alembic `0006`, 적재는 `python -m app.dictionary_ingest`가 합니다.
 
 ## 1. 무엇이 바뀌나
@@ -91,7 +91,7 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 | 전달본 | 상태 |
 | --- | --- |
 | `regulation_dict.xlsx` (2026-09-28) | **적재 불가.** 「근거」 탭 대표 근거 `MN-001·002·003·004·006·007·008`의 필수 `verified_at`이 비어 otc 10행(RG-003·011·012·013·014·015·016·020·021·022)이 거부된다. 로더는 날짜를 채우지 않는다 |
-| `regulation_dict_20260930.xlsx` (정정본, sha256 `8994c7c1…225be`) | 데이터팀이 구글 시트 원본에서 MN 10행 `verified_at`을 `2026-09-18`로 채우고 전달본 「근거」 탭에 반영(원천 탭과 일치 확인). **로컬 validate 통과** — 규제 16(regulated 10·conditional 4·allowed 2) · 대표 근거 16(원본 13종) · 현지 8(irrelevant 5·needs_fix 3) · rewritable 원값 2(RG-008·030) |
+| `regulation_dict_20260930.xlsx` (정정본, sha256 `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be`) | 데이터팀이 구글 시트 원본에서 MN 10행 `verified_at`을 `2026-09-18`로 채우고 전달본 「근거」 탭에 반영(원천 탭과 일치 확인). **로컬 validate 통과** — 규제 16(regulated 10·conditional 4·allowed 2) · 대표 근거 16(원본 13종) · 현지 8(irrelevant 5·needs_fix 3) · rewritable 원값 2(RG-008·030) |
 | 정정본에 아직 남은 것 | ① RG-021·022 대체 표현이 여전히 `[§ M020.80 시험 결과값]`(데이터팀은 `SPF [value]` · `Broad Spectrum SPF [value]`로 바꾸기로 회신). 적재는 가능하나 **번역 사용 준비 완료가 아니다.** `[value]`로 바뀌어도 검증된 상품별 수치로 치환해야 하는 미완성 템플릿이며, 로더의 `⚠ 미해결`은 한국어만 감지하므로 경고가 사라졌다고 사용 가능한 것이 아니다 ② `WL-003·006`, `GD-001·004·007·008` `verified_at` 빈칸 — 이번 적재 항목의 대표 근거가 아니어서 영향 없음 |
 
 권장 순서: 원값 열 반영·최신 develop 기준 검증 → 머지 → 정정본 로컬 검증 → RDS 0006 적용과 적재를 이어서 진행(6절).
@@ -109,20 +109,20 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 ## 5. 로컬에서 실행·테스트 (Windows PowerShell)
 
 ```powershell
-python -m app.dictionary_ingest validate --regulatory "C:\경로\regulation_dict.xlsx" --local "C:\경로\locale_unsuitable_dict.xlsx"
+python -m app.dictionary_ingest validate --regulatory "C:\경로\regulation_dict_20260930.xlsx" --local "C:\경로\locale_unsuitable_dict.xlsx"
 ```
 
 | 환경변수 | 쓰는 테스트 |
 | --- | --- |
 | `GLOSSARY_TEST_DATABASE_URL` | `tests/test_dictionary_db.py`(용어집 DB 테스트와 같은 변수) — 테스트마다 전용 DB를 만들고 지운다. `DATABASE_URL`만 있으면 실행하지 않는다. 운영 주소인지 자동 판별하지 않으므로 운영 DB를 지정하지 않는다 |
-| `DICT_XLSX_DIR` | 실제 전달본 검증 — `regulation_dict*.xlsx`·`locale_unsuitable_dict*.xlsx`가 있는 폴더. 원본이 날짜 누락으로 막히는지, 날짜를 채운 **테스트용 사본**(원본은 그대로)이 24·16·8로 두 번 적재되는지 본다 |
+| `DICT_XLSX_DIR` | 실제 전달본 검증 — 아래 파일을 **이 이름 그대로** 둔 폴더. 파일이 없는 테스트는 건너뛴다(`locale_unsuitable_dict.xlsx`는 두 경우 공통으로 필요)<br>· `regulation_dict.xlsx`(9/28 원본): 대표 근거 날짜 누락으로 validate 가 거부하는지(회귀) — `tests/test_dictionary_ingest.py`<br>· `regulation_dict_20260930.xlsx`(9/30 정정본): validate 통과(규제 16·대표 근거 16·현지 8) — `tests/test_dictionary_ingest.py`. 전용 DB에 두 번 적재해 사전 24·대표 근거 16, 두 번째는 변경 없음, 판정 원값 `rewritable` 2행(RG-008·030) — `tests/test_dictionary_db.py`(`GLOSSARY_TEST_DATABASE_URL` 필요) |
 
 ## 6. EC2 → RDS 적용 (Linux Bash) — 4절의 날짜 보완 후
 
 | 자리표시자 | 값 |
 | --- | --- |
 | `<SHA>` | 이 변경이 develop에 머지된 승인된 커밋 |
-| `<날짜>` | 데이터팀 전달본 날짜(S3 폴더 이름) |
+| `<날짜>` | 적재할 전달본 날짜. 지금은 정정본 `20260930` — S3 폴더·EC2 작업 폴더·로그 이름에 쓴다 |
 
 이 작업은 DB 스키마·데이터만 바꾸므로 API·워커 재시작이 필요 없다. (별개로, 현재 `start-pixlate.sh`는 재시작 때 Redis 컨테이너를 볼륨 없이 새로 만들어 대기 중 작업이 사라질 수 있다 — Redis 일반 특성이 아니라 지금 배포 구성의 문제다. `deploy/README.md`)
 
@@ -168,8 +168,13 @@ sudo docker run --rm pixlate-api:dict-<SHA> python -m app.dictionary_ingest --he
 ### C. 적용할 SQL 보기 — DB 접속 없음 (A에서 `0005` 확인한 경우만)
 
 ```bash
-sudo docker run --rm pixlate-api:dict-<SHA> alembic upgrade 0005:0006 --sql > ~/dictionary_0006.sql 2>/dev/null; cat ~/dictionary_0006.sql
+if sudo docker run --rm pixlate-api:dict-<SHA> alembic upgrade 0005:0006 --sql > ~/dictionary_0006.sql 2> ~/dictionary_0006.err
+then cat ~/dictionary_0006.sql
+else echo "STOP: SQL 생성 실패(exit $?) — D로 넘어가지 않는다"; cat ~/dictionary_0006.err
+fi
 ```
+
+- SQL 생성이 성공했을 때만 내용을 보여 준다. `STOP`이면 오류(`~/dictionary_0006.err`)를 공유하고 멈춘다.
 
 사전 검사 `DO $$ … $$`(ID·내용 키 중복, 허용값 밖, 대표 근거 2건 이상)가 들어 있다. xlsx 검증은 E가 한다.
 
@@ -182,29 +187,44 @@ sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env p
 
 ### E. 파일 전달·검증·적재 — 실행 기록을 파일로 남긴다
 
-S3 `pixlate-storage-2026/seed/dictionary/<날짜>/`에 `regulation_dict.xlsx`·`locale_unsuitable_dict.xlsx`를 올린다(퍼블릭 설정 없음). 로컬 해시를 적어 둔다.
+S3 `pixlate-storage-2026/seed/dictionary/<날짜>/`(지금은 `20260930/`)에 아래 두 파일만 **받은 이름 그대로** 올린다(퍼블릭 설정 없음, 이름을 `regulation_dict.xlsx`로 바꾸지 않는다). 9/28 원본 등 다른 전달본은 이 폴더에 두지 않는다.
+
+| 파일 | sha256 (로컬 검증에 쓴 파일) |
+| --- | --- |
+| `regulation_dict_20260930.xlsx` | `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be` |
+| `locale_unsuitable_dict.xlsx` | `c3e8f97449900f5090978859455242a8e5347458570196033fe75b11ddfb18ab` |
 
 **E-1. 파일 받기·해시**
 
 ```bash
-mkdir -p ~/dictionary-input && chmod 700 ~/dictionary-input
-aws s3 cp s3://pixlate-storage-2026/seed/dictionary/<날짜>/ ~/dictionary-input/ --recursive && sha256sum ~/dictionary-input/*.xlsx
+IN=~/dictionary-input/<날짜>
+mkdir -p "$IN" && chmod 700 ~/dictionary-input "$IN"
+aws s3 cp s3://pixlate-storage-2026/seed/dictionary/<날짜>/ "$IN"/ --recursive && ls -l "$IN"
+(cd "$IN" && sha256sum -c - <<'SUMS'
+8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be  regulation_dict_20260930.xlsx
+c3e8f97449900f5090978859455242a8e5347458570196033fe75b11ddfb18ab  locale_unsuitable_dict.xlsx
+SUMS
+)
 ```
+
+- 두 줄 모두 `OK`여야 한다. `FAILED`·`No such file`이면 멈춘다(파일 이름이 다르거나 다른 전달본). `ls`에 두 파일 외의 xlsx가 있으면 지우지 말고 공유한다.
+- 전달본마다 작업 폴더(`~/dictionary-input/<날짜>`)를 따로 쓰므로 예전 파일이 섞여 읽히지 않는다.
 
 **E-2. 공통 설정** — 같은 터미널에서 E-3·E-4·F를 실행한다(새 터미널이면 다시 실행).
 
 ```bash
 set -o pipefail
 IMG=pixlate-api:dict-<SHA>
-FILES="--regulatory /input/regulation_dict.xlsx --local /input/locale_unsuitable_dict.xlsx"
+IN=~/dictionary-input/<날짜>
+FILES="--regulatory /input/regulation_dict_20260930.xlsx --local /input/locale_unsuitable_dict.xlsx"
 LOG=~/dictionary-load-<날짜>.log
 DB="--network pixlate-net --env-file /etc/pixlate/pixlate.env"
 ingest() { sudo docker run --rm "$@" 2>&1 | tee -a "$LOG"; }
-dict() { ingest $DB -v ~/dictionary-input:/input:ro $IMG python -m app.dictionary_ingest "$1" $FILES; }
+dict() { ingest $DB -v "$IN":/input:ro $IMG python -m app.dictionary_ingest "$1" $FILES; }
 
 dict_check() {   # E-3: validate 와 plan 이 모두 성공해야 0
   local rc
-  ingest -v ~/dictionary-input:/input:ro $IMG python -m app.dictionary_ingest validate $FILES \
+  ingest -v "$IN":/input:ro $IMG python -m app.dictionary_ingest validate $FILES \
     || { rc=$?; echo "STOP: validate 실패(exit $rc) — load 하지 않는다. $LOG 확인"; return "$rc"; }
   dict plan || { rc=$?; echo "STOP: plan 실패(exit $rc) — load 하지 않는다. $LOG 확인"; return "$rc"; }
   echo "OK: validate·plan 통과 — 출력을 확인한 뒤 E-4"

@@ -9,6 +9,8 @@
   브랜드 비교값 · ④ · ⑤ 판정과 근거 · 자동 후보 이유 · AI 의견.
 - 아래 "전체 블록": 원본 · 섹션별로 접어 둔 948블록 표와 섹션 오버레이(⑤ true 빨강 · false 초록 · 빈 텍스트 회색 · ④ 라벨 생략 파랑 점선).
 - 사용자 검수(분류 · 기대 is_brand_logo · 메모)는 브라우저에만 저장(localStorage)되고 "TSV 내보내기"로 받는다. **미리 선택된 값은 없다**(AI 의견을 기본값으로 채우지 않음).
+  저장 키는 입력본 · 브랜드 자료 · ⑤ 판정 파일 지문별(`logo-review:<지문 16자>`)이라 같은 주소에서 연 다른 실행의 검수값을 자동으로 불러오지 않는다.
+  다른 저장 공간(다른 실행, 이전 고정 키 `logo-review-v1`)의 값은 사용자가 골라 확인할 때만 빈 칸에 가져오고, 내보낸 TSV에 지문 · 출처를 남긴다.
 자동 후보는 검수 대상 선정용이다(부분 문자열 · 편집 거리 · 기호 제거 비교) — ⑤ 판정 규칙(완전 일치)을 바꾸지 않는다.
 이 페이지는 정답이 아니며 AI 의견은 사람 판단이 아니다.
 """
@@ -16,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import json
 import sys
@@ -113,6 +116,20 @@ def section_overlay(img: Image.Image, rows: list[dict], blocks: dict, out: Path)
     ov.save(out)
 
 
+def _sha_file(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def review_fingerprint(inp: Path, bdir: Path, run: Path, manifest: dict) -> str:
+    """검수 저장 공간을 나누는 지문 — 입력본 · 브랜드 자료(SHA256SUMS, 없으면 brand_metadata.json)와 대상 섹션 ⑤ 판정 파일들의 해시.
+    입력 · 브랜드 · 판정이 하나라도 다르면 다른 저장 공간을 쓴다(다른 실행의 검수값이 자동으로 섞이지 않게)."""
+    brand_file = bdir / "SHA256SUMS" if (bdir / "SHA256SUMS").is_file() else bdir / "brand_metadata.json"
+    results = [[f"{i['image']}/{s['section_key']}", _sha_file(run / i["image"] / "logo" / f"{s['section_key']}.json")]
+               for i in manifest["images"] for s in i["sections"]]
+    data = {"input": _sha_file(inp / "SHA256SUMS"), "brand": _sha_file(brand_file), "results": results}
+    return hashlib.sha256(json.dumps(data, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
@@ -128,6 +145,8 @@ def main(argv=None) -> int:
     all_norm = {normalize(p[k]) for p in brand["products"] for k in ("name_ko", "name_en")}
     manifest = json.loads((inp / "MANIFEST.json").read_text(encoding="utf-8"))
     ai = load_ai(Path(a.ai_review) if a.ai_review else None)
+    fp = review_fingerprint(inp, bdir, run, manifest)
+    storage_key = f"logo-review:{fp[:16]}"
 
     prio_cards: list[tuple[int, str, str]] = []  # (순위, 정렬 키, html)
     full: list[str] = []
@@ -222,16 +241,26 @@ code{{background:var(--code);padding:0 3px;border-radius:3px;word-break:break-al
 table{{flex:1 1 600px;border-collapse:collapse;font-size:12px}}td,th{{border-bottom:1px solid var(--line);padding:3px 4px;vertical-align:top;text-align:left}}
 td.t{{max-width:280px}}td.ai{{max-width:200px}}input{{width:120px}}details{{margin:4px 0 4px 8px}}summary{{cursor:pointer}}
 </style></head><body><header><b>⑤ 브랜드 로고 제외 검수</b> — {esc(run.name)} · 블록 {counts['blocks']} · 로고 true {counts['true']} · 자동 후보 {counts['auto']} · AI 검토 {counts['ai']}
-<button id="exp">TSV 내보내기</button> <span id="cnt"></span><br><small>브랜드: {brands}. 판정 규칙: 정규화(NFKC → 소문자 → 공백 · 문장부호 제거, 기호 유지) 후 한글명 · 영문명과 <b>완전 일치</b>.
+<button id="exp">TSV 내보내기</button> <span id="cnt"></span>
+<span id="imp" hidden> · 이전 검수 <select id="impsel"></select> <button id="impbtn">가져오기</button></span>
+<br><small>검수 저장 공간 <code>{esc(storage_key)}</code>(입력 · 브랜드 · 판정 지문 — 다른 실행의 검수값은 자동으로 불러오지 않는다). 브랜드: {brands}. 판정 규칙: 정규화(NFKC → 소문자 → 공백 · 문장부호 제거, 기호 유지) 후 한글명 · 영문명과 <b>완전 일치</b>.
 정답 · 사용자 승인이 아니다. 자동 후보 이유는 검수 대상 선정용이고 AI 의견은 사람 판단이 아니다. 분류: {legend}</small></header>
 <h1>우선 검수</h1>{"".join(prio_html)}<h1>전체 블록</h1>{"".join(full)}
 <script>
-const K='logo-review-v1';let st={{}};try{{st=JSON.parse(localStorage.getItem(K)||'{{}}')}}catch(e){{}}
+const K={json.dumps(storage_key)},FP={json.dumps(fp)};let st={{}};try{{st=JSON.parse(localStorage.getItem(K)||'{{}}')}}catch(e){{}}
+const IDS=new Set([...document.querySelectorAll('[data-id]')].map(x=>x.dataset.id).concat([...document.querySelectorAll('[data-full]')].map(x=>x.dataset.full)));
 function save(){{try{{localStorage.setItem(K,JSON.stringify(st))}}catch(e){{}};document.getElementById('cnt').textContent='검수 '+Object.values(st).filter(v=>v.c||v.e).length+'개'}}
 function sync(id,f,v){{document.querySelectorAll('[data-id="'+id+'"][data-f="'+f+'"],[data-full="'+id+'"][data-f="'+f+'"]').forEach(x=>{{if(x.value!==v)x.value=v}})}}
-document.querySelectorAll('[data-id],[data-full]').forEach(x=>{{const id=x.dataset.id||x.dataset.full,f=x.dataset.f;if(st[id]&&st[id][f])x.value=st[id][f];
-x.addEventListener(x.tagName==='INPUT'?'input':'change',()=>{{st[id]=Object.assign(st[id]||{{}},{{[f]:x.value}});sync(id,f,x.value);save()}})}});
-document.getElementById('exp').onclick=()=>{{let t='source\\tsection\\tblock\\tclass\\texpected_is_brand_logo\\tnote\\n';for(const[k,v]of Object.entries(st)){{if(!v.c&&!v.e&&!v.n)continue;const[a,b,c]=k.split('|');t+=[a,b,c,v.c||'',v.e||'',(v.n||'').replace(/[\\t\\n]/g,' ')].join('\\t')+'\\n'}}
+function fill(){{for(const[id,v]of Object.entries(st))for(const f of['c','e','n'])if(v[f])sync(id,f,v[f])}}
+document.querySelectorAll('[data-id],[data-full]').forEach(x=>{{const id=x.dataset.id||x.dataset.full,f=x.dataset.f;
+x.addEventListener(x.tagName==='INPUT'?'input':'change',()=>{{st[id]=Object.assign(st[id]||{{}},{{[f]:x.value}});sync(id,f,x.value);save()}})}});fill();
+// 다른 저장 공간(다른 실행 · 이전 고정 키 logo-review-v1)은 자동으로 읽지 않는다. 사용자가 골라 확인한 경우에만, 현재 값이 비어 있는 칸에 가져온다
+let others=[];try{{for(let i=0;i<localStorage.length;i++){{const k=localStorage.key(i);if(k&&k!==K&&k.startsWith('logo-review'))others.push(k)}}}}catch(e){{}}
+if(others.length){{const sel=document.getElementById('impsel');others.forEach(k=>{{const o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o)}});document.getElementById('imp').hidden=false;
+document.getElementById('impbtn').onclick=()=>{{const k=sel.value;let src={{}};try{{src=JSON.parse(localStorage.getItem(k)||'{{}}')}}catch(e){{}}
+const ids=Object.keys(src).filter(id=>IDS.has(id));if(!confirm(k+'의 검수 '+ids.length+'건을 이 실행('+K+')으로 가져온다. 다른 실행의 판정에 대한 의견일 수 있다. 현재 값이 있는 칸은 바꾸지 않는다. 계속할까?'))return;
+for(const id of ids){{const cur=st[id]||{{}};let took=false;for(const f of['c','e','n'])if(src[id][f]&&!cur[f]){{cur[f]=src[id][f];took=true}}if(took){{cur.imported_from=k;st[id]=cur}}}}fill();save()}}}}
+document.getElementById('exp').onclick=()=>{{let t='source\\tsection\\tblock\\tclass\\texpected_is_brand_logo\\tnote\\treview_fingerprint\\timported_from\\n';for(const[k,v]of Object.entries(st)){{if(!v.c&&!v.e&&!v.n)continue;const[a,b,c]=k.split('|');t+=[a,b,c,v.c||'',v.e||'',(v.n||'').replace(/[\\t\\n]/g,' '),FP,v.imported_from||''].join('\\t')+'\\n'}}
 const u=URL.createObjectURL(new Blob([t],{{type:'text/tab-separated-values'}}));const e=document.createElement('a');e.href=u;e.download='logo_user_review.tsv';e.click()}};save();
 </script></body></html>"""
     (out / "index.html").write_text(page, encoding="utf-8", newline="\n")

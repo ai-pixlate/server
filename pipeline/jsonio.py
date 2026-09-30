@@ -25,7 +25,9 @@ from typing import Any
 from PIL import Image
 from pydantic import BaseModel
 
-from pipeline.types import SPLIT_SCHEMA_VERSION, DetectionResult, JudgeResult, LabelResult, MergeResult, OcrResult, PolicyResult, SplitResult
+from pipeline.types import (
+    SPLIT_SCHEMA_VERSION, DetectionResult, JudgeResult, LabelResult, LogoResult, MergeResult, OcrResult, PolicyResult, SplitResult,
+)
 
 # 타입별 읽기 허용 버전. SplitResult만 "1"을 거부한다(상대 경로 의미가 바뀌었으므로). AnalyzeResult는 여기 없다(워커 인계 형식, 파일 읽기 도구 없음).
 # ③-1 · ③-1' 파일(judge/ · judge_detect/ · policy/)은 개발용 잠정 형식(open-questions #60), ④ label/은 #66이며 버전 "1"만 읽는다.
@@ -37,6 +39,7 @@ READ_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
     DetectionResult: frozenset({"1"}),
     PolicyResult: frozenset({"1"}),
     LabelResult: frozenset({"1"}),  # ④ 개발용 잠정 형식(open-questions #66) — 워커 인계 형식 아님
+    LogoResult: frozenset({"1"}),  # ⑤ 개발용 잠정 형식(open-questions #68, 전용 LOGO_SCHEMA_VERSION) — 워커 인계 형식 아님
 }
 _PATH_TYPES = (SplitResult,)  # 경로 규칙을 적용하는 타입 — AnalyzeResult에는 적용하지 않는다
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -114,6 +117,27 @@ def write_model(path: str | Path, model: BaseModel) -> Path:
         for s in model.sections:
             s.image_path = relative_image_path(s.image_path, path.parent)
     path.write_text(model.model_dump_json(indent=2), encoding="utf-8")
+    return path
+
+
+def write_text_atomic(path: str | Path, text: str) -> Path:
+    """같은 폴더의 임시 파일에 다 쓴 뒤 최종 경로로 교체한다(os.replace). 쓰다 멈춘 파일이 최종 경로에 완성 결과처럼 남지 않는다.
+    실패하면 임시 파일을 지우고 원래 예외(OSError 등)를 그대로 올린다 — ⑤(open-questions #68)가 쓴다."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
     return path
 
 

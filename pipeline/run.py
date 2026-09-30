@@ -16,6 +16,9 @@
     python -m pipeline.run label   --merge DIR/merge/<KEY>.json --split DIR/split.json --out NEW_DIR [--llm-replay DIR0/label_debug/<KEY>.json]
                                    # ④ 제품 라벨 판정 → NEW_DIR/label/<KEY>.json, NEW_DIR/label_debug/<KEY>.json. 실패는 status=failed로 저장하고 종료 코드 4.
                                    # 실행마다 새 --out(이전 run.json · label/이 있으면 거부)
+    python -m pipeline.run logo    --merge DIR/merge/<KEY>.json --label DIR/label/<KEY>.json --brand-meta brand_metadata.json --image-id ID --out NEW_DIR
+                                   # ⑤ 브랜드 로고 제외(모델 호출 없음) → NEW_DIR/<ID>/logo/<KEY>.json, NEW_DIR/<ID>/logo_debug/<KEY>.json.
+                                   # 종료 코드 0 성공 · 2 입력 · 설정 오류 · 4 실행 · 저장 오류(open-questions #68). --out이 이미 있으면 거부
     python -m pipeline.run inspect --split|--ocr|--merge JSON --image IMG --out PNG  # 결과를 이미지에 그림
     python -m pipeline.run inspect --label DIR/label/<KEY>.json --merge DIR/merge/<KEY>.json --image IMG --out PNG
     python -m pipeline.run inspect --judge DIR/judge/<KEY>.json --merge DIR/merge/<KEY>.json [--policy DIR/policy/<KEY>.json] --image IMG --out PNG
@@ -353,6 +356,174 @@ def cmd_label(args) -> int:
     return 0
 
 
+# ---- ⑤ 브랜드 로고 제외 (open-questions #68) ------------------------------------------------
+# 실행 계층: 파일 읽기 · 사전 검사 · 판정 호출 · 저장(임시 파일 → 교체) · run.json · 종료 코드를 맡는다.
+# 종료 코드는 ⑤ 단독 방침(#68): 0 성공 · 2 입력 · 설정 오류(판정 결과 없음) · 4 실행 · 저장 오류. 자동 재시도 · 이어 실행 없음.
+LOGO_SCOPE_NOTE = ("⑤ 단독 개발 v1 — 모델 호출 없음 · 개발용 결과 형식(운영 API/DB 계약 아님, #68) · 사전 검사 실패 시 판정 결과 없음 · "
+                   "예기치 않은 오류나 저장 오류면 전체 중단(완료 섹션 결과는 보존, 실행은 실패) · 재실행은 새 출력 폴더")
+
+
+def logo_run_base(mode: str, cfg: dict[str, Any] | None, started: datetime) -> dict[str, Any]:
+    """⑤ run.json 공통 머리 — 설정 · 환경 · 코드 버전."""
+    import platform
+    import unicodedata
+
+    from pipeline.stages import logo
+
+    return {
+        "stage": "logo", "mode": mode, "scope": LOGO_SCOPE_NOTE, "status": None, "error": None,
+        "started_at": started.isoformat(timespec="seconds"), "ran_at": None, "duration_s": None,
+        "config": cfgmod.snapshot(cfg) if cfg is not None else None,
+        "normalize_rule": logo.NORMALIZE_RULE, "python": platform.python_version(), "unicode_version": unicodedata.unidata_version,
+        **jsonio.git_state(),
+        "inputs": {}, "counts": None, "sections": [],
+    }
+
+
+def _logo_finish(out: Path, record: dict[str, Any], started: datetime, status: str, error: str | None, code: int) -> int:
+    """run.json을 임시 파일 → 교체로 쓰고 종료 코드를 돌려준다(#68 확정 2 · 3).
+    출력 폴더 생성이나 run.json 저장 자체가 실패하면 원래 상태 · 오류와 함께 표준 오류로 알리고 종료 코드 4 — 기록을 남겼다고 보고하지 않는다."""
+    ended = datetime.now(timezone.utc)
+    record.update({"status": status, "error": error, "ran_at": ended.isoformat(timespec="seconds"),
+                   "duration_s": round((ended - started).total_seconds(), 3)})
+    c = record.get("counts")
+    if isinstance(c, dict) and "sections_total" in c:
+        c["sections_not_run"] = c["sections_total"] - c["sections_ok"] - c["sections_failed"]
+    try:
+        jsonio.write_text_atomic(out / "run.json", json.dumps(record, ensure_ascii=False, indent=2))
+    except Exception as e:  # noqa: BLE001 — 폴더 생성 · 직렬화 · 저장 실패 모두 기록 없음
+        print(f"⑤ run.json 저장 실패 — 실행 기록이 남지 않았다: {e.__class__.__name__}: {e} "
+              f"(상태 {status}{f' · 오류 {error}' if error else ''})", file=sys.stderr)
+        return 4
+    if error:
+        print(f"⑤ {status}: {error} (run.json에 기록)", file=sys.stderr)
+    return code
+
+
+# 사전 검사에서 "정상적으로 검출한 입력 · 설정 오류"로 보는 예외(#68 확정 3). LogoInputError · SchemaVersionError · pydantic ValidationError ·
+# JSON · 인코딩 오류는 ValueError, 파일 없음 · 읽기 실패는 OSError, 없는 config 키 override는 ConfigKeyError. 그 밖의 예외는 내부 오류다.
+LOGO_INPUT_ERRORS: tuple[type[BaseException], ...] = (ValueError, OSError, cfgmod.ConfigKeyError)
+
+
+def logo_input_error(out: Path, record: dict[str, Any], started: datetime, error: str) -> int:
+    """사전 검사 실패 — 판정 결과를 만들지 않고 run.json(status input_error)만 남긴다. 종료 코드 2."""
+    return _logo_finish(out, record, started, "input_error", error, 2)
+
+
+def logo_internal_error(out: Path, record: dict[str, Any], started: datetime, e: BaseException) -> int:
+    """사전 검사(입력 로딩 · 해시 검사 · 검증 포함) 중 예상하지 못한 내부 예외 — run.json status failed · 종료 코드 4(#68 확정 3)."""
+    return _logo_finish(out, record, started, "failed", f"사전 검사 중 예기치 않은 오류: {e.__class__.__name__}: {e}", 4)
+
+
+def duplicate_logo_jobs(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """같은 (image_id, section_key)가 두 번 이상 나오는 쌍. 같은 출력 경로에 덮어쓰지 않도록 사전 검사에서 거부한다."""
+    seen: set[tuple[str, str]] = set()
+    dups: set[tuple[str, str]] = set()
+    for p in pairs:
+        (dups if p in seen else seen).add(p)
+    return sorted(dups)
+
+
+def execute_logo(out: Path, jobs: list[dict[str, Any]], brand_meta: Any, cfg: dict[str, Any], record: dict[str, Any], started: datetime) -> int:
+    """⑤ 실행. jobs = [{"image_id", "merged": MergeResult, "label": LabelResult}] (이미 읽은 입력).
+    1) 사전 검사: 모든 job을 판정 전에 검증 — 하나라도 실패하면 판정 결과 없이 input_error(2).
+    2) 판정 · 저장: <out>/<image_id>/logo_debug/<key>.json → <out>/<image_id>/logo/<key>.json 순으로 임시 파일 → 교체.
+       판정 중 예기치 않은 오류는 그 섹션의 failed 결과 · 기록을 남기고 전체 중단(4). 저장 오류도 실행 실패(4). 완료 섹션 결과는 보존한다."""
+    from pipeline.stages import logo
+
+    try:
+        dups = duplicate_logo_jobs([(job["image_id"], job["merged"].section_key) for job in jobs])
+        if dups:
+            raise logo.LogoInputError(f"같은 원본 · 섹션 작업이 두 번 이상 있다(같은 출력 경로) {dups}")
+        for job in jobs:
+            logo.validate_inputs(job["image_id"], job["merged"], job["label"], brand_meta, cfg)
+    except logo.LogoInputError as e:
+        return logo_input_error(out, record, started, f"사전 검사 실패: {e}")
+    except Exception as e:  # noqa: BLE001 — 검증 코드 자체의 예기치 않은 오류
+        return logo_internal_error(out, record, started, e)
+
+    totals = {k: 0 for k in ("product_label", "empty_text", "exact_match", "no_match", "compared")}
+    counts = {"sections_total": len(jobs), "sections_ok": 0, "sections_failed": 0, "blocks": 0, **totals}
+    record["counts"] = counts
+    for job in jobs:
+        image_id, merged = job["image_id"], job["merged"]
+        key = merged.section_key
+        rel_result = Path(image_id) / "logo" / f"{key}.json"
+        rel_debug = Path(image_id) / "logo_debug" / f"{key}.json"
+        failure: str | None = None
+        try:
+            result, rec = logo.run(image_id, merged, job["label"], brand_meta, cfg)
+        except Exception as e:  # noqa: BLE001 — 사전 검사를 통과했으므로 여기서의 오류는 예기치 않은 오류
+            failure = f"판정 중 예기치 않은 오류: {e.__class__.__name__}: {e}"
+            result = logo.failed_result(image_id, key, failure)
+            rec = {"stage": "logo", "image_id": image_id, "section_key": key, "status": "failed", "error": failure,
+                   "exception": e.__class__.__name__}
+        try:
+            jsonio.write_text_atomic(out / rel_debug, json.dumps(rec, ensure_ascii=False, indent=2))
+            jsonio.write_text_atomic(out / rel_result, result.model_dump_json(indent=2))
+        except Exception as e:  # noqa: BLE001 — 저장 오류: 성공으로 보고하지 않는다
+            record["sections"].append({"image_id": image_id, "section_key": key, "status": "save_failed",
+                                       "judge_status": result.status, "error": f"{e.__class__.__name__}: {e}"})
+            counts["sections_failed"] += 1
+            return _logo_finish(out, record, started, "failed", f"{image_id}/{key} 저장 실패: {e.__class__.__name__}: {e}", 4)
+        if failure is not None:
+            record["sections"].append({"image_id": image_id, "section_key": key, "status": "failed", "error": failure,
+                                       "result": rel_result.as_posix(), "debug": rel_debug.as_posix()})
+            counts["sections_failed"] += 1
+            return _logo_finish(out, record, started, "failed", f"{image_id}/{key} {failure}", 4)
+        c = rec["counts"]
+        for k in totals:
+            counts[k] += c[k]
+        counts["blocks"] += rec["blocks"]
+        counts["sections_ok"] += 1
+        record["sections"].append({"image_id": image_id, "section_key": key, "status": "ok", "blocks": rec["blocks"], "counts": c,
+                                   "blocks_fingerprint": rec["blocks_fingerprint"], "label_fingerprint": rec["label_fingerprint"],
+                                   "result": rel_result.as_posix(), "debug": rel_debug.as_posix()})
+    if counts["sections_ok"] != counts["sections_total"] or counts["sections_failed"]:  # 실패 · 미처리 섹션이 있으면 ok로 기록하지 않는다(#68 확정 1)
+        return _logo_finish(out, record, started, "failed", "처리되지 않았거나 실패한 섹션이 있다", 4)
+    code = _logo_finish(out, record, started, "ok", None, 0)
+    if code == 0:
+        print(f"⑤ ok: 섹션 {counts['sections_ok']} · 블록 {counts['blocks']} (라벨 생략 {counts['product_label']} · 비교 {counts['compared']} · "
+              f"일치 {counts['exact_match']} · 빈 텍스트 {counts['empty_text']} · 불일치 {counts['no_match']}) → {out}")
+    return code
+
+
+def cmd_logo(args) -> int:
+    """⑤ 한 섹션. merge/<key>.json + label/<key>.json + brand_metadata.json + 원본 식별자 → <out>/<image_id>/logo/<key>.json.
+    상대 경로는 실행 디렉터리 기준. 이미지 · split.json은 받지 않는다. --out이 이미 있으면 거부(2)."""
+    from pipeline.stages import logo
+    from pipeline.types import LabelResult
+
+    started = datetime.now(timezone.utc)
+    out = Path(args.out)
+    if out.exists():
+        print(f"출력 폴더가 이미 있다 — 실행마다 새 --out을 쓴다: {out}", file=sys.stderr)
+        return 2
+    inputs = {"image_id": args.image_id, "merge": args.merge, "label": args.label, "brand_meta": args.brand_meta}
+    record: dict[str, Any] = {"stage": "logo", "mode": "single", "inputs": inputs}
+    try:
+        record = {**logo_run_base("single", None, started), "inputs": inputs}
+    except Exception as e:  # noqa: BLE001 — 기록 머리조차 못 만들면 최소 기록으로 내부 오류
+        return logo_internal_error(out, record, started, e)
+    try:
+        cfg = _load_cfg(args)
+        record["config"] = cfgmod.snapshot(cfg)
+        logo.validate_config(cfg)
+        paths = {"merge": Path(args.merge), "label": Path(args.label), "brand_meta": Path(args.brand_meta)}
+        inputs["sha256"] = {k: jsonio.sha256_file(p) for k, p in paths.items()}
+        merged = jsonio.load_merge(paths["merge"])
+        label_res = jsonio.load_model(paths["label"], LabelResult)
+        brand_meta = json.loads(paths["brand_meta"].read_text(encoding="utf-8"))
+        if isinstance(brand_meta, dict):
+            inputs["brand_version"] = brand_meta.get("version")
+            inputs["brand_for_input"] = brand_meta.get("for_input")  # 자료에 적힌 연결 입력본(출처 기록)
+    except LOGO_INPUT_ERRORS as e:  # 검출한 입력 · 설정 오류
+        return logo_input_error(out, record, started, f"{e.__class__.__name__}: {e}")
+    except Exception as e:  # noqa: BLE001 — 입력 로딩 중 예상하지 못한 내부 예외
+        return logo_internal_error(out, record, started, e)
+    return execute_logo(out, [{"image_id": args.image_id, "merged": merged, "label": label_res}], brand_meta, cfg, record, started)
+
+
 def cmd_analyze(args) -> int:
     from pipeline.analyze import analyze
 
@@ -495,6 +666,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", required=True, help="새 출력 폴더(이전 실행 결과가 있으면 거부)")
     sp.add_argument("--llm-replay", metavar="label_debug/<KEY>.json", help="이전 기록의 응답을 재생(API 호출 없음, 입력 · 응답 다시 검증)")
     sp.set_defaults(fn=cmd_label)
+
+    sp = sub.add_parser("logo", help="⑤ 브랜드 로고 제외(모델 호출 없음)")
+    common(sp)
+    sp.add_argument("--merge", required=True, help="merge/<section_key>.json (③ 출력, 판정 대상 블록)")
+    sp.add_argument("--label", required=True, help="label/<section_key>.json (④ 출력, 같은 섹션 · status ok)")
+    sp.add_argument("--brand-meta", required=True, help="brand_metadata.json (브랜드 자료, images 목록으로 원본 연결)")
+    sp.add_argument("--image-id", required=True, help="원본 이미지 식별자(예 GS-01_001)")
+    sp.add_argument("--out", required=True, help="새 출력 폴더(이미 있으면 거부)")
+    sp.set_defaults(fn=cmd_logo)
 
     sp = sub.add_parser("analyze", help="①→②→③ 초기 분석")
     common(sp)

@@ -13,6 +13,8 @@
   confidence 는 high 만, version 은 양의 정수, internal_category 는 9월엔 비어 있어야 한다.
 - variant_expressions.ko / .en 은 '; ' 로 나눠 variant_ko / forbidden_en JSON 배열로 저장.
 - verdict_status rewritable 은 regulated 로 바꿔 저장(완충형, 9/21 PM 결정기록). 대체 표현이 비면 오류.
+  시트의 판정 원값은 source_verdict_status 에 그대로 남긴다(서비스 판정은 verdict_status). 마지막 적재 원값이며
+  변경 이력이 아니다.
   allowed 는 대체 표현이 비어야 하고, conditional·rewritable 은 채워져야 한다.
 - 본문 verified_at → confirmed_date.
 - 대표 근거: 행의 evidence_id 가 「근거」 탭에 있고, is_primary=Y 이며 rg_id 에 이 항목이 들어 있어야 하고,
@@ -23,7 +25,7 @@
 
 현지부적합 → expression_dictionary (dict_type=local, target_country=US, regulatory_class=common)
 - common = 미국 작업의 모든 규제 분류에 공통 적용. 국가 범위를 없애는 뜻이 아니다.
-- 항목→source_expression · 패턴→variant_ko · 판정→verdict_status · 제외하는/제외하지 않는 맥락 →
+- 항목→source_expression · 패턴→variant_ko · 판정→verdict_status(원값도 source_verdict_status) · 제외하는/제외하지 않는 맥락 →
   exclusion_context/keep_context · 셀러 문장→reason · verified_at→confirmed_date. 근거 행은 없다.
 - 판단 근거·kr_freq·kr_corpus 는 이번 DB 적재에서 제외하고 원본 파일로 보존한다
   (DB만으로 판정의 내부 배경을 복원할 수 없다).
@@ -83,14 +85,14 @@ LOCAL_COUNTRY, LOCAL_CLASS = "US", "common"
 DICT_FIELDS = [
     "external_id", "dict_type", "target_country", "regulatory_class", "source_expression", "variant_ko",
     "forbidden_en", "verdict_status", "alternative_expression", "reason", "confirmed_date",
-    "exclusion_context", "keep_context",
+    "exclusion_context", "keep_context", "source_verdict_status",
 ]
 SCOPE_KEY = ("dict_type", "target_country", "regulatory_class")
 CONTENT_KEY = SCOPE_KEY + ("source_expression",)
 EVIDENCE_FIELDS = ["evidence_source_type", "evidence_document", "evidence_quote", "evidence_article",
                    "evidence_url", "is_primary"]
 VARCHAR_LIMITS = {"external_id": 32, "dict_type": 20, "target_country": 8, "regulatory_class": 30,
-                  "source_expression": 300, "verdict_status": 20}
+                  "source_expression": 300, "verdict_status": 20, "source_verdict_status": 20}
 HANGUL = re.compile(r"[가-힣]")
 
 
@@ -299,6 +301,7 @@ def parse_regulatory(path: str, issues: list[Issue]) -> DictFile:
             if status in ("rewritable", "conditional") and alt is None:
                 r.err("alternative_expression", f"{status} 는 대체 표현이 있어야 한다")
             rec["verdict_status"] = "regulated" if status == "rewritable" else status
+            rec["source_verdict_status"] = status
 
         # 대표 근거
         ev_id = cell["evidence_id"]
@@ -384,6 +387,7 @@ def parse_local(path: str, issues: list[Issue]) -> DictFile:
         r.take(rec, cell, "판정", "verdict_status", lambda v: _text(v, True))
         if rec.get("verdict_status") not in (None, *LOCAL_VERDICTS):
             r.err("판정", f"{'·'.join(LOCAL_VERDICTS)} 가 아님({rec['verdict_status']!r})")
+        rec["source_verdict_status"] = rec.get("verdict_status")
         r.take(rec, cell, "제외하는 맥락", "exclusion_context", lambda v: _text(v, True))
         r.take(rec, cell, "제외하지 않는 맥락", "keep_context", lambda v: _text(v, True))
         r.take(rec, cell, "셀러 문장", "reason", lambda v: _text(v, True))

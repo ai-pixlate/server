@@ -1,14 +1,14 @@
 """규제사전·현지부적합 로더 — 파일 검증(DB 불필요).
 
-실제 전달본 검증은 DICT_XLSX_DIR(regulation_dict*.xlsx · locale_unsuitable_dict*.xlsx 가 있는 폴더)이
-있을 때만 돈다. 건수는 이번 전달본(2026-09-28)의 검증값이며 로더의 고정 규칙이 아니다.
+실제 전달본 검증은 DICT_XLSX_DIR 폴더에 해당 파일이 있을 때만 돈다. 건수는 각 전달본의 검증값이며
+로더의 고정 규칙이 아니다.
+- regulation_dict.xlsx (2026-09-28): 대표 근거 날짜 누락으로 거부되는지(회귀)
+- regulation_dict_20260930.xlsx (정정본): 통과하고 24·16 으로 적재되는지
+- locale_unsuitable_dict.xlsx: 두 경우 공통
 """
 import datetime as dt
-import glob
 import os
-import shutil
 
-import openpyxl
 import pytest
 
 from app.dictionary_ingest import main, validate_files
@@ -30,6 +30,8 @@ def test_regulatory_mapping_and_shared_evidence(tmp_path):
     assert r1["confirmed_date"] == dt.date(2026, 9, 16)  # 본문 verified_at → confirmed_date
     assert r1["exclusion_context"] is None and r1["dict_type"] == "regulatory"
     assert recs["RG-002"]["verdict_status"] == "regulated" and f.converted == ["RG-002"]  # rewritable → regulated
+    assert recs["RG-002"]["source_verdict_status"] == "rewritable"  # 시트 원값 보존
+    assert recs["RG-001"]["source_verdict_status"] == "regulated" and recs["RG-004"]["source_verdict_status"] == "conditional"
     # 공유 근거: 연결은 항목마다, 원본 근거 ID 는 같다
     assert f.evidence["RG-003"]["external_id"] == f.evidence["RG-004"]["external_id"] == "MN-001"
     ev = f.evidence["RG-001"]
@@ -46,6 +48,7 @@ def test_local_mapping(tmp_path):
     assert rec["variant_ko"] == ["패턴1", "패턴1b"] and rec["forbidden_en"] is None
     assert rec["exclusion_context"] == "제외 맥락 1" and rec["keep_context"] == "유지 맥락 1"
     assert rec["confirmed_date"] == dt.date(2026, 9, 22)
+    assert [r["source_verdict_status"] for r in vr.records] == ["irrelevant", "needs_fix"]  # 판정 원값 보존
     assert "판단 근거" not in rec and "kr_freq" not in rec
 
 
@@ -146,32 +149,22 @@ def test_one_bad_row_fails_everything(tmp_path, capsys):
 
 # ── 실제 전달본 (있을 때만) ────────────────────────────────────────────
 
-def _real_files():
+def _delivery(reg_name: str):
+    """DICT_XLSX_DIR 의 (규제사전 파일, 현지부적합 파일) 또는 없으면 None."""
     d = os.getenv("DICT_XLSX_DIR")
     if not d:
         return None
-    reg = sorted(glob.glob(os.path.join(d, "regulation_dict*.xlsx")))
-    loc = sorted(glob.glob(os.path.join(d, "locale_unsuitable_dict*.xlsx")))
-    return (reg[0], loc[0]) if reg and loc else None
+    reg, loc = os.path.join(d, reg_name), os.path.join(d, "locale_unsuitable_dict.xlsx")
+    return (reg, loc) if os.path.exists(reg) and os.path.exists(loc) else None
 
 
-def patched_copy(src: str, dst) -> str:
-    """데이터팀이 대표 근거(MN)의 빈 verified_at 을 채워 보낸 상황을 흉내 낸 테스트용 사본. 원본은 그대로."""
-    shutil.copy(src, dst)
-    wb = openpyxl.load_workbook(dst)
-    ws = wb["근거"]
-    head = [c.value for c in ws[1]]
-    i_id, i_v = head.index("evidence_id"), head.index("verified_at")
-    for row in ws.iter_rows(min_row=2):
-        if str(row[i_id].value or "").startswith("MN-") and row[i_v].value in (None, ""):
-            row[i_v].value = "2026-09-18"
-    wb.save(dst)
-    return str(dst)
+FIRST = "regulation_dict.xlsx"             # 2026-09-28 전달본 — 대표 근거 날짜 누락
+CORRECTED = "regulation_dict_20260930.xlsx"  # 2026-09-30 정정본 — MN 날짜 보완
 
 
-@pytest.mark.skipif(_real_files() is None, reason="DICT_XLSX_DIR 없음")
+@pytest.mark.skipif(_delivery(FIRST) is None, reason="DICT_XLSX_DIR 에 2026-09-28 전달본 없음")
 def test_real_delivery_is_blocked_by_missing_evidence_dates():
-    reg, loc = _real_files()
+    reg, loc = _delivery(FIRST)
     vr = validate_files(reg, loc)
     ev_ids = sorted({i.external_id for i in vr.issues if i.column == "verified_at"})
     assert ev_ids == ["MN-001", "MN-002", "MN-003", "MN-004", "MN-006", "MN-007", "MN-008"]
@@ -180,16 +173,18 @@ def test_real_delivery_is_blocked_by_missing_evidence_dates():
                        "RG-020", "RG-021", "RG-022"]
 
 
-@pytest.mark.skipif(_real_files() is None, reason="DICT_XLSX_DIR 없음")
-def test_real_delivery_with_dates_filled(tmp_path):
-    reg, loc = _real_files()
-    vr = validate_files(patched_copy(reg, tmp_path / "reg.xlsx"), loc)
-    assert vr.issues == []
+@pytest.mark.skipif(_delivery(CORRECTED) is None, reason="DICT_XLSX_DIR 에 2026-09-30 정정본 없음")
+def test_corrected_delivery_passes():
+    reg, loc = _delivery(CORRECTED)
+    vr = validate_files(reg, loc)
+    assert vr.issues == []  # 대표 근거 날짜 오류 0
     rf, lf = vr.files
     assert (len(rf.records), len(rf.evidence), len({e["external_id"] for e in rf.evidence.values()})) == (16, 16, 13)
     assert len(lf.records) == 8
     assert sorted(rf.converted) == ["RG-008", "RG-030"]
-    assert sorted(rf.unresolved) == ["RG-021", "RG-022"]
+    assert sorted(rf.unresolved) == ["RG-021", "RG-022"]  # 한국어 자리표시자 — 적재 가능, 번역 사용 불가
+    assert sorted(r["external_id"] for r in rf.records if r["source_verdict_status"] == "rewritable") == [
+        "RG-008", "RG-030"]
     from collections import Counter
     assert Counter(r["verdict_status"] for r in rf.records) == {"regulated": 10, "conditional": 4, "allowed": 2}
     assert Counter(r["verdict_status"] for r in lf.records) == {"irrelevant": 5, "needs_fix": 3}

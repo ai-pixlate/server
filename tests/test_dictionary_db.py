@@ -9,7 +9,7 @@ from alembic import command
 
 from app.dictionary_ingest import main
 from tests.dictionary_fixtures import basic_regulatory, ev_row, local_row, reg_row, write_local, write_regulatory
-from tests.test_dictionary_ingest import _real_files, patched_copy
+from tests.test_dictionary_ingest import CORRECTED, _delivery
 from tests.test_glossary_db import ADMIN_URL, _alembic, _q, _revision, db_url  # noqa: F401 (fixture)
 
 pytestmark = pytest.mark.skipif(not ADMIN_URL, reason="GLOSSARY_TEST_DATABASE_URL 없음")
@@ -98,7 +98,8 @@ def _run(url, mode, reg=None, loc=None):
 
 
 def _dict(url):
-    return {r[0]: r[1:] for r in _q(url, "SELECT external_id, id, verdict_status, reason FROM expression_dictionary")}
+    return {r[0]: r[1:] for r in _q(
+        url, "SELECT external_id, id, verdict_status, reason, source_verdict_status FROM expression_dictionary")}
 
 
 def _evidence(url):
@@ -163,7 +164,23 @@ def test_dictionary_update_keeps_pk(head, tmp_path):
     pk = _dict(head)["RG-001"][0]
     assert _run(head, "load", write_regulatory(tmp_path / "b.xlsx", [reg_row(1, reason="고친 사유", version="2")],
                                                [ev_row("WL-001", "RG-001")])) == 0
-    assert _dict(head)["RG-001"] == (pk, "regulated", "고친 사유")
+    assert _dict(head)["RG-001"] == (pk, "regulated", "고친 사유", "regulated")
+
+
+def test_source_verdict_is_kept_and_its_change_is_an_update(head, tmp_path, capsys):
+    reg = basic_regulatory(tmp_path / "r.xlsx")
+    loc = write_local(tmp_path / "l.xlsx", [local_row(1), local_row(2, 판정="needs_fix")])
+    _run(head, "load", reg, loc)
+    d = _dict(head)
+    assert d["RG-002"][1:4:2] == ("regulated", "rewritable")  # 서비스 값 · 원값
+    assert d["LC-02"][1:4:2] == ("needs_fix", "needs_fix")
+    pk = d["RG-001"][0]
+    capsys.readouterr()
+    # 정규화 값(regulated)은 같고 원값만 regulated → rewritable 로 바뀐 경우도 갱신
+    ev = [ev_row("WL-001", "RG-001")]
+    assert _run(head, "load", write_regulatory(tmp_path / "b.xlsx", [reg_row(1, verdict_status="rewritable")], ev)) == 0
+    assert "갱신 1" in capsys.readouterr().out
+    assert _dict(head)["RG-001"] == (pk, "regulated", "사유 문장", "rewritable")
 
 
 @pytest.mark.parametrize("row,needle", [
@@ -217,10 +234,9 @@ def test_rows_missing_from_file_are_kept(head, tmp_path, capsys):
     assert set(_dict(head)) == {"LC-01", "LC-02"}
 
 
-@pytest.mark.skipif(_real_files() is None, reason="DICT_XLSX_DIR 없음")
-def test_real_delivery_with_dates_filled_loads_twice(head, tmp_path, capsys):
-    reg, loc = _real_files()
-    reg = patched_copy(reg, tmp_path / "reg.xlsx")
+@pytest.mark.skipif(_delivery(CORRECTED) is None, reason="DICT_XLSX_DIR 에 2026-09-30 정정본 없음")
+def test_corrected_delivery_loads_twice(head, capsys):
+    reg, loc = _delivery(CORRECTED)
     assert _run(head, "load", reg, loc) == 0
     before = (_dict(head), _evidence(head))
     assert _run(head, "load", reg, loc) == 0
@@ -230,3 +246,6 @@ def test_real_delivery_with_dates_filled_loads_twice(head, tmp_path, capsys):
     prim = _q(head, "SELECT d.external_id, count(*) FROM expression_dictionary d JOIN expression_dictionary_evidence v "
                     "ON v.dictionary_id = d.id AND v.is_primary GROUP BY 1")
     assert len(prim) == 16 and all(n == 1 for _, n in prim)
+    rw = _q(head, "SELECT external_id FROM expression_dictionary WHERE source_verdict_status = 'rewritable' ORDER BY 1")
+    assert [r[0] for r in rw] == ["RG-008", "RG-030"]
+    assert _q(head, "SELECT count(*) FROM expression_dictionary WHERE source_verdict_status IS NULL")[0][0] == 0

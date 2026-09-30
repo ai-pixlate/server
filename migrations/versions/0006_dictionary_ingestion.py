@@ -11,6 +11,9 @@
    - ck_expr_dict_verdict_status : dict_type별 허용값
        regulatory → regulated·conditional·allowed / local → irrelevant·needs_fix·cultural / channel → policy
    - exclusion_context · keep_context TEXT : 현지부적합 '제외하는 맥락'·'제외하지 않는 맥락'(사용설명서 §3)
+   - source_verdict_status VARCHAR(20) : 시트에 적힌 판정 원값(예: rewritable). 서비스 판정은 verdict_status 를
+     쓰고 이 열은 원본 보존용이다(데이터팀 요청, 2026-09-30). 마지막으로 적재한 원값이며 변경 이력이 아니고,
+     원본에서 이미 합쳐진 분류는 복원하지 못한다. CHECK 없음(로더가 시트 값을 검사).
    regulatory_class 에는 CHECK 를 두지 않는다(국가별 확장 — 9/8 합의).
 2) expression_dictionary_evidence
    - external_id VARCHAR(32) : 원본 근거 ID(WL-###·MN-###·MP-###…). 같은 근거가 여러 사전 항목에
@@ -18,7 +21,7 @@
    - uq_expr_evidence_primary : 사전 항목당 대표 근거(is_primary) 최대 1건 (부분 UNIQUE 인덱스)
 
 기존 데이터가 제약을 어기면 자동으로 고치지 않고 멈춘다(DO 블록 — offline SQL에도 포함).
-downgrade 는 추가한 열을 지우므로 그 값(현지 맥락·근거 원본 ID)이 사라진다.
+downgrade 는 추가한 열을 지우므로 그 값(현지 맥락·판정 원값·근거 원본 ID)이 사라진다.
 
 Revision ID: 0006
 Revises: 0005
@@ -84,6 +87,7 @@ def upgrade() -> None:
     op.execute(PRECHECK)
     op.add_column("expression_dictionary", sa.Column("exclusion_context", sa.Text(), nullable=True))
     op.add_column("expression_dictionary", sa.Column("keep_context", sa.Text(), nullable=True))
+    op.add_column("expression_dictionary", sa.Column("source_verdict_status", sa.String(20), nullable=True))
     op.create_unique_constraint("uq_expr_dict_external_id", "expression_dictionary", ["external_id"])
     op.create_unique_constraint(
         "uq_expr_dict_content", "expression_dictionary",
@@ -113,5 +117,6 @@ def downgrade() -> None:
     op.drop_constraint("ck_expr_dict_dict_type", "expression_dictionary", type_="check")
     op.drop_constraint("uq_expr_dict_content", "expression_dictionary", type_="unique")
     op.drop_constraint("uq_expr_dict_external_id", "expression_dictionary", type_="unique")
+    op.drop_column("expression_dictionary", "source_verdict_status")
     op.drop_column("expression_dictionary", "keep_context")
     op.drop_column("expression_dictionary", "exclusion_context")

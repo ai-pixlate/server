@@ -39,6 +39,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     policy.py                ③-1' 정책 적용(#60)
     label.py                 ④ 제품 라벨 판정 — 단독 개발 v1(#66, 전체 통합 전)
     logo.py                  ⑤ 브랜드 로고 제외 — 단독 개발 v1(#68, 모델 호출 없음 · 전체 통합 전)
+    inpaint.py               ⑥ 인페인팅 — 단독 개발 v1 로컬 구현(`pipeline.md` 7.6절, 입력 검증 · 마스크 · 모델 인터페이스, 실제 LaMa 어댑터 없음)
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 · 원자적 쓰기(⑤) — 3·5절
   run.py                     단계별 실행 CLI — 4절
@@ -54,7 +55,7 @@ docs/ai/                     정본 문서
 
 - `pipeline/`은 `app/`(BE)을 import하지 않는다. 워커(`app/tasks.py`)가 `pipeline.analyze`를 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
 - 단계 파일 하나 = `pipeline.md` 단계표 한 행. 파일은 `run()` 하나를 노출하고 타입은 `types.py`만 쓴다.
-- 후속 단계 파일명은 예약해 둔다: `inpaint.py`(⑥) · `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절).
+- 후속 단계 파일명은 예약해 둔다: `style.py`(⑦) · `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절). ⑥ `inpaint.py`는 2026-09-30 착수(기존 `[inpaint]` 키 사용, 새 키 없음).
 
 ## 2. 설정과 프롬프트
 
@@ -83,6 +84,7 @@ docs/ai/                     정본 문서
 | ③-1' 정책 적용 | `stages.policy.run(judge_result, blocks, ctx, cfg, *, dicts)` | `JudgeResult` + 현재 섹션 `TextBlock[]`(정상 입력, 설계 3.5절) + `JudgeContext`(`regulatory_class`) + 사전 핸들 | `PolicyResult`(2026-09-29 구현). 적용 행 선택 → 예외 쌍 · 충돌(개별 매칭 단위) → 매핑(`policy_rules.json`) → 집계. `JudgeResult.status`가 ok · skipped가 아니면 `incomplete`, `regulatory_class`가 None이면 `input_error`(둘 다 권고 · verdict 없음). `DetectionResult`는 `PolicyInputError`로 거부. 처리 순서 버전 `policy.RULES_IMPL_VERSION`(#60, `pipeline.md` 7.3절) |
 | ④ 제품 라벨 판정 | `stages.label.run(section, blocks, cfg, *, llm=None, recorder=None)` | `Section` + 섹션의 `TextBlock[]` | `LabelResult`(2026-09-29 단독 구현, `pipeline.md` 7.4절). 공백 블록은 VLM에 보내지 않고 false, 블록이 없거나 공백뿐이면 호출 없이 `ok`. 실패(호출 · 시간 초과 · 응답 검증 · 재생 불일치)는 예외가 아니라 `status=failed`(`labels=None`). 입력 오류(섹션 불일치 · 중복 키 · 이미지 크기 불일치 · 설정)는 예외. `llm`은 호출자 주입(기본 `vlm.GeminiLabelAssistant`, 재생 `vlm.ReplayLabelAssistant`), `recorder`는 `label.json_recorder(dir)`. 설정 검증 `validate_config` · `validate_llm_config`. `analyze()` · 워커와 연결하지 않았다(#64) |
 | ⑤ 브랜드 로고 제외 | `stages.logo.run(image_id, merged, label, brand_meta, cfg)` | 원본 이미지 식별자 + `MergeResult` + 같은 섹션의 `LabelResult` + 브랜드 자료(`brand_metadata.json` dict) + 설정 | `(LogoResult, 기록 dict)`(2026-09-29 단독 구현, `pipeline.md` 7.5절). 모델 호출 · 파일 입출력 없음, 이미지 불필요. 먼저 `validate_inputs`(설정 · ③ · ④ · 브랜드 연결, 어기면 `LogoInputError` — 결과 없음). 판정 중 예기치 않은 예외는 그대로 올라가고 실행 계층(`run.execute_logo`)이 `failed_result`로 기록한다. 정규화 `logo.normalize`. `analyze()` · 워커와 연결하지 않았다(#64) |
+| ⑥ 인페인팅 | `stages.inpaint.validate_inputs(image_id, section, image_size, merged, label, logo, logo_record, cfg)` → `build_masks(plan)` → `apply(image, plan, masks, model)` | 원본 이미지 식별자 + `Section` + 실제 이미지 (W, H) + `MergeResult` + 같은 섹션의 `LabelResult` · `LogoResult` · ⑤ 기록(`logo_debug` dict) + 설정 / 합성 단계는 (H, W, 3) uint8 RGB 배열 + 주입한 `InpaintModel` | `SectionPlan`(검증 · 영역 분류, 래스터화 없음) → `SectionMasks`(delete · protect · final bool 배열 + 영역별 픽셀 수) → `ApplyResult`(배경 배열 · 호출 여부)(2026-09-30 단독 구현, `pipeline.md` 7.6절). 파일 입출력 없음. 입력 오류는 `InpaintInputError`, 모델 예외 · 잘못된 출력은 `InpaintModelError`. 빈 최종 마스크는 모델을 부르지 않는다. 기본 팩토리 `build_model`은 어댑터 미구현(`ModelNotAvailable`). `analyze()` · 워커와 연결하지 않았다 |
 | 초기 분석 | `analyze(sources, cfg, out_dir, *, use_llm=True)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError`. ① 전에 ③ 설정(`use_llm`이면 LLM 설정 · API 키까지)을 검증하고, 끝에 `block_key`를 실행 전체에서 다시 매긴다(아래 임시 식별자). 전체 시그니처 `analyze(sources, cfg, out_dir, *, use_llm=True, llm=None)`. `use_llm`이면 `out_dir/merge_debug/<section_key>.json`(섹션 기록)과 `merge_debug/block_keys.json`((`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키)을 남긴다. `analyze()` 재생은 없다 |
 
 | 타입 | 필드 | 계약 |
@@ -212,6 +214,7 @@ pipeline/samples/<이름>/
 | 로컬 OCR (Windows GPU) | 아래 "Windows 로컬 GPU" | ② — 장치는 설치된 paddle 빌드가 자동 선택 | ⑥ |
 | GPU 서버 | `gpu/` 이미지 + `pip install -r pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
+- **⑥ 로컬 구현은 iopaint 없이 돈다**(2026-09-30): 마스크 · 입력 검증 · 합성 · 실행 계층은 numpy · Pillow만 쓰고(OpenCV · SciPy 없음) 테스트는 가짜 모델을 주입한다. 실제 LaMa 어댑터 · iopaint 설치 · 가중치는 GPU 서버 확인 후(#72).
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).
 - `requirements-ocr.txt`는 2026-09-23 검증 버전으로 고정했다: `paddlepaddle==3.3.1` · `paddleocr==3.7.0` · `paddlex==3.7.2`(Windows 11 · Python 3.12.10 · CPU). 버전을 바꾸면 ② 영역 보존(`pipeline.md` 7절)의 코드 근거를 다시 확인한다. `-gpu.txt`는 아직 **설치 미검증**이다.
 - **Windows 로컬 OCR 설치**: paddle 패키지의 파일 경로가 길어 Windows 경로 길이 한도(260자)에 걸릴 수 있다(2026-09-23, 긴 임시 폴더 경로의 가상환경에서 `OSError [Errno 2]`). 짧은 가상환경 경로를 권장한다. 시스템의 Long Path 설정은 이 문서가 요구하지 않는다.

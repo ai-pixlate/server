@@ -134,8 +134,9 @@ def main() -> None:
             (out.extend(by_ko[t]) if t in by_ko else miss.append(t))
         return out, miss
 
-    def add(query, category, must, any_, qtype, context, source, independent, note=""):
+    def add(query, category, must, any_, qtype, context, source, independent, note="", forbidden=()):
         rows.append({"query": query, "category": category or "", "must_ids": "|".join(must), "any_ids": "|".join(any_),
+                     "forbidden_ids": "|".join(forbidden),
                      "query_type": qtype, "context": context, "source": source, "independent": independent,
                      "note": note})
 
@@ -204,8 +205,11 @@ def main() -> None:
         add(q, cat, m, a, qtype, "general", "handmade", "partial", note)
 
     # ── 음성 · 카테고리 차단 ──
+    # 카테고리 차단 — 음성이 아니다(공용 용어는 정답일 수 있음). 그 카테고리 작업에서 나오면 안 되는 ID 를 forbidden 으로 둔다:
+    # internal_category 가 {작업 카테고리, common} 밖인 모든 행(현재 선크림 전용 8행)
     for q, cat, note in CATEGORY_BLOCKED:
-        add(q, cat, [], [], "category_blocked", "general", "handmade", "partial", note)
+        forbidden = sorted(gl.loc[~gl.internal_category.isin([cat, "common"]), "gl_id"])
+        add(q, cat, [], [], "category_blocked", "general", "handmade", "partial", note, forbidden=forbidden)
     for q in NEGATIVE_HANDMADE:
         add(q, "common", [], [], "negative", "general", "handmade", "partial")
     for lc, q in NEGATIVE_LOCALE:

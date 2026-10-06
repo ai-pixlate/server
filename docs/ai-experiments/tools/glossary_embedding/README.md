@@ -65,13 +65,14 @@ PY
 | 3 | `python tools/embed_corpus.py --text-mode ko` (·`ko_en`) | 용어집 전체 임베딩을 캐시에 저장(500행마다 저장 · 여유 RAM 감시) | 필요 |
 | 4 | `python 05_experiments.py build --text-mode ko` | 캐시 벡터로 컬렉션 적재 · 매니페스트 기록 | 캐시 미스만 |
 | 5 | `python make_eval_team.py` | 평가셋 v2(`data/eval_team_v2.csv`, 892문항) 생성 | 불필요 |
-| 6 | `python 05_experiments.py eval --text-mode ko` | 평가셋 v2 × 5개 조건 — 쿼리 임베딩(캐시) → 모델 해제 → 검색 | 첫 실행만 |
+| 6 | `python 05_experiments.py eval --text-mode ko [--tag r2-review]` | 평가셋 v2 × 5개 조건 — 쿼리 임베딩(캐시) → 모델 해제 → 검색. 요청마다 30개를 받아 같은 최종 후보 수 K(1·3·5·10·20·30)로 채점, 전성분은 보조 지표 `@5n`(n = 입력 조각 수). 조건별 요청 수 · 검색 시간 기록 | 첫 실행만 |
 | 7 | `python 05_experiments.py ids · filters · tokens · ocrfix · stale` | ID 연결 · 필터 · 토큰 잘림 · 치환 손상 · 오래된 벡터 재사용 검증 | 불필요(tokens는 토크나이저만) |
 | 8 | `python 05_experiments.py latency` | 쿼리 임베딩 · 검색 지연 · 메모리 | 필요 |
 | — | `python 03_search.py -q "문장" [-c Face] [--kind ingredient --ocr-fix]` | 대화형 검색(결과에 원본 ID · 내부 PK) | 필요 |
 | — | `bash tools/run_eval_chain.sh` | 3(ko_en)→4→6(ko·ko_en)→8 을 단계별 새 프로세스로 실행 | — |
+| — | `python -m pytest tests -q` | 평가 지표 회귀 테스트(가짜 Qdrant 클라이언트 — 모델 · 인덱스 · 실제 데이터 불필요): 고정 K · `@5n` 조각 수 · 16위 이후 정답 보존 · 조각 합치기 · 카테고리 차단 문항 분리 | 불필요 |
 
-결과는 `results/<날짜>/<항목>.json`(+ 조건별 문항 CSV), 로그는 `logs/`.
+결과는 `results/<날짜>/<항목>.json`(+ 조건별 문항 CSV), `eval`은 `results/<날짜>/<tag>/`. 로그는 `logs/`.
 
 ## 4. 파일
 
@@ -84,8 +85,9 @@ PY
 | `pixemb/store.py` | Qdrant 적재 · **증분 동기화(삽입/벡터 갱신/payload 갱신/유지/index_only)** · 매니페스트 · 검색 필터(카테고리 · common 폴백 · 종류 포함/제외) |
 | `pixemb/textnorm.py` | 데이터팀 성분 OCR 치환 규칙(전성분 문단 전용) |
 | `01_sanity_check.py` · `02_build_index.py` · `03_search.py` | 점검 · 단독 적재 · 대화형 검색 |
-| `05_experiments.py` · `experiments_eval.py` · `experiments_util.py` | 검증 실험 모음 · 평가 v2 본체(must/any 지표 · 임계값표) · 결과 저장 |
-| `make_eval_team.py` | 전달본 파일의 정답으로 평가셋 v2 생성(출처 · 독립성 열 포함) |
+| `05_experiments.py` · `experiments_eval.py` · `experiments_util.py` | 검증 실험 모음 · 평가 v2 본체(must/any 지표 · 고정 K · 임계값표 · 카테고리 차단 점검) · 결과 저장 |
+| `make_eval_team.py` | 전달본 파일의 정답으로 평가셋 v2 생성(출처 · 독립성 · 금지 ID `forbidden_ids` 열 포함) |
+| `tests/test_glossary_embedding_eval.py` · `conftest.py` | 평가 지표 회귀 테스트 · 도구 폴더 import 경로 |
 | `tools/embed_corpus.py` · `tools/compare_snapshot_vs_files.py` · `tools/run_eval_chain.sh` | 전체 임베딩 · 스냅샷 대조 · 실험 순서 재현 |
 
 ## 5. 저장 위치와 주의

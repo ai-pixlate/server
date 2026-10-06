@@ -1,6 +1,6 @@
 # glossary_embedding — ⑧ 용어집 RAG 검색 실험 도구 (BGE-M3 × Qdrant 로컬 모드)
 
-> 실험 기록: `docs/ai-experiments/2026-10-06_08-glossary-embedding_bge-m3-eval.md` · 요약 결과: `docs/ai-experiments/runs/2026-10-06_08-glossary-embedding/`
+> 실험 기록: `docs/ai-experiments/2026-10-06_08-glossary-embedding_bge-m3-eval.md` (결과 파일은 `results/`에 생기며 git에 올리지 않는다)
 > **실험 도구다.** `pipeline/`(⑧ 번역)에 통합하지 않았고, 서버 `requirements.txt`·config·정본 문서를 바꾸지 않는다.
 
 | 고정 | 값 |

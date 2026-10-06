@@ -669,6 +669,25 @@ def test_out_of_bounds_region_line_block_including_excluded(cfg):
     expect_input_error("blk_003: 블록 bbox", lambda: run_base(cfg, blocks=blocks))
 
 
+@pytest.mark.parametrize("i", [0, 1], ids=["처리 대상", "라벨 제외 블록"])
+@pytest.mark.parametrize("x, y", [(62, 0), (0, 46), (-2, 0)], ids=["오른쪽 밖", "아래 밖", "음수 x"])
+def test_region_out_of_bounds_alone(cfg, i, x, y):
+    # 영역 bbox와 poly만 영상(64×48) 밖으로 옮긴다 — bbox = poly 외접 사각형, 줄 · 블록 bbox는 원래(영상 안) 그대로,
+    # 판정 · 지문은 bundle이 현재 블록으로 맞춘다. 실패 원인은 영역 경계 밖 하나여야 한다
+    blocks = base_blocks()
+    keep = blocks[i].bbox
+    moved = R(f"reg_000{i + 1}", x, y, 3, 3)
+    assert moved.bbox == BBox.from_poly(list(moved.poly))
+    assert not (keep.x < 0 or keep.y < 0 or keep.x2 > 64 or keep.y2 > 48)
+    blocks[i] = B(i + 1, L(f"line_00{i + 1}", moved, bbox=keep), bbox=keep)
+    with pytest.raises(StyleInputError) as ei:
+        run_base(cfg, blocks=blocks)
+    msg = str(ei.value)
+    assert f"blk_00{i + 1}/reg_000{i + 1}: 영역 bbox {{'x': {x}, 'y': {y}, 'w': 3, 'h': 3}}가 영상 [0,64]×[0,48] 밖" in msg
+    for other in ("줄 bbox", "블록 bbox", "지문", "판정", "poly 외접", "면적이 0", "중복"):
+        assert other not in msg, other
+
+
 def test_edge_touching_bbox_is_allowed(cfg):
     blocks = base_blocks()
     r = R("reg_0001", 61, 45, 3, 3)  # x2 = W, y2 = H — 가장자리 접촉

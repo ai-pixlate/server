@@ -70,7 +70,7 @@ sudo systemctl restart pixlate
 
 - DB 스키마가 바뀐 배포면 재시작 뒤 마이그레이션을 적용합니다.
   `sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env pixlate-api alembic upgrade head`
-- Redis 컨테이너는 볼륨 없이 새로 뜨므로, 재시작하면 큐에 쌓여 있던 작업은 사라집니다.
+- 지금 `start-pixlate.sh`는 Redis 컨테이너를 볼륨 없이 새로 만들므로, 재시작하면 큐에 쌓여 있던 작업이 사라질 수 있습니다(Redis 일반 특성이 아니라 현재 배포 구성 때문입니다. 영속화는 후속).
 
 ## 점검
 
@@ -94,6 +94,8 @@ RP=$(sudo grep '^REDIS_PASSWORD=' /etc/pixlate/pixlate.env | cut -d= -f2-); dock
 
 데이터팀 용어집 xlsx를 RDS `glossary`에 넣는 절차(마이그레이션 `0005` → 파일 검증 → 적재 → 확인)는
 [glossary-ingestion.md](glossary-ingestion.md)에 있습니다. DB 작업만 하므로 서비스 재시작은 필요 없습니다.
+
+규제사전·현지부적합 사전(`expression_dictionary`) 적재는 [dictionary-ingestion.md](dictionary-ingestion.md)를 봅니다(마이그레이션 `0006`).
 
 ## AMI로 새 인스턴스 띄우기
 

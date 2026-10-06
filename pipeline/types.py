@@ -652,3 +652,193 @@ class InpaintResult(_Model):
         elif s == "unchanged" and (self.model_called or self.counts.final_px != 0):
             raise ValueError("unchanged는 모델 호출 없음 · final_px = 0이어야 한다")
         return self
+
+
+# ---------------------------------------------------------------------------
+# ⑦ 스타일 추출 — 개발용 잠정 타입 (BE 인계 · 저장 계약 아님)
+# 근거: pipeline.md 단계표 ⑦(otsu_border · em ×1.35 · 정렬 허용 오차 블록 폭 12% · 원본 섹션 이미지) · 계약 1.3(라벨 · 로고 제외) ·
+# 단독 개발 v1 명세(사용자 승인 2026-10-06). text_block.style JSON 계약(#14)이 아니다 — font_color · bg_color · est_font_px · align은
+# 개발용 측정값 이름이고, status · 사유 값은 운영 enum · 오류 코드가 아니다. TextBlock과 공통 SCHEMA_VERSION은 바꾸지 않는다.
+# ---------------------------------------------------------------------------
+STYLE_SCHEMA_VERSION = "1"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전
+AlignValue = Literal["left", "center", "right"]
+ALIGN_VALUES: tuple[str, ...] = ("left", "center", "right")
+# [잠정] 블록 status = 영역 측정 상태(정렬 성공 여부와 별개 — align · align_basis · null_reasons로 판단)
+# excluded = 라벨 · 로고 제외 / no_text = 비공백 측정 대상 영역 없음 / ok = 측정 대상 영역의 색 · 크기를 모두 얻음 /
+# partial = 일부 또는 전부 측정 대상 영역의 색 추출 실패
+StyleBlockStatus = Literal["excluded", "no_text", "ok", "partial"]
+# [잠정] measured = 색 · 크기 측정 / color_failed = 색만 None(크기는 있음) / blank_text = 공백만 있는 영역이라 추출 생략
+StyleRegionStatus = Literal["measured", "color_failed", "blank_text"]
+StyleExcludedReason = Literal["product_label", "brand_logo"]
+# [잠정] single_class = crop 명도가 두 집단으로 나뉘지 않음(단색 포함) / border_tie = 두 집단의 외곽 접촉 수가 같음
+StyleColorError = Literal["single_class", "border_tie"]
+# [잠정] estimated = 허용 오차 안 후보 중 분산 최소가 하나 / default_single_line = 유효 줄 1개라 기본 좌정렬 /
+# default_tie = 후보 중 분산 최솟값 동률이라 기본 좌정렬(좌가 후보가 아니어도). 기본값 적용은 정렬 추정 성공이 아니다
+AlignBasis = Literal["estimated", "default_single_line", "default_tie"]
+# [잠정] null 사유: excluded = 라벨 · 로고 제외 / no_text = 비공백 측정 대상 영역 없음 / no_valid_region = 유효한 영역 값 없음 /
+# no_candidate = 허용 오차를 충족한 정렬 후보 없음 / no_text_lines = 비공백 영역이 있는 줄 없음
+StyleNullReason = Literal["excluded", "no_text", "no_valid_region", "no_candidate", "no_text_lines"]
+STYLE_VALUE_FIELDS: tuple[str, ...] = ("font_color", "bg_color", "est_font_px", "align")
+HEX_COLOR_PATTERN = r"^#[0-9A-F]{6}$"  # sRGB "#RRGGBB"(대문자)
+_SHA256_PATTERN = r"^[0-9a-f]{64}$"
+
+
+class StyleOtsuDiag(_Model):
+    """[잠정] 영역 crop의 Otsu 진단. A(dark) = 명도 Y ≤ threshold, B(light) = Y > threshold. 배경 = 외곽 접촉이 많은 집단."""
+
+    threshold: int = Field(ge=0, le=254)
+    dark_px: int = Field(gt=0)
+    light_px: int = Field(gt=0)
+    border_px: int = Field(gt=0)
+    border_dark: int = Field(ge=0)
+    border_light: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _border_sum(self) -> "StyleOtsuDiag":
+        if self.border_dark + self.border_light != self.border_px:
+            raise ValueError("border_dark + border_light는 border_px와 같아야 한다")
+        return self
+
+
+class RegionStyle(_Model):
+    """[잠정] 원시 OCR 영역 하나의 측정값. score는 OCR 점수 보존(⑦은 score로 거르지 않는다)."""
+
+    region_key: str
+    line_key: str
+    score: float = Field(ge=0.0, le=1.0)
+    status: StyleRegionStatus
+    font_color: str | None = Field(pattern=HEX_COLOR_PATTERN)
+    bg_color: str | None = Field(pattern=HEX_COLOR_PATTERN)
+    est_font_px: float | None = Field(gt=0)
+    color_error: StyleColorError | None
+    otsu: StyleOtsuDiag | None
+
+    @model_validator(mode="after")
+    def _by_status(self) -> "RegionStyle":
+        colors = (self.font_color, self.bg_color)
+        if self.status == "measured":
+            if None in colors or self.est_font_px is None or self.color_error is not None or self.otsu is None:
+                raise ValueError("measured는 두 색 · 크기 · otsu가 있고 color_error가 None이어야 한다")
+        elif self.status == "color_failed":
+            if colors != (None, None) or self.est_font_px is None or self.color_error is None:
+                raise ValueError("color_failed는 두 색이 None · 크기가 있고 color_error가 있어야 한다")
+            if (self.color_error == "single_class") != (self.otsu is None):
+                raise ValueError("otsu는 single_class일 때만 None이다")
+        elif colors != (None, None) or self.est_font_px is not None or self.color_error is not None or self.otsu is not None:
+            raise ValueError("blank_text는 측정값 · color_error · otsu가 모두 None이어야 한다")
+        return self
+
+
+class StyleAlignDiag(_Model):
+    """[잠정] 블록 정렬 진단. std는 모표준편차(ddof=0)의 실수 기록이며 판단에는 쓰지 않는다(판단은 분산의 정확 비교).
+    tolerance_px = 블록 bbox.w × style.align_tolerance. candidates = 허용 오차를 충족한 정렬(left → center → right 순)."""
+
+    std_left: float | None = Field(ge=0)  # 유효 줄 0개면 None
+    std_center: float | None = Field(ge=0)
+    std_right: float | None = Field(ge=0)
+    tolerance_px: float = Field(ge=0)
+    candidates: list[AlignValue] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "StyleAlignDiag":
+        stds = (self.std_left, self.std_center, self.std_right)
+        if None in stds and stds != (None, None, None):
+            raise ValueError("세 std는 모두 있거나 모두 None이어야 한다")
+        if stds == (None, None, None) and self.candidates:
+            raise ValueError("유효 줄이 없으면 candidates는 비어 있어야 한다")
+        if list(self.candidates) != [a for a in ALIGN_VALUES if a in self.candidates]:
+            raise ValueError("candidates는 중복 없이 left → center → right 순이어야 한다")
+        return self
+
+
+class StyleCounts(_Model):
+    """[잠정] regions = 원본 블록의 전체 영역 수. 제외 블록은 나머지 셋이 0(합 ≠ regions), 비제외 블록은 셋의 합 = regions."""
+
+    regions: int = Field(ge=0)
+    measured: int = Field(ge=0)
+    color_failed: int = Field(ge=0)
+    blank_text: int = Field(ge=0)
+
+
+class BlockStyle(_Model):
+    """[잠정] 블록 하나의 대표값과 근거. regions는 source_lines의 줄 순서 → 줄 안 영역 순서(제외 블록은 빈 목록).
+    null_reasons는 값이 None인 측정값 필드(STYLE_VALUE_FIELDS)마다 하나씩, None이 아닌 필드에는 없다."""
+
+    block_key: str
+    status: StyleBlockStatus
+    excluded_reason: StyleExcludedReason | None
+    font_color: str | None = Field(pattern=HEX_COLOR_PATTERN)
+    bg_color: str | None = Field(pattern=HEX_COLOR_PATTERN)
+    est_font_px: float | None = Field(gt=0)
+    align: AlignValue | None
+    align_basis: AlignBasis | None
+    align_diag: StyleAlignDiag | None
+    null_reasons: dict[str, StyleNullReason] = Field(default_factory=dict)
+    counts: StyleCounts
+    regions: list[RegionStyle] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "BlockStyle":
+        values = {f: getattr(self, f) for f in STYLE_VALUE_FIELDS}
+        if set(self.null_reasons) != {f for f, v in values.items() if v is None}:
+            raise ValueError("null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
+        if (self.align is None) != (self.align_basis is None):
+            raise ValueError("align이 None이면 align_basis도 None이어야 한다(그 역도)")
+        c = self.counts
+        if self.status == "excluded":
+            if self.excluded_reason is None or self.regions or self.align_diag is not None:
+                raise ValueError("excluded는 excluded_reason이 있고 regions가 비어 있으며 align_diag가 None이어야 한다")
+            if any(v is not None for v in values.values()) or set(self.null_reasons.values()) != {"excluded"}:
+                raise ValueError("excluded는 모든 측정값이 None이고 사유가 excluded여야 한다")
+            if (c.measured, c.color_failed, c.blank_text) != (0, 0, 0):
+                raise ValueError("excluded의 measured · color_failed · blank_text는 0이어야 한다")
+            return self
+        if self.excluded_reason is not None or self.align_diag is None:
+            raise ValueError(f"{self.status}는 excluded_reason이 None이고 align_diag가 있어야 한다")
+        if c.measured + c.color_failed + c.blank_text != c.regions or len(self.regions) != c.regions:
+            raise ValueError("비제외 블록은 measured + color_failed + blank_text = regions = 영역 결과 수여야 한다")
+        got = {s: sum(r.status == s for r in self.regions) for s in ("measured", "color_failed", "blank_text")}
+        if got != {"measured": c.measured, "color_failed": c.color_failed, "blank_text": c.blank_text}:
+            raise ValueError("counts가 영역 결과의 상태 수와 다르다")
+        expected = "no_text" if c.measured + c.color_failed == 0 else ("partial" if c.color_failed else "ok")
+        if self.status != expected:
+            raise ValueError(f"status {self.status} ≠ 영역 상태로 정해지는 {expected}")
+        return self
+
+
+class StyleConfigSnapshot(_Model):
+    """[잠정] 추출에 쓴 [style] 설정 값."""
+
+    method: Literal["otsu_border"]
+    em_ratio: float
+    align_tolerance: float
+
+
+class StyleFingerprints(_Model):
+    """[잠정] 입력 지문(SHA-256) — blocks = 현재 ③ 블록(label.input_fingerprint), label · logo = 결과 JSON, logo_record = ⑤ 기록 자체.
+    이미지 픽셀 · 설정은 들어 있지 않으므로 완전한 캐시 키가 아니다."""
+
+    blocks: str = Field(pattern=_SHA256_PATTERN)
+    label: str = Field(pattern=_SHA256_PATTERN)
+    logo: str = Field(pattern=_SHA256_PATTERN)
+    logo_record: str = Field(pattern=_SHA256_PATTERN)
+
+
+class StyleResult(_Model):
+    """[잠정] ⑦ 섹션 하나의 결과 — ③의 모든 블록을 block_order 순으로 담는다. 원문 · 좌표 · ④⑤ 판정은 담지 않는다(바꾸지 않는다).
+    섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다."""
+
+    schema_version: str = STYLE_SCHEMA_VERSION
+    image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key + block_key + region_key
+    section_key: str
+    config: StyleConfigSnapshot
+    input_fingerprints: StyleFingerprints
+    blocks: list[BlockStyle]
+
+    @field_validator("blocks")
+    @classmethod
+    def _unique_blocks(cls, v: list[BlockStyle]) -> list[BlockStyle]:
+        keys = [b.block_key for b in v]
+        if len(set(keys)) != len(keys):
+            raise ValueError("blocks에 같은 block_key가 두 번 있다")
+        return v

@@ -803,6 +803,37 @@ class BlockStyle(_Model):
         expected = "no_text" if c.measured + c.color_failed == 0 else ("partial" if c.color_failed else "ok")
         if self.status != expected:
             raise ValueError(f"status {self.status} ≠ 영역 상태로 정해지는 {expected}")
+        # 대표값 ↔ status: no_text는 세 값이 None(no_text) · 정렬 None(no_text_lines). ok · partial은 크기가 있고, 두 색은 measured 영역이
+        # 있을 때만 함께 있다(없으면 no_valid_region). 측정 대상 영역이 있으면 유효 줄도 있으므로 정렬 None 사유는 no_candidate뿐이다
+        colors = (self.font_color, self.bg_color)
+        r = self.null_reasons
+        if self.status == "no_text":
+            if any(v is not None for v in values.values()) or r != {"font_color": "no_text", "bg_color": "no_text",
+                                                                    "est_font_px": "no_text", "align": "no_text_lines"}:
+                raise ValueError("no_text는 측정값이 모두 None이고 사유가 no_text · 정렬 no_text_lines여야 한다")
+        else:
+            if self.est_font_px is None:
+                raise ValueError(f"{self.status}이면 est_font_px가 있어야 한다")
+            if c.measured > 0 and None in colors:
+                raise ValueError("measured 영역이 있으면 두 대표색이 있어야 한다")
+            if c.measured == 0 and (colors != (None, None) or r.get("font_color") != "no_valid_region"
+                                    or r.get("bg_color") != "no_valid_region"):
+                raise ValueError("measured 영역이 없으면 두 대표색이 None이고 사유가 no_valid_region이어야 한다")
+            if self.align is None and r.get("align") != "no_candidate":
+                raise ValueError("측정 대상 영역이 있는 블록의 정렬 None 사유는 no_candidate여야 한다")
+        # 정렬 ↔ 진단: 기본값은 left, estimated는 후보 중 하나, no_candidate는 후보 없음, no_text_lines는 std 없음
+        d = self.align_diag
+        no_lines = d.std_left is None
+        if (r.get("align") == "no_text_lines") != no_lines:
+            raise ValueError("align 사유 no_text_lines는 유효 줄이 없을 때(std None)만이다")
+        if r.get("align") == "no_candidate" and d.candidates:
+            raise ValueError("no_candidate면 candidates가 비어 있어야 한다")
+        if self.align_basis in ("default_single_line", "default_tie") and self.align != "left":
+            raise ValueError(f"{self.align_basis}이면 align은 left여야 한다")
+        if self.align_basis == "estimated" and self.align not in d.candidates:
+            raise ValueError("estimated면 align이 candidates 안에 있어야 한다")
+        if self.align_basis == "default_tie" and len(d.candidates) < 2:
+            raise ValueError("default_tie면 candidates가 둘 이상이어야 한다")
         return self
 
 

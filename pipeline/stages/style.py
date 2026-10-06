@@ -20,7 +20,8 @@
   (블록 bbox.w × Fraction(str(align_tolerance)))²를 Fraction으로 정확히 비교. 유효 줄 0개 → None(no_text_lines), 1개 → left
   (default_single_line), 여러 줄 → 후보 중 분산 최소(estimated), 최솟값 동률 → left(default_tie, left가 후보 밖이어도), 후보 없음 → None
   (no_candidate). std 실수는 진단 기록일 뿐 판단에 쓰지 않는다.
-- 섹션 입력 오류(설정 · 식별자 · 판정 · 지문 · 이미지 크기 · 경계 밖 bbox · 측정 대상의 면적 0 bbox · bbox ≠ poly 외접 사각형)는
+- 섹션 입력 오류(설정 · 식별자(섹션 안 block_key · line_key · region_key 중복 포함) · 판정 · 지문 · 이미지 크기 · 경계 밖 bbox ·
+  측정 대상의 면적 0 bbox · bbox ≠ poly 외접 사각형 · 설정 × 실제 높이 · 폭이 float 범위 초과)는
   결과 없이 StyleInputError — 문제를 모아 한 번에 보고한다. bbox를 자르거나 보정하지 않는다.
 
 extract는 파일을 읽거나 쓰지 않는다. run은 섹션 이미지 읽기만 더한다(RGB 모드만, 변환 없음). 입력 객체는 바꾸지 않는다.
@@ -108,6 +109,15 @@ def _is_blank(text: str) -> bool:
     return not text.strip()
 
 
+def _float_representable(value: Fraction) -> bool:
+    """정확한 값이 유한 float로 변환되는지. float(Fraction)은 범위를 넘으면 OverflowError를 낸다 — 이 변환 하나만 확인한다."""
+    try:
+        float(value)
+    except OverflowError:
+        return False
+    return True
+
+
 def validate_inputs(
     image_id: str, section: Section, image_size: tuple[int, int], merged: MergeResult, label: LabelResult, logo: LogoResult,
     logo_record: dict[str, Any], cfg: dict[str, Any],
@@ -125,7 +135,7 @@ def validate_inputs(
         raise StyleInputError(f"{where}: 섹션 이미지 크기 {tuple(image_size)} ≠ 섹션 메타데이터 ({W}, {H})")
 
     problems: list[str] = []
-    # 식별자 대응: 원본 식별자 + section_key + block_key (+ 섹션 안 region_key)
+    # 식별자 대응: 원본 식별자 + section_key + block_key (+ 섹션 안 line_key · region_key — 제외 블록 포함, dev.md 3절)
     for name, k in (("③", merged.section_key), ("④", label.section_key), ("⑤", logo.section_key)):
         if k != key:
             problems.append(f"{name} section_key {k} ≠ 섹션 {key}")
@@ -137,7 +147,10 @@ def validate_inputs(
     bkeys = [b.block_key for b in merged.blocks]
     if _dups(bkeys):
         problems.append(f"③ block_key 중복 {_dups(bkeys)}")
-    rkeys = [r.region_key for b in merged.blocks for ln in b.source_lines for r in ln.regions]
+    lkeys = [ln.line_key for b in merged.blocks for ln in b.source_lines]
+    if _dups(lkeys):
+        problems.append(f"line_key 중복 {_dups(lkeys)}")
+    rkeys =[r.region_key for b in merged.blocks for ln in b.source_lines for r in ln.regions]
     if _dups(rkeys):
         problems.append(f"원시 region_key 중복 {_dups(rkeys)}")
     if problems:
@@ -217,7 +230,23 @@ def validate_inputs(
                     problems.append(f"{b.block_key}/{r.region_key}: 측정 대상 영역 bbox의 면적이 0 {r.bbox.model_dump()}")
     if problems:
         raise StyleInputError(f"{where}: " + "; ".join(problems))
-    fps = StyleFingerprints(blocks=fp_blocks, label=fp_label, logo=fp_logo, logo_record=sha256_json(logo_record))
+
+    # 설정 × 실제 크기가 결과의 float로 표현되는지(유한 설정값이라도 곱이 float 범위를 넘을 수 있다). 상한을 새로 두지 않고 표현 가능 여부만 본다.
+    # 크기 = 측정 대상 영역 높이 × em_ratio(블록 중앙값은 영역 값 사이라 따로 보지 않는다), 허용 오차 = 비제외 블록 폭 × align_tolerance
+    st = cfg["style"]
+    em, tol = exact_ratio(st["em_ratio"]), exact_ratio(st["align_tolerance"])
+    for b in merged.blocks:
+        if excluded[b.block_key] is not None:
+            continue
+        if not _float_representable(b.bbox.w * tol):
+            problems.append(f"{b.block_key}: 블록 폭 {b.bbox.w} × style.align_tolerance={st['align_tolerance']!r}가 float 범위를 넘는다")
+        for ln in b.source_lines:
+            for r in ln.regions:
+                if not _is_blank(r.text) and not _float_representable(r.bbox.h * em):
+                    problems.append(f"{b.block_key}/{r.region_key}: 영역 높이 {r.bbox.h} × style.em_ratio={st['em_ratio']!r}가 float 범위를 넘는다")
+    if problems:
+        raise StyleInputError(f"{where}: " + "; ".join(problems))
+    fps =StyleFingerprints(blocks=fp_blocks, label=fp_label, logo=fp_logo, logo_record=sha256_json(logo_record))
     return excluded, fps
 
 

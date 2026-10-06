@@ -229,7 +229,10 @@ def cmd_eval(argv) -> None:
         return
 
     # 2) 검색 단계
+    from pixemb.store import read_manifest
     name = config.collection()
+    # 결과를 다른 실험과 비교할 때 같은 인덱스(원본 파일 해시 · 임베딩 방식 · 모델 설정)인지 확인할 수 있게 기록한다
+    index = {k: v for k, v in (read_manifest(name) or {}).items() if k in ("collection", "source", "files", "text_mode", "model", "rows")}
     client = get_client("local", name=name)
     results, summaries, curves, blocks, cats = {}, {}, {}, {}, {}
     try:
@@ -256,7 +259,7 @@ def cmd_eval(argv) -> None:
         pq.to_csv(out_dir / f"eval_{tm}_{key.replace(':', '_')}.csv", index=False, encoding="utf-8-sig")
     save(f"eval_{tm}", {
         "collection": config.collection(), "eval_set": str(EVAL_V2), "rows": len(df),
-        "eval_set_sha256": hashlib.sha256(EVAL_V2.read_bytes()).hexdigest(),
+        "eval_set_sha256": hashlib.sha256(EVAL_V2.read_bytes()).hexdigest(), "index": index,
         "retrieve_limit": RETRIEVE_LIMIT, "ks": list(KS), "neg_types": sorted(NEG_TYPES),
         # 조건별 총 검색 요청 수 · 검색 시간(분할은 조각마다 요청하므로 요청이 늘어난다)
         "runs": {k: {"requests": pq.attrs["requests"], "search_s": round(pq.attrs["search_s"], 1)} for k, pq in results.items()},

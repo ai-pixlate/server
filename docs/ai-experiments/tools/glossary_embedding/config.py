@@ -54,7 +54,7 @@ def collection(delivery: str | None = None, text_mode: str | None = None) -> str
 # ── 검색 기본값 ───────────────────────────────────────────────
 TOP_K = 5
 TARGET_LANG = "en"               # MVP 도착어 = 영어 단일
-# 이 점수 미만이면 "용어집에 해당 없음"으로 본다. 잠정값 — 05_experiments.py eval 의 임계값표(음성 27문항)로 확정하지 않는다.
+# 이 점수 미만이면 "용어집에 해당 없음"으로 본다. 잠정값 — 05_experiments.py eval 의 임계값표(일반 음성 25문항)로 확정하지 않는다.
 SCORE_THRESHOLD = float(os.getenv("SCORE_THRESHOLD", "0.55"))
 
 # ── 데이터 ────────────────────────────────────────────────────

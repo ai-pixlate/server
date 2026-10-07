@@ -42,13 +42,21 @@ def rss_gb() -> float:
     return round(psutil.Process().memory_info().rss / 1e9, 2)
 
 
+def _snapshot_hash() -> dict:
+    import hashlib
+    p = config.DB_SNAPSHOT_DIR / f"{config.DB_SNAPSHOT}.jsonl"
+    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest()} if p.exists() else {}
+
+
 def _run_meta() -> dict:
     import platform
     import sentence_transformers, qdrant_client, torch  # noqa: E401
     from pixemb.glossary import file_hashes
     return {
-        "at": dt.datetime.now().isoformat(timespec="seconds"), "delivery": config.GLOSSARY_DELIVERY,
-        "files": file_hashes(config.DELIVERIES_DIR / config.GLOSSARY_DELIVERY),
+        "at": dt.datetime.now().isoformat(timespec="seconds"), "source": config.GLOSSARY_SOURCE,
+        "delivery": config.GLOSSARY_DELIVERY if config.GLOSSARY_SOURCE == "team" else config.DB_SNAPSHOT,
+        "files": (file_hashes(config.DELIVERIES_DIR / config.GLOSSARY_DELIVERY) if config.GLOSSARY_SOURCE == "team"
+                  else _snapshot_hash()),
         "text_mode": config.EMBED_TEXT_MODE, "collection": config.collection(),
         "model": config.MODEL_NAME, "max_seq_length": config.MAX_SEQ_LENGTH, "normalize": config.NORMALIZE,
         "python": platform.python_version(), "torch": torch.__version__,
@@ -61,7 +69,9 @@ def _run_meta() -> dict:
 def cmd_build(args) -> None:
     from pixemb.store import open_index, collection_count
     t0 = time.perf_counter()
-    client = open_index("local", source="team", sync=True)
+    # 적재 원본은 config.GLOSSARY_SOURCE(기본 db_snapshot). 예전에는 team 으로 고정돼 있어 db_* 이름의 컬렉션에
+    # 전달본 파일 내용이 들어갔다(2026-10-06 ko_en — 매니페스트 source=team 으로 확인)
+    client = open_index("local", sync=True)
     try:
         n = collection_count(client)
     finally:

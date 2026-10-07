@@ -46,8 +46,8 @@
 | `bbox` | BE가 원본 기준 `{x: 0, y: top_offset, w: 원본 폭, h: height}`로 파생. section 범위는 top_offset·height가 기준이며 range 필드 미추가 | [통합 D3] |
 | `bucket` | 사용자의 최종 포함·제외. 하류 작업 생성 조건 `'include'` | [계약 2.4, 4.2] |
 | `excluded_stage` | `review_status`의 일부 | [계약 0장] |
-| `content_findings` | 정책 적용 전 AI 섹션 판정 결과 JSON. `NULL` = 판정 미완료 | [계약 4.1] |
-| `original_verdict` | 되살린 섹션의 최초 판정 보존 | [계약 4.2] |
+| `content_findings` | 정책 적용 전 AI 판정 6필드. 최초 유효 결과 없음은 NULL, 실패한 재분석은 기존 결과 보존(이번 실행 성공 아님) [통합 D6] | [계약 4.1] |
+| `original_verdict` | 현재 채택한 분석 실행의 사용자 조정 전 정책 결과. 사용자 변경으로 불변, 새 분석 채택 시 교체·이전 값 audit 보존 [통합 D6] | [계약 4.2] |
 | `exclusion_reason` | 자동 제외 사유 코드. API enum은 `auto_regulatory` · `auto_channel` · `auto_local_irrelevant` · `user_manual` · `restored_by_user`. 현지부적합 `needs_fix`용 코드는 설명서 제안(`auto_local_needs_check`)이며 미확정(`open-questions.md` #7) | [설명서 §3] [`docs/openapi.yaml` `ExclusionReason`] |
 | `residual_ratio` | 인페인팅 잔존율. MVP 필수 아님, `NULL` 허용 | [계약 5.2] |
 
@@ -82,6 +82,8 @@
 | `dictionary_id` | 실제 `expression_dictionary` 항목을 근거로 쓴 경우에만 기록 | [계약 4.2] |
 | (`rewritable`) | 서비스 판정값과 사전 원값을 구분한다. 원값은 expression_dictionary.source_verdict_status에 보존하며 누락을 추정 복원하지 않음. section_verdict의 실제 필드/API 매핑은 #7·#48 후속 합의 | [통합 D5] |
 
+finding별 복수 사전·근거·문자 구간은 audit_log.detail 대응 배열에 보존한다. section_verdict.reason은 사전 사유이며 AI 이유와 합치지 않는다. problem_text는 대표 문구 하나다. 단수 dictionary_id와 복수 사전 대응의 구체 관계, 대표 문구 선정은 미정이다. [통합 D6]
+
 ### 3.5 `deliverable_section`
 
 | 이름 | 계약이 기대하는 의미 | 절 |
@@ -98,6 +100,8 @@
 | `error_code` · `error_message` | 함수 오류 반환의 기록 | [계약 8장] |
 | `retry_count` · `max_retry` | 재시도 판단 입력 | [계약 8장] |
 
+초기 분석 실행은 `task_type=ocr`, `unit_type=job` 행이다. 이는 N4 대표 task_type을 translate로 정한 것이 아니다. [통합 D6]
+
 한 proceed의 대표 행은 `unit_type=job`이며 그 id가 N4 실행을 식별한다. 개별 작업은 대표 행을 참조하고 재시도는 새 개별 행으로 남긴다. 현재 유효 시도만 집계하며 한도는 누적한다. **대표/개별 task_type, 실행·시도 연결 컬럼, 생략 완료 저장/API 표현은 아직 미정**이다. revision은 N5 수정 충돌·번역문·배치용이며 실행 식별에 사용하지 않는다. 초기 분석 실행과 N4 실행의 연결도 구현 전 명세다. [통합 D2] [통합 D3]
 
 ### 3.7 기타 참조
@@ -109,11 +113,11 @@
 | (`enforcement`) | 번역 입력에 함께 전달되는 **값**. DB 컬럼 존재 여부는 계약만으로 확인 불가 — 컬럼으로 전제하지 않는다 | [계약 5.1] |
 | `expression_dictionary` | BE가 DB 적재본으로 실행 묶음을 만들며 원본 ID(external_id)→내부 PK와 당시 내용을 고정한다. 결과 저장은 실행 묶음 기준이며 최신 DB 변경만으로 거절·재실행하지 않는다. AI는 사전 참조로 원본 ID를 반환한다. 필드별 공급·형식·변환은 #71의 구현 전 명세 | [통합 D5] |
 | `expression_dictionary.source_verdict_status` | 원본 판정값. 서비스 verdict_status와 구분하며 없으면 추정 복원하지 않는다. AI 미지원 값은 공급 전 거부(적재 허용과 별개) | [통합 D5] |
-| (실행 묶음·사유·근거 스냅샷) | 분석 실행에 버전·해시·당시 근거를 보존. 저장 위치는 기존 필드를 먼저 검토하고 없을 때만 추가 합의. 현재 사전 행 조회로 과거 문구를 바꾸지 않음. 원본 삭제 후에도 복사한 근거 보존, 식별 관계 훼손·스냅샷 부재는 저장 실패. FK 처리·보존 기간은 미정 | [통합 D5] |
+| (실행 묶음·사유·근거 스냅샷) | 분석 실행에 버전·해시·당시 근거를 보존. 판정 관련 스냅샷은 audit_log.detail, 단수 정책 결과는 section_verdict. 실행 묶음 전체의 보존 위치·기간과 JSON 키는 미정. [통합 D6] 현재 사전 행 조회로 과거 문구를 바꾸지 않음. 원본 삭제 후에도 복사한 근거 보존, 식별 관계 훼손·스냅샷 부재는 저장 실패. FK 처리·보존 기간은 미정 | [통합 D5] |
 | (`exclusion_context` · `keep_context`) | 현지부적합 사전 행의 "제외하는 맥락" · "제외하지 않는 맥락" 2열 — 설명서 §3의 신설 제안. BE는 `expression_dictionary`의 같은 이름 컬럼으로 설계 승인 완료(PR #44에 구현, RDS 미적용). DB 기반 실행 묶음 공급 원칙은 확정, 필드별 공급·변환 상세는 미정(#7 · #71) [통합 D5] | [설명서 §3] [migrations 0006(PR #44)] |
 | (`alternative_expression`) | 번역에 쓰일 대체 문구 또는 값 치환용 템플릿. 자리표시자가 있는 값(RG-021 · RG-022)은 완성 문구가 아니다(#56). DB는 문자열, AI 사전 묶음은 문자열 배열. 구분자·빈 값·문장 내 구분자 규칙 합의 전에는 나누지 않으며 합의 후 BE가 묶음 생성 시 한 번 변환한다(#71). [통합 D5] 상품별 검증값 · 검증 근거 · 적용 조건 충족 정보의 저장 위치와 AI 전달 방식은 BE·AI 합의 필요(#70) | [규제사전 0930] [설명서 §4] [migrations 0001] [`pipeline/dictionary.py`] |
 | `job.regulatory_class` | 상품 규제 분류(API enum `cosmetic` · `otc` · `combination` · `unknown`). 규제사전 조회 키 `(target_country, regulatory_class)`의 입력 후보. ③-1 · ③-1'에 어떻게 전달할지 미정(`open-questions.md` #47) | [설명서 §4] [`docs/openapi.yaml` `RegulatoryClass`] |
-| `audit_log.detail` | 정책 적용 실행 정보, 영역 변경 전후 | [계약 4.2, 6.3] |
+| `audit_log.detail` | 정책 적용 입력 finding·판정 ID·대응·정책 식별자/버전, 검사 범위, 사전 스냅샷·원본 상태·복수 근거, 당시 source_ko·문자 구간·matched_text, 이전 판정. 판정 행이 없어도 기록. 세부 JSON 키는 미정. 기존 영역 변경 이력도 유지 | [계약 4.2, 6.3] [통합 D6] [통합 D7] |
 | `edit_signal.before_text` · `after_text` | 텍스트 수정 기록 | [계약 6.3] |
 | `event_log.payload` | 실행에 쓴 모델·프롬프트·용어집·정책 버전과 캐시 키 | [계약 9장] |
 

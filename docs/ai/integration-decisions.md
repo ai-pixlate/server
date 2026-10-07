@@ -342,3 +342,72 @@ PRD의 9월/12월 표기는 원문의 범위 표기이며 현재 달력 날짜�
 BE는 단계별 작업 상태·대체 결과 참조·실패 원인·N5 응답·자동 재시도 종료와 사용자 재시도 경계·후속 렌더 무효화·집계 트랜잭션을 제안한다. AI는 스타일 필수/NULL, 번역 실패 블록 처리, 배경 대체와 렌더 의존성을 정리한다. PM은 기존 하류 성공 필수 합의를 PRD 예외로 변경할지와 복합/전부 실패·최종 확정 범위를 확인한다. **C4는 아직 승인된 운영 예외가 아니다.**
 
 다음 작업은 C1~C4의 리뷰 결정표를 묶은 뒤, 분석·판정 묶음의 verdict_status/verdict_type·배지·사유 코드 매핑 초안을 작성하는 것이다. 후보와 확정값·기존 API 차이를 분리하고 전체 문서 PR 리뷰로 연결한다.
+
+### 5.8 C1~C4 리뷰 결정표（미확정）
+
+각 행은 리뷰에서 동의/대안/보류 사유를 남길 단위다. 아래 담당은 요청 대상이며 아직 승인·전송한 것이 아니다. 사용자의 초안 작성 요청을 운영 계약 승인으로 해석하지 않는다.
+
+| 결정 항목 | 제안·참조 | 필요한 결정 | 검토 주체 | 현재 상태 |
+|---|---|---|---|---|
+| C1-1 실패 후 N3/proceed | 5.4 허용 현지 실패와 기본 분석/무결성 실패 분리 | N2 완료·진행 가능 집계, 실패 확정 시점, 되살린 실패 섹션 진행 | BE·AI, PM 정책 대조 | 리뷰 대기 |
+| C1-2 재분석·재시도 경합 | 기존 결과 보존과 이번 성공 구분 | 기존 결과 유효성·채택, 재시도 중 진행, 늦은 결과 차단 | BE·AI | 리뷰 대기 |
+| C1-3 부분 판정 저장 | 현지 미완료와 정상 규제 결과 공존 | NULL·검사 범위·audit·현재 결과 구조, 새 키/상태 필요 여부 | BE·AI | 리뷰 대기 |
+| C2-1 호출 범위 | 5.5 A/B/C 두 축 비교 | 운영 섹션 범위·항목 범위, 미검사 안내와 허용할 누락 | AI·PM·데이터, BE 저장 검토 | 비교·승인 대기 |
+| C3-1 유형·판단 단위 | 5.6 현지 의미 경계 1:1 후보·범위별 finding | 유형 목록·기준·사전 대응·finding 분리와 검사 범위 | AI·데이터·BE, 표시/정책 변화는 PM | 후보 미확정 |
+| C4-1 인페인트·렌더 대체 | 5.7 PRD 원본 대체 요구 | 필수 산출물·실패 표시·N5 집계·재시도 | BE·AI·PM | 기존 계약 재합의 |
+| C4-2 번역·스타일 실패 | 번역 빈 셀/직접 입력 근거, 스타일 대체 미확인 | 일부/전부/복합 실패의 미리보기·N5 진입, 스타일 NULL 경계 | BE·AI·PM | 기존 계약 재합의 |
+| C4-3 최종 출력 경계 | N5 진입과 최종 확정 구분 | 실패·빈 번역·대체 원본의 확정/내보내기 조건 | BE·AI·PM | 후속 조항 검토 |
+
+C1~C4 전체를 승인 한 번으로 묶기보다 같은 PR에서 행별 결정과 근거를 남긴다. 합의된 행만 소유 계약으로 옮기고, 미결 행은 구현/출시의 어느 경로를 막는지 명시한다. 이 표는 리뷰 요청 메시지나 PR을 실제로 생성한 기록이 아니다.
+
+### 5.9 판정값·배지·제외 사유 매핑（추천안·미확정）
+
+기준: 2026-10-07 원격 develop `4c0f791`, 원격 통합 `e5f441f`, 로컬 `7bb6ea1`. 실제 근거는 docs/openapi.yaml의 VerdictStatus/VerdictType/ExclusionReason/SectionVerdict, migrations 0001·0004·0006, app/dictionary_ingest.py, pipeline/stages/policy.py, PRD v3.5.4 F-SEC-04 H75:J75·F-SEC-06 H77·F-LOC-01a I96·F-TRN-07 G92:I92이다. 이번 초안은 DB/API enum 변경이 아니다.
+
+#### 현재 계약과 목표 후보 구분
+
+| 층 | 현재 저장소 | PRD에서 확인한 값/역할 | 추천·차이 |
+|---|---|---|---|
+| finding.status | present·absent·uncertain | AI 해당 여부 | 그대로 보존. 정책값이나 배지와 혼용하지 않음 |
+| 사전 verdict_status | 0006: regulatory는 regulated/conditional/allowed, local은 irrelevant/needs_fix/cultural, channel은 policy | 현지 must_fix/needs_check/cultural | local의 irrelevant→must_fix, needs_fix→needs_check는 의미 대응 후보. 적재 CHECK·로더·AI 입력·기존 데이터 이관을 함께 검토 |
+| 사전 source_verdict_status | 시트 원값, rewritable 등 보존. nullable | 원값 추적 | 서비스명 변경으로 원값을 덮어쓰지 않음. 실행 당시 원값은 audit 스냅샷에 고정 |
+| section_verdict.verdict_status | OpenAPI: regulated/conditional/irrelevant/needs_fix/policy. DB 0001은 NOT NULL 문자열 | 현지 새 정책명과 규제/채널 정책 | 사전 CHECK와 판정 행 허용값을 혼동하지 않음. 새로운 정책값/API 이관 범위는 BE 결정 |
+| verdict_type | OpenAPI: regulatory/regulatory_replaceable/regulatory_conditional/local_irrelevant/needs_fix/channel_policy | local_must_fix/local_needs_check와 기존 규제·채널 이름 | 단순 UI 번역 변경이 아닌 코드 대응 필요 |
+| 배지 파생 주체 | OpenAPI 설명은 GENERATED, 0001은 NOT NULL 일반 컬럼 | 정책 적용에서 한 번 계산, DB GENERATED 아님 | 정책 계층이 한 번 계산하고 BE가 검증/저장하는 역할 분담 추천. 현재 AI VerdictDraft에는 verdict_type이 없어 인계 변경 필요 |
+| section.exclusion_reason | auto_regulatory/auto_channel/auto_local_irrelevant/user_manual/restored_by_user | auto_local·auto_local_failed, 기존 규제/채널/사용자 코드 | API 이전 별도. 단수 섹션 사유와 복수 판정 행을 분리 |
+
+#### 정책 결과 매핑 후보
+
+아래 행의 verdict_status/type은 **목표 후보**이며 현재 API의 허용값으로 사용하면 안 된다. 정책 권고는 사용자 최종 bucket과 별개이며, 사전 적용 분류·억제 규칙·검사 범위가 유효하다는 전제다. 규제 매칭과 실제 법적 위반 검증을 동일시하지 않는다.
+
+| 입력/조건 | 정책 verdict_status 후보 | verdict_type·표시 후보 | 기본 권고·사유 | 보존/미결 |
+|---|---|---|---|---|
+| regulated, 유효한 대체 표현 없음 | regulated | regulatory · 규제 위반 | 제외 / auto_regulatory | 대체 표현의 부재 정의를 먼저 합의 |
+| regulated, 유효한 대체 표현 있음 | regulated | regulatory_replaceable · 규제 표현 | 포함 / 이 판정 때문에 제외 사유를 만들지 않음 | 원문·대체 표현·사유 스냅샷 |
+| 시트 rewritable | 서비스 regulated | regulatory_replaceable · 규제 표현 | 포함 | 원값 rewritable 보존. 현재 적재 로더도 대체 표현 없으면 거부 |
+| conditional | conditional | regulatory_conditional · 조건부 규제 | 포함 | 대체 표현 유무로 regulated 분기하지 않음. 조건·상품별 검증값과 번역 준비는 별도 |
+| allowed | 판정 행 없음 | 배지 없음 | 단독으로 제외하지 않음 | 매칭 억제·사용 사전·audit 기록은 남음 |
+| 현지 present, 원값 irrelevant 계열 | must_fix | local_must_fix · 현지 수정 필수 | 제외 / auto_local | 원값과 AI 상태 보존, 서비스명 이관 필요 |
+| 현지 present, 원값 needs_fix 계열 | needs_check | local_needs_check · 현지 확인 필요 | 제외 / auto_local | 위와 동일 |
+| 현지 uncertain | needs_check를 서비스 판정 후보로 제안 | local_needs_check · 현지 확인 필요 | 제외 / auto_local | PM이 확정한 것은 표시/기본 제외. 어떤 사전 원값에도 이 서비스값을 적용할지는 BE·AI 합의. 원본 uncertain과 사전 원값은 바꾸지 않음 |
+| 현지 absent | 판정 행 없음을 추천 | 배지 없음 | 해당 finding 때문에 제외하지 않음 | 검사 범위·finding 보존, 다른 finding의 판정에 영향 주지 않음 |
+| 현지 AI 판정 실패 | 가짜 판정 행 없음 | 배지 없이 판정 실패 | 제외 / auto_local_failed | C1 진행·API 표현 미결. uncertain 또는 needs_check로 저장하지 않음 |
+| 현지 사전 조회 실패 | 가짜 판정 행 없음 | 검사 미수행 안내 | 이 실패만으로 제외하지 않음 | 정상 규제 결과와 공존, C1 범위 적용 |
+| cultural | 공급 전 거부 원칙 유지 | 이번 MVP 배지/정책 미정 | 임의 권고 없음 | DB 적재 허용과 AI 지원 구분, must_fix 등으로 임의 변환 금지 |
+| channel policy | 이번 운영에서 생성하지 않음 | channel_policy는 향후 범위 | auto_channel은 이번에 활성화하지 않음 | 예약 값 존재와 실제 지원을 구분 |
+
+#### 섹션 집계·표시·빈 값
+
+- 제외형 판정이 하나라도 있으면 섹션 제외라는 PM 정책을 따른다. 단수 exclusion_reason에 규제·현지·실패가 동시에 해당할 때의 우선순위는 아직 없다. 사전 순서나 마지막 행으로 정하지 않고 BE·PM이 결정한다. 모든 판정은 보존한다.
+- N3 제외 섹션은 포함형까지 전체 판정 행을 표시한다. 포함 섹션의 주의는 PRD의 N5 흐름과 맞추며, 배지 계산을 FE나 export가 각각 다시 하지 않도록 역할을 정한다. 사용자 되살리기는 restored_by_user와 원래 판정을 남기고 원본 상태를 고치지 않는다.
+- 대체 표현 있음은 NULL 여부만으로 임의 확정하지 않는다. 빈 문자열·공백·배열/문자열 변환·자리표시자·부적합 데이터의 취급을 명세한다. 누락/잘못된 형식을 금지형으로 자동 바꾸거나 임의 대체 표현을 만들어 포함시키지 않는다. RG-021/022의 값 검증과 번역 준비는 별도 계약이다.
+- 사전 원값→서비스 정책값→배지→섹션 권고→사용자 bucket의 각 층을 연결하되 원본 스냅샷은 불변이다. 기존 행의 원값을 새 이름에서 역추정하지 않는다. 이전 enum과 새 enum을 혼합해 내보낼지 여부는 API 호환 명세에서 정한다.
+- 운영 겹침 규칙으로 억제된 매칭은 판정 대상에서 제외하는 방향이지만 원시 근거·억제 관계를 보존한다. 겹침 전용 배지를 만들지 않고 살아남은 판정의 개별 배지를 사용한다. 신호 코드 compliance_flags/SignalCode의 대응은 이 표의 verdict_type과 별도 안건이다.
+
+#### 리뷰 결정·검증 사례
+
+BE는 새 현지 서비스명/배지/제외 사유를 언제 어느 층에서 이관할지, DB CHECK·로더·API·기존 데이터 호환, 배지 파생 주체와 AI 입력/출력, 실패 표시 응답, 단수 제외 사유 우선순위를 제안한다. AI는 원값 보존과 정책 매핑·호환 버전·지원하지 않는 입력 거부를 정리한다. 사용자 정책이 달라지는 매핑은 PM 확인 대상으로 분리한다.
+
+검증 사례: regulated 대체 있음/없음, conditional 대체 있음, rewritable 원값 보존, 현지 두 원값의 present/uncertain/absent, 현지 실패와 uncertain 구분, allowed 억제 후 판정 0행의 audit, 복수 제외 사유가 있는 섹션, 되살리기 후 AI 원본 보존, 빈 문자열/공백/템플릿의 대체 표현. 각 사례는 입력·정책 행·배지·bucket·사유·audit 기대 결과를 함께 검토한다. 실제 테스트나 코드 변경은 아직 하지 않았다.
+
+다음 작업은 사전 공급·판정 저장의 필드별 매핑표(필수/NULL·출처·스냅샷·API 노출)와 audit JSON 구조 초안이다. 현재 판정값 매핑은 공동 리뷰 대기이며 enum을 먼저 구현하지 않는다.

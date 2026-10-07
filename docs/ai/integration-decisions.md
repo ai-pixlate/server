@@ -411,3 +411,78 @@ BE는 새 현지 서비스명/배지/제외 사유를 언제 어느 층에서 �
 검증 사례: regulated 대체 있음/없음, conditional 대체 있음, rewritable 원값 보존, 현지 두 원값의 present/uncertain/absent, 현지 실패와 uncertain 구분, allowed 억제 후 판정 0행의 audit, 복수 제외 사유가 있는 섹션, 되살리기 후 AI 원본 보존, 빈 문자열/공백/템플릿의 대체 표현. 각 사례는 입력·정책 행·배지·bucket·사유·audit 기대 결과를 함께 검토한다. 실제 테스트나 코드 변경은 아직 하지 않았다.
 
 다음 작업은 사전 공급·판정 저장의 필드별 매핑표(필수/NULL·출처·스냅샷·API 노출)와 audit JSON 구조 초안이다. 현재 판정값 매핑은 공동 리뷰 대기이며 enum을 먼저 구현하지 않는다.
+
+
+### 5.10 사전 공급·판정 저장 필드 매핑（추천안·미확정）
+
+기준: 2026-10-07 원격 develop `4c0f791`·통합 `e5f441f` 재확인, 로컬 `3ebc2d0`. migrations 0001·0006, app/dictionary_ingest.py, pipeline/dictionary.py 및 D5~D7을 대조했다. 아래는 통합 어댑터와 저장 상세의 리뷰 초안이며 현재 개발용 모델 전체를 운영 계약으로 채택하지 않는다.
+
+#### DB 적재본 → 실행 묶음 → AI
+
+| 입력 정보 | 확인한 DB/로더 공급처 | 추천 처리·남은 결정 |
+|---|---|---|
+| 사전 항목 ID | expression_dictionary.external_id | AI에는 원본 ID. PK 대응은 묶음 생성 시 BE가 고정하고 저장까지 유지 |
+| 국가·분류·사전 종류 | target_country·regulatory_class·dict_type | 작업 범위와 지원 여부 검증. 미지원 값을 다른 값으로 바꾸지 않음 |
+| 규제 원문·한국어 변형 | source_expression·variant_ko | 현재 AI의 source_expression·variant_expressions.ko에 대응. 필수 비어 있음/배열 오류는 공급 실패 |
+| 규제 영어 표현 | forbidden_en | 현재 variant_expressions.en 대응 후보. 금지 표현이라는 DB 이름과 allowed/conditional 항목의 매칭 표현 의미를 BE와 확인. NULL→빈 배열은 미합의 상태에서 하지 않음 |
+| 대체 표현 | alternative_expression TEXT | AI는 배열. 구분자·이스케이프·빈 값·템플릿 검증 합의 전 분할하지 않음. 변환 전 원문과 변환 결과를 함께 추적 |
+| 규제 사유 | reason | AI reason과 정책 사전 사유의 공급원. finding.reason은 별도 AI 판단 이유이며 덮어쓰지 않음 |
+| 현지 항목명·패턴 | source_expression·variant_ko | 현 로더가 항목·패턴을 여기에 적재함을 확인. LocalEntry.item·patterns 대응 가능. 항목명은 content_type 코드가 아님 |
+| 현지 맥락·셀러 문장 | exclusion_context·keep_context·reason | 현 로더의 셀러 문장→reason 확인. LocalEntry.seller_message는 여기서 공급. 사전의 별도 ‘판단 근거’와 같은 값으로 간주하지 않음 |
+| 항목 확인일 | confirmed_date | 현 로더는 본문 verified_at을 적재. AI verified_at에 날짜 직렬화 방식 합의 후 전달. 현재 시각으로 보충하지 않음 |
+| 서비스 판정·원본 판정 | verdict_status·source_verdict_status | 5.9 매핑과 호환 범위 검토. 원본 부재는 NULL, 서비스값으로 역추정 금지 |
+| 대표 근거 식별·문구 | expression_dictionary_evidence의 external_id·evidence_source_type·evidence_article·evidence_url·evidence_quote·is_primary | 대표 근거 선택과 전체 사용 근거 보존을 구분. 단수 AI evidence를 근거 전체 목록으로 간주하지 않음 |
+| 근거 문서명·근거 확인일 | evidence_document 컬럼은 있으나 현 규제 로더는 None 적재. 근거 verified_at은 검사만 하고 저장하지 않음 | 문서명/날짜를 URL·항목 확인일에서 추정하지 않음. 스냅샷 NULL 허용과 AI 필수 입력 검증을 구분. 필요 시 적재 확장 또는 별도 고정 공급 형식 합의 |
+| 현지 사전의 별도 판단 근거 | 현 로더는 DB 적재 제외 | PM 화면 근거 요구를 셀러 문장만으로 충족했다고 보지 않음. 데이터·BE가 공급처를 정하고 묶음에 고정 |
+| 파일 출처·사전 버전·해시 | 개발 SourceInfo는 file·sha256·sheets·extracted_at 등 요구. 개별 DB 행만으로는 전부 복원 불가 | 원본 파일 해시와 실행 묶음 해시를 분리. 적재 기록/고정 부속 자료 또는 통합 입력형을 합의하고 가짜 파일명·날짜·버전을 만들지 않음 |
+| 정책 규칙·유형 목록·사전 대응표 | 개별 사전 행만으로 공급 완료되지 않음 | 공급처와 각 버전·해시를 실행에 고정. 미확정 C2/C3·매핑을 현재 개발 기본값으로 확정하지 않음 |
+
+D6의 스냅샷 선택값 NULL 허용은 현재 AI 모델의 필수값을 생략해도 된다는 뜻이 아니다. 예를 들어 RegulationEvidence.url은 현재 필수 문자열이고 LocalEntry의 맥락·셀러 문장도 필수다. DB 값이 없으면 해당 입력형으로 실행할 수 없음을 표시하고, 공급 보완 또는 통합 입력형 변경을 합의한다. `[]`는 실제로 항목이 없음, NULL은 값 부재, 미검사는 검사 범위 기록으로 구분한다.
+
+묶음 생성은 선택된 사전 행과 근거를 일관된 시점에 읽는 방법, 삭제되지 않고 남은 과거 항목 중 사용할 행을 고르는 기준, 직렬화/정렬/해시 범위를 함께 정해야 한다. 실행 중 최신 DB 재조회로 근거를 바꾸지 않는 D5는 유지한다. 원본 파일과 적재본의 대조는 적재 시점 책임이다.
+
+#### AI 결과 → 현재 결과·이력·API
+
+| 정보 | 저장 위치·추천 | API/리뷰 경계 |
+|---|---|---|
+| finding 6필드 | content_findings.findings[]의 finding_key·content_type·status·evidence_source·reason·evidence_block_ids | 기존 합의 유지. 그 밖의 필드를 여기에 임의 추가하지 않음. 현재 API 노출 없음 |
+| 임시 블록 키 | 이번 분석 실행의 text_block.id로 변환 | 모르는 키는 저장 실패. 이미지 전용은 빈 배열이고 가짜 블록 없음 |
+| 정책 판정 | section_verdict 행의 status/type·사전 사유·대표 문구·대표 근거 | 실제 컬럼은 verdict_status/verdict_type. 5.9 후보 승인 필요. problemText는 전체 매칭 목록이 아님 |
+| 복수 사전과 단수 dictionary_id | 사용 사전 전체는 audit 배열. 단수 참조의 대표 선택/복합 판정 처리 기준은 BE 결정 | 배열을 단수 컬럼에 억지로 나누거나 첫 항목으로 고르지 않음. 대표 참조 없이 저장 가능한 경우와 ‘사용 ID 누락’을 구분해야 함 |
+| 검사 범위·복수 근거·매칭·억제 | audit_log.detail | finding·판정과 연결. 현재 조회 API에 없으므로 화면 필요 정보의 별도 인계 합의 |
+| 원본 정책·사용자 선택 | original_verdict와 bucket·exclusion_reason·excluded_stage 분리 | 원본 JSON 키 미정. 사용자의 되살리기로 finding/원본을 변경하지 않음 |
+| 이전 분석 결과 | 교체 전 audit 스냅샷 | 성공한 현재 채택 실행만 원자 교체. 실패 재분석은 기존 결과 보존, 이번 실행 성공으로 재사용하지 않음 |
+
+### 5.11 audit 구조와 저장 검증（추천안·미확정）
+
+아래 경로는 **새 JSON 키 제안**이다. audit_log.detail 안에 둔다는 위치 원칙만 D6 합의이며, 키·형식·버전 번호·API 응답은 승인되지 않았다. audit action_type 등 DB 값도 이번에 신설하지 않는다. JudgeResult·PolicyResult를 통째로 저장 계약으로 올리지 않고 필요한 내용을 명시적으로 추출한다.
+
+| 제안 경로 | 형태 | 담을 내용·참조 규칙 |
+|---|---|---|
+| schema_version | 합의할 버전 | audit 형식 버전. AnalyzeResult·split.json·사전 버전과 별개 |
+| execution | 객체 | analysis_task_id·job_id·section_id. 초기 분석 ocr/job 실행을 가리킴. N4 대표 행과 혼동하지 않음 |
+| inputs | 객체 | 사용 사전 묶음·정책·유형 목록·대응표 각각의 식별자/버전/해시. 보존 위치·기간은 별도 합의 |
+| inspection | 객체/배열 | 계획한 검사, 실제 완료 범위, 미검사 범위와 이유, 실패 단계. 실패를 absent/uncertain finding으로 만들지 않음. 구체 범위 단위는 C2/C3 결과에 따름 |
+| findings | 배열 | 이번 결과의 합의된 6필드 복사. key의 식별 범위는 execution의 분석·섹션과 결합 |
+| dictionary_snapshots | 배열 | snapshot_key·당시 PK·external_id·서비스/원본 상태·사전 내용·사용 근거 배열. 원값 부재는 NULL. PK만으로 이후 내용을 복원하지 않음 |
+| matches | 배열 | match_key·당시 block_id·source_ko·start·end·matched_text·관련 snapshot_key. Unicode 코드 포인트 반열림 구간으로 검증 |
+| evidence | 배열 | evidence_key·종류·설명·이미지 근거 참조 또는 match_key. 이미지 근거에 없는 문자 구간/블록을 만들지 않음. 이미지 위치 형식은 별도 합의 |
+| verdicts | 배열 | 생성한 section_verdict.id와 당시 컬럼값 스냅샷. 판정 행이 없으면 빈 배열 가능 |
+| links | 배열 | finding_key와 사용 snapshot_key·evidence_key·생성 판정 id 목록의 대응. 다대다를 허용하고 실제 사용 관계만 기록 |
+| overlaps | 배열 | 관련 match_key·사전 참조·적용 규칙과 남김/억제 결과 및 이유. 원래 매칭은 보존. 위반 배지로 변환하지 않음 |
+| original_verdict | 객체 | 이번 채택 실행의 사용자 조정 전 정책 결과. 섹션 저장값과 같은 의미로 복사하되 세부 키는 별도 합의 |
+| previous_result | 객체 또는 NULL | 교체 전 finding·판정·원본 정책·이전 실행 연결의 스냅샷. 최초 저장이면 이전 결과 없음. 옛 audit 참조만으로 대체하려면 보존 보장을 먼저 합의 |
+
+각 snapshot_key·match_key·evidence_key는 이 audit 문서 안의 연결키 제안이다. 사전 external_id나 DB PK를 대체하는 전역 식별자가 아니다. 원본 ID와 실행 묶음의 대응을 유지하며 연결 대상 부재를 NULL/다른 행으로 고쳐 성공 처리하지 않는다. 사전 항목 삭제 후에도 스냅샷은 남아야 하므로 현재 FK 제약과 삭제 정책은 BE가 별도 검토한다.
+
+저장 검증·트랜잭션 추천:
+
+1. 고정 묶음에서 지원값·필수값·사용 ID·스냅샷·검사 범위를 검증한다. 최신 사전 내용과 비교해 결과를 거절하지 않는다.
+2. 이번 실행의 블록 참조, finding 식별 범위, 문자 구간 및 `matched_text == source_ko[start:end]`, 모든 배열 참조의 존재를 검사한다. 화면의 UTF-16 인덱스와 혼용하지 않는다.
+3. 현재 채택 대상 실행인지 확인하고 교체 전 내용, 새 finding/판정 및 연결 audit, 현재 실행 연결·완료 반영을 하나의 DB 트랜잭션으로 처리한다. ID 배정 이후 audit의 판정 ID도 같은 트랜잭션 안에서 확정한다.
+4. 취소/오래된 실행은 현재 결과를 교체하지 않는다. audit 저장 실패도 전체 결과 저장 실패로 보고 일부 결과만 완료 처리하지 않는다. C1의 부분 실패 저장은 이 무결성 예외가 아니다.
+5. 사전을 사용했지만 판정이 0행인 allowed/억제 사례도 검사 범위·사용 스냅샷·정책 버전과 대응을 남긴다. 감사 이력과 작업 실패 이력의 역할을 구분한다.
+
+리뷰 사례: 한 finding의 복수 사전, 사전 없는 이미지 근거, 동일 사전의 여러 판단 범위, allowed로 판정 0행, 억제된 매칭 보존, 사전 재적재/삭제 후 결과 저장, 근거 확인일 누락, 대체 표현 안의 구분자, 재분석 실패/늦은 성공, 블록 수정/삭제 후 과거 매칭 해석, 보조 평면 문자·결합문자 구간, audit 쓰기 실패의 전체 롤백. 현재는 사례 정의이며 테스트 실행 결과가 아니다.
+
+BE 결정 요청은 공급처가 없는 필드의 보완 방식, 단수 대표 컬럼 선택, audit 키·크기·보존 및 조회/API 범위, 삭제 후 식별 관계, 동시성/트랜잭션이다. AI는 통합 입력형의 필수/선택과 사용 근거·검사 범위 출력을 정리한다. 다음 초안은 하류의 text_block.style·auto_adjust·overflow 경계이며, 이 초안의 미결은 공동 PR 리뷰에 남긴다.

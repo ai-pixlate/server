@@ -1,0 +1,399 @@
+{
+  "case": "analyze.completed",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "analyze",
+    "input_snapshot_id": "snap-analyze-a-1",
+    "sources": [
+      {
+        "source_image_id": 1,
+        "upload_order": 1,
+        "path": "/srv/pixlate-work/uploads/source_1.png",
+        "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd"
+      }
+    ],
+    "out_dir": "/srv/pixlate-work/analyze/ok",
+    "use_llm": false
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "analyze",
+    "input_snapshot_id": "snap-analyze-a-1",
+    "input_manifest": {
+      "stage": "analyze",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "analyze-handoff@2026-10-08.1",
+      "sources": [
+        {
+          "source_image_id": 1,
+          "upload_order": 1,
+          "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd"
+        }
+      ],
+      "use_llm": false,
+      "config": {
+        "section": {
+          "granularity": "subheading",
+          "color_window_px": 8,
+          "color_delta": 12,
+          "min_section_px": 200,
+          "long_section_px": 999999,
+          "blank_row_std": 6.0,
+          "bg_row_ratio": 0.25,
+          "snap_radius_px": 40,
+          "vlm_model": "gemini-3.8-flash",
+          "vlm_temperature": 0,
+          "vlm_seed": -1,
+          "vlm_width_px": 768,
+          "vlm_window_px": 4000,
+          "vlm_window_overlap_px": 300,
+          "prompt_path": "pipeline/prompts/section_boundary.md"
+        },
+        "ocr": {
+          "det_model": "PP-OCRv5_server_det",
+          "rec_model": "korean_PP-OCRv5_mobile_rec",
+          "preprocess": "none",
+          "split_threshold_px": 4000,
+          "tile_px": 2000,
+          "tile_overlap_px": 300
+        },
+        "merge": {
+          "line_gap": 0.7,
+          "para_gap": 0.6,
+          "h_ratio": 1.5,
+          "overlap": 0.5,
+          "gutter": true,
+          "line_v_overlap": 0.5,
+          "line_gap_min": -0.5,
+          "para_gap_min": -0.3,
+          "left_align_tol": 0.5,
+          "gutter_min_px": 20,
+          "gutter_width_div": 16,
+          "title_pct": 75,
+          "caption_pct": 25,
+          "title_max_lines": 2,
+          "caption_max_chars": 25,
+          "price_max_chars": 40,
+          "llm_model": "gemini-3.8-flash",
+          "llm_temperature": 0,
+          "llm_split": false,
+          "prompt_path": "pipeline/prompts/merge_assist.md",
+          "llm_timeout_s": 60
+        }
+      },
+      "prompts": {
+        "section": "9cfc6f49f07097b46a9fa530b838920d780584362502b6280d35e4b28f1c704c",
+        "merge": null
+      }
+    },
+    "input_manifest_sha256": "5a5a95158dd2cb51062d5caaae0402f3ab8cd99d065b8c1e1c47162b46584d28",
+    "outcome": "completed",
+    "target_count": 1,
+    "skip_reason": null,
+    "payload": {
+      "analyze_result": {
+        "schema_version": "1",
+        "sections": [
+          {
+            "section_key": "sec_1_01",
+            "source_image_id": 1,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 400,
+            "width": 600,
+            "image_path": "/srv/pixlate-work/analyze/ok/sections/sec_1_01.png"
+          },
+          {
+            "section_key": "sec_1_02",
+            "source_image_id": 1,
+            "section_order": 2,
+            "top_offset": 400,
+            "height": 400,
+            "width": 600,
+            "image_path": "/srv/pixlate-work/analyze/ok/sections/sec_1_02.png"
+          }
+        ],
+        "blocks": [
+          {
+            "block_key": "blk_001",
+            "section_key": "sec_1_01",
+            "block_order": 1,
+            "source_ko": "가짜치료 크림",
+            "source_lines": [
+              {
+                "line_key": "line_001",
+                "text": "가짜치료 크림",
+                "bbox": {
+                  "x": 60,
+                  "y": 60,
+                  "w": 300,
+                  "h": 24
+                },
+                "regions": [
+                  {
+                    "region_key": "reg_0001",
+                    "text": "가짜치료 크림",
+                    "score": 0.97,
+                    "poly": [
+                      [
+                        60,
+                        60
+                      ],
+                      [
+                        360,
+                        60
+                      ],
+                      [
+                        360,
+                        84
+                      ],
+                      [
+                        60,
+                        84
+                      ]
+                    ],
+                    "bbox": {
+                      "x": 60,
+                      "y": 60,
+                      "w": 300,
+                      "h": 24
+                    }
+                  }
+                ]
+              }
+            ],
+            "bbox": {
+              "x": 60,
+              "y": 60,
+              "w": 300,
+              "h": 24
+            },
+            "role": "body",
+            "ocr_confidence": 0.97
+          },
+          {
+            "block_key": "blk_002",
+            "section_key": "sec_1_01",
+            "block_order": 2,
+            "source_ko": "가격 3만원",
+            "source_lines": [
+              {
+                "line_key": "line_002",
+                "text": "가격 3만원",
+                "bbox": {
+                  "x": 60,
+                  "y": 140,
+                  "w": 300,
+                  "h": 24
+                },
+                "regions": [
+                  {
+                    "region_key": "reg_0002",
+                    "text": "가격 3만원",
+                    "score": 0.97,
+                    "poly": [
+                      [
+                        60,
+                        140
+                      ],
+                      [
+                        360,
+                        140
+                      ],
+                      [
+                        360,
+                        164
+                      ],
+                      [
+                        60,
+                        164
+                      ]
+                    ],
+                    "bbox": {
+                      "x": 60,
+                      "y": 140,
+                      "w": 300,
+                      "h": 24
+                    }
+                  }
+                ]
+              }
+            ],
+            "bbox": {
+              "x": 60,
+              "y": 140,
+              "w": 300,
+              "h": 24
+            },
+            "role": "body",
+            "ocr_confidence": 0.97
+          },
+          {
+            "block_key": "blk_003",
+            "section_key": "sec_1_02",
+            "block_order": 1,
+            "source_ko": "가짜완화 SPF50",
+            "source_lines": [
+              {
+                "line_key": "line_001",
+                "text": "가짜완화 SPF50",
+                "bbox": {
+                  "x": 60,
+                  "y": 60,
+                  "w": 300,
+                  "h": 24
+                },
+                "regions": [
+                  {
+                    "region_key": "reg_0001",
+                    "text": "가짜완화 SPF50",
+                    "score": 0.97,
+                    "poly": [
+                      [
+                        60,
+                        60
+                      ],
+                      [
+                        360,
+                        60
+                      ],
+                      [
+                        360,
+                        84
+                      ],
+                      [
+                        60,
+                        84
+                      ]
+                    ],
+                    "bbox": {
+                      "x": 60,
+                      "y": 60,
+                      "w": 300,
+                      "h": 24
+                    }
+                  }
+                ]
+              }
+            ],
+            "bbox": {
+              "x": 60,
+              "y": 60,
+              "w": 300,
+              "h": 24
+            },
+            "role": "body",
+            "ocr_confidence": 0.97
+          },
+          {
+            "block_key": "blk_004",
+            "section_key": "sec_1_02",
+            "block_order": 2,
+            "source_ko": "연구원 추천",
+            "source_lines": [
+              {
+                "line_key": "line_002",
+                "text": "연구원 추천",
+                "bbox": {
+                  "x": 60,
+                  "y": 140,
+                  "w": 300,
+                  "h": 24
+                },
+                "regions": [
+                  {
+                    "region_key": "reg_0002",
+                    "text": "연구원 추천",
+                    "score": 0.97,
+                    "poly": [
+                      [
+                        60,
+                        140
+                      ],
+                      [
+                        360,
+                        140
+                      ],
+                      [
+                        360,
+                        164
+                      ],
+                      [
+                        60,
+                        164
+                      ]
+                    ],
+                    "bbox": {
+                      "x": 60,
+                      "y": 140,
+                      "w": 300,
+                      "h": 24
+                    }
+                  }
+                ]
+              }
+            ],
+            "bbox": {
+              "x": 60,
+              "y": 140,
+              "w": 300,
+              "h": 24
+            },
+            "role": "body",
+            "ocr_confidence": 0.97
+          }
+        ],
+        "warnings": []
+      },
+      "split_fallbacks": [],
+      "summary": {
+        "sections": 2,
+        "blocks": 4,
+        "empty_blocks": 0,
+        "sections_without_blocks": 0,
+        "warnings": [],
+        "split_fallbacks": 0
+      }
+    },
+    "artifacts": [
+      {
+        "kind": "section_image",
+        "part_key": "sec_1_01",
+        "path": "/srv/pixlate-work/analyze/ok/sections/sec_1_01.png",
+        "bytes": 1625,
+        "sha256": "6a7fbaf759e0bb3d666f282d3fa47ffe2e41cc0a04c286a0b34eb683c2e151d4",
+        "format": "png",
+        "width": 600,
+        "height": 400
+      },
+      {
+        "kind": "section_image",
+        "part_key": "sec_1_02",
+        "path": "/srv/pixlate-work/analyze/ok/sections/sec_1_02.png",
+        "bytes": 1625,
+        "sha256": "fb667118942dd59b8aca4434c08cc249671fd67c03b22e70fc75f295d3036e85",
+        "format": "png",
+        "width": 600,
+        "height": 400
+      }
+    ],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "analyze-handoff@2026-10-08.1",
+      "analyze_result_schema": "1",
+      "models": {
+        "section_vlm": "gemini-3.8-flash",
+        "ocr_det": "PP-OCRv5_server_det",
+        "ocr_rec": "korean_PP-OCRv5_mobile_rec",
+        "merge_llm": null
+      }
+    },
+    "diagnostics": {}
+  },
+  "be_validation_problems": []
+}

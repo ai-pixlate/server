@@ -473,6 +473,33 @@ class ReplayLabelAssistant(ReplayJudgeAssistant):
             raise VlmReplayMismatch(f"재생 입력 불일치 (기록, 현재): input_fingerprint {got!r}, {fingerprint!r}. 블록이 달라졌다")
 
 
+# ---------------------------------------------------------------------------
+# ⑧ 로컬라이징 번역 호출자 [contract.md 5.1 · 통합 5.25] — 섹션 1회 호출, 이미지 없음. 대상 블록마다 번역문 또는 명시적 실패
+# ---------------------------------------------------------------------------
+TRANSLATE_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "blocks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"id": {"type": "string"}, "translation": {"type": "string"}, "failed": {"type": "boolean"},
+                               "reason": {"type": "string"}},
+                "required": ["id"],
+            },
+        }
+    },
+    "required": ["blocks"],
+}
+
+
+class GeminiTranslateAssistant(GeminiJudgeAssistant):
+    """google-genai로 ⑧ 블록별 번역 JSON을 받는 기본 호출자. 호출 규약은 ③-1과 같다(prompt, payload, image=None) → LlmReply."""
+
+    response_schema = TRANSLATE_RESPONSE_SCHEMA
+    stage_name = "⑧ 로컬라이징 번역"
+
+
 def sdk_info() -> dict[str, Any]:
     """실행 기록용 SDK 정보. 재시도는 애플리케이션 · SDK 모두 하지 않는다(retry_options 미지정 → 1회 시도)."""
     try:

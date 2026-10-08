@@ -44,7 +44,12 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     inpaint_lama.py          ⑥ LaMa 어댑터(`InpaintModel` 구현, iopaint 1.6.0 재현 · GPU · FP32). torch는 함수 안에서만 import
     inpaint_proc.py          ⑥ 모델 전용 자식 프로세스(spawn) — 시간 제한 · 강제 중단(`SubprocessInpaintModel`, 기본 팩토리가 사용)
     style.py                 ⑦ 스타일 추출 — 단독 개발 v1(`pipeline.md` 7.7절, 핵심 계산 및 원본 섹션 이미지 읽기)
-  analyze.py                 analyze() = ① → ② → ③ [계약 1.2]
+    translate.py             ⑧ 로컬라이징 번역 — 섹션 1회 호출 · 블록별 결과(2026-10-08, 3.2절)
+    text_check.py            번역문 검사 — 규제 표현 영어 재대조 · 강제 용어(규칙 기반, 3.2절)
+  matching.py                통합 매칭 · 겹침 억제 규칙(5.23, `match@2026-10-08.1`) — 운영 인계가 쓴다. 개발용 ③-1a 검출은 그대로
+  data/content_types.json    content_type 대응표(현지 8 + 규제 검출 1, D9-2) — 버전 · 해시가 입력 지문에 들어간다
+  handoff/                   AI ↔ BE 운영 인계 어댑터(3.2절) — 요청 → StageReport, 결과 검증기, GPU 실행기, 계약 예제 생성
+  analyze.py                 analyze() = ① → ② → ③ [계약 1.2]. ① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 · 원자적 쓰기(⑤) — 3·5절
   run.py                     단계별 실행 CLI — 4절
   inspect.py                 결과 오버레이 — 5절
@@ -59,7 +64,7 @@ docs/ai/                     정본 문서
 
 - `pipeline/`은 `app/`(BE)을 import하지 않는다. 워커(`app/tasks.py`)가 `pipeline.analyze`를 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
 - 단계 파일 하나 = `pipeline.md` 단계표 한 행. 파일은 `run()` 하나를 노출하고 타입은 `types.py`만 쓴다.
-- 후속 단계 파일명은 예약해 둔다: `translate.py`(⑧). 착수 시 타입·config 키를 함께 추가한다(7절). ⑥ `inpaint.py`는 2026-09-30 착수(기존 `[inpaint]` 키 사용, 새 키 없음). ⑦ `style.py`는 2026-10-06 착수(기존 `[style]` 키 사용, 새 키 없음).
+- ⑥ `inpaint.py`는 2026-09-30 착수(기존 `[inpaint]` 키 사용, 새 키 없음). ⑦ `style.py`는 2026-10-06 착수(기존 `[style]` 키 사용, 새 키 없음). ⑧ `translate.py`는 2026-10-08 착수(`[translate]`에 개발용 `temperature` · `timeout_s` 추가). 운영 인계 계층 `handoff/`는 단계 함수를 감싸며 `app/`을 import하지 않는다.
 
 ## 2. 설정과 프롬프트
 
@@ -143,10 +148,33 @@ docs/ai/                     정본 문서
 
 - 운영 호출 경계는 `analyze()` → `AnalyzeResult` 버전 1이다. 현재 함수 시그니처·출력 모델을 변경하지 않았다. 호출자는 원본과 out_dir을 실행 환경의 절대 경로로 준비하고 반환 section.image_path를 검증한다. 개발용 split.json의 상대 경로 규칙을 AnalyzeResult에 적용하지 않는다. 호환 규칙 변경은 BE 합의 후 버전에 반영한다. [통합 D3]
 - 워커가 파일 준비·결과 검증·업로드·DB 저장을 담당한다. 다른 서버에서 후속 단계를 수행하면 그 환경의 로컬 경로를 준비해야 하며 이전 절대 경로를 공유 주소로 쓰지 않는다. 임시 키의 분석 실행 범위와 줄·영역의 섹션 내 유일성은 유지한다. 모르는 키는 저장 실패다. [통합 D3]
-- 운영 사전은 BE가 DB 적재본으로 만든 고정 실행 묶음이다. 현재 `pipeline/dictionary.py`와 `build_dict.py`는 개발용 파일 로더·xlsx 변환 도구이며 운영 DB 공급 어댑터가 아니다. 기존 개발 묶음을 실행 중 다시 대조하거나 최신 DB를 AI가 읽지 않는다. [통합 D5]
+- 운영 사전은 BE가 DB 적재본으로 만든 고정 실행 묶음이다. `pipeline/dictionary.py`와 `build_dict.py`는 개발용 파일 로더·xlsx 변환 도구이고, 운영 묶음의 AI 입력 검증은 `pipeline/handoff/bundle.py`(3.2절)가 한다. 기존 개발 묶음을 실행 중 다시 대조하거나 최신 DB를 AI가 읽지 않는다. [통합 D5]
 - 필드별 공급처, DB에 없는 필수값의 처리, 정책 규칙 공급·버전·해시, 일관된 조회·대상 행, 대체 표현 변환, 묶음·스냅샷 보존과 삭제 후 참조는 구현 전 명세다. 현재 개발용 형식에 맞추려고 값을 추정·생성하지 않는다. 대체 표현은 규칙 합의 전 임의 분할하지 않고 합의 후 BE 공급 계층에서 한 번 변환한다. [통합 D5]
 
-**2026-10-07 통합 시 변경할 개발용 동작**: `content_type=사전 ID`와 사전 항목당 finding 하나·근거 합집합은 운영 계약이 아니다. content_type 실제 목록은 미정이며 판단 범위·근거별 finding을 보존한다. 개발용 Match 전체를 저장 계약으로 올리지 않고 원문 코드 포인트 `[start,end)`·매칭 문구·당시 원문을 audit 스냅샷으로 인계한다. 초기 분석 실행은 ocr·job이며 재분석 실패로 기존 저장본을 NULL로 지우지 않는다. 상세 계약은 `contract.md` 4.4·4.5, 변경은 아직 미구현이다.
+**2026-10-07 통합 시 변경할 개발용 동작 → 2026-10-08 운영 인계로 구현**: `content_type=사전 ID`와 개발용 Match · 예외 쌍 · `conflict_group`은 운영 계약이 아니다. 운영 경로(`handoff/judgment.py`)는 content_type 대응표(현지 8 + 규제 검출 1)로 섹션 · 항목당 finding 1건과 복수 근거를 내고, 원문 코드 포인트 `[start,end)` · 매칭 문구 · 당시 원문 · 억제 관계를 audit 재료로 인계한다(D9-2). 개발용 `stages/judge.run` · `policy.run` · CLI는 바꾸지 않았다. 재분석 실패 시 기존 저장본 보존은 BE 저장 책임이다. 상세 계약은 `contract.md` 4.4·4.5.
+
+### 3.2 운영 인계 어댑터 — 구현 · 로컬 계약 검증(2026-10-08)
+
+D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단계별 함수를 **요청 dict → `StageReport`**로 부르고, 채택 전에 `pipeline.handoff.validate.validate_report(report, request)`로 검사한다(빈 목록 = 통과). 예외를 밖으로 던지지 않고 실패도 보고로 돌려준다. 계약 예제(정상 · 생략 · 실패 · 부분 실패 26건)는 `pipeline/samples/handoff/`이며 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다(테스트가 커밋본과 대조). **합성 입력 · 가짜 모델로만 검증했다 — 실제 Gemini · LaMa GPU · BE 워커 · S3 · DB 연결은 하지 않았다.**
+
+| 단계 | 함수 | BE 공급 입력(요청 키) | 보고 payload · 산출물 |
+|---|---|---|---|
+| 공통 | — | `contract_version`(`handoff@2026-10-08.1`) · `execution_id` · `attempt_id` · `stage` · `input_snapshot_id`(선택) · `expected_input_manifest_sha256`(선택, 주면 AI가 대조) | `outcome`(completed · skipped · failed) · `target_count` · `skip_reason` · `failure`(`kind` · `retryable` 후보 · `message` · `targets`) · `input_manifest`와 JCS SHA-256 · `implementation` · `artifacts`(절대 경로 · 바이트 · SHA-256 · 형식 · 크기) · `source_refs` |
+| ①②③ | `handoff.analysis.run_analyze` | `sources[]`(`source_image_id` · `upload_order` · 절대 `path` · `sha256`) · 새 `out_dir` · `use_llm` | `analyze_result`(AnalyzeResult v1 그대로) · `split_fallbacks`(① 대체 기록) · `summary`, 산출물 `section_image`(부분 키 = section_key). 실패면 계약 8장 코드는 `payload.analyze_error` |
+| ③-1 · ③-1′ | `handoff.judgment.run_judgment` | `target_country` · `regulatory_class`(4값, 미선택은 BE가 차단) · `analyze_result` · `section_images{section_key: {path, sha256}}` · `bundle`(아래) | 섹션마다 `content_findings`(6필드) · `verdicts` · `bucket_recommendation` · `recommendation_basis` · `local_status`(completed · failed · not_checked) · `audit`(검사 범위 · 사전 스냅샷 · 원시 매칭 · 억제 · finding↔사전↔매칭↔판정 · 당시 원문) |
+| ④ | `handoff.downstream.run_label` | `section` · `section_image` · `blocks` | `decisions` · `label_result`와 JCS SHA-256(⑤⑥⑦ 입력) |
+| ⑤ | `run_logo` | `image_id` · `section_key` · `blocks` · 채택된 `label_result`+해시 · `brand`(`brand_id` · `name_ko` · `name_en` 스냅샷) | `decisions` · `logo_result` · `logo_record`와 각 해시 |
+| ⑥ | `run_inpaint` | `section` · `section_image` · `blocks` · 채택된 ④⑤ payload 3개+해시 · 새 `out_dir` · `limits`(선택, BE 운영 시간 제한) | 산출물 `background` · `delete_mask` · `protect_mask`, payload 영역 분류 · 사유 · 집계. 빈 최종 마스크는 skipped + 원본 배경 `source_ref` |
+| ⑦ | `run_style` | ⑥과 같은 입력(배경 결과 불필요) | 대상 블록별 `font_color` · `bg_color` · `est_font_px` · `align` · `align_basis` · `null_reasons` · 제외 블록 목록 |
+| ⑧ | `handoff.translation.run_translate` | `target_country` · `target_lang` · `regulatory_class` · `section_key` · `blocks`(섹션 전체 문맥) · `targets[{block_key, revision}]` · `preserved[]`(채택된 성공분 참조) · `instructions[{block_key, external_id, matched_text}]` · `glossary{status, version, terms[]}` · `bundle` | 대상 블록별 `outcome` · `trans_1` · `translation_sha256` · `source_sha256` · `input_revision` · `applied_instructions` · `error` |
+| 검사 | `run_text_check` | 위와 같은 묶음 · 용어 + `targets[{block_key, revision, text}]` | 블록별 compliance_flags 후보 · 용어 검사 상태 · `complete` · `placeholder_leaks` |
+| GPU | `handoff.gpu.GpuInpaintRunner` | BE 제어 인터페이스 구현(`ControlClient` Protocol: 권한 획득 · 갱신 · 업로드 URL · 인계 등록 · 상태 조회)과 권한의 `heartbeat_interval_s` · 입력 내려받기 참조 | 업로드 목록 + 보고를 인계 등록. verified · adopted 확인 뒤에만 로컬 정리, 전체 취소는 `purge_job` |
+
+**고정 사전 묶음(`bundle`) 형식** — `bundle_id` · `bundle_sha256`(이 키를 뺀 묶음 객체의 JCS SHA-256) · `target_country` · `regulation{version, entries[]}` · `local{version, entries[]}` 또는 `local=null` + `local_unavailable{reason}`(현지 사전 조회 실패) · `rules`(정책 규칙, `overrides`는 빈 목록이어야 한다). 규제 행: `external_id` · `regulatory_class` · `source_expression` · `variant_ko[]` · `variant_en[]` · `alternative_expression[]`(BE가 배열로 변환해 공급) · `verdict_status` · `source_verdict_status`(없으면 null) · `reason` · `evidence`(없으면 null) · `confirmed_date`. 현지 행: `external_id` · `item` · `patterns[]` · `verdict_status` · `exclusion_context` · `keep_context` · `seller_message` · `confirmed_date`. 현지 행의 external_id 집합은 `pipeline/data/content_types.json`의 8개와 같아야 한다. 이름은 5.10 대응을 따른 AI 입력 형식이며 BE 공급 계층이 이 형식으로 만든다.
+
+**BE가 채택 전에 확인할 조건**(검증기가 실행한다): 식별(실행 · 시도 · 단계 · 스냅샷) 일치 · 고정 지문 일치 · 산출물을 다시 잰 바이트 · SHA-256 · PNG 크기 · 요청 키와 결과 키의 정확한 대응(누락 · 중복 · 모르는 키 거절) · ①②③ 섹션마다 이미지 산출물 · ③-1 현지 완료면 8항목 finding 정확히 하나씩, 실패 · 미검사면 현지 finding 없음 + 사유, 실패 섹션은 제외 권고, 규제 검출 finding은 섹션당 1건 이하, `matched_text == 당시 원문[start:end]`, 목록 밖 content_type 거절 · ④⑤ 결과 해시 · 라벨 true면 로고 null · ⑥ completed는 배경 + 두 마스크, skipped는 두 마스크 + 입력 이미지 해시와 같은 원본 배경 참조 · ⑦ NULL 값과 사유 일치 · ⑧ 대상 키 집합 일치, 성공은 비공백 번역문과 해시, 실패 블록 번역문 없음, `failure.targets` = 실패 블록 · 검사 결과의 revision · 문구 해시 일치. 실패 보고는 성공 자료가 없다는 이유로 거절하지 않는다.
+
+**결과 해석 규칙**: completed는 단계 계산 완료이며 화면 전이가 아니다. ③-1 보고는 현지 실패 섹션이 있어도 completed이고(D9-1: 실패 섹션 제외 후 N3), 묶음 손상 · 충돌 · 규제 검출 불가만 보고 전체 failed다. ⑧ 일부 실패는 failed + 성공분 payload(시도 failed, 성공분 보존, 5.32)이고 대상 전부 실패도 failed다 — 성공 0건 판단과 N4 재시도는 BE가 한다. ⑥ `limits`를 주지 않으면 config 개발값을 쓰고 `implementation.limits.source=dev_config`로 남긴다(운영 최댓값 아님). 실패 분류 `failure.kind`는 AI 인계용이며 오류 코드 문자열 · 재시도 한도는 BE가 매핑한다.
 
 ## 4. 단계별 실행
 
@@ -259,7 +287,7 @@ pipeline/samples/<이름>/
 
 ## PM 확정 후 통합 구현 인계 — 2026-10-08
 
-현재 구현 기준은 integration-decisions.md D9 및 기존 BE·AI 코멘트 합의다. 코드 적용 완료가 아니다.
+현재 구현 기준은 integration-decisions.md D9 및 기존 BE·AI 코멘트 합의다. AI 쪽 인계 계층은 3.2절로 구현했고(로컬 계약 검증), BE 워커 · DB · API · S3 · 실제 모델/GPU 연결은 아직이다.
 
 - BE: 단계/실패별 N3·N5 집계, 승인 대체 렌더, N5 확인 후 확정, N6 최종 렌더·부분 내보내기, 오류 중단과 전체 취소 삭제, FE 고지/표시 연결.
 - AI: 원본 전체 대체 섹션, 전 섹션 8항목·항목당 1건, 원문 수치 번역, 성공/부분 실패/대상 없음·스타일 NULL 구분, GPU 중간 파일 삭제 인계.

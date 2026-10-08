@@ -4,6 +4,7 @@
 |---|---|---|
 | `synthetic_01/` | 합성 원본 1장(600×1000, 배경색 2구간) + 단계별 기대 JSON. `make_synthetic.py`로 재생성 | 포함 |
 | `local/` | 실제 상세페이지 표본(한국어). 개인 PC·GPU 서버에만 둔다 | **제외** |
+| `handoff/` | 운영 인계 계약 예제 — 단계별 요청/보고 쌍(정상 · 생략 · 실패 · 부분 실패). 합성 입력 · 가짜 모델로 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`가 만든다. 경로는 `/srv/pixlate-work/…`로 바꿔 쓴다(`docs/ai/dev.md` 3.2) | 포함 |
 
 레이아웃은 아래 규칙을 따른다. `python -m pipeline.run` 출력 디렉터리도 같다.
 

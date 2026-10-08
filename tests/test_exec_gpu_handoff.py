@@ -62,3 +62,25 @@ def test_register_report_rejects_wrong_attempt_identity(env):
     with pytest.raises(execution.AuthRejected):
         cl.register_report(tid, got["epoch"], got["token"], {"task_id": str(tid), "lease_epoch": got["epoch"], "report": report,
                                                              "uploads": []})
+
+
+def test_cleanup_deletes_local_only_after_be_confirms_discard(env):
+    # PR #56 AI 요청 6: 정리는 AI cleanup() 하나로 — 수신만으로는 보존, BE가 폐기를 확정하면 "discard"로 삭제(D9-4·5.30)
+    from app.flows import gpu_worker
+
+    ids = _to_n3(env)
+    c = ids["c"]
+    assert c.post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
+    held = [m for m in env["q"].drain(skip={"app.tasks.run_inpaint"}) if m[0] == "app.tasks.run_inpaint"]
+    tid = held[0][1][0]
+    env["q"].drop = True  # 채택 메시지를 보내지 않아 인계가 '수신'에 머문다
+    ctl = gpu_worker.BeControlClient(gpu_worker._client())
+    runner = gpu_worker._runner(ctl)
+    out = runner.run_task(str(tid))
+    env["q"].drop = False
+    assert out.status == "registered" and out.workdir.exists()
+    assert ctl.handoff_status(str(tid), out.handoff_id) == "received"
+    assert runner.cleanup(out) is False and out.workdir.exists()  # 수신 확인만으로 지우지 않는다
+    assert c.delete(f"/v1/jobs/{ids['job']}").status_code == 200  # 전체 취소 → BE 폐기 확정
+    assert ctl.handoff_status(str(tid), out.handoff_id) == "discard"
+    assert runner.cleanup(out) is True and not out.workdir.exists()

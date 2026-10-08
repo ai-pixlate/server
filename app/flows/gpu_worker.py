@@ -310,8 +310,12 @@ class BeControlClient:
         return HandoffAck(handoff_id=str(reg["handoff_id"]), status=reg["state"])
 
     def handoff_status(self, task_id: str, handoff_id: str) -> str:
+        """BE가 폐기를 확정했으면(전체 취소·중단·대체·거절 확정) "discard", 아니면 인계 상태. AI cleanup()이
+        verified·adopted·discard 만 지운다(PR #55 d233b51)."""
         lease = self._leases[task_id]
         st = self.client.status(int(task_id), lease.lease_epoch, lease.lease_token)
+        if st.get("discard"):
+            return "discard"
         return st.get("state") or "received"
 
     # 내려받기·업로드 — InProcess 대역은 저장소를 직접, HTTP 바인딩은 presigned URL 을 쓴다
@@ -347,7 +351,8 @@ def _runner(ctl: BeControlClient):
 
 
 def _discard_if_gone(ctl: BeControlClient, out) -> bool:
-    """BE 가 버려도 된다고 확인한 시도(전체 취소·중단·대체, 거절된 인계)의 로컬 자료를 지운다(D9-4·5.30). 지웠으면 True."""
+    """인계 없이 권한을 잃은 시도(lease_lost)의 로컬 자료를 BE 가 폐기를 확정했을 때 지운다(D9-4·5.30). 지웠으면 True.
+    인계가 등록된 시도는 AI GpuInpaintRunner.cleanup()이 handoff_status('discard' 포함) 하나로 정리한다."""
     import shutil
 
     lease = ctl._leases.get(out.task_id)
@@ -375,7 +380,7 @@ def execute_inpaint_remote(attempt_id: int) -> dict[str, Any]:
     if out.status != "registered":  # upload_failed · register_failed — 계산 결과 보존, 저장 복구 대상
         log.warning("⑥ 인계 미완료 attempt=%s status=%s error=%s", attempt_id, out.status, out.error)
         return {"attemptId": attempt_id, "ran": True, "failed": True, "status": out.status, "localKept": True}
-    cleaned = runner.cleanup(out) or _discard_if_gone(ctl, out)
+    cleaned = runner.cleanup(out)
     return {"attemptId": attempt_id, "ran": True, "handoff": {"handoff_id": int(out.handoff_id)}, "localKept": not cleaned}
 
 

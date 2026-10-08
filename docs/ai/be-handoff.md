@@ -11,16 +11,17 @@
 | 단계 | BE가 부르는 AI 함수 | BE 어댑터 | 채택 전 검사 |
 |---|---|---|---|
 | ①②③ | `pipeline.analyze.analyze(…, fallbacks=)` | `PipelineAnalyzer.analyze_with_fallbacks` — ① 원본 전체 대체 기록을 인계 payload `split_fallbacks`·채택 기록에 보존 | 기존 `_validate_analyze` |
-| ③-1·③-1′ | `pipeline.handoff.judgment.run_judgment` (섹션 단위) | `HandoffJudge` → `JudgeOutcome` | `validate_report` + 기존 `_persist_judge` 검사 |
+| ③-1·③-1′ | `pipeline.handoff.judgment.run_judgment` (섹션별 시도, `target_section_keys`=대상 섹션, `analyze_result`=분석 실행 전체 문맥) | `HandoffJudge` → `JudgeOutcome` | `validate_report` + 기존 `_persist_judge` 검사(현지 상태와 묶음 일관성 포함) |
 | ⑧ | `pipeline.handoff.translation.run_translate` | `HandoffTranslator` → `TranslateOutcome`. 공급은 `context["handoff"]` | `validate_report` + 기존 채택 검사 |
-| ⑥ | `pipeline.handoff.gpu.GpuInpaintRunner` (GPU 측) | `BeControlClient`(AI `ControlClient` 구현), 등록은 `WorkerControl.register_report` | 업로드 해시·시도·세대 대조 후 기존 산출물 고정·채택 |
+| ⑥ | `pipeline.handoff.gpu.GpuInpaintRunner` (GPU 측) | `BeControlClient`(AI `ControlClient` 구현), 등록은 `WorkerControl.register_report`, 요청 구성은 `inpaint_stage_request` 공용 | 업로드 해시·시도·세대 대조 → 산출물 고정 → 고정 사본으로 `validate_report(local_paths, allowed_root)` → 채택 |
 
-- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 AI 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로 보내고, 대체 표현은 #71 결정 전까지 **원문 1개짜리 배열**로 감싸며(나누지 않음), 근거는 대표 근거 1개만 보낸다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
-- **정책 규칙**: DB에 없다. AI가 제공한 규칙 JSON 경로 `PIXLATE_POLICY_RULES`를 분석 시작 때 읽어 묶음에 고정한다. `overrides`가 있거나 `combination→otc`·`unknown→cosmetic`(D8)과 다르면 거부한다. 없으면 ③-1·⑧은 `AI_ADAPTER_UNAVAILABLE` 실패다. 규칙이 있으면 규제 행 조회 분류는 규칙의 `applied_classes`(`common` 포함)를 따른다.
-- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시(N3에서 채택한 대체 표현 있는 금지형 판정의 매칭, 템플릿 제외), 용어집(#11 확정 전 **대상 언어 전체**). 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
+- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 #71 결정 전까지 **나누지 않은 원문 문자열**(없으면 빈 배열) — AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
+- **정책 규칙**: DB에 없다. 저장소 운영 규칙 `pipeline/data/policy_rules.json`(AI 소유, `policy@2026-10-08.1`)을 분석 시작 때 읽어 묶음에 고정하고 지문(`policy_rules_sha256`)도 보존한다. `PIXLATE_POLICY_RULES`는 실험용 대체 경로다. `overrides`가 있거나 `combination→otc`·`unknown→cosmetic`(D8)과 다르면 거부한다. 규제 행 조회 분류는 규칙의 `applied_classes`(`common` 포함)를 따른다.
+- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(#11 확정 전 **대상 언어 전체**). 표현 지시는 #71 확정 전(`ALTERNATIVES_SPLIT=False`)에는 만들지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
-- **남은 것**: 앞뒤 섹션 문맥(섹션 단위 호출이라 미전달, 대상 섹션 지정 입력을 AI에 요청), 근거 배열 입력, `validate_report`의 산출물 경로 대체 인자, 거절·취소 시 GPU 정리 상태, 번역문 독립 검사 단계(`run_text_check`) 연결, GPU 제어 HTTP 바인딩.
+- **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
+- **남은 것**: 번역문 독립 검사 단계(`run_text_check`) 연결, GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화, #11 검색 방식 확정 후 용어집 공급 교체.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 

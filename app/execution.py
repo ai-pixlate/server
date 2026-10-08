@@ -153,7 +153,7 @@ class Lease:
     owner: str
     manifest: dict[str, Any]
     fingerprint: str
-    token: str | None = None  # 원격 워커에만. 로그·큐·인계 본문에 넣지 않는다
+    token: str | None = field(default=None, repr=False)  # 원격 워커에만. 로그·큐·인계 본문·repr 에 넣지 않는다(R17)
 
 
 @dataclass

@@ -31,6 +31,16 @@ def test_canonical_json_matches_ai_handoff_and_rejects_lone_surrogates():
         canonical_json({"s": "\ud800"})
 
 
+def test_lease_repr_hides_token():
+    # PR #56 AI 리뷰 4: 시도 토큰 원문이 repr·로그·예외 메시지에 찍히지 않는다(R17)
+    from app.execution import Lease
+
+    lease = Lease(attempt_id=1, job_id=2, run_id=3, stage="inpaint", unit_type="section", unit_id=4, epoch=1, owner="w",
+                  manifest={}, fingerprint="0" * 64, token="secret-token-value")
+    assert "secret-token-value" not in repr(lease) and "secret-token-value" not in str(lease)
+    assert lease.token == "secret-token-value"
+
+
 def _defaults():
     roles = {r: {"font_color": "#000000", "est_font_px": 20, "align": "left"} for r in typeset.ROLES}
     return typeset.RoleDefaults(version="t", roles=roles, sha256="0" * 64)

@@ -1,4 +1,5 @@
 """SRC — 원본 이미지 (API-SRC-01~04, 🟢9월). 실제 S3 + DB(source_image)."""
+import hashlib
 import io
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
@@ -78,10 +79,11 @@ def upload_source_images(job_id: int, files: list[UploadFile] = File(...), db: S
 
         row = db.execute(
             text(
-                "INSERT INTO source_image (job_id, upload_order, image_type, file_url, width, height) "
-                "VALUES (:j, :o, 'detail', :k, :w, :h) RETURNING id"
+                "INSERT INTO source_image (job_id, upload_order, image_type, file_url, width, height, sha256) "
+                "VALUES (:j, :o, 'detail', :k, :w, :h, :sha) RETURNING id"
             ),
-            {"j": job_id, "o": order, "k": key, "w": width, "h": height},
+            # 분석 실행의 고정 입력(5.28): BE 가 받은 바이트로 직접 잰 해시
+            {"j": job_id, "o": order, "k": key, "w": width, "h": height, "sha": hashlib.sha256(content).hexdigest()},
         ).mappings().one()
         sid = row["id"]
         results.append({"fileName": f.filename, "ok": True, "sourceImageId": sid, "errorCode": None})

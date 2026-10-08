@@ -36,6 +36,8 @@
 
 ## 2. 다음 착수 순서
 
+**PR #55 경계 채택 — BE 연결(2026-10-08)**: [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)에 따라 `feature/be-ai-pipeline-integration`에 PR #55를 병합하고 BE를 `pipeline.handoff` 경계에 맞췄다. JCS 지문 통일, 사전 묶음의 정책 규칙 고정(`PIXLATE_POLICY_RULES`)·AI 형식 변환, ③-1 `HandoffJudge`(run_judgment), ⑧ `HandoffTranslator`(run_translate, 공급 지문 고정), ⑥ GPU 실행기를 AI `GpuInpaintRunner` + BE `ControlClient` 구현으로 통일, ① 분해 대체 기록 보존. 임시 규칙: 대체 표현 원문 1개 배열(#71), 용어집 대상 언어 전체(#11). 가짜 LLM·InProcess 대역·로컬 PostgreSQL로만 검증했으며 실제 Gemini·GPU·S3·HTTP 바인딩은 미검증. 남은 것은 `be-handoff.md` 0절.
+
 **통합 구현 후 다음(2026-10-08)**: ① 변경 검토 후 요청 시 커밋 · PR(`feature/ai-pipeline-integration` → `develop`). ② BE 워커가 `pipeline.handoff` 함수와 `validate_report`를 연결(요청 키 · 묶음 형식 · `split_fallbacks` 위치 · 실패 분류 매핑 리뷰, `dev.md` 3.2). ③ BE GPU 제어 API 구현 뒤 `ControlClient` 실제 구현으로 학교 GPU 통합 시험 — 운영 시간 제한 · 갱신 간격은 BE가 공급(개발값 승격 금지). ④ 실제 Gemini로 ③-1 · ⑧ 소수 실측(유료 등급 확인 후, 비용 승인). ⑤ 데이터와 content_type 대응표 · 5.23 PRD 수용 예시 대조. 별도: 디자인 기본값 요청 항목 · 유료 등급 확인 정보 · 번역문 LLM 규제 판정 회신 초안(채팅으로 정리, 전송하지 않음).
 
 **BE 통합 구현 1차(2026-10-08)**: `origin/develop` `939df4a`에서 `feature/be-ai-pipeline-integration`을 만들어 D9·5.27~5.32를 구현했다. migrations 0007·0008, 실행 모듈(권한·grant·인계·채택·재시도·중단), N2(실제 `analyze()` 호출·고정 사전 묶음·임시 키 변환·D9-1 전이) → N3, proceed → ④(대역)·⑤·⑦·⑥(실제 파이프라인 코드, ⑥은 GPU 제어 서비스 경유·LaMa 대역) → ⑧(대역) → ⑨ 미리보기 → N5(D9-3 대체 규칙) → N6 최종 렌더·저장, 전체 취소 콘텐츠 삭제, DB 기준 복구 프로세스. 로컬 PostgreSQL 통합 시험을 추가했다(정상·생략·부분/전체 실패·중복 전달·취소·늦은 결과·큐 유실·권한 만료·사용자 수정 충돌·삭제 후 늦은 업로드). 실제 Gemini·PaddleOCR·LaMa·S3·학교 GPU 경로는 실행하지 않았다. AI 인계 항목은 `open-questions.md` 0.1. 커밋·푸시는 하지 않았다.

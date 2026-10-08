@@ -18,9 +18,15 @@ def test_canonical_json_sorts_utf16_and_keeps_strings():
     assert fingerprint({"x": None}) != fingerprint({})  # NULL 과 키 누락 구분
 
 
-def test_canonical_json_rejects_floats_and_lone_surrogates():
+def test_canonical_json_matches_ai_handoff_and_rejects_lone_surrogates():
+    from pipeline.handoff.canonical import sha256_canonical
+
+    # BE·AI 가 같은 JCS 구현을 쓴다 — 실수·큰 정수에서도 지문이 같아야 BE 고정 지문과 AI 계산 지문을 대조할 수 있다
+    obj = {"score": 0.5, "t": 1e21, "n": 2**60, "s": "줄\n바꿈"}
+    assert canonical_json({"score": 0.5}) == '{"score":0.5}'
+    assert fingerprint(obj) == sha256_canonical(obj)
     with pytest.raises(ManifestError):
-        canonical_json({"score": 0.5})
+        canonical_json({"score": float("nan")})
     with pytest.raises(ManifestError):
         canonical_json({"s": "\ud800"})
 

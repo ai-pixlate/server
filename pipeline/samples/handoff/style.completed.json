@@ -1,0 +1,733 @@
+{
+  "case": "style.completed",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "style",
+    "input_snapshot_id": "snap-style-a-1",
+    "section": {
+      "section_key": "sec_1_01",
+      "source_image_id": 1,
+      "section_order": 1,
+      "top_offset": 0,
+      "height": 400,
+      "width": 600,
+      "image_path": "/srv/pixlate-work/downstream/sections/sec_1_01.png"
+    },
+    "section_image": {
+      "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
+      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+    },
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_1_01",
+        "block_order": 1,
+        "source_ko": "가짜브랜드",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "가짜브랜드",
+            "bbox": {
+              "x": 60,
+              "y": 40,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "가짜브랜드",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    40
+                  ],
+                  [
+                    360,
+                    40
+                  ],
+                  [
+                    360,
+                    64
+                  ],
+                  [
+                    60,
+                    64
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 40,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 40,
+          "w": 300,
+          "h": 24
+        },
+        "role": "title",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_1_01",
+        "block_order": 2,
+        "source_ko": "라벨 문구",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "라벨 문구",
+            "bbox": {
+              "x": 60,
+              "y": 120,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "라벨 문구",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    120
+                  ],
+                  [
+                    360,
+                    120
+                  ],
+                  [
+                    360,
+                    144
+                  ],
+                  [
+                    60,
+                    144
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 120,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 120,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_1_01",
+        "block_order": 3,
+        "source_ko": "가짜완화 크림",
+        "source_lines": [
+          {
+            "line_key": "line_003",
+            "text": "가짜완화 크림",
+            "bbox": {
+              "x": 60,
+              "y": 200,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "가짜완화 크림",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    200
+                  ],
+                  [
+                    360,
+                    200
+                  ],
+                  [
+                    360,
+                    224
+                  ],
+                  [
+                    60,
+                    224
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 200,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 200,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_1_01",
+        "block_order": 4,
+        "source_ko": "  ",
+        "source_lines": [
+          {
+            "line_key": "line_004",
+            "text": "  ",
+            "bbox": {
+              "x": 60,
+              "y": 280,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "  ",
+                "score": 0.2,
+                "poly": [
+                  [
+                    60,
+                    280
+                  ],
+                  [
+                    360,
+                    280
+                  ],
+                  [
+                    360,
+                    304
+                  ],
+                  [
+                    60,
+                    304
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 280,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 280,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.2
+      }
+    ],
+    "image_id": "1",
+    "label_result": {
+      "schema_version": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "labels": [
+        {
+          "block_key": "blk_001",
+          "is_product_label": false,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_002",
+          "is_product_label": true,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_003",
+          "is_product_label": false,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_004",
+          "is_product_label": false,
+          "basis": "blank_text"
+        }
+      ],
+      "checked": {
+        "input_fingerprint": "fd56c2fbc24de57a4ebbc6c276a41c3c45a3c2d855f245938f2196aa217db286",
+        "llm_called": true,
+        "sent_block_keys": [
+          "blk_001",
+          "blk_002",
+          "blk_003"
+        ],
+        "blank_block_keys": [
+          "blk_004"
+        ]
+      },
+      "error": null
+    },
+    "label_result_sha256": "778093f8d19b9ecb40be60d96bd720ca2b77ab177b2ee6dfbb9c09c39a7607f5",
+    "logo_result": {
+      "schema_version": "1",
+      "image_id": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_001",
+          "is_brand_logo": true,
+          "basis": "exact_match"
+        },
+        {
+          "block_key": "blk_002",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_003",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_004",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        }
+      ],
+      "error": null
+    },
+    "logo_result_sha256": "1a97cfd59dd1ce4599b1124ba22e7b3a2fcaecbd5070fabf0c547c9d15ba1635",
+    "logo_record": {
+      "stage": "logo",
+      "image_id": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "fd56c2fbc24de57a4ebbc6c276a41c3c45a3c2d855f245938f2196aa217db286",
+      "label_fingerprint": "778093f8d19b9ecb40be60d96bd720ca2b77ab177b2ee6dfbb9c09c39a7607f5",
+      "label_input_fingerprint": "fd56c2fbc24de57a4ebbc6c276a41c3c45a3c2d855f245938f2196aa217db286",
+      "brand": {
+        "image_group": "brand-7",
+        "product_name": null,
+        "name_ko": "가짜브랜드",
+        "name_en": "FakeBrand",
+        "name_ko_normalized": "가짜브랜드",
+        "name_en_normalized": "fakebrand"
+      },
+      "brand_entry_fingerprint": "73e241c368b3af189b1d72730d772f76a58affc10d3b31e72bcf44af9728067d",
+      "blocks": 4,
+      "counts": {
+        "product_label": 1,
+        "empty_text": 1,
+        "exact_match": 1,
+        "no_match": 1,
+        "compared": 3
+      },
+      "decisions": [
+        {
+          "block_key": "blk_001",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "가짜브랜드",
+          "matched_names": [
+            "name_ko"
+          ],
+          "is_brand_logo": true,
+          "basis": "exact_match"
+        },
+        {
+          "block_key": "blk_002",
+          "block_order": 2,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_003",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "가짜완화크림",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_004",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        }
+      ]
+    },
+    "logo_record_sha256": "df0f459c8c6024b7646486ce85c4e2e38e8570fbf524b34b9d7c958f37539ac3"
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "style",
+    "input_snapshot_id": "snap-style-a-1",
+    "input_manifest": {
+      "stage": "style",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "image_id": "1",
+      "section": {
+        "section_key": "sec_1_01",
+        "source_image_id": 1,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 400,
+        "width": 600
+      },
+      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "blocks": [
+        {
+          "block_key": "blk_001",
+          "section_key": "sec_1_01",
+          "block_order": 1,
+          "source_ko": "가짜브랜드",
+          "source_lines": [
+            {
+              "line_key": "line_001",
+              "text": "가짜브랜드",
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0001",
+                  "text": "가짜브랜드",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      40
+                    ],
+                    [
+                      360,
+                      40
+                    ],
+                    [
+                      360,
+                      64
+                    ],
+                    [
+                      60,
+                      64
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 40,
+            "w": 300,
+            "h": 24
+          },
+          "role": "title",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_002",
+          "section_key": "sec_1_01",
+          "block_order": 2,
+          "source_ko": "라벨 문구",
+          "source_lines": [
+            {
+              "line_key": "line_002",
+              "text": "라벨 문구",
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0002",
+                  "text": "라벨 문구",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      120
+                    ],
+                    [
+                      360,
+                      120
+                    ],
+                    [
+                      360,
+                      144
+                    ],
+                    [
+                      60,
+                      144
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 120,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_003",
+          "section_key": "sec_1_01",
+          "block_order": 3,
+          "source_ko": "가짜완화 크림",
+          "source_lines": [
+            {
+              "line_key": "line_003",
+              "text": "가짜완화 크림",
+              "bbox": {
+                "x": 60,
+                "y": 200,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0003",
+                  "text": "가짜완화 크림",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      200
+                    ],
+                    [
+                      360,
+                      200
+                    ],
+                    [
+                      360,
+                      224
+                    ],
+                    [
+                      60,
+                      224
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 200,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 200,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_004",
+          "section_key": "sec_1_01",
+          "block_order": 4,
+          "source_ko": "  ",
+          "source_lines": [
+            {
+              "line_key": "line_004",
+              "text": "  ",
+              "bbox": {
+                "x": 60,
+                "y": 280,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0004",
+                  "text": "  ",
+                  "score": 0.2,
+                  "poly": [
+                    [
+                      60,
+                      280
+                    ],
+                    [
+                      360,
+                      280
+                    ],
+                    [
+                      360,
+                      304
+                    ],
+                    [
+                      60,
+                      304
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 280,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 280,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.2
+        }
+      ],
+      "label_result_sha256": "778093f8d19b9ecb40be60d96bd720ca2b77ab177b2ee6dfbb9c09c39a7607f5",
+      "logo_result_sha256": "1a97cfd59dd1ce4599b1124ba22e7b3a2fcaecbd5070fabf0c547c9d15ba1635",
+      "logo_record_sha256": "df0f459c8c6024b7646486ce85c4e2e38e8570fbf524b34b9d7c958f37539ac3",
+      "config": {
+        "method": "otsu_border",
+        "em_ratio": 1.35,
+        "align_tolerance": 0.12
+      }
+    },
+    "input_manifest_sha256": "1dc68693d98d7eef61afb180e86879f562a25f8d9470ff8ec9a5fd5c44a001fc",
+    "outcome": "completed",
+    "target_count": 2,
+    "skip_reason": null,
+    "payload": {
+      "section_key": "sec_1_01",
+      "blocks": [
+        {
+          "block_key": "blk_003",
+          "font_color": null,
+          "bg_color": null,
+          "est_font_px": 32.4,
+          "align": "left",
+          "align_basis": "default_single_line",
+          "null_reasons": {
+            "font_color": "no_valid_region",
+            "bg_color": "no_valid_region"
+          },
+          "measure_status": "partial",
+          "counts": {
+            "regions": 1,
+            "measured": 0,
+            "color_failed": 1,
+            "blank_text": 0
+          }
+        },
+        {
+          "block_key": "blk_004",
+          "font_color": null,
+          "bg_color": null,
+          "est_font_px": null,
+          "align": null,
+          "align_basis": null,
+          "null_reasons": {
+            "font_color": "no_text",
+            "bg_color": "no_text",
+            "est_font_px": "no_text",
+            "align": "no_text_lines"
+          },
+          "measure_status": "no_text",
+          "counts": {
+            "regions": 1,
+            "measured": 0,
+            "color_failed": 0,
+            "blank_text": 1
+          }
+        }
+      ],
+      "excluded": [
+        {
+          "block_key": "blk_001",
+          "reason": "brand_logo"
+        },
+        {
+          "block_key": "blk_002",
+          "reason": "product_label"
+        }
+      ],
+      "units": {
+        "color": "#RRGGBB sRGB",
+        "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
+      },
+      "style_result_sha256": "ac9ffe97a161274d6d370100fb24148a016ceae63fcc53423ab62353fa2febb9"
+    },
+    "artifacts": [],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "style_schema": "1"
+    },
+    "diagnostics": {}
+  },
+  "be_validation_problems": []
+}

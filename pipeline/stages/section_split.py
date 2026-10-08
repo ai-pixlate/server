@@ -30,7 +30,8 @@
 
 진단: `decide_boundaries(..., diag={})`에 dict를 주면 후보·기각 사유·빈 구간 병합·VLM 호출·보정 결과를 채운다.
 CLI는 이를 `split_debug.json`으로 남긴다(dev.md 4절). 계약 값이 아니라 개발 확인용이다.
-VLM 실패는 #25 미정 — `pipeline.vlm.VlmError`를 그대로 전파하고 대체 처리를 하지 않는다.
+VLM 실패는 이 함수에서 `pipeline.vlm.VlmError`로 전파한다. 원본 전체 한 섹션 대체(D9-1 · #25)는 호출자
+`pipeline.analyze.split_or_whole`이 하고 대체 기록을 남긴다 — CLI `split`은 실험용이라 대체하지 않는다.
 """
 from __future__ import annotations
 

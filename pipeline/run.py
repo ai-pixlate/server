@@ -897,10 +897,12 @@ def cmd_analyze(args) -> int:
     sources = [
         SourceImage(source_image_id=i + 1, upload_order=i + 1, path=p) for i, p in enumerate(args.source)
     ]
-    res = analyze(sources, cfg, out, use_llm=not args.no_llm)  # AnalyzeError는 main()에서 종료 코드 2로
+    fallbacks: list[dict[str, Any]] = []
+    res = analyze(sources, cfg, out, use_llm=not args.no_llm, fallbacks=fallbacks)  # AnalyzeError는 main()에서 종료 코드 2로
     p = _write_json(out / "analyze.json", res)
-    _write_run_record(out, "analyze", cfg, {"sources": args.source}, started, extra={"use_llm": not args.no_llm})
-    print(f"섹션 {len(res.sections)}개 · 블록 {len(res.blocks)}개 · 경고 {len(res.warnings)}개 → {p}")
+    _write_run_record(out, "analyze", cfg, {"sources": args.source}, started,
+                      extra={"use_llm": not args.no_llm, "split_fallbacks": fallbacks})
+    print(f"섹션 {len(res.sections)}개 · 블록 {len(res.blocks)}개 · 경고 {len(res.warnings)}개 · ① 대체 {len(fallbacks)}개 → {p}")
     return 0
 
 

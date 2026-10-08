@@ -1,0 +1,1868 @@
+{
+  "case": "judge.completed",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "judge",
+    "input_snapshot_id": "snap-judge-a-1",
+    "target_country": "US",
+    "regulatory_class": "cosmetic",
+    "analyze_result": {
+      "schema_version": "1",
+      "sections": [
+        {
+          "section_key": "sec_1_01",
+          "source_image_id": 1,
+          "section_order": 1,
+          "top_offset": 0,
+          "height": 400,
+          "width": 600,
+          "image_path": "/srv/pixlate-work/judge/sections/sec_1_01.png"
+        },
+        {
+          "section_key": "sec_1_02",
+          "source_image_id": 1,
+          "section_order": 2,
+          "top_offset": 400,
+          "height": 400,
+          "width": 600,
+          "image_path": "/srv/pixlate-work/judge/sections/sec_1_02.png"
+        }
+      ],
+      "blocks": [
+        {
+          "block_key": "blk_001",
+          "section_key": "sec_1_01",
+          "block_order": 1,
+          "source_ko": "가짜치료 크림",
+          "source_lines": [
+            {
+              "line_key": "line_001",
+              "text": "가짜치료 크림",
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0001",
+                  "text": "가짜치료 크림",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      40
+                    ],
+                    [
+                      360,
+                      40
+                    ],
+                    [
+                      360,
+                      64
+                    ],
+                    [
+                      60,
+                      64
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 40,
+            "w": 300,
+            "h": 24
+          },
+          "role": "title",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_002",
+          "section_key": "sec_1_01",
+          "block_order": 2,
+          "source_ko": "가격 3만원",
+          "source_lines": [
+            {
+              "line_key": "line_002",
+              "text": "가격 3만원",
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0002",
+                  "text": "가격 3만원",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      120
+                    ],
+                    [
+                      360,
+                      120
+                    ],
+                    [
+                      360,
+                      144
+                    ],
+                    [
+                      60,
+                      144
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 120,
+            "w": 300,
+            "h": 24
+          },
+          "role": "price",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_003",
+          "section_key": "sec_1_02",
+          "block_order": 1,
+          "source_ko": "가짜치료 안함 처방",
+          "source_lines": [
+            {
+              "line_key": "line_001",
+              "text": "가짜치료 안함 처방",
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0001",
+                  "text": "가짜치료 안함 처방",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      40
+                    ],
+                    [
+                      360,
+                      40
+                    ],
+                    [
+                      360,
+                      64
+                    ],
+                    [
+                      60,
+                      64
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 40,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_004",
+          "section_key": "sec_1_02",
+          "block_order": 2,
+          "source_ko": "연구원 추천",
+          "source_lines": [
+            {
+              "line_key": "line_002",
+              "text": "연구원 추천",
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0002",
+                  "text": "연구원 추천",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      120
+                    ],
+                    [
+                      360,
+                      120
+                    ],
+                    [
+                      360,
+                      144
+                    ],
+                    [
+                      60,
+                      144
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 120,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        }
+      ],
+      "warnings": []
+    },
+    "section_images": {
+      "sec_1_01": {
+        "path": "/srv/pixlate-work/judge/sections/sec_1_01.png",
+        "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      },
+      "sec_1_02": {
+        "path": "/srv/pixlate-work/judge/sections/sec_1_02.png",
+        "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      }
+    },
+    "bundle": {
+      "bundle_id": "bundle-synthetic-1",
+      "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+      "target_country": "US",
+      "regulation": {
+        "version": "regulation@synthetic.1",
+        "entries": [
+          {
+            "external_id": "RG-901",
+            "regulatory_class": "cosmetic",
+            "source_expression": "가짜치료",
+            "variant_ko": [
+              "가짜치료"
+            ],
+            "variant_en": [
+              "fake cure"
+            ],
+            "alternative_expression": [],
+            "verdict_status": "regulated",
+            "source_verdict_status": "regulated",
+            "reason": "합성: 금지형",
+            "evidence": [
+              {
+                "external_id": "EV-1",
+                "source_type": "합성",
+                "document": "합성 문서",
+                "quote": null,
+                "article": "합성 1조",
+                "url": "https://example.test/1",
+                "is_primary": true
+              },
+              {
+                "external_id": "EV-2",
+                "source_type": "합성",
+                "document": null,
+                "quote": "합성 인용",
+                "article": null,
+                "url": null,
+                "is_primary": false
+              }
+            ],
+            "confirmed_date": "2026-09-28"
+          },
+          {
+            "external_id": "RG-902",
+            "regulatory_class": "cosmetic",
+            "source_expression": "가짜완화",
+            "variant_ko": [
+              "가짜완화"
+            ],
+            "variant_en": [
+              "fake soothing"
+            ],
+            "alternative_expression": [
+              "the look of fake calm"
+            ],
+            "verdict_status": "regulated",
+            "source_verdict_status": "rewritable",
+            "reason": "합성: 완충형",
+            "evidence": [],
+            "confirmed_date": null
+          },
+          {
+            "external_id": "RG-903",
+            "regulatory_class": "common",
+            "source_expression": "가짜차단",
+            "variant_ko": [
+              "가짜차단"
+            ],
+            "variant_en": [
+              "fake block"
+            ],
+            "alternative_expression": [
+              "Fake Block [value]"
+            ],
+            "verdict_status": "conditional",
+            "source_verdict_status": null,
+            "reason": "합성: 조건부(수치 템플릿)",
+            "evidence": [],
+            "confirmed_date": null
+          },
+          {
+            "external_id": "RG-905",
+            "regulatory_class": "cosmetic",
+            "source_expression": "가짜치료 안함",
+            "variant_ko": [
+              "가짜치료 안함"
+            ],
+            "variant_en": [
+              "no fake cure"
+            ],
+            "alternative_expression": [],
+            "verdict_status": "allowed",
+            "source_verdict_status": "allowed",
+            "reason": "합성: 허용형",
+            "evidence": [],
+            "confirmed_date": null
+          },
+          {
+            "external_id": "RG-906",
+            "regulatory_class": "otc",
+            "source_expression": "가짜약효",
+            "variant_ko": [
+              "가짜약효"
+            ],
+            "variant_en": [],
+            "alternative_expression": [],
+            "verdict_status": "regulated",
+            "source_verdict_status": "regulated",
+            "reason": "합성: OTC 전용",
+            "evidence": [],
+            "confirmed_date": null
+          }
+        ]
+      },
+      "local": {
+        "version": "local@synthetic.1",
+        "entries": [
+          {
+            "external_id": "LC-01",
+            "item": "합성 항목 1",
+            "patterns": [
+              "가짜기획"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 1",
+            "keep_context": "합성 유지 맥락 1",
+            "seller_message": "합성 셀러 안내 1",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-02",
+            "item": "합성 항목 2",
+            "patterns": [
+              "가짜문의"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 2",
+            "keep_context": "합성 유지 맥락 2",
+            "seller_message": "합성 셀러 안내 2",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-03",
+            "item": "합성 항목 3",
+            "patterns": [
+              "가짜증정"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 3",
+            "keep_context": "합성 유지 맥락 3",
+            "seller_message": "합성 셀러 안내 3",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-04",
+            "item": "합성 항목 4",
+            "patterns": [
+              "가짜반품"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 4",
+            "keep_context": "합성 유지 맥락 4",
+            "seller_message": "합성 셀러 안내 4",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-05",
+            "item": "합성 항목 5",
+            "patterns": [
+              "가짜이벤트"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 5",
+            "keep_context": "합성 유지 맥락 5",
+            "seller_message": "합성 셀러 안내 5",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-06",
+            "item": "합성 항목 6",
+            "patterns": [
+              "원"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 6",
+            "keep_context": "합성 유지 맥락 6",
+            "seller_message": "합성 셀러 안내 6",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-07",
+            "item": "합성 항목 7",
+            "patterns": [
+              "가짜정품"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 7",
+            "keep_context": "합성 유지 맥락 7",
+            "seller_message": "합성 셀러 안내 7",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-08",
+            "item": "합성 항목 8",
+            "patterns": [
+              "가짜몰"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 8",
+            "keep_context": "합성 유지 맥락 8",
+            "seller_message": "합성 셀러 안내 8",
+            "confirmed_date": null
+          }
+        ]
+      },
+      "local_unavailable": null,
+      "rules": {
+        "schema_version": "1",
+        "rules_version": "policy@2026-10-08.1",
+        "basis": "운영 묶음 공급용 정책 규칙. 로컬 개발 규칙 policy@2026-09-28.1(사전 5종 사용 설명서 v3.4.3 §3·§4 기반)에서 DB 서비스 판정값에 없는 rewritable 행을 뺀 것 — 시트의 rewritable은 regulated + 대체 표현 있음으로 공급된다. 현지 uncertain 기본 제외·제외형 하나라도 있으면 섹션 제외는 PM 확정(D8). 판정값·배지 매핑(#7·5.9)은 계약 채택 전. overrides(개발용 예외 쌍)는 운영 규칙이 아니므로 빈 목록. BE가 묶음 생성 시 이 파일을 그대로 rules에 싣는다.",
+        "regulatory_class_map": {
+          "cosmetic": {
+            "applied_classes": [
+              "cosmetic",
+              "common"
+            ],
+            "dict_coverage": "selected_class_all_entries"
+          },
+          "otc": {
+            "applied_classes": [
+              "otc",
+              "common"
+            ],
+            "dict_coverage": "selected_class_all_entries"
+          },
+          "combination": {
+            "applied_classes": [
+              "otc",
+              "common"
+            ],
+            "dict_coverage": "partial_class_combination"
+          },
+          "unknown": {
+            "applied_classes": [
+              "cosmetic",
+              "common"
+            ],
+            "dict_coverage": "unverified_class"
+          }
+        },
+        "verdict_map": [
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "allowed",
+            "alternative": "any",
+            "emit_verdict_status": null,
+            "bucket": "none"
+          },
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "conditional",
+            "alternative": "any",
+            "emit_verdict_status": "conditional",
+            "bucket": "include"
+          },
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "regulated",
+            "alternative": "present",
+            "emit_verdict_status": "regulated",
+            "bucket": "include"
+          },
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "regulated",
+            "alternative": "absent",
+            "emit_verdict_status": "regulated",
+            "bucket": "exclude"
+          },
+          {
+            "dict_type": "local",
+            "verdict_status": "irrelevant",
+            "alternative": "any",
+            "emit_verdict_status": "irrelevant",
+            "bucket": "exclude"
+          },
+          {
+            "dict_type": "local",
+            "verdict_status": "needs_fix",
+            "alternative": "any",
+            "emit_verdict_status": "needs_fix",
+            "bucket": "exclude"
+          }
+        ],
+        "uncertain_bucket": "exclude",
+        "overrides": []
+      }
+    }
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "judge",
+    "input_snapshot_id": "snap-judge-a-1",
+    "input_manifest": {
+      "stage": "judge",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "judge-handoff@2026-10-08.1",
+      "policy": "policy-runtime@2026-10-08.1",
+      "match_rules": "match@2026-10-08.1",
+      "bundle": {
+        "bundle_id": "bundle-synthetic-1",
+        "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+        "regulation_version": "regulation@synthetic.1",
+        "local_version": "local@synthetic.1",
+        "rules_version": "policy@2026-10-08.1",
+        "rules_sha256": "19e912abe0684579e663da80a1fc9d393739a72b745d7f96fbccf97f06ff97ab",
+        "type_map_version": "content-types@2026-10-08.1",
+        "type_map_sha256": "1a6e5e795da5c2c7152c0945f48e48e94253873790691c7dca118460bf22e05d"
+      },
+      "target_country": "US",
+      "regulatory_class": "cosmetic",
+      "target_section_keys": [
+        "sec_1_01",
+        "sec_1_02"
+      ],
+      "context": {
+        "context_sections": 1,
+        "blocks": {
+          "sec_1_01": [
+            [
+              "blk_001",
+              "가짜치료 크림"
+            ],
+            [
+              "blk_002",
+              "가격 3만원"
+            ]
+          ],
+          "sec_1_02": [
+            [
+              "blk_003",
+              "가짜치료 안함 처방"
+            ],
+            [
+              "blk_004",
+              "연구원 추천"
+            ]
+          ]
+        }
+      },
+      "sections": [
+        {
+          "section_key": "sec_1_01",
+          "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+          "blocks": [
+            {
+              "block_key": "blk_001",
+              "section_key": "sec_1_01",
+              "block_order": 1,
+              "source_ko": "가짜치료 크림",
+              "source_lines": [
+                {
+                  "line_key": "line_001",
+                  "text": "가짜치료 크림",
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  },
+                  "regions": [
+                    {
+                      "region_key": "reg_0001",
+                      "text": "가짜치료 크림",
+                      "score": 0.97,
+                      "poly": [
+                        [
+                          60,
+                          40
+                        ],
+                        [
+                          360,
+                          40
+                        ],
+                        [
+                          360,
+                          64
+                        ],
+                        [
+                          60,
+                          64
+                        ]
+                      ],
+                      "bbox": {
+                        "x": 60,
+                        "y": 40,
+                        "w": 300,
+                        "h": 24
+                      }
+                    }
+                  ]
+                }
+              ],
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "role": "title",
+              "ocr_confidence": 0.97
+            },
+            {
+              "block_key": "blk_002",
+              "section_key": "sec_1_01",
+              "block_order": 2,
+              "source_ko": "가격 3만원",
+              "source_lines": [
+                {
+                  "line_key": "line_002",
+                  "text": "가격 3만원",
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  },
+                  "regions": [
+                    {
+                      "region_key": "reg_0002",
+                      "text": "가격 3만원",
+                      "score": 0.97,
+                      "poly": [
+                        [
+                          60,
+                          120
+                        ],
+                        [
+                          360,
+                          120
+                        ],
+                        [
+                          360,
+                          144
+                        ],
+                        [
+                          60,
+                          144
+                        ]
+                      ],
+                      "bbox": {
+                        "x": 60,
+                        "y": 120,
+                        "w": 300,
+                        "h": 24
+                      }
+                    }
+                  ]
+                }
+              ],
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "role": "price",
+              "ocr_confidence": 0.97
+            }
+          ]
+        },
+        {
+          "section_key": "sec_1_02",
+          "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+          "blocks": [
+            {
+              "block_key": "blk_003",
+              "section_key": "sec_1_02",
+              "block_order": 1,
+              "source_ko": "가짜치료 안함 처방",
+              "source_lines": [
+                {
+                  "line_key": "line_001",
+                  "text": "가짜치료 안함 처방",
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  },
+                  "regions": [
+                    {
+                      "region_key": "reg_0001",
+                      "text": "가짜치료 안함 처방",
+                      "score": 0.97,
+                      "poly": [
+                        [
+                          60,
+                          40
+                        ],
+                        [
+                          360,
+                          40
+                        ],
+                        [
+                          360,
+                          64
+                        ],
+                        [
+                          60,
+                          64
+                        ]
+                      ],
+                      "bbox": {
+                        "x": 60,
+                        "y": 40,
+                        "w": 300,
+                        "h": 24
+                      }
+                    }
+                  ]
+                }
+              ],
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "role": "body",
+              "ocr_confidence": 0.97
+            },
+            {
+              "block_key": "blk_004",
+              "section_key": "sec_1_02",
+              "block_order": 2,
+              "source_ko": "연구원 추천",
+              "source_lines": [
+                {
+                  "line_key": "line_002",
+                  "text": "연구원 추천",
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  },
+                  "regions": [
+                    {
+                      "region_key": "reg_0002",
+                      "text": "연구원 추천",
+                      "score": 0.97,
+                      "poly": [
+                        [
+                          60,
+                          120
+                        ],
+                        [
+                          360,
+                          120
+                        ],
+                        [
+                          360,
+                          144
+                        ],
+                        [
+                          60,
+                          144
+                        ]
+                      ],
+                      "bbox": {
+                        "x": 60,
+                        "y": 120,
+                        "w": 300,
+                        "h": 24
+                      }
+                    }
+                  ]
+                }
+              ],
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "role": "body",
+              "ocr_confidence": 0.97
+            }
+          ]
+        }
+      ],
+      "config": {
+        "judge": {
+          "call_scope": "all",
+          "image_width_px": 768,
+          "context_sections": 1,
+          "llm_model": "gemini-3.8-flash",
+          "llm_temperature": 0,
+          "llm_timeout_s": 60
+        },
+        "policy": {
+          "problem_text_max_chars": 300
+        }
+      },
+      "prompt_sha256": "3921d1896945bde55740b09c7fc1efc12aded6fc32f63b82a499be692d377bb6"
+    },
+    "input_manifest_sha256": "53659a273e166696b5d036a1a42a48665dec6c656e59740ba012a9b0394eedd4",
+    "outcome": "completed",
+    "target_count": 2,
+    "skip_reason": null,
+    "payload": {
+      "bundle": {
+        "bundle_id": "bundle-synthetic-1",
+        "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+        "regulation_version": "regulation@synthetic.1",
+        "local_version": "local@synthetic.1",
+        "rules_version": "policy@2026-10-08.1",
+        "rules_sha256": "19e912abe0684579e663da80a1fc9d393739a72b745d7f96fbccf97f06ff97ab",
+        "type_map_version": "content-types@2026-10-08.1",
+        "type_map_sha256": "1a6e5e795da5c2c7152c0945f48e48e94253873790691c7dca118460bf22e05d"
+      },
+      "regulatory_class": "cosmetic",
+      "sections": [
+        {
+          "section_key": "sec_1_01",
+          "regulatory_status": "completed",
+          "local_status": "completed",
+          "local_failure": null,
+          "content_findings": {
+            "schema_version": "1",
+            "findings": [
+              {
+                "finding_key": "f_01",
+                "content_type": "local_bundle_offer",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_02",
+                "content_type": "local_contact_info",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_03",
+                "content_type": "local_purchase_gift",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_04",
+                "content_type": "local_return_policy",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_05",
+                "content_type": "local_promotion_event",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_06",
+                "content_type": "local_krw_price",
+                "status": "present",
+                "evidence_block_ids": [
+                  "blk_002"
+                ],
+                "evidence_source": "text",
+                "reason": "합성: 후보 블록이 제외 맥락에 해당"
+              },
+              {
+                "finding_key": "f_07",
+                "content_type": "local_sales_authentication",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_08",
+                "content_type": "local_marketplace_listing",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_09",
+                "content_type": "regulatory_expression_match",
+                "status": "present",
+                "evidence_block_ids": [
+                  "blk_001"
+                ],
+                "evidence_source": "text",
+                "reason": "사전 표현 검출 1건(RG-901) — 표현 검출 사실이며 위반 확정이 아니다"
+              }
+            ]
+          },
+          "verdicts": [
+            {
+              "verdict_key": "v_01",
+              "finding_key": "f_09",
+              "external_id": "RG-901",
+              "dict_type": "regulatory",
+              "verdict_status": "regulated",
+              "dictionary_verdict_status": "regulated",
+              "source_verdict_status": "regulated",
+              "finding_status": "present",
+              "problem_text": "가짜치료",
+              "match_keys": [
+                "rm_001"
+              ],
+              "alternative_expression": [],
+              "basis_article": "합성 1조",
+              "evidence_url": "https://example.test/1",
+              "reason": "합성: 금지형",
+              "bucket": "exclude"
+            },
+            {
+              "verdict_key": "v_02",
+              "finding_key": "f_06",
+              "external_id": "LC-06",
+              "dict_type": "local",
+              "verdict_status": "irrelevant",
+              "dictionary_verdict_status": "irrelevant",
+              "source_verdict_status": null,
+              "finding_status": "present",
+              "problem_text": "가격 3만원",
+              "match_keys": [],
+              "alternative_expression": [],
+              "basis_article": null,
+              "evidence_url": null,
+              "reason": "합성 셀러 안내 6",
+              "bucket": "exclude"
+            }
+          ],
+          "bucket_recommendation": "exclude",
+          "recommendation_basis": [
+            "v_01",
+            "v_02"
+          ],
+          "audit": {
+            "inspection": {
+              "regulatory": {
+                "status": "completed",
+                "regulatory_class": "cosmetic",
+                "applied_classes": [
+                  "cosmetic",
+                  "common"
+                ],
+                "dict_coverage": "selected_class_all_entries",
+                "entries_checked": [
+                  "RG-901",
+                  "RG-902",
+                  "RG-903",
+                  "RG-905"
+                ],
+                "raw_matches": 1,
+                "live_matches": 1,
+                "finding": true
+              },
+              "local": {
+                "status": "completed",
+                "items_checked": [
+                  "LC-01",
+                  "LC-02",
+                  "LC-03",
+                  "LC-04",
+                  "LC-05",
+                  "LC-06",
+                  "LC-07",
+                  "LC-08"
+                ],
+                "failure": null
+              }
+            },
+            "dictionary_snapshots": [
+              {
+                "external_id": "LC-01",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-01",
+                  "item": "합성 항목 1",
+                  "patterns": [
+                    "가짜기획"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 1",
+                  "keep_context": "합성 유지 맥락 1",
+                  "seller_message": "합성 셀러 안내 1",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-02",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-02",
+                  "item": "합성 항목 2",
+                  "patterns": [
+                    "가짜문의"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 2",
+                  "keep_context": "합성 유지 맥락 2",
+                  "seller_message": "합성 셀러 안내 2",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-03",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-03",
+                  "item": "합성 항목 3",
+                  "patterns": [
+                    "가짜증정"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 3",
+                  "keep_context": "합성 유지 맥락 3",
+                  "seller_message": "합성 셀러 안내 3",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-04",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-04",
+                  "item": "합성 항목 4",
+                  "patterns": [
+                    "가짜반품"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 4",
+                  "keep_context": "합성 유지 맥락 4",
+                  "seller_message": "합성 셀러 안내 4",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-05",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-05",
+                  "item": "합성 항목 5",
+                  "patterns": [
+                    "가짜이벤트"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 5",
+                  "keep_context": "합성 유지 맥락 5",
+                  "seller_message": "합성 셀러 안내 5",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-06",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-06",
+                  "item": "합성 항목 6",
+                  "patterns": [
+                    "원"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 6",
+                  "keep_context": "합성 유지 맥락 6",
+                  "seller_message": "합성 셀러 안내 6",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-07",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-07",
+                  "item": "합성 항목 7",
+                  "patterns": [
+                    "가짜정품"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 7",
+                  "keep_context": "합성 유지 맥락 7",
+                  "seller_message": "합성 셀러 안내 7",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-08",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-08",
+                  "item": "합성 항목 8",
+                  "patterns": [
+                    "가짜몰"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 8",
+                  "keep_context": "합성 유지 맥락 8",
+                  "seller_message": "합성 셀러 안내 8",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "RG-901",
+                "dict_type": "regulatory",
+                "snapshot": {
+                  "external_id": "RG-901",
+                  "regulatory_class": "cosmetic",
+                  "source_expression": "가짜치료",
+                  "variant_ko": [
+                    "가짜치료"
+                  ],
+                  "variant_en": [
+                    "fake cure"
+                  ],
+                  "alternative_expression": [],
+                  "verdict_status": "regulated",
+                  "source_verdict_status": "regulated",
+                  "reason": "합성: 금지형",
+                  "evidence": [
+                    {
+                      "external_id": "EV-1",
+                      "source_type": "합성",
+                      "document": "합성 문서",
+                      "quote": null,
+                      "article": "합성 1조",
+                      "url": "https://example.test/1",
+                      "is_primary": true
+                    },
+                    {
+                      "external_id": "EV-2",
+                      "source_type": "합성",
+                      "document": null,
+                      "quote": "합성 인용",
+                      "article": null,
+                      "url": null,
+                      "is_primary": false
+                    }
+                  ],
+                  "confirmed_date": "2026-09-28"
+                }
+              }
+            ],
+            "matches": [
+              {
+                "match_key": "rm_001",
+                "external_id": "RG-901",
+                "block_key": "blk_001",
+                "language": "ko",
+                "text_field": "source_ko",
+                "start": 0,
+                "end": 4,
+                "matched_text": "가짜치료",
+                "patterns": [
+                  "가짜치료"
+                ]
+              },
+              {
+                "match_key": "lm_001",
+                "external_id": "LC-06",
+                "block_key": "blk_002",
+                "language": "ko",
+                "text_field": "source_ko",
+                "start": 5,
+                "end": 6,
+                "matched_text": "원",
+                "patterns": [
+                  "원"
+                ]
+              }
+            ],
+            "suppressed": [],
+            "links": [
+              {
+                "finding_key": "f_01",
+                "external_ids": [
+                  "LC-01"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_02",
+                "external_ids": [
+                  "LC-02"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_03",
+                "external_ids": [
+                  "LC-03"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_04",
+                "external_ids": [
+                  "LC-04"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_05",
+                "external_ids": [
+                  "LC-05"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_06",
+                "external_ids": [
+                  "LC-06"
+                ],
+                "match_keys": [
+                  "lm_001"
+                ],
+                "verdict_keys": [
+                  "v_02"
+                ]
+              },
+              {
+                "finding_key": "f_07",
+                "external_ids": [
+                  "LC-07"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_08",
+                "external_ids": [
+                  "LC-08"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_09",
+                "external_ids": [
+                  "RG-901"
+                ],
+                "match_keys": [
+                  "rm_001"
+                ],
+                "verdict_keys": [
+                  "v_01"
+                ]
+              }
+            ],
+            "block_texts": {
+              "blk_001": "가짜치료 크림",
+              "blk_002": "가격 3만원"
+            }
+          }
+        },
+        {
+          "section_key": "sec_1_02",
+          "regulatory_status": "completed",
+          "local_status": "completed",
+          "local_failure": null,
+          "content_findings": {
+            "schema_version": "1",
+            "findings": [
+              {
+                "finding_key": "f_01",
+                "content_type": "local_bundle_offer",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_02",
+                "content_type": "local_contact_info",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_03",
+                "content_type": "local_purchase_gift",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_04",
+                "content_type": "local_return_policy",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_05",
+                "content_type": "local_promotion_event",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_06",
+                "content_type": "local_krw_price",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_07",
+                "content_type": "local_sales_authentication",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_08",
+                "content_type": "local_marketplace_listing",
+                "status": "absent",
+                "evidence_block_ids": [],
+                "evidence_source": "image",
+                "reason": "합성: 해당 없음"
+              },
+              {
+                "finding_key": "f_09",
+                "content_type": "regulatory_expression_match",
+                "status": "present",
+                "evidence_block_ids": [
+                  "blk_003"
+                ],
+                "evidence_source": "text",
+                "reason": "사전 표현 검출 2건(RG-901, RG-905) — 표현 검출 사실이며 위반 확정이 아니다"
+              }
+            ]
+          },
+          "verdicts": [],
+          "bucket_recommendation": "include",
+          "recommendation_basis": [],
+          "audit": {
+            "inspection": {
+              "regulatory": {
+                "status": "completed",
+                "regulatory_class": "cosmetic",
+                "applied_classes": [
+                  "cosmetic",
+                  "common"
+                ],
+                "dict_coverage": "selected_class_all_entries",
+                "entries_checked": [
+                  "RG-901",
+                  "RG-902",
+                  "RG-903",
+                  "RG-905"
+                ],
+                "raw_matches": 2,
+                "live_matches": 0,
+                "finding": true
+              },
+              "local": {
+                "status": "completed",
+                "items_checked": [
+                  "LC-01",
+                  "LC-02",
+                  "LC-03",
+                  "LC-04",
+                  "LC-05",
+                  "LC-06",
+                  "LC-07",
+                  "LC-08"
+                ],
+                "failure": null
+              }
+            },
+            "dictionary_snapshots": [
+              {
+                "external_id": "LC-01",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-01",
+                  "item": "합성 항목 1",
+                  "patterns": [
+                    "가짜기획"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 1",
+                  "keep_context": "합성 유지 맥락 1",
+                  "seller_message": "합성 셀러 안내 1",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-02",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-02",
+                  "item": "합성 항목 2",
+                  "patterns": [
+                    "가짜문의"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 2",
+                  "keep_context": "합성 유지 맥락 2",
+                  "seller_message": "합성 셀러 안내 2",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-03",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-03",
+                  "item": "합성 항목 3",
+                  "patterns": [
+                    "가짜증정"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 3",
+                  "keep_context": "합성 유지 맥락 3",
+                  "seller_message": "합성 셀러 안내 3",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-04",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-04",
+                  "item": "합성 항목 4",
+                  "patterns": [
+                    "가짜반품"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 4",
+                  "keep_context": "합성 유지 맥락 4",
+                  "seller_message": "합성 셀러 안내 4",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-05",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-05",
+                  "item": "합성 항목 5",
+                  "patterns": [
+                    "가짜이벤트"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 5",
+                  "keep_context": "합성 유지 맥락 5",
+                  "seller_message": "합성 셀러 안내 5",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-06",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-06",
+                  "item": "합성 항목 6",
+                  "patterns": [
+                    "원"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 6",
+                  "keep_context": "합성 유지 맥락 6",
+                  "seller_message": "합성 셀러 안내 6",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-07",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-07",
+                  "item": "합성 항목 7",
+                  "patterns": [
+                    "가짜정품"
+                  ],
+                  "verdict_status": "needs_fix",
+                  "exclusion_context": "합성 제외 맥락 7",
+                  "keep_context": "합성 유지 맥락 7",
+                  "seller_message": "합성 셀러 안내 7",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "LC-08",
+                "dict_type": "local",
+                "snapshot": {
+                  "external_id": "LC-08",
+                  "item": "합성 항목 8",
+                  "patterns": [
+                    "가짜몰"
+                  ],
+                  "verdict_status": "irrelevant",
+                  "exclusion_context": "합성 제외 맥락 8",
+                  "keep_context": "합성 유지 맥락 8",
+                  "seller_message": "합성 셀러 안내 8",
+                  "confirmed_date": null
+                }
+              },
+              {
+                "external_id": "RG-901",
+                "dict_type": "regulatory",
+                "snapshot": {
+                  "external_id": "RG-901",
+                  "regulatory_class": "cosmetic",
+                  "source_expression": "가짜치료",
+                  "variant_ko": [
+                    "가짜치료"
+                  ],
+                  "variant_en": [
+                    "fake cure"
+                  ],
+                  "alternative_expression": [],
+                  "verdict_status": "regulated",
+                  "source_verdict_status": "regulated",
+                  "reason": "합성: 금지형",
+                  "evidence": [
+                    {
+                      "external_id": "EV-1",
+                      "source_type": "합성",
+                      "document": "합성 문서",
+                      "quote": null,
+                      "article": "합성 1조",
+                      "url": "https://example.test/1",
+                      "is_primary": true
+                    },
+                    {
+                      "external_id": "EV-2",
+                      "source_type": "합성",
+                      "document": null,
+                      "quote": "합성 인용",
+                      "article": null,
+                      "url": null,
+                      "is_primary": false
+                    }
+                  ],
+                  "confirmed_date": "2026-09-28"
+                }
+              },
+              {
+                "external_id": "RG-905",
+                "dict_type": "regulatory",
+                "snapshot": {
+                  "external_id": "RG-905",
+                  "regulatory_class": "cosmetic",
+                  "source_expression": "가짜치료 안함",
+                  "variant_ko": [
+                    "가짜치료 안함"
+                  ],
+                  "variant_en": [
+                    "no fake cure"
+                  ],
+                  "alternative_expression": [],
+                  "verdict_status": "allowed",
+                  "source_verdict_status": "allowed",
+                  "reason": "합성: 허용형",
+                  "evidence": [],
+                  "confirmed_date": null
+                }
+              }
+            ],
+            "matches": [
+              {
+                "match_key": "rm_001",
+                "external_id": "RG-901",
+                "block_key": "blk_003",
+                "language": "ko",
+                "text_field": "source_ko",
+                "start": 0,
+                "end": 4,
+                "matched_text": "가짜치료",
+                "patterns": [
+                  "가짜치료"
+                ]
+              },
+              {
+                "match_key": "rm_002",
+                "external_id": "RG-905",
+                "block_key": "blk_003",
+                "language": "ko",
+                "text_field": "source_ko",
+                "start": 0,
+                "end": 7,
+                "matched_text": "가짜치료 안함",
+                "patterns": [
+                  "가짜치료 안함"
+                ]
+              }
+            ],
+            "suppressed": [
+              {
+                "match_key": "rm_001",
+                "rule": "allowed_wrap",
+                "by": [
+                  "rm_002"
+                ]
+              }
+            ],
+            "links": [
+              {
+                "finding_key": "f_01",
+                "external_ids": [
+                  "LC-01"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_02",
+                "external_ids": [
+                  "LC-02"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_03",
+                "external_ids": [
+                  "LC-03"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_04",
+                "external_ids": [
+                  "LC-04"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_05",
+                "external_ids": [
+                  "LC-05"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_06",
+                "external_ids": [
+                  "LC-06"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_07",
+                "external_ids": [
+                  "LC-07"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_08",
+                "external_ids": [
+                  "LC-08"
+                ],
+                "match_keys": [],
+                "verdict_keys": []
+              },
+              {
+                "finding_key": "f_09",
+                "external_ids": [
+                  "RG-901",
+                  "RG-905"
+                ],
+                "match_keys": [
+                  "rm_001",
+                  "rm_002"
+                ],
+                "verdict_keys": []
+              }
+            ],
+            "block_texts": {
+              "blk_003": "가짜치료 안함 처방"
+            }
+          }
+        }
+      ],
+      "summary": {
+        "sections": 2,
+        "local_failed": [],
+        "local_not_checked": [],
+        "exclude_recommended": [
+          "sec_1_01"
+        ],
+        "verdicts": 2
+      }
+    },
+    "artifacts": [],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "judge-handoff@2026-10-08.1",
+      "policy": "policy-runtime@2026-10-08.1",
+      "match_rules": "match@2026-10-08.1",
+      "judge_model": {
+        "llm_model": "gemini-3.8-flash",
+        "llm_temperature": 0,
+        "llm_timeout_s": 60
+      }
+    },
+    "diagnostics": {
+      "sections": {
+        "sec_1_01": {
+          "payload_sha256": "a4c445d1609655ba2d95a3e7e2d12a75b2c837320470a14c0d3edcb3bc3a0842",
+          "image": {
+            "original_size": [
+              600,
+              400
+            ],
+            "sent_size": [
+              600,
+              400
+            ],
+            "width_px": 768
+          },
+          "items_sent": [
+            "LC-01",
+            "LC-02",
+            "LC-03",
+            "LC-04",
+            "LC-05",
+            "LC-06",
+            "LC-07",
+            "LC-08"
+          ],
+          "response_sha256": "578bea55f030d117598826906a73b1f92a64b31cf02d51d95359ecf8601a3471",
+          "usage": null
+        },
+        "sec_1_02": {
+          "payload_sha256": "0926c189fd6ff0942bf0be8adc20e1a3b7106d5ae5bc7570a014e2d6a2f0b824",
+          "image": {
+            "original_size": [
+              600,
+              400
+            ],
+            "sent_size": [
+              600,
+              400
+            ],
+            "width_px": 768
+          },
+          "items_sent": [
+            "LC-01",
+            "LC-02",
+            "LC-03",
+            "LC-04",
+            "LC-05",
+            "LC-06",
+            "LC-07",
+            "LC-08"
+          ],
+          "response_sha256": "730c60437d9700a75d0de52651eff019efb4148f8cfc123d3c1fabee53d5e615",
+          "usage": null
+        }
+      }
+    }
+  },
+  "be_validation_problems": []
+}

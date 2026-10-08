@@ -14,15 +14,38 @@ from pathlib import Path
 from typing import Any
 
 from pipeline.stages import merge, ocr, section_split
-from pipeline.types import AnalyzeResult, AnalyzeWarning, SourceImage, block_key
-from pipeline.vlm import MergeAssistant
+from pipeline.types import AnalyzeResult, AnalyzeWarning, SourceImage, SplitResult, block_key
+from pipeline.vlm import BoundaryPicker, MergeAssistant, VlmError
+
+SPLIT_FALLBACK_KIND = "section_split_whole_image"  # ① 분해 실패 → 원본 전체 한 섹션(D9-1 · #25). 인계 기록용 이름이며 API 코드가 아니다
+
+
+def split_or_whole(
+    src: SourceImage, cfg: dict[str, Any], out_dir: Path, *, vlm: BoundaryPicker | None = None,
+    fallbacks: list[dict[str, Any]] | None = None,
+) -> SplitResult:
+    """① 실행. VLM 경계 선택이 실패하면(VlmError) 원본 전체를 한 섹션으로 대체한다 [통합 D9-1 · #25].
+
+    원본을 열 수 없으면 대체 섹션도 만들 수 없으므로 IMAGE_OPEN_FAILED 그대로다. 대체는 성공으로 숨기지 않고 `fallbacks`에 원본 ·
+    사유를 남긴다(호출자가 실행 기록 · 인계에 싣는다). 후속 OCR · 병합은 대체 섹션에도 그대로 수행한다."""
+    try:
+        return section_split.run(src, cfg, out_dir) if vlm is None else section_split.run(src, cfg, out_dir, vlm=vlm)
+    except VlmError as e:
+        im = section_split.open_source(src)
+        result = section_split.crop_sections(src, im, [], out_dir)
+        if fallbacks is not None:
+            fallbacks.append({"kind": SPLIT_FALLBACK_KIND, "source_image_id": src.source_image_id,
+                              "cause": f"{e.__class__.__name__}: {e}"})
+        return result
 
 
 def analyze(
     sources: list[SourceImage], cfg: dict[str, Any], out_dir: Path, *, use_llm: bool = True,
-    llm: MergeAssistant | None = None,
+    llm: MergeAssistant | None = None, vlm: BoundaryPicker | None = None, fallbacks: list[dict[str, Any]] | None = None,
+    ocr_engine: Any | None = None,
 ) -> AnalyzeResult:
-    """use_llm은 ③ merge.run에 그대로 전달한다(CLI analyze --no-llm → False). llm은 테스트·실험용 호출자 주입."""
+    """use_llm은 ③ merge.run에 그대로 전달한다(CLI analyze --no-llm → False). llm · vlm · ocr_engine은 테스트·실험용 호출자 주입.
+    fallbacks에 list를 주면 ① 대체(원본 전체 섹션) 기록을 받는다. AnalyzeResult 버전 1 형식은 바꾸지 않는다(D3)."""
     merge.validate_config(cfg)
     debug_dir = out_dir / "merge_debug"
     recorder = None
@@ -34,10 +57,10 @@ def analyze(
     blocks = []
     warnings: list[AnalyzeWarning] = []
     for src in sorted(sources, key=lambda s: s.upload_order):
-        split = section_split.run(src, cfg, out_dir / "sections")
+        split = split_or_whole(src, cfg, out_dir / "sections", vlm=vlm, fallbacks=fallbacks)
         text_found = False
         for sec in split.sections:
-            ocr_res = ocr.run(sec, cfg)
+            ocr_res = ocr.run(sec, cfg) if ocr_engine is None else ocr.run(sec, cfg, engine=ocr_engine)
             text_found = text_found or bool(ocr_res.regions)
             merged = merge.run(sec, ocr_res, cfg, use_llm=use_llm, llm=llm, recorder=recorder)
             sections.append(sec)

@@ -1,0 +1,742 @@
+{
+  "case": "translate.completed_retry_target_only",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-2",
+    "stage": "translate",
+    "input_snapshot_id": "snap-translate-a-2",
+    "target_country": "US",
+    "target_lang": "en",
+    "regulatory_class": "cosmetic",
+    "section_key": "sec_1_01",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_1_01",
+        "block_order": 1,
+        "source_ko": "가짜치료 크림",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "가짜치료 크림",
+            "bbox": {
+              "x": 60,
+              "y": 40,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "가짜치료 크림",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    40
+                  ],
+                  [
+                    360,
+                    40
+                  ],
+                  [
+                    360,
+                    64
+                  ],
+                  [
+                    60,
+                    64
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 40,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 40,
+          "w": 300,
+          "h": 24
+        },
+        "role": "title",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_1_01",
+        "block_order": 2,
+        "source_ko": "가짜완화 SPF50",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "가짜완화 SPF50",
+            "bbox": {
+              "x": 60,
+              "y": 120,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "가짜완화 SPF50",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    120
+                  ],
+                  [
+                    360,
+                    120
+                  ],
+                  [
+                    360,
+                    144
+                  ],
+                  [
+                    60,
+                    144
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 120,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 120,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_1_01",
+        "block_order": 3,
+        "source_ko": "판독불가 ###",
+        "source_lines": [
+          {
+            "line_key": "line_003",
+            "text": "판독불가 ###",
+            "bbox": {
+              "x": 60,
+              "y": 200,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "판독불가 ###",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    200
+                  ],
+                  [
+                    360,
+                    200
+                  ],
+                  [
+                    360,
+                    224
+                  ],
+                  [
+                    60,
+                    224
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 200,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 200,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_1_01",
+        "block_order": 4,
+        "source_ko": "가짜차단 SPF50 PA++++",
+        "source_lines": [
+          {
+            "line_key": "line_004",
+            "text": "가짜차단 SPF50 PA++++",
+            "bbox": {
+              "x": 60,
+              "y": 280,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "가짜차단 SPF50 PA++++",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    280
+                  ],
+                  [
+                    360,
+                    280
+                  ],
+                  [
+                    360,
+                    304
+                  ],
+                  [
+                    60,
+                    304
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 280,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 280,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      }
+    ],
+    "targets": [
+      {
+        "block_key": "blk_003",
+        "revision": 0
+      }
+    ],
+    "instructions": [],
+    "glossary": {
+      "status": "ok",
+      "version": "glossary@synthetic.1",
+      "terms": [
+        {
+          "glossary_id": "G-1",
+          "term_ko": "크림",
+          "term_target": "cream",
+          "enforcement": "enforced"
+        },
+        {
+          "glossary_id": "G-2",
+          "term_ko": "가짜차단",
+          "term_target": "Fake Shield",
+          "enforcement": "enforced"
+        }
+      ]
+    },
+    "bundle": {
+      "bundle_id": "bundle-synthetic-1",
+      "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+      "target_country": "US",
+      "regulation": {
+        "version": "regulation@synthetic.1",
+        "entries": [
+          {
+            "external_id": "RG-901",
+            "regulatory_class": "cosmetic",
+            "source_expression": "가짜치료",
+            "variant_ko": [
+              "가짜치료"
+            ],
+            "variant_en": [
+              "fake cure"
+            ],
+            "alternative_expression": [],
+            "verdict_status": "regulated",
+            "source_verdict_status": "regulated",
+            "reason": "합성: 금지형",
+            "evidence": [
+              {
+                "external_id": "EV-1",
+                "source_type": "합성",
+                "document": "합성 문서",
+                "quote": null,
+                "article": "합성 1조",
+                "url": "https://example.test/1",
+                "is_primary": true
+              },
+              {
+                "external_id": "EV-2",
+                "source_type": "합성",
+                "document": null,
+                "quote": "합성 인용",
+                "article": null,
+                "url": null,
+                "is_primary": false
+              }
+            ],
+            "confirmed_date": "2026-09-28"
+          },
+          {
+            "external_id": "RG-902",
+            "regulatory_class": "cosmetic",
+            "source_expression": "가짜완화",
+            "variant_ko": [
+              "가짜완화"
+            ],
+            "variant_en": [
+              "fake soothing"
+            ],
+            "alternative_expression": [
+              "the look of fake calm"
+            ],
+            "verdict_status": "regulated",
+            "source_verdict_status": "rewritable",
+            "reason": "합성: 완충형",
+            "evidence": [],
+            "confirmed_date": null
+          },
+          {
+            "external_id": "RG-903",
+            "regulatory_class": "common",
+            "source_expression": "가짜차단",
+            "variant_ko": [
+              "가짜차단"
+            ],
+            "variant_en": [
+              "fake block"
+            ],
+            "alternative_expression": [
+              "Fake Block [value]"
+            ],
+            "verdict_status": "conditional",
+            "source_verdict_status": null,
+            "reason": "합성: 조건부(수치 템플릿)",
+            "evidence": [],
+            "confirmed_date": null
+          },
+          {
+            "external_id": "RG-905",
+            "regulatory_class": "cosmetic",
+            "source_expression": "가짜치료 안함",
+            "variant_ko": [
+              "가짜치료 안함"
+            ],
+            "variant_en": [
+              "no fake cure"
+            ],
+            "alternative_expression": [],
+            "verdict_status": "allowed",
+            "source_verdict_status": "allowed",
+            "reason": "합성: 허용형",
+            "evidence": [],
+            "confirmed_date": null
+          },
+          {
+            "external_id": "RG-906",
+            "regulatory_class": "otc",
+            "source_expression": "가짜약효",
+            "variant_ko": [
+              "가짜약효"
+            ],
+            "variant_en": [],
+            "alternative_expression": [],
+            "verdict_status": "regulated",
+            "source_verdict_status": "regulated",
+            "reason": "합성: OTC 전용",
+            "evidence": [],
+            "confirmed_date": null
+          }
+        ]
+      },
+      "local": {
+        "version": "local@synthetic.1",
+        "entries": [
+          {
+            "external_id": "LC-01",
+            "item": "합성 항목 1",
+            "patterns": [
+              "가짜기획"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 1",
+            "keep_context": "합성 유지 맥락 1",
+            "seller_message": "합성 셀러 안내 1",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-02",
+            "item": "합성 항목 2",
+            "patterns": [
+              "가짜문의"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 2",
+            "keep_context": "합성 유지 맥락 2",
+            "seller_message": "합성 셀러 안내 2",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-03",
+            "item": "합성 항목 3",
+            "patterns": [
+              "가짜증정"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 3",
+            "keep_context": "합성 유지 맥락 3",
+            "seller_message": "합성 셀러 안내 3",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-04",
+            "item": "합성 항목 4",
+            "patterns": [
+              "가짜반품"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 4",
+            "keep_context": "합성 유지 맥락 4",
+            "seller_message": "합성 셀러 안내 4",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-05",
+            "item": "합성 항목 5",
+            "patterns": [
+              "가짜이벤트"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 5",
+            "keep_context": "합성 유지 맥락 5",
+            "seller_message": "합성 셀러 안내 5",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-06",
+            "item": "합성 항목 6",
+            "patterns": [
+              "원"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 6",
+            "keep_context": "합성 유지 맥락 6",
+            "seller_message": "합성 셀러 안내 6",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-07",
+            "item": "합성 항목 7",
+            "patterns": [
+              "가짜정품"
+            ],
+            "verdict_status": "needs_fix",
+            "exclusion_context": "합성 제외 맥락 7",
+            "keep_context": "합성 유지 맥락 7",
+            "seller_message": "합성 셀러 안내 7",
+            "confirmed_date": null
+          },
+          {
+            "external_id": "LC-08",
+            "item": "합성 항목 8",
+            "patterns": [
+              "가짜몰"
+            ],
+            "verdict_status": "irrelevant",
+            "exclusion_context": "합성 제외 맥락 8",
+            "keep_context": "합성 유지 맥락 8",
+            "seller_message": "합성 셀러 안내 8",
+            "confirmed_date": null
+          }
+        ]
+      },
+      "local_unavailable": null,
+      "rules": {
+        "schema_version": "1",
+        "rules_version": "policy@2026-10-08.1",
+        "basis": "운영 묶음 공급용 정책 규칙. 로컬 개발 규칙 policy@2026-09-28.1(사전 5종 사용 설명서 v3.4.3 §3·§4 기반)에서 DB 서비스 판정값에 없는 rewritable 행을 뺀 것 — 시트의 rewritable은 regulated + 대체 표현 있음으로 공급된다. 현지 uncertain 기본 제외·제외형 하나라도 있으면 섹션 제외는 PM 확정(D8). 판정값·배지 매핑(#7·5.9)은 계약 채택 전. overrides(개발용 예외 쌍)는 운영 규칙이 아니므로 빈 목록. BE가 묶음 생성 시 이 파일을 그대로 rules에 싣는다.",
+        "regulatory_class_map": {
+          "cosmetic": {
+            "applied_classes": [
+              "cosmetic",
+              "common"
+            ],
+            "dict_coverage": "selected_class_all_entries"
+          },
+          "otc": {
+            "applied_classes": [
+              "otc",
+              "common"
+            ],
+            "dict_coverage": "selected_class_all_entries"
+          },
+          "combination": {
+            "applied_classes": [
+              "otc",
+              "common"
+            ],
+            "dict_coverage": "partial_class_combination"
+          },
+          "unknown": {
+            "applied_classes": [
+              "cosmetic",
+              "common"
+            ],
+            "dict_coverage": "unverified_class"
+          }
+        },
+        "verdict_map": [
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "allowed",
+            "alternative": "any",
+            "emit_verdict_status": null,
+            "bucket": "none"
+          },
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "conditional",
+            "alternative": "any",
+            "emit_verdict_status": "conditional",
+            "bucket": "include"
+          },
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "regulated",
+            "alternative": "present",
+            "emit_verdict_status": "regulated",
+            "bucket": "include"
+          },
+          {
+            "dict_type": "regulatory",
+            "verdict_status": "regulated",
+            "alternative": "absent",
+            "emit_verdict_status": "regulated",
+            "bucket": "exclude"
+          },
+          {
+            "dict_type": "local",
+            "verdict_status": "irrelevant",
+            "alternative": "any",
+            "emit_verdict_status": "irrelevant",
+            "bucket": "exclude"
+          },
+          {
+            "dict_type": "local",
+            "verdict_status": "needs_fix",
+            "alternative": "any",
+            "emit_verdict_status": "needs_fix",
+            "bucket": "exclude"
+          }
+        ],
+        "uncertain_bucket": "exclude",
+        "overrides": []
+      }
+    },
+    "preserved": [
+      {
+        "block_key": "blk_001",
+        "revision": 1,
+        "translation_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source_attempt_id": "a-1"
+      },
+      {
+        "block_key": "blk_002",
+        "revision": 1,
+        "translation_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "source_attempt_id": "a-1"
+      }
+    ]
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-2",
+    "stage": "translate",
+    "input_snapshot_id": "snap-translate-a-2",
+    "input_manifest": {
+      "stage": "translate",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "translate-handoff@2026-10-08.1",
+      "target": {
+        "country": "US",
+        "lang": "en"
+      },
+      "regulatory_class": "cosmetic",
+      "section_key": "sec_1_01",
+      "context": [
+        {
+          "block_key": "blk_001",
+          "block_order": 1,
+          "role": "title",
+          "source_ko": "가짜치료 크림"
+        },
+        {
+          "block_key": "blk_002",
+          "block_order": 2,
+          "role": "body",
+          "source_ko": "가짜완화 SPF50"
+        },
+        {
+          "block_key": "blk_003",
+          "block_order": 3,
+          "role": "body",
+          "source_ko": "판독불가 ###"
+        },
+        {
+          "block_key": "blk_004",
+          "block_order": 4,
+          "role": "body",
+          "source_ko": "가짜차단 SPF50 PA++++"
+        }
+      ],
+      "targets": [
+        {
+          "block_key": "blk_003",
+          "revision": 0
+        }
+      ],
+      "preserved": [
+        {
+          "block_key": "blk_001",
+          "revision": 1,
+          "translation_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_attempt_id": "a-1"
+        },
+        {
+          "block_key": "blk_002",
+          "revision": 1,
+          "translation_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_attempt_id": "a-1"
+        }
+      ],
+      "instructions": [],
+      "glossary": {
+        "version": "glossary@synthetic.1",
+        "terms": [
+          {
+            "glossary_id": "G-1",
+            "term_ko": "크림",
+            "term_target": "cream",
+            "enforcement": "enforced"
+          },
+          {
+            "glossary_id": "G-2",
+            "term_ko": "가짜차단",
+            "term_target": "Fake Shield",
+            "enforcement": "enforced"
+          }
+        ]
+      },
+      "bundle": {
+        "bundle_id": "bundle-synthetic-1",
+        "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+        "regulation_version": "regulation@synthetic.1",
+        "local_version": "local@synthetic.1",
+        "rules_version": "policy@2026-10-08.1",
+        "rules_sha256": "19e912abe0684579e663da80a1fc9d393739a72b745d7f96fbccf97f06ff97ab",
+        "type_map_version": "content-types@2026-10-08.1",
+        "type_map_sha256": "1a6e5e795da5c2c7152c0945f48e48e94253873790691c7dca118460bf22e05d"
+      },
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2"
+    },
+    "input_manifest_sha256": "b65f29b57e309ac42a9e8a9b45500aad7481ddbd8b584a83a1165727f0fce864",
+    "outcome": "completed",
+    "target_count": 1,
+    "skip_reason": null,
+    "payload": {
+      "section_key": "sec_1_01",
+      "blocks": [
+        {
+          "block_key": "blk_003",
+          "input_revision": 0,
+          "outcome": "completed",
+          "source_sha256": "c3bf4dc106caf9d8095e08e06d2646ba487fd9eba61e4600fbccc4cc2b6cf33a",
+          "applied_instructions": [],
+          "trans_1": "판독불가 ###",
+          "translation_sha256": "c3bf4dc106caf9d8095e08e06d2646ba487fd9eba61e4600fbccc4cc2b6cf33a",
+          "error": null
+        }
+      ],
+      "preserved": [
+        {
+          "block_key": "blk_001",
+          "revision": 1,
+          "translation_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_attempt_id": "a-1"
+        },
+        {
+          "block_key": "blk_002",
+          "revision": 1,
+          "translation_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_attempt_id": "a-1"
+        }
+      ],
+      "summary": {
+        "targets": 1,
+        "completed": 1,
+        "failed": 0
+      }
+    },
+    "artifacts": [],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "translate-handoff@2026-10-08.1",
+      "stage": "translate@2026-10-08.1",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      }
+    },
+    "diagnostics": {
+      "payload_sha256": "d17829d2815ae0658e4dc10ba2e0479773f78e8323e9d0bc3f69d4949ad3bea8",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "cc88a8a9e404303be49e7b092c06c4efd3d61fb9e8761d103e6ed69331f86362",
+      "usage": null
+    }
+  },
+  "be_validation_problems": []
+}

@@ -188,6 +188,12 @@ class SubprocessInpaintModel:
         self.calls.append({"n": len(self.calls) + 1, "error": msg[1], "roundtrip_s": rt})
         raise InpaintProcessError("child_error", f"추론 실패: {msg[1]}")
 
+    def abort(self, reason: str) -> dict[str, Any] | None:
+        """다른 스레드에서 진행 중 추론을 끊는다(실행 권한 상실 · 취소, 통합 5.32). 자식을 바로 종료하고 채널을 닫는다 —
+        추론 중인 inpaint()는 통신 실패(child_exit)로 끝난다. 즉시 종료 · 결과 미생성을 보장하지는 않으며 채택 차단은 BE가 보장한다."""
+        self._stop(reason)
+        return self.termination
+
     def close(self) -> dict[str, Any] | None:
         """정상 종료 요청 → kill_grace_s 안에 끝나지 않으면 강제 종료. 종료 기록을 돌려준다."""
         if not self.closed:

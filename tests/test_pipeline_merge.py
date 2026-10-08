@@ -426,7 +426,7 @@ def test_cli_analyze_passes_no_llm(monkeypatch, tmp_path, argv_extra, use_llm):
 
     seen: dict[str, bool] = {}
 
-    def fake(sources, cfg, out, *, use_llm=True, llm=None):
+    def fake(sources, cfg, out, *, use_llm=True, llm=None, fallbacks=None):
         seen["use_llm"] = use_llm
         return AnalyzeResult(sections=[], blocks=[])
 

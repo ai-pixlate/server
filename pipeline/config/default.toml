@@ -94,5 +94,7 @@ align_tolerance = 0.12
 
 [translate]                    # ⑧ 로컬라이징 번역
 model = "gemini-3.8-flash"
-glossary = "rag"
-prompt_path = "pipeline/prompts/translate.md"   # 프롬프트 미정(open-questions #11)
+glossary = "rag"               # 용어는 BE가 검색해 실행 입력으로 공급한다(contract 5.1). AI가 검색하지 않는다
+prompt_path = "pipeline/prompts/translate.md"   # 초안 v1(실측 전). 확정은 #11 기술검증 후. 상대 경로는 레포 루트 기준
+temperature = 0                # 개발용 잠정값(③-1 · ④와 같은 계열)
+timeout_s = 60                 # 섹션 1회 호출 시간 제한(초). 개발용 잠정값 — 운영값 아님(BE 실행 정책에서 정한다)

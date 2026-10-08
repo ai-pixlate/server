@@ -355,6 +355,22 @@ def _neighbors(db: Session, section_id: int) -> tuple[str | None, str | None]:
     return text_of("<", "DESC"), text_of(">", "ASC")
 
 
+def _context_sections(db: Session, section_id: int) -> list[dict[str, Any]]:
+    """같은 분석 실행의 다른 섹션과 블록 — AI 판정의 앞뒤 문맥용(판정 대상 아님, PR #55 target_section_keys)."""
+    me = db.execute(text("SELECT analysis_task_id, job_id FROM section WHERE id = :s"), {"s": section_id}).mappings().one()
+    rows = db.execute(
+        text("SELECT id, source_image_id, section_order, top_offset, height, bbox FROM section "
+             "WHERE job_id = :j AND analysis_task_id IS NOT DISTINCT FROM :a AND id <> :s ORDER BY source_image_id, section_order"),
+        {"j": me["job_id"], "a": me["analysis_task_id"], "s": section_id},
+    ).mappings().all()
+    return [{"section_key": section_key(r["id"]), "source_image_id": r["source_image_id"], "section_order": r["section_order"],
+             "top_offset": r["top_offset"], "height": r["height"], "width": json_value(r["bbox"])["w"],
+             "blocks": [{"key": block_key(b["id"]), "block_order": b["block_order"], "source_ko": b["source_ko"] or "", "role": b["role"],
+                         "bbox": json_value(b["bbox"]), "source_lines": json_value(b["source_lines"]) or []}
+                        for b in _blocks_of(db, r["id"])]}
+            for r in rows]
+
+
 def _judge_blocks_fp(blocks: list[dict[str, Any]]) -> str:
     return stable_hash([[b["id"], b["block_order"], b["role"], b["source_ko"], json_value(b["bbox"]), json_value(b["source_lines"])]
                         for b in blocks])
@@ -388,6 +404,7 @@ def execute_judge(attempt_id: int) -> dict[str, Any]:
                               {"h": m["analyze_handoff"]}).mappings().first()
             blocks = _blocks_of(db, m["section_id"]) if sec else []
             prev_t, next_t = _neighbors(db, m["section_id"]) if sec else (None, None)
+            context = _context_sections(db, m["section_id"]) if sec else []
         finally:
             db.close()
         if sec is None or hrow is None:
@@ -410,7 +427,7 @@ def execute_judge(attempt_id: int) -> dict[str, Any]:
                         for b in blocks],
                 prev_section_text=prev_t, next_section_text=next_t,
                 source_image_id=sec["source_image_id"], section_order=sec["section_order"], top_offset=sec["top_offset"],
-                execution_id=str(lease.run_id), attempt_id=str(attempt_id),
+                execution_id=str(lease.run_id), attempt_id=str(attempt_id), context_sections=context,
             )
             jd = ai_adapters.judge()
             with common.Heartbeat(lease) as hb:

@@ -86,3 +86,28 @@ def test_handoff_judge_runs_n2_to_n3(env, llm, local_status):
     audit = _q("SELECT detail FROM audit_log WHERE action_type = 'analysis_result_adopted' AND target_id = :s", s=reg["id"])[0]["detail"]
     assert audit["inputs"]["policy"]["rules_version"] == "policy@2026-10-08.1"
     assert {m["snapshot_key"] for m in audit["matches"]} >= {"RG-901", "RG-902"}
+
+
+class _RecordingLlm(FakeJudgeLlm):
+    def __init__(self):
+        self.payloads = []
+
+    def __call__(self, prompt, payload, image):
+        self.payloads.append(json.loads(payload))
+        return super().__call__(prompt, payload, image)
+
+
+@requires_db
+def test_section_attempt_gets_neighbor_context(env):
+    # PR #56 AI 요청 4: 섹션별 시도도 분석 전체를 문맥으로 주고 target_section_keys 로 대상만 판정한다(D5 앞뒤 섹션 문맥)
+    from tests.test_exec_analysis import _client, _job
+
+    llm = _RecordingLlm()
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer(), judge=ai_adapters.HandoffJudge(load_config(), llm=llm))
+    ids = _job(env)
+    assert _client(ids).post(f"/v1/jobs/{ids['job']}/analyze").status_code == 202
+    env["q"].drain()
+    assert len(llm.payloads) == 2  # 섹션 2개 — 섹션마다 한 번, 대상 섹션만 판정
+    first, second = sorted(llm.payloads, key=lambda p: p["section"])
+    assert first["context"]["prev"] is None and first["context"]["next"]  # 첫 섹션의 다음 섹션 원문
+    assert second["context"]["prev"] and second["context"]["next"] is None

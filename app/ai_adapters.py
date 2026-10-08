@@ -114,6 +114,9 @@ class JudgeSection(_Strict):
     top_offset: int | None = None
     execution_id: str | None = None
     attempt_id: str | None = None
+    # 같은 분석 실행의 다른 섹션(앞뒤 문맥용, 판정 대상 아님). 각 {section_key, source_image_id, section_order, top_offset,
+    # height, width, blocks[JudgeBlock 형식]}. AI가 context_sections 설정에 따라 이웃을 고른다(D5)
+    context_sections: list[dict[str, Any]] | None = None
 
 
 class FindingOut(_Strict):
@@ -203,7 +206,8 @@ class HandoffJudge:
 
     - 사전 묶음은 BE 저장 묶음에서 to_ai_bundle()로 만든 AI 형식이다. 정책 규칙이 없으면 AdapterUnavailable.
     - 보고는 pipeline.handoff.validate.validate_report 로 먼저 검사한다. 어기면 규제 판정 실패(재시도 후보)로 돌린다.
-    - 섹션 단위로 부르므로 앞뒤 섹션 문맥은 아직 전달되지 않는다(대상 섹션 지정 입력을 PR #55에 요청, BE 확인 4).
+    - 섹션별 시도라도 analyze_result 는 분석 실행 전체(문맥)를 주고 판정 대상은 target_section_keys 로 고른다. 섹션 이미지는
+      대상 섹션만 준다(PR #55 3217142). 문맥 섹션의 image_path 는 쓰이지 않으므로 빈 문자열이다.
     - AI 보고 failed(묶음·입력·설정·내부) = 규제 판정 실패. 현지 실패·미검사는 섹션 결과로만 남는다(D9-1)."""
 
     def __init__(self, cfg: dict[str, Any] | None = None, llm: Any | None = None):
@@ -220,14 +224,29 @@ class HandoffJudge:
         missing = [k for k in ("source_image_id", "section_order", "top_offset") if getattr(section, k) is None]
         if missing:
             raise ValueError(f"JudgeSection 에 AI 요청 필드가 없다: {missing}")
-        sec = {"section_key": section.section_key, "source_image_id": section.source_image_id, "section_order": section.section_order,
-               "top_offset": section.top_offset, "height": section.height, "width": section.width, "image_path": section.image_path}
-        blocks = [{"block_key": b.key, "section_key": section.section_key, "block_order": b.block_order, "source_ko": b.source_ko,
-                   "source_lines": b.source_lines, "bbox": b.bbox, "role": b.role} for b in section.blocks]
+        def sec_of(d: dict[str, Any], image_path: str) -> dict[str, Any]:
+            return {"section_key": d["section_key"], "source_image_id": d["source_image_id"], "section_order": d["section_order"],
+                    "top_offset": d["top_offset"], "height": d["height"], "width": d["width"], "image_path": image_path}
+
+        def blocks_of(key: str, blocks: list[Any]) -> list[dict[str, Any]]:
+            out = []
+            for b in blocks:
+                b = b if isinstance(b, dict) else b.model_dump()
+                out.append({"block_key": b["key"], "section_key": key, "block_order": b["block_order"], "source_ko": b["source_ko"],
+                            "source_lines": b["source_lines"], "bbox": b["bbox"], "role": b["role"]})
+            return out
+
+        me = {"section_key": section.section_key, "source_image_id": section.source_image_id, "section_order": section.section_order,
+              "top_offset": section.top_offset, "height": section.height, "width": section.width}
+        ctx = [c for c in (section.context_sections or []) if c["section_key"] != section.section_key]
+        allsec = sorted([(me, section.blocks, section.image_path)] + [(c, c["blocks"], "") for c in ctx],
+                        key=lambda t: (t[0]["source_image_id"], t[0]["section_order"]))
         return {
             "contract_version": CONTRACT_VERSION, "execution_id": section.execution_id or "-", "attempt_id": section.attempt_id or "-",
             "stage": "judge", "target_country": target_country, "regulatory_class": regulatory_class,
-            "analyze_result": {"schema_version": "1", "sections": [sec], "blocks": blocks, "warnings": []},
+            "analyze_result": {"schema_version": "1", "sections": [sec_of(d, p) for d, _, p in allsec],
+                               "blocks": [b for d, bl, _ in allsec for b in blocks_of(d["section_key"], bl)], "warnings": []},
+            "target_section_keys": [section.section_key],
             "section_images": {section.section_key: {"path": section.image_path, "sha256": sha256_file(section.image_path)}},
             "bundle": ai_bundle,
         }

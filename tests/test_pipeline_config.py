@@ -25,6 +25,7 @@ def test_default_config_matches_pipeline_md_keys():
     assert flat["merge.llm_timeout_s"] == 60  # llm_assist 개발용 잠정값(open-questions #41 · #37)
     assert flat["inpaint.score_min"] == 0.5
     assert flat["translate.prompt_path"] == "pipeline/prompts/translate.md"
+    assert flat["translate.temperature"] == 0 and flat["translate.timeout_s"] == 60  # ⑧ 개발용 잠정값(운영값 아님)
     assert flat["section.vlm_model"] == "gemini-3.8-flash"  # open-questions #21 확정 2026-09-21
     assert flat["section.prompt_path"] == "pipeline/prompts/section_boundary.md"
     assert flat["judge.match_mode"] == "substring"  # ③-1 설계 v1 잠정값(open-questions #60) — 실험 기준

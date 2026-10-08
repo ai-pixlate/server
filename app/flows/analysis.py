@@ -400,6 +400,8 @@ def execute_judge(attempt_id: int) -> dict[str, Any]:
                                                role=b["role"], bbox=json_value(b["bbox"]), source_lines=json_value(b["source_lines"]) or [])
                         for b in blocks],
                 prev_section_text=prev_t, next_section_text=next_t,
+                source_image_id=sec["source_image_id"], section_order=sec["section_order"], top_offset=sec["top_offset"],
+                execution_id=str(lease.run_id), attempt_id=str(attempt_id),
             )
             jd = ai_adapters.judge()
             with common.Heartbeat(lease) as hb:

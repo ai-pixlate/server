@@ -6,7 +6,7 @@ AI 함수는 DB·S3에 접근하지 않는다(contract.md 1.1, D3).
 | 단계 | 인터페이스 | 기본 구현 |
 |---|---|---|
 | ①②③ | Analyzer.analyze | PipelineAnalyzer → pipeline.analyze.analyze (실제 호출) |
-| ③-1·③-1′ | Judge.judge → JudgeOutcome | UnavailableJudge — A안(전 섹션 현지 8항목·항목당 1건)과 DB 고정 묶음 입력형이 AI에서 아직 인계되지 않음 |
+| ③-1·③-1′ | Judge.judge → JudgeOutcome | HandoffJudge → pipeline.handoff.judgment.run_judgment(PR #55)를 섹션 단위로 불러 변환. 정책 규칙(PIXLATE_POLICY_RULES) 없으면 Unavailable |
 | ④ | Labeler.label | PipelineLabeler → pipeline.stages.label.run (실제 호출) |
 | ⑤ | LogoJudge.logo | PipelineLogo → pipeline.stages.logo.run (실제 계산) |
 | ⑥ | Inpainter.inpaint | PipelineInpainter → pipeline.stages.inpaint(+LaMa, GPU) |
@@ -93,6 +93,12 @@ class JudgeSection(_Strict):
     blocks: list[JudgeBlock]
     prev_section_text: str | None = None  # 같은 원본 앞 섹션 텍스트(참고 문맥)
     next_section_text: str | None = None
+    # AI 인계 요청(AnalyzeResult 섹션·실행 식별)에 필요한 값. BE 워커가 DB에서 채운다
+    source_image_id: int | None = None
+    section_order: int | None = None
+    top_offset: int | None = None
+    execution_id: str | None = None
+    attempt_id: str | None = None
 
 
 class FindingOut(_Strict):
@@ -175,6 +181,111 @@ class UnavailableJudge:
         raise AdapterUnavailable(
             "③-1·③-1′ 운영 어댑터가 아직 없다: A안(전 섹션 현지 8항목·섹션·항목당 1건) 출력과 DB 고정 묶음 입력형을 AI가 인계해야 한다"
         )
+
+
+class HandoffJudge:
+    """③-1·③-1′ 운영 어댑터 — AI 인계 계층(pipeline.handoff.judgment.run_judgment)을 섹션 하나로 부르고 JudgeOutcome 으로 옮긴다.
+
+    - 사전 묶음은 BE 저장 묶음에서 to_ai_bundle()로 만든 AI 형식이다. 정책 규칙이 없으면 AdapterUnavailable.
+    - 보고는 pipeline.handoff.validate.validate_report 로 먼저 검사한다. 어기면 규제 판정 실패(재시도 후보)로 돌린다.
+    - 섹션 단위로 부르므로 앞뒤 섹션 문맥은 아직 전달되지 않는다(대상 섹션 지정 입력을 PR #55에 요청, BE 확인 4).
+    - AI 보고 failed(묶음·입력·설정·내부) = 규제 판정 실패. 현지 실패·미검사는 섹션 결과로만 남는다(D9-1)."""
+
+    def __init__(self, cfg: dict[str, Any] | None = None, llm: Any | None = None):
+        from pipeline.handoff.judgment import JUDGE_ADAPTER_VERSION
+
+        self.cfg = cfg if cfg is not None else _load_cfg()
+        self.llm = llm
+        self.impl_version = f"{JUDGE_ADAPTER_VERSION}@cfg:{_cfg_hash(self.cfg, 'judge', 'policy')[:16]}"
+
+    def request(self, section: JudgeSection, ai_bundle: dict[str, Any], regulatory_class: str, target_country: str) -> dict[str, Any]:
+        from pipeline.handoff.canonical import sha256_file
+        from pipeline.handoff.envelope import CONTRACT_VERSION
+
+        missing = [k for k in ("source_image_id", "section_order", "top_offset") if getattr(section, k) is None]
+        if missing:
+            raise ValueError(f"JudgeSection 에 AI 요청 필드가 없다: {missing}")
+        sec = {"section_key": section.section_key, "source_image_id": section.source_image_id, "section_order": section.section_order,
+               "top_offset": section.top_offset, "height": section.height, "width": section.width, "image_path": section.image_path}
+        blocks = [{"block_key": b.key, "section_key": section.section_key, "block_order": b.block_order, "source_ko": b.source_ko,
+                   "source_lines": b.source_lines, "bbox": b.bbox, "role": b.role} for b in section.blocks]
+        return {
+            "contract_version": CONTRACT_VERSION, "execution_id": section.execution_id or "-", "attempt_id": section.attempt_id or "-",
+            "stage": "judge", "target_country": target_country, "regulatory_class": regulatory_class,
+            "analyze_result": {"schema_version": "1", "sections": [sec], "blocks": blocks, "warnings": []},
+            "section_images": {section.section_key: {"path": section.image_path, "sha256": sha256_file(section.image_path)}},
+            "bundle": ai_bundle,
+        }
+
+    def judge(self, section: JudgeSection, bundle: dict[str, Any], *, regulatory_class: str, target_country: str) -> JudgeOutcome:
+        from app.dictionary_bundle import BundleError, to_ai_bundle
+        from pipeline.handoff.judgment import run_judgment
+        from pipeline.handoff.validate import validate_report
+
+        try:
+            ai_bundle = to_ai_bundle(bundle)
+        except BundleError as e:
+            raise AdapterUnavailable(f"③-1 판정을 시작할 수 없다: {e}") from e
+        req = self.request(section, ai_bundle, regulatory_class, target_country)
+        report = run_judgment(req, self.cfg, llm=self.llm)
+        problems = validate_report(report, req)
+        if problems:
+            return _judge_failed(section.section_key, "response_invalid", "AI 보고 검증 실패: " + "; ".join(problems[:10]), True)
+        return judge_outcome_from_report(report, section.section_key, ai_bundle["rules"])
+
+
+def _judge_failed(section_key: str, kind: str, message: str, retryable: bool) -> JudgeOutcome:
+    return JudgeOutcome(section_key=section_key,
+                        regulatory=ScopeStatus(status="failed", error=f"{kind}: {message}"[:2000], retryable=retryable),
+                        local=ScopeStatus(status="not_inspected", error="규제 판정 실패로 현지 판정 결과를 쓰지 않는다"),
+                        inspection={"failure": {"kind": kind, "message": message[:2000]}})
+
+
+def judge_outcome_from_report(report: Any, section_key: str, rules: dict[str, Any]) -> JudgeOutcome:
+    """AI StageReport(stage=judge, 섹션 1개) → BE JudgeOutcome. 키는 BE가 준 임시 키(sec_·blk_) 그대로다.
+
+    사전 연결은 audit.links 에서, 판정에 연결되지 않은 원시 후보와 억제 관계는 overlaps 에 보존한다(위반 배지로 쓰지 않음)."""
+    from app.manifest import fingerprint
+
+    if report.outcome == "failed":
+        f = report.failure
+        return _judge_failed(section_key, f.kind, f.message, bool(f.retryable))
+    sections = report.payload["sections"]
+    if len(sections) != 1 or sections[0]["section_key"] != section_key:
+        return _judge_failed(section_key, "response_invalid", f"섹션 결과가 요청과 다르다: {[s['section_key'] for s in sections]}", True)
+    r = sections[0]
+    audit = r["audit"]
+    links = {ln["finding_key"]: ln for ln in audit["links"]}
+    m2f = {mk: fk for fk, ln in links.items() for mk in ln["match_keys"]}
+    findings = [FindingOut(finding_key=f["finding_key"], content_type=f["content_type"], status=f["status"],
+                           evidence_block_keys=list(f["evidence_block_ids"]), evidence_source=f["evidence_source"], reason=f["reason"],
+                           dictionary_refs=list(links.get(f["finding_key"], {}).get("external_ids", [])))
+                for f in r["content_findings"]["findings"]]
+    matches, unlinked = [], []
+    for m in audit["matches"]:
+        if m["match_key"] in m2f:
+            matches.append(MatchOut(match_key=m["match_key"], finding_key=m2f[m["match_key"]], dictionary_ref=m["external_id"],
+                                    block_key=m["block_key"], start=m["start"], end=m["end"], matched_text=m["matched_text"]))
+        else:
+            unlinked.append({"kind": "unlinked_candidate", **m})
+    verdicts = [VerdictOut(verdict_key=v["verdict_key"], finding_key=v["finding_key"], dictionary_ref=v["external_id"],
+                           verdict_status=v["verdict_status"], bucket=v["bucket"], finding_status=v["finding_status"],
+                           problem_text=v["problem_text"])
+                for v in r["verdicts"]]
+    overlaps = [{"kind": "suppressed", **s} for s in audit["suppressed"]] + unlinked
+    local_map = {"completed": "ok", "failed": "failed", "not_checked": "not_inspected"}
+    lf = r.get("local_failure") or {}
+    local = ScopeStatus(status=local_map[r["local_status"]], error=lf.get("message") if r["local_status"] != "completed" else None)
+    impl = dict(report.implementation)
+    return JudgeOutcome(
+        section_key=section_key, regulatory=ScopeStatus(status="ok"), local=local, findings=findings, matches=matches,
+        verdicts=verdicts, overlaps=overlaps,
+        inspection={**audit["inspection"], "bucket_recommendation": r["bucket_recommendation"],
+                    "recommendation_basis": r["recommendation_basis"],
+                    "ai_report": {"contract_version": report.contract_version, "input_manifest_sha256": report.input_manifest_sha256}},
+        policy=PolicyInfo(rules_version=rules["rules_version"], rules_sha256=fingerprint(rules), impl_version=str(impl.get("policy"))),
+        impl=impl,
+    )
 
 
 # ---------------------------------------------------------------------------------------------------------
@@ -387,7 +498,7 @@ def analyzer() -> Analyzer:
 
 def judge() -> Judge:
     if _adapters.judge is None:
-        _adapters.judge = UnavailableJudge()
+        _adapters.judge = HandoffJudge()
     return _adapters.judge
 
 

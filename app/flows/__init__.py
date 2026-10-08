@@ -1,5 +1,5 @@
 """단계 흐름 — 각 모듈이 import 될 때 execution 에 단계 핸들러를 등록한다."""
-from app.flows import analysis, downstream  # noqa: F401
+from app.flows import analysis, downstream, final  # noqa: F401
 
 
 def retry_plan(db, attempt: dict) -> dict:

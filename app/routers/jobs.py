@@ -115,19 +115,16 @@ def get_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
     }
 
 
-@router.delete("/jobs/{job_id}", summary="API-JOB-04 작업 취소 (DB · archived)")
+@router.delete("/jobs/{job_id}", summary="API-JOB-04 작업 취소 (DB · archived · 콘텐츠 삭제)")
 def cancel_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    r = db.execute(
-        text(
-            "UPDATE job SET status = 'archived', updated_at = now() "
-            "WHERE id = :id AND seller_id = :s RETURNING id, status"
-        ),
-        {"id": job_id, "s": seller_id},
-    ).mappings().first()
-    if not r:
+    """✕ 전체 취소(D9-4): 진행 실행을 중단하고 원본·섹션·번역·판정 근거·산출물·인계 자료 등 콘텐츠를 지운다.
+    콘텐츠 없는 행위자·시각·대상 감사 기록만 남긴다. 오류 화면의 [중단](JOB-07, 입력 유지)과 다르다."""
+    from app.flows.cancel import cancel_job as do_cancel
+
+    r = do_cancel(db, job_id, seller_id)
+    if r is None:
         raise HTTPException(status_code=404, detail="job not found")
-    db.commit()
-    return {"jobId": r["id"], "status": r["status"]}
+    return r
 
 
 # ── ANL-01 · JOB-05: Celery 큐 / 실제 DB ──────────────────────────

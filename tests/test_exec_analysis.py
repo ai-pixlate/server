@@ -329,3 +329,17 @@ def test_late_judge_result_after_abort_is_not_saved(env):
     job = c.get(f"/v1/jobs/{ids['job']}").json()
     assert (job["status"], job["currentStep"]) == ("draft", "N1")
     assert _q("SELECT count(*) AS n FROM source_image WHERE job_id = :j", j=ids["job"])[0]["n"] == 1  # 입력 유지
+
+
+def test_split_fallback_record_kept_in_adoption(env):
+    # ① 분해 실패 → 원본 전체 섹션 대체 기록은 AnalyzeResult 밖 인계 payload 로 오고 채택 기록에 남는다(D9-1, PR #55 BE 확인 1)
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer(split_fallback=True))
+    ids = _job(env)
+    c = _client(ids)
+    assert c.post(f"/v1/jobs/{ids['job']}/analyze").status_code == 202
+    env["q"].drain()
+    assert c.get(f"/v1/jobs/{ids['job']}").json()["currentStep"] == "N3"
+    vr = _q("SELECT h.verify_result FROM task_handoff h JOIN job_async_task a ON a.id = h.task_id "
+            "WHERE a.job_id = :j AND a.stage = 'analyze' AND h.state = 'adopted'", j=ids["job"])[0]["verify_result"]
+    src = _q("SELECT id FROM source_image WHERE job_id = :j", j=ids["job"])[0]["id"]
+    assert [(f["kind"], f["source_image_id"]) for f in vr["split_fallbacks"]] == [("section_split_whole_image", src)]

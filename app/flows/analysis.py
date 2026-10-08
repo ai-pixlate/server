@@ -156,7 +156,10 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
             analyzer = ai_adapters.analyzer()
             with common.Heartbeat(lease) as hb:
                 try:
-                    result = analyzer.analyze(sources, tmpd / "out")
+                    if hasattr(analyzer, "analyze_with_fallbacks"):
+                        result, fallbacks = analyzer.analyze_with_fallbacks(sources, tmpd / "out")
+                    else:
+                        result, fallbacks = analyzer.analyze(sources, tmpd / "out"), []
                 except AnalyzeError as e:
                     if hb.lost:
                         return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
@@ -181,7 +184,7 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
             env = Envelope(
                 outcome="done", target_count=len(m["sources"]), input_fingerprint=lease.fingerprint,
                 impl_version=analyzer.impl_version,
-                payload={"analyze_result": payload_result, "bundle": bundle},
+                payload={"analyze_result": payload_result, "bundle": bundle, "split_fallbacks": fallbacks},
                 artifacts=[ArtifactSpec(kind="section_image", part_key=s.section_key, data=files.get(("section_image", s.section_key)))
                            for s in result.sections if ("section_image", s.section_key) in files],
             )
@@ -309,8 +312,14 @@ class AnalyzeHandler:
                                  image_sha=arts[s.section_key]["sha256"], manifest=manifest, judge_impl=judge_impl)
             ids.append(execution.create_attempt(db, run=run, stage="judge", unit_id=sid, manifest=jm, target_count=1,
                                                 max_retry=N2_MAX_RETRY))
+        fallbacks = payload.get("split_fallbacks") or []
+        src_ids = {s["source_image_id"] for s in manifest["sources"]}
+        if not isinstance(fallbacks, list) or any(not isinstance(f, dict) or f.get("source_image_id") not in src_ids for f in fallbacks):
+            raise AdoptionRejected("split_fallbacks 형식 또는 원본 대응 오류", code="ANALYZE_RESULT_INVALID")
+        # ① 원본 전체 대체 기록(D9-1)은 채택 기록에 남긴다. 화면 표시 요구가 없어 API 로 노출하지 않는다
         verify = {"key_map": key_map, "warnings": [w.model_dump(mode="json") for w in res.warnings],
-                  "bundle_sha256": bundle["sha256"], "local_dictionary": bundle["local"]["status"]}
+                  "bundle_sha256": bundle["sha256"], "local_dictionary": bundle["local"]["status"],
+                  "split_fallbacks": fallbacks}
         return AdoptOutcome(status="done", verify_result=verify, dispatch=ids)
 
     def after_failure(self, db: Session, attempt: dict[str, Any], error_code: str, retryable: bool) -> list[int]:

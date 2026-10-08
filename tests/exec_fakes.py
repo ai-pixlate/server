@@ -35,11 +35,19 @@ def png_bytes(w: int, h: int, color=(240, 240, 240)) -> bytes:
 class FakeAnalyzer:
     impl_version = "fake-analyzer/1"
 
-    def __init__(self, *, fail: Exception | None = None, fails: int = 0, mutate: Callable[[dict], None] | None = None):
+    def __init__(self, *, fail: Exception | None = None, fails: int = 0, mutate: Callable[[dict], None] | None = None,
+                 split_fallback: bool = False):
         self.fail = fail
         self.fails = fails  # 처음 n번만 실패
         self.calls = 0
         self.mutate = mutate
+        self.split_fallback = split_fallback  # 첫 원본을 ① 대체(원본 전체 섹션)로 기록
+
+    def analyze_with_fallbacks(self, sources, out_dir: Path):
+        res = self.analyze(sources, out_dir)
+        first = min(sources, key=lambda s: s.upload_order)
+        fb = [{"kind": "section_split_whole_image", "source_image_id": first.source_image_id, "cause": "VlmError: 합성"}]
+        return res, (fb if self.split_fallback else [])
 
     def analyze(self, sources, out_dir: Path):
         self.calls += 1

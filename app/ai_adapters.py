@@ -68,9 +68,14 @@ class PipelineAnalyzer:
         self.impl_version = f"pipeline.analyze@cfg:{_cfg_hash(self.cfg, 'section', 'ocr', 'merge')[:16]}:llm={int(self.use_llm)}"
 
     def analyze(self, sources: list[Any], out_dir: Path) -> Any:
+        return self.analyze_with_fallbacks(sources, out_dir)[0]
+
+    def analyze_with_fallbacks(self, sources: list[Any], out_dir: Path) -> tuple[Any, list[dict[str, Any]]]:
+        """① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)의 기록(원본·사유)을 함께 돌려준다. AnalyzeResult v1 은 바꾸지 않는다(BE 확인 1)."""
         from pipeline.analyze import analyze
 
-        return analyze(sources, self.cfg, out_dir, use_llm=self.use_llm)
+        fallbacks: list[dict[str, Any]] = []
+        return analyze(sources, self.cfg, out_dir, use_llm=self.use_llm, fallbacks=fallbacks), fallbacks
 
 
 # ---------------------------------------------------------------------------------------------------------

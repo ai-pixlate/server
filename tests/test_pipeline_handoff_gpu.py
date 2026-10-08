@@ -144,3 +144,46 @@ def test_unsafe_ids_rejected(setup):
     runner = GpuInpaintRunner(FakeControl(bad), ex.config(), work_root=work, fetch=fetch, put=put)
     with pytest.raises(ValueError):
         runner.run_task("t-9")
+
+
+def test_discard_status_allows_cleanup_but_rejected_does_not(setup):
+    lease, work, fetch, put, _ = setup
+    for status, deleted in (("discard", True), ("rejected", False)):
+        ctl = FakeControl(lease, status=status)
+        runner = GpuInpaintRunner(ctl, ex.config(), work_root=work / status, model_factory=lambda cfg: ex.FakeInpaintModel(),
+                                  fetch=fetch, put=put)
+        out = runner.run_task("t-9")
+        assert runner.cleanup(out) is deleted and out.workdir.exists() is not deleted
+
+
+class TimeoutOnceModel(ex.FakeInpaintModel):
+    """첫 호출에서 시간 초과로 닫히는 자식 프로세스 모델 흉내."""
+
+    def __init__(self):
+        self.closed = False
+
+    def inpaint(self, image, mask):
+        self.closed = True
+        raise RuntimeError("시간 초과(합성)")
+
+    def close(self):
+        self.closed = True
+
+
+def test_failed_model_is_not_reused(setup):
+    lease, work, fetch, put, _ = setup
+    made: list[object] = []
+
+    def factory(cfg):
+        m = TimeoutOnceModel() if not made else ex.FakeInpaintModel()
+        made.append(m)
+        return m
+
+    ctl = FakeControl(lease)
+    runner = GpuInpaintRunner(ctl, ex.config(), work_root=work, model_factory=factory, fetch=fetch, put=put)
+    first = runner.run_task("t-9")
+    assert first.report.failure.kind == "model_call_failed"
+    second_lease = Lease(**{**lease.__dict__, "lease_epoch": 4})
+    ctl.lease = second_lease
+    second = runner.run_task("t-9")
+    assert second.report.outcome == "completed" and len(made) == 2  # 닫힌 모델을 버리고 새로 만들었다

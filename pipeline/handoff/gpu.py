@@ -9,7 +9,9 @@ AI는 BE의 내부 경로 · 인증 형식을 정하지 않는다. `ControlClien
 3. 갱신 루프를 계산과 **독립 스레드**로 돌린다(간격은 BE가 권한에 실어 준다). 갱신 실패 = 권한 상실 → 취소 신호 + 진행 중 추론 중단 요청.
 4. 단계 어댑터 실행(현재 ⑥). 권한을 잃었으면 업로드 · 인계 등록을 하지 않고 로컬 파일을 보존한다(복구는 BE 복구자가 인수, 5.30).
 5. 산출물마다 업로드 직전에 URL을 받아 올린다. 실패하면 파일을 보존하고 upload_failed — 계산을 다시 하지 않는다.
-6. 인계 등록 = 수신 확인 요청. 수신 확인만으로 로컬을 지우지 않는다. `cleanup()`은 BE가 verified(원격 복구 가능) · adopted를 확인한 뒤만 지운다.
+6. 인계 등록 = 수신 확인 요청. 수신 확인만으로 로컬을 지우지 않는다. `cleanup()`은 BE가 verified(원격 복구 가능) · adopted ·
+   discard(거절 · 취소 · 대체 확정 후 폐기 허용)를 알린 뒤만 지운다. rejected만으로는 지우지 않는다.
+모델(자식 프로세스)은 시도 사이에 재사용하되, 추론 실패 · 시간 초과로 닫힌 모델은 버리고 다음 시도에서 새로 만든다.
 전체 작업 취소는 `purge_job()` — 채택 여부와 무관하게 그 작업의 로컬 입력 · 산출물 · 진단을 지운다(D9-4).
 """
 from __future__ import annotations
@@ -26,7 +28,9 @@ from pipeline.handoff.downstream import run_inpaint
 from pipeline.handoff.envelope import StageReport, failed_report, identity_fallback
 
 GPU_RUNNER_VERSION = "gpu-runner@2026-10-08.1"
-DELETABLE_STATUSES = ("verified", "adopted")  # BE 확인: 원격 복구 가능 · DB 채택(5.30). received만으로는 지우지 않는다
+# BE 확인: 원격 복구 가능(verified) · DB 채택(adopted) · BE가 거절 · 취소 · 대체를 확정해 폐기 허용(discard). received · verifying ·
+# rejected(폐기 확정 전)는 보관한다(5.30)
+DELETABLE_STATUSES = ("verified", "adopted", "discard")
 
 
 class LeaseLost(Exception):
@@ -62,7 +66,7 @@ class ControlClient(Protocol):
     def heartbeat(self, lease: Lease) -> None: ...  # 권한 없음이면 LeaseLost
     def upload_target(self, lease: Lease, kind: str, part_key: str) -> UploadTarget: ...  # 권한 없음이면 LeaseLost
     def register_handoff(self, lease: Lease, envelope: dict[str, Any]) -> HandoffAck: ...
-    def handoff_status(self, task_id: str, handoff_id: str) -> str: ...  # received · verifying · verified · adopted · rejected
+    def handoff_status(self, task_id: str, handoff_id: str) -> str: ...  # received · verifying · verified · adopted · rejected · discard
 
 
 def http_get(url: str, dest: Path) -> None:
@@ -158,6 +162,16 @@ class GpuInpaintRunner:
                         pass
                     break
 
+    def _discard_model(self) -> None:
+        """추론 시간 초과 · 자식 종료 등으로 실패한 모델은 다음 시도에 재사용하지 않는다(닫고 비운다 — 다음 비어 있지 않은 마스크에서 새로 만든다)."""
+        with self._lock:
+            m, self._model = self._model, None
+        if m is not None and hasattr(m, "close"):
+            try:
+                m.close()
+            except Exception:  # noqa: BLE001
+                pass
+
     def close(self) -> None:
         with self._lock:
             m, self._model = self._model, None
@@ -188,6 +202,9 @@ class GpuInpaintRunner:
                 report = run_inpaint(req, self.cfg, model_factory=self._shared_model, close_model=False, cancel=cancel)
             except _InputMismatch as e:
                 report = failed_report(identity_fallback(req, "inpaint"), "input_invalid", str(e))
+        m = self._model
+        if (report.failure is not None and report.failure.kind == "model_call_failed") or (m is not None and getattr(m, "closed", False)):
+            self._discard_model()
         if hb.lost.is_set():  # 권한 상실 — 업로드 · 인계하지 않고 파일 보존(복구자 인수 대상)
             return RunOutcome("lease_lost", lease.task_id, report, wd, error=hb.error)
         uploads: list[dict[str, Any]] = []

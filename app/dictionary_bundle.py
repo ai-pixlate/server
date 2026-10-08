@@ -9,11 +9,12 @@
 - 규제 조회 실패(질의 오류·해당 행 없음·필수값 누락)는 BundleError — N2 실패(자동 재시도 → 오류)다(D9-1).
 - 현지 조회 실패는 묶음의 local.status='unavailable' 로 남기고 분석은 계속한다(제외 없이 검사 불가 안내, D9-1).
 - 이번 범위 밖 판정값(cultural, D9-2)은 공급하지 않고 skipped 로 기록한다.
-- ③-1′ 정책 규칙은 DB에 없다. AI가 제공한 규칙 JSON 경로(PIXLATE_POLICY_RULES)를 묶음 생성 시 읽어 그대로 고정한다.
-  BE는 규칙 내용을 만들지 않는다. 경로가 없으면 policy_rules=None 이고 판정 단계가 실패로 기록된다.
-  규칙이 있으면 규제 행 조회 분류는 규칙의 applied_classes(common 포함)를 따르고, common 을 뺀 분류가 D8 대응과 같아야 한다.
+- ③-1′ 정책 규칙은 DB에 없다. 저장소 운영 규칙(pipeline/data/policy_rules.json, AI 소유)을 묶음 생성 시 그대로 고정한다.
+  환경변수 PIXLATE_POLICY_RULES 는 실험용 대체 경로다. BE는 규칙 내용을 만들지 않는다. 규칙 지문(policy_rules_sha256)도 보존한다.
+  규제 행 조회 분류는 규칙의 applied_classes(common 포함)를 따르고, common 을 뺀 분류가 D8 대응과 같아야 한다.
 - AI 인계 형식(pipeline.handoff.bundle.RuntimeBundle)은 to_ai_bundle()이 이 저장 묶음에서 결정적으로 만든다.
-  대체 표현은 #71 결정 전까지 원문 1개짜리 배열로 감싸 나누지 않는다(2026-10-08 사용자 결정). DB PK 는 AI에 보내지 않는다.
+  대체 표현은 #71 결정 전까지 나누지 않은 원문 문자열 그대로 보낸다(PR #55 3217142 형식 — AI는 ⑧ 표현 지시로 쓰지 않는다).
+  근거는 저장 묶음의 근거 배열 전체(PK 제외)를 보낸다. DB PK 는 AI에 보내지 않는다.
 """
 from __future__ import annotations
 
@@ -27,7 +28,7 @@ from sqlalchemy import text
 from app import db as app_db
 from app.manifest import fingerprint
 
-BUNDLE_SCHEMA = "2"  # 2: policy_rules 고정 추가
+BUNDLE_SCHEMA = "3"  # 2: policy_rules 고정, 3: 규칙 기본값 저장소 파일·policy_rules_sha256
 APPLIED_CLASSES = {"cosmetic": ["cosmetic"], "otc": ["otc"], "combination": ["otc"], "unknown": ["cosmetic"]}
 CLASS_NOTICE = {"combination": "combination_otc_basis", "unknown": "unverified_class"}
 REGULATORY_VERDICTS = ("regulated", "conditional", "allowed")
@@ -108,18 +109,18 @@ def _problems_local(e: dict[str, Any]) -> list[str]:
     return p
 
 
-def load_policy_rules(path: str | None = None) -> dict[str, Any] | None:
-    """AI가 제공한 ③-1′ 정책 규칙 JSON을 읽어 검증한다. 경로가 설정되지 않았으면 None.
+def load_policy_rules(path: str | None = None) -> dict[str, Any]:
+    """③-1′ 정책 규칙 JSON을 읽어 검증한다. 경로를 주지 않으면 PIXLATE_POLICY_RULES(실험용 대체), 그것도 없으면
+    저장소 운영 규칙(pipeline.handoff.bundle.POLICY_RULES_PATH)을 쓴다.
 
     검증: pipeline 의 PolicyRules 구조, overrides 빈 목록(개발용 예외 쌍 금지, 5.21 R04),
     각 분류의 applied_classes 에서 common 을 뺀 값이 D8 대응(APPLIED_CLASSES)과 같을 것."""
-    path = path if path is not None else os.getenv(POLICY_RULES_ENV)
-    if not path:
-        return None
     from pydantic import ValidationError
 
     from pipeline.dictionary import PolicyRules
+    from pipeline.handoff.bundle import POLICY_RULES_PATH
 
+    path = path or os.getenv(POLICY_RULES_ENV) or str(POLICY_RULES_PATH)
     try:
         raw = json.loads(Path(path).read_text(encoding="utf-8"))
         rules = PolicyRules.model_validate(raw)
@@ -141,8 +142,7 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
         raise BundleError(f"규제 분류 {regulatory_class!r} — 미선택·미지원 분류로 규제 검사를 시작하지 않는다",
                           retryable=False, code="REGULATORY_CLASS_INVALID")
     rules = load_policy_rules()
-    applied = (list(rules["regulatory_class_map"][regulatory_class]["applied_classes"]) if rules is not None
-               else APPLIED_CLASSES[regulatory_class])
+    applied = list(rules["regulatory_class_map"][regulatory_class]["applied_classes"])
     eng = app_db.engine
     try:
         with eng.connect() as conn:
@@ -226,6 +226,7 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
         "regulatory": {"status": "ok", "entries": reg_entries},
         "local": local,
         "policy_rules": rules,
+        "policy_rules_sha256": fingerprint(rules),  # AI 보고의 bundle identity rules_sha256 과 같은 JCS 지문
     }
     bundle["sha256"] = fingerprint(bundle)
     return bundle
@@ -254,19 +255,17 @@ def verify_bundle(bundle: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------------------------------------
 # AI 인계 형식 — pipeline.handoff.bundle.RuntimeBundle
 # ---------------------------------------------------------------------------------------------------------
-def _ai_evidence(entry: dict[str, Any]) -> dict[str, Any] | None:
-    """AI 형식은 근거 1개다. 표시 조문·링크의 기준인 대표 근거만 보낸다. document·나머지 근거는 BE 저장 묶음에 남는다
-    (복수 근거 배열 입력은 PR #55에 요청, BE 확인 2)."""
-    pe = primary_evidence(entry)
-    if pe is None:
-        return None
-    return {"external_id": pe["external_id"], "source_type": pe["source_type"], "article": pe["article"], "url": pe["url"],
-            "quote": pe["quote"]}
+_AI_EVIDENCE_KEYS = ("external_id", "source_type", "document", "quote", "article", "url", "is_primary")
 
 
-def _ai_alternatives(raw: str | None) -> list[str]:
-    """#71 구분자 결정 전 임시 규칙: 나누지 않고 원문 1개짜리 배열로 감싼다. 비었으면 빈 배열."""
-    return [raw] if raw and raw.strip() else []
+def _ai_evidence(entry: dict[str, Any]) -> list[dict[str, Any]]:
+    """근거 배열 전체(DB 1:N)를 PK 없이 보낸다. 표시용 조문·링크는 AI가 대표 근거(is_primary)에서 고른다(D6 복수 근거 보존)."""
+    return [{k: e[k] for k in _AI_EVIDENCE_KEYS} for e in entry["evidence"]]
+
+
+def _ai_alternatives(raw: str | None) -> str | list[str]:
+    """#71 구분 규칙 확정 전: 나누지 않은 원문 문자열 그대로. 비었으면 빈 배열(대체 표현 없음)."""
+    return raw if raw and raw.strip() else []
 
 
 def to_ai_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
@@ -280,8 +279,8 @@ def to_ai_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
     from pipeline.handoff.bundle import bundle_content_sha256
 
     rules = bundle.get("policy_rules")
-    if rules is None:
-        raise BundleError(f"정책 규칙이 묶음에 없다 — {POLICY_RULES_ENV} 미설정", retryable=False, code="POLICY_RULES_UNAVAILABLE")
+    if rules is None:  # 정책 규칙 고정 이전(묶음 스키마 1)의 저장 묶음
+        raise BundleError("정책 규칙이 묶음에 없다(옛 묶음) — 새 분석 실행이 필요하다", retryable=False, code="POLICY_RULES_UNAVAILABLE")
     reg = [
         {"external_id": e["external_id"], "regulatory_class": e["regulatory_class"], "source_expression": e["source_expression"],
          "variant_ko": list(e["variant_ko"]), "variant_en": list(e["forbidden_en"] or []),

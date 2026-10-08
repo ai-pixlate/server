@@ -65,7 +65,8 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
               "ORDER BY a.unit_id", j=ids["job"])
     assert [(a["status"], a["error_code"]) for a in atts] == [("done", None), ("failed", "TRANSLATE_PARTIAL")]
     supply = atts[0]["input_manifest"]["supply"]  # 시도 생성 때 고정한 공급 지문
-    assert [i["external_id"] for i in supply["instructions"]] == ["RG-777"]
+    # #71 확정 전에는 대체 표현이 원문 문자열이라 ⑧ 표현 지시를 보내지 않는다(PR #55 3217142)
+    assert supply["instructions"] == []
     assert supply["bundle_sha256"] and supply["glossary_sha256"]
 
 

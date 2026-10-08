@@ -510,6 +510,7 @@ def _translate_targets(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
 
 
+ALTERNATIVES_SPLIT = False  # #71 대체 표현 구분 규칙 확정 여부. False 면 원문 문자열 공급·⑧ 표현 지시 없음
 _PLACEHOLDER = re.compile(r"\[[^\[\]\n]+\]")  # 템플릿 대체 표현(예: [value]) — 번역 지시로 쓰지 않는다(D9-2, PR #55 규칙과 같음)
 
 
@@ -536,7 +537,12 @@ def _glossary_supply(db: Session, lang: str) -> dict[str, Any]:
 
 def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
     """표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(regulated) 규제 판정의 매칭을 이번 대상 블록에 한해 넘긴다.
-    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다. 템플릿 대체 표현(RG-021/022 등)은 원문 수치 유지라 넘기지 않는다(D9-2)."""
+    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다. 템플릿 대체 표현(RG-021/022 등)은 원문 수치 유지라 넘기지 않는다(D9-2).
+
+    #71 구분 규칙 확정 전에는 대체 표현을 나누지 않은 원문 문자열로 공급하고, AI는 그런 행을 표현 지시로 받지 않는다
+    (PR #55 3217142). 그래서 지금은 지시를 만들지 않는다 — 규칙이 정해져 to_ai_bundle()이 배열을 보내면 이 가드를 푼다."""
+    if not ALTERNATIVES_SPLIT:
+        return []
     det = json_value(db.execute(
         text("SELECT detail FROM audit_log WHERE action_type = :a AND target_type = 'section' AND target_id = :s ORDER BY id DESC LIMIT 1"),
         {"a": common.ACT_ANALYSIS_ADOPTED, "s": sid},

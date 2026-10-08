@@ -8,13 +8,12 @@ import pytest
 
 from app.dictionary_bundle import BundleError, load_policy_rules, to_ai_bundle
 from app.manifest import fingerprint
-from pipeline.data.dict.tools.build_dict import RULES_TEMPLATE
 from pipeline.handoff.bundle import check_bundle
+from pipeline.handoff.bundle import load_policy_rules as repo_rules
 
 
 def _rules(**over):
-    r = copy.deepcopy(RULES_TEMPLATE)
-    r["rules_version"] = "policy@2026-10-08.1"
+    r = copy.deepcopy(repo_rules())  # 저장소 운영 규칙(AI 소유, policy@2026-10-08.1)
     r.update(over)
     return r
 
@@ -57,12 +56,16 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     cb = check_bundle(ai, target_country="US")  # AI 쪽 구조·무결성·대응표 검사 통과
     assert ai == to_ai_bundle(copy.deepcopy(be))
     rg = cb.regulation
-    assert rg["RG-902"].alternative_expression == ["Soothing; Calming"]  # 원문 1개 배열(나누지 않음)
+    # #71 확정 전: 나누지 않은 원문 문자열 — "대체 표현 있음"·스냅샷에만 쓰이고 ⑧ 지시로 쓰이지 않는다(PR #55 3217142)
+    assert rg["RG-902"].alternative_expression == "Soothing; Calming" and rg["RG-902"].alternatives_split is None
+    assert rg["RG-902"].has_alternative and not rg["RG-901"].has_alternative
     assert rg["RG-902"].verdict_status == "regulated" and rg["RG-902"].source_verdict_status == "rewritable"
     assert rg["RG-901"].variant_en == ["cure"] and rg["RG-903"].variant_en == []  # NULL → 영어 패턴 없음
-    assert rg["RG-901"].evidence.article == "21 CFR 700"  # 대표 근거
+    ev = rg["RG-901"].evidence  # 근거 배열 전체(PK 제외), 표시용은 대표 근거
+    assert [e.document for e in ev] == ["문서"] and rg["RG-901"].primary_evidence.article == "21 CFR 700"
     assert cb.local["LC-01"].seller_message == "사유" and cb.local["LC-01"].item == "항목 1"
     assert "pk" not in json.dumps(ai)  # DB PK 는 AI 에 보내지 않는다
+    assert cb.identity["rules_sha256"] == fingerprint(be["policy_rules"])  # BE 저장 지문과 AI identity 대조 가능
 
 
 def test_to_ai_bundle_local_unavailable_and_missing_rules():
@@ -77,7 +80,7 @@ def test_to_ai_bundle_local_unavailable_and_missing_rules():
 
 
 def test_load_policy_rules_rejects_overrides_and_d8_mismatch(tmp_path):
-    assert load_policy_rules("") is None
+    assert load_policy_rules("")["rules_version"] == "policy@2026-10-08.1"  # 경로 미지정 = 저장소 운영 규칙
     p = tmp_path / "r.json"
     p.write_text(json.dumps(_rules()), encoding="utf-8")
     assert load_policy_rules(str(p))["rules_version"] == "policy@2026-10-08.1"

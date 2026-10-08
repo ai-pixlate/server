@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # EC2 부팅 시 pixlate.service 가 실행하는 스크립트. 설치 위치: /opt/pixlate/start-pixlate.sh
-# ECR 최신 이미지를 받아 redis·api·워커(ocr·cpu) 컨테이너를 새로 띄운다.
+# ECR 최신 이미지를 받아 redis·api·워커(ocr·cpu)·복구 프로세스 컨테이너를 새로 띄운다.
 # EC2 의 실제 파일과 같고, 계정 ID 만 하드코딩 대신 IAM 역할로 조회한다.
 set -euo pipefail
 REGION=ap-northeast-2
@@ -31,4 +31,8 @@ for Q in ocr cpu; do
   docker run -d --name "pixlate-worker-$Q" --network pixlate-net --restart unless-stopped --env-file "$ENVFILE" "$IMAGE" \
     celery -A app.celery_app:celery_app worker -Q "$Q" --pool=solo -n "$Q@%h" --loglevel=info
 done
+# DB 기준 작업 복구(큐 유실·권한 만료·채택 유실·전체 취소 후 S3 재삭제). Redis 를 복구 트리거로 쓰지 않는다(app/recovery.py).
+# 여러 개가 떠도 pg_try_advisory_lock 으로 한 인스턴스만 일한다.
+docker rm -f pixlate-recovery 2>/dev/null || true
+docker run -d --name pixlate-recovery --network pixlate-net --restart unless-stopped --env-file "$ENVFILE" "$IMAGE"   python -m app.recovery --interval 60
 echo "pixlate stack started."

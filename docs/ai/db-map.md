@@ -4,7 +4,8 @@
 > 소유 범위: 함수·API 키와 DB 컬럼 이름의 대응, 워커의 임시 식별자 변환 규칙. [계약 0장]
 > 정의하지 않음: 컬럼 타입·제약·인덱스 — **BE 정본 ERD 소유.** ERD 파일 경로·버전은 `BE 확인 필요`.
 > 원칙: 함수 입출력 키와 DB 컬럼 이름은 서로 다를 수 있다. JSON 내부의 키는 별도 DB 컬럼을 뜻하지 않는다. [계약 0장]
-> 2026-10-06 추가 합의: `[통합 Dn]`은 `integration-decisions.md`의 기록. 아래 대응의 합의와 마이그레이션 적용을 구분한다. 실제 컬럼 타입·제약의 레포 정본은 `migrations/versions/`이며 신규 실행/시도 연결·스냅샷 위치는 미정이다.
+> 2026-10-06 추가 합의: `[통합 Dn]`은 `integration-decisions.md`의 기록. 아래 대응의 합의와 마이그레이션 적용을 구분한다. 실제 컬럼 타입·제약의 레포 정본은 `migrations/versions/`다.
+> 2026-10-08 BE 통합 구현: migrations 0007(`is_excluded` 3값 OR)·0008(실행·시도·인계·산출물·발급 기록)을 추가했다. 아래 3.2·3.3·3.6·3.8에 실제 이름을 적는다. 내부 값 이름(run_kind·stage 등)은 사용자 승인(2026-10-08)이며 API에 노출하지 않는다.
 
 ---
 
@@ -46,11 +47,14 @@ PRD 관련 조항에서는 auto_local·auto_local_failed를 확인했다. 아래
 | `top_offset` | 소속 원본 이미지 기준 세로 시작 위치 | [계약 3.1] |
 | `height` | 소속 원본 이미지 기준 높이 | [계약 3.1] |
 | `bbox` | BE가 원본 기준 `{x: 0, y: top_offset, w: 원본 폭, h: height}`로 파생. section 범위는 top_offset·height가 기준이며 range 필드 미추가 | [통합 D3] |
+| `analysis_task_id` | 섹션을 만든 초기 분석 실행(대표 행). `job.current_analysis_task_id`와 같은 섹션만 화면에 보인다. 분석 완료 전 새 섹션은 숨기고 완료 시 한 트랜잭션에서 교체한다 | [통합 D3] [통합 D6] [migrations 0008] |
+| `image_key` | ① 섹션 이미지의 검증 키(`verified/…`). BE가 잰 바이트만 고정한다 | [통합 D3] [migrations 0008] |
 | `bucket` | 사용자의 최종 포함·제외. 하류 작업 생성 조건 `'include'` | [계약 2.4, 4.2] |
 | `excluded_stage` | `review_status`의 일부 | [계약 0장] |
 | `content_findings` | 정책 적용 전 AI 판정 6필드. 최초 유효 결과 없음은 NULL, 실패한 재분석은 기존 결과 보존(이번 실행 성공 아님) [통합 D6] | [계약 4.1] |
 | `original_verdict` | 현재 채택한 분석 실행의 사용자 조정 전 정책 결과. 사용자 변경으로 불변, 새 분석 채택 시 교체·이전 값 audit 보존 [통합 D6] | [계약 4.2] |
-| `exclusion_reason` | 자동 제외 사유 코드. API enum은 `auto_regulatory` · `auto_channel` · `auto_local_irrelevant` · `user_manual` · `restored_by_user`. 현지부적합 `needs_fix`용 코드는 설명서 제안(`auto_local_needs_check`)이며 미확정(`open-questions.md` #7) | [설명서 §3] [`docs/openapi.yaml` `ExclusionReason`] |
+| `exclusion_reason` | 자동 제외 사유 코드. 저장값: 규제 `auto_regulatory`, 현지 제외(needs_fix·irrelevant·uncertain) `auto_local`, 현지 AI 판정 실패 `auto_local_failed`(PRD 문자열, 사용자 결정 2026-10-08). 한 섹션에 겹치면 규제 > 현지 실패 > 현지 제외 순으로 하나를 고르고 전체 판정은 audit·original_verdict에 남긴다. OpenAPI `ExclusionReason` enum 반영은 api-tracking 후속 | [통합 D8] [통합 D9] [`docs/openapi.yaml` `ExclusionReason`] |
+| `original_verdict` 내부 키 | `schema_version`·`bucket`·`exclusion_reason`·`verdict_ids`·`regulatory_status`·`local_status`·`analysis_task_id`. API 비노출 | [통합 D6] |
 | `residual_ratio` | 인페인팅 잔존율. MVP 필수 아님, `NULL` 허용 | [계약 5.2] |
 
 ### 3.3 `text_block`
@@ -66,8 +70,8 @@ PRD 관련 조항에서는 auto_local·auto_local_failed를 확인했다. 아래
 | `ocr_confidence` | 구성 영역 신뢰도 최솟값, 없으면 `NULL` | [계약 2장] |
 | `is_product_label` | 제품 라벨 판정. `NULL`/`false`/`true` | [계약 2.2, 2.4] |
 | `is_brand_logo` | 로고 판정. NULL은 미판정이며 라벨 true일 때는 비교 생략 완료. 정상 조합은 contract.md 2.4 | [계약 2.3, 2.4] [통합 D1] |
-| `is_excluded` | 합의된 자동계산은 `is_product_label OR is_brand_logo`. 앱이 직접 쓰지 않음. 현재 0003의 IS TRUE식은 NULL을 false로 만들므로 후속 마이그레이션 대기. 반영 전 하류 큐 금지 | [계약 2.4] [통합 D1] |
-| `style` | 처리 대상 블록의 색·크기·정렬. 초기 분석 시 `NULL`. JSON 구조 미정 | [계약 1.2, 2장] |
+| `is_excluded` | 자동계산 `is_product_label OR is_brand_logo`(SQL 3값). 앱이 직접 쓰지 않음. migrations 0007에서 0003의 IS TRUE식을 바로잡았다 | [계약 2.4] [통합 D1] [migrations 0007] |
+| `style` | 처리 대상 블록의 ⑦ 측정 대표값 `{font_color, bg_color, est_font_px, align}`, 측정 불가는 명시적 NULL. 라벨·로고 블록과 ⑦ 실패는 객체 NULL. 역할 기본값 적용값은 렌더 기록(인계 payload)에만 남기고 style을 덮지 않는다 | [계약 1.2, 2장] [통합 D9] |
 | `trans_1` | 번역문 | [계약 2장, 5.1] |
 | `overflow` | 최신 렌더 기준 폭·높이 초과 여부 | [계약 6.2] |
 | `auto_adjust` | 사용자 배치 영역 조정 JSON (`layout_bbox`) | [계약 6.1] |
@@ -104,9 +108,24 @@ finding별 복수 사전·근거·문자 구간은 audit_log.detail 대응 배�
 | `error_code` · `error_message` | 함수 오류 반환의 기록 | [계약 8장] |
 | `retry_count` · `max_retry` | 재시도 판단 입력 | [계약 8장] |
 
-초기 분석 실행은 `task_type=ocr`, `unit_type=job` 행이다. 이는 N4 대표 task_type을 translate로 정한 것이 아니다. [통합 D6]
+초기 분석 실행은 `task_type=ocr`, `unit_type=job` 대표 행이다. [통합 D6]
 
-한 proceed의 대표 행은 `unit_type=job`이며 그 id가 N4 실행을 식별한다. 개별 작업은 대표 행을 참조하고 재시도는 새 개별 행으로 남긴다. 현재 유효 시도만 집계하며 한도는 누적한다. **대표/개별 task_type, 실행·시도 연결 컬럼, 생략 완료 저장/API 표현은 아직 미정**이다. revision은 N5 수정 충돌·번역문·배치용이며 실행 식별에 사용하지 않는다. 초기 분석 실행과 N4 실행의 연결도 구현 전 명세다. [통합 D2] [통합 D3]
+**migrations 0008 반영(2026-10-08)**: 행 하나 = 시도, `parent_task_id IS NULL` = 대표 실행. 재시도는 새 행(`supersedes_task_id`, `attempt_no`+1, `retry_count` 승계)이며 현재 시도만 집계한다(`is_current`). revision은 N5 수정 충돌·번역문·배치용이다. [통합 D2] [통합 D6]
+
+| 컬럼 | 의미 |
+|---|---|
+| `execution_schema_version` | 0 = 0008 이전 레거시, 1 = 신규(새 INSERT는 1만) |
+| `run_kind` · `run_scope` | 대표만. `analysis`·`downstream`·`final_render`, 시작 시 고정한 대상 |
+| `stage` | 시도만. `analyze`·`judge`·`label`·`logo`·`style`·`inpaint`·`translate`·`preview`·`final_render` |
+| `task_type`(API TaskType) | analyze→ocr · judge·label·logo·style→section · inpaint→inpaint · translate→translate · preview·final_render→render(사용자 결정 2026-10-08). 대표: analysis→ocr · downstream→translate · final_render→render(API 비노출) |
+| `attempt_no` · `is_current` · `supersedes_task_id` · `retry_origin` | 논리 작업 안 순번·현재 시도·직전 시도·재시도 주체(`auto`·`user`·`recovery`) |
+| `lease_owner` · `lease_epoch` · `lease_token_hash` · `lease_expires_at` · `heartbeat_at` | 실행 권한(DB 시계 만료). 원격 토큰은 해시만 |
+| `dispatch_count` · `last_dispatched_at` | 큐 전달 기록(`retry_count`와 별개) |
+| `input_manifest` · `input_fingerprint` | 고정 입력(RFC 8785 부분집합 정규 JSON)과 SHA-256 |
+| `skip_reason` · `target_count` | 정상 생략(`no_targets`, status=done)·대상 수 |
+| `cancelled_at` | 대표 중단 시각 |
+
+제약 U1~U3·K1·K2·K4와 참조 검사는 0008의 부분 유일 인덱스·CHECK·트리거가 강제한다. [통합 D2]
 
 ### 3.7 기타 참조
 
@@ -126,6 +145,17 @@ finding별 복수 사전·근거·문자 구간은 audit_log.detail 대응 배�
 | `event_log.payload` | 실행에 쓴 모델·프롬프트·용어집·정책 버전과 캐시 키 | [계약 9장] |
 
 기존 적재 매핑은 원본 `id`→`external_id`, `variant_expressions.ko`→`variant_ko`, `variant_expressions.en`→`forbidden_en`, 본문 `verified_at`→`confirmed_date`다. `rewritable`은 서비스 `verdict_status=regulated`로 적재하고 시트 원값을 `source_verdict_status`에 보존한다. 근거 행은 `expression_dictionary_evidence`에 있다. 이는 기존 적재 매핑이며 실행 묶음의 AI 필드별 인계 형식까지 확정한 것은 아니다(#71). [migrations 0001·0006] [통합 D5]
+
+### 3.8 실행 인계·산출물(migrations 0008)
+
+| 테이블 | 대응 |
+|---|---|
+| `task_lease_grant` | 원격 워커 시도 토큰 발급 사실(시도·생성 세대·worker_id·토큰 해시·종료/보안 폐기·정리 시각). 늦은 인계·재통지 인증 근거 [통합 D2] |
+| `task_handoff` | 인계 목록 = 수신 확인. `state`: received·verifying·verified·adopted·rejected, `outcome`: done·skipped·failed, `payload`(구조화 결과), `verify_result`(임시 키→DB id 대응·블록별 반영 출처 등) [통합 D2] |
+| `task_artifact` | 파일 산출물. `kind`: section_image·background·delete_mask·protect_mask·render_image, BE 측정 `sha256`·`byte_size`·크기, `verified_key` 또는 검증된 `source_ref` [통합 D2] |
+| `job.current_analysis_task_id` | 현재 채택한 초기 분석 실행 [통합 D6] |
+| `source_image.sha256` | 업로드 시 BE가 잰 내용 해시(분석 고정 입력) [통합 D3] |
+| `audit_log` | actor_type `system`·`seller`, action_type `analysis_result_adopted`(섹션별 판정·근거 스냅샷)·`analysis_result_replaced`(교체 전 결과)·`job_content_deleted`(전체 취소, detail 없음). detail 키는 integration-decisions.md 5.11 제안 경로(사용자 승인 2026-10-08) [통합 D6] [통합 D9] |
 
 ## 4. 갱신 규칙
 

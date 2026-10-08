@@ -5,6 +5,7 @@ FIN-05(다운로드 presigned)·FIN-06(저장) 실제 DB/S3.
 """
 import csv
 import io
+import logging
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -18,6 +19,7 @@ from app.schemas import ArtifactType
 from app.security import get_current_seller
 
 router = APIRouter(tags=["Finalize"])
+log = logging.getLogger(__name__)
 
 
 class ExportRequest(BaseModel):
@@ -39,11 +41,23 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 # ── FIN-01·02: Celery 큐 / 실제 DB ────────────────────────────────
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
 def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """N6 수동 재렌더. 진행 중이면 그 시도, 실패면 새 재시도 시도(누적 한도), 완료면 새 최종 렌더 실행을 만든다.
+    renderTaskId 는 job_async_task.id(시도) — JOB-05 폴링 대상이다."""
+    from app import execution
+    from app.flows.final import start_final_render
+
     _require_job_owned(db, job_id, seller_id)
-    from app.tasks import register_render_task  # 지연 임포트
-    # 계약(FIN-01): renderTaskId는 job_async_task.id(int64) — celery uuid가 아니다.
-    # 행을 여기서 동기로 upsert(unit당 1행·멱등)해야 202 직후 폴링이 그 행을 본다.
-    task_id = register_render_task(db, job_id)
+    job = execution.lock_job(db, job_id)
+    if job["current_step"] != "N6" or job["status"] not in ("review", "done"):
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더는 N6 에서만"})
+    try:
+        task_id = start_final_render(db, job_id)
+    except execution.RetryNotAllowed as e:
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "RETRY_NOT_ALLOWED", "message": str(e)}) from e
+    db.commit()
+    execution.dispatch([task_id])
     response.status_code = 202
     return {"jobId": job_id, "accepted": True, "renderTaskId": task_id}
 
@@ -143,38 +157,64 @@ def validation(job_id: int, db: Session = Depends(get_db), seller_id: int = Depe
     return out
 
 
-@router.post("/jobs/{job_id}/export", status_code=201, summary="API-FIN-04 산출물 묶음 생성(content.csv → S3)")
+@router.post("/jobs/{job_id}/export", status_code=201, summary="API-FIN-04 산출물 묶음 생성(content.csv · images → S3)")
 def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """content.csv(현재 포함 섹션의 블록)와 images(최종 렌더 이미지 zip). 일부 이미지를 읽지 못하면 성공분만 묶고 실패를 알린다(D9-3)."""
+    import zipfile
+
+    from app.flows.common import VISIBLE
+    from app.storage import ObjectMissing, get_store
+
     _require_job_owned(db, job_id, seller_id)
-    blocks = db.execute(
-        text(
-            "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1 "
-            "FROM text_block tb JOIN section s ON s.id = tb.section_id "
-            "WHERE s.job_id = :j ORDER BY tb.section_id, tb.block_order, tb.id"
-        ),
-        {"j": job_id},
-    ).mappings().all()
-
-    # content.csv 생성 (엑셀 한글 대비 utf-8-sig)
-    buf = io.StringIO()
-    w = csv.writer(buf)
-    w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1"])
-    for b in blocks:
-        w.writerow([b["section_id"], b["block_order"], b["role"], b["source_ko"] or "", b["trans_1"] or ""])
-    data = buf.getvalue().encode("utf-8-sig")
-
-    key = s3.make_key(f"export/{job_id}", "content.csv")
-    s3.upload_fileobj(io.BytesIO(data), key, content_type="text/csv")
-
-    row = db.execute(
-        text(
-            "INSERT INTO export_artifact (job_id, artifact_type, file_url, is_distributable, is_generated) "
-            "VALUES (:j, 'csv', :k, true, true) RETURNING id"
-        ),
-        {"j": job_id, "k": key},
-    ).mappings().one()
+    wanted = set(body.components or ["content.csv"])
+    out = {}
+    if "content.csv" in wanted or "csv" in wanted:
+        blocks = db.execute(
+            text(
+                "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1 "
+                "FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
+                "WHERE s.job_id = :j AND s.bucket = 'include' AND " + VISIBLE + " ORDER BY tb.section_id, tb.block_order, tb.id"
+            ),
+            {"j": job_id},
+        ).mappings().all()
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1"])
+        for b in blocks:
+            w.writerow([b["section_id"], b["block_order"], b["role"], b["source_ko"] or "", b["trans_1"] or ""])
+        data = buf.getvalue().encode("utf-8-sig")  # 엑셀 한글 대비
+        key = s3.make_key(f"export/{job_id}", "content.csv")
+        s3.upload_fileobj(io.BytesIO(data), key, content_type="text/csv")
+        row = db.execute(
+            text("INSERT INTO export_artifact (job_id, artifact_type, file_url, is_distributable, is_generated) "
+                 "VALUES (:j, 'csv', :k, true, true) RETURNING id"),
+            {"j": job_id, "k": key},
+        ).mappings().one()
+        out = {"artifactId": row["id"], "artifactType": "csv", "components": ["csv"], "rows": len(blocks)}
+    if "images" in wanted:
+        rows = db.execute(text("SELECT id, image_url FROM deliverable WHERE job_id = :j AND render_status = 'done' ORDER BY id"),
+                          {"j": job_id}).mappings().all()
+        zbuf, failed = io.BytesIO(), []
+        with zipfile.ZipFile(zbuf, "w", zipfile.ZIP_DEFLATED) as z:
+            for r in rows:
+                try:
+                    z.writestr(f"deliverable_{r['id']}.png", get_store().get(r["image_url"]))
+                except ObjectMissing:
+                    failed.append(r["id"])
+        key = s3.make_key(f"export/{job_id}", "images.zip")
+        s3.upload_fileobj(io.BytesIO(zbuf.getvalue()), key, content_type="application/zip")
+        row = db.execute(
+            text("INSERT INTO export_artifact (job_id, artifact_type, file_url, is_distributable, is_generated) "
+                 "VALUES (:j, 'images', :k, true, true) RETURNING id"),
+            {"j": job_id, "k": key},
+        ).mappings().one()
+        if failed:  # 성공분만 묶는다. 실패 수를 내려줄 계약 필드는 아직 없다(FIN-02 failedCount 저장 위치 미정)
+            log.warning("export images: job=%s 읽지 못한 산출물 %s", job_id, failed)
+        out.setdefault("artifactId", row["id"])
+        out.setdefault("artifactType", "images")
+        out["components"] = out.get("components", []) + ["images"]
     db.commit()
-    return {"artifactId": row["id"], "artifactType": "csv", "rows": len(blocks)}
+    return out
 
 
 @router.get("/jobs/{job_id}/exports/{artifact_id}/download", summary="API-FIN-05 산출물 다운로드(presigned) (DB+S3)")
@@ -225,11 +265,25 @@ def download_by_type(
 
 @router.post("/jobs/{job_id}/save", summary="API-FIN-06 저장(보관함) (DB)")
 def save(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """최종 렌더 성공 후에만 저장·완료한다(D9-3). 실패·진행 중이면 409.
+    전체 취소(archived)와 경쟁하지 않도록 job 행을 잠근 뒤 같은 트랜잭션에서 상태·저장 가능 여부를 판정한다(D9-4)."""
+    from app import execution
+    from app.flows.final import can_save
+
+    _require_job_owned(db, job_id, seller_id)
+    job = execution.lock_job(db, job_id)
+    if job["status"] not in ("review", "done") or job["current_step"] != "N6":
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE",
+                                                     "message": f"N6 에서만 저장한다({job['current_step']}/{job['status']})"})
+    if not can_save(db, job_id):
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더가 성공하지 않았다"})
     r = db.execute(
         text(
             "UPDATE job SET is_saved = true, saved_at = now(), status = 'done', "
             "user_facing_status = 'done', updated_at = now() "
-            "WHERE id = :j AND seller_id = :s RETURNING id, is_saved, saved_at"
+            "WHERE id = :j AND seller_id = :s AND status <> 'archived' AND current_step = 'N6' RETURNING id, is_saved, saved_at"
         ),
         {"j": job_id, "s": seller_id},
     ).mappings().first()

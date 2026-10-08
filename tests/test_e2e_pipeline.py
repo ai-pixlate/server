@@ -6,8 +6,12 @@
 
 테스트 함수는 정의 순서대로 실행되며 CTX(dict)로 상태(토큰·id)를 공유한다.
 앞 단계가 실패하면 뒤 단계가 연쇄로 드러나므로 "어디서 깨졌는지"가 명확하다.
+
+N2~N6 구간은 실제 AI 연결(ocr 워커의 PaddleOCR·Gemini 키, ③-1·⑧ 운영 어댑터, GPU 제어 경로)이 있어야 끝난다.
+스텁을 제거했으므로 그 구간은 PIXLATE_E2E_AI=1 일 때만 돈다(AI 대역 검증은 tests/test_exec_*.py).
 """
 import io
+import os
 import time
 
 import pytest
@@ -26,6 +30,7 @@ def _db_ok() -> bool:
 
 
 pytestmark = pytest.mark.skipif(not _db_ok(), reason="database not reachable")
+requires_ai = pytest.mark.skipif(os.getenv("PIXLATE_E2E_AI") != "1", reason="실제 AI 연결 없음(PIXLATE_E2E_AI=1 일 때만)")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -127,7 +132,8 @@ def test_brand_logo():
 def test_job_create_and_get():
     r = client.post(
         "/v1/jobs",
-        json={"brandId": CTX["brand_id"], "productName": "E2E 수분크림", "keywords": ["moisture"]},
+        json={"brandId": CTX["brand_id"], "productName": "E2E 수분크림", "keywords": ["moisture"],
+              "regulatoryClass": "cosmetic"},
         headers=_h(),
     )
     assert r.status_code == 201
@@ -152,6 +158,7 @@ def test_source_images():
 
 
 # ── N2 분석(ocr 워커) → N3 ────────────────────────────────────────
+@requires_ai
 def test_analyze_to_n3():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/analyze", headers=_h())
     assert r.status_code == 202
@@ -160,6 +167,7 @@ def test_analyze_to_n3():
     assert tasks.status_code == 200
 
 
+@requires_ai
 def test_sections():
     r = client.get(f"/v1/jobs/{CTX['job_id']}/sections", headers=_h())
     assert r.status_code == 200
@@ -174,6 +182,7 @@ def test_sections():
                         json={"action": "restore"}, headers=_h()).status_code == 200
 
 
+@requires_ai
 def test_inpaint_result():
     # gpu 워커가 채운 결과(폴링). 미완이어도 200 이면 통과.
     r = client.get(f"/v1/jobs/{CTX['job_id']}/sections/{CTX['section_id']}/inpaint", headers=_h())
@@ -181,12 +190,14 @@ def test_inpaint_result():
 
 
 # ── N4 번역(cpu 워커) → N5 ────────────────────────────────────────
+@requires_ai
 def test_proceed_to_n5():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/sections/proceed", headers=_h())
     assert r.status_code == 202
     _poll_step(CTX["job_id"], "N5")
 
 
+@requires_ai
 def test_blocks():
     r = client.get(f"/v1/jobs/{CTX['job_id']}/blocks", headers=_h())
     assert r.status_code == 200 and len(r.json()) >= 1
@@ -199,17 +210,20 @@ def test_blocks():
     assert r.status_code == 200
 
 
+@requires_ai
 def test_preview():
     r = client.get(f"/v1/jobs/{CTX['job_id']}/preview", headers=_h())
     assert r.status_code == 200 and "sections" in r.json()
 
 
 # ── N6 확정 → 렌더(cpu 워커) → 산출물 ─────────────────────────────
+@requires_ai
 def test_confirm_to_n6():
-    r = client.post(f"/v1/jobs/{CTX['job_id']}/confirm", headers=_h())
+    r = client.post(f"/v1/jobs/{CTX['job_id']}/confirm", json={"acknowledgedWarnings": []}, headers=_h())
     assert r.status_code == 200 and r.json()["currentStep"] == "N6"
 
 
+@requires_ai
 def test_render_and_deliverables():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/render", headers=_h())
     assert r.status_code == 202
@@ -228,6 +242,7 @@ def test_render_and_deliverables():
     assert v.status_code == 200
 
 
+@requires_ai
 def test_export_and_download():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/export", json={"components": ["content.csv"]}, headers=_h())
     assert r.status_code == 201
@@ -236,6 +251,7 @@ def test_export_and_download():
     assert d.status_code == 200 and d.json()["url"]
 
 
+@requires_ai
 def test_save_and_library():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/save", headers=_h())
     assert r.status_code == 200 and r.json()["isSaved"] is True
@@ -250,9 +266,10 @@ def test_retry_nonexistent_task_404():
     assert r.status_code == 404
 
 
-def test_abort_returns_200():
+def test_abort_outside_n2_n4_is_invalid_state():
+    # [중단]은 N2·N4 처리 중/오류에서만(D9-3). 여기서는 N1(AI 미연결) 또는 N6
     r = client.post(f"/v1/jobs/{CTX['job_id']}/abort", headers=_h())
-    assert r.status_code == 200 and "returnTo" in r.json()
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
 
 
 def test_cleanup_deletes():
@@ -260,5 +277,6 @@ def test_cleanup_deletes():
     assert client.delete(
         f"/v1/jobs/{CTX['job_id']}/source-images/{CTX['source_image_id']}", headers=_h()
     ).status_code == 204
-    # 작업 취소(archived)
+    # 전체 취소(archived · 콘텐츠 삭제, D9-4)
     assert client.delete(f"/v1/jobs/{CTX['job_id']}", headers=_h()).status_code == 200
+    assert client.get(f"/v1/jobs/{CTX['job_id']}/source-images", headers=_h()).json() == []

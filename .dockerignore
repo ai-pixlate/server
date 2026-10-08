@@ -11,3 +11,4 @@ Dockerfile
 .dockerignore
 docs
 *.md
+!pipeline/prompts/*.md

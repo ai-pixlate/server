@@ -25,12 +25,16 @@ flowchart LR
 
 | 단계 | 내용 | 처리 위치 | 큐 | 상태 |
 | --- | --- | --- | --- | --- |
-| N2 | 분석 · OCR, 섹션 분리 | `run_analyze` | `ocr` | 🚧 스텁 (PaddleOCR 예정) |
-| N3 | 섹션 확인 (사용자) | API `SEC-01~04` | - | ✅ 기존 API · 통합 완료 조건 연결 예정 |
-| N4 | 번역 | `run_translate` | `cpu` | 🚧 스텁 (LLM 예정) |
-| N4 | 인페인팅 (원문 텍스트 제거) | `run_inpaint` | `gpu` | 🚧 스텁 (LaMa 예정) |
-| N5 | 번역 검수 (사용자) | API `CFM-01~04` | - | ✅ |
-| N6 | 렌더 · 규격 검증 · S3 업로드 | `run_render` | `cpu` | ✅ Pillow 축소판 |
+| N2 | ①②③ 분석 + 고정 사전 묶음 | `run_analyze` | `ocr` | ✅ 실제 `analyze()` 호출·검증·저장 |
+| N2 | ③-1·③-1′ 판정·정책 (섹션별) | `run_judge` | `cpu` | 🔌 인터페이스·대역 (A안 AI 어댑터 대기) |
+| N3 | 섹션 확인 (사용자) | API `SEC-01~04` | - | ✅ D9-1 전이 연결 |
+| N4 | ④ 라벨 · ⑤ 로고 · ⑦ 스타일 | `run_label` · `run_logo` · `run_style` | `cpu` | ✅ 파이프라인 코드 연결(④ Gemini) |
+| N4 | ⑥ 인페인팅 | `run_inpaint` | `gpu` | 🔌 GPU 제어 서비스 경유(HTTP 바인딩 전) |
+| N4 | ⑧ 번역 | `run_translate` | `cpu` | 🔌 인터페이스·대역 (AI ⑧ 대기) |
+| N4 | ⑨ 초기 미리보기 | `run_preview` | `cpu` | ✅ Pillow 조판(배경·배치·스타일) |
+| N5 | 번역 검수 (사용자) | API `CFM-01~04` | - | ✅ 경고 확인 후 확정 |
+| N6 | 최종 렌더 · 규격 검증 · 저장 | `run_render` | `cpu` | ✅ 성공 후에만 저장 |
+| - | 원격 인계 채택 · DB 기준 복구 | `run_adopt` · `python -m app.recovery` | `cpu` · 별도 프로세스 | ✅ |
 
 ### BE ↔ AI 경계
 
@@ -88,6 +92,12 @@ uvicorn app.main:app --reload
 celery -A app.celery_app worker -Q ocr -n ocr@%h
 celery -A app.celery_app worker -Q cpu -n cpu@%h
 celery -A app.celery_app worker -Q gpu -n gpu@%h
+
+# DB 기준 작업 복구(큐 유실·권한 만료·채택 유실) — 하나만 일한다(advisory lock)
+python -m app.recovery --interval 60
+
+# 실행·통합 시험(격리 DB를 만들고 지운다. 운영 DB 금지)
+PIXLATE_TEST_DATABASE_URL=postgresql+psycopg://<user>:<pw>@localhost:5432/postgres python -m pytest tests/test_exec_*.py
 ```
 
 ### 환경변수
@@ -120,10 +130,11 @@ python -m pipeline.run --help
 - [x] Redis + Celery 비동기 뼈대, 큐 3분할(`ocr` / `cpu` / `gpu`)
 - [x] S3 업로드 (원본 이미지 · 브랜드 로고 · 렌더 결과)
 - [x] 렌더 엔진 축소판 (Pillow)
-- [ ] OCR 모델 연결
-- [ ] 번역(LLM) 연결
-- [ ] 인페인팅(LaMa) 모델을 GPU 서버에 연결
-- [ ] 렌더 엔진을 Playwright(HTML/CSS 조판)로 교체
+- [x] 실행·시도·인계·채택·재시도·복구 기반(migrations 0008, `app/execution.py`, `app/recovery.py`)
+- [x] ①②③ `analyze()` 워커 연결(ocr 워커 이미지에 PaddleOCR 설치 필요)
+- [ ] ③-1·③-1′ A안 운영 어댑터(AI) · ⑧ 번역(AI)
+- [ ] GPU 제어 API HTTP 바인딩 후 학교 GPU 배포(지금은 GPU 워커가 DB에 직접 접속해야 동작)
+- [ ] 역할별 스타일 기본값(디자인 → PM 확인) · 렌더 엔진 Playwright 교체
 
 ## 참고 문서
 

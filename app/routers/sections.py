@@ -1,7 +1,7 @@
 """SEC — 섹션 (API-SEC-01~04, 🟢9월) + INP-01 인페인팅 조회.
 
-SEC-01(목록)·SEC-02(상세)·SEC-03(제외/되살리기)는 실제 DB(section·section_verdict).
-SEC-04(이대로 진행)은 번역 워커(cpu 큐), INP-01은 인페인팅 워커(gpu 큐) 결과를 실제 DB에서 조회.
+SEC-01(목록)·SEC-02(상세)·SEC-03(제외/되살리기)는 실제 DB(section·section_verdict), 현재 채택한 분석 실행의 섹션만.
+SEC-04(이대로 진행)은 하류 실행(④⑤ → ⑥⑦⑧ → 미리보기, app.flows.downstream), INP-01은 채택된 ⑥ 결과를 조회.
 """
 from typing import Literal, Optional
 
@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app import s3
 from app.db import get_db
+from app.flows.common import VISIBLE
 from app.schemas import SectionBucket
 from app.security import get_current_seller
 
@@ -47,8 +48,9 @@ def list_sections(job_id: int, bucket: Optional[SectionBucket] = Query(default=N
     _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
-            "SELECT id, bucket, exclusion_reason, excluded_stage, warning_badge, section_order "
-            "FROM section WHERE job_id = :j ORDER BY section_order, id"
+            "SELECT s.id, s.bucket, s.exclusion_reason, s.excluded_stage, s.warning_badge, s.section_order "
+            "FROM section s JOIN job j ON j.id = s.job_id WHERE s.job_id = :j AND " + VISIBLE + " "
+            "ORDER BY s.section_order, s.id"
         ),
         {"j": job_id},
     ).mappings().all()
@@ -66,9 +68,9 @@ def get_section(job_id: int, section_id: int, db: Session = Depends(get_db), sel
     _require_job_owned(db, job_id, seller_id)
     r = db.execute(
         text(
-            "SELECT id, bucket, exclusion_reason, excluded_stage, warning_badge, section_order, "
-            "top_offset, height, content_findings "
-            "FROM section WHERE id = :id AND job_id = :j"
+            "SELECT s.id, s.bucket, s.exclusion_reason, s.excluded_stage, s.warning_badge, s.section_order, "
+            "s.top_offset, s.height, s.content_findings "
+            "FROM section s JOIN job j ON j.id = s.job_id WHERE s.id = :id AND s.job_id = :j AND " + VISIBLE
         ),
         {"id": section_id, "j": job_id},
     ).mappings().first()
@@ -95,30 +97,38 @@ def get_section(job_id: int, section_id: int, db: Session = Depends(get_db), sel
 
 @router.patch("/jobs/{job_id}/sections/{section_id}", summary="API-SEC-03 섹션 되살리기/제외(N3·N5 공용) (DB)")
 def update_section(job_id: int, section_id: int, body: SectionAction, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """최종 포함 상태만 바꾼다(bucket·exclusion_reason·excluded_stage). AI 판정 원본(content_findings·original_verdict)은 그대로(D4·D6).
+    판정 실패로 제외된 섹션도 되살릴 수 있고 재판정하지 않는다(D9-1). N4 진행 중에는 바꾸지 않는다(중단 후 N3 에서, D2)."""
     job = db.execute(
-        text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
+        text("SELECT current_step, status FROM job WHERE id = :j AND seller_id = :s FOR UPDATE"),
         {"j": job_id, "s": seller_id},
     ).mappings().first()
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
+    if job["current_step"] not in ("N3", "N5") or job["status"] != "review":
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "N3·N5 검토 중에만 바꾼다"})
+    if job["current_step"] == "N5" and body.action == "restore":
+        prev = db.execute(text("SELECT excluded_stage FROM section WHERE id = :id AND job_id = :j"), {"id": section_id, "j": job_id}).scalar()
+        if prev == "N3":  # N5 에서는 N3 제외 섹션을 되살리지 않는다(하류 결과가 없다)
+            raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "N3 에서 제외한 섹션은 N5 에서 되살릴 수 없다"})
 
     if body.action == "exclude":
         r = db.execute(
             text(
-                "UPDATE section SET bucket='exclude', exclusion_reason='user_manual', "
-                "excluded_stage=:st, updated_at=now() "
-                "WHERE id=:id AND job_id=:j "
-                "RETURNING id, bucket, exclusion_reason, excluded_stage, warning_badge, section_order"
+                "UPDATE section s SET bucket='exclude', exclusion_reason='user_manual', "
+                "excluded_stage=:st, updated_at=now() FROM job j "
+                "WHERE s.id=:id AND s.job_id=:j AND j.id = s.job_id AND " + VISIBLE + " "
+                "RETURNING s.id, s.bucket, s.exclusion_reason, s.excluded_stage, s.warning_badge, s.section_order"
             ),
             {"st": job["current_step"], "id": section_id, "j": job_id},
         ).mappings().first()
     else:  # restore
         r = db.execute(
             text(
-                "UPDATE section SET bucket='include', exclusion_reason='restored_by_user', "
-                "excluded_stage=NULL, updated_at=now() "
-                "WHERE id=:id AND job_id=:j "
-                "RETURNING id, bucket, exclusion_reason, excluded_stage, warning_badge, section_order"
+                "UPDATE section s SET bucket='include', exclusion_reason='restored_by_user', "
+                "excluded_stage=NULL, updated_at=now() FROM job j "
+                "WHERE s.id=:id AND s.job_id=:j AND j.id = s.job_id AND " + VISIBLE + " "
+                "RETURNING s.id, s.bucket, s.exclusion_reason, s.excluded_stage, s.warning_badge, s.section_order"
             ),
             {"id": section_id, "j": job_id},
         ).mappings().first()
@@ -129,44 +139,20 @@ def update_section(job_id: int, section_id: int, body: SectionAction, db: Sessio
     return _to_section(r)
 
 
-# ── SEC-04: 번역 큐 연결 (N3→N4) ──────────────────────────────────
-@router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (Celery 번역 큐)")
+# ── SEC-04: N3→N4 하류 실행 ───────────────────────────────────────
+@router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (Celery 큐)")
 def proceed(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    job = db.execute(
-        text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": seller_id},
-    ).mappings().first()
-    if not job:
-        raise HTTPException(status_code=404, detail="job not found")
+    """job 잠금 아래 포함 섹션 확인 → 하류 대표 실행 + 섹션별 ④ 시도 → N4 를 한 트랜잭션으로(D1·D2). 중복 요청은 기존 실행을 돌려준다."""
+    from app.flows.downstream import ProceedRejected
+    from app.flows.downstream import proceed as start_downstream
 
-    counts = db.execute(
-        text(
-            "SELECT count(*) FILTER (WHERE bucket='include') AS inc, count(*) AS total "
-            "FROM section WHERE job_id = :j"
-        ),
-        {"j": job_id},
-    ).mappings().one()
-    if counts["total"] == 0 or counts["inc"] == 0:
-        raise HTTPException(status_code=409, detail="ALL_SECTIONS_EXCLUDED")
-
-    # 큐 수락 시점에 N4로 올린다(analyze→N2와 같은 이유). 워커(run_translate)가
-    # 시작될 때 같은 값을 다시 쓰지만, 워커가 아직 시작 전인 동안 GET /tasks가
-    # N3를 그대로 주면 FE는 N3 화면에 머문 채 폴링까지 멈춘다(N3는 사용자 입력
-    # 대기 단계라 폴링 대상이 아니다) — 그러면 번역이 끝나도 화면이 넘어가지 않는다.
-    db.execute(
-        text(
-            "UPDATE job SET status='processing', current_step='N4', "
-            "user_facing_status='translating', updated_at=now() "
-            "WHERE id = :j AND seller_id = :s"
-        ),
-        {"j": job_id, "s": seller_id},
-    )
-    db.commit()
-
-    from app.tasks import run_translate  # 지연 임포트
-    result = run_translate.delay(job_id)  # ← 번역 태스크 큐 등록
+    try:
+        r = start_downstream(db, job_id, seller_id)
+    except ProceedRejected as e:
+        db.rollback()
+        raise HTTPException(status_code=e.status, detail={"code": e.code, "message": e.message}) from e
     response.status_code = 202
-    return {"jobId": job_id, "accepted": True, "celeryTaskId": result.id}
+    return {"jobId": job_id, "accepted": True, "taskId": r["taskId"]}
 
 
 @router.get("/jobs/{job_id}/sections/{section_id}/inpaint", tags=["Inpaint"], summary="API-INP-01 섹션 인페인팅 결과 조회 (DB+S3)")
@@ -174,8 +160,8 @@ def get_inpaint(job_id: int, section_id: int, db: Session = Depends(get_db), sel
     _require_job_owned(db, job_id, seller_id)
     r = db.execute(
         text(
-            "SELECT inpaint_status, residual_ratio, warning_badge, inpaint_image_url "
-            "FROM section WHERE id = :sid AND job_id = :j"
+            "SELECT s.inpaint_status, s.residual_ratio, s.warning_badge, s.inpaint_image_url "
+            "FROM section s JOIN job j ON j.id = s.job_id WHERE s.id = :sid AND s.job_id = :j AND " + VISIBLE
         ),
         {"sid": section_id, "j": job_id},
     ).mappings().first()

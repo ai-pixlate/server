@@ -9,7 +9,7 @@ AI 함수는 DB·S3에 접근하지 않는다(contract.md 1.1, D3).
 | ③-1·③-1′ | Judge.judge → JudgeOutcome | HandoffJudge → pipeline.handoff.judgment.run_judgment(PR #55)를 섹션 단위로 불러 변환. 정책 규칙(PIXLATE_POLICY_RULES) 없으면 Unavailable |
 | ④ | Labeler.label | PipelineLabeler → pipeline.stages.label.run (실제 호출) |
 | ⑤ | LogoJudge.logo | PipelineLogo → pipeline.stages.logo.run (실제 계산) |
-| ⑥ | Inpainter.inpaint | PipelineInpainter → pipeline.stages.inpaint(+LaMa, GPU) |
+| ⑥ | Inpainter(설정·모델 팩토리 제공) | GPU 실행은 pipeline.handoff.gpu.GpuInpaintRunner(app.flows.gpu_worker). PipelineInpainter 는 cfg·model_factory 공급원 |
 | ⑦ | Styler.style | PipelineStyler → pipeline.stages.style.run (실제 계산) |
 | ⑧ | Translator.translate → TranslateOutcome | HandoffTranslator → pipeline.handoff.translation.run_translate(PR #55). 입력은 context['handoff'](BE 고정 공급) |
 

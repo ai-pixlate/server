@@ -8,13 +8,15 @@
 - 시도 토큰은 권한 획득 응답으로만 받는다. 로그·큐·인계 본문에 넣지 않는다.
 - 파일은 BE 가 발급한 정확한 스테이징 키 하나에 업로드하고(presigned PUT), BE 가 내려받아 측정한 같은 바이트만 검증 키에 고정한다.
 - GPU 로컬 입력·출력은 인계가 '검증됨' 또는 '채택'으로 확인된 뒤에만 지운다(원격 복구 가능 확인, 5.30). 수신 확인만으로 지우지 않는다.
+- GPU 측 실행기는 AI 인계 계층의 pipeline.handoff.gpu.GpuInpaintRunner 하나다(독립 갱신·권한 상실 시 추론 중단·purge_job).
+  BE 는 그 ControlClient Protocol 구현(BeControlClient)만 제공하고, 인계 등록 본문은 AI StageReport + 업로드 목록을
+  register_report 로 받아 BE 인계로 옮긴다(PR #55 BE 확인 6). register(BE 봉투)는 내부·시험용 저수준 경로다.
 """
 from __future__ import annotations
 
 import json
 import logging
 import os
-import shutil
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -23,9 +25,8 @@ from sqlalchemy import text
 from app import ai_adapters, artifacts, execution
 from app import db as app_db
 from app.execution import AdoptionRejected, ArtifactSpec, Envelope, Lease
-from app.flows import common
 from app.flows.common import block_key, json_value, section_key
-from app.manifest import sha256_bytes, stable_hash
+from app.manifest import stable_hash
 from app.storage import get_store
 
 log = logging.getLogger(__name__)
@@ -56,8 +57,8 @@ class WorkerControl:
             return None
         if lease.stage != "inpaint":
             raise execution.AuthRejected("이 제어 경로는 ⑥만 다룬다")
-        return {"attempt_id": attempt_id, "epoch": lease.epoch, "token": lease.token, "ttl_s": execution.lease_ttl_s(),
-                "fingerprint": lease.fingerprint, "inputs": self._inputs(lease)}
+        return {"attempt_id": attempt_id, "job_id": lease.job_id, "run_id": lease.run_id, "epoch": lease.epoch, "token": lease.token,
+                "ttl_s": execution.lease_ttl_s(), "fingerprint": lease.fingerprint, "inputs": self._inputs(lease)}
 
     def _inputs(self, lease: Lease) -> dict[str, Any]:
         """고정 입력 복원: 섹션 이미지(다운로드 URL·해시), ③ 블록, 채택된 ④ 결과, ⑤ 결과와 logo_record 실제 payload."""
@@ -118,6 +119,52 @@ class WorkerControl:
         h = execution.register_handoff(lease, env, remote_worker_id=worker_id)
         return {"handoff_id": h["id"], "state": h["state"], "late": h["late"]}
 
+    def register_report(self, worker_id: str, attempt_id: int, epoch: int, token: str, envelope: dict[str, Any]) -> dict[str, Any]:
+        """GPU 실행기(GpuInpaintRunner)의 인계 등록 본문 — {runner, task_id, lease_epoch, report: StageReport, uploads[]} — 을
+        BE 인계로 옮겨 등록한다. 산출물은 업로드 목록의 발급 키·주장 해시로만 받고, 내용 검증·고정은 채택 단계에서 BE 가 다시 한다."""
+        from pydantic import ValidationError
+
+        from pipeline.handoff.envelope import StageReport
+
+        lease = self._lease(worker_id, attempt_id, epoch, token)
+        try:
+            rep = StageReport.model_validate(envelope["report"])
+        except (KeyError, ValidationError) as e:
+            raise execution.AuthRejected(f"인계 보고 형식 오류: {e}") from e
+        if rep.stage != "inpaint" or rep.attempt_id != str(attempt_id) or int(envelope.get("lease_epoch", -1)) != epoch:
+            raise execution.AuthRejected("인계 보고의 단계·시도·세대가 권한과 다르다")
+        ups = {(u["kind"], u["part_key"]): u for u in envelope.get("uploads", [])}
+        arts = []
+        for a in rep.artifacts:
+            u = ups.pop((a.kind, a.part_key), None)
+            if u is None or u.get("sha256") != a.sha256:
+                raise execution.AuthRejected(f"산출물 {a.kind}/{a.part_key} 의 업로드 기록이 없거나 해시가 다르다")
+            arts.append({"kind": a.kind, "part_key": a.part_key, "staging_key": u["object_key"], "declared_sha256": a.sha256})
+        if ups:
+            raise execution.AuthRejected(f"보고에 없는 업로드 {sorted(ups)}")
+        if rep.source_refs:
+            db = app_db.SessionLocal()
+            try:
+                sec_key = db.execute(text("SELECT image_key FROM section WHERE id = :s"), {"s": lease.manifest["section_id"]}).scalar()
+            finally:
+                db.close()
+            for r in rep.source_refs:  # 원본 섹션 배경 참조 — BE 가 아는 섹션 이미지 키로 바꾸고 해시는 채택 때 다시 대조
+                arts.append({"kind": r.kind, "part_key": r.part_key, "source_ref": {"key": sec_key, "sha256": r.sha256}})
+        p = dict(rep.payload or {})
+        p["model"] = (rep.implementation or {}).get("model")
+        if rep.outcome == "failed":
+            f = rep.failure
+            body = {"outcome": "failed", "target_count": rep.target_count,
+                    "payload": {**p, "error_code": "INPAINT_FAILED", "failure_kind": f.kind, "message": f"{f.kind}: {f.message}",
+                                "retryable": False}}  # 인페인트 실패는 원본 배경 대체·재시도 버튼 없음(D9-3)
+        else:  # completed(inpainted) · skipped(empty_mask = unchanged, 원본 배경 참조)
+            body = {"outcome": "done", "target_count": rep.target_count, "payload": p}
+        body.update({"input_fingerprint": lease.fingerprint, "impl_version": str((rep.implementation or {}).get("adapter")),
+                     "artifacts": arts, "ai_report": {"contract_version": rep.contract_version, "outcome": rep.outcome,
+                                                      "skip_reason": rep.skip_reason, "input_manifest_sha256": rep.input_manifest_sha256}})
+        body["payload"] = {**body["payload"], "ai_report": body.pop("ai_report")}
+        return self.register(worker_id, attempt_id, epoch, token, body)
+
     def status(self, worker_id: str, attempt_id: int, epoch: int, token: str) -> dict[str, Any]:
         """인계 상태 조회. remote_recoverable=True 이면 GPU 로컬 자료를 지워도 된다(검증됨·채택)."""
         db = app_db.SessionLocal()
@@ -145,6 +192,7 @@ class ControlClient(Protocol):
     def put(self, url: str, key: str, data: bytes) -> None: ...
     def fetch(self, url: str, key: str) -> bytes: ...
     def register(self, attempt_id: int, epoch: int, token: str, envelope: dict[str, Any]) -> dict[str, Any]: ...
+    def register_report(self, attempt_id: int, epoch: int, token: str, envelope: dict[str, Any]) -> dict[str, Any]: ...
     def status(self, attempt_id: int, epoch: int, token: str) -> dict[str, Any]: ...
 
 
@@ -173,6 +221,9 @@ class InProcessControlClient:
     def register(self, attempt_id, epoch, token, envelope):
         return self.control.register(self.worker_id, attempt_id, epoch, token, envelope)
 
+    def register_report(self, attempt_id, epoch, token, envelope):
+        return self.control.register_report(self.worker_id, attempt_id, epoch, token, envelope)
+
     def status(self, attempt_id, epoch, token):
         return self.control.status(self.worker_id, attempt_id, epoch, token)
 
@@ -192,110 +243,145 @@ def _client() -> ControlClient:
 
 
 # ---------------------------------------------------------------------------------------------------------
-# GPU 측 실행기
+# GPU 측 실행기 — AI GpuInpaintRunner + BE ControlClient Protocol 구현
 # ---------------------------------------------------------------------------------------------------------
-class _RemoteLeaseHeartbeat(common.Heartbeat):
-    def __init__(self, client: ControlClient, attempt_id: int, epoch: int, token: str, ttl_s: int):
-        self.client, self.attempt_id, self.epoch, self.token = client, attempt_id, epoch, token
-        self.lost = False
-        import threading
-
-        self.interval = max(1.0, ttl_s / 3)
-        self._stop = threading.Event()
-        self._thread = threading.Thread(target=self._loop, daemon=True)
-
-    def _loop(self):
-        while not self._stop.wait(self.interval):
-            try:
-                if not self.client.heartbeat(self.attempt_id, self.epoch, self.token):
-                    self.lost = True
-                    return
-            except Exception:  # noqa: BLE001
-                self.lost = True
-                return
+class NotRunnable(Exception):
+    """실행 권한을 얻지 못했다(이미 처리 중·완료·취소). 계산하지 않는다."""
 
 
-def _work_dir(attempt_id: int, epoch: int) -> Path:
-    base = Path(os.getenv("PIXLATE_GPU_WORK_DIR", os.path.join(os.path.expanduser("~"), ".pixlate-gpu-work"))).resolve()
-    d = base / str(attempt_id) / str(epoch)
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+class BeControlClient:
+    """pipeline.handoff.gpu.ControlClient 구현 — 저수준 BE 제어 클라이언트(InProcess 또는 HTTP 바인딩)를 감싼다.
+
+    acquire 응답을 ⑥ 인계 요청(stage_request)과 내려받기 입력으로 바꾸고, 갱신 실패·권한 상실을 AI LeaseLost 로 옮긴다.
+    상태 조회는 BE 상태를 AI 상태 문자열로 옮긴다: 검증됨·채택만 로컬 정리 대상(5.30)."""
+
+    def __init__(self, client: ControlClient):
+        self.client = client
+        self._leases: dict[str, Any] = {}
+        self._keys: dict[str, str] = {}  # 내려받기 URL → 저장소 키(InProcess 대역용)
+
+    def acquire(self, task_id: str):
+        from pipeline.handoff.canonical import sha256_canonical
+        from pipeline.handoff.envelope import CONTRACT_VERSION
+        from pipeline.handoff.gpu import Lease as AiLease
+
+        got = self.client.acquire(int(task_id))
+        if got is None:
+            raise NotRunnable(task_id)
+        inp = got["inputs"]
+        label = inp["label"]
+        logo, record = inp["logo"]["logo"], inp["logo"]["logo_record"]
+        req = {
+            "contract_version": CONTRACT_VERSION, "execution_id": str(got["run_id"]), "attempt_id": str(got["attempt_id"]),
+            "stage": "inpaint", "image_id": inp["image_id"], "section": inp["section"], "blocks": inp["blocks"],
+            "label_result": label, "label_result_sha256": sha256_canonical(label),
+            "logo_result": logo, "logo_result_sha256": sha256_canonical(logo),
+            "logo_record": record, "logo_record_sha256": sha256_canonical(record),
+            "limits": None,  # 운영 시간 제한 미정 — AI가 개발값 사용을 implementation.limits.source=dev_config 로 남긴다
+        }
+        si = inp["section_image"]
+        self._keys[si["url"]] = si["key"]
+        lease = AiLease(task_id=str(got["attempt_id"]), job_id=str(got["job_id"]), lease_epoch=int(got["epoch"]),
+                        lease_token=got["token"], heartbeat_interval_s=max(1.0, got["ttl_s"] / 3), stage_request=req,
+                        inputs={"section_image": {"sha256": si["sha256"], "download_url": si["url"]}})
+        self._leases[lease.task_id] = lease
+        return lease
+
+    def heartbeat(self, lease) -> None:
+        from pipeline.handoff.gpu import LeaseLost as AiLeaseLost
+
+        if not self.client.heartbeat(int(lease.task_id), lease.lease_epoch, lease.lease_token):
+            raise AiLeaseLost("실행 권한 상실")
+
+    def upload_target(self, lease, kind: str, part_key: str):
+        from pipeline.handoff.gpu import LeaseLost as AiLeaseLost
+        from pipeline.handoff.gpu import UploadTarget
+
+        try:
+            u = self.client.upload_url(int(lease.task_id), lease.lease_epoch, lease.lease_token, kind, part_key)
+        except execution.LeaseLost as e:
+            raise AiLeaseLost(str(e)) from e
+        return UploadTarget(url=u["url"], object_key=u["key"], headers={"Content-Type": "image/png"})
+
+    def register_handoff(self, lease, envelope: dict[str, Any]):
+        from pipeline.handoff.gpu import HandoffAck
+
+        reg = self.client.register_report(int(lease.task_id), lease.lease_epoch, lease.lease_token, envelope)
+        return HandoffAck(handoff_id=str(reg["handoff_id"]), status=reg["state"])
+
+    def handoff_status(self, task_id: str, handoff_id: str) -> str:
+        lease = self._leases[task_id]
+        st = self.client.status(int(task_id), lease.lease_epoch, lease.lease_token)
+        return st.get("state") or "received"
+
+    # 내려받기·업로드 — InProcess 대역은 저장소를 직접, HTTP 바인딩은 presigned URL 을 쓴다
+    def fetch(self, url: str, dest: Path) -> None:
+        dest.write_bytes(self.client.fetch(url, self._keys.get(url, "")))
+
+    def put(self, target, path: Path) -> None:
+        self.client.put(target.url, target.object_key, path.read_bytes())
+
+
+_RUNNERS: dict[tuple[int, str], Any] = {}
+
+
+def _work_root() -> Path:
+    return Path(os.getenv("PIXLATE_GPU_WORK_DIR", os.path.join(os.path.expanduser("~"), ".pixlate-gpu-work"))).resolve()
+
+
+def _runner(ctl: BeControlClient):
+    """GPU 워커 프로세스에서 실행기를 재사용한다(모델 자식 프로세스를 시도마다 다시 만들지 않는다)."""
+    from pipeline.handoff.gpu import GpuInpaintRunner
+
+    painter = ai_adapters.inpainter()
+    key = (id(painter), str(_work_root()))
+    r = _RUNNERS.get(key)
+    if r is None:
+        r = GpuInpaintRunner(ctl, painter.cfg, work_root=_work_root(), model_factory=getattr(painter, "model_factory", None),
+                             fetch=ctl.fetch, put=ctl.put)
+        _RUNNERS.clear()
+        _RUNNERS[key] = r
+    else:
+        r.control, r.fetch, r.put = ctl, ctl.fetch, ctl.put
+    return r
+
+
+def _discard_if_gone(ctl: BeControlClient, out) -> bool:
+    """BE 가 버려도 된다고 확인한 시도(전체 취소·중단·대체, 거절된 인계)의 로컬 자료를 지운다(D9-4·5.30). 지웠으면 True."""
+    import shutil
+
+    lease = ctl._leases.get(out.task_id)
+    if lease is None:
+        return False
+    try:
+        st = ctl.client.status(int(out.task_id), lease.lease_epoch, lease.lease_token)
+    except Exception:  # noqa: BLE001 — 확인하지 못하면 보존
+        return False
+    if st.get("discard"):
+        shutil.rmtree(out.workdir, ignore_errors=True)
+        return True
+    return False
 
 
 def execute_inpaint_remote(attempt_id: int) -> dict[str, Any]:
-    from pipeline.types import LabelResult, LogoResult, MergeResult, Section, TextBlock
-
-    client = _client()
-    got = client.acquire(attempt_id)
-    if got is None:
+    ctl = BeControlClient(_client())
+    runner = _runner(ctl)
+    try:
+        out = runner.run_task(str(attempt_id))
+    except NotRunnable:
         return {"attemptId": attempt_id, "ran": False}
-    epoch, token, inp = got["epoch"], got["token"], got["inputs"]
-    work = _work_dir(attempt_id, epoch)
-    base = {"input_fingerprint": got["fingerprint"], "contract_version": execution.CONTRACT_VERSION}
-    if inp["targets"] == 0:  # 처리 대상 블록 없음 — 호출 없이 정상 생략(D1)
-        env = {**base, "outcome": "skipped", "skip_reason": "no_targets", "target_count": 0, "payload": {"status": "no_targets"},
-               "artifacts": []}
-        return _finish(client, attempt_id, epoch, token, env, work)
-    data = client.fetch(inp["section_image"]["url"], inp["section_image"]["key"])
-    if sha256_bytes(data) != inp["section_image"]["sha256"]:
-        env = {**base, "outcome": "failed", "target_count": inp["targets"],
-               "payload": {"error_code": "INPUT_CHANGED", "message": "섹션 이미지 해시 불일치", "retryable": False}, "artifacts": []}
-        return _finish(client, attempt_id, epoch, token, env, work)
-    img = work / "section.png"
-    img.write_bytes(data)
-    sec_d = dict(inp["section"])
-    sec_d["image_path"] = str(img)
-    section = Section.model_validate(sec_d)
-    merged = MergeResult(section_key=section.section_key, blocks=[TextBlock.model_validate(b) for b in inp["blocks"]])
-    label = LabelResult.model_validate(inp["label"])
-    logo, record = LogoResult.model_validate(inp["logo"]["logo"]), inp["logo"]["logo_record"]
-    painter = ai_adapters.inpainter()
-    with _RemoteLeaseHeartbeat(client, attempt_id, epoch, token, got["ttl_s"]) as hb:
-        try:
-            out = painter.inpaint(inp["image_id"], section, merged, label, logo, record)
-        except Exception as e:  # noqa: BLE001 — 입력 오류·모델 사용 불가: 실패 봉투(재시도 버튼 없음, D9-3)
-            out = ai_adapters.InpaintOut("failed", None, None, None, None, None, None, None, error=f"{e.__class__.__name__}: {e}")
-    if hb.lost:  # 권한 상실 — 새 업로드·직접 완료 중지. 로컬 파일은 지우지 않는다(5.30)
-        return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
-    payload = {"status": out.status, "counts": out.counts, "regions": out.regions, "protected_blocks": out.protected_blocks,
-               "model": out.model}
-    if out.status == "failed":
-        env = {**base, "outcome": "failed", "target_count": inp["targets"],
-               "payload": {**payload, "error_code": "INPAINT_FAILED", "message": out.error or "", "retryable": False},
-               "artifacts": []}
-        return _finish(client, attempt_id, epoch, token, env, work)
-    arts = []
-    files = {"delete_mask": out.final_mask_png, "protect_mask": out.protect_mask_png}
-    if out.status == "inpainted":
-        files["background"] = out.background_png
-    for kind, blob in files.items():
-        (work / f"{kind}.png").write_bytes(blob)  # 원격 복구 가능 확인 전까지 보존
-        u = client.upload_url(attempt_id, epoch, token, kind, section.section_key)
-        client.put(u["url"], u["key"], blob)
-        arts.append({"kind": kind, "part_key": section.section_key, "staging_key": u["key"], "declared_sha256": sha256_bytes(blob)})
-    if out.status == "unchanged":  # 마스크 0 — 원본 배경을 검증된 기존 참조로
-        arts.append({"kind": "background", "part_key": section.section_key,
-                     "source_ref": {"key": inp["section_image"]["key"], "sha256": inp["section_image"]["sha256"]}})
-    env = {**base, "outcome": "done", "target_count": inp["targets"], "impl_version": painter.impl_version, "payload": payload,
-           "artifacts": arts}
-    return _finish(client, attempt_id, epoch, token, env, work)
+    if out.status == "lease_lost":  # 업로드·인계하지 않고 로컬 파일 보존(복구자 인수 대상, 5.30) — 취소로 버릴 시도면 삭제
+        return {"attemptId": attempt_id, "ran": True, "leaseLost": True, "localKept": not _discard_if_gone(ctl, out)}
+    if out.status != "registered":  # upload_failed · register_failed — 계산 결과 보존, 저장 복구 대상
+        log.warning("⑥ 인계 미완료 attempt=%s status=%s error=%s", attempt_id, out.status, out.error)
+        return {"attemptId": attempt_id, "ran": True, "failed": True, "status": out.status, "localKept": True}
+    cleaned = runner.cleanup(out) or _discard_if_gone(ctl, out)
+    return {"attemptId": attempt_id, "ran": True, "handoff": {"handoff_id": int(out.handoff_id)}, "localKept": not cleaned}
 
 
-def _finish(client: ControlClient, attempt_id: int, epoch: int, token: str, env: dict[str, Any], work: Path) -> dict[str, Any]:
-    reg = client.register(attempt_id, epoch, token, env)
-    st = client.status(attempt_id, epoch, token)
-    if st.get("remote_recoverable") or st.get("discard"):
-        shutil.rmtree(work, ignore_errors=True)
-    return {"attemptId": attempt_id, "ran": True, "handoff": reg, "localKept": not (st.get("remote_recoverable") or st.get("discard"))}
-
-
-def cleanup_confirmed(client: ControlClient, attempt_id: int, epoch: int, token: str) -> bool:
-    """재통지·상태 조회로 원격 복구 가능이 확인되면 로컬 자료를 지운다."""
-    st = client.status(attempt_id, epoch, token)
-    if st.get("remote_recoverable") or st.get("discard"):
-        shutil.rmtree(_work_dir(attempt_id, epoch), ignore_errors=True)
-        return True
-    return False
+def purge_job_local(job_id: int) -> bool:
+    """전체 작업 취소(D9-4) 시 GPU 워커 로컬 자료 삭제 — AI 실행기의 purge_job."""
+    return _runner(BeControlClient(_client())).purge_job(str(job_id))
 
 
 # ---------------------------------------------------------------------------------------------------------

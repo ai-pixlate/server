@@ -222,6 +222,25 @@ def test_translation_all_failed_is_n4_error_then_user_retry(env):
     assert _step(ids) == ("review", "N5")
 
 
+class _ConfigBrokenTranslator:
+    impl_version = "broken/1"
+
+    def translate(self, section_key, blocks, *, target_lang, context):
+        raise ai_adapters.AdapterFailed("TRANSLATE_CONFIG_INVALID", "합성: 설정 오류", retryable=False)
+
+
+def test_translation_failed_with_other_code_is_still_n4_error(env):
+    # PR #56 AI 리뷰 1: 성공 0건이 TRANSLATE_ALL_FAILED 가 아닌 코드로 끝나도 빈 N5 로 보내지 않는다(D9-3)
+    ids = _to_n3(env)
+    ai_adapters.set_adapters(translator=_ConfigBrokenTranslator())
+    ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("failed", "N4")
+    cur = _q("SELECT error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND is_current", j=ids["job"])
+    assert cur and all(a["error_code"] == "TRANSLATE_CONFIG_INVALID" for a in cur)
+    assert not _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'preview'", j=ids["job"])
+
+
 def test_inpaint_failure_falls_back_to_original_and_stays_failed(env):
     ids = _to_n3(env)
     c = ids["c"]

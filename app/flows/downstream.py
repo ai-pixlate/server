@@ -933,8 +933,10 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
             blocking = True
             all_ready = False
             continue
-        if tr and tr["status"] == "failed" and tr["error_code"] == TRANSLATE_ALL_FAILED:
-            blocking = True  # 번역 대상이 있는데 성공 0건 — 빈 N5 로 보내지 않는다(D9-3)
+        if tr and tr["status"] == "failed" and tr["error_code"] != TRANSLATE_PARTIAL and (tr["target_count"] or 0) > 0:
+            # 번역 대상이 있는데 성공분 없이 끝남 — 오류 코드와 무관하게 빈 N5 로 보내지 않는다(D9-3).
+            # 부분 실패(TRANSLATE_PARTIAL)만 성공분 보존·실패 칸 비움으로 진행한다. 대상 0개 정상 생략은 failed 가 아니다
+            blocking = True
             all_ready = False
             continue
         if not (_final(inp) and _final(sty) and _final(tr)):

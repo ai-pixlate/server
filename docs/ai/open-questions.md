@@ -24,6 +24,20 @@
 | 구현 대조 | 유형 코드/정의/대응, 감싸기 규칙의 PRD v3.5.6 수용 예시 확인. 스프레드시트 자체는 이번에 미열람 |
 | 기술 운영 작업 | 단계별 TTL/시간/한도·GPU/grant 정리 주기. N2 자동 재시도 2회와 작업 존속 중 자동 만료 없음은 PM 확정값 |
 
+### 0.1 BE 구현 1차 후 남은 연결(2026-10-08)
+
+| 항목 | 담당 | 상태 |
+|---|---|---|
+| ③-1·③-1′ 운영 어댑터: A안 출력(`app/ai_adapters.py` JudgeOutcome)과 DB 고정 묶음 입력형(`app/dictionary_bundle.py`) 대응. 현재 개발 입력의 SourceInfo·policy_rules·근거 URL 필수값 공급처 | AI | 미정 |
+| ⑧ 번역 함수(TranslateOutcome: 대상 키별 ok/failed) 구현 | AI | 미정 |
+| ① 분해 실패 시 원본 전체 대체 섹션 반환(현재 analyze()는 예외) · 오류 코드별 retryable | AI | 미정 |
+| GPU 제어 API HTTP 경로·서비스 인증 형식(5.32 1안) — 현재 서비스 계층·in-process 대역만 | BE · api-tracking | 미정 |
+| OpenAPI 반영: ExclusionReason `auto_local`·`auto_local_failed`, JOB-06 응답 taskId = 새 시도, 판정 실패·현지 미검사 안내 필드, 섹션 단위 실행 실패 확인(acknowledgedWarnings는 blockId+code뿐), FIN-04 부분 실패 표시 | BE · api-tracking | 미정 |
+| 영어 재대조·강제 용어 검사(독립 검사 단계)와 `prohibited_expression` 신호 매핑 | AI · BE | 미정 |
+| 역할별 스타일 기본값 — 없으면 측정 NULL·⑦ 실패 블록이 있는 섹션은 미리보기·최종 렌더 실패(N6 저장 불가) | AI → 디자인 → PM | 자료 확보 |
+| ④⑤ 최종 실패의 사용자 재시도 경로(JOB-06 계약은 translate·render만) — 현재 N4 오류 → [중단] 후 재진행 | PM · BE | 미정 |
+| 운영 수치: 실행 권한 TTL·재전달 기준·단계별 자동 재시도/한도(N2 2회 외 개발 기본값) | BE · AI | 운영 실측 |
+
 R01~R20 색인은 유지하되 이미 합의한 방향을 다시 승인받지 않는다. 상품 검증값 확보를 이번 번역의 차단 조건으로 쓰지 않고 원문 수치 유지·조건부 사유 경고로 구현한다. 전체 취소 콘텐츠 삭제는 중단의 입력 유지 및 정상 작업의 복구 보존과 구분한다.
 
 ## 1. 차단 항목 — 번역 최종 확정과 MVP 통합 검증을 막는 것

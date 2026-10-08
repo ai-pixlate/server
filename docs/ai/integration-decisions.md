@@ -5,7 +5,7 @@
 > 검토 기준: 원격 `origin/develop` `4c0f7916ee44485b6ffe4683d39c4b16668f4e2c` (2026-10-07 원격 재확인).
 > 갱신 시작 HEAD·원격 통합 브랜치: `83464ca296828f57c6343c655189bd2831d0279d`.
 > 작업 브랜치: `feature/ai-be-integration` — 명세 정리와 이후 합의된 AI 파이프라인 통합 코드 작업.
-> 상태: BE·AI 기술 합의 및 D9 PM 제품 결정 확정·미구현. 코드·마이그레이션·OpenAPI 변경 없음. 자료 확보/환경 확인/회신 작업은 D9-5에서 추적한다.
+> 상태: BE·AI 기술 합의 및 D9 PM 제품 결정 확정. 2026-10-08 `feature/be-ai-pipeline-integration`에서 BE 구현 1차 반영(4절). OpenAPI 변경 없음. 자료 확보/환경 확인/회신 작업은 D9-5에서 추적한다.
 
 ## 1. 기록의 적용 범위
 
@@ -183,7 +183,7 @@
 
 ## 4. 문서 반영과 검증 범위
 
-- 기록·소유 문서 반영만 수행한다. 기존 마이그레이션 0003의 생성식, 스텁 조기 인페인트, 번역 완료만으로 N5 이동하는 구현은 아직 변경하지 않았다.
+- 2026-10-08 BE 구현 1차(`feature/be-ai-pipeline-integration`): migrations 0007(`is_excluded` 3값)·0008(5.32 저장 구조·U1~U7·K1~K6), `app/execution.py`(권한·발급 기록·인계·채택·재시도·중단), `app/flows/`(N2→N3·N4→N5·N6·전체 취소), `app/recovery.py`(DB 기준 복구)로 스텁 조기 인페인트·번역 완료만으로 N5 이동·0003 생성식을 대체했다. 로컬 PostgreSQL 통합 시험(AI 대역)만 수행했다. ③-1·③-1′(A안)과 ⑧은 AI 구현이 없어 인터페이스·대역으로 연결했고, GPU 제어 API는 서비스 계층만 있다(HTTP 바인딩·운영 배포 전). 대체 결과는 시도 failed로 남기고 화면만 진행한다. 남은 연결은 `open-questions.md` 0.1.
 - 실제 API 규격은 `docs/openapi.yaml`·`docs/README.md`, DB 스키마는 `migrations/versions/`가 소유한다. API 문서 변경은 `feature/api-tracking` 관리 흐름을 따른다.
 - 상위 원문 버전을 임의로 올리지 않는다. 이번 합의의 반영 필요 사항은 `open-questions.md` 3절에 남긴다.
 

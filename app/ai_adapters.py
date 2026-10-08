@@ -11,7 +11,7 @@ AI 함수는 DB·S3에 접근하지 않는다(contract.md 1.1, D3).
 | ⑤ | LogoJudge.logo | PipelineLogo → pipeline.stages.logo.run (실제 계산) |
 | ⑥ | Inpainter.inpaint | PipelineInpainter → pipeline.stages.inpaint(+LaMa, GPU) |
 | ⑦ | Styler.style | PipelineStyler → pipeline.stages.style.run (실제 계산) |
-| ⑧ | Translator.translate → TranslateOutcome | UnavailableTranslator — AI ⑧ 미착수 |
+| ⑧ | Translator.translate → TranslateOutcome | HandoffTranslator → pipeline.handoff.translation.run_translate(PR #55). 입력은 context['handoff'](BE 고정 공급) |
 
 테스트·로컬 검증은 set_adapters(...)로 대역을 끼운다. 대역 성공을 실제 통합 성공으로 보고하지 않는다.
 """
@@ -31,6 +31,16 @@ class AdapterUnavailable(RuntimeError):
     """AI 구현이 아직 인계되지 않은 단계. 실패로 기록하며 성공·생략으로 바꾸지 않는다."""
 
     code = "AI_ADAPTER_UNAVAILABLE"
+
+
+class AdapterFailed(RuntimeError):
+    """AI 인계 보고가 단계 실패(입력·설정·묶음·내부 등 블록별 결과가 없는 실패) 또는 BE 검증 실패. 성공·생략으로 바꾸지 않는다.
+    code 는 task error_code(자유 텍스트) 후보이며 API enum 이 아니다."""
+
+    def __init__(self, code: str, message: str, *, retryable: bool):
+        super().__init__(message)
+        self.code = code
+        self.retryable = retryable
 
 
 class _Strict(BaseModel):
@@ -465,6 +475,68 @@ class UnavailableTranslator:
         raise AdapterUnavailable("⑧ 번역 운영 어댑터가 아직 없다(AI ⑧ 미착수) — 입력/출력 계약은 TranslateOutcome")
 
 
+class HandoffTranslator:
+    """⑧ 운영 어댑터 — AI 인계 계층(pipeline.handoff.translation.run_translate)을 부르고 TranslateOutcome 으로 옮긴다.
+
+    BE 워커가 context['handoff'] 에 고정 공급을 싣는다: 분석 실행의 저장 사전 묶음, 섹션 전체 블록(문맥), 대상·revision,
+    보존 성공분 참조, 표현 지시, 용어집 공급, 실행 식별. 묶음은 to_ai_bundle()로 AI 형식으로 바꾼다.
+    블록별 결과가 있는 실패(부분 실패·응답 구조 실패·호출 실패)는 items 로, 블록별 결과가 없는 실패는 AdapterFailed 로 돌려준다."""
+
+    def __init__(self, cfg: dict[str, Any] | None = None, llm: Any | None = None):
+        from pipeline.handoff.translation import TRANSLATE_ADAPTER_VERSION
+
+        self.cfg = cfg if cfg is not None else _load_cfg()
+        self.llm = llm
+        self.impl_version = f"{TRANSLATE_ADAPTER_VERSION}@cfg:{_cfg_hash(self.cfg, 'translate')[:16]}"
+
+    def request(self, section_key: str, target_lang: str, h: dict[str, Any], ai_bundle: dict[str, Any]) -> dict[str, Any]:
+        from pipeline.handoff.envelope import CONTRACT_VERSION
+
+        return {
+            "contract_version": CONTRACT_VERSION, "execution_id": h["execution_id"], "attempt_id": h["attempt_id"], "stage": "translate",
+            "target_country": h["target_country"], "target_lang": target_lang, "regulatory_class": h["regulatory_class"],
+            "section_key": section_key, "blocks": h["blocks"], "targets": h["targets"], "preserved": h["preserved"],
+            "instructions": h["instructions"], "glossary": h["glossary"], "bundle": ai_bundle,
+        }
+
+    def translate(self, section_key: str, blocks: list[TranslateBlock], *, target_lang: str, context: dict[str, Any]) -> TranslateOutcome:
+        from app.dictionary_bundle import BundleError, to_ai_bundle
+        from pipeline.handoff.translation import run_translate
+        from pipeline.handoff.validate import validate_report
+
+        h = context.get("handoff")
+        if h is None:
+            raise AdapterUnavailable("⑧ 번역 인계 공급(context['handoff'])이 없다")
+        try:
+            ai_bundle = to_ai_bundle(h["bundle"])
+        except BundleError as e:
+            raise AdapterUnavailable(f"⑧ 번역을 시작할 수 없다: {e}") from e
+        req = self.request(section_key, target_lang, h, ai_bundle)
+        report = run_translate(req, self.cfg, llm=self.llm)
+        problems = validate_report(report, req)
+        if problems:
+            raise AdapterFailed("TRANSLATE_RESULT_INVALID", "AI 보고 검증 실패: " + "; ".join(problems[:10]), retryable=True)
+        return translate_outcome_from_report(report, section_key)
+
+
+def translate_outcome_from_report(report: Any, section_key: str) -> TranslateOutcome:
+    """AI StageReport(stage=translate) → TranslateOutcome. 블록별 결과가 있으면(성공·부분 실패·응답/호출 실패) items 로 옮긴다."""
+    blocks = (report.payload or {}).get("blocks") or []
+    if not blocks:
+        if report.outcome == "failed":
+            f = report.failure
+            raise AdapterFailed(f"TRANSLATE_{f.kind.upper()}", f.message, retryable=bool(f.retryable))
+        return TranslateOutcome(section_key=section_key, items=[], impl=dict(report.implementation))
+    items = [TranslateItem(key=b["block_key"], status="ok" if b["outcome"] == "completed" else "failed",
+                           text=b["trans_1"] if b["outcome"] == "completed" else None,
+                           error=None if b["outcome"] == "completed" else (b.get("error") or "번역 실패"))
+             for b in blocks]
+    impl = {**report.implementation, "input_manifest_sha256": report.input_manifest_sha256,
+            "failure": report.failure.model_dump() if report.failure else None,
+            "applied_instructions": {b["block_key"]: b.get("applied_instructions") for b in blocks if b.get("applied_instructions")}}
+    return TranslateOutcome(section_key=section_key, items=items, impl=impl)
+
+
 # ---------------------------------------------------------------------------------------------------------
 # 등록
 # ---------------------------------------------------------------------------------------------------------
@@ -533,5 +605,5 @@ def styler() -> Styler:
 
 def translator() -> Translator:
     if _adapters.translator is None:
-        _adapters.translator = UnavailableTranslator()
+        _adapters.translator = HandoffTranslator()
     return _adapters.translator

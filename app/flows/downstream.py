@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,7 @@ from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
 from app.flows import common
 from app.flows.common import block_key, failed_envelope, json_value, report, section_key, set_job_state, submit
+from app.dictionary_bundle import entries_by_ref
 from app.manifest import fingerprint, sha256_bytes, sha256_text, stable_hash
 from app.storage import ObjectMissing, get_store
 
@@ -209,6 +211,8 @@ def _guard(attempt_id: int, fn) -> dict[str, Any]:
         return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), e.retryable)))
     except ai_adapters.AdapterUnavailable as e:
         return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), False)))
+    except ai_adapters.AdapterFailed as e:  # AI 보고의 단계 실패(블록별 결과 없음)·BE 검증 실패
+        return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), e.retryable)))
     except Exception as e:  # noqa: BLE001
         log.exception("%s 실패 attempt=%s", lease.stage, attempt_id)
         execution.fail_attempt(lease, f"{lease.stage.upper()}_UNEXPECTED", f"{e.__class__.__name__}: {e}", retryable=True)
@@ -413,9 +417,10 @@ def _create_parallel(db: Session, att: dict[str, Any]) -> list[int]:
                                  target_count=sum(1 for r in rows if r["is_excluded"] is False), max_retry=MAX_RETRY["style"]),
     ]
     targets = _translate_targets(rows)
+    supply = _translate_supply(db, run["id"], sid, targets) if targets else None
     ids.append(execution.create_attempt(
         db, run=run, stage="translate", unit_id=sid,
-        manifest=_translate_manifest(sid, rows, targets, scope["target_lang"], preserved=[]),
+        manifest=_translate_manifest(sid, rows, targets, scope["target_lang"], preserved=[], supply=supply),
         target_count=len(targets), max_retry=MAX_RETRY["translate"]))
     return ids
 
@@ -505,13 +510,76 @@ def _translate_targets(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
 
 
+_PLACEHOLDER = re.compile(r"\[[^\[\]\n]+\]")  # 템플릿 대체 표현(예: [value]) — 번역 지시로 쓰지 않는다(D9-2, PR #55 규칙과 같음)
+
+
+def _analysis_bundle(db: Session, analysis_run_id: int) -> tuple[int, dict[str, Any]]:
+    """이 N4 실행의 근거 분석 실행이 고정한 사전 묶음(분석 인계 payload). 실행 중 새 묶음을 만들지 않는다(D5)."""
+    r = db.execute(
+        text("SELECT h.id, h.payload FROM task_handoff h JOIN job_async_task a ON a.id = h.task_id "
+             "WHERE a.parent_task_id = :r AND a.stage = 'analyze' AND h.state = 'adopted' ORDER BY h.id DESC LIMIT 1"),
+        {"r": analysis_run_id},
+    ).first()
+    if r is None:
+        raise AdoptionRejected(f"분석 실행 {analysis_run_id} 의 고정 사전 묶음 없음", code="INPUT_MISSING")
+    return r[0], json_value(r[1])["bundle"]
+
+
+def _glossary_supply(db: Session, lang: str) -> dict[str, Any]:
+    """용어집 공급 — 대상 언어 전체(2026-10-08 사용자 결정, #11 검색 방식 확정 전 임시). 버전은 내용 지문."""
+    rows = db.execute(text("SELECT id, term_ko, term_target, enforcement FROM glossary WHERE target_lang = :l ORDER BY id"),
+                      {"l": lang}).mappings().all()
+    terms = [{"glossary_id": str(r["id"]), "term_ko": r["term_ko"], "term_target": r["term_target"], "enforcement": r["enforcement"]}
+             for r in rows]
+    return {"status": "ok", "version": "db-sha256:" + fingerprint(terms)[:16], "reason": None, "terms": terms}
+
+
+def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    """표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(regulated) 규제 판정의 매칭을 이번 대상 블록에 한해 넘긴다.
+    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다. 템플릿 대체 표현(RG-021/022 등)은 원문 수치 유지라 넘기지 않는다(D9-2)."""
+    det = json_value(db.execute(
+        text("SELECT detail FROM audit_log WHERE action_type = :a AND target_type = 'section' AND target_id = :s ORDER BY id DESC LIMIT 1"),
+        {"a": common.ACT_ANALYSIS_ADOPTED, "s": sid},
+    ).scalar()) or {}
+    refs = entries_by_ref(bundle)
+    out: list[dict[str, Any]] = []
+    for v in det.get("verdicts", []):
+        e = refs.get(v["dictionary_ref"])
+        alt = (e or {}).get("alternative_expression")
+        if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated" or not alt or not alt.strip():
+            continue
+        if _PLACEHOLDER.search(alt):
+            continue
+        for m in det.get("matches", []):
+            if m["snapshot_key"] == v["dictionary_ref"] and m["finding_key"] == v["finding_key"] and m["block_id"] in target_ids:
+                item = {"block_key": block_key(m["block_id"]), "external_id": v["dictionary_ref"], "matched_text": m["matched_text"]}
+                if item not in out:
+                    out.append(item)
+    return out
+
+
+def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]]) -> dict[str, Any]:
+    scope = _run_scope(db, run_id)
+    hid, bundle = _analysis_bundle(db, scope["analysis_task_id"])
+    glossary = _glossary_supply(db, scope["target_lang"])
+    instructions = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle)
+    return {"bundle_handoff_id": hid, "bundle": bundle, "glossary": glossary, "instructions": instructions}
+
+
+def _supply_ref(supply: dict[str, Any]) -> dict[str, Any]:
+    """시도 명세에 고정할 공급 지문. 실행 때 다시 만든 공급과 대조한다(5.32 입력 고정)."""
+    return {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
+            "glossary_sha256": fingerprint(supply["glossary"]), "instructions": supply["instructions"]}
+
+
 def _translate_manifest(sid: int, rows: list[dict[str, Any]], targets: list[dict[str, Any]], lang: str,
-                        preserved: list[dict[str, Any]]) -> dict[str, Any]:
+                        preserved: list[dict[str, Any]], supply: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
         "stage": "translate", "section_id": sid, "blocks_fp": _blocks_fp(rows), "target_lang": lang,
         "expected": [r["id"] for r in _translate_targets(rows)],
         "targets": [{"block_id": r["id"], "revision": r["revision"]} for r in targets],
         "preserved": preserved, "translator": ai_adapters.translator().impl_version,
+        "supply": _supply_ref(supply) if supply is not None else None,
     }
 
 
@@ -528,10 +596,27 @@ def execute_translate(attempt_id: int) -> dict[str, Any]:
         tblocks = [ai_adapters.TranslateBlock(key=block_key(r["id"]), block_order=r["block_order"], role=r["role"],
                                               source_ko=r["source_ko"] or "", is_target=r["id"] in target_ids)
                    for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
+        db = app_db.SessionLocal()
+        try:
+            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids])
+        finally:
+            db.close()
+        if m.get("supply") is not None and _supply_ref(supply) != m["supply"]:
+            raise AdoptionRejected("번역 공급(사전 묶음·용어집·표현 지시)이 고정 입력과 다르다", code="INPUT_CHANGED")
+        bundle = supply["bundle"]
+        handoff = {
+            "execution_id": str(lease.run_id), "attempt_id": str(attempt_id),
+            "target_country": bundle["target_country"], "regulatory_class": bundle["regulatory_class"],
+            "blocks": [b.model_dump(mode="json") for b in _text_blocks(sec["id"], rows)],
+            "targets": [{"block_key": block_key(t["block_id"]), "revision": t["revision"]} for t in m["targets"]],
+            "preserved": [{"block_key": block_key(p["block_id"]), "revision": p["revision"], "translation_sha256": p["sha256"],
+                           "source_attempt_id": str(p.get("source_attempt") or attempt_id)} for p in m["preserved"]],
+            "instructions": supply["instructions"], "glossary": supply["glossary"], "bundle": bundle,
+        }
         tr = ai_adapters.translator()
         with common.Heartbeat(lease) as hb:
             out = tr.translate(section_key(sec["id"]), tblocks, target_lang=m["target_lang"],
-                               context={"section_id": sec["id"], "job_id": lease.job_id})
+                               context={"section_id": sec["id"], "job_id": lease.job_id, "handoff": handoff})
         if hb.lost:
             return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
         if not isinstance(out, ai_adapters.TranslateOutcome):
@@ -626,13 +711,24 @@ def translate_retry_plan(db: Session, attempt: dict[str, Any]) -> dict[str, Any]
     vr = json_value(vr) or {}
     by_id = {r["id"]: r for r in rows}
     failed_ids = [b for b in expected if by_id.get(b) and by_id[b]["block_status"] == "machine" and by_id[b]["trans_1"] is None]
-    preserved = [{"block_id": b, "revision": by_id[b]["revision"], "sha256": sha256_text(by_id[b]["trans_1"])}
+    # 보존 성공분의 출처 시도: 같은 논리 작업에서 채택된 번역 인계의 반영 기록(나중 것이 우선)
+    origin: dict[int, int] = {}
+    for (vr_i,) in db.execute(
+        text("SELECT h.verify_result FROM task_handoff h JOIN job_async_task a ON a.id = h.task_id "
+             "WHERE a.parent_task_id = :r AND a.stage = 'translate' AND a.unit_id = :s AND h.state = 'adopted' ORDER BY h.id"),
+        {"r": attempt["parent_task_id"], "s": sid},
+    ).all():
+        for ap in (json_value(vr_i) or {}).get("applied", []):
+            origin[ap["block_id"]] = ap["source_attempt"]
+    preserved = [{"block_id": b, "revision": by_id[b]["revision"], "sha256": sha256_text(by_id[b]["trans_1"]),
+                  "source_attempt": origin.get(b)}
                  for b in sorted(expected) if by_id.get(b) and by_id[b]["trans_1"] is not None and by_id[b]["block_status"] == "machine"]
     targets = [by_id[b] for b in sorted(failed_ids)]
     if not vr and not targets:
         targets = [by_id[b] for b in sorted(expected) if by_id.get(b)]
     scope_lang = attempt["input_manifest"]["target_lang"]
-    return {"manifest": _translate_manifest(sid, rows, targets, scope_lang, preserved), "target_count": len(targets)}
+    supply = _translate_supply(db, attempt["parent_task_id"], sid, targets) if targets else None
+    return {"manifest": _translate_manifest(sid, rows, targets, scope_lang, preserved, supply=supply), "target_count": len(targets)}
 
 
 # ---------------------------------------------------------------------------------------------------------

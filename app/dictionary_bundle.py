@@ -9,9 +9,17 @@
 - 규제 조회 실패(질의 오류·해당 행 없음·필수값 누락)는 BundleError — N2 실패(자동 재시도 → 오류)다(D9-1).
 - 현지 조회 실패는 묶음의 local.status='unavailable' 로 남기고 분석은 계속한다(제외 없이 검사 불가 안내, D9-1).
 - 이번 범위 밖 판정값(cultural, D9-2)은 공급하지 않고 skipped 로 기록한다.
+- ③-1′ 정책 규칙은 DB에 없다. AI가 제공한 규칙 JSON 경로(PIXLATE_POLICY_RULES)를 묶음 생성 시 읽어 그대로 고정한다.
+  BE는 규칙 내용을 만들지 않는다. 경로가 없으면 policy_rules=None 이고 판정 단계가 실패로 기록된다.
+  규칙이 있으면 규제 행 조회 분류는 규칙의 applied_classes(common 포함)를 따르고, common 을 뺀 분류가 D8 대응과 같아야 한다.
+- AI 인계 형식(pipeline.handoff.bundle.RuntimeBundle)은 to_ai_bundle()이 이 저장 묶음에서 결정적으로 만든다.
+  대체 표현은 #71 결정 전까지 원문 1개짜리 배열로 감싸 나누지 않는다(2026-10-08 사용자 결정). DB PK 는 AI에 보내지 않는다.
 """
 from __future__ import annotations
 
+import json
+import os
+from pathlib import Path
 from typing import Any
 
 from sqlalchemy import text
@@ -19,12 +27,14 @@ from sqlalchemy import text
 from app import db as app_db
 from app.manifest import fingerprint
 
-BUNDLE_SCHEMA = "1"
+BUNDLE_SCHEMA = "2"  # 2: policy_rules 고정 추가
 APPLIED_CLASSES = {"cosmetic": ["cosmetic"], "otc": ["otc"], "combination": ["otc"], "unknown": ["cosmetic"]}
 CLASS_NOTICE = {"combination": "combination_otc_basis", "unknown": "unverified_class"}
 REGULATORY_VERDICTS = ("regulated", "conditional", "allowed")
 LOCAL_VERDICTS = ("irrelevant", "needs_fix")  # cultural 은 이번 범위 제외(D9-2)
 LOCAL_CLASS = "common"
+COMMON_CLASS = "common"  # 규제 행 중 모든 분류에 공통 적용되는 행(적재 분류값)
+POLICY_RULES_ENV = "PIXLATE_POLICY_RULES"
 
 
 class BundleError(RuntimeError):
@@ -98,12 +108,41 @@ def _problems_local(e: dict[str, Any]) -> list[str]:
     return p
 
 
+def load_policy_rules(path: str | None = None) -> dict[str, Any] | None:
+    """AI가 제공한 ③-1′ 정책 규칙 JSON을 읽어 검증한다. 경로가 설정되지 않았으면 None.
+
+    검증: pipeline 의 PolicyRules 구조, overrides 빈 목록(개발용 예외 쌍 금지, 5.21 R04),
+    각 분류의 applied_classes 에서 common 을 뺀 값이 D8 대응(APPLIED_CLASSES)과 같을 것."""
+    path = path if path is not None else os.getenv(POLICY_RULES_ENV)
+    if not path:
+        return None
+    from pydantic import ValidationError
+
+    from pipeline.dictionary import PolicyRules
+
+    try:
+        raw = json.loads(Path(path).read_text(encoding="utf-8"))
+        rules = PolicyRules.model_validate(raw)
+    except (OSError, ValueError, ValidationError) as e:
+        raise BundleError(f"정책 규칙을 읽을 수 없다({POLICY_RULES_ENV}): {e.__class__.__name__}: {e}",
+                          retryable=False, code="POLICY_RULES_INVALID") from e
+    if rules.overrides:
+        raise BundleError("정책 규칙 overrides(개발용 예외 쌍)는 운영에 쓰지 않는다", retryable=False, code="POLICY_RULES_INVALID")
+    for cls, want in APPLIED_CLASSES.items():
+        got = [c for c in rules.regulatory_class_map[cls].applied_classes if c != COMMON_CLASS]
+        if sorted(got) != sorted(want):
+            raise BundleError(f"정책 규칙의 {cls} 적용 분류 {got} ≠ D8 {want}", retryable=False, code="POLICY_RULES_INVALID")
+    return raw
+
+
 def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
     """DB 적재본으로 고정 묶음을 만든다. 반환 dict 에 'sha256'(정규 직렬화 지문)을 넣는다."""
     if regulatory_class not in APPLIED_CLASSES:
         raise BundleError(f"규제 분류 {regulatory_class!r} — 미선택·미지원 분류로 규제 검사를 시작하지 않는다",
                           retryable=False, code="REGULATORY_CLASS_INVALID")
-    applied = APPLIED_CLASSES[regulatory_class]
+    rules = load_policy_rules()
+    applied = (list(rules["regulatory_class_map"][regulatory_class]["applied_classes"]) if rules is not None
+               else APPLIED_CLASSES[regulatory_class])
     eng = app_db.engine
     try:
         with eng.connect() as conn:
@@ -162,10 +201,19 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
         entries = [e for e in entries if e["verdict_status"] in LOCAL_VERDICTS]
         lbad = {e["external_id"]: _problems_local(e) for e in entries}
         lbad = {k: v for k, v in lbad.items() if v}
+        from pipeline.handoff.bundle import load_type_map
+
+        want = {t.external_id for t in load_type_map().local}
+        got = {e["external_id"] for e in entries}
+        if entries and got != want:
+            # AI 판정은 지원 대응표의 8항목을 정확히 요구한다(D9-2). 다르면 현지 사전을 공급할 수 없는 것으로 보고 제외 없이 검사 불가(D9-1)
+            lbad["__type_map__"] = [f"현지 사전 항목 {sorted(got)} ≠ 지원 대응표 {sorted(want)}"]
         if not entries:
             local = {"status": "unavailable", "error": "현지 사전 행 없음", "entries": [], "skipped": skipped}
         elif lbad:
-            local = {"status": "unavailable", "error": f"현지 사전 필수값 누락: {sorted(lbad)}", "entries": [], "skipped": skipped}
+            tm = lbad.pop("__type_map__", None)
+            msgs = ([f"현지 사전 필수값 누락: {sorted(lbad)}"] if lbad else []) + (tm or [])
+            local = {"status": "unavailable", "error": "; ".join(msgs), "entries": [], "skipped": skipped}
         else:
             local = {"status": "ok", "error": None, "entries": entries, "skipped": skipped}
 
@@ -177,6 +225,7 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
         "class_notice": CLASS_NOTICE.get(regulatory_class),
         "regulatory": {"status": "ok", "entries": reg_entries},
         "local": local,
+        "policy_rules": rules,
     }
     bundle["sha256"] = fingerprint(bundle)
     return bundle
@@ -200,3 +249,65 @@ def verify_bundle(bundle: dict[str, Any]) -> None:
     body = {k: v for k, v in bundle.items() if k != "sha256"}
     if fingerprint(body) != bundle.get("sha256"):
         raise ValueError("고정 사전 묶음 지문 불일치")
+
+
+# ---------------------------------------------------------------------------------------------------------
+# AI 인계 형식 — pipeline.handoff.bundle.RuntimeBundle
+# ---------------------------------------------------------------------------------------------------------
+def _ai_evidence(entry: dict[str, Any]) -> dict[str, Any] | None:
+    """AI 형식은 근거 1개다. 표시 조문·링크의 기준인 대표 근거만 보낸다. document·나머지 근거는 BE 저장 묶음에 남는다
+    (복수 근거 배열 입력은 PR #55에 요청, BE 확인 2)."""
+    pe = primary_evidence(entry)
+    if pe is None:
+        return None
+    return {"external_id": pe["external_id"], "source_type": pe["source_type"], "article": pe["article"], "url": pe["url"],
+            "quote": pe["quote"]}
+
+
+def _ai_alternatives(raw: str | None) -> list[str]:
+    """#71 구분자 결정 전 임시 규칙: 나누지 않고 원문 1개짜리 배열로 감싼다. 비었으면 빈 배열."""
+    return [raw] if raw and raw.strip() else []
+
+
+def to_ai_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
+    """저장 묶음 → AI 인계 묶음. 같은 저장 묶음이면 항상 같은 결과·지문이다.
+
+    - 규제 행: 서비스 verdict_status(regulated·conditional·allowed)와 원값 source_verdict_status 를 그대로 보낸다.
+      원래 rewritable 행은 regulated + 대체 표현 있음으로 들어가며 규칙의 해당 조합을 따른다.
+    - 현지 행: 항목명←source_expression, 패턴←variant_ko, 셀러 문장←reason. 공급 불가(조회 실패·필수값·대응표 불일치,
+      build_bundle 에서 판정)면 local=null 과 사유를 보낸다(D9-1: 제외 없이 검사 불가).
+    - 정책 규칙이 없으면 BundleError(판정을 시작하지 않는다)."""
+    from pipeline.handoff.bundle import bundle_content_sha256
+
+    rules = bundle.get("policy_rules")
+    if rules is None:
+        raise BundleError(f"정책 규칙이 묶음에 없다 — {POLICY_RULES_ENV} 미설정", retryable=False, code="POLICY_RULES_UNAVAILABLE")
+    reg = [
+        {"external_id": e["external_id"], "regulatory_class": e["regulatory_class"], "source_expression": e["source_expression"],
+         "variant_ko": list(e["variant_ko"]), "variant_en": list(e["forbidden_en"] or []),
+         "alternative_expression": _ai_alternatives(e["alternative_expression"]), "verdict_status": e["verdict_status"],
+         "source_verdict_status": e["source_verdict_status"], "reason": e["reason"], "evidence": _ai_evidence(e),
+         "confirmed_date": e["confirmed_date"]}
+        for e in bundle["regulatory"]["entries"]
+    ]
+    local: dict[str, Any] | None = None
+    local_unavailable: dict[str, Any] | None = None
+    lb = bundle["local"]
+    if lb["status"] != "ok":
+        local_unavailable = {"reason": lb.get("error") or "현지 사전 조회 실패"}
+    else:
+        local = {"version": "db-sha256:" + fingerprint(lb["entries"])[:16], "entries": [
+            {"external_id": e["external_id"], "item": e["source_expression"], "patterns": list(e["variant_ko"]),
+             "verdict_status": e["verdict_status"], "exclusion_context": e["exclusion_context"],
+             "keep_context": e["keep_context"], "seller_message": e["reason"], "confirmed_date": e["confirmed_date"]}
+            for e in lb["entries"]]}
+    out: dict[str, Any] = {
+        "bundle_id": "be-" + bundle["sha256"][:16],
+        "target_country": bundle["target_country"],
+        "regulation": {"version": "db-sha256:" + fingerprint(bundle["regulatory"]["entries"])[:16], "entries": reg},
+        "local": local,
+        "local_unavailable": local_unavailable,
+        "rules": rules,
+    }
+    out["bundle_sha256"] = bundle_content_sha256(out)
+    return out

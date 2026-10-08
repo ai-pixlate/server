@@ -172,7 +172,7 @@ class QueueDispatcher:
 
 
 def seed_dictionary(conn, *, with_local: bool = True, regulatory: bool = True) -> None:
-    """규제 2행(cosmetic: 금지형·조건부) + 현지 1행 + 대표 근거."""
+    """규제 2행(cosmetic: 금지형·조건부) + 현지 8행(AI 지원 대응표 LC-01~LC-08과 같은 ID 집합) + 대표 근거."""
     rows = []
     if regulatory:
         rows += [
@@ -181,7 +181,9 @@ def seed_dictionary(conn, *, with_local: bool = True, regulatory: bool = True) -
              "conditional", None, "기능성 조건 충족 필요"),
         ]
     if with_local:
-        rows.append(("LC-91", "local", "US", "common", "원료 원산지", ["국내산"], None, "needs_fix", "needs_fix", None, "현지 맥락 확인"))
+        rows.append(("LC-01", "local", "US", "common", "원료 원산지", ["국내산"], None, "needs_fix", "needs_fix", None, "현지 맥락 확인"))
+        rows += [(f"LC-0{i}", "local", "US", "common", f"합성 항목 {i}", [f"합성패턴{i}"], None, "irrelevant", "irrelevant", None,
+                  f"합성 안내 {i}") for i in range(2, 9)]
     for ext, dt, c, rc, src, vko, fen, vs, svs, alt, reason in rows:
         did = conn.execute(
             text(

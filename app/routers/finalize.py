@@ -265,17 +265,25 @@ def download_by_type(
 
 @router.post("/jobs/{job_id}/save", summary="API-FIN-06 저장(보관함) (DB)")
 def save(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    """최종 렌더 성공 후에만 저장·완료한다(D9-3). 실패·진행 중이면 409."""
+    """최종 렌더 성공 후에만 저장·완료한다(D9-3). 실패·진행 중이면 409.
+    전체 취소(archived)와 경쟁하지 않도록 job 행을 잠근 뒤 같은 트랜잭션에서 상태·저장 가능 여부를 판정한다(D9-4)."""
+    from app import execution
     from app.flows.final import can_save
 
     _require_job_owned(db, job_id, seller_id)
+    job = execution.lock_job(db, job_id)
+    if job["status"] not in ("review", "done") or job["current_step"] != "N6":
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE",
+                                                     "message": f"N6 에서만 저장한다({job['current_step']}/{job['status']})"})
     if not can_save(db, job_id):
+        db.rollback()
         raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더가 성공하지 않았다"})
     r = db.execute(
         text(
             "UPDATE job SET is_saved = true, saved_at = now(), status = 'done', "
             "user_facing_status = 'done', updated_at = now() "
-            "WHERE id = :j AND seller_id = :s RETURNING id, is_saved, saved_at"
+            "WHERE id = :j AND seller_id = :s AND status <> 'archived' AND current_step = 'N6' RETURNING id, is_saved, saved_at"
         ),
         {"j": job_id, "s": seller_id},
     ).mappings().first()

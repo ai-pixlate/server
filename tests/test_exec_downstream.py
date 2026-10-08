@@ -129,6 +129,23 @@ def test_full_flow_to_n6_save(env):
     assert _step(ids) == ("done", "N6")
 
 
+def test_save_after_full_cancel_is_rejected(env):
+    # PR #56 AI 리뷰 2: 최종 렌더가 성공한 뒤 전체 취소하면 저장이 archived 를 done 으로 덮어쓰지 않는다(D9-4)
+    ids = _to_n3(env)
+    c = ids["c"]
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    assert _q("SELECT status FROM job_async_task WHERE job_id = :j AND stage = 'final_render' AND is_current", j=ids["job"]) == [
+        {"status": "done"}]
+    assert c.delete(f"/v1/jobs/{ids['job']}").status_code == 200
+    r = c.post(f"/v1/jobs/{ids['job']}/save")
+    assert r.status_code == 409
+    job = _q("SELECT status, is_saved FROM job WHERE id = :j", j=ids["job"])[0]
+    assert job == {"status": "archived", "is_saved": False}
+
+
 def test_proceed_rejects_all_excluded_and_is_idempotent(env):
     ids = _to_n3(env)
     c = ids["c"]

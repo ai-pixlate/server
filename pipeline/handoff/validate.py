@@ -19,10 +19,37 @@ from pipeline.handoff.envelope import StageReport
 from pipeline.types import AnalyzeResult, ContentFinding, LabelResult, LogoResult
 
 
-def _files(rep: StageReport) -> list[str]:
+def _paths(rep: StageReport, local_paths: dict[tuple[str, str], Any] | None, allowed_root: Any) -> tuple[dict[tuple[str, str], Path], list[str]]:
+    """측정할 로컬 경로. 대체 경로(BE가 스테이징에서 내려받은 사본 등)는 allowed_root 안이어야 한다(경로 탈출 · 링크 해석 후 확인, R17)."""
+    if local_paths is None:
+        return {(a.kind, a.part_key): Path(a.path) for a in rep.artifacts}, []
+    if allowed_root is None:
+        raise ValueError("local_paths를 주면 allowed_root도 줘야 한다")
+    root = Path(allowed_root).resolve()
+    out: dict[tuple[str, str], Path] = {}
+    probs: list[str] = []
+    for a in rep.artifacts:
+        k = (a.kind, a.part_key)
+        if k not in local_paths:
+            probs.append(f"대체 경로가 없는 산출물 {a.kind}/{a.part_key}")
+            continue
+        q = Path(local_paths[k]).resolve()
+        if q != root and root not in q.parents:
+            probs.append(f"대체 경로가 허용 폴더 밖이다 {a.kind}/{a.part_key}")
+            continue
+        out[k] = q
+    extra = set(local_paths) - {(a.kind, a.part_key) for a in rep.artifacts}
+    if extra:
+        probs.append(f"보고에 없는 산출물의 대체 경로 {sorted(extra)}")
+    return out, probs
+
+
+def _files(rep: StageReport, paths: dict[tuple[str, str], Path]) -> list[str]:
     out = []
     for a in rep.artifacts:
-        p = Path(a.path)
+        if (a.kind, a.part_key) not in paths:
+            continue
+        p = paths[(a.kind, a.part_key)]
         if not p.is_file():
             out.append(f"산출물 없음 {a.kind}/{a.part_key}: {a.path}")
             continue
@@ -42,7 +69,7 @@ def _art(rep: StageReport, kind: str, part: str):
     return next((a for a in rep.artifacts if a.kind == kind and a.part_key == part), None)
 
 
-def _analyze(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _analyze(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     p = []
     try:
         ar = AnalyzeResult.model_validate(rep.payload["analyze_result"])
@@ -60,7 +87,7 @@ def _analyze(rep: StageReport, req: dict[str, Any]) -> list[str]:
         a = _art(rep, "section_image", s.section_key)
         if a is None:
             p.append(f"{s.section_key}: 섹션 이미지 산출물 없음")
-        elif (a.width, a.height) != (s.width, s.height) or Path(a.path) != Path(s.image_path).resolve():
+        elif (a.width, a.height) != (s.width, s.height) or (not ctx["substituted"] and Path(a.path) != Path(s.image_path).resolve()):
             p.append(f"{s.section_key}: 섹션 이미지 산출물 · 메타데이터 불일치")
     extra = {a.part_key for a in rep.artifacts} - set(keys)
     if extra:
@@ -74,7 +101,7 @@ def _analyze(rep: StageReport, req: dict[str, Any]) -> list[str]:
     return p
 
 
-def _judge(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _judge(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     p = []
     tm = load_type_map()
     local_types = [t.content_type for t in tm.local]
@@ -85,8 +112,10 @@ def _judge(rep: StageReport, req: dict[str, Any]) -> list[str]:
     if req["bundle"].get("local"):
         bundle_ids |= {e["external_id"] for e in req["bundle"]["local"]["entries"]}
     secs = rep.payload.get("sections", [])
-    if [s["section_key"] for s in secs] != [s.section_key for s in ar.sections]:
-        return ["판정 섹션이 분석 섹션과 다르다(누락 · 순서 · 추가)"]
+    targets = req.get("target_section_keys")
+    want = [s.section_key for s in ar.sections if targets is None or s.section_key in set(targets)]
+    if [s["section_key"] for s in secs] != want:
+        return ["판정 섹션이 판정 대상과 다르다(누락 · 순서 · 추가)"]
     for s in secs:
         k = s["section_key"]
         sec_blocks = {b for b, v in blocks.items() if v.section_key == k}
@@ -146,7 +175,7 @@ def _blocks_of(req: dict[str, Any]) -> list[str]:
     return [b["block_key"] for b in req.get("blocks", [])]
 
 
-def _label(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _label(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     p = []
     lr = rep.payload.get("label_result")
     if lr is None or sha256_canonical(lr) != rep.payload.get("label_result_sha256"):
@@ -160,7 +189,7 @@ def _label(rep: StageReport, req: dict[str, Any]) -> list[str]:
     return p
 
 
-def _logo(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _logo(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     pl = rep.payload
     if sha256_canonical(pl.get("logo_result")) != pl.get("logo_result_sha256") or sha256_canonical(pl.get("logo_record")) != pl.get("logo_record_sha256"):
         return ["logo_result · logo_record 해시 불일치"]
@@ -178,7 +207,7 @@ def _logo(rep: StageReport, req: dict[str, Any]) -> list[str]:
     return p
 
 
-def _inpaint(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _inpaint(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     key = req["section"]["section_key"]
     size = (req["section"]["width"], req["section"]["height"])
     p = []
@@ -199,7 +228,7 @@ def _inpaint(rep: StageReport, req: dict[str, Any]) -> list[str]:
     return p
 
 
-def _style(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _style(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     got = [b["block_key"] for b in rep.payload["blocks"]] + [b["block_key"] for b in rep.payload["excluded"]]
     p = []
     if sorted(got) != sorted(_blocks_of(req)) or len(set(got)) != len(got):
@@ -211,7 +240,7 @@ def _style(rep: StageReport, req: dict[str, Any]) -> list[str]:
     return p
 
 
-def _translate(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _translate(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     p = []
     want = {t["block_key"]: t["revision"] for t in req.get("targets", [])}
     blocks = rep.payload.get("blocks", [])
@@ -241,7 +270,7 @@ def _translate(rep: StageReport, req: dict[str, Any]) -> list[str]:
     return p
 
 
-def _text_check(rep: StageReport, req: dict[str, Any]) -> list[str]:
+def _text_check(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     want = {t["block_key"]: t for t in req.get("targets", [])}
     p = []
     got = [b["block_key"] for b in rep.payload.get("blocks", [])]
@@ -261,7 +290,9 @@ _STAGE = {"analyze": _analyze, "judge": _judge, "label": _label, "logo": _logo, 
           "translate": _translate, "text_check": _text_check}
 
 
-def validate_report(report: Any, request: dict[str, Any]) -> list[str]:
+def validate_report(report: Any, request: dict[str, Any], *, local_paths: dict[tuple[str, str], Any] | None = None,
+                    allowed_root: Any = None) -> list[str]:
+    """local_paths: (kind, part_key) → 이 환경에서 측정할 파일 경로(보고의 path가 다른 서버 경로일 때). 주면 allowed_root 필수."""
     try:
         rep = report if isinstance(report, StageReport) else StageReport.model_validate(report)
     except ValidationError as e:
@@ -277,7 +308,8 @@ def validate_report(report: Any, request: dict[str, Any]) -> list[str]:
         p.append("input_manifest_sha256이 BE 고정 지문과 다르다")
     if p:
         return p
-    p += _files(rep)
+    paths, probs = _paths(rep, local_paths, allowed_root)
+    p += probs + _files(rep, paths)
     if rep.outcome == "failed" and rep.payload is None:
         return p
     if rep.outcome == "failed" and rep.stage not in ("translate", "analyze"):
@@ -286,7 +318,7 @@ def validate_report(report: Any, request: dict[str, Any]) -> list[str]:
         return p
     fn = _STAGE[rep.stage]
     try:
-        p += fn(rep, request)
+        p += fn(rep, request, {"substituted": local_paths is not None})
     except (KeyError, TypeError, ValidationError) as e:
         p.append(f"payload 필수값 누락 · 형식 오류: {e.__class__.__name__}: {e}")
     return p

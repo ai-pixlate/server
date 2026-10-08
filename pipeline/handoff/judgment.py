@@ -52,8 +52,9 @@ class JudgeRequest(RequestIdentity):
     stage: Literal["judge"]
     target_country: str = Field(min_length=1)
     regulatory_class: Literal["cosmetic", "otc", "combination", "unknown"]  # 미선택은 BE가 차단한다(D8). null은 형식 오류
-    analyze_result: dict[str, Any]
-    section_images: dict[str, SectionImage]  # section_key → 이 실행 환경의 섹션 이미지
+    analyze_result: dict[str, Any]  # 분석 실행 전체(앞뒤 문맥용). 판정 대상은 target_section_keys
+    target_section_keys: list[str] | None = None  # 이번 판정 대상(섹션별 시도 · 재시도). None이면 전체. 결과 순서는 분석 순서
+    section_images: dict[str, SectionImage]  # 판정 대상 section_key → 이 실행 환경의 섹션 이미지
     bundle: dict[str, Any]
 
 
@@ -194,19 +195,19 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
         links.append({"finding_key": reg_fk, "external_ids": ids, "match_keys": [m.match_key for m in rg_raw], "verdict_keys": []})
 
     def add_verdict(fk: str, ext: str, dict_type: str, row, finding_status: str, problem: str | None, match_keys: list[str]) -> None:
-        has_alt = bool(getattr(row, "alternative_expression", []))
+        has_alt = row.has_alternative if dict_type == "regulatory" else False
         rule = _rule_for(cb, dict_type, row.verdict_status, has_alt)
         if rule.emit_verdict_status is None:
             return
         vk = f"v_{len(verdicts) + 1:02d}"
         bucket = cb.rules.uncertain_bucket if finding_status == "uncertain" else rule.bucket
-        ev = row.evidence if dict_type == "regulatory" else None
+        ev = row.primary_evidence if dict_type == "regulatory" else None  # 표시용 조문 · 링크는 대표 근거. 전체 근거는 사전 스냅샷에 보존
         verdicts.append({
             "verdict_key": vk, "finding_key": fk, "external_id": ext, "dict_type": dict_type,
             "verdict_status": rule.emit_verdict_status, "dictionary_verdict_status": row.verdict_status,
             "source_verdict_status": getattr(row, "source_verdict_status", None), "finding_status": finding_status,
             "problem_text": problem, "match_keys": match_keys,
-            "alternative_expression": list(getattr(row, "alternative_expression", [])),
+            "alternative_expression": row.alternative_expression if dict_type == "regulatory" else [],  # 배열 또는 나누지 않은 원문 그대로
             "basis_article": ev.article if ev else None, "evidence_url": ev.url if ev else None,
             "reason": row.reason if dict_type == "regulatory" else row.seller_message, "bucket": bucket,
         })
@@ -306,8 +307,11 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
     problems = []
     if len(set(keys)) != len(keys):
         problems.append("섹션 키 중복")
-    if set(req.section_images) != set(keys):
-        problems.append(f"section_images 키 {sorted(req.section_images)} ≠ 섹션 {sorted(keys)}")
+    targets = keys if req.target_section_keys is None else req.target_section_keys
+    if not targets or len(set(targets)) != len(targets) or set(targets) - set(keys):
+        problems.append(f"target_section_keys {targets} — 비어 있지 않고 중복 없이 분석 섹션 안이어야 한다")
+    if set(req.section_images) != set(targets):
+        problems.append(f"section_images 키 {sorted(req.section_images)} ≠ 판정 대상 {sorted(set(targets))}")
     bkeys = [b.block_key for b in ar.blocks]
     if len(set(bkeys)) != len(bkeys):
         problems.append("블록 키 중복")
@@ -316,8 +320,11 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
         problems.append(f"섹션이 없는 블록 {orphan}")
     if problems:
         return failed_report(ident, "input_invalid", "; ".join(problems), implementation=impl)
+    all_sections = list(ar.sections)
     sections = []
     for s in ar.sections:
+        if s.section_key not in set(targets):
+            continue
         img = req.section_images[s.section_key]
         p = Path(img.path)
         if not p.is_absolute() or not p.is_file():
@@ -325,7 +332,7 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
         if sha256_file(p) != img.sha256:
             return failed_report(ident, "input_invalid", f"{s.section_key}: 섹션 이미지 SHA-256 불일치", implementation=impl)
         sections.append(s.model_copy(update={"image_path": str(p)}))
-    blocks_of = {s.section_key: [b for b in ar.blocks if b.section_key == s.section_key] for s in sections}
+    blocks_of = {s.section_key: [b for b in ar.blocks if b.section_key == s.section_key] for s in all_sections}
     prompt = None
     if cb.local is not None:
         try:
@@ -336,7 +343,9 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
     manifest, msha = manifest_of({
         "stage": "judge", "contract_version": CONTRACT_VERSION, "adapter": JUDGE_ADAPTER_VERSION, "policy": POLICY_IMPL_VERSION,
         "match_rules": MATCH_RULES_VERSION, "bundle": cb.identity, "target_country": req.target_country,
-        "regulatory_class": req.regulatory_class,
+        "regulatory_class": req.regulatory_class, "target_section_keys": [s.section_key for s in sections],
+        "context": {"context_sections": int(cfg["judge"]["context_sections"]),
+                    "blocks": {s.section_key: [[b.block_key, b.source_ko] for b in blocks_of[s.section_key]] for s in all_sections}},
         "sections": [{"section_key": s.section_key, "image_sha256": req.section_images[s.section_key].sha256,
                       "blocks": [b.model_dump(mode="json") for b in blocks_of[s.section_key]]} for s in sections],
         "config": {"judge": {k: cfg["judge"][k] for k in ("call_scope", "image_width_px", "context_sections", "llm_model",
@@ -352,7 +361,7 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
     diags = {}
     try:
         for s in sections:
-            prev, nxt = _context(sections, blocks_of, s, int(cfg["judge"]["context_sections"]))
+            prev, nxt = _context(all_sections, blocks_of, s, int(cfg["judge"]["context_sections"]))
             r = judge_section(s, blocks_of[s.section_key], cb, req.regulatory_class, cfg, prev=prev, nxt=nxt, llm=llm, prompt=prompt)
             diags[s.section_key] = r.pop("_diagnostics")
             results.append(r)

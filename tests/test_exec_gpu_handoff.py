@@ -84,3 +84,24 @@ def test_cleanup_deletes_local_only_after_be_confirms_discard(env):
     assert c.delete(f"/v1/jobs/{ids['job']}").status_code == 200  # 전체 취소 → BE 폐기 확정
     assert ctl.handoff_status(str(tid), out.handoff_id) == "discard"
     assert runner.cleanup(out) is True and not out.workdir.exists()
+
+
+def test_adoption_revalidates_ai_report_against_fixed_copies(env, monkeypatch):
+    # PR #56 AI 요청 5: EC2 채택 전 validate_report(local_paths=검증 키 사본, allowed_root)로 AI 보고를 다시 검증한다(R17)
+    from app.flows import gpu_worker
+
+    ids = _to_n3(env)
+    assert ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
+    held = [m for m in env["q"].drain(skip={"app.tasks.run_inpaint"}) if m[0] == "app.tasks.run_inpaint"]
+    tid = held[0][1][0]
+    orig = gpu_worker.InProcessControlClient.register_report
+
+    def tamper(self, attempt_id, epoch, token, envelope):  # 배경 파일이 있는데 '빈 마스크 생략'이라고 주장하는 보고
+        rep = {**envelope["report"], "payload": {**envelope["report"]["payload"], "status": "unchanged"}}
+        return orig(self, attempt_id, epoch, token, {**envelope, "report": rep})
+
+    monkeypatch.setattr(gpu_worker.InProcessControlClient, "register_report", tamper)
+    gpu_worker.execute_inpaint_remote(tid)
+    env["q"].drain()
+    h = _q("SELECT state, reject_reason FROM task_handoff WHERE task_id = :t", t=tid)[0]
+    assert h["state"] == "rejected" and "AI 보고 검증 실패" in h["reject_reason"]

@@ -161,7 +161,8 @@ class WorkerControl:
             body = {"outcome": "done", "target_count": rep.target_count, "payload": p}
         body.update({"input_fingerprint": lease.fingerprint, "impl_version": str((rep.implementation or {}).get("adapter")),
                      "artifacts": arts, "ai_report": {"contract_version": rep.contract_version, "outcome": rep.outcome,
-                                                      "skip_reason": rep.skip_reason, "input_manifest_sha256": rep.input_manifest_sha256}})
+                                                      "skip_reason": rep.skip_reason, "input_manifest_sha256": rep.input_manifest_sha256,
+                                                      "report": rep.model_dump(mode="json")}})
         body["payload"] = {**body["payload"], "ai_report": body.pop("ai_report")}
         return self.register(worker_id, attempt_id, epoch, token, body)
 
@@ -249,6 +250,24 @@ class NotRunnable(Exception):
     """실행 권한을 얻지 못했다(이미 처리 중·완료·취소). 계산하지 않는다."""
 
 
+def inpaint_stage_request(inp: dict[str, Any], run_id: int, attempt_id: int) -> dict[str, Any]:
+    """⑥ AI 인계 요청(run_inpaint)의 고정 부분 — GPU 측 실행과 BE 채택 전 검증이 같은 값을 쓴다.
+    section_image·out_dir 는 실행 환경마다 채운다."""
+    from pipeline.handoff.canonical import sha256_canonical
+    from pipeline.handoff.envelope import CONTRACT_VERSION
+
+    label = inp["label"]
+    logo, record = inp["logo"]["logo"], inp["logo"]["logo_record"]
+    return {
+        "contract_version": CONTRACT_VERSION, "execution_id": str(run_id), "attempt_id": str(attempt_id),
+        "stage": "inpaint", "image_id": inp["image_id"], "section": inp["section"], "blocks": inp["blocks"],
+        "label_result": label, "label_result_sha256": sha256_canonical(label),
+        "logo_result": logo, "logo_result_sha256": sha256_canonical(logo),
+        "logo_record": record, "logo_record_sha256": sha256_canonical(record),
+        "limits": None,  # 운영 시간 제한 미정 — AI가 개발값 사용을 implementation.limits.source=dev_config 로 남긴다
+    }
+
+
 class BeControlClient:
     """pipeline.handoff.gpu.ControlClient 구현 — 저수준 BE 제어 클라이언트(InProcess 또는 HTTP 바인딩)를 감싼다.
 
@@ -261,24 +280,13 @@ class BeControlClient:
         self._keys: dict[str, str] = {}  # 내려받기 URL → 저장소 키(InProcess 대역용)
 
     def acquire(self, task_id: str):
-        from pipeline.handoff.canonical import sha256_canonical
-        from pipeline.handoff.envelope import CONTRACT_VERSION
         from pipeline.handoff.gpu import Lease as AiLease
 
         got = self.client.acquire(int(task_id))
         if got is None:
             raise NotRunnable(task_id)
         inp = got["inputs"]
-        label = inp["label"]
-        logo, record = inp["logo"]["logo"], inp["logo"]["logo_record"]
-        req = {
-            "contract_version": CONTRACT_VERSION, "execution_id": str(got["run_id"]), "attempt_id": str(got["attempt_id"]),
-            "stage": "inpaint", "image_id": inp["image_id"], "section": inp["section"], "blocks": inp["blocks"],
-            "label_result": label, "label_result_sha256": sha256_canonical(label),
-            "logo_result": logo, "logo_result_sha256": sha256_canonical(logo),
-            "logo_record": record, "logo_record_sha256": sha256_canonical(record),
-            "limits": None,  # 운영 시간 제한 미정 — AI가 개발값 사용을 implementation.limits.source=dev_config 로 남긴다
-        }
+        req = inpaint_stage_request(inp, got["run_id"], got["attempt_id"])
         si = inp["section_image"]
         self._keys[si["url"]] = si["key"]
         lease = AiLease(task_id=str(got["attempt_id"]), job_id=str(got["job_id"]), lease_epoch=int(got["epoch"]),
@@ -392,6 +400,38 @@ def purge_job_local(job_id: int) -> bool:
 # ---------------------------------------------------------------------------------------------------------
 # BE 채택(cpu 큐)
 # ---------------------------------------------------------------------------------------------------------
+def _validate_ai_report(handoff_id: int, lease: Lease) -> None:
+    """AI 보고를 BE가 고정한 산출물 사본으로 다시 검증한다(PR #55 validate_report, local_paths·allowed_root — R17).
+    검증 대상은 GPU 경로가 아니라 BE가 스테이징에서 받아 검증 키에 고정한 같은 바이트다. 어기면 채택 거절."""
+    import tempfile
+
+    from pipeline.handoff.validate import validate_report
+
+    db = app_db.SessionLocal()
+    try:
+        payload = json_value(db.execute(text("SELECT payload FROM task_handoff WHERE id = :h"), {"h": handoff_id}).scalar())
+    finally:
+        db.close()
+    rep = ((payload or {}).get("ai_report") or {}).get("report")
+    if rep is None:  # 저수준 BE 봉투(register) 경로 — AI 보고가 없다
+        return
+    req = inpaint_stage_request(WorkerControl()._inputs(lease), lease.run_id, lease.attempt_id)
+    req["section_image"] = {"path": "", "sha256": lease.manifest["section_image_sha256"]}
+    store = get_store()
+    with tempfile.TemporaryDirectory(prefix=f"px-verify-{handoff_id}-") as tmp:
+        root = Path(tmp).resolve()
+        local: dict[tuple[str, str], Path] = {}
+        for art in artifacts.artifacts_of(handoff_id):
+            if art["verified_key"]:
+                p = root / f"{art['id']}.png"
+                p.write_bytes(store.get(art["verified_key"]))
+                local[(art["kind"], art["part_key"])] = p
+        req["out_dir"] = str(root / "out")
+        problems = validate_report(rep, req, local_paths=local, allowed_root=root)
+    if problems:
+        raise AdoptionRejected("AI 보고 검증 실패: " + "; ".join(problems[:10]), code="INPAINT_RESULT_INVALID")
+
+
 def adopt_remote_handoff(handoff_id: int) -> dict[str, Any]:
     adopter = f"be-adopter:{execution.worker_identity()}"
     lease = execution.claim_adoption(handoff_id, adopter)
@@ -411,6 +451,7 @@ def adopt_remote_handoff(handoff_id: int) -> dict[str, Any]:
                 artifacts.fix_source_ref(lease, art["id"], allowed_keys=allowed)
             else:
                 artifacts.fix_staged(lease, art["id"])
+        _validate_ai_report(handoff_id, lease)
         execution.mark_verified(handoff_id, lease)
     except AdoptionRejected as e:
         execution.reject_and_fail(handoff_id, lease, e)

@@ -271,7 +271,7 @@
     },
     "bundle": {
       "bundle_id": "bundle-synthetic-1",
-      "bundle_sha256": "d39ca68f1bc92d0ab0f6614dff68e95ec1ff739bf37c17ca2cff52194b352e32",
+      "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
       "target_country": "US",
       "regulation": {
         "version": "regulation@synthetic.1",
@@ -290,13 +290,26 @@
             "verdict_status": "regulated",
             "source_verdict_status": "regulated",
             "reason": "합성: 금지형",
-            "evidence": {
-              "external_id": "EV-1",
-              "source_type": "합성",
-              "article": "합성 1조",
-              "url": "https://example.test/1",
-              "quote": null
-            },
+            "evidence": [
+              {
+                "external_id": "EV-1",
+                "source_type": "합성",
+                "document": "합성 문서",
+                "quote": null,
+                "article": "합성 1조",
+                "url": "https://example.test/1",
+                "is_primary": true
+              },
+              {
+                "external_id": "EV-2",
+                "source_type": "합성",
+                "document": null,
+                "quote": "합성 인용",
+                "article": null,
+                "url": null,
+                "is_primary": false
+              }
+            ],
             "confirmed_date": "2026-09-28"
           },
           {
@@ -312,10 +325,10 @@
             "alternative_expression": [
               "the look of fake calm"
             ],
-            "verdict_status": "rewritable",
+            "verdict_status": "regulated",
             "source_verdict_status": "rewritable",
             "reason": "합성: 완충형",
-            "evidence": null,
+            "evidence": [],
             "confirmed_date": null
           },
           {
@@ -334,7 +347,7 @@
             "verdict_status": "conditional",
             "source_verdict_status": null,
             "reason": "합성: 조건부(수치 템플릿)",
-            "evidence": null,
+            "evidence": [],
             "confirmed_date": null
           },
           {
@@ -351,7 +364,7 @@
             "verdict_status": "allowed",
             "source_verdict_status": "allowed",
             "reason": "합성: 허용형",
-            "evidence": null,
+            "evidence": [],
             "confirmed_date": null
           },
           {
@@ -366,7 +379,7 @@
             "verdict_status": "regulated",
             "source_verdict_status": "regulated",
             "reason": "합성: OTC 전용",
-            "evidence": null,
+            "evidence": [],
             "confirmed_date": null
           }
         ]
@@ -475,8 +488,8 @@
       "local_unavailable": null,
       "rules": {
         "schema_version": "1",
-        "rules_version": "policy@2026-10-08.0",
-        "basis": "합성 테스트용 — 실제 규칙 값이 아니다. 구조는 build_dict.RULES_TEMPLATE과 같다. overrides에 가짜 예외 쌍 1개(형식 검증용)",
+        "rules_version": "policy@2026-10-08.1",
+        "basis": "운영 묶음 공급용 정책 규칙. 로컬 개발 규칙 policy@2026-09-28.1(사전 5종 사용 설명서 v3.4.3 §3·§4 기반)에서 DB 서비스 판정값에 없는 rewritable 행을 뺀 것 — 시트의 rewritable은 regulated + 대체 표현 있음으로 공급된다. 현지 uncertain 기본 제외·제외형 하나라도 있으면 섹션 제외는 PM 확정(D8). 판정값·배지 매핑(#7·5.9)은 계약 채택 전. overrides(개발용 예외 쌍)는 운영 규칙이 아니므로 빈 목록. BE가 묶음 생성 시 이 파일을 그대로 rules에 싣는다.",
         "regulatory_class_map": {
           "cosmetic": {
             "applied_classes": [
@@ -520,13 +533,6 @@
             "verdict_status": "conditional",
             "alternative": "any",
             "emit_verdict_status": "conditional",
-            "bucket": "include"
-          },
-          {
-            "dict_type": "regulatory",
-            "verdict_status": "rewritable",
-            "alternative": "required",
-            "emit_verdict_status": "regulated",
             "bucket": "include"
           },
           {
@@ -580,10 +586,11 @@
       },
       "bundle": {
         "bundle_id": "bundle-synthetic-1",
-        "bundle_sha256": "d39ca68f1bc92d0ab0f6614dff68e95ec1ff739bf37c17ca2cff52194b352e32",
+        "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
         "regulation_version": "regulation@synthetic.1",
         "local_version": "local@synthetic.1",
-        "rules_version": "policy@2026-10-08.0",
+        "rules_version": "policy@2026-10-08.1",
+        "rules_sha256": "19e912abe0684579e663da80a1fc9d393739a72b745d7f96fbccf97f06ff97ab",
         "type_map_version": "content-types@2026-10-08.1",
         "type_map_sha256": "1a6e5e795da5c2c7152c0945f48e48e94253873790691c7dca118460bf22e05d"
       },
@@ -625,7 +632,7 @@
         ]
       }
     },
-    "input_manifest_sha256": "2de1cce8ba946a9a6914522bfd3aea2ea4fe90a322d950b0245a0ad8bdb62eac",
+    "input_manifest_sha256": "d1436c1ab004a01590a07d3ef0244ec35e02c6d719d5bb604680d5ca35a0df70",
     "outcome": "completed",
     "target_count": 2,
     "skip_reason": null,

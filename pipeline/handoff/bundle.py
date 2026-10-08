@@ -22,6 +22,7 @@ from pipeline.handoff.canonical import sha256_canonical, sha256_file
 from pipeline.matching import PatternError, normalize_pattern
 
 CONTENT_TYPES_PATH = Path(__file__).resolve().parents[1] / "data" / "content_types.json"
+POLICY_RULES_PATH = Path(__file__).resolve().parents[1] / "data" / "policy_rules.json"  # 운영 정책 규칙(BE가 묶음 rules에 싣는다)
 SHA256 = r"^[0-9a-f]{64}$"
 
 
@@ -34,11 +35,15 @@ class _Model(BaseModel):
 
 
 class EvidenceSnapshot(_Model):
+    """근거 1건(expression_dictionary_evidence 1:N). 원래 없는 값은 null. 표시용 조문 · 링크는 대표 근거(is_primary)에서 고른다."""
+
     external_id: str | None = None
     source_type: str | None = None
+    document: str | None = None
+    quote: str | None = None
     article: str | None = None
     url: str | None = None
-    quote: str | None = None
+    is_primary: bool = Field(strict=True)
 
 
 class RegulationRow(_Model):
@@ -46,21 +51,37 @@ class RegulationRow(_Model):
     regulatory_class: Literal["cosmetic", "otc", "common"]
     source_expression: str = Field(min_length=1)
     variant_ko: list[str] = Field(min_length=1)
-    variant_en: list[str] = Field(default_factory=list)  # DB forbidden_en(영어 재대조 패턴). 없으면 빈 목록 — NULL을 추정 변환하지 않도록 BE가 결정해 준다
-    alternative_expression: list[str] = Field(default_factory=list)
-    verdict_status: Literal["allowed", "conditional", "rewritable", "regulated"]
-    source_verdict_status: str | None = None  # 원본 판정값. 없으면 null(서비스 값으로 역추정하지 않음)
+    variant_en: list[str] = Field(default_factory=list)  # DB forbidden_en(영어 재대조 패턴). NULL이면 BE가 빈 목록으로 공급
+    # 대체 표현: 배열 = BE가 구분 규칙(#71)에 따라 나눈 값 / 문자열 = 나누지 않은 원문(#71 확정 전). 빈 문자열 · 빈 배열 = 없음.
+    # AI는 문자열을 나누지 않는다. 원문 문자열은 정책의 "대체 표현 있음" 판단 · 스냅샷에만 쓰고 ⑧ 표현 지시로는 쓰지 않는다
+    alternative_expression: list[str] | str = Field(default_factory=list)
+    verdict_status: Literal["allowed", "conditional", "regulated"]  # DB 서비스 판정값. 시트의 rewritable은 regulated + 원값으로 온다
+    source_verdict_status: str | None = None  # 원본 판정값(rewritable 등). 없으면 null(서비스 값으로 역추정하지 않음)
     reason: str = Field(min_length=1)
-    evidence: EvidenceSnapshot | None = None
+    evidence: list[EvidenceSnapshot] = Field(default_factory=list)
     confirmed_date: str | None = None
 
     @model_validator(mode="after")
     def _alternative_rule(self) -> "RegulationRow":
-        if self.verdict_status == "allowed" and self.alternative_expression:
+        if self.verdict_status == "allowed" and self.has_alternative:
             raise ValueError(f"{self.external_id}: allowed는 대체 표현이 없어야 한다")
-        if self.verdict_status == "rewritable" and not self.alternative_expression:
-            raise ValueError(f"{self.external_id}: rewritable은 대체 표현이 있어야 한다")
+        if sum(1 for e in self.evidence if e.is_primary) > 1:
+            raise ValueError(f"{self.external_id}: 대표 근거(is_primary)가 둘 이상이다")
         return self
+
+    @property
+    def has_alternative(self) -> bool:
+        a = self.alternative_expression
+        return bool(a.strip()) if isinstance(a, str) else any(x.strip() for x in a)
+
+    @property
+    def alternatives_split(self) -> list[str] | None:
+        """구분 규칙에 따라 나뉜 대체 표현. 나누지 않은 원문(문자열)이면 None — ⑧ 지시에 쓰지 않는다."""
+        return list(self.alternative_expression) if isinstance(self.alternative_expression, list) else None
+
+    @property
+    def primary_evidence(self) -> EvidenceSnapshot | None:
+        return next((e for e in self.evidence if e.is_primary), None)
 
 
 class LocalRow(_Model):
@@ -144,7 +165,8 @@ class CheckedBundle:
         return {"bundle_id": self.raw.bundle_id, "bundle_sha256": self.raw.bundle_sha256,
                 "regulation_version": self.raw.regulation.version,
                 "local_version": self.raw.local.version if self.raw.local else None,
-                "rules_version": self.rules.rules_version, "type_map_version": self.types.version, "type_map_sha256": self.types.sha256}
+                "rules_version": self.rules.rules_version, "rules_sha256": sha256_canonical(self.raw.rules),
+                "type_map_version": self.types.version, "type_map_sha256": self.types.sha256}
 
     def applied_classes(self, regulatory_class: str) -> list[str]:
         return list(self.rules.regulatory_class_map[regulatory_class].applied_classes)
@@ -156,6 +178,13 @@ class CheckedBundle:
                                 self.local[t.external_id].exclusion_context, self.local[t.external_id].keep_context)
                       for t in self.types.local)
         return JudgeDictView(items, {"local": self.raw.local.version}, {"bundle_sha256": self.raw.bundle_sha256})
+
+
+def load_policy_rules(path: Path = POLICY_RULES_PATH) -> dict[str, Any]:
+    """저장소의 운영 정책 규칙 원본(JSON 객체). BE가 묶음 생성 시 그대로 `rules`에 싣는다."""
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    PolicyRules.model_validate(raw)
+    return raw
 
 
 def bundle_content_sha256(raw: dict[str, Any]) -> str:

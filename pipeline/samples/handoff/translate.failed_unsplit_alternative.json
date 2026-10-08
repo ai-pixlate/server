@@ -1,5 +1,5 @@
 {
-  "case": "translate.failed_glossary_supply",
+  "case": "translate.failed_unsplit_alternative",
   "request": {
     "contract_version": "handoff@2026-10-08.1",
     "execution_id": "exec-100",
@@ -262,13 +262,26 @@
       }
     ],
     "glossary": {
-      "status": "failed",
-      "reason": "합성: 검색 실패",
-      "terms": []
+      "status": "ok",
+      "version": "glossary@synthetic.1",
+      "terms": [
+        {
+          "glossary_id": "G-1",
+          "term_ko": "크림",
+          "term_target": "cream",
+          "enforcement": "enforced"
+        },
+        {
+          "glossary_id": "G-2",
+          "term_ko": "가짜차단",
+          "term_target": "Fake Shield",
+          "enforcement": "enforced"
+        }
+      ]
     },
     "bundle": {
       "bundle_id": "bundle-synthetic-1",
-      "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+      "bundle_sha256": "14c77a43a41b501b9af6a14d7c20ee220d41575644819be9cc56de84f0c697e9",
       "target_country": "US",
       "regulation": {
         "version": "regulation@synthetic.1",
@@ -283,7 +296,7 @@
             "variant_en": [
               "fake cure"
             ],
-            "alternative_expression": [],
+            "alternative_expression": "",
             "verdict_status": "regulated",
             "source_verdict_status": "regulated",
             "reason": "합성: 금지형",
@@ -319,9 +332,7 @@
             "variant_en": [
               "fake soothing"
             ],
-            "alternative_expression": [
-              "the look of fake calm"
-            ],
+            "alternative_expression": "the look of fake calm",
             "verdict_status": "regulated",
             "source_verdict_status": "rewritable",
             "reason": "합성: 완충형",
@@ -338,9 +349,7 @@
             "variant_en": [
               "fake block"
             ],
-            "alternative_expression": [
-              "Fake Block [value]"
-            ],
+            "alternative_expression": "Fake Block [value]",
             "verdict_status": "conditional",
             "source_verdict_status": null,
             "reason": "합성: 조건부(수치 템플릿)",
@@ -357,7 +366,7 @@
             "variant_en": [
               "no fake cure"
             ],
-            "alternative_expression": [],
+            "alternative_expression": "",
             "verdict_status": "allowed",
             "source_verdict_status": "allowed",
             "reason": "합성: 허용형",
@@ -372,7 +381,7 @@
               "가짜약효"
             ],
             "variant_en": [],
-            "alternative_expression": [],
+            "alternative_expression": "",
             "verdict_status": "regulated",
             "source_verdict_status": "regulated",
             "reason": "합성: OTC 전용",
@@ -583,7 +592,7 @@
     "failure": {
       "kind": "input_invalid",
       "retryable": false,
-      "message": "용어 공급 실패 — 빈 용어 목록으로 처리하지 않는다: 합성: 검색 실패",
+      "message": "RG-902: 대체 표현이 구분 규칙(#71) 확정 전 원문 문자열이다 — 표현 지시로 쓰지 않는다",
       "targets": []
     },
     "implementation": {

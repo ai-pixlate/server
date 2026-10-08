@@ -5,8 +5,9 @@
   문맥으로만 쓰고 결과를 돌려주지 않는다 — 기존 성공분 · 사용자 수정값을 덮어쓰지 않는다.
 - 결과: 대상마다 completed(번역문 · 해시) 또는 failed(사유). 전부 성공 → completed, 일부라도 실패 → failed + 성공분 payload
   (부분 실패), 대상 0 → skipped. 호출 · 응답 구조 실패는 대상 전체 failed다(일부를 임의 성공으로 추출하지 않음).
-- 표현 지시는 외부 ID로만 받고 대체 표현은 **고정 묶음에서** 꺼낸다(BE 문자열을 그대로 믿지 않음). 템플릿(자리표시자) 대체 표현 ·
-  allowed · conditional 항목은 지시로 받지 않는다 — RG-021/022는 원문 수치를 유지한다(D9).
+- 표현 지시는 외부 ID로만 받고 대체 표현은 **고정 묶음에서** 꺼낸다(BE 문자열을 그대로 믿지 않음). 서비스 판정 regulated +
+  구분된 대체 표현 배열만 지시가 된다. 템플릿(자리표시자) · allowed · conditional · 나누지 않은 원문 문자열(#71 확정 전)은 거부 —
+  RG-021/022는 원문 수치를 유지한다(D9). BE가 #71 전에는 원문 문자열로 공급하므로 표현 지시는 운영에서 사실상 비활성이다.
 - 용어 공급 실패는 빈 용어 목록과 다르다: 번역하지 않고 failed(input_invalid).
 번역문 검사(`run_text_check`): 블록별 현재 revision 문구의 영어 규제 재대조 · 강제 용어. 번역 계산과 별개 논리 작업이다(5.32).
 """
@@ -107,7 +108,9 @@ class TextCheckRequest(RequestIdentity):
 
 def template_tokens(cb: CheckedBundle) -> set[str]:
     """고정 묶음의 대체 표현에 든 자리표시자 토큰(예 '[value]'). 번역 지시 거부 · 번역문 누출 검사에 쓴다."""
-    return {m.group(0) for r in cb.regulation.values() for a in r.alternative_expression for m in _PLACEHOLDER.finditer(a)}
+    texts = [a for r in cb.regulation.values()
+             for a in ([r.alternative_expression] if isinstance(r.alternative_expression, str) else r.alternative_expression)]
+    return {m.group(0) for a in texts for m in _PLACEHOLDER.finditer(a)}
 
 
 def _blocks(raw_blocks: list[dict[str, Any]], section_key: str) -> list[TextBlock]:
@@ -176,13 +179,16 @@ def run_translate(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None =
                 raise HandoffInputError(f"지시 대상 {ins.block_key}가 이번 번역 대상이 아니다")
             if row is None:
                 raise HandoffInputError(f"지시의 {ins.external_id}가 고정 묶음에 없다")
-            if row.verdict_status not in ("rewritable", "regulated") or not row.alternative_expression:
+            if row.verdict_status != "regulated" or not row.has_alternative:
                 raise HandoffInputError(f"{ins.external_id}({row.verdict_status}): 대체 표현 지시 대상이 아니다")
-            if any(_PLACEHOLDER.search(a) for a in row.alternative_expression):
+            alts = row.alternatives_split
+            if alts is None:
+                raise HandoffInputError(f"{ins.external_id}: 대체 표현이 구분 규칙(#71) 확정 전 원문 문자열이다 — 표현 지시로 쓰지 않는다")
+            if any(_PLACEHOLDER.search(a) for a in alts):
                 raise HandoffInputError(f"{ins.external_id}: 자리표시자 템플릿 대체 표현은 번역 지시로 쓰지 않는다(원문 수치 유지, D9)")
             if ins.matched_text not in by_key[ins.block_key].source_ko:
                 raise HandoffInputError(f"{ins.external_id}: matched_text가 블록 원문에 없다")
-            instructions.append(tr.Instruction(ins.block_key, ins.external_id, ins.matched_text, tuple(row.alternative_expression)))
+            instructions.append(tr.Instruction(ins.block_key, ins.external_id, ins.matched_text, tuple(alts)))
         manifest, msha = manifest_of({
             "stage": "translate", "contract_version": CONTRACT_VERSION, "adapter": TRANSLATE_ADAPTER_VERSION,
             "target": {"country": req.target_country, "lang": req.target_lang}, "regulatory_class": req.regulatory_class,

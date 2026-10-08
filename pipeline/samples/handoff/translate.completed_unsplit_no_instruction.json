@@ -1,5 +1,5 @@
 {
-  "case": "translate.failed_glossary_supply",
+  "case": "translate.completed_unsplit_no_instruction",
   "request": {
     "contract_version": "handoff@2026-10-08.1",
     "execution_id": "exec-100",
@@ -254,21 +254,28 @@
         "revision": 0
       }
     ],
-    "instructions": [
-      {
-        "block_key": "blk_002",
-        "external_id": "RG-902",
-        "matched_text": "가짜완화"
-      }
-    ],
+    "instructions": [],
     "glossary": {
-      "status": "failed",
-      "reason": "합성: 검색 실패",
-      "terms": []
+      "status": "ok",
+      "version": "glossary@synthetic.1",
+      "terms": [
+        {
+          "glossary_id": "G-1",
+          "term_ko": "크림",
+          "term_target": "cream",
+          "enforcement": "enforced"
+        },
+        {
+          "glossary_id": "G-2",
+          "term_ko": "가짜차단",
+          "term_target": "Fake Shield",
+          "enforcement": "enforced"
+        }
+      ]
     },
     "bundle": {
       "bundle_id": "bundle-synthetic-1",
-      "bundle_sha256": "84a323d48ca52463cff7426bd3ac6e63bd4a206e0b77b477905511374f3eb746",
+      "bundle_sha256": "14c77a43a41b501b9af6a14d7c20ee220d41575644819be9cc56de84f0c697e9",
       "target_country": "US",
       "regulation": {
         "version": "regulation@synthetic.1",
@@ -283,7 +290,7 @@
             "variant_en": [
               "fake cure"
             ],
-            "alternative_expression": [],
+            "alternative_expression": "",
             "verdict_status": "regulated",
             "source_verdict_status": "regulated",
             "reason": "합성: 금지형",
@@ -319,9 +326,7 @@
             "variant_en": [
               "fake soothing"
             ],
-            "alternative_expression": [
-              "the look of fake calm"
-            ],
+            "alternative_expression": "the look of fake calm",
             "verdict_status": "regulated",
             "source_verdict_status": "rewritable",
             "reason": "합성: 완충형",
@@ -338,9 +343,7 @@
             "variant_en": [
               "fake block"
             ],
-            "alternative_expression": [
-              "Fake Block [value]"
-            ],
+            "alternative_expression": "Fake Block [value]",
             "verdict_status": "conditional",
             "source_verdict_status": null,
             "reason": "합성: 조건부(수치 템플릿)",
@@ -357,7 +360,7 @@
             "variant_en": [
               "no fake cure"
             ],
-            "alternative_expression": [],
+            "alternative_expression": "",
             "verdict_status": "allowed",
             "source_verdict_status": "allowed",
             "reason": "합성: 허용형",
@@ -372,7 +375,7 @@
               "가짜약효"
             ],
             "variant_en": [],
-            "alternative_expression": [],
+            "alternative_expression": "",
             "verdict_status": "regulated",
             "source_verdict_status": "regulated",
             "reason": "합성: OTC 전용",
@@ -572,20 +575,140 @@
     "attempt_id": "a-1",
     "stage": "translate",
     "input_snapshot_id": "snap-translate-a-1",
-    "input_manifest": null,
-    "input_manifest_sha256": null,
-    "outcome": "failed",
-    "target_count": 0,
+    "input_manifest": {
+      "stage": "translate",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "translate-handoff@2026-10-08.1",
+      "target": {
+        "country": "US",
+        "lang": "en"
+      },
+      "regulatory_class": "cosmetic",
+      "section_key": "sec_1_01",
+      "context": [
+        {
+          "block_key": "blk_001",
+          "block_order": 1,
+          "role": "title",
+          "source_ko": "가짜치료 크림"
+        },
+        {
+          "block_key": "blk_002",
+          "block_order": 2,
+          "role": "body",
+          "source_ko": "가짜완화 SPF50"
+        },
+        {
+          "block_key": "blk_003",
+          "block_order": 3,
+          "role": "body",
+          "source_ko": "판독불가 ###"
+        },
+        {
+          "block_key": "blk_004",
+          "block_order": 4,
+          "role": "body",
+          "source_ko": "가짜차단 SPF50 PA++++"
+        }
+      ],
+      "targets": [
+        {
+          "block_key": "blk_001",
+          "revision": 0
+        },
+        {
+          "block_key": "blk_002",
+          "revision": 0
+        },
+        {
+          "block_key": "blk_004",
+          "revision": 0
+        }
+      ],
+      "preserved": [],
+      "instructions": [],
+      "glossary": {
+        "version": "glossary@synthetic.1",
+        "terms": [
+          {
+            "glossary_id": "G-1",
+            "term_ko": "크림",
+            "term_target": "cream",
+            "enforcement": "enforced"
+          },
+          {
+            "glossary_id": "G-2",
+            "term_ko": "가짜차단",
+            "term_target": "Fake Shield",
+            "enforcement": "enforced"
+          }
+        ]
+      },
+      "bundle": {
+        "bundle_id": "bundle-synthetic-1",
+        "bundle_sha256": "14c77a43a41b501b9af6a14d7c20ee220d41575644819be9cc56de84f0c697e9",
+        "regulation_version": "regulation@synthetic.1",
+        "local_version": "local@synthetic.1",
+        "rules_version": "policy@2026-10-08.1",
+        "rules_sha256": "19e912abe0684579e663da80a1fc9d393739a72b745d7f96fbccf97f06ff97ab",
+        "type_map_version": "content-types@2026-10-08.1",
+        "type_map_sha256": "1a6e5e795da5c2c7152c0945f48e48e94253873790691c7dca118460bf22e05d"
+      },
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2"
+    },
+    "input_manifest_sha256": "75c632bb9aac38be31f7859fed196067ecd7d11154ba0a7c704e3dc6d32f0d95",
+    "outcome": "completed",
+    "target_count": 3,
     "skip_reason": null,
-    "payload": null,
+    "payload": {
+      "section_key": "sec_1_01",
+      "blocks": [
+        {
+          "block_key": "blk_001",
+          "input_revision": 0,
+          "outcome": "completed",
+          "source_sha256": "c48301ba462a5d474dd4bcc8b7dcd2eea54a2fc95ffff6267e0081865d2baab8",
+          "applied_instructions": [],
+          "trans_1": "fake cure cream",
+          "translation_sha256": "10df153da6154278cfadead96d7ed66206b7532b52b0448d3360cd62d221f247",
+          "error": null
+        },
+        {
+          "block_key": "blk_002",
+          "input_revision": 0,
+          "outcome": "completed",
+          "source_sha256": "e839b9cc4dc4b974778b46a5d3dc347203f1672c38afb858786850d3758902b8",
+          "applied_instructions": [],
+          "trans_1": "the look of fake calm SPF50",
+          "translation_sha256": "64909a321628f4320a1c72ee99c31f80ba48204bc487526116b31e20bcda6b17",
+          "error": null
+        },
+        {
+          "block_key": "blk_004",
+          "input_revision": 0,
+          "outcome": "completed",
+          "source_sha256": "41afe1870e741f0a3e93bf5ccc4ea9565df7fbfd4bbcf9ae9673f07bea1a11e0",
+          "applied_instructions": [],
+          "trans_1": "fake block SPF50 PA++++",
+          "translation_sha256": "a8cab88f18db5775d7b80f5e8b6f7c7b6fd8c302bdb6ab345b0621e1d158acbe",
+          "error": null
+        }
+      ],
+      "preserved": [],
+      "summary": {
+        "targets": 3,
+        "completed": 3,
+        "failed": 0
+      }
+    },
     "artifacts": [],
     "source_refs": [],
-    "failure": {
-      "kind": "input_invalid",
-      "retryable": false,
-      "message": "용어 공급 실패 — 빈 용어 목록으로 처리하지 않는다: 합성: 검색 실패",
-      "targets": []
-    },
+    "failure": null,
     "implementation": {
       "adapter": "translate-handoff@2026-10-08.1",
       "stage": "translate@2026-10-08.1",
@@ -595,7 +718,17 @@
         "timeout_s": 60
       }
     },
-    "diagnostics": {}
+    "diagnostics": {
+      "payload_sha256": "da7411e8f118cbcaceb8b9ba65c21505d939ffe3ed8c9d1430c0276a2673603d",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "90813ddddea5f570aa6ec212758f3b9c6c33b0fc8b980e2923b97f58389a8c7b",
+      "usage": null
+    }
   },
   "be_validation_problems": []
 }

@@ -21,14 +21,16 @@ from PIL import Image
 
 from pipeline import config as cfgmod
 from pipeline.handoff import analysis, downstream, judgment, translation
-from pipeline.handoff.bundle import bundle_content_sha256
+from pipeline.handoff.bundle import bundle_content_sha256, load_policy_rules
 from pipeline.handoff.canonical import sha256_file
 from pipeline.handoff.envelope import CONTRACT_VERSION, StageReport
 from pipeline.handoff.validate import validate_report
+from pipeline.stages import logo as logo_stage
 from pipeline.types import BBox, Line, OcrRegion, Section, TextBlock
 from pipeline.vlm import LlmReply, VlmError
 
 PUBLIC_ROOT = "/srv/pixlate-work"
+EXAMPLE_UNICODE_VERSION = "15.0.0"  # 예제 logo_record에 쓰는 고정값(Python 3.12). 운영 기록은 실제 런타임 값
 
 
 # ---------------------------------------------------------------------------
@@ -87,33 +89,38 @@ def section_with_image(root: Path, key: str = "sec_1_01", *, width: int = 600, h
     return Section(section_key=key, source_image_id=1, section_order=1, top_offset=0, height=height, width=width, image_path=str(p))
 
 
-def bundle(*, local_ok: bool = True) -> dict[str, Any]:
+def bundle(*, local_ok: bool = True, unsplit_alternatives: bool = False) -> dict[str, Any]:
     """합성 고정 묶음(운영 입력 형식). 표현 · 사유는 '가짜' 합성 값이다."""
+    ev = [{"external_id": "EV-1", "source_type": "합성", "document": "합성 문서", "quote": None, "article": "합성 1조",
+           "url": "https://example.test/1", "is_primary": True},
+          {"external_id": "EV-2", "source_type": "합성", "document": None, "quote": "합성 인용", "article": None, "url": None,
+           "is_primary": False}]
     reg = [
         {"external_id": "RG-901", "regulatory_class": "cosmetic", "source_expression": "가짜치료", "variant_ko": ["가짜치료"],
          "variant_en": ["fake cure"], "alternative_expression": [], "verdict_status": "regulated", "source_verdict_status": "regulated",
-         "reason": "합성: 금지형", "evidence": {"external_id": "EV-1", "source_type": "합성", "article": "합성 1조", "url": "https://example.test/1",
-                                              "quote": None}, "confirmed_date": "2026-09-28"},
+         "reason": "합성: 금지형", "evidence": ev, "confirmed_date": "2026-09-28"},
+        # 시트의 rewritable은 서비스 판정 regulated + 대체 표현 · 원값 rewritable로 공급된다
         {"external_id": "RG-902", "regulatory_class": "cosmetic", "source_expression": "가짜완화", "variant_ko": ["가짜완화"],
-         "variant_en": ["fake soothing"], "alternative_expression": ["the look of fake calm"], "verdict_status": "rewritable",
-         "source_verdict_status": "rewritable", "reason": "합성: 완충형", "evidence": None, "confirmed_date": None},
+         "variant_en": ["fake soothing"], "alternative_expression": ["the look of fake calm"], "verdict_status": "regulated",
+         "source_verdict_status": "rewritable", "reason": "합성: 완충형", "evidence": [], "confirmed_date": None},
         {"external_id": "RG-903", "regulatory_class": "common", "source_expression": "가짜차단", "variant_ko": ["가짜차단"],
          "variant_en": ["fake block"], "alternative_expression": ["Fake Block [value]"], "verdict_status": "conditional",
-         "source_verdict_status": None, "reason": "합성: 조건부(수치 템플릿)", "evidence": None, "confirmed_date": None},
+         "source_verdict_status": None, "reason": "합성: 조건부(수치 템플릿)", "evidence": [], "confirmed_date": None},
         {"external_id": "RG-905", "regulatory_class": "cosmetic", "source_expression": "가짜치료 안함", "variant_ko": ["가짜치료 안함"],
          "variant_en": ["no fake cure"], "alternative_expression": [], "verdict_status": "allowed", "source_verdict_status": "allowed",
-         "reason": "합성: 허용형", "evidence": None, "confirmed_date": None},
+         "reason": "합성: 허용형", "evidence": [], "confirmed_date": None},
         {"external_id": "RG-906", "regulatory_class": "otc", "source_expression": "가짜약효", "variant_ko": ["가짜약효"],
          "variant_en": [], "alternative_expression": [], "verdict_status": "regulated", "source_verdict_status": "regulated",
-         "reason": "합성: OTC 전용", "evidence": None, "confirmed_date": None},
+         "reason": "합성: OTC 전용", "evidence": [], "confirmed_date": None},
     ]
+    if unsplit_alternatives:  # #71 확정 전 공급 형태 — 나누지 않은 원문 문자열
+        for r in reg:
+            r["alternative_expression"] = "; ".join(r["alternative_expression"])
     names = ["가짜기획", "가짜문의", "가짜증정", "가짜반품", "가짜이벤트", "원", "가짜정품", "가짜몰"]
     local = [{"external_id": f"LC-0{i + 1}", "item": f"합성 항목 {i + 1}", "patterns": [n], "verdict_status": "irrelevant" if i % 2 else "needs_fix",
               "exclusion_context": f"합성 제외 맥락 {i + 1}", "keep_context": f"합성 유지 맥락 {i + 1}", "seller_message": f"합성 셀러 안내 {i + 1}",
               "confirmed_date": None} for i, n in enumerate(names)]
-    rules = json.loads((Path(__file__).resolve().parents[1] / "data" / "dict" / "synthetic" / "policy_rules.json").read_text(encoding="utf-8"))
-    rules["overrides"] = []
-    rules["rules_version"] = "policy@2026-10-08.0"
+    rules = load_policy_rules()  # 저장소 운영 규칙 그대로
     raw: dict[str, Any] = {"bundle_id": "bundle-synthetic-1", "bundle_sha256": "0" * 64, "target_country": "US",
                            "regulation": {"version": "regulation@synthetic.1", "entries": reg},
                            "local": {"version": "local@synthetic.1", "entries": local} if local_ok else None,
@@ -243,6 +250,8 @@ def cases(root: Path) -> list[Case]:
         return {**ident("judge"), "target_country": "US", "regulatory_class": "cosmetic", "analyze_result": ar, "section_images": imgs, "bundle": b}
 
     out.append(("judge.completed", judge_req(bundle()), lambda r: judgment.run_judgment(r, cfg, llm=FakeJudge())))
+    one = {**judge_req(bundle()), "target_section_keys": ["sec_1_02"], "section_images": {"sec_1_02": imgs["sec_1_02"]}}
+    out.append(("judge.completed_single_section", one, lambda r: judgment.run_judgment(r, cfg, llm=FakeJudge())))
     out.append(("judge.completed_local_failed", judge_req(bundle()), lambda r: judgment.run_judgment(r, cfg, llm=FailingLlm())))
     out.append(("judge.completed_local_not_checked", judge_req(bundle(local_ok=False)), lambda r: judgment.run_judgment(r, cfg, llm=FakeJudge())))
     broken = bundle()
@@ -319,6 +328,10 @@ def cases(root: Path) -> list[Case]:
     out.append(("translate.failed_template_instruction",
                 {**treq, "instructions": [{"block_key": "blk_004", "external_id": "RG-903", "matched_text": "가짜차단"}]},
                 lambda r: translation.run_translate(r, cfg, llm=FakeTranslate())))
+    out.append(("translate.failed_unsplit_alternative", {**treq, "bundle": bundle(unsplit_alternatives=True)},
+                lambda r: translation.run_translate(r, cfg, llm=FakeTranslate())))
+    out.append(("translate.completed_unsplit_no_instruction", {**treq, "instructions": [], "bundle": bundle(unsplit_alternatives=True)},
+                lambda r: translation.run_translate(r, cfg, llm=FakeTranslate())))
     out.append(("translate.failed_glossary_supply", {**treq, "glossary": {"status": "failed", "reason": "합성: 검색 실패", "terms": []}},
                 lambda r: translation.run_translate(r, cfg, llm=FakeTranslate())))
     creq = {**ident("text_check"), "target_country": "US", "regulatory_class": "cosmetic", "section_key": "sec_1_01", "blocks": tb,
@@ -344,6 +357,8 @@ def _publicize(v: Any, root: str) -> Any:
 def generate(out_dir: Path, work_root: Path | None = None) -> dict[str, list[str]]:
     """예제를 out_dir에 쓰고 사례별 validate_report 결과를 돌려준다(빈 목록 = 통과)."""
     tmp = Path(tempfile.mkdtemp(prefix="pixlate-handoff-")) if work_root is None else work_root
+    saved_unicode = logo_stage.UNICODE_VERSION
+    logo_stage.UNICODE_VERSION = EXAMPLE_UNICODE_VERSION  # 실행 Python과 무관하게 예제를 재현한다(합성 값의 정규화는 버전과 무관)
     try:
         root = str(tmp.resolve())
         results: dict[str, list[str]] = {}
@@ -356,6 +371,7 @@ def generate(out_dir: Path, work_root: Path | None = None) -> dict[str, list[str
             (out_dir / f"{name}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         return results
     finally:
+        logo_stage.UNICODE_VERSION = saved_unicode
         if work_root is None:
             shutil.rmtree(tmp, ignore_errors=True)
 

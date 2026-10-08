@@ -167,10 +167,10 @@ def test_style_has_no_role_defaults(generated):
 # ---------------------------------------------------------------------------
 # 검증기 — 변조 거절
 # ---------------------------------------------------------------------------
-def _rerun(generated, name):
+def _rerun(generated, name, tag="r"):
     """예제 요청을 실제 경로로 다시 실행(커밋본은 경로를 바꿨으므로 생성 폴더의 사례를 다시 만든다)."""
     _, _, work = generated
-    for n, req, fn in ex.cases(Path(work).resolve() / "rerun" / name.replace(".", "_")):
+    for n, req, fn in ex.cases(Path(work).resolve() / f"rerun-{tag}" / name.replace(".", "_")):
         if n == name:
             return req, fn(copy.deepcopy(req))
     raise KeyError(name)
@@ -346,3 +346,85 @@ def test_analyze_llm_failure_is_not_heuristic_fallback(generated, cfg, monkeypat
     monkeypatch.setenv("GEMINI_API_KEY", "test-not-used")
     rep = analysis.run_analyze(req, cfg, llm=Boom(), ocr_engine=ex.FakeOcr([["가짜치료 크림", "가격"], ["가짜완화"]]))
     assert rep.outcome == "failed" and rep.failure.kind == "model_call_failed"
+
+
+# ---------------------------------------------------------------------------
+# BE 확인 결과 반영(PR #55 코멘트) — 근거 배열 · 서비스 판정값 · 대체 표현 원문 · 섹션 단위 호출 · 경로 대체
+# ---------------------------------------------------------------------------
+def test_bundle_evidence_array_and_primary(generated):
+    s = _doc(generated, "judge.completed")["report"]["payload"]["sections"][0]
+    v = next(v for v in s["verdicts"] if v["external_id"] == "RG-901")
+    assert v["basis_article"] == "합성 1조" and v["evidence_url"] == "https://example.test/1"  # 대표 근거
+    snap = next(x for x in s["audit"]["dictionary_snapshots"] if x["external_id"] == "RG-901")["snapshot"]
+    assert len(snap["evidence"]) == 2 and snap["evidence"][0]["document"] == "합성 문서"  # 전체 근거 보존
+    b = ex.bundle()
+    for e in b["regulation"]["entries"][0]["evidence"]:
+        e["is_primary"] = True
+    b["bundle_sha256"] = bundle_content_sha256(b)
+    with pytest.raises(BundleError, match="대표 근거"):
+        check_bundle(b, target_country="US")
+
+
+def test_bundle_rejects_sheet_only_verdict():
+    b = ex.bundle()
+    b["regulation"]["entries"][1]["verdict_status"] = "rewritable"  # 서비스 판정값이 아니다(원값은 source_verdict_status)
+    b["bundle_sha256"] = bundle_content_sha256(b)
+    with pytest.raises(BundleError):
+        check_bundle(b, target_country="US")
+
+
+def test_repo_policy_rules_cover_service_verdicts():
+    from pipeline.handoff.bundle import load_policy_rules
+
+    r = load_policy_rules()
+    keys = {(x["dict_type"], x["verdict_status"], x["alternative"]) for x in r["verdict_map"]}
+    assert ("regulatory", "regulated", "present") in keys and ("regulatory", "regulated", "absent") in keys
+    assert not any(x["verdict_status"] == "rewritable" for x in r["verdict_map"]) and r["overrides"] == []
+    assert all("common" in v["applied_classes"] for v in r["regulatory_class_map"].values())
+
+
+def test_unsplit_alternative_blocks_instruction_only(generated):
+    assert _doc(generated, "translate.failed_unsplit_alternative")["report"]["failure"]["kind"] == "input_invalid"
+    assert "#71" in _doc(generated, "translate.failed_unsplit_alternative")["report"]["failure"]["message"]
+    assert _doc(generated, "translate.completed_unsplit_no_instruction")["report"]["outcome"] == "completed"
+    # 원문 문자열도 정책의 "대체 표현 있음"으로 보아 regulated + 대체 표현 → include
+    _, _, work = generated
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / "u1") if n == "judge.completed")
+    req["bundle"] = ex.bundle(unsplit_alternatives=True)
+    req["analyze_result"]["blocks"][3]["source_ko"] = req["analyze_result"]["blocks"][3]["source_lines"][0]["text"] = "가짜완화 추천"
+    rep = judgment.run_judgment(req, ex.config(), llm=ex.FakeJudge())
+    v = next(v for v in rep.payload["sections"][1]["verdicts"] if v["external_id"] == "RG-902")
+    assert v["bucket"] == "include" and isinstance(v["alternative_expression"], str)
+
+
+def test_judge_single_section_keeps_neighbor_context(generated):
+    d = _doc(generated, "judge.completed_single_section")
+    assert [s["section_key"] for s in d["report"]["payload"]["sections"]] == ["sec_1_02"]
+    ctx = d["report"]["input_manifest"]["context"]["blocks"]
+    assert set(ctx) == {"sec_1_01", "sec_1_02"}  # 앞 섹션 문맥은 전체 분석 결과에서
+    _, _, work = generated
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / "j3") if n == "judge.completed_single_section")
+    req["target_section_keys"] = ["sec_9_99"]
+    assert judgment.run_judgment(req, ex.config(), llm=ex.FakeJudge()).failure.kind == "input_invalid"
+
+
+def test_validator_local_path_substitution(generated, tmp_path):
+    req, rep = _rerun(generated, "inpaint.completed", "sub")
+    assert rep.outcome == "completed"
+    root = tmp_path / "staging"
+    root.mkdir()
+    local = {}
+    for a in rep.artifacts:
+        q = root / f"{a.kind}.png"
+        q.write_bytes(Path(a.path).read_bytes())
+        local[(a.kind, a.part_key)] = q
+    assert validate_report(rep, req, local_paths=local, allowed_root=root) == []
+    outside = dict(local)
+    k = next(iter(outside))
+    outside[k] = Path(rep.artifacts[0].path)  # 허용 폴더 밖
+    assert any("허용 폴더 밖" in p for p in validate_report(rep, req, local_paths=outside, allowed_root=root))
+    missing = dict(local)
+    missing.pop(k)
+    assert any("대체 경로가 없는" in p for p in validate_report(rep, req, local_paths=missing, allowed_root=root))
+    with pytest.raises(ValueError):
+        validate_report(rep, req, local_paths=local)

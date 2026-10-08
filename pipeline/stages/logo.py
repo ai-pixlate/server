@@ -31,7 +31,8 @@ from pipeline.types import LabelResult, LogoDecision, LogoResult, MergeResult
 
 NORMALIZE_STEPS = ["nfkc", "lower", "strip_space_punct"]  # 계약 2.3 순서. config [logo] normalize와 정확히 같아야 한다
 NORMALIZE_RULE = "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)"
-BRAND_STATUSES = ("provided", "absent", "unconfirmed")  # brand-meta 자료의 값 상태(자료 value_rules). v1은 provided만 지원
+BRAND_STATUSES = ("provided", "absent", "unconfirmed")
+UNICODE_VERSION = unicodedata.unidata_version  # 기록용(정규화 결과가 Unicode 버전에 따라 달라질 수 있다). 계약 예제는 고정값을 주입한다  # brand-meta 자료의 값 상태(자료 value_rules). v1은 provided만 지원
 
 
 class LogoInputError(ValueError):
@@ -226,7 +227,7 @@ def run(image_id: str, merged: MergeResult, label: LabelResult, brand_meta: Any,
     counts = {basis: sum(1 for d in decisions if d.basis == basis) for basis in ("product_label", "empty_text", "exact_match", "no_match")}
     record = {
         "stage": "logo", "image_id": image_id, "section_key": merged.section_key, "status": "ok", "error": None,
-        "normalize": list(cfg["logo"]["normalize"]), "normalize_rule": NORMALIZE_RULE, "unicode_version": unicodedata.unidata_version,
+        "normalize": list(cfg["logo"]["normalize"]), "normalize_rule": NORMALIZE_RULE, "unicode_version": UNICODE_VERSION,
         "blocks_fingerprint": input_fingerprint(merged.blocks),
         "label_fingerprint": sha256_json(label.model_dump(mode="json")),
         "label_input_fingerprint": label.checked.input_fingerprint,

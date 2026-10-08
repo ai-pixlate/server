@@ -159,6 +159,31 @@ def test_local_dictionary_unavailable_is_not_exclusion(env):
     assert audit and all(a["detail"]["inspection"]["local"]["status"] == "not_inspected" for a in audit)
 
 
+def _local_failed(out):
+    return out.model_copy(update={"local": ai_adapters.ScopeStatus(status="failed", error="합성")})
+
+
+def _local_finding_without_dictionary(out):
+    f = ai_adapters.FindingOut(finding_key="f_lc", content_type="local_bundle_offer", status="present", evidence_source="image",
+                               reason="합성")
+    return out.model_copy(update={"findings": [*out.findings, f]})
+
+
+@pytest.mark.parametrize("mutate", [_local_failed, _local_finding_without_dictionary])
+def test_local_result_inconsistent_with_unavailable_dictionary_is_rejected(env, mutate):
+    # PR #56 AI 리뷰 3: 현지 사전 미공급(조회 실패)인데 현지 실패·현지 finding 이 오면 채택하지 않는다 — 조회 실패를 판정 실패 제외로
+    # 바꾸지 않는다(D9-1)
+    ai_adapters.set_adapters(judge=FakeJudge(mutate=mutate))
+    ids = _job(env, local=False)
+    c = _client(ids)
+    c.post(f"/v1/jobs/{ids['job']}/analyze")
+    env["q"].drain()
+    assert c.get(f"/v1/jobs/{ids['job']}").json()["currentStep"] == "N2"  # 재시도 소진 → N2 오류
+    assert not _q("SELECT id FROM section WHERE job_id = :j AND exclusion_reason = 'auto_local_failed'", j=ids["job"])
+    failed = _q("SELECT error_code FROM job_async_task WHERE job_id = :j AND stage = 'judge' AND status = 'failed'", j=ids["job"])
+    assert failed and {a["error_code"] for a in failed} == {"JUDGE_RESULT_INVALID"}  # 남은 섹션 시도는 실행 실패로 cancelled
+
+
 def test_regulatory_dictionary_missing_retries_twice_then_n2_error_and_retry_button(env):
     ids = _job(env, dictionary=False)
     c = _client(ids)

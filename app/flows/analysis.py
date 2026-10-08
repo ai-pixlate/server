@@ -500,10 +500,21 @@ def _persist_judge(db: Session, ctx: AdoptContext, out: ai_adapters.JudgeOutcome
             problems.append(f"{v.verdict_key}: finding 이 사용하지 않은 사전 {v.dictionary_ref}")
         if v.dictionary_ref not in refs:
             problems.append(f"{v.verdict_key}: 묶음 밖 사전 ID {v.dictionary_ref}")
-    if out.local.status == "ok" and bundle["local"]["status"] != "ok":
-        problems.append("현지 사전이 공급되지 않았는데 현지 검사 ok")
+    # 현지 상태는 입력(묶음)과 일치해야 한다. 조회 실패(미공급)는 '제외 없음·검사 불가'이며 판정 실패 제외로 바꾸지 않는다(D9-1)
+    if bundle["local"]["status"] != "ok" and out.local.status != "not_inspected":
+        problems.append(f"현지 사전이 공급되지 않았는데 현지 검사 {out.local.status}(not_inspected 만 허용)")
     if out.local.status == "not_inspected" and bundle["local"]["status"] == "ok":
         problems.append("현지 사전이 공급됐는데 현지 미검사")
+    if out.local.status != "ok":
+        from pipeline.handoff.bundle import load_type_map
+
+        local_types = {t.content_type for t in load_type_map().local}
+        local_refs = {r for r, e in refs.items() if e["dict_type"] == "local"}
+        bad_f = [f.finding_key for f in out.findings if f.content_type in local_types or set(f.dictionary_refs) & local_refs]
+        bad_v = [v.verdict_key for v in out.verdicts if v.dictionary_ref in local_refs]
+        bad_m = [x.match_key for x in out.matches if x.dictionary_ref in local_refs]
+        if bad_f or bad_v or bad_m:
+            problems.append(f"현지 검사 {out.local.status} 인데 현지 결과가 있다(finding {bad_f}·판정 {bad_v}·매칭 {bad_m})")
     if out.policy is None:
         problems.append("정책 적용 정보(policy) 누락")
     if not isinstance(out.inspection, dict) or not out.inspection:

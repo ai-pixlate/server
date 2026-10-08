@@ -203,3 +203,88 @@ def seed_dictionary(conn, *, with_local: bool = True, regulatory: bool = True) -
                 {"d": did, "e": f"WL-{ext[-3:]}"},
             )
 
+
+# ---------------------------------------------------------------------------------------------------------
+# N4 대역 — ④ 라벨·⑧ 번역은 가짜, ⑤ 로고·⑦ 스타일·⑥ 마스크 계산은 실제 파이프라인 코드(⑥ 모델만 가짜)
+# ---------------------------------------------------------------------------------------------------------
+class FakeLabeler:
+    impl_version = "fake-label/1"
+
+    def __init__(self, *, label_words: tuple[str, ...] = ("$",), fail_sections: dict[str, int] | None = None):
+        self.label_words = label_words
+        self.fail_sections = dict(fail_sections or {})
+        self.calls: list[str] = []
+
+    def label(self, section, blocks):
+        from pipeline.stages.label import input_fingerprint, is_blank
+        from pipeline.types import LabelChecked, LabelDecision, LabelResult
+
+        self.calls.append(section.section_key)
+        fp = input_fingerprint(blocks)
+        if self.fail_sections.get(section.section_key, 0) > 0:
+            self.fail_sections[section.section_key] -= 1
+            return LabelResult(section_key=section.section_key, status="failed", labels=None,
+                               checked=LabelChecked(input_fingerprint=fp, llm_called=True), error="vlm timeout")
+        labels = [LabelDecision(block_key=b.block_key, is_product_label=any(w in b.source_ko for w in self.label_words) and not is_blank(b),
+                                basis="blank_text" if is_blank(b) else "vlm")
+                  for b in sorted(blocks, key=lambda b: b.block_order)]
+        return LabelResult(section_key=section.section_key, status="ok", labels=labels,
+                           checked=LabelChecked(input_fingerprint=fp, llm_called=True,
+                                                sent_block_keys=[b.block_key for b in blocks if not is_blank(b)],
+                                                blank_block_keys=[b.block_key for b in blocks if is_blank(b)]))
+
+
+class FakeInpaintModel:
+    def __init__(self, fail: bool = False):
+        self.fail = fail
+        self.calls = 0
+
+    def describe(self):
+        return {"name": "fake-lama", "weights_sha256": "0" * 64}
+
+    def inpaint(self, image, mask):
+        import numpy as np
+
+        self.calls += 1
+        if self.fail:
+            raise RuntimeError("CUDA out of memory (fake)")
+        out = image.copy()
+        out[mask > 0] = np.array([250, 250, 250], dtype=out.dtype)
+        return out
+
+
+class FakeTranslator:
+    """기본: 모든 대상 ok("EN:<원문 앞부분>"). fail_keys: 실패시킬 블록 키 집합, fail_all: 남은 전부 실패 횟수."""
+
+    impl_version = "fake-translate/1"
+
+    def __init__(self, *, fail_keys: set[str] | None = None, fail_all: int = 0, mutate=None):
+        self.fail_keys = set(fail_keys or set())
+        self.fail_all = fail_all
+        self.mutate = mutate
+        self.calls: list[tuple[str, list[str]]] = []
+
+    def translate(self, section_key, blocks, *, target_lang, context):
+        from app.ai_adapters import TranslateItem, TranslateOutcome
+
+        targets = [b for b in blocks if b.is_target]
+        self.calls.append((section_key, [b.key for b in targets]))
+        all_fail = self.fail_all > 0
+        if all_fail:
+            self.fail_all -= 1
+        items = []
+        for b in targets:
+            if all_fail or b.key in self.fail_keys:
+                items.append(TranslateItem(key=b.key, status="failed", error="model error"))
+            else:
+                items.append(TranslateItem(key=b.key, status="ok", text=f"EN {b.source_ko[:24]}"))
+        out = TranslateOutcome(section_key=section_key, items=items, impl={"model": "fake"})
+        return self.mutate(out) if self.mutate else out
+
+
+def style_defaults_file(tmp_path) -> str:
+    """테스트 전용 역할 기본값(제품 기본값 아님 — 승인 값이 아니다)."""
+    roles = {r: {"font_color": "#111111", "est_font_px": 20, "align": "left"} for r in ("title", "body", "caption", "price", "caution")}
+    p = tmp_path / "style_defaults.test.json"
+    p.write_text(json.dumps({"version": "test-only", "roles": roles}), encoding="utf-8")
+    return str(p)

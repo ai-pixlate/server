@@ -139,44 +139,20 @@ def update_section(job_id: int, section_id: int, body: SectionAction, db: Sessio
     return _to_section(r)
 
 
-# ── SEC-04: 번역 큐 연결 (N3→N4) ──────────────────────────────────
-@router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (Celery 번역 큐)")
+# ── SEC-04: N3→N4 하류 실행 ───────────────────────────────────────
+@router.post("/jobs/{job_id}/sections/proceed", status_code=202, summary="API-SEC-04 이대로 진행(N3→N4) (Celery 큐)")
 def proceed(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    job = db.execute(
-        text("SELECT current_step FROM job WHERE id = :j AND seller_id = :s"),
-        {"j": job_id, "s": seller_id},
-    ).mappings().first()
-    if not job:
-        raise HTTPException(status_code=404, detail="job not found")
+    """job 잠금 아래 포함 섹션 확인 → 하류 대표 실행 + 섹션별 ④ 시도 → N4 를 한 트랜잭션으로(D1·D2). 중복 요청은 기존 실행을 돌려준다."""
+    from app.flows.downstream import ProceedRejected
+    from app.flows.downstream import proceed as start_downstream
 
-    counts = db.execute(
-        text(
-            "SELECT count(*) FILTER (WHERE bucket='include') AS inc, count(*) AS total "
-            "FROM section WHERE job_id = :j"
-        ),
-        {"j": job_id},
-    ).mappings().one()
-    if counts["total"] == 0 or counts["inc"] == 0:
-        raise HTTPException(status_code=409, detail="ALL_SECTIONS_EXCLUDED")
-
-    # 큐 수락 시점에 N4로 올린다(analyze→N2와 같은 이유). 워커(run_translate)가
-    # 시작될 때 같은 값을 다시 쓰지만, 워커가 아직 시작 전인 동안 GET /tasks가
-    # N3를 그대로 주면 FE는 N3 화면에 머문 채 폴링까지 멈춘다(N3는 사용자 입력
-    # 대기 단계라 폴링 대상이 아니다) — 그러면 번역이 끝나도 화면이 넘어가지 않는다.
-    db.execute(
-        text(
-            "UPDATE job SET status='processing', current_step='N4', "
-            "user_facing_status='translating', updated_at=now() "
-            "WHERE id = :j AND seller_id = :s"
-        ),
-        {"j": job_id, "s": seller_id},
-    )
-    db.commit()
-
-    from app.tasks import run_translate  # 지연 임포트
-    result = run_translate.delay(job_id)  # ← 번역 태스크 큐 등록
+    try:
+        r = start_downstream(db, job_id, seller_id)
+    except ProceedRejected as e:
+        db.rollback()
+        raise HTTPException(status_code=e.status, detail={"code": e.code, "message": e.message}) from e
     response.status_code = 202
-    return {"jobId": job_id, "accepted": True, "celeryTaskId": result.id}
+    return {"jobId": job_id, "accepted": True, "taskId": r["taskId"]}
 
 
 @router.get("/jobs/{job_id}/sections/{section_id}/inpaint", tags=["Inpaint"], summary="API-INP-01 섹션 인페인팅 결과 조회 (DB+S3)")

@@ -1,18 +1,18 @@
 """CFM — 검수/텍스트 블록 (API-CFM-01~04, 🟢9월).
 
-CFM-01(블록 표)·CFM-02(셀 수정·낙관적 잠금)·CFM-03(프리뷰)·CFM-04(확정)
-모두 실제 DB(+S3 presigned). 재렌더 큐 연결(CFM-02→rerenderTaskId)만 렌더 엔진
-확장 시 붙일 예정.
+CFM-01(블록 표·signals)·CFM-02(셀 수정·낙관적 잠금·재렌더)·CFM-03(프리뷰)·CFM-04(확정 → N6 최종 렌더) 실제 DB(+S3 presigned).
+현재 채택한 분석 실행의 섹션만 보인다(app.flows.common.VISIBLE).
 """
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app import render, s3
 from app.db import get_db
+from app.flows.common import VISIBLE
 from app.security import get_current_seller
 
 router = APIRouter(tags=["Review"])
@@ -26,9 +26,34 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
         raise HTTPException(status_code=404, detail="job not found")
 
 
+def _block_dict(r, signals: dict) -> dict:
+    return {
+        "id": r["id"],
+        "sectionId": r["section_id"],
+        "blockOrder": r["block_order"],
+        "role": r["role"],
+        "isProductLabel": r["is_product_label"],
+        "isBrandLogo": r["is_brand_logo"],
+        "isExcluded": r["is_excluded"],
+        "sourceKo": r["source_ko"],
+        "trans1": r["trans_1"],
+        "trans2": r["trans_2"],
+        "blockStatus": r["block_status"],
+        "bbox": r["bbox"],
+        "charCount": r["char_count"],
+        "charLimit": r["char_limit"],
+        "overflow": r["overflow"],
+        "autoAdjust": r["auto_adjust"],
+        "signals": signals.get(r["id"], []),
+        "revision": r["revision"],
+    }
+
+
 # ── CFM-01: 실제 DB ───────────────────────────────────────────────
 @router.get("/jobs/{job_id}/blocks", summary="API-CFM-01 텍스트 블록 표(대조) (DB)")
 def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    from app.flows.final import block_signals
+
     _require_job_owned(db, job_id, seller_id)
 
     sql = (
@@ -36,8 +61,8 @@ def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db:
         "tb.is_product_label, tb.is_brand_logo, tb.is_excluded, "
         "tb.source_ko, tb.trans_1, tb.trans_2, tb.block_status, tb.bbox, "
         "tb.char_count, tb.char_limit, tb.overflow, tb.auto_adjust, tb.revision "
-        "FROM text_block tb JOIN section s ON s.id = tb.section_id "
-        "WHERE s.job_id = :j"
+        "FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
+        "WHERE s.job_id = :j AND " + VISIBLE
     )
     params = {"j": job_id}
     if sectionId is not None:
@@ -46,28 +71,8 @@ def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db:
     sql += " ORDER BY tb.section_id, tb.block_order, tb.id"
 
     rows = db.execute(text(sql), params).mappings().all()
-    return [
-        {
-            "id": r["id"],
-            "sectionId": r["section_id"],
-            "blockOrder": r["block_order"],
-            "role": r["role"],
-            "isProductLabel": r["is_product_label"],
-            "isBrandLogo": r["is_brand_logo"],
-            "isExcluded": r["is_excluded"],
-            "sourceKo": r["source_ko"],
-            "trans1": r["trans_1"],
-            "trans2": r["trans_2"],
-            "blockStatus": r["block_status"],
-            "bbox": r["bbox"],
-            "charCount": r["char_count"],
-            "charLimit": r["char_limit"],
-            "overflow": r["overflow"],
-            "autoAdjust": r["auto_adjust"],
-            "revision": r["revision"],
-        }
-        for r in rows
-    ]
+    signals = block_signals(db, job_id)
+    return [_block_dict(r, signals) for r in rows]
 
 
 # ── CFM-02: 셀 수정 (DB · 낙관적 잠금) ────────────────────────────
@@ -78,16 +83,24 @@ class BlockUpdate(BaseModel):
 
 @router.patch("/jobs/{job_id}/blocks/{block_id}", summary="API-CFM-02 번역문 셀 수정 (DB·낙관적 잠금)")
 def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """N5 에서만 수정한다. revision 이 같아야 하고, 수정하면 revision+1 · edited · 수정 전후 기록(edit_signal).
+    같은 트랜잭션에서 그 섹션의 미리보기 재렌더 시도를 현재 revision 으로 만든다(옛 렌더 결과는 거절된다)."""
+    from app import execution
+    from app.flows.downstream import rerender_section
+
     _require_job_owned(db, job_id, seller_id)
+    job = execution.lock_job(db, job_id)
     cur = db.execute(
         text(
-            "SELECT tb.revision FROM text_block tb JOIN section s ON s.id = tb.section_id "
-            "WHERE tb.id = :b AND s.job_id = :j"
+            "SELECT tb.revision, tb.trans_1, tb.section_id, tb.is_excluded FROM text_block tb JOIN section s ON s.id = tb.section_id "
+            "JOIN job j ON j.id = s.job_id WHERE tb.id = :b AND s.job_id = :j AND " + VISIBLE + " FOR UPDATE OF tb"
         ),
         {"b": block_id, "j": job_id},
     ).mappings().first()
     if not cur:
         raise HTTPException(status_code=404, detail="block not found")
+    if job["current_step"] != "N5" or job["status"] != "review":
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "번역문은 N5 검수 중에만 수정한다"})
     if cur["revision"] != body.revision:
         # 낙관적 잠금 충돌 — 최신 revision을 details로 반환
         raise HTTPException(
@@ -103,31 +116,41 @@ def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = De
         ),
         {"t": body.trans1, "b": block_id},
     ).mappings().one()
+    db.execute(
+        text("INSERT INTO edit_signal (job_id, text_block_id, signal_type, before_text, after_text) "
+             "VALUES (:j, :b, 'user_edited', :bt, :at)"),
+        {"j": job_id, "b": block_id, "bt": cur["trans_1"], "at": body.trans1},
+    )
+    rerender = rerender_section(db, job_id, cur["section_id"])
     db.commit()
+    if rerender:
+        execution.dispatch([rerender])
     return {
         "block": {"id": r["id"], "trans1": r["trans_1"], "blockStatus": r["block_status"], "revision": r["revision"]},
-        "rerenderTaskId": None,  # 재렌더 큐 연결은 렌더 엔진 단계에서
+        "rerenderTaskId": rerender,
     }
 
 
 @router.get("/jobs/{job_id}/preview", summary="API-CFM-03 검수 뷰어 프리뷰(다폭) (DB+S3)")
 def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """N3 제외 섹션은 빼고 N5 제외는 bucket=exclude 로 포함한다(계약). 미리보기 실패·미완료면 renderedUrl=null(원본 표시)."""
     _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
-            "SELECT id, section_order, source_image_id, bucket, excluded_stage, height, "
-            "image_key, render_image_key "
-            "FROM section WHERE job_id = :j ORDER BY section_order, id"
+            "SELECT s.id, s.section_order, s.source_image_id, s.bucket, s.excluded_stage, s.height, "
+            "s.image_key, s.render_image_key, si.width AS src_width "
+            "FROM section s JOIN job j ON j.id = s.job_id LEFT JOIN source_image si ON si.id = s.source_image_id "
+            "WHERE s.job_id = :j AND " + VISIBLE + " AND NOT (s.bucket = 'exclude' AND s.excluded_stage IS DISTINCT FROM 'N5') "
+            "ORDER BY si.upload_order NULLS LAST, s.section_order, s.id"
         ),
         {"j": job_id},
     ).mappings().all()
 
     # 섹션 식별자는 계약(ReviewPreview.sections[].id)대로 `id`로 내보낸다 —
     # `sectionId`로 주면 FE N5 어댑터가 식별자 없음으로 보고 예외를 던진다.
-    # height/sectionOrder/excludedStage도 계약 필드라 함께 채운다(FE는
-    # section.height * scale로 프리뷰 슬라이스 높이를 잡는다 — 없으면 0이 된다).
     sections = []
     display_top = 0
+    max_w = max([r["src_width"] or render.CANVAS_WIDTH for r in rows] or [render.CANVAS_WIDTH])
     for r in rows:
         height = r["height"] or 1500
         sections.append({
@@ -136,7 +159,7 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
             "sourceImageId": r["source_image_id"],
             "bucket": r["bucket"],
             "excludedStage": r["excluded_stage"],
-            "width": render.CANVAS_WIDTH,
+            "width": r["src_width"] or render.CANVAS_WIDTH,
             "displayTop": display_top,
             "height": height,
             "originalUrl": s3.presigned_get(r["image_key"]),
@@ -145,10 +168,10 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
         })
         display_top += height
 
-    scale = round(500 / render.CANVAS_WIDTH, 2)
+    scale = round(500 / max_w, 2)
     return {
         "previewWidth": 500,
-        "maxOriginalWidth": render.CANVAS_WIDTH,
+        "maxOriginalWidth": max_w,
         "originalHeight": display_top,
         "scale": scale,
         "previewHeight": round(display_top * scale),
@@ -157,31 +180,25 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
     }
 
 
+class Ack(BaseModel):
+    blockId: int
+    code: str
+
+
+class ConfirmBody(BaseModel):
+    acknowledgedWarnings: list[Ack] = Field(default_factory=list)
+
+
 @router.post("/jobs/{job_id}/confirm", summary="API-CFM-04 검수 확정(N5→N6) (DB)")
-def confirm(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    _require_job_owned(db, job_id, seller_id)
-    counts = db.execute(
-        text(
-            "SELECT count(*) FILTER (WHERE bucket='include') AS inc, count(*) AS total "
-            "FROM section WHERE job_id = :j"
-        ),
-        {"j": job_id},
-    ).mappings().one()
-    if counts["total"] == 0 or counts["inc"] == 0:
-        raise HTTPException(status_code=409, detail="ALL_SECTIONS_EXCLUDED")
+def confirm(job_id: int, body: Optional[ConfirmBody] = None, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """미해결 경고(번역하지 못한 칸)를 확인받고 확정한다(D9-3). 확정 트랜잭션에서 최종 렌더 시도를 서버가 등록한다."""
+    from app.flows.final import ConfirmRejected
+    from app.flows.final import confirm as do_confirm
 
-    r = db.execute(
-        text(
-            "UPDATE job SET status='review', current_step='N6', user_facing_status='reviewing', "
-            "updated_at=now() WHERE id=:j AND seller_id=:s RETURNING id, status, current_step"
-        ),
-        {"j": job_id, "s": seller_id},
-    ).mappings().first()
-    db.commit()
-
-    # 계약(CFM-04): confirm이 렌더 task를 자동 등록한다 — "FE는 N6에서 JOB-05
-    # 폴링만". 등록을 빼면 FE가 N6에 들어간 순간 render task가 없어 폴링을 멈춘다.
-    from app.tasks import register_render_task  # 지연 임포트(celery 앱 로드)
-    register_render_task(db, job_id)
-
-    return {"jobId": r["id"], "status": r["status"], "currentStep": r["current_step"]}
+    acks = [a.model_dump() for a in (body.acknowledgedWarnings if body else [])]
+    try:
+        r = do_confirm(db, job_id, seller_id, acks)
+    except ConfirmRejected as e:
+        db.rollback()
+        raise HTTPException(status_code=e.status, detail={"code": e.code, "message": e.message, **e.details}) from e
+    return {"jobId": r["jobId"], "status": r["status"], "currentStep": r["currentStep"]}

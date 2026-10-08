@@ -1,0 +1,53 @@
+{
+  "case": "analyze.failed_input_hash",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "analyze",
+    "input_snapshot_id": "snap-analyze-a-1",
+    "sources": [
+      {
+        "source_image_id": 1,
+        "upload_order": 1,
+        "path": "/srv/pixlate-work/uploads/source_1.png",
+        "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    ],
+    "out_dir": "/srv/pixlate-work/analyze/bad",
+    "use_llm": false
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "analyze",
+    "input_snapshot_id": "snap-analyze-a-1",
+    "input_manifest": null,
+    "input_manifest_sha256": null,
+    "outcome": "failed",
+    "target_count": 0,
+    "skip_reason": null,
+    "payload": null,
+    "artifacts": [],
+    "source_refs": [],
+    "failure": {
+      "kind": "input_invalid",
+      "retryable": false,
+      "message": "원본 1 SHA-256 불일치 — 선언 ffffffffffff… · 실제 6cad9a12d761…",
+      "targets": []
+    },
+    "implementation": {
+      "adapter": "analyze-handoff@2026-10-08.1",
+      "analyze_result_schema": "1",
+      "models": {
+        "section_vlm": "gemini-3.8-flash",
+        "ocr_det": "PP-OCRv5_server_det",
+        "ocr_rec": "korean_PP-OCRv5_mobile_rec",
+        "merge_llm": null
+      }
+    },
+    "diagnostics": {}
+  },
+  "be_validation_problems": []
+}

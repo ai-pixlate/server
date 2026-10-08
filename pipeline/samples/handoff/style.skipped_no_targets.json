@@ -1,0 +1,423 @@
+{
+  "case": "style.skipped_no_targets",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "style",
+    "input_snapshot_id": "snap-style-a-1",
+    "section": {
+      "section_key": "sec_1_01",
+      "source_image_id": 1,
+      "section_order": 1,
+      "top_offset": 0,
+      "height": 400,
+      "width": 600,
+      "image_path": "/srv/pixlate-work/downstream/sections/sec_1_01.png"
+    },
+    "section_image": {
+      "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
+      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+    },
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_1_01",
+        "block_order": 1,
+        "source_ko": "가짜브랜드",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "가짜브랜드",
+            "bbox": {
+              "x": 60,
+              "y": 40,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "가짜브랜드",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    40
+                  ],
+                  [
+                    360,
+                    40
+                  ],
+                  [
+                    360,
+                    64
+                  ],
+                  [
+                    60,
+                    64
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 40,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 40,
+          "w": 300,
+          "h": 24
+        },
+        "role": "title",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_1_01",
+        "block_order": 2,
+        "source_ko": "라벨 문구",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "라벨 문구",
+            "bbox": {
+              "x": 60,
+              "y": 120,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "라벨 문구",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    120
+                  ],
+                  [
+                    360,
+                    120
+                  ],
+                  [
+                    360,
+                    144
+                  ],
+                  [
+                    60,
+                    144
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 120,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 120,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      }
+    ],
+    "image_id": "1",
+    "label_result": {
+      "schema_version": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "labels": [
+        {
+          "block_key": "blk_001",
+          "is_product_label": false,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_002",
+          "is_product_label": true,
+          "basis": "vlm"
+        }
+      ],
+      "checked": {
+        "input_fingerprint": "741af7d4c692b2b4489871dfe42d7fb1ff3ae512a12210a0b527b21cbb05af00",
+        "llm_called": true,
+        "sent_block_keys": [
+          "blk_001",
+          "blk_002"
+        ],
+        "blank_block_keys": []
+      },
+      "error": null
+    },
+    "label_result_sha256": "dda7b907f4eda5a1126f9b123181c2f4f3bad4f010f99b7157d48c352729d633",
+    "logo_result": {
+      "schema_version": "1",
+      "image_id": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_001",
+          "is_brand_logo": true,
+          "basis": "exact_match"
+        },
+        {
+          "block_key": "blk_002",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ],
+      "error": null
+    },
+    "logo_result_sha256": "b4e3efb34b314baa3a572a09b9980c87a59ea272fcd726ea1987b8aed4b443ac",
+    "logo_record": {
+      "stage": "logo",
+      "image_id": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "741af7d4c692b2b4489871dfe42d7fb1ff3ae512a12210a0b527b21cbb05af00",
+      "label_fingerprint": "dda7b907f4eda5a1126f9b123181c2f4f3bad4f010f99b7157d48c352729d633",
+      "label_input_fingerprint": "741af7d4c692b2b4489871dfe42d7fb1ff3ae512a12210a0b527b21cbb05af00",
+      "brand": {
+        "image_group": "brand-7",
+        "product_name": null,
+        "name_ko": "가짜브랜드",
+        "name_en": "FakeBrand",
+        "name_ko_normalized": "가짜브랜드",
+        "name_en_normalized": "fakebrand"
+      },
+      "brand_entry_fingerprint": "73e241c368b3af189b1d72730d772f76a58affc10d3b31e72bcf44af9728067d",
+      "blocks": 2,
+      "counts": {
+        "product_label": 1,
+        "empty_text": 0,
+        "exact_match": 1,
+        "no_match": 0,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_001",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "가짜브랜드",
+          "matched_names": [
+            "name_ko"
+          ],
+          "is_brand_logo": true,
+          "basis": "exact_match"
+        },
+        {
+          "block_key": "blk_002",
+          "block_order": 2,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ]
+    },
+    "logo_record_sha256": "131958a68ab5d4552902056ee4d98ee18e7693112491c9e86569d7ca59f9d7f1"
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "style",
+    "input_snapshot_id": "snap-style-a-1",
+    "input_manifest": {
+      "stage": "style",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "image_id": "1",
+      "section": {
+        "section_key": "sec_1_01",
+        "source_image_id": 1,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 400,
+        "width": 600
+      },
+      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "blocks": [
+        {
+          "block_key": "blk_001",
+          "section_key": "sec_1_01",
+          "block_order": 1,
+          "source_ko": "가짜브랜드",
+          "source_lines": [
+            {
+              "line_key": "line_001",
+              "text": "가짜브랜드",
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0001",
+                  "text": "가짜브랜드",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      40
+                    ],
+                    [
+                      360,
+                      40
+                    ],
+                    [
+                      360,
+                      64
+                    ],
+                    [
+                      60,
+                      64
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 40,
+            "w": 300,
+            "h": 24
+          },
+          "role": "title",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_002",
+          "section_key": "sec_1_01",
+          "block_order": 2,
+          "source_ko": "라벨 문구",
+          "source_lines": [
+            {
+              "line_key": "line_002",
+              "text": "라벨 문구",
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0002",
+                  "text": "라벨 문구",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      120
+                    ],
+                    [
+                      360,
+                      120
+                    ],
+                    [
+                      360,
+                      144
+                    ],
+                    [
+                      60,
+                      144
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 120,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        }
+      ],
+      "label_result_sha256": "dda7b907f4eda5a1126f9b123181c2f4f3bad4f010f99b7157d48c352729d633",
+      "logo_result_sha256": "b4e3efb34b314baa3a572a09b9980c87a59ea272fcd726ea1987b8aed4b443ac",
+      "logo_record_sha256": "131958a68ab5d4552902056ee4d98ee18e7693112491c9e86569d7ca59f9d7f1",
+      "config": {
+        "method": "otsu_border",
+        "em_ratio": 1.35,
+        "align_tolerance": 0.12
+      }
+    },
+    "input_manifest_sha256": "4271cb39f5e011eb8be0192341324358a52fea61dc5825e8223044943b54fe35",
+    "outcome": "skipped",
+    "target_count": 0,
+    "skip_reason": "no_targets",
+    "payload": {
+      "section_key": "sec_1_01",
+      "blocks": [],
+      "excluded": [
+        {
+          "block_key": "blk_001",
+          "reason": "brand_logo"
+        },
+        {
+          "block_key": "blk_002",
+          "reason": "product_label"
+        }
+      ],
+      "units": {
+        "color": "#RRGGBB sRGB",
+        "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
+      },
+      "style_result_sha256": "57b092c6bfe2709d6115030239de6f6559e8c5ef5b1a65ab443e1d78e8f018d8"
+    },
+    "artifacts": [],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "style_schema": "1"
+    },
+    "diagnostics": {}
+  },
+  "be_validation_problems": []
+}

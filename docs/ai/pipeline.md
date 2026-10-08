@@ -111,7 +111,8 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ⑥ | `inpaint.dilate_ratio` / `inpaint.dilate_retry` | `0.15` / `false` | 글자 높이 대비 팽창. 확대 재시도 금지 | [개발계획 6장] |
 | ⑥ | `inpaint.init_timeout_s` / `inpaint.infer_timeout_s` / `inpaint.kill_grace_s` | `60` / `30` / `5` | 모델 전용 자식 프로세스의 초기화(시작~준비 완료) · 섹션 추론(요청~결과 수신) 시간 제한과 시간 초과 뒤 강제 종료 유예(초). **100섹션 실측용 잠정값** — 13섹션 소수 실측(최대 추론 3.55 s · 초기화 약 4 s) 근거, 운영값 아님. 다른 단계의 60초를 가져온 값이 아니다 | [`open-questions.md` #75] [사용자 결정 2026-09-30] [`docs/ai-experiments/2026-09-30_06-inpaint_lama-gpu-probe.md` 5절] |
 | ⑦ | `style.method` / `style.em_ratio` / `style.align_tolerance` | `otsu_border` / `1.35` / `0.12` | 정렬 허용 오차는 블록 폭 비율 | [개발계획 6장] |
-| ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | `gemini-3.8-flash` / `rag` / `pipeline/prompts/translate.md` | 프롬프트 미정 | [개발계획 6장] |
+| ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | `gemini-3.8-flash` / `rag` / `pipeline/prompts/translate.md` | 용어는 BE가 검색해 실행 입력으로 공급한다. 프롬프트는 초안 v1(2026-10-08, 실측 전) — 확정은 #11 기술검증 후 | [개발계획 6장] [계약 5.1] [`open-questions.md` #11] |
+| ⑧ | `translate.temperature` / `translate.timeout_s` | `0` / `60` | 섹션 1회 호출 설정. ③-1 · ④와 같은 계열의 **개발용 잠정값** — 운영 시간 제한 · 재시도 상한은 BE 실행 정책에서 정하며 이 값을 운영 최댓값으로 쓰지 않는다 | [통합 D9] [`open-questions.md` #11] |
 | 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | — | 실행마다 `event_log.payload`에 기록 | [계약 9장] |
 
 ## 4. 순서를 바꾸면 안 되는 지점

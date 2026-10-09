@@ -1,0 +1,6 @@
+# 실제 데이터 · 실행 산출물은 올리지 않는다 (data/README.md 참고)
+data/deliveries/
+data/db_snapshot/
+data/*.csv
+results/
+logs/

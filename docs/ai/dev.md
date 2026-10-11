@@ -47,6 +47,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     translate.py             ⑧ 로컬라이징 번역 — 섹션 1회 호출 · 블록별 결과(2026-10-08, 3.2절)
     text_check.py            번역문 검사 — 규제 표현 영어 재대조 · 강제 용어(규칙 기반, 3.2절)
   matching.py                통합 매칭 · 겹침 억제 규칙(5.23, `match@2026-10-08.1`) — 운영 인계가 쓴다. 개발용 ③-1a 검출은 그대로
+  glossary.py                ⑧ 용어집 선별 · 강제 용어 적용 대상(통합 D10, `glossary-select@2026-10-11.1`) — BE 공급과 번역문 검사가 같이 쓴다
   data/content_types.json    content_type 대응표(현지 8 + 규제 검출 1, D9-2) — 버전 · 해시가 입력 지문에 들어간다
   handoff/                   AI ↔ BE 운영 인계 어댑터(3.2절) — 요청 → StageReport, 결과 검증기, GPU 실행기, 계약 예제 생성
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]. ① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)
@@ -166,7 +167,7 @@ D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단
 | ⑤ | `run_logo` | `image_id` · `section_key` · `blocks` · 채택된 `label_result`+해시 · `brand`(`brand_id` · `name_ko` · `name_en` 스냅샷) | `decisions` · `logo_result` · `logo_record`와 각 해시 |
 | ⑥ | `run_inpaint` | `section` · `section_image` · `blocks` · 채택된 ④⑤ payload 3개+해시 · 새 `out_dir` · `limits`(선택, BE 운영 시간 제한) | 산출물 `background` · `delete_mask` · `protect_mask`, payload 영역 분류 · 사유 · 집계. 빈 최종 마스크는 skipped + 원본 배경 `source_ref` |
 | ⑦ | `run_style` | ⑥과 같은 입력(배경 결과 불필요) | 대상 블록별 `font_color` · `bg_color` · `est_font_px` · `align` · `align_basis` · `null_reasons` · 제외 블록 목록 |
-| ⑧ | `handoff.translation.run_translate` | `target_country` · `target_lang` · `regulatory_class` · `section_key` · `blocks`(섹션 전체 문맥) · `targets[{block_key, revision}]` · `preserved[]`(채택된 성공분 참조) · `instructions[{block_key, external_id, matched_text}]` · `glossary{status, version, terms[]}` · `bundle` | 대상 블록별 `outcome` · `trans_1` · `translation_sha256` · `source_sha256` · `input_revision` · `applied_instructions` · `error` |
+| ⑧ | `handoff.translation.run_translate` | `target_country` · `target_lang` · `regulatory_class` · `section_key` · `blocks`(섹션 전체 문맥) · `targets[{block_key, revision}]` · `preserved[]`(채택된 성공분 참조) · `instructions[{block_key, external_id, matched_text}]` · `glossary{status, version, terms[]}`(BE가 이번 대상 블록에서 선별한 목록, `pipeline/glossary.py` · 통합 D10) · `bundle` | 대상 블록별 `outcome` · `trans_1` · `translation_sha256` · `source_sha256` · `input_revision` · `applied_instructions` · `error` |
 | 검사 | `run_text_check` | 위와 같은 묶음 · 용어 + `targets[{block_key, revision, text}]` | 블록별 compliance_flags 후보 · 용어 검사 상태 · `complete` · `placeholder_leaks` |
 | GPU | `handoff.gpu.GpuInpaintRunner` | BE 제어 인터페이스 구현(`ControlClient` Protocol: 권한 획득 · 갱신 · 업로드 URL · 인계 등록 · 상태 조회)과 권한의 `heartbeat_interval_s` · 입력 내려받기 참조 | 업로드 목록 + 보고를 인계 등록. 상태가 verified · adopted · discard일 때만 로컬 정리(rejected는 보관), 전체 취소는 `purge_job`. 추론 실패 · 시간 초과로 닫힌 모델은 버리고 다음 시도에서 새로 만든다 |
 

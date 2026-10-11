@@ -4,9 +4,10 @@
 - 규제: 적용 분류 RG 행의 variant_en을 영어 규칙으로 매칭하고 감싸기 억제(5.23) 후 남은 비허용 매칭마다 compliance_flags 후보
   (type=regulatory · producer=translation_validation · detected_in=translation · detected_by=rule). 검출은 위반 확정이 아니다.
   영어 패턴이 없는 항목은 검사하지 못한 것으로 따로 기록한다(문제 없음으로 표시하지 않음, contract 7.2).
-- 강제 용어: enforced 용어의 term_ko가 원문에 있으면(한국어 규칙) term_target이 번역문에 있어야 한다(영어 규칙 · 대소문자 무시 ·
-  활용형 허용 없음). 없으면 mandatory_term_unapplied 후보. term_target에 대안 구분 문자('; ' · '/')가 있으면 해석 규칙이 정해지지
-  않았으므로 unverifiable로 남긴다(적용/미적용을 추정하지 않음).
+- 강제 용어: 원문에서 유효한 enforced 용어(`pipeline.glossary` 선별 규칙 — 공통 한국어 매칭 + 같은 블록 강제 용어끼리 위치별
+  포함 억제, BE 공급과 같은 함수)마다 term_target이 번역문에 있어야 한다(영어 규칙 · 대소문자 무시 · 활용형 허용 없음).
+  없으면 mandatory_term_unapplied 후보. 긴 강제 용어에 포함된 위치뿐인 짧은 강제 용어는 적용 대상이 아니다(통합 D10).
+  term_target에 대안 구분 문자('; ' · '/')가 있으면 해석 규칙이 정해지지 않았으므로 unverifiable로 남긴다(적용/미적용을 추정하지 않음).
 - 번역문 LLM 규제 판정(F-TRN-03)은 하지 않는다(D9-2). 현지 판정을 번역문에 다시 적용하지 않는다.
 """
 from __future__ import annotations
@@ -14,9 +15,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pipeline import glossary as gl
 from pipeline.matching import MATCH_RULES_VERSION, PatternSpec, find_matches, resolve_overlaps
 
-TERM_RULES_VERSION = "term-check@2026-10-08.1"  # 원문 term_ko 한국어 규칙 · 번역문 term_target 영어 규칙 · 대안 구분 문자는 unverifiable
+# 원문 적용 대상은 glossary-select 규칙 · 번역문 term_target 영어 규칙 · 대안 구분 문자는 unverifiable
+TERM_RULES_VERSION = "term-check@2026-10-11.1"
 _ALTERNATIVE_MARKERS = ("; ", "/")
 
 
@@ -50,11 +53,12 @@ def check_block(block_key: str, revision: int, text: str, source_ko: str, rows: 
                       "dictionary_verdict_status": verdict_of[m.external_id], "problem_text": m.matched_text,
                       "start": m.start, "end": m.end, "detected_in": "translation", "detected_by": "rule"})
     term_results = []
+    # 공급과 같은 선별(블록 하나) — 정규화 원문 충돌은 GlossaryDataError(호출자가 검사 실패로 기록)
+    applicable = {e.glossary_id for e in gl.select([(block_key, source_ko)],
+                                                   [gl.Entry(t.glossary_id, t.term_ko, t.term_target, t.enforcement) for t in terms])}
     for t in terms:
-        if t.enforcement != "enforced":
-            continue
-        if not find_matches(block_key, source_ko, [PatternSpec(t.glossary_id, t.term_ko)], "ko"):
-            continue  # 원문에 용어가 없으면 적용 대상이 아니다
+        if t.enforcement != "enforced" or t.glossary_id not in applicable:
+            continue  # 원문에 없거나 긴 강제 용어에 포함된 위치뿐이면 적용 대상이 아니다
         if any(mk in t.term_target for mk in _ALTERNATIVE_MARKERS):
             term_results.append({"glossary_id": t.glossary_id, "status": "unverifiable",
                                  "reason": "term_target에 대안 구분 문자가 있어 적용 판단 규칙이 정해지지 않았다"})
@@ -75,5 +79,5 @@ def check_block(block_key: str, revision: int, text: str, source_ko: str, rows: 
         "terms": term_results,
         "flags": flags,
         "complete": not any(r["status"] == "unverifiable" for r in term_results) and all(r.variant_en for r in rows),
-        "rules": {"match": MATCH_RULES_VERSION, "terms": TERM_RULES_VERSION},
+        "rules": {"match": MATCH_RULES_VERSION, "terms": TERM_RULES_VERSION, "glossary_select": gl.SELECT_RULES_VERSION},
     }

@@ -42,12 +42,26 @@ def handoff_env(env, tmp_path, monkeypatch):
         c.execute(text("INSERT INTO expression_dictionary_evidence (dictionary_id, external_id, evidence_source_type, is_primary) "
                        "VALUES (:d, 'WL-777', 'Warning Letter', true)"), {"d": did})
         c.execute(text("DELETE FROM glossary"))
-        c.execute(text("INSERT INTO glossary (term_ko, term_target, target_lang, internal_category, enforcement) "
-                       "VALUES ('크림', 'cream', 'en', 'skincare', 'enforced')"))
-    llm = FakeTranslate()
+        c.execute(text("INSERT INTO glossary (term_ko, term_target, target_lang, internal_category, enforcement) VALUES "
+                       "('크림', 'cream', 'en', 'common', 'enforced'), "  # 섹션 1 대상 원문에 있음
+                       "('녹차', 'green tea', 'en', 'common', 'enforced'), "  # 어느 대상에도 없음
+                       "('문구', 'copy', 'en', 'Sunscreens & Tanning Products', 'reference'), "  # 섹션 2 원문에 있으나 다른 분류
+                       "('크림', 'cream', 'fr', 'common', 'enforced')"))  # 다른 언어
+    llm = _SpyTranslate()
     ai_adapters.set_adapters(analyzer=FakeAnalyzer(mutate=_mutate),
                              translator=ai_adapters.HandoffTranslator(load_config(), llm=llm))
     return env
+
+
+class _SpyTranslate(FakeTranslate):
+    """모델이 실제로 받은 용어 목록을 남긴다(가짜 모델)."""
+
+    seen: list = []
+
+    def __call__(self, prompt, payload, image):
+        p = json.loads(payload)
+        type(self).seen.append(({b["id"] for b in p["blocks"] if "id" in b}, p["glossary"]))
+        return super().__call__(prompt, payload, image)
 
 
 def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff_env):
@@ -68,6 +82,11 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
     # #71 확정 전에는 대체 표현이 원문 문자열이라 ⑧ 표현 지시를 보내지 않는다(PR #55 3217142)
     assert supply["instructions"] == []
     assert supply["bundle_sha256"] and supply["glossary_sha256"]
+    assert supply["glossary_selection"] == {"rules": "glossary-select@2026-10-11.1", "target_lang": "en", "categories": ["common"]}
+    # BE가 대상 블록에서 고른 용어만 실제 모델 입력까지 간다 — 섹션 1은 '크림'만, 섹션 2는 없음(다른 분류 '문구' 제외)
+    gls = [g for _, g in _SpyTranslate.seen]
+    assert [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}] in gls and [] in gls
+    assert not any(t["term_ko"] in ("녹차", "문구") for g in gls for t in g)
 
 
 def test_handoff_translator_rejects_changed_supply(handoff_env):
@@ -84,3 +103,69 @@ def test_handoff_translator_rejects_changed_supply(handoff_env):
     handoff_env["q"].drain()
     codes = {a["error_code"] for a in _q("SELECT error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate'", j=ids["job"])}
     assert "INPUT_CHANGED" in codes  # 고정 공급과 다르면 계산하지 않는다(5.32 입력 고정)
+
+
+def _hold_translate(handoff_env):
+    ids = _to_n3(handoff_env)
+    assert ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
+    held = [m for m in handoff_env["q"].drain(skip={"app.tasks.run_translate"}) if m[0] == "app.tasks.run_translate"]
+    assert held
+    return ids, held
+
+
+def _translate_codes(handoff_env, ids, held):
+    handoff_env["q"].messages.extend(held)
+    handoff_env["q"].drain()
+    return {a["error_code"] for a in _q("SELECT error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate'", j=ids["job"])}
+
+
+def test_unrelated_glossary_change_keeps_fixed_supply_valid(handoff_env):
+    from app import db as app_db
+
+    ids, held = _hold_translate(handoff_env)
+    with app_db.engine.begin() as cn:  # 선택되지 않은 행만 바뀌면 공급은 그대로다
+        cn.execute(text("UPDATE glossary SET term_target = 'matcha' WHERE term_ko = '녹차'"))
+        cn.execute(text("INSERT INTO glossary (term_ko, term_target, target_lang, internal_category, enforcement) "
+                        "VALUES ('무관', 'unrelated', 'en', 'common', 'reference')"))
+    assert "INPUT_CHANGED" not in _translate_codes(handoff_env, ids, held)
+
+
+def test_job_category_change_invalidates_fixed_supply(handoff_env):
+    from app import db as app_db
+
+    ids, held = _hold_translate(handoff_env)
+    with app_db.engine.begin() as cn:  # 적용 분류(선별 입력)가 바뀌면 고정 공급과 다르다
+        cn.execute(text("UPDATE job SET internal_category = 'Sunscreens & Tanning Products' WHERE id = :j"), {"j": ids["job"]})
+    assert "INPUT_CHANGED" in _translate_codes(handoff_env, ids, held)
+
+
+def test_job_category_selects_category_terms(handoff_env):
+    from app import db as app_db
+
+    ids = _to_n3(handoff_env)
+    with app_db.engine.begin() as cn:
+        cn.execute(text("UPDATE job SET internal_category = 'Sunscreens & Tanning Products' WHERE id = :j"), {"j": ids["job"]})
+    _SpyTranslate.seen.clear()
+    assert ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
+    handoff_env["q"].drain()
+    sel = {json.dumps(a["input_manifest"]["supply"]["glossary_selection"]["categories"]) for a in _q(
+        "SELECT input_manifest FROM job_async_task WHERE job_id = :j AND stage = 'translate'", j=ids["job"])}
+    assert sel == {json.dumps(["Sunscreens & Tanning Products", "common"])}
+    gls = [g for _, g in _SpyTranslate.seen]
+    assert any(t["term_ko"] == "문구" for g in gls for t in g)  # 작업 분류 행이 섹션 2 대상에 공급된다
+
+
+def test_conflicting_glossary_fails_translate_not_empty_success(handoff_env):
+    from app import db as app_db
+
+    with app_db.engine.begin() as cn:  # 정규화 후 같은 원문('크 림' = '크림')의 다른 행 — 임의 선택하지 않는다
+        cn.execute(text("INSERT INTO glossary (term_ko, term_target, target_lang, internal_category, enforcement) "
+                        "VALUES ('크 림', 'creme', 'en', 'common', 'enforced')"))
+    ids = _to_n3(handoff_env)
+    assert ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
+    handoff_env["q"].drain()
+    atts = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate' ORDER BY unit_id", j=ids["job"])
+    assert (atts[0]["status"], atts[0]["error_code"]) == ("failed", "TRANSLATE_INPUT_INVALID")
+    rows = _q("SELECT tb.trans_1 FROM text_block tb JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j AND tb.source_ko = '가짜완화 크림'",
+              j=ids["job"])
+    assert rows[0]["trans_1"] is None

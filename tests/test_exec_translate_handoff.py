@@ -11,9 +11,8 @@ from sqlalchemy import text
 
 from app import ai_adapters
 from pipeline.config import load_config
-from pipeline.handoff.examples import FakeTranslate
 from tests.exec_db import requires_db
-from tests.exec_fakes import FakeAnalyzer
+from tests.exec_fakes import FakeAnalyzer, SpyTranslate
 from tests.test_exec_bundle import _rules
 from tests.test_exec_downstream import _q, _step, _to_n3, dburl, env  # noqa: F401 — 픽스처 재사용
 
@@ -47,21 +46,10 @@ def handoff_env(env, tmp_path, monkeypatch):
                        "('녹차', 'green tea', 'en', 'common', 'enforced'), "  # 어느 대상에도 없음
                        "('문구', 'copy', 'en', 'Sunscreens & Tanning Products', 'reference'), "  # 섹션 2 원문에 있으나 다른 분류
                        "('크림', 'cream', 'fr', 'common', 'enforced')"))  # 다른 언어
-    llm = _SpyTranslate()
+    llm = SpyTranslate()  # 테스트마다 새 인스턴스 — 모델 입력 기록이 이전 테스트와 섞이지 않는다
     ai_adapters.set_adapters(analyzer=FakeAnalyzer(mutate=_mutate),
                              translator=ai_adapters.HandoffTranslator(load_config(), llm=llm))
-    return env
-
-
-class _SpyTranslate(FakeTranslate):
-    """모델이 실제로 받은 용어 목록을 남긴다(가짜 모델)."""
-
-    seen: list = []
-
-    def __call__(self, prompt, payload, image):
-        p = json.loads(payload)
-        type(self).seen.append(({b["id"] for b in p["blocks"] if "id" in b}, p["glossary"]))
-        return super().__call__(prompt, payload, image)
+    return {**env, "llm": llm}
 
 
 def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff_env):
@@ -84,7 +72,7 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
     assert supply["bundle_sha256"] and supply["glossary_sha256"]
     assert supply["glossary_selection"] == {"rules": "glossary-select@2026-10-11.1", "target_lang": "en", "categories": ["common"]}
     # BE가 대상 블록에서 고른 용어만 실제 모델 입력까지 간다 — 섹션 1은 '크림'만, 섹션 2는 없음(다른 분류 '문구' 제외)
-    gls = [g for _, g in _SpyTranslate.seen]
+    gls = [g for _, g in handoff_env["llm"].seen]
     assert [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}] in gls and [] in gls
     assert not any(t["term_ko"] in ("녹차", "문구") for g in gls for t in g)
 
@@ -145,13 +133,12 @@ def test_job_category_selects_category_terms(handoff_env):
     ids = _to_n3(handoff_env)
     with app_db.engine.begin() as cn:
         cn.execute(text("UPDATE job SET internal_category = 'Sunscreens & Tanning Products' WHERE id = :j"), {"j": ids["job"]})
-    _SpyTranslate.seen.clear()
     assert ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
     handoff_env["q"].drain()
     sel = {json.dumps(a["input_manifest"]["supply"]["glossary_selection"]["categories"]) for a in _q(
         "SELECT input_manifest FROM job_async_task WHERE job_id = :j AND stage = 'translate'", j=ids["job"])}
     assert sel == {json.dumps(["Sunscreens & Tanning Products", "common"])}
-    gls = [g for _, g in _SpyTranslate.seen]
+    gls = [g for _, g in handoff_env["llm"].seen]
     assert any(t["term_ko"] == "문구" for g in gls for t in g)  # 작업 분류 행이 섹션 2 대상에 공급된다
 
 

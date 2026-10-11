@@ -59,3 +59,21 @@ def test_retry_targets_only_failed_blocks():
     retry = select_glossary(ROWS, [T(11, "녹차 크림")], SEL)  # 실패 블록만 재시도 — 그 블록 원문만 검색
     assert [t["glossary_id"] for t in first["terms"]] == ["1", "3"]
     assert [t["glossary_id"] for t in retry["terms"]] == ["3"]
+
+
+def test_spy_translate_records_are_per_instance():
+    """DB 통합 테스트(test_exec_translate_handoff)가 테스트마다 만드는 SpyTranslate의 모델 입력 기록은 서로 공유되지 않는다."""
+    import json
+
+    from tests.exec_fakes import SpyTranslate
+
+    assert "seen" not in vars(SpyTranslate)  # 클래스 공용 목록이 없다
+    payload = json.dumps({"blocks": [{"id": "b1", "text": "크림"}, {"text": "문맥"}],
+                          "glossary": [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}]}, ensure_ascii=False)
+    first, second = SpyTranslate(), SpyTranslate()
+    first("prompt", payload, None)
+    assert first.seen == [({"b1"}, [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}])]
+    assert second.seen == [] and first.seen is not second.seen
+    second("prompt", payload.replace('"glossary": [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}]',
+                                     '"glossary": []'), None)
+    assert second.seen == [({"b1"}, [])] and len(first.seen) == 1

@@ -11,8 +11,8 @@ from sqlalchemy import text
 
 from app import ai_adapters
 from pipeline.config import load_config
-from tests.exec_db import requires_db
-from tests.exec_fakes import FakeAnalyzer, SpyTranslate
+from tests.exec_db import requires_db, seed_job
+from tests.exec_fakes import FakeAnalyzer, SpyTranslate, sample_source_png
 from tests.test_exec_bundle import _rules
 from tests.test_exec_downstream import _q, _step, _to_n3, dburl, env  # noqa: F401 — 픽스처 재사용
 
@@ -156,3 +156,128 @@ def test_conflicting_glossary_fails_translate_not_empty_success(handoff_env):
     rows = _q("SELECT tb.trans_1 FROM text_block tb JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j AND tb.source_ko = '가짜완화 크림'",
               j=ids["job"])
     assert rows[0]["trans_1"] is None
+
+
+# ---------------------------------------------------------------------------------------------------------
+# 실제 작업 생성 API(POST /v1/jobs categoryId) → job.internal_category → 용어집 적용 분류. SQL로 작업 분류를 직접 넣지 않는다
+# ---------------------------------------------------------------------------------------------------------
+SUN = "Sunscreens & Tanning Products"
+
+
+def _category(name: str, *, parent: int | None = None, mappings: tuple[str, ...] = ()) -> int:
+    from app import db as app_db
+
+    with app_db.engine.begin() as c:
+        cid = c.execute(text("INSERT INTO category_master (parent_id, name) VALUES (:p, :n) RETURNING id"), {"p": parent, "n": name}).scalar()
+        for m in mappings:
+            c.execute(text("INSERT INTO category_mapping (category_id, internal_category) VALUES (:c, :m)"), {"c": cid, "m": m})
+    return cid
+
+
+def _api_client(env):
+    from fastapi.testclient import TestClient
+
+    from app import db as app_db
+    from app.main import app
+
+    with app_db.engine.begin() as c:
+        ids = seed_job(c)  # 셀러·브랜드만 쓴다(이 작업 행은 쓰지 않음)
+    cl = TestClient(app)
+    tok = cl.post("/v1/auth/login", json={"email": ids["email"], "password": "x"}).json()["accessToken"]
+    cl.headers["Authorization"] = f"Bearer {tok}"
+    return cl, ids
+
+
+def _api_job_to_n3(env, category_id):
+    """작업을 실제 POST /v1/jobs로 만들고 원본을 붙여 N3까지 올린다."""
+    from app import db as app_db
+    from app.manifest import sha256_bytes
+
+    cl, ids = _api_client(env)
+    r = cl.post("/v1/jobs", json={"brandId": ids["brand"], "productName": "선크림", "targetCountry": "US",
+                                  "regulatoryClass": "cosmetic", "targetLanguage": "en", "categoryId": category_id})
+    assert r.status_code == 201, r.text
+    job = r.json()["jobId"]
+    data = sample_source_png()
+    key = f"source/{job}/src.png"
+    env["store"].put(key, data)
+    with app_db.engine.begin() as c:
+        c.execute(text("INSERT INTO source_image (job_id, upload_order, file_url, width, height, sha256) VALUES (:j, 1, :k, 600, 1000, :h)"),
+                  {"j": job, "k": key, "h": sha256_bytes(data)})
+    assert cl.post(f"/v1/jobs/{job}/analyze").status_code == 202
+    env["q"].drain()
+    assert cl.get(f"/v1/jobs/{job}").json()["currentStep"] == "N3"
+    return cl, job
+
+
+def _proceed_and_supply(env, cl, job):
+    assert cl.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+    env["q"].drain()
+    sels = [a["input_manifest"]["supply"] for a in _q(
+        "SELECT input_manifest FROM job_async_task WHERE job_id = :j AND stage = 'translate' ORDER BY unit_id", j=job)]
+    return sels, [g for _, g in env["llm"].seen]
+
+
+def _other_category_term():
+    from app import db as app_db
+
+    with app_db.engine.begin() as c:  # 섹션 2 원문 '문구'와 맞는 다른 분류 행 — 어느 작업에도 공급되면 안 된다
+        c.execute(text("INSERT INTO glossary (term_ko, term_target, target_lang, internal_category, enforcement) "
+                       "VALUES ('문구', 'other-category phrase', 'en', 'Skincare', 'reference')"))
+
+
+def test_api_category_maps_to_internal_category_and_supplies_its_terms(handoff_env):
+    _other_category_term()
+    cid = _category("선크림", mappings=(SUN, SUN))  # 같은 내부 분류 중복 행 → 하나로 해석
+    cl, job = _api_job_to_n3(handoff_env, cid)
+    j = cl.get(f"/v1/jobs/{job}").json()
+    assert j["categoryId"] == cid and j["internalCategory"] == SUN and j["regulatoryClass"] == "cosmetic"
+    sups, gls = _proceed_and_supply(handoff_env, cl, job)
+    assert {tuple(s["glossary_selection"]["categories"]) for s in sups if s} == {(SUN, "common")}
+    terms = [(t["term_ko"], t["term_target"]) for g in gls for t in g]
+    assert ("크림", "cream") in terms  # common · 원문 매칭
+    assert ("문구", "copy") in terms  # 작업 분류 · 원문 매칭
+    assert ("문구", "other-category phrase") not in terms and ("녹차", "green tea") not in terms  # 다른 분류 · 원문 없음 제외
+
+
+def test_api_category_without_direct_mapping_supplies_common_only(handoff_env):
+    _other_category_term()
+    parent = _category("자외선 차단", mappings=(SUN,))
+    child = _category("선크림(매핑 없음)", parent=parent)  # 부모에만 매핑 — 상위 탐색 없음
+    cl, job = _api_job_to_n3(handoff_env, child)
+    assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] is None
+    sups, gls = _proceed_and_supply(handoff_env, cl, job)
+    assert {tuple(s["glossary_selection"]["categories"]) for s in sups if s} == {("common",)}
+    terms = [t["term_ko"] for g in gls for t in g]
+    assert "크림" in terms and "문구" not in terms
+
+
+def test_api_job_without_category_supplies_common_only(handoff_env):
+    cl, job = _api_job_to_n3(handoff_env, None)
+    assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] is None
+    sups, _ = _proceed_and_supply(handoff_env, cl, job)
+    assert {tuple(s["glossary_selection"]["categories"]) for s in sups if s} == {("common",)}
+
+
+def test_api_job_keeps_stored_category_after_mapping_change(handoff_env):
+    from app import db as app_db
+
+    cid = _category("선크림", mappings=(SUN,))
+    cl, job = _api_job_to_n3(handoff_env, cid)
+    with app_db.engine.begin() as c:  # 작업 생성 뒤 매핑을 바꿔도 저장된 작업 분류를 다시 해석하지 않는다
+        c.execute(text("UPDATE category_mapping SET internal_category = 'Skincare' WHERE category_id = :c"), {"c": cid})
+    assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] == SUN
+    sups, gls = _proceed_and_supply(handoff_env, cl, job)
+    assert {tuple(s["glossary_selection"]["categories"]) for s in sups if s} == {(SUN, "common")}
+    assert any(t["term_ko"] == "문구" for g in gls for t in g)
+    codes = {a["error_code"] for a in _q("SELECT error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate'", j=job)}
+    assert "INPUT_CHANGED" not in codes
+
+
+def test_api_category_mapping_conflict_rejects_job_creation(handoff_env):
+    cid = _category("선크림", mappings=(SUN, "Skincare"))
+    cl, ids = _api_client(handoff_env)
+    before = _q("SELECT count(*) AS n FROM job WHERE seller_id = :s", s=ids["seller"])[0]["n"]
+    r = cl.post("/v1/jobs", json={"brandId": ids["brand"], "productName": "선크림", "categoryId": cid})
+    assert r.status_code == 500 and r.json()["error"]["code"] == "INTERNAL_ERROR"  # 기존 오류 계약 재사용(전용 코드 미정)
+    assert _q("SELECT count(*) AS n FROM job WHERE seller_id = :s", s=ids["seller"])[0]["n"] == before  # 작업을 만들지 않는다

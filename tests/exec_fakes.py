@@ -16,6 +16,7 @@ from PIL import Image
 from sqlalchemy import text
 
 from app import ai_adapters
+from pipeline.handoff.examples import FakeTranslate
 from pipeline.types import AnalyzeResult, MergeResult, Section, SplitResult
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -298,3 +299,16 @@ def style_defaults_file(tmp_path) -> str:
     p = tmp_path / "style_defaults.test.json"
     p.write_text(json.dumps({"version": "test-only", "roles": roles}), encoding="utf-8")
     return str(p)
+
+
+class SpyTranslate(FakeTranslate):
+    """AI 계약 예제의 가짜 번역 모델 + 모델이 실제로 받은 입력 기록. 기록은 인스턴스마다 따로 둔다(테스트 간 공유 없음)."""
+
+    def __init__(self, fail_marker: str | None = "판독불가"):
+        super().__init__(fail_marker)
+        self.seen: list[tuple[set[str], list[dict[str, Any]]]] = []  # (이번 호출의 대상 블록 id 집합, 모델 입력 glossary)
+
+    def __call__(self, prompt, payload, image):
+        p = json.loads(payload)
+        self.seen.append(({b["id"] for b in p["blocks"] if "id" in b}, p["glossary"]))
+        return super().__call__(prompt, payload, image)

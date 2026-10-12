@@ -6,7 +6,9 @@
 
 ---
 
-## 1. 단계별 현황 — 2026-10-08
+## 1. 단계별 현황 — 2026-10-11
+
+**⑧ 용어집 선별 공급(2026-10-11, `feature/translate-glossary-filter`)**: 통합 D10에 따라 BE `select_glossary`(`app/flows/downstream.py`)가 이번 대상 블록 원문에서 `pipeline/glossary.py`(`glossary-select@2026-10-11.1`) 규칙으로 고른 용어만 공급한다. 대상 언어 + 작업 분류 ∪ common을 적용하고, 강제 용어끼리 위치별 포함 억제를 한다. 정규화 원문 충돌·잘못된 데이터는 공급 실패로 처리한다. 선별 입력과 선택 행 내용을 지문에 고정한다. 강제 용어 검사도 같은 규칙을 쓴다(`term-check@2026-10-11.1`). AI 입력 필드는 바꾸지 않았다. 예제 1건(`text_check.completed_with_flags`)을 다시 만들었다(규칙 버전). 실제 모델 호출·운영 환경 시험은 하지 않았다. 남은 것: `run_text_check` BE 연결, #77 대안 표기, RAG 프롬프트 기술검증.
 
 **PR #55 BE 확인 결과 반영(2026-10-08)**: [BE 확인 결과](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)와 AI 회신의 약속을 구현했다. 규제 근거를 배열(대표 근거 최대 1개 · 표시는 대표 근거)로, 서비스 판정값만 허용(시트 rewritable은 regulated + 원값), 대체 표현은 배열 또는 나누지 않은 원문 문자열(#71 전 — ⑧ 표현 지시 거부), 운영 정책 규칙 `pipeline/data/policy_rules.json`(`policy@2026-10-08.1`)과 묶음 지문의 `rules_sha256`, ③-1 `target_section_keys`(섹션 단위 호출 · 문맥은 전체), GPU `discard` 정리 허용 · 실패 모델 재생성, `validate_report` 로컬 경로 대체(허용 폴더 제한), 예제 `unicode_version` 고정. 예제 29건, 파이프라인 테스트 903 통과 · 5 건너뜀 · 1 실패(DejaVu). 남은 BE 확인: `APPLIED_CLASSES`의 `common`, `preserved`의 인계 식별자. 실제 연결 · 통합 시험은 아직이다.
 

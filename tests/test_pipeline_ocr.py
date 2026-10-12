@@ -5,7 +5,9 @@
 설치 버전 프로브로 확인한다(pipeline.md 7절).
 """
 import json
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -303,6 +305,46 @@ def test_cli_split_image_open_failure_exits_2_with_json(tmp_path, capsys):
     assert json.loads(capsys.readouterr().err.strip())["code"] == "IMAGE_OPEN_FAILED"
 
 
+@pytest.mark.parametrize("platform", ["linux", "win32"])
+@pytest.mark.parametrize("device", ["cpu", "gpu:0"])
+def test_paddleocr_device_settings_and_score_preservation(cfg, monkeypatch, platform, device):
+    captured = {}
+    raw = _raw(([[1, 1], [9, 1], [9, 9], [1, 9]], "text", 0.73))
+
+    class PaddleOCR:
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+        def predict(self, image):
+            return [raw]
+
+    monkeypatch.setattr(sys, "platform", platform)
+    modules = {
+        "paddle": SimpleNamespace(__version__="test", device=SimpleNamespace(is_compiled_with_cuda=lambda: False)),
+        "paddleocr": SimpleNamespace(__version__="test", PaddleOCR=PaddleOCR),
+        "paddlex": SimpleNamespace(__version__="test"),
+        "paddlex.utils": SimpleNamespace(),
+        "paddlex.utils.device": SimpleNamespace(get_default_device=lambda: device),
+    }
+    for name, module in modules.items():
+        monkeypatch.setitem(sys.modules, name, module)
+    engine = ocr.PaddleOcrEngine(cfg["ocr"])
+    expected = {
+        "text_detection_model_name": cfg["ocr"]["det_model"],
+        "text_recognition_model_name": cfg["ocr"]["rec_model"],
+        "use_doc_orientation_classify": False,
+        "use_doc_unwarping": False,
+        "use_textline_orientation": False,
+        "text_rec_score_thresh": 0.0,
+    }
+    if device == "cpu":
+        expected["enable_mkldnn"] = False
+    assert captured == expected
+    assert engine.info["settings"] == expected
+    assert engine.info["enable_mkldnn"] == (False if device == "cpu" else "library default")
+    assert engine(np.zeros((10, 10, 3), dtype=np.uint8))["rec_scores"] == [0.73]
+
+
 # ---- 실제 PaddleOCR (설치된 환경에서만) ------------------------------------------------
 def test_real_paddleocr_on_synthetic_section(cfg):
     pytest.importorskip("paddleocr")
@@ -315,5 +357,7 @@ def test_real_paddleocr_on_synthetic_section(cfg):
     info = ocr.build_engine(cfg).info
     assert info["settings"]["text_rec_score_thresh"] == 0.0
     assert info["device"] in ("cpu", "gpu:0")
-    if info["device"] != "cpu":  # oneDNN 우회는 Windows CPU에만
+    if info["device"] == "cpu":
+        assert info["enable_mkldnn"] is False
+    else:
         assert info["enable_mkldnn"] == "library default"

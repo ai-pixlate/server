@@ -65,8 +65,10 @@ class PaddleOcrEngine:
 
             # 장치는 설치된 paddle 빌드가 정한다: GPU 빌드 + GPU 있음 → gpu:0, 아니면 cpu (dev.md 6절).
             device = get_default_device()
-            if sys.platform == "win32" and device == "cpu":
-                kwargs["enable_mkldnn"] = False  # Windows CPU oneDNN 실행기 오류 회피(원인 추정, dev.md 6절)
+            if device == "cpu":
+                # 고정 버전에서 Windows·Linux CPU의 ConvertPirAttribute2RuntimeAttribute 오류 회피.
+                # CPU에만 적용하며 GPU 설정은 유지한다(dev.md 6절).
+                kwargs["enable_mkldnn"] = False
             self._ocr = PaddleOCR(**kwargs)
         except Exception as e:  # noqa: BLE001 — 초기화 실패는 유형과 무관하게 실행 전체 중단
             raise OcrEngineInitError(f"{type(e).__name__}: {e}") from e

@@ -6,9 +6,11 @@
 
 ---
 
-## 1. 단계별 현황 — 2026-10-08
+## 1. 단계별 현황 — 2026-10-12
 
-**역할별 스타일 기본값 AI 자료(2026-10-12, `feature/role-style-defaults`, origin/develop `3d75d6f`에서 분기)**: 사용자 승인값을 D11로 기록하고 AI 담당 자료를 준비했다 — 설정 자료 정본 `pipeline/data/style_defaults.json`(디자인 토큰 / 사용자 승인 매핑 · 보완값 분리), 공식 Pretendard v1.3.9 Regular · SemiBold OTF와 OFL 라이선스(`pipeline/data/fonts/pretendard/`, 실제 메타데이터로 굵기 400 · 600 확인), 배치 · 검증 도구 `fetch_fonts`, 로더 · 적용값 계산 `pipeline/handoff/style_defaults.py`, 참고 렌더 `style_reference.py`(운영 렌더 아님), 손 계산 사례 10건(`pipeline/samples/style_defaults/cases.json`), BE 인계 `be-handoff.md` 6절. 테스트 신규 82 통과, 파이프라인 전체 985 통과 · 5 건너뜀 · 1 실패(알려진 DejaVu). **BE 운영 렌더 연결(`app/typeset.py` · 미리보기/최종 렌더 · 입력 지문 · 적용값 기록)과 BE · DB 통합 시험은 하지 않았다** — 이 PC에 BE · DB 환경이 없다. 별도 PM 회신 기록 아님. 폰트는 저장소에 포함(#80). 커밋 3개, 푸시 · PR 없음.
+**역할별 스타일 기본값 AI 자료(2026-10-12, `feature/role-style-defaults`, origin/develop `3d75d6f`에서 분기)**: 사용자 승인값을 D11로 기록하고 AI 담당 자료를 준비했다 — 설정 자료 정본 `pipeline/data/style_defaults.json`(디자인 토큰 / 사용자 승인 매핑 · 보완값 분리), 공식 Pretendard v1.3.9 Regular · SemiBold OTF와 OFL 라이선스(`pipeline/data/fonts/pretendard/`, 실제 메타데이터로 굵기 400 · 600 확인), 배치 · 검증 도구 `fetch_fonts`, 로더 · 적용값 계산 `pipeline/handoff/style_defaults.py`, 참고 렌더 `style_reference.py`(운영 렌더 아님), 손 계산 사례 10건(`pipeline/samples/style_defaults/cases.json`), BE 인계 `be-handoff.md` 6절. 테스트 신규 82 통과, 파이프라인 전체 985 통과 · 5 건너뜀 · 1 실패(알려진 DejaVu). **BE 운영 렌더 연결(`app/typeset.py` · 미리보기/최종 렌더 · 입력 지문 · 적용값 기록)과 BE · DB 통합 시험은 하지 않았다** — 이 PC에 BE · DB 환경이 없다. 별도 PM 회신 기록 아님. 폰트는 저장소에 포함(#80). 커밋 4개(리뷰 지적의 숫자 설정 검증 보완 포함) · 푸시 · [PR #58](https://github.com/ai-pixlate/server/pull/58). PR #57(D10) 머지 예정에 맞춰 그 헤드를 병합하고 docs/ai 충돌을 정리했다(결정 번호 D10 · D11 순서, 태그 범위 D1~D11).
+
+**⑧ 용어집 선별 공급(2026-10-11, `feature/translate-glossary-filter`)**: 통합 D10에 따라 BE `select_glossary`(`app/flows/downstream.py`)가 이번 대상 블록 원문에서 `pipeline/glossary.py`(`glossary-select@2026-10-11.1`) 규칙으로 고른 용어만 공급한다. 대상 언어 + 작업 분류 ∪ common을 적용하고, 강제 용어끼리 위치별 포함 억제를 한다. 정규화 원문 충돌·잘못된 데이터는 공급 실패로 처리한다. 선별 입력과 선택 행 내용을 지문에 고정한다. 강제 용어 검사도 같은 규칙을 쓴다(`term-check@2026-10-11.1`). AI 입력 필드는 바꾸지 않았다. 예제 1건(`text_check.completed_with_flags`)을 다시 만들었다(규칙 버전). 실제 모델 호출·운영 환경 시험은 하지 않았다. 남은 것: `run_text_check` BE 연결, #77 대안 표기, RAG 프롬프트 기술검증.
 
 **PR #55 BE 확인 결과 반영(2026-10-08)**: [BE 확인 결과](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)와 AI 회신의 약속을 구현했다. 규제 근거를 배열(대표 근거 최대 1개 · 표시는 대표 근거)로, 서비스 판정값만 허용(시트 rewritable은 regulated + 원값), 대체 표현은 배열 또는 나누지 않은 원문 문자열(#71 전 — ⑧ 표현 지시 거부), 운영 정책 규칙 `pipeline/data/policy_rules.json`(`policy@2026-10-08.1`)과 묶음 지문의 `rules_sha256`, ③-1 `target_section_keys`(섹션 단위 호출 · 문맥은 전체), GPU `discard` 정리 허용 · 실패 모델 재생성, `validate_report` 로컬 경로 대체(허용 폴더 제한), 예제 `unicode_version` 고정. 예제 29건, 파이프라인 테스트 903 통과 · 5 건너뜀 · 1 실패(DejaVu). 남은 BE 확인: `APPLIED_CLASSES`의 `common`, `preserved`의 인계 식별자. 실제 연결 · 통합 시험은 아직이다.
 
@@ -40,7 +42,7 @@
 
 ## 2. 다음 착수 순서
 
-**역할별 스타일 기본값 다음(2026-10-12)**: ① 사용자 결정으로 폰트를 저장소에 포함해(#80 해결) 세 커밋으로 나눠 커밋했다. 푸시 · PR은 요청 시(`feature/role-style-defaults` → `develop`). ② BE가 `be-handoff.md` 6.6 순서로 운영 렌더 연결(로더 교체 → 해석 규칙 → 실제 폰트 · 자간 · 행간 → 넘침 → 입력 지문 → 미리보기 · 최종 공통 → 기록 → 테스트). ③ BE 확인 #78(적용값 기록) · #79(운영 엔진 측정 기준). ④ BE 환경에서 6.7 사례로 통합 시험. D10(⑧ 용어집, 미병합)과 D11의 문서 병합 시 결정 번호 · 표 번호 중복을 확인한다.
+**역할별 스타일 기본값 다음(2026-10-12)**: ① PR #58(`feature/role-style-defaults` → `develop`) 리뷰 · 머지. PR #57이 먼저 머지되면 develop 대비 차이는 이 작업만 남는다. ② BE가 `be-handoff.md` 6.6 순서로 운영 렌더 연결(로더 교체 → 해석 규칙 → 실제 폰트 · 자간 · 행간 → 넘침 → 입력 지문 → 미리보기 · 최종 공통 → 기록 → 테스트). ③ BE 확인 #78(적용값 기록) · #79(운영 엔진 측정 기준). ④ BE 환경에서 6.7 사례로 통합 시험.
 
 **PR #55 경계 채택 — BE 연결(2026-10-08)**: [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)에 따라 `feature/be-ai-pipeline-integration`에 PR #55를 병합하고 BE를 `pipeline.handoff` 경계에 맞췄다. JCS 지문 통일, 사전 묶음의 정책 규칙 고정(`PIXLATE_POLICY_RULES`)·AI 형식 변환, ③-1 `HandoffJudge`(run_judgment), ⑧ `HandoffTranslator`(run_translate, 공급 지문 고정), ⑥ GPU 실행기를 AI `GpuInpaintRunner` + BE `ControlClient` 구현으로 통일, ① 분해 대체 기록 보존. 임시 규칙: 대체 표현 원문 1개 배열(#71), 용어집 대상 언어 전체(#11). 가짜 LLM·InProcess 대역·로컬 PostgreSQL로만 검증했으며 실제 Gemini·GPU·S3·HTTP 바인딩은 미검증. 남은 것은 `be-handoff.md` 0절.
 

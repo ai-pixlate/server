@@ -428,3 +428,61 @@ def test_validator_local_path_substitution(generated, tmp_path):
     assert any("대체 경로가 없는" in p for p in validate_report(rep, req, local_paths=missing, allowed_root=root))
     with pytest.raises(ValueError):
         validate_report(rep, req, local_paths=local)
+
+
+def test_translate_prompt_uses_supplied_glossary_as_is(generated, cfg):
+    """BE가 고정 공급한 용어 목록이 그대로 모델 입력에 실린다 — AI는 다시 검색·거르지 않는다(통합 D10)."""
+    seen = []
+
+    class Spy(ex.FakeTranslate):
+        def __call__(self, prompt, payload, image):
+            seen.append(json.loads(payload)["glossary"])
+            return super().__call__(prompt, payload, image)
+
+    _, _, work = generated
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / "g1") if n == "translate.completed")
+    req["glossary"]["terms"] = [{"glossary_id": "7", "term_ko": "병풀추출물", "term_target": "Centella Asiatica Extract",
+                                 "enforcement": "enforced"}]
+    rep = translation.run_translate(req, cfg, llm=Spy())
+    assert rep.outcome == "completed"
+    assert seen == [[{"term_ko": "병풀추출물", "term_target": "Centella Asiatica Extract", "enforcement": "enforced"}]]
+    assert rep.input_manifest["glossary"]["terms"][0]["glossary_id"] == "7"  # 공급 목록이 입력 지문에 들어간다
+
+
+@pytest.mark.parametrize("stage", ["translate", "text_check"])
+def test_unusable_glossary_term_is_input_invalid(generated, cfg, stage):
+    _, _, work = generated
+    name = "translate.completed" if stage == "translate" else "text_check.completed_with_flags"
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / f"g2-{stage}") if n == name)
+    req["glossary"]["terms"] = [{"glossary_id": "1", "term_ko": " \n", "term_target": "x", "enforcement": "enforced"}]
+    rep = (translation.run_translate(req, cfg, llm=ex.FakeTranslate()) if stage == "translate"
+           else translation.run_text_check(req))
+    assert rep.outcome == "failed" and rep.failure.kind == "input_invalid" and "용어 공급 데이터 오류" in rep.failure.message
+
+
+def test_text_check_contained_enforced_term_not_flagged(generated):
+    _, _, work = generated
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / "g3") if n == "text_check.completed_with_flags")
+    key = req["targets"][0]["block_key"]
+    blk = next(b for b in req["blocks"] if b["block_key"] == key)
+    blk["source_ko"] = "병풀추출물 함유"
+    req["targets"][0]["text"] = "With Centella Asiatica Extract"
+    req["glossary"]["terms"] = [{"glossary_id": "1", "term_ko": "병풀", "term_target": "Gotu Kola", "enforcement": "enforced"},
+                                {"glossary_id": "2", "term_ko": "병풀추출물", "term_target": "Centella Asiatica Extract",
+                                 "enforcement": "enforced"}]
+    rep = translation.run_text_check(req)
+    b = next(x for x in rep.payload["blocks"] if x["block_key"] == key)
+    assert b["terms"] == [{"glossary_id": "2", "status": "applied"}]
+    assert not any(f["type"] == "mandatory_term_unapplied" for f in b["flags"])
+    assert rep.implementation["glossary_select"] == "glossary-select@2026-10-11.1"
+
+
+def test_text_check_normalized_conflict_fails_not_passes(generated):
+    _, _, work = generated
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / "g4") if n == "text_check.completed_with_flags")
+    key = req["targets"][0]["block_key"]
+    next(b for b in req["blocks"] if b["block_key"] == key)["source_ko"] = "자외선 차단 크림"
+    req["glossary"]["terms"] = [{"glossary_id": "1", "term_ko": "자외선차단", "term_target": "sunscreen", "enforcement": "enforced"},
+                                {"glossary_id": "2", "term_ko": "자외선 차단", "term_target": "UV protection", "enforcement": "enforced"}]
+    rep = translation.run_text_check(req)
+    assert rep.outcome == "failed" and rep.failure.kind == "input_invalid" and "임의로 고르지 않는다" in rep.failure.message

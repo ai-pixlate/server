@@ -2,6 +2,7 @@
 
 JOB-02~07·ANL-01 실제 DB/Celery. seller_id는 Bearer 토큰에서 추출(get_current_seller).
 """
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -9,10 +10,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.category_mapping import CategoryMappingConflict, resolve_internal_category
 from app.db import get_db
 from app.security import get_current_seller
 
 router = APIRouter(tags=["Jobs"])
+log = logging.getLogger(__name__)
 
 
 class JobCreate(BaseModel):
@@ -35,13 +38,22 @@ def create_job(body: JobCreate, db: Session = Depends(get_db), seller_id: int = 
     if not body.productName.strip():
         raise HTTPException(status_code=400, detail="productName is required")
 
+    # 선택 카테고리의 직접 매핑 → 내부 분류(용어집 적용 분류). 같은 트랜잭션에서 작업과 함께 저장한다(통합 D10)
+    try:
+        internal_category = resolve_internal_category(db, body.categoryId)
+    except CategoryMappingConflict as e:
+        db.rollback()
+        log.error("작업 생성 거절 — 카테고리 매핑 충돌: category=%s values=%s", e.category_id, e.values)
+        # 데이터·설정 오류. 전용 오류 코드가 계약에 없어 기존 INTERNAL_ERROR(500)를 쓴다
+        raise HTTPException(status_code=500, detail={"code": "INTERNAL_ERROR", "message": "category mapping is inconsistent"}) from e
+
     row = db.execute(
         text(
             "INSERT INTO job (seller_id, brand_id, product_name, product_code, "
             "target_country, regulatory_class, target_lang, spec_type, "
-            "channel_spec_id, display_category_id, user_facing_status) "
+            "channel_spec_id, display_category_id, internal_category, user_facing_status) "
             "VALUES (:s, :brand, :pname, :pcode, :country, :regclass, :lang, :spec, "
-            ":chspec, :cat, 'draft') "
+            ":chspec, :cat, :icat, 'draft') "
             "RETURNING id, status, current_step, user_facing_status, product_name, product_code"
         ),
         {
@@ -49,6 +61,7 @@ def create_job(body: JobCreate, db: Session = Depends(get_db), seller_id: int = 
             "pcode": body.productCode, "country": body.targetCountry,
             "regclass": body.regulatoryClass, "lang": body.targetLanguage,
             "spec": body.specType, "chspec": body.channelSpecId, "cat": body.categoryId,
+            "icat": internal_category,
         },
     ).mappings().one()
 

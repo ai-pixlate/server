@@ -8,7 +8,8 @@
 - 표현 지시는 외부 ID로만 받고 대체 표현은 **고정 묶음에서** 꺼낸다(BE 문자열을 그대로 믿지 않음). 서비스 판정 regulated +
   구분된 대체 표현 배열만 지시가 된다. 템플릿(자리표시자) · allowed · conditional · 나누지 않은 원문 문자열(#71 확정 전)은 거부 —
   RG-021/022는 원문 수치를 유지한다(D9). BE가 #71 전에는 원문 문자열로 공급하므로 표현 지시는 운영에서 사실상 비활성이다.
-- 용어 공급 실패는 빈 용어 목록과 다르다: 번역하지 않고 failed(input_invalid).
+- 용어는 BE가 `pipeline.glossary` 규칙으로 이번 대상 블록에서 선별해 고정한 목록을 그대로 쓴다(AI는 다시 검색 · 거르지 않음, 통합 D10).
+  용어 공급 실패는 빈 용어 목록과 다르다: 번역하지 않고 failed(input_invalid).
 번역문 검사(`run_text_check`): 블록별 현재 revision 문구의 영어 규제 재대조 · 강제 용어. 번역 계산과 별개 논리 작업이다(5.32).
 """
 from __future__ import annotations
@@ -18,6 +19,7 @@ from typing import Any, Literal
 
 from pydantic import Field, ValidationError
 
+from pipeline import glossary as glossary_rules
 from pipeline.handoff.bundle import BundleError, CheckedBundle, check_bundle, load_type_map
 from pipeline.handoff.canonical import sha256_canonical, sha256_text
 from pipeline.handoff.envelope import (
@@ -130,6 +132,10 @@ def _glossary(g: GlossarySupply) -> list[TermIn]:
     ids = [t.glossary_id for t in g.terms]
     if len(set(ids)) != len(ids):
         raise HandoffInputError("glossary_id 중복")
+    try:  # 선별 · 검사에 쓸 수 없는 용어(정규화 후 빈 원문 등)는 실행 전 입력 오류
+        glossary_rules.Prepared(glossary_rules.Entry(t.glossary_id, t.term_ko, t.term_target, t.enforcement) for t in g.terms)
+    except glossary_rules.GlossaryDataError as e:
+        raise HandoffInputError(f"용어 공급 데이터 오류: {e}") from e
     return g.terms
 
 
@@ -262,7 +268,8 @@ def run_text_check(raw: Any, cfg: dict[str, Any] | None = None) -> StageReport:
         req = TextCheckRequest.model_validate(raw)
     except ValidationError as e:
         return failed_report(ident, "input_invalid", f"요청 형식 오류: {e}")
-    impl = {"adapter": TRANSLATE_ADAPTER_VERSION, "match_rules": MATCH_RULES_VERSION, "term_rules": text_check.TERM_RULES_VERSION}
+    impl = {"adapter": TRANSLATE_ADAPTER_VERSION, "match_rules": MATCH_RULES_VERSION, "term_rules": text_check.TERM_RULES_VERSION,
+            "glossary_select": glossary_rules.SELECT_RULES_VERSION}
     try:
         cb = check_bundle(req.bundle, target_country=req.target_country, types=load_type_map())
     except BundleError as e:
@@ -303,6 +310,9 @@ def run_text_check(raw: Any, cfg: dict[str, Any] | None = None) -> StageReport:
             r["text_sha256"] = sha256_text(t.text)
             r["placeholder_leaks"] = sorted(x for x in tokens if x in t.text and x not in src)
             results.append(r)
+    except glossary_rules.GlossaryDataError as e:  # 정규화 원문 충돌 등 — 검사 통과로 바꾸지 않는다
+        return failed_report(ident, "input_invalid", f"강제 용어 적용 대상 판단 불가: {e}", manifest=manifest,
+                             target_count=len(req.targets), targets=[t.block_key for t in req.targets], implementation=impl)
     except MatchConflictError as e:  # 같은 구간의 금지/허용 — 임의 해소하지 않음. 검사 실패(통과로 바꾸지 않음)
         return failed_report(ident, "bundle_invalid", f"영어 재대조 충돌: {e}", manifest=manifest, target_count=len(req.targets),
                              targets=[t.block_key for t in req.targets], implementation=impl)

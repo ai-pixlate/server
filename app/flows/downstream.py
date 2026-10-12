@@ -526,13 +526,45 @@ def _analysis_bundle(db: Session, analysis_run_id: int) -> tuple[int, dict[str, 
     return r[0], json_value(r[1])["bundle"]
 
 
-def _glossary_supply(db: Session, lang: str) -> dict[str, Any]:
-    """용어집 공급 — 대상 언어 전체(2026-10-08 사용자 결정, #11 검색 방식 확정 전 임시). 버전은 내용 지문."""
-    rows = db.execute(text("SELECT id, term_ko, term_target, enforcement FROM glossary WHERE target_lang = :l ORDER BY id"),
-                      {"l": lang}).mappings().all()
-    terms = [{"glossary_id": str(r["id"]), "term_ko": r["term_ko"], "term_target": r["term_target"], "enforcement": r["enforcement"]}
-             for r in rows]
-    return {"status": "ok", "version": "db-sha256:" + fingerprint(terms)[:16], "reason": None, "terms": terms}
+def _glossary_categories(db: Session, sid: int) -> list[str]:
+    """적용 분류: 작업 internal_category ∪ common. 작업 분류가 NULL이면 common만(통합 D10). 국가 조건은 없다(용어집에 국가 열 없음)."""
+    cat = db.execute(text("SELECT j.internal_category FROM section s JOIN job j ON j.id = s.job_id WHERE s.id = :s"), {"s": sid}).scalar()
+    return sorted({"common"} | ({cat} if cat is not None else set()))
+
+
+def select_glossary(rows: list[dict[str, Any]], targets: list[dict[str, Any]], selection: dict[str, Any]) -> dict[str, Any]:
+    """DB 용어 행(id 순) 중 이번 번역 대상 블록 원문에서 유효한 용어만 고른다(`pipeline.glossary`, 통합 D10).
+    0건은 빈 목록 성공, 데이터 오류(빈 원문·정규화 원문 충돌 등)는 status=failed — 빈 성공으로 숨기지 않는다.
+    version 은 선별 규칙·적용 분류·선택 행 내용(원본 version 포함)의 지문이다."""
+    from pipeline import glossary as gl
+
+    try:
+        chosen = gl.select([(block_key(r["id"]), r["source_ko"] or "") for r in targets],
+                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"]) for g in rows])
+    except gl.GlossaryDataError as e:
+        return {"status": "failed", "version": None, "reason": f"용어집 선별 실패: {e}", "terms": []}
+    ids = {e.glossary_id for e in chosen}
+    picked = [g for g in rows if str(g["id"]) in ids]
+    terms = [{"glossary_id": str(g["id"]), "term_ko": g["term_ko"], "term_target": g["term_target"], "enforcement": g["enforcement"]}
+             for g in picked]
+    content = [{**t, "internal_category": g["internal_category"], "row_version": g["version"]} for t, g in zip(terms, picked)]
+    return {"status": "ok", "version": "db-sha256:" + fingerprint({"selection": selection, "terms": content})[:16], "reason": None,
+            "terms": terms}
+
+
+def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """용어집 공급 — 대상 언어·적용 분류 행에서 이번 대상 블록에 나오는 용어만(통합 D10, PR #56 임시 '대상 언어 전체'를 대체).
+    반환: (AI에 넘길 공급, 공급 지문에 넣을 선별 입력)."""
+    from pipeline import glossary as gl
+
+    cats = _glossary_categories(db, sid)
+    selection = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats}
+    rows = db.execute(
+        text("SELECT id, term_ko, term_target, enforcement, internal_category, version FROM glossary "
+             "WHERE target_lang = :l AND internal_category = ANY(:c) ORDER BY id"),
+        {"l": lang, "c": cats},
+    ).mappings().all()
+    return select_glossary([dict(r) for r in rows], targets, selection), selection
 
 
 def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
@@ -567,15 +599,17 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
 def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]]) -> dict[str, Any]:
     scope = _run_scope(db, run_id)
     hid, bundle = _analysis_bundle(db, scope["analysis_task_id"])
-    glossary = _glossary_supply(db, scope["target_lang"])
+    glossary, selection = _glossary_supply(db, scope["target_lang"], sid, targets)
     instructions = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle)
-    return {"bundle_handoff_id": hid, "bundle": bundle, "glossary": glossary, "instructions": instructions}
+    return {"bundle_handoff_id": hid, "bundle": bundle, "glossary": glossary, "glossary_selection": selection,
+            "instructions": instructions}
 
 
 def _supply_ref(supply: dict[str, Any]) -> dict[str, Any]:
     """시도 명세에 고정할 공급 지문. 실행 때 다시 만든 공급과 대조한다(5.32 입력 고정)."""
     return {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
-            "glossary_sha256": fingerprint(supply["glossary"]), "instructions": supply["instructions"]}
+            "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
+            "instructions": supply["instructions"]}
 
 
 def _translate_manifest(sid: int, rows: list[dict[str, Any]], targets: list[dict[str, Any]], lang: str,

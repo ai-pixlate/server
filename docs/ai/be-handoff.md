@@ -245,3 +245,34 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 - 운영 연결(6.6)과 BE · DB 통합 시험은 아직이다. 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽 단위 · 참고 렌더 검증만 했다.
 - #78 적용값 기록 위치 · 키, #79 운영 조판 엔진의 측정 기준(자간 끝 · 커닝 · 서브픽셀)은 BE 확인이 필요하다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
 - 디자인 원본 이미지는 이 작업에서 직접 열람하지 않았다. 토큰 값은 사용자가 전달한 승인표 기준이다.
+
+## 7. Linux CPU OCR 수정 인계(2026-10-12)
+
+### 7.1 수정 범위와 현재 검증 상태
+
+- 배포 담당 보고: develop `f8a1e67` 기반 Linux CPU OCR 이미지(Python 3.12), 합성 섹션 600×560에서 `ConvertPirAttribute2RuntimeAttribute` 오류·종료 코드 2. 실험 컨테이너에서 oneDNN만 비활성화하면 종료 코드 0·영역 5개·영역별 score 존재. 이 결과는 배포 담당의 재현이며 수정 코드의 재검증 결과가 아니다.
+- 정상 `PaddleOcrEngine` 생성 경로에서 선택 장치가 `cpu`이면 OS와 관계없이 `enable_mkldnn=False`를 전달한다. Windows CPU의 기존 우회와 GPU 설정은 유지한다. monkey patch·새 환경 변수·운영 컨테이너 내부 임시 수정에 의존하지 않는다.
+- 모델·인식 임계값(`text_rec_score_thresh=0.0`)·score/좌표/출력 계약은 그대로다. 의존성 변경 없음: `paddlepaddle==3.3.1`, `paddleocr==3.7.0`, `paddlex==3.7.2`.
+- 로컬 회귀: `tests/test_pipeline_ocr.py` + `tests/test_pipeline_config.py` 39개 통과·실제 PaddleOCR 1개 건너뜀. Linux/Windows CPU 및 GPU 생성 인자·실행 정보·score 전달을 대역으로 검증했다. **수정 이미지의 Linux 실제 추론·메모리·시간 검증은 미실행**이다. 작업 PC의 Docker Linux 엔진에 연결할 수 없어 배포 환경에서 아래 검증이 남아 있다.
+
+### 7.2 현재 지원 범위
+
+- 기본 `ocr.split_threshold_px=4000` 기준으로 높이 4,000px 이하 섹션을 통째로 처리한다. 실제 이미지 크기는 Section의 width·height와 같아야 한다. 임의 폭에서 메모리 사용량을 보장한다는 의미는 아니다.
+- `tile_px=2000` 설정은 있지만 타일 분할·겹침 병합은 미구현(#31·#32)이다. 높이 4,000px 초과는 `ocr.run()`이 `NotImplementedError`로 거절하고 OCR CLI는 해당 미지원 입력에 종료 코드 3을 반환한다. 실패를 빈 OCR 성공으로 취급하지 않는다.
+- 이번 수정에 타일 처리를 추가하지 않는다. 긴 섹션 검증과 메모리 측정은 **실제 입력 폭 × 지원 범위 내 높이**의 섹션 단위로 한다. 제한을 높여 우회하지 않는다.
+
+### 7.3 배포 환경 재검증과 완료 기준
+
+1. 배포 담당이 오류를 재현한 OCR 이미지의 Dockerfile·빌드 명령·이미지 digest, 입력 파일·SHA-256·CLI 명령을 보존한다. 저장소 루트 Dockerfile에는 OCR 의존성이 없으므로 해당 배포 OCR 이미지 빌드 방법을 사용한다. 수정 전후에 같은 입력·의존성·자원 제한을 사용한다.
+2. 수정 코드를 포함해 Linux CPU 이미지를 다시 빌드한다. 컨테이너 안에서 코드를 고치거나 monkey patch하지 않는다. Python 실제 버전(`python --version`)과 `importlib.metadata.version()`으로 `paddlepaddle`·`paddleocr`·`paddlex` 설치 버전을 기록한다.
+3. 동일 600×560 합성 섹션으로 OCR CLI를 실행한다. 저장소의 `pipeline/samples/synthetic_01/expected/split.json` 첫 섹션도 600×560이지만, 크기가 같다는 이유로 배포 재현 입력과 동일하다고 간주하지 않는다. 배포 입력이 이 파일인지 해시로 확인한다. 이 샘플을 사용한 명령은 다음과 같다(출력 폴더는 실행마다 새 경로).
+
+```bash
+python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.json --section sec_1_01 --out pipeline/out/ocr-linux-cpu-fixed
+```
+
+4. 종료 코드 0, 인식 영역 1개 이상, 모든 영역의 score 존재·0~1 범위를 확인한다. `run.json`의 `engine.device=cpu`, `engine.enable_mkldnn=false`와 생성 설정의 같은 값, 버전 정보를 보존한다. 원래 보고된 영역 수 5개와 달라지면 차이를 조사한다.
+5. 실제 입력 폭을 가진 긴 섹션(높이 4,000px 이하, 텍스트 포함)도 새 프로세스에서 실행한다. 입력 폭·높이·해시와 결과·영역별 score를 기록한다. 실제 OCR 회귀 테스트를 실행하고 실제 엔진 테스트가 건너뛰지 않았는지 확인한다.
+6. 각 입력에 대해 **모델 로드를 포함하는 새 CLI 프로세스 전체**의 최대 메모리와 경과 시간을 측정한다. GNU time이 있는 이미지에서는 `/usr/bin/time -v`로 CLI를 감싸 maximum resident set size(KiB, MiB 환산 시 1024로 나눔)·elapsed time·종료 코드를 보존한다. 컨테이너 전체 최대 메모리는 프로세스 RSS와 구분해 측정 수단·한도와 함께 기록한다. 모델 다운로드 포함 여부·캐시 상태도 남긴다.
+
+동일 합성 입력과 지원 범위의 긴 입력이 수정 이미지에서 모두 통과하고 위 기록이 확보돼야 Linux 수정 검증 완료로 판단한다. 배포 담당의 기존 최대 메모리 **2,104MiB**는 비교 참고값이며 이번 수정 실측값이나 운영 요구량이 아니다. EC2 자원 결정은 BE·배포 담당이 맡는다.

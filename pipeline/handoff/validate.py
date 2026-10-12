@@ -271,18 +271,62 @@ def _translate(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> li
 
 
 def _text_check(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """규칙 검사 결과. 구간 · 사전 ID · 용어 ID · flag와 매칭의 대응 · 검사 범위 완결성(complete)의 일관성을 본다."""
     want = {t["block_key"]: t for t in req.get("targets", [])}
     p = []
     got = [b["block_key"] for b in rep.payload.get("blocks", [])]
-    if sorted(got) != sorted(want):
+    if sorted(got) != sorted(want) or len(set(got)) != len(got):
         return ["검사 결과 키가 대상과 다르다"]
+    reg = {e["external_id"]: e for e in req["bundle"]["regulation"]["entries"]}
+    applied = set(req["bundle"]["rules"]["regulatory_class_map"][req["regulatory_class"]]["applied_classes"])
+    expect_ids = {i for i, e in reg.items() if e["regulatory_class"] in applied}
+    term_ids = {t["glossary_id"] for t in req["glossary"]["terms"]}
     for b in rep.payload["blocks"]:
-        t = want[b["block_key"]]
-        if b["revision"] != t["revision"] or b["text_sha256"] != sha256_text(t["text"]):
-            p.append(f"{b['block_key']}: 검사한 revision · 문구가 요청과 다르다")
+        k = b["block_key"]
+        t = want[k]
+        text = t["text"]
+        if b["revision"] != t["revision"] or b["text_sha256"] != sha256_text(text):
+            p.append(f"{k}: 검사한 revision · 문구가 요청과 다르다")
+        r = b["regulatory"]
+        checked, unchecked = set(r["checked_ids"]), set(r["unchecked_ids"])
+        if checked & unchecked or (checked | unchecked) != expect_ids:
+            p.append(f"{k}: 검사 · 미검사 항목이 적용 분류의 사전 항목과 다르다")
+        mkeys = [m["match_key"] for m in r["matches"]]
+        if len(set(mkeys)) != len(mkeys):
+            p.append(f"{k}: match_key 중복")
+        for m in r["matches"]:
+            if m["external_id"] not in checked or text[m["start"]:m["end"]] != m["matched_text"]:
+                p.append(f"{k}: 매칭 {m['match_key']}의 사전 ID · 구간이 맞지 않는다")
+        sup = {s["match_key"] for s in r["suppressed"]}
+        if sup - set(mkeys):
+            p.append(f"{k}: 억제 기록이 없는 매칭을 가리킨다")
+        live = {(m["external_id"], m["start"], m["end"]) for m in r["matches"]
+                if m["match_key"] not in sup and reg.get(m["external_id"], {}).get("verdict_status") != "allowed"}
+        reg_flags, term_flags = set(), set()
         for f in b["flags"]:
             if f.get("revision") != t["revision"] or not f.get("type") or not f.get("producer"):
-                p.append(f"{b['block_key']}: compliance flag 필수값(type · producer · revision) 오류")
+                p.append(f"{k}: compliance flag 필수값(type · producer · revision) 오류")
+            if f.get("type") == "regulatory":
+                key = (f.get("external_id"), f.get("start"), f.get("end"))
+                if (f.get("producer") != "translation_validation" or f.get("detected_by") != "rule" or key not in live
+                        or f.get("problem_text") != text[f["start"]:f["end"]]):
+                    p.append(f"{k}: 규제 flag가 유효 매칭과 대응하지 않는다 {f.get('external_id')}")
+                reg_flags.add(key)
+            elif f.get("type") == "mandatory_term_unapplied":
+                if f.get("producer") != "glossary_validation" or f.get("glossary_id") not in term_ids:
+                    p.append(f"{k}: 강제 용어 flag의 producer · glossary_id 오류")
+                term_flags.add(f.get("glossary_id"))
+            else:
+                p.append(f"{k}: 모르는 flag type {f.get('type')!r}")
+        if reg_flags != live:
+            p.append(f"{k}: 규제 flag가 억제 이후 유효 매칭과 정확히 같지 않다")
+        tids = [x["glossary_id"] for x in b["terms"]]
+        if len(set(tids)) != len(tids) or set(tids) - term_ids or any(x["status"] not in ("applied", "unapplied", "unverifiable") for x in b["terms"]):
+            p.append(f"{k}: 용어 검사 결과의 ID · 상태 오류")
+        if {x["glossary_id"] for x in b["terms"] if x["status"] == "unapplied"} != term_flags:
+            p.append(f"{k}: 미적용 용어와 강제 용어 flag가 다르다")
+        if b["complete"] != (not unchecked and not any(x["status"] == "unverifiable" for x in b["terms"])):
+            p.append(f"{k}: complete(검사 범위 완결성)가 미검사 항목 · unverifiable 용어와 맞지 않다")
     return p
 
 

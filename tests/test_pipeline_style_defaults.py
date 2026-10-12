@@ -84,12 +84,37 @@ def test_provenance_is_separated(d):
     (lambda r: r["fonts"]["faces"]["Regular"].update(file="/abs/Pretendard-Regular.otf"), "상대 경로"),
     (lambda r: r["fonts"]["faces"]["Regular"].update(file="../x.otf"), "상대 경로"),
     (lambda r: r["type_tokens"].update(source="user_approved"), "source"),
+    (lambda r: r["pipeline_mapping"].update(line_height_ratio=True), "line_height_ratio"),
+    (lambda r: r["pipeline_mapping"].update(line_height_ratio="1.2"), "line_height_ratio"),
+    (lambda r: r["pipeline_mapping"].update(line_height_ratio=0), "line_height_ratio"),
+    (lambda r: r["pipeline_mapping"].update(line_height_ratio=-1.2), "line_height_ratio"),
+    (lambda r: r["type_tokens"]["tokens"]["Body / L"].update(size_px=True), "size_px"),
+    (lambda r: r["type_tokens"]["tokens"]["Body / L"].update(letter_spacing_pct=False), "letter_spacing_pct"),
 ])
 def test_invalid_config_rejected(tmp_path, mutate, msg):
     raw = _raw()
     mutate(raw)
     with pytest.raises(sd.StyleDefaultsError, match=msg):
         sd.load_style_defaults(_write(tmp_path, raw))
+
+
+@pytest.mark.parametrize("path, field", [
+    (("pipeline_mapping",), "line_height_ratio"),
+    (("type_tokens", "tokens", "Heading / H2"), "size_px"),
+    (("type_tokens", "tokens", "Heading / H2"), "letter_spacing_pct"),
+])
+@pytest.mark.parametrize("literal", ["1e309", "-1e309"])
+def test_infinite_config_numbers_rejected(tmp_path, path, field, literal):
+    """JSON의 1e309는 float로 읽으면 무한대다 — 로딩 단계에서 거부해 계산 · 참고 렌더까지 가지 않게 한다."""
+    raw = _raw()
+    node = raw
+    for k in path:
+        node = node[k]
+    node[field] = "__INF__"
+    p = tmp_path / "style_defaults.json"
+    p.write_text(json.dumps(raw, ensure_ascii=False).replace('"__INF__"', literal), encoding="utf-8")
+    with pytest.raises(sd.StyleDefaultsError, match=field):
+        sd.load_style_defaults(p)
 
 
 def test_render_inputs_track_config_fonts_and_rule(d, tmp_path):

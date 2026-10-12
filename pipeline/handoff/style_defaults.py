@@ -27,9 +27,9 @@ import re
 import struct
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from pipeline.handoff.canonical import sha256_canonical, sha256_file
 
@@ -59,6 +59,18 @@ class _Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+def _finite_number(v: Any) -> float:
+    """JSON 수(정수 · 실수)만 받는다. boolean · 문자열은 거부하고, 1e309 같은 무한대 · NaN도 거부한다."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        raise ValueError(f"수여야 한다: {v!r}")
+    if not math.isfinite(v):
+        raise ValueError(f"유한한 수여야 한다: {v!r}")
+    return float(v)
+
+
+FiniteNumber = Annotated[float, BeforeValidator(_finite_number)]
+
+
 class Approval(_Model):
     decision: str = Field(min_length=1)
     approved_by: Literal["user"]
@@ -67,16 +79,9 @@ class Approval(_Model):
 
 
 class TypeToken(_Model):
-    size_px: float = Field(gt=0)
+    size_px: FiniteNumber = Field(gt=0)
     weight: str = Field(min_length=1)
-    letter_spacing_pct: float
-
-    @field_validator("size_px", "letter_spacing_pct")
-    @classmethod
-    def _finite(cls, v: float) -> float:
-        if not math.isfinite(v):
-            raise ValueError("유한한 수여야 한다")
-        return v
+    letter_spacing_pct: FiniteNumber
 
 
 class TypeTokens(_Model):
@@ -92,7 +97,7 @@ class PipelineMapping(_Model):
     reference_width_px: int = Field(gt=0, strict=True)
     font_color: str = Field(pattern=HEX_COLOR)
     align: Literal["left", "center", "right"]
-    line_height_ratio: float = Field(gt=0)
+    line_height_ratio: FiniteNumber = Field(gt=0)
     roles: dict[str, str]
 
     @field_validator("roles")

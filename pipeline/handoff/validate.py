@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from pipeline.handoff.bundle import load_type_map
+from pipeline.handoff.bundle import BundleError, check_bundle, load_type_map
 from pipeline.handoff.canonical import sha256_canonical, sha256_file, sha256_text
 from pipeline.handoff.envelope import StageReport
 from pipeline.types import AnalyzeResult, ContentFinding, LabelResult, LogoResult
@@ -330,8 +330,141 @@ def _text_check(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> l
     return p
 
 
+def _translation_review(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """번역문 LLM 규제 판정. 실패 보고는 판정이 없어야 한다(부분 채택 없음). 성공 보고는 모든 (대상 × 검사 항목) 쌍 · 위치 · 근거 참조 ·
+    판단 조합 규칙 · flag 파생을 다시 계산해 대조한다. 참조 무결성 · 보조 텍스트 검사는 판단 내용의 정확성을 보장하지 않는다."""
+    from pipeline.handoff import review as rvh
+    from pipeline.stages import translation_review as rv
+
+    try:
+        cb = check_bundle(req["bundle"], target_country=req["target_country"], types=load_type_map())
+    except BundleError as e:
+        return [f"요청 묶음 오류: {e}"]
+    checks, refs, out = rvh.select_items(cb, req["regulatory_class"])
+    pl = rep.payload
+    tkeys = [t["block_key"] for t in req.get("targets", [])]
+    rule = cb.rules.regulatory_class_map[req["regulatory_class"]]
+    scope = {"check_item_ids": [i.external_id for i in checks], "reference_item_ids": [i.external_id for i in refs],
+             "out_of_scope_item_ids": out, "class_basis": {"selected": req["regulatory_class"], "applied_classes": list(rule.applied_classes),
+                                                          "dict_coverage": rule.dict_coverage},
+             "target_keys": tkeys, "pair_count": len(tkeys) * len(checks), "context_scope": "section"}
+    p = []
+    if pl.get("section_key") != req["section_key"] or pl.get("scope") != scope:
+        p.append("section_key · scope(검사 · 참고 · 범위 밖 항목, 분류 근거, 대상, 쌍 수)가 요청에서 다시 계산한 값과 다르다")
+    if pl.get("supplied_items") != {"check": [rvh.item_snapshot(i) for i in checks], "reference": [rvh.item_snapshot(i) for i in refs]}:
+        p.append("supplied_items 스냅샷이 고정 묶음과 다르다")
+    ctx_sha = rvh.review_context_sha256(req["blocks"], req["targets"], req["context"])
+    if pl.get("context_sha256") != ctx_sha:
+        p.append("context_sha256이 요청 문맥과 다르다")
+    if rep.outcome == "failed":
+        if "blocks" in pl:
+            p.append("실패 보고에 블록 판정이 있다 — 부분 채택하지 않는다")
+        if sorted(rep.failure.targets) != sorted(tkeys):
+            p.append("실패 보고의 failure.targets가 검사 대상 전체가 아니다")
+        kind, chunks = rep.failure.kind, pl.get("chunks", [])
+        if kind == "unsupported_input":
+            if chunks or not isinstance(pl.get("size"), dict) or pl["size"].get("unit") != "code_points":
+                p.append("입력 상한 초과 보고는 chunks가 비고 size(code_points)가 있어야 한다")
+        elif kind in ("model_call_failed", "response_invalid"):
+            st = [c["status"] for c in chunks]
+            bad = [s for s in st if s not in ("validated", "not_called")]
+            if len(bad) != 1:
+                p.append("호출 · 응답 실패 보고는 실패 분할이 정확히 하나여야 한다")
+            else:
+                i = st.index(bad[0])
+                if any(s != "validated" for s in st[:i]) or any(s != "not_called" for s in st[i + 1:]):
+                    p.append("분할 상태 순서 오류(실패 앞은 validated, 뒤는 not_called)")
+                want = {"model_call_failed": ("call_failed",), "response_invalid": ("response_invalid", "output_truncated")}[kind]
+                if bad[0] not in want:
+                    p.append(f"failure.kind {kind}와 분할 상태 {bad[0]}가 맞지 않는다")
+                if (bad[0] == "output_truncated") == rep.failure.retryable:
+                    p.append("출력 잘림은 retryable=false, 그 밖의 호출 · 응답 실패는 retryable=true여야 한다")
+            valid_idx = {c["index"] for c in chunks if c["status"] == "validated"}
+            for d in pl.get("non_adoptable_diagnostics", []):
+                if any(j["chunk_index"] not in valid_idx for j in d["judgments"]):
+                    p.append("진단 판정이 검증된 분할에서 나온 것이 아니다")
+        else:
+            p.append(f"{kind} 실패에는 payload를 두지 않는다")
+        return p
+    if rep.outcome == "skipped":
+        if tkeys or pl.get("blocks") != [] or pl.get("chunks") != []:
+            p.append("skipped는 대상 0개 · 빈 blocks · 빈 chunks여야 한다")
+        return p
+    blocks = pl["blocks"]
+    if [b["block_key"] for b in blocks] != tkeys:
+        return p + ["판정 블록이 검사 대상과 다르다(누락 · 중복 · 순서 · 대상 밖)"]
+    if pl.get("result_sha256") != sha256_canonical(blocks):
+        p.append("result_sha256 불일치")
+    items = {i.external_id: i for i in checks}
+    allowed = {i.external_id: i for i in refs}
+    corpus = rv.citation_corpus(checks + refs)
+    order = [i.external_id for i in checks]
+    want_t = {t["block_key"]: t for t in req["targets"]}
+    for b in blocks:
+        k = b["block_key"]
+        t = want_t[k]
+        text = t["text"]
+        if b["revision"] != t["revision"] or b["text_sha256"] != sha256_text(text) or b["context_sha256"] != ctx_sha:
+            p.append(f"{k}: 판정한 revision · 문구 · 문맥이 요청과 다르다")
+        js = b["judgments"]
+        if [j["external_id"] for j in js] != order:
+            p.append(f"{k}: 판정 항목이 검사 항목 전체와 다르다(누락 · 중복 · 순서 · 범위 밖)")
+            continue
+        n = 0
+        for j in js:
+            w = f"{k}/{j['external_id']}"
+            if (j["judgment"] not in rv.JUDGMENTS or j["mention"] not in rv.MENTIONS
+                    or (j["undetermined_reason"] is not None and j["undetermined_reason"] not in rv.UNDETERMINED_REASONS)):
+                p.append(f"{w}: 허용되지 않은 판정 값")
+                continue
+            if not isinstance(j["reason"], str) or not j["reason"].strip():
+                p.append(f"{w}: reason이 비었다")
+            for loc in j["locations"]:
+                n += 1
+                s, e = loc["start"], loc["end"]
+                ok = (loc["location_key"] == f"loc_{n:03d}" and text[s:e] == loc["quote"] and rv._count(text, loc["anchor"]) == 1
+                      and rv._count(loc["anchor"], loc["quote"]) == 1 and text.find(loc["anchor"]) + loc["anchor"].find(loc["quote"]) == s)
+                if not ok:
+                    p.append(f"{w}: 위치 {loc.get('location_key')}의 quote · anchor · 구간 · 순번이 번역문과 맞지 않는다")
+            kinds = []
+            for bs in j["basis"]:
+                kd, ext = bs.get("kind"), bs.get("external_id")
+                kinds.append(kd)
+                if kd in ("dictionary_entry", "evidence"):
+                    if ext != j["external_id"]:
+                        p.append(f"{w}: 다른 항목의 근거를 참조했다")
+                        continue
+                    if kd == "evidence":
+                        ev = items[ext].evidence
+                        i = bs.get("evidence_index")
+                        if not isinstance(i, int) or not 0 <= i < len(ev) or bs.get("evidence_external_id") != ev[i].external_id:
+                            p.append(f"{w}: 묶음 밖 근거 참조")
+                elif kd == "allowed_reference":
+                    i = bs.get("evidence_index")
+                    if ext not in allowed or (i is not None and (not isinstance(i, int) or not 0 <= i < len(allowed[ext].evidence))):
+                        p.append(f"{w}: 묶음 밖 참고 항목 참조")
+                else:
+                    p.append(f"{w}: 모르는 근거 종류 {kd!r}")
+            if j["basis_summary"] != rv.basis_summary(kinds):
+                p.append(f"{w}: basis_summary가 근거 참조와 맞지 않는다")
+            p += [f"{w}: {x}" for x in rv.judgment_problems(j, kinds)]
+            p += rv._text_problems(f"{w} reason", j["reason"], corpus)
+            for c in j["unverified_conditions"]:
+                p += rv._text_problems(f"{w} 미확인 조건", c, corpus)
+        if b["flags"] != rvh.flags_of(t["revision"], js):
+            p.append(f"{k}: flags가 판정에서 파생한 값과 다르다")
+        if b["counts"] != {"pairs": len(js), **{x: sum(1 for j in js if j["judgment"] == x) for x in rv.JUDGMENTS}}:
+            p.append(f"{k}: counts 불일치")
+    pairs = [(t, i) for c in pl["chunks"] for t in c["target_keys"] for i in c["item_ids"]]
+    if any(c["status"] != "validated" for c in pl["chunks"]):
+        p.append("completed인데 검증되지 않은 분할이 있다")
+    if sorted(pairs) != sorted((t, i) for t in tkeys for i in order) or len(set(pairs)) != len(pairs):
+        p.append("분할의 (대상 × 항목) 합집합이 전체 검사 범위와 정확히 같지 않다")
+    return p
+
+
 _STAGE = {"analyze": _analyze, "judge": _judge, "label": _label, "logo": _logo, "inpaint": _inpaint, "style": _style,
-          "translate": _translate, "text_check": _text_check}
+          "translate": _translate, "text_check": _text_check, "translation_review": _translation_review}
 
 
 def validate_report(report: Any, request: dict[str, Any], *, local_paths: dict[tuple[str, str], Any] | None = None,
@@ -356,8 +489,8 @@ def validate_report(report: Any, request: dict[str, Any], *, local_paths: dict[t
     p += probs + _files(rep, paths)
     if rep.outcome == "failed" and rep.payload is None:
         return p
-    if rep.outcome == "failed" and rep.stage not in ("translate", "analyze"):
-        return p  # 실패 보고는 실패 분류 · 식별 · 입력 연결만 본다
+    if rep.outcome == "failed" and rep.stage not in ("translate", "analyze", "translation_review"):
+        return p  # 실패 보고는 실패 분류 · 식별 · 입력 연결만 본다(⑧ 번역 · LLM 판정은 실패 payload의 구조도 본다)
     if rep.outcome == "failed" and rep.stage == "analyze":
         return p
     fn = _STAGE[rep.stage]

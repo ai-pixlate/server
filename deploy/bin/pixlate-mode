@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# /opt/pixlate/bin/pixlate-mode maintenance|validate|live|status — 모드 기록과 적용을 한 번에.
+# 모드 파일만 바꾸고 적용하지 않으면 재부팅 때 Docker restart 정책(이전 모드)과 어긋날 수 있으므로 반드시 이것으로 바꾼다.
+set -euo pipefail
+CONF_DIR=${CONF_DIR:-/etc/pixlate}
+SYSTEMCTL=${SYSTEMCTL:-systemctl}
+case "${1:-}" in
+  maintenance|validate|live)
+    tmp=$(mktemp "$CONF_DIR/.deploy.mode.XXXXXX")
+    echo "$1" > "$tmp"; chmod 644 "$tmp"; mv -f "$tmp" "$CONF_DIR/deploy.mode"
+    $SYSTEMCTL restart pixlate.service
+    echo "requested=$1 applied=$(cat "$CONF_DIR/deploy.mode.applied" 2>/dev/null || echo none)"
+    ;;
+  status)
+    echo "requested=$(cat "$CONF_DIR/deploy.mode" 2>/dev/null || echo none) applied=$(cat "$CONF_DIR/deploy.mode.applied" 2>/dev/null || echo none)"
+    ;;
+  *) echo "usage: $0 maintenance|validate|live|status" >&2; exit 2 ;;
+esac

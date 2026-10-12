@@ -6,7 +6,9 @@
 
 ---
 
-## 1. 단계별 현황 — 2026-10-11
+## 1. 단계별 현황 — 2026-10-12
+
+**역할별 스타일 기본값 AI 자료(2026-10-12, `feature/role-style-defaults`, origin/develop `3d75d6f`에서 분기)**: 사용자 승인값을 D11로 기록하고 AI 담당 자료를 준비했다 — 설정 자료 정본 `pipeline/data/style_defaults.json`(디자인 토큰 / 사용자 승인 매핑 · 보완값 분리), 공식 Pretendard v1.3.9 Regular · SemiBold OTF와 OFL 라이선스(`pipeline/data/fonts/pretendard/`, 실제 메타데이터로 굵기 400 · 600 확인), 배치 · 검증 도구 `fetch_fonts`, 로더 · 적용값 계산 `pipeline/handoff/style_defaults.py`, 참고 렌더 `style_reference.py`(운영 렌더 아님), 손 계산 사례 10건(`pipeline/samples/style_defaults/cases.json`), BE 인계 `be-handoff.md` 6절. 테스트 신규 82 통과, 파이프라인 전체 985 통과 · 5 건너뜀 · 1 실패(알려진 DejaVu). **BE 운영 렌더 연결(`app/typeset.py` · 미리보기/최종 렌더 · 입력 지문 · 적용값 기록)과 BE · DB 통합 시험은 하지 않았다** — 이 PC에 BE · DB 환경이 없다. 별도 PM 회신 기록 아님. 폰트는 저장소에 포함(#80). 커밋 4개(리뷰 지적의 숫자 설정 검증 보완 포함) · 푸시 · [PR #58](https://github.com/ai-pixlate/server/pull/58). PR #57(D10) 머지 예정에 맞춰 그 헤드를 병합하고 docs/ai 충돌을 정리했다(결정 번호 D10 · D11 순서, 태그 범위 D1~D11).
 
 **⑧ 용어집 선별 공급(2026-10-11, `feature/translate-glossary-filter`)**: 통합 D10에 따라 BE `select_glossary`(`app/flows/downstream.py`)가 이번 대상 블록 원문에서 `pipeline/glossary.py`(`glossary-select@2026-10-11.1`) 규칙으로 고른 용어만 공급한다. 대상 언어 + 작업 분류 ∪ common을 적용하고, 강제 용어끼리 위치별 포함 억제를 한다. 정규화 원문 충돌·잘못된 데이터는 공급 실패로 처리한다. 선별 입력과 선택 행 내용을 지문에 고정한다. 강제 용어 검사도 같은 규칙을 쓴다(`term-check@2026-10-11.1`). AI 입력 필드는 바꾸지 않았다. 예제 1건(`text_check.completed_with_flags`)을 다시 만들었다(규칙 버전). 실제 모델 호출·운영 환경 시험은 하지 않았다. 남은 것: `run_text_check` BE 연결, #77 대안 표기, RAG 프롬프트 기술검증.
 
@@ -39,6 +41,8 @@
 | 환경 | `pipeline/requirements*.txt` | 로컬 기본 · 로컬 OCR(Windows CPU · Windows GPU) 검증 — `-ocr` 버전 고정, GPU 설치법은 `dev.md` 6절 | `-gpu` 설치 검증 · Linux에서 `-ocr` 확인 |
 
 ## 2. 다음 착수 순서
+
+**역할별 스타일 기본값 다음(2026-10-12)**: ① PR #58(`feature/role-style-defaults` → `develop`) 리뷰 · 머지. PR #57이 먼저 머지되면 develop 대비 차이는 이 작업만 남는다. ② BE가 `be-handoff.md` 6.6 순서로 운영 렌더 연결(로더 교체 → 해석 규칙 → 실제 폰트 · 자간 · 행간 → 넘침 → 입력 지문 → 미리보기 · 최종 공통 → 기록 → 테스트). ③ BE 확인 #78(적용값 기록) · #79(운영 엔진 측정 기준). ④ BE 환경에서 6.7 사례로 통합 시험.
 
 **PR #55 경계 채택 — BE 연결(2026-10-08)**: [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)에 따라 `feature/be-ai-pipeline-integration`에 PR #55를 병합하고 BE를 `pipeline.handoff` 경계에 맞췄다. JCS 지문 통일, 사전 묶음의 정책 규칙 고정(`PIXLATE_POLICY_RULES`)·AI 형식 변환, ③-1 `HandoffJudge`(run_judgment), ⑧ `HandoffTranslator`(run_translate, 공급 지문 고정), ⑥ GPU 실행기를 AI `GpuInpaintRunner` + BE `ControlClient` 구현으로 통일, ① 분해 대체 기록 보존. 임시 규칙: 대체 표현 원문 1개 배열(#71), 용어집 대상 언어 전체(#11). 가짜 LLM·InProcess 대역·로컬 PostgreSQL로만 검증했으며 실제 Gemini·GPU·S3·HTTP 바인딩은 미검증. 남은 것은 `be-handoff.md` 0절.
 
@@ -159,6 +163,7 @@
 
 | 날짜 | 세션 | 한 일 | 결정·문서 |
 |---|---|---|---|
+| 2026-10-12 | 역할별 스타일 기본값 AI 자료 · BE 인계 | 공식 릴리스에서 Pretendard OTF · 라이선스 확보, sfnt 테이블에서 굵기 · 이름 · 버전 확인. 설정 자료 · 로더 · 폰트 검증 · 적용값 계산 · 참고 렌더 · 손 계산 사례 10건 · 테스트 82. 참고 렌더 확인 중 Pillow 기본 배치의 정수 진행 폭 · GPOS 미적용을 발견해 운영 렌더와의 차이로 기록 | D11 신설(사용자 승인, PM 회신 아님) · `be-handoff.md` 6절 · `contract.md` 11.1 · `pipeline.md` 1절 · `dev.md` · `open-questions.md` 0 · 0.1 · #78~#80(#80은 폰트 저장소 포함으로 해결) |
 | 2026-10-06 | ⑦ 합성 테스트 보완 · 개발용 도구 · 사용자 검수 · 마무리 | 합성 사례 테스트 작성(`201d712`) 후 독립 리뷰: 영역 bbox만 영상 밖인 단독 사례 보완. 실행 도구(MANIFEST 대상 선택 실행 · 출력 거부 · 섹션 실패 계속 · 저장 실패 기록)와 정적 검수 페이지 도구, 도구 테스트(합성 입력본) 추가(`de86a49`). 3섹션 실행 · 검수 페이지 생성, 대응 · crop · 이미지 참조 · 입력본 실제 파일 해시 확인, 앱 내 브라우저로 표시 확인. 사용자: 큰 결함 관찰 없음 → 단독 개발 마무리 | `docs/ai-experiments/2026-10-06_07-style_sample-review.md` 신설, `pipeline.md` 단계표 ⑦ · 7.7절 · 9절, `open-questions.md` #76, `dev.md` 4절. 코드 · 설정 변경 없음 |
 | 2026-10-06 | ⑦ 스타일 추출 명세 · 핵심 구현 | 최신 develop(`7e17f0f`)에서 `feature/style-extraction` 분기. 정본에 없는 세부(결과 구조 · 명도식 · Otsu 동률 · 정수화 · 거리 · 표준편차 · 공백 줄 · 입력 검증 범위)에 추천안을 내고 사용자 승인을 받아 `pipeline/stages/style.py` · `pipeline/types.py` 구현(커밋 `9399320`). 독립 재검토 권고 2건(섹션 안 `line_key` 중복 거부 · 설정 × 실제 높이 · 폭의 float 표현 사전 확인)과 `BlockStyle` 정합성 검사 보완(커밋 `333b5cd`), 원격 push. 확인: 기존 테스트 693 통과 · 5 건너뜀 · 1 실패(알려진 DejaVu), 스크래치 손 계산 대조, 고정 입력본 100섹션 메모리 실행 오류 0(결과 미저장 · 품질 판단 없음). 레포 테스트 · CLI · 결과 저장 · 실측 · 검수는 범위 밖 | `open-questions.md` #76 신설 · #14 비고(상태 미정 유지), `pipeline.md` 단계표 ⑦ · 7.7절 · 9절, `dev.md` 1 · 3절. config · `contract.md` · `db-map.md` 변경 없음 |
 | 2026-09-30 | ⑥ open-questions 번호 변경 · develop 병합 준비 | PR 50 병합 검토에서 develop(BE 작성 2.4절 #70 · #71 — 상품별 검증 정보 인계 · DB 적재본과 AI 사전 묶음의 대응)과 인페인팅 2.3절 #70 · #71의 번호 중복을 발견. 사용자 결정으로 인페인팅 쪽을 옮김: 옛 #70(마스크 계산 세부) → #74, 옛 #71(입출력 · 실패 · 시간 제한) → #75, #72 · #73 유지. 코드 주석 · config 주석 · 정본 · 실험 기록 · 이 파일의 참조를 함께 바꾸고 표 행을 번호 순으로 정렬, open-questions 2.3절에 옛 번호 대응 메모(이전 커밋 메시지 · PR 본문 최초본의 #70 · #71 = #74 · #75). develop(BE) 문서는 바꾸지 않음. 동작 변경 없음 | `open-questions.md` · `pipeline.md` · `dev.md` · `status.md` · 실험 기록 2개 · `default.toml` · `run.py` · `inpaint.py` · `inpaint_proc.py` · `types.py`(주석만) |

@@ -49,7 +49,10 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   matching.py                통합 매칭 · 겹침 억제 규칙(5.23, `match@2026-10-08.1`) — 운영 인계가 쓴다. 개발용 ③-1a 검출은 그대로
   glossary.py                ⑧ 용어집 선별 · 강제 용어 적용 대상(통합 D10, `glossary-select@2026-10-11.1`) — BE 공급과 번역문 검사가 같이 쓴다
   data/content_types.json    content_type 대응표(현지 8 + 규제 검출 1, D9-2) — 버전 · 해시가 입력 지문에 들어간다
-  handoff/                   AI ↔ BE 운영 인계 어댑터(3.2절) — 요청 → StageReport, 결과 검증기, GPU 실행기, 계약 예제 생성
+  data/style_defaults.json   역할별 스타일 기본값 설정 자료 정본(D11) — 디자인 토큰 · 사용자 승인 매핑 · 폰트 출처/해시
+  data/fonts/                Pretendard OTF · LICENSE(OFL 1.1). 배치 · 검증 도구 fonts/tools/fetch_fonts.py(`be-handoff.md` 6절)
+  handoff/                   AI ↔ BE 운영 인계 어댑터(3.2절) — 요청 → StageReport, 결과 검증기, GPU 실행기, 계약 예제 생성.
+                             style_defaults.py(D11 로더 · 폰트 검증 · 적용값 계산) · style_reference.py(참고 렌더, 운영 렌더 아님)
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]. ① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 · 원자적 쓰기(⑤) — 3·5절
   run.py                     단계별 실행 CLI — 4절
@@ -292,6 +295,6 @@ pipeline/samples/<이름>/
 
 - BE: 단계/실패별 N3·N5 집계, 승인 대체 렌더, N5 확인 후 확정, N6 최종 렌더·부분 내보내기, 오류 중단과 전체 취소 삭제, FE 고지/표시 연결.
 - AI: 원본 전체 대체 섹션, 전 섹션 8항목·항목당 1건, 원문 수치 번역, 성공/부분 실패/대상 없음·스타일 NULL 구분, GPU 중간 파일 삭제 인계.
-- AI는 역할별 기본 색·크기·폰트를 디자인 담당에게 요청하고 BE 공유 후 PM 확인을 받는다. 기존 개발용 기본값을 임의 승격하지 않는다.
+- 역할별 기본 색·크기·폰트는 D11(2026-10-12 사용자 승인)으로 정했고 AI 자료(설정 · 폰트 · 계산 · 사례 · 참고 렌더)를 준비했다. 운영 렌더 연결은 BE 작업이다(`be-handoff.md` 6.6). 기존 개발용 기본값(`tests/exec_fakes.py`의 테스트 전용 값)을 승격하지 않는다.
 - 실제 Gemini 키의 유료 등급과 전송 제공자·모델·항목을 확인한다. 키 원문은 기록하지 않는다.
 - 번역문 LLM 규제 판정은 PM의 제외 경위·12월 방식/일정 질문에 회신한다. 문서 반영으로 연락/일정 승인을 대신하지 않는다.

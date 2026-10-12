@@ -13,9 +13,12 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from pipeline import glossary as glossary_rules
 from pipeline.handoff.bundle import BundleError, check_bundle, load_type_map
 from pipeline.handoff.canonical import sha256_canonical, sha256_file, sha256_text
 from pipeline.handoff.envelope import StageReport
+from pipeline.matching import MatchConflictError
+from pipeline.stages import text_check as tc
 from pipeline.types import AnalyzeResult, ContentFinding, LabelResult, LogoResult
 
 
@@ -281,10 +284,24 @@ def _text_check(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> l
     applied = set(req["bundle"]["rules"]["regulatory_class_map"][req["regulatory_class"]]["applied_classes"])
     expect_ids = {i for i, e in reg.items() if e["regulatory_class"] in applied}
     term_ids = {t["glossary_id"] for t in req["glossary"]["terms"]}
+    src_of = {b["block_key"]: b["source_ko"] for b in req["blocks"]}
+    terms_in = [tc.GlossaryTerm(x["glossary_id"], x["term_ko"], x["term_target"], x["enforcement"]) for x in req["glossary"]["terms"]]
+    rows = [tc.RegRow(e["external_id"], e["verdict_status"], tuple(e.get("variant_en", []))) for e in req["bundle"]["regulation"]["entries"]
+            if e["regulatory_class"] in applied]
     for b in rep.payload["blocks"]:
         k = b["block_key"]
         t = want[k]
         text = t["text"]
+        # 원문에서 적용 대상인 강제 용어(공급과 같은 선별 규칙)가 빠짐없이 검사됐는지 — 결과 · flag를 함께 지운 보고를 거절한다
+        try:
+            applicable = {e.glossary_id for e in glossary_rules.select(
+                [(k, src_of[k])], [glossary_rules.Entry(x.glossary_id, x.term_ko, x.term_target, x.enforcement) for x in terms_in])}
+        except glossary_rules.GlossaryDataError as e:
+            p.append(f"{k}: 강제 용어 적용 대상을 다시 계산할 수 없다(completed로 받을 수 없음): {e}")
+            continue
+        expect_terms = {x.glossary_id for x in terms_in if x.enforcement == "enforced" and x.glossary_id in applicable}
+        if {x["glossary_id"] for x in b["terms"]} != expect_terms:
+            p.append(f"{k}: 적용 대상 강제 용어가 빠짐없이 · 정확히 검사되지 않았다(기대 {sorted(expect_terms)})")
         if b["revision"] != t["revision"] or b["text_sha256"] != sha256_text(text):
             p.append(f"{k}: 검사한 revision · 문구가 요청과 다르다")
         r = b["regulatory"]
@@ -327,6 +344,15 @@ def _text_check(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> l
             p.append(f"{k}: 미적용 용어와 강제 용어 flag가 다르다")
         if b["complete"] != (not unchecked and not any(x["status"] == "unverifiable" for x in b["terms"])):
             p.append(f"{k}: complete(검사 범위 완결성)가 미검사 항목 · unverifiable 용어와 맞지 않다")
+        # 같은 규칙 함수로 다시 계산해 전체를 대조한다(결과 일부 삭제 · 상태 변조 거절)
+        try:
+            again = tc.check_block(k, t["revision"], text, src_of[k], rows, terms_in)
+        except (MatchConflictError, glossary_rules.GlossaryDataError) as e:
+            p.append(f"{k}: 검사를 다시 계산할 수 없다(completed로 받을 수 없음): {e}")
+            continue
+        for f in ("regulatory", "terms", "flags", "complete", "rules"):
+            if b.get(f) != again[f]:
+                p.append(f"{k}: {f}가 같은 입력으로 다시 계산한 결과와 다르다")
     return p
 
 
@@ -356,9 +382,11 @@ def _translation_review(rep: StageReport, req: dict[str, Any], ctx: dict[str, An
     ctx_sha = rvh.review_context_sha256(req["blocks"], req["targets"], req["context"])
     if pl.get("context_sha256") != ctx_sha:
         p.append("context_sha256이 요청 문맥과 다르다")
+    keys = set(pl)
     if rep.outcome == "failed":
-        if "blocks" in pl:
-            p.append("실패 보고에 블록 판정이 있다 — 부분 채택하지 않는다")
+        allowed_keys = _REVIEW_COMMON | ({"size"} if rep.failure.kind == "unsupported_input" else {"non_adoptable_diagnostics"})
+        if not _REVIEW_COMMON <= keys or keys - allowed_keys:
+            p.append(f"실패 payload 필드가 계약과 다르다(허용 {sorted(allowed_keys)}, 받은 {sorted(keys)}) — 판정 · flag는 실패 보고에 두지 않는다")
         if sorted(rep.failure.targets) != sorted(tkeys):
             p.append("실패 보고의 failure.targets가 검사 대상 전체가 아니다")
         kind, chunks = rep.failure.kind, pl.get("chunks", [])
@@ -379,18 +407,36 @@ def _translation_review(rep: StageReport, req: dict[str, Any], ctx: dict[str, An
                     p.append(f"failure.kind {kind}와 분할 상태 {bad[0]}가 맞지 않는다")
                 if (bad[0] == "output_truncated") == rep.failure.retryable:
                     p.append("출력 잘림은 retryable=false, 그 밖의 호출 · 응답 실패는 retryable=true여야 한다")
-            valid_idx = {c["index"] for c in chunks if c["status"] == "validated"}
+            p += _chunk_problems(chunks, tkeys, [i.external_id for i in checks])
+            by_idx = {c["index"]: c for c in chunks}
+            seen = set()
             for d in pl.get("non_adoptable_diagnostics", []):
-                if any(j["chunk_index"] not in valid_idx for j in d["judgments"]):
-                    p.append("진단 판정이 검증된 분할에서 나온 것이 아니다")
+                if set(d) != {"block_key", "judgments"} or d["block_key"] not in tkeys:
+                    p.append("진단 항목의 형식 · 블록이 계약과 다르다")
+                    continue
+                for j in d["judgments"]:
+                    c = by_idx.get(j.get("chunk_index"))
+                    pair = (d["block_key"], j.get("external_id"))
+                    if (set(j) != _JUDGMENT_KEYS or c is None or c["status"] != "validated" or d["block_key"] not in c["target_keys"]
+                            or j["external_id"] not in c["item_ids"] or pair in seen):
+                        p.append(f"진단 판정 {pair}이 그 판정의 검증된 분할에 속하지 않거나 중복 · 형식 오류다")
+                    seen.add(pair)
         else:
             p.append(f"{kind} 실패에는 payload를 두지 않는다")
         return p
     if rep.outcome == "skipped":
+        if keys != _REVIEW_COMMON | {"blocks"}:
+            p.append(f"skipped payload 필드가 계약과 다르다({sorted(keys)})")
         if tkeys or pl.get("blocks") != [] or pl.get("chunks") != []:
             p.append("skipped는 대상 0개 · 빈 blocks · 빈 chunks여야 한다")
         return p
+    if keys != _REVIEW_COMMON | {"blocks", "result_sha256"}:
+        p.append(f"completed payload 필드가 계약과 다르다({sorted(keys)})")
+    p += _chunk_problems(pl["chunks"], tkeys, [i.external_id for i in checks])
+    chunk_of = {c["index"]: c for c in pl["chunks"]}
     blocks = pl["blocks"]
+    if any(set(b) != _BLOCK_KEYS for b in blocks):
+        return p + ["판정 블록 필드가 계약과 다르다"]
     if [b["block_key"] for b in blocks] != tkeys:
         return p + ["판정 블록이 검사 대상과 다르다(누락 · 중복 · 순서 · 대상 밖)"]
     if pl.get("result_sha256") != sha256_canonical(blocks):
@@ -417,10 +463,19 @@ def _translation_review(rep: StageReport, req: dict[str, Any], ctx: dict[str, An
                     or (j["undetermined_reason"] is not None and j["undetermined_reason"] not in rv.UNDETERMINED_REASONS)):
                 p.append(f"{w}: 허용되지 않은 판정 값")
                 continue
+            if set(j) != _JUDGMENT_KEYS:
+                p.append(f"{w}: 판정 필드가 계약과 다르다")
+                continue
+            c = chunk_of.get(j["chunk_index"])
+            if c is None or c["status"] != "validated" or k not in c["target_keys"] or j["external_id"] not in c["item_ids"]:
+                p.append(f"{w}: chunk_index {j['chunk_index']!r}의 검증된 분할에 이 블록 · 항목이 없다")
             if not isinstance(j["reason"], str) or not j["reason"].strip():
                 p.append(f"{w}: reason이 비었다")
             for loc in j["locations"]:
                 n += 1
+                if set(loc) != {"quote", "anchor", "start", "end", "location_key"}:
+                    p.append(f"{w}: 위치 필드가 계약과 다르다")
+                    continue
                 s, e = loc["start"], loc["end"]
                 ok = (loc["location_key"] == f"loc_{n:03d}" and text[s:e] == loc["quote"] and rv._count(text, loc["anchor"]) == 1
                       and rv._count(loc["anchor"], loc["quote"]) == 1 and text.find(loc["anchor"]) + loc["anchor"].find(loc["quote"]) == s)
@@ -460,6 +515,29 @@ def _translation_review(rep: StageReport, req: dict[str, Any], ctx: dict[str, An
         p.append("completed인데 검증되지 않은 분할이 있다")
     if sorted(pairs) != sorted((t, i) for t in tkeys for i in order) or len(set(pairs)) != len(pairs):
         p.append("분할의 (대상 × 항목) 합집합이 전체 검사 범위와 정확히 같지 않다")
+    return p
+
+
+_REVIEW_COMMON = frozenset({"section_key", "scope", "context_sha256", "supplied_items", "chunks"})
+_BLOCK_KEYS = frozenset({"block_key", "revision", "text_sha256", "context_sha256", "judgments", "flags", "counts"})
+_JUDGMENT_KEYS = frozenset({"external_id", "judgment", "mention", "undetermined_reason", "locations", "basis", "basis_summary",
+                            "unverified_conditions", "reason", "chunk_index"})
+_CHUNK_KEYS = frozenset({"index", "target_keys", "item_ids", "status", "input_code_points", "payload_sha256", "response_sha256",
+                         "finish_reason", "error"})
+
+
+def _chunk_problems(chunks: list[dict[str, Any]], tkeys: list[str], item_ids: list[str]) -> list[str]:
+    """분할 기록 형식: 필드 · 순번 0..n-1 · 상태 값 · 요청 범위 안의 대상 · 항목."""
+    from pipeline.stages import translation_review as rv
+
+    p = []
+    if any(set(c) != _CHUNK_KEYS for c in chunks):
+        return ["분할 기록 필드가 계약과 다르다"]
+    if [c["index"] for c in chunks] != list(range(len(chunks))):
+        p.append("분할 index가 0부터 순서대로가 아니다")
+    for c in chunks:
+        if c["status"] not in rv.CHUNK_STATUSES or set(c["target_keys"]) - set(tkeys) or set(c["item_ids"]) - set(item_ids):
+            p.append(f"분할 {c['index']}의 상태 · 대상 · 항목이 요청 범위 밖이다")
     return p
 
 

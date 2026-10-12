@@ -10,6 +10,8 @@
   자동 재시도는 새 현재 시도의 pending으로 들어온다.
 - freshness: BE가 시도에 고정한 입력 지문과, 현재 입력으로 다시 계산한 지문(`review_manifest` · `text_check_manifest`)을 비교한다.
   current · stale · not_comparable(시도 없음 · 지문 없음). 실패도 지문이 다르면 stale이다.
+- 섹션 단위 지문은 같은 섹션의 블록이 공유하므로 지문 일치만으로 블록을 가리지 못한다. 넘겨받은 결과의 block_key(LLM 실패는 scope의
+  target_keys)가 집계 대상 블록과 다르면 AggregateError다.
 - checks_settled = 두 검사 모두 run_state ∈ {done, skipped, failed} ∧ freshness=current. **처리 종료 여부일 뿐** 문제없음 · 경고 등급 ·
   검수 확정 허용을 뜻하지 않는다. 경고 · 실패 확인과 확정 조건은 BE가 따로 판단한다.
 """
@@ -47,11 +49,20 @@ def _freshness(c: CheckInput) -> str:
     return "current" if c.attempt_manifest_sha256 == c.current_manifest_sha256 else "stale"
 
 
+def _check_owner(block_key: str, c: CheckInput, name: str) -> None:
+    """넘겨받은 결과가 집계 대상 블록의 것인지(상태 · 유효성과 무관하게 항상) 확인한다."""
+    if c.block_result is not None and c.block_result.get("block_key") != block_key:
+        raise AggregateError(f"{name} 결과의 block_key {c.block_result.get('block_key')!r} ≠ 집계 대상 {block_key!r}")
+    if c.failed_scope is not None and block_key not in c.failed_scope.get("target_keys", []):
+        raise AggregateError(f"{name} 실패 보고의 검사 대상에 {block_key!r}가 없다")
+
+
 def _usable(c: CheckInput, fresh: str) -> bool:
     return c.run_state == "done" and fresh == "current" and c.block_result is not None
 
 
-def _rule_axis(c: CheckInput, fresh: str, check_ids: list[str]) -> tuple[dict[str, Any], dict[str, dict[str, Any]], dict[str, Any] | None]:
+def _rule_axis(block_key: str, c: CheckInput, fresh: str, check_ids: list[str]) -> tuple[dict[str, Any], dict[str, dict[str, Any]], dict[str, Any] | None]:
+    _check_owner(block_key, c, "규칙")
     state = {"run_state": c.run_state, "freshness": fresh, "scope": "unknown"}
     if not _usable(c, fresh):
         return state, {i: {"rule": "unavailable", "rule_match_keys": [], "rule_suppressed_match_keys": []} for i in check_ids}, None
@@ -84,10 +95,11 @@ def _rule_axis(c: CheckInput, fresh: str, check_ids: list[str]) -> tuple[dict[st
     return state, out, refs
 
 
-def _llm_axis(c: CheckInput, fresh: str, check_ids: list[str]) -> tuple[dict[str, Any], dict[str, dict[str, Any]], list[dict[str, Any]]]:
+def _llm_axis(block_key: str, c: CheckInput, fresh: str, check_ids: list[str]) -> tuple[dict[str, Any], dict[str, dict[str, Any]], list[dict[str, Any]]]:
     state = {"run_state": c.run_state, "freshness": fresh, "scope": "unknown"}
     empty = {i: {"llm": "unavailable", "llm_undetermined_reason": None, "llm_location_keys": [], "llm_basis_summary": None}
              for i in check_ids}
+    _check_owner(block_key, c, "LLM")
     if c.run_state == "failed" and fresh == "current" and c.failed_scope is not None:
         state["scope"] = "items" if c.failed_scope.get("check_item_ids") else "empty"
     if not _usable(c, fresh):
@@ -117,8 +129,8 @@ def _llm_axis(c: CheckInput, fresh: str, check_ids: list[str]) -> tuple[dict[str
 def aggregate_block_checks(*, block_key: str, check_item_ids: list[str], rule: CheckInput, llm: CheckInput) -> dict[str, Any]:
     """블록 하나의 두 검사 상태와 검사 항목별 두 축. check_item_ids는 `review.check_item_ids(bundle, …)`(묶음 순서)."""
     rf, lf = _freshness(rule), _freshness(llm)
-    rstate, raxis, rrefs = _rule_axis(rule, rf, check_item_ids)
-    lstate, laxis, lrefs = _llm_axis(llm, lf, check_item_ids)
+    rstate, raxis, rrefs = _rule_axis(block_key, rule, rf, check_item_ids)
+    lstate, laxis, lrefs = _llm_axis(block_key, llm, lf, check_item_ids)
     items = [{"external_id": i, **raxis[i], **laxis[i]} for i in check_item_ids]
     return {
         "aggregate_version": AGGREGATE_VERSION, "block_key": block_key,

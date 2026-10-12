@@ -20,6 +20,7 @@
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -196,14 +197,16 @@ def _check_inputs(req: TranslationReviewRequest, blocks: list[TextBlock]) -> Non
         raise HandoffInputError("; ".join(problems))
 
 
-def _prepare(raw: Any, cfg: dict[str, Any], *, need_api_key: bool) -> tuple[TranslationReviewRequest, _Prepared]:
+def _prepare(raw: Any, cfg: dict[str, Any]) -> tuple[TranslationReviewRequest, _Prepared]:
+    """요청 · 설정 · 묶음 · 입력 검증과 입력 지문. API 키는 여기서 보지 않는다 — 호출이 필요할 때만 실행 직전에 확인한다
+    (대상 0개 · 검사 항목 0개 · 입력 상한 초과는 호출이 없으므로 키 없이도 정상 처리 · 보고한다)."""
     try:
         req = TranslationReviewRequest.model_validate(raw)
     except ValidationError as e:
         raise _Fail("input_invalid", f"요청 형식 오류: {e}") from e
     impl: dict[str, Any] = {"adapter": REVIEW_ADAPTER_VERSION, "stage": rv.REVIEW_IMPL_VERSION}
     try:
-        prompt = rv.validate_config(cfg, need_api_key=need_api_key)
+        prompt = rv.validate_config(cfg, need_api_key=False)
         impl["model"] = rv.model_config(cfg)
         impl["prompt_sha256"] = sha256_text(prompt)
         limits = rv.limits_config(cfg)
@@ -248,7 +251,7 @@ def _prepare(raw: Any, cfg: dict[str, Any], *, need_api_key: bool) -> tuple[Tran
 def review_manifest(raw: Any, cfg: dict[str, Any]) -> tuple[dict[str, Any], str]:
     """실행 없이 입력 지문을 계산한다(API 키 불필요). 요청 · 설정 · 묶음이 잘못되면 ValueError. expected 지문은 대조하지 않는다."""
     try:
-        _, p = _prepare(raw, cfg, need_api_key=False)
+        _, p = _prepare(raw, cfg)
     except _Fail as e:
         raise ValueError(f"{e.kind}: {e}") from e
     return p.manifest, p.msha
@@ -355,7 +358,7 @@ def run_translation_review(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant
     except (ValidationError, HandoffInputError) as e:
         return failed_report(identity_fallback(raw, "translation_review"), "input_invalid", f"요청 식별 오류: {e}")
     try:
-        req, p = _prepare(raw, cfg, need_api_key=llm is None)
+        req, p = _prepare(raw, cfg)
     except _Fail as e:
         return failed_report(ident, e.kind, str(e), implementation={"adapter": REVIEW_ADAPTER_VERSION, "stage": rv.REVIEW_IMPL_VERSION})
     try:
@@ -395,6 +398,8 @@ def run_translation_review(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant
                              targets=target_keys, implementation=p.impl,
                              payload={**common, "chunks": [],
                                       "size": {"measured": e.measured, "limit": e.limit, "unit": "code_points"}})
+    if llm is None and not os.environ.get(rv.API_KEY_ENV):  # 실제 호출 직전 — 호출이 없는 경로는 키 없이 위에서 끝난다
+        return failed_report(ident, "config_invalid", f"환경변수 {rv.API_KEY_ENV}가 없다 — 모델을 호출할 수 없다", implementation=p.impl)
     try:
         records = rv.review_section(p.section, chunks, items, p.refs, p.class_basis, target_lang=req.target_lang,
                                     target_country=req.target_country, prompt=p.prompt,

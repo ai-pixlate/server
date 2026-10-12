@@ -1,7 +1,7 @@
 # GPU 서버 환경 (PyTorch 기본)
 
 학교 GPU 서버(KubeSphere · V100 32GB)에서 쓸 PyTorch 기본 컨테이너입니다.
-OCR·인페인팅 모델 의존성은 아직 넣지 않았고, GPU 인식과 SSH 접속까지만 갖춘 상태입니다.
+이미지에는 PyTorch·SSH·OCR 런타임 라이브러리만 있고, 서버 코드와 워커 venv는 `/data`에 둡니다(4장).
 
 ## 구성
 
@@ -11,6 +11,7 @@ OCR·인페인팅 모델 의존성은 아직 넣지 않았고, GPU 인식과 SSH
 | `entrypoint.sh` | 컨테이너 시작 시 SSH 공개키·호스트키 준비 후 `sshd` 실행 (PID 1) |
 | `sshd_config` | 키 인증만 허용, 비밀번호 로그인 차단 |
 | `check_gpu.py` | PyTorch·GPU·`/data` 볼륨 상태 확인 |
+| `worker.sh` · `env_check.py` · `lama_check.py` | gpu·ocr 큐 워커 관리와 점검(4장) |
 | `k8s/pvc.yaml` | 데이터 볼륨 (가이드 예제1) |
 | `k8s/workload.yaml` | GPU 컨테이너 (가이드 예제2) |
 | `k8s/service.yaml` | SSH 포트 개방 (가이드 예제3) |
@@ -108,7 +109,8 @@ Host pixlate-gpu
     IdentitiesOnly yes
 ```
 
-팀원 키를 추가하려면 컨테이너 안에서 `/data/.ssh/authorized_keys`에 공개키를 한 줄씩 넣고 Workload를 재시작합니다.
+팀원 키를 추가하려면 컨테이너 안에서 공개키를 `/data/.ssh/authorized_keys`(재시작 후 유지)와 `/root/.ssh/authorized_keys`(즉시 반영) **두 곳에** 한 줄씩 넣습니다.
+`entrypoint.sh`는 시작할 때만 `/data` 쪽을 복사하므로, `/data`에만 넣으면 재시작 전까지 반영되지 않습니다. 워커가 꺼지므로 키 추가만을 위해 Workload를 재시작하지 않습니다.
 
 ### 문제 해결
 
@@ -118,7 +120,7 @@ Host pixlate-gpu
 | `failed quota: estsoft-quota` · exceeded | 프로젝트 안 다른 컨테이너와 limits 합계가 CPU 4코어·메모리 30720Mi를 넘는지 |
 | `torch.cuda.is_available() = False` | Workload에 `nvidia.com/gpu` limit이 있는지 |
 | SSH `Connection refused` (웹 콘솔 30880도 안 열림) | 서버 쪽 네트워크 문제. 잠시 후 재시도하거나 다른 네트워크에서 시도 |
-| SSH `Permission denied (publickey)` | `SSH_PUBLIC_KEY` 값, 로컬에서 쓰는 개인키가 짝이 맞는지 |
+| SSH `Permission denied (publickey)` | `ssh -v`의 `Offering public key` 지문이 등록한 공개키 지문(`ssh-keygen -lf <pub>`)과 같은지, `/root/.ssh/authorized_keys`에도 들어 있는지 |
 | 재배포 후 `REMOTE HOST IDENTIFICATION HAS CHANGED` | `/data/.ssh-host-keys`가 지워졌는지 확인 후 `ssh-keygen -R "[210.125.70.71]:<NodePort>"` |
 
 ### CUDA 11.8 빌드 (참고)
@@ -134,38 +136,63 @@ docker build \
   -t yeram109/pixlate-gpu:torch2.7-cu118 .
 ```
 
-## 4. 백엔드 연동 계약 (gpu 큐 워커)
+## 4. 백엔드 연동 (gpu·ocr 큐 워커)
 
-API는 인페인팅을 `app.tasks.run_inpaint`로 **`gpu` 큐**에 넣고, 이 서버의 워커가 **EC2 Redis에 접속해** 가져갑니다. 학교 서버는 인바운드가 막혀 있어, 워커가 EC2로 나가는 방향만 씁니다.
+API는 인페인팅(`app.tasks.run_inpaint`)을 **`gpu` 큐**에, 분석(`app.tasks.run_analyze`, ①섹션 분해·②OCR·③병합)을 **`ocr` 큐**에 넣습니다.
+이 서버의 워커 두 개가 **EC2 Redis에 접속해** 가져갑니다. 학교 서버는 인바운드가 막혀 있어, 워커가 EC2로 나가는 방향만 씁니다.
+EC2에는 `cpu` 워커·API·복구 프로세스만 둡니다(`deploy/README.md`).
 
-| 항목 | 값 |
-| --- | --- |
-| 워커 명령 (레포 루트에서) | `celery -A app.celery_app worker -Q gpu -n gpu@%h --loglevel=info` |
-| 환경변수 | `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, `DATABASE_URL`, `CELERY_VISIBILITY_TIMEOUT`(선택, 기본 3600) |
-| 코드·의존성 | 이 레포와 venv를 모두 `/data` 아래에 둡니다 (이미지에는 서버 코드·Celery·DB 드라이버가 없고, `/data` 밖은 재시작 시 지워집니다) |
+| 워커 | venv | 로그 | 명령(`gpu/worker.sh`가 실행) |
+| --- | --- | --- | --- |
+| gpu | `/data/venv` (+ `/opt/venv` torch를 `.pth`로 공유) | `/data/gpu-worker.log` | `celery -A app.celery_app:celery_app worker -Q gpu --pool=solo --concurrency=1 -n gpu@%h` |
+| ocr | `/data/venv-ocr` (PaddleOCR CPU 전용, torch 없음) | `/data/ocr-worker.log` | `celery -A app.celery_app:celery_app worker -Q ocr --pool=solo --concurrency=1 -n ocr@%h` |
 
-설치 (최초 1회, `/data` 아래 venv — `feature/gpu-worker-test` 브랜치 `gpu/worker-test/README.md` 9절과 같은 방법):
+- 두 워커 모두 `--pool=solo --concurrency=1`입니다. prefork로 띄우지 않습니다(LaMa는 spawn 자식 프로세스를 쓰고, OCR은 프로세스 하나가 수 GiB를 씁니다).
+- 두 venv를 섞지 않습니다. OCR venv에 `requirements-gpu.txt`·torch·iopaint를 넣지 않고, gpu venv에 PaddleOCR을 넣지 않습니다.
+- 코드는 `/data/server` 하나를 같이 씁니다. 배포 SHA는 `/data/pixlate/release.sha`에 적고, 코드가 그 SHA와 다르면 워커가 시작되지 않습니다.
+
+### 파일 배치
+
+| 레포 파일 | 서버 위치 | 역할 |
+| --- | --- | --- |
+| `gpu/worker.sh` | `/data/pixlate/worker.sh` | 워커 시작·웜 종료·상태(`<gpu\|ocr> <start\|stop\|status>`) |
+| `deploy/bin/redact_run.py` | `/data/pixlate/bin/redact_run.py` | 로그 정제 래퍼(연결 주소·비밀을 가린 줄만 로그에 쓴다, 시그널 전달) |
+| `gpu/env_check.py` | `/data/pixlate/bin/env_check.py` | 브로커·결과 저장소 PING, DB revision, S3 접근·리전 확인(값 출력 없음) |
+| `gpu/lama_check.py` | `/data/pixlate/bin/lama_check.py` | torch·CUDA·`big-lama.pt` MD5·LaMa 로드(추론 없음) |
+| `deploy/bin/ocr_measure.py` | `/data/pixlate/bin/ocr_measure.py` | OCR 1섹션 메모리·시간 실측 |
+| (서버에만) `/data/server.env` | root 600 | 브로커·결과 저장소·DB(+ S3 자격, 아래) |
+| (서버에만) `/data/pixlate/worker-gemini.env` | root 600 | `GEMINI_API_KEY` 한 줄. **ocr 워커에만** 연결 |
+| (서버에만) `/data/pixlate/release.sha` | | 배포 SHA 40자리 |
+| (서버에만) `/data/pixlate/<gpu\|ocr>.enabled` | | 게이트 파일. 없으면 워커를 시작하지 않는다 |
+
+### 설치 (최초 1회, 모두 `/data` 아래)
 
 ```bash
-git clone https://github.com/ai-pixlate/server.git /data/server   # 레포는 /data/server 로 가정
+# 코드: 배포 SHA로 고정
+git clone https://github.com/ai-pixlate/server.git /data/server && git -C /data/server checkout <배포 SHA>
+git -C /data/server rev-parse HEAD > /data/pixlate/release.sha
+
+# gpu 워커 venv(이미지의 PyTorch 연결)
 python -m venv /data/venv
-echo /opt/venv/lib/python3.12/site-packages > /data/venv/lib/python3.12/site-packages/opt-venv.pth  # 이미지의 PyTorch 연결
-cd /data/server && /data/venv/bin/pip install -r requirements.txt
+echo /opt/venv/lib/python3.12/site-packages > /data/venv/lib/python3.12/site-packages/opt-venv.pth
+cd /data/server && /data/venv/bin/pip install -r requirements.txt -r pipeline/requirements.txt
+
+# ocr 워커 venv(시스템 Python, /opt/venv 와 분리)
+/usr/bin/python3.12 -m venv /data/venv-ocr
+cd /data/server && /data/venv-ocr/bin/pip install -r requirements.txt -r pipeline/requirements-ocr.txt
+/data/venv-ocr/bin/pip check
+
+# PaddleX 모델 캐시를 /data 에(재시작 후 다시 받지 않게). pod 재시작마다 링크를 다시 만든다
+mkdir -p /data/.cache/paddlex && [ -e /root/.paddlex ] || ln -s /data/.cache/paddlex /root/.paddlex
 ```
 
-`CELERY_VISIBILITY_TIMEOUT`은 워커마다 각자 읽는 값입니다. 바꿀 때는 EC2(API·워커)와 같은 값을 넣어야 동작이 어긋나지 않습니다.
-
-- broker·backend는 **EC2 Redis 주소**여야 합니다. 기본값의 `pixlate-redis`는 EC2 docker 내부 이름이라 이 서버에서 해석되지 않습니다.
-- `run_inpaint`가 결과를 DB에 쓰므로 `DATABASE_URL`(RDS)도 필요합니다.
-- 주소·비밀번호는 팀 공유 문서로 받아 `/data` 아래 env 파일에만 둡니다. 레포에 커밋하지 않습니다.
-- EC2는 `ocr`·`cpu` 워커만 띄웁니다. `gpu` 큐는 이 서버만 소비합니다.
-- `feature/gpu-worker-test`의 `worker_test`·`fake_inpaint`·학교 로컬 Redis는 연결 테스트용이며 **이 연동의 성공 기준이 아닙니다.**
-- 연동 확인: 분석을 한 번 돌린 뒤 EC2에서 `redis-cli -n 0 LLEN gpu`가 0으로 줄어야 합니다. 계속 쌓이기만 하면 워커가 EC2 Redis에 붙지 않은 것입니다.
-- 워커가 처리 도중 죽어도 작업은 큐로 돌아와 다시 실행됩니다(`task_acks_late`). 다만 워커 전체가 죽으면 `CELERY_VISIBILITY_TIMEOUT`(기본 3600초)이 지나야 다시 전달됩니다 — 학교 서버 재시작 때 처리 중이던 작업은 약 1시간 뒤 재처리됩니다. 재전달로 두 번 실행될 수 있어 `run_inpaint`는 두 번 실행돼도 안전하게 만들어져 있습니다.
+- OCR 런타임 라이브러리(`libgomp1 libgl1 libglib2.0-0t64`)는 `Dockerfile`에 넣었습니다. 이 변경으로 이미지를 다시 빌드하기 전에는
+  pod가 재시작될 때마다 `apt-get install -y --no-install-recommends libgomp1 libgl1 libglib2.0-0t64`가 필요합니다(`worker.sh`가 없으면 시작을 거부).
+- 같은 SHA라도 `pipeline/requirements.txt`가 버전을 고정하지 않으므로 설치 후 `pip freeze`를 남겨 둡니다.
 
 ### 환경변수 파일
 
-`/data/pixlate/worker.env`에 둡니다(`chmod 600`). `«»` 자리는 팀 공유 문서의 값으로 채웁니다.
+`/data/server.env`(root 600). `«»` 자리는 팀 공유 문서의 값으로 채웁니다. 키 이름만 이 문서에 둡니다.
 
 ```
 CELERY_BROKER_URL=redis://:«Redis비번»@«EC2주소»:6379/0
@@ -175,22 +202,52 @@ CELERY_VISIBILITY_TIMEOUT=3600
 ```
 
 - 비밀번호에 `@ : / # % ?`가 있으면 URL 인코딩합니다(예: `@` → `%40`, `#` → `%23`).
-- «EC2주소»는 EC2 탄력적 IP입니다. docker 내부 이름(`pixlate-redis`)은 쓰지 않습니다.
+- «EC2주소»는 EC2 탄력적 IP입니다. docker 내부 이름(`pixlate-redis`)은 이 서버에서 해석되지 않습니다.
+- `CELERY_VISIBILITY_TIMEOUT`은 EC2(API·워커)와 같은 값이어야 합니다.
+- **S3 자격: 미결정.** 분석(원본 이미지 읽기)·인페인팅(결과 업로드) 모두 S3가 필요하지만, 학교 서버는 IAM 역할을 쓸 수 없고
+  승인된 제공 방식이 아직 없습니다(2026-10-12 확인: 현재 env 파일에 S3 자격 없음). 방식이 정해지면 그 자격을 이 파일에 두고
+  `env_check.py`로 버킷 접근·리전 일치를 확인합니다. 장기 액세스 키 신규 발급을 전제하지 않습니다.
+- Gemini 키는 이 파일에 넣지 않습니다(gpu 워커에는 필요 없음). `/data/pixlate/worker-gemini.env`에만 둡니다.
 
-### 연결 확인과 실행
+### 점검·시작·정지
 
 ```bash
-cd /data/server && set -a && . /data/pixlate/worker.env && set +a
-/data/venv/bin/python -c "from app.celery_app import celery_app as c; c.connection().ensure_connection(max_retries=1); print('Redis OK')"
-/data/venv/bin/python -c "import os; from sqlalchemy import create_engine, text; print('RDS OK', create_engine(os.environ['DATABASE_URL']).connect().execute(text('select 1')).scalar())"
-nohup /data/venv/bin/celery -A app.celery_app worker -Q gpu -n gpu@%h --loglevel=info >> /data/pixlate/worker.log 2>&1 &
+cd /data/server
+(set -a; . /data/server.env; set +a; /data/venv/bin/python /data/pixlate/bin/env_check.py)        # gpu 환경
+(set -a; . /data/server.env; set +a; /data/venv-ocr/bin/python /data/pixlate/bin/env_check.py)    # ocr 환경
+/data/venv/bin/python /data/pixlate/bin/lama_check.py
+
+touch /data/pixlate/gpu.enabled /data/pixlate/ocr.enabled    # 소비 재개를 결정한 뒤에만
+bash /data/pixlate/worker.sh gpu start
+bash /data/pixlate/worker.sh ocr start
+bash /data/pixlate/worker.sh ocr status
+bash /data/pixlate/worker.sh ocr stop       # TERM → 웜 종료(처리 중 작업은 끝까지). kill -9 를 쓰지 않는다
 ```
 
-- 웹 터미널에서 그냥 띄운 워커는 터미널을 닫으면 꺼지므로 `nohup ... &`로 띄웁니다. 로그는 `/data/pixlate/worker.log`입니다.
-- **컨테이너(pod)가 재시작되면 워커가 꺼집니다.** 위 명령을 다시 실행합니다. 자동 기동은 아직 없습니다.
-- EC2 Redis가 재시작되면 워커는 스스로 다시 붙습니다(EC2 재부팅으로 확인).
+- **pod가 재시작되면 워커는 꺼진 채로 남습니다**(PID 1은 sshd). 검증 전에 자동으로 소비하지 않게 하려는 의도입니다. 재시작 뒤에는 위 시작 명령을 다시 실행합니다.
+- 관리 밖에서 띄운 옛 워커(예: `nohup celery ... -Q gpu`)가 있으면 `worker.sh`가 시작을 거부합니다. 옛 워커는 TERM으로 웜 종료합니다.
+- 워커가 처리 도중 죽어도 작업은 큐로 돌아와 다시 실행됩니다(`task_acks_late`). 워커 전체가 죽으면 `CELERY_VISIBILITY_TIMEOUT`(기본 3600초) 뒤 재전달되고, 실행 권한 만료는 EC2 복구 프로세스가 DB 기준으로 정리합니다.
+- EC2 Redis가 재시작되면 워커는 스스로 다시 붙습니다.
 
-### 연동 확인 결과 (2026-09-28)
+### OCR 자원 (2026-10-12 실측, e1291ab)
+
+pod 한도 CPU 4코어·메모리 30720Mi(**프로젝트 안 모든 컨테이너 합계**, 스왑 없음). OCR CPU 실행, 새 프로세스, 모델 캐시 있음. 합성 입력.
+
+| 섹션(폭×높이) | 결과 | 시간 | 최대 RSS |
+| --- | --- | --- | --- |
+| 600×560 | 종료 0, 영역 5 | 21.4초(캐시 없음 44.3초) | 2.34GiB |
+| 860×1,000 | 종료 0 | 35.4초 | 4.84GiB |
+| 860×2,000 | 종료 0 | 64.2초 | 9.03GiB |
+| 860×4,000 | 종료 0 | 117.3초 | 17.70GiB |
+| 1080×4,000 | 측정 감시(20GiB)로 중단 | — | 20GiB 초과 |
+
+- 메모리는 글자 양이 아니라 **면적**에 비례합니다(빈 배경 860×4,000도 17.83GiB). 약 100만 픽셀당 5GiB입니다.
+- **운영 범위: 폭 860px 이하·높이 4,000px 이하가 실측 통과 범위입니다.** 폭 1080 이상의 긴 섹션은 약 22GiB 이상으로 추정되며,
+  같은 pod의 LaMa와 동시에 돌면 메모리 한도를 넘을 수 있습니다. 4,000px 타일 처리(#31·#32)가 들어오면 다시 측정합니다.
+- 실제 상품 이미지로는 아직 측정하지 않았습니다. 빈 배경 860×4,000에서 글자 1줄이 검출되지 않은(영역 0) 점은 AI 담당 확인 대상입니다.
+- 측정: `cd /data/server && /data/venv-ocr/bin/python /data/pixlate/bin/ocr_measure.py <split.json> <section> <out> [한도GiB]`
+
+### 연동 확인 결과 (2026-09-28, 이전 구성 기록)
 
 | 확인 (EC2에서 실행) | 결과 |
 | --- | --- |

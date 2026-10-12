@@ -122,6 +122,9 @@ RDS 서버와 같은 버전의 `pg_dump`를 digest로 고정한 `postgres:16.x` 
 
 - 확인: `pg_dump` 종료 코드 0, 크기·SHA-256 기록.
 - 복원 시험: 네트워크 없는 임시 `postgres` 컨테이너에 `pg_restore --exit-on-error` 후 테이블별 행 수를 원본과 비교하고 컨테이너를 지웁니다. 운영 DB·로컬 사용 DB에 시험 복원하지 않습니다.
+- RDS 스냅샷(선택, RDS 권한자): 콘솔 RDS → 데이터베이스 `pixlate-db` → 작업 → 스냅샷 생성(`pixlate-db-pre-<revision>-<날짜>`),
+  상태가 `사용 가능`이 될 때까지 기다립니다. 스냅샷 복원은 **새 DB 인스턴스**를 만들므로(기존 인스턴스를 덮어쓰지 않음),
+  복원 뒤 보안 그룹·퍼블릭 액세스를 원본과 같게 맞추고 아래처럼 `DATABASE_URL`을 바꿉니다.
 - 실제 복구: 같은 RDS의 새 DB(DB 역할에 createdb 권한 있음) 또는 스냅샷 복원 인스턴스에 복원한 뒤, `pixlate.env`와 학교 GPU `/data/server.env`의 `DATABASE_URL`을 바꾸고 컨테이너·워커를 다시 띄웁니다. Redis 메시지가 복원 시점과 맞는지 먼저 확인합니다.
 
 ### 4. 마이그레이션

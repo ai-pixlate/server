@@ -6,7 +6,7 @@
 
 - 브로커·결과 저장소: Redis PING(인증 포함)만. 큐 길이·메시지는 읽지 않는다.
 - DB: 연결 + alembic revision(값은 비밀이 아님) + 대상이 RDS·DB 이름 pixlate 인지(호스트는 출력 안 함).
-- S3: 코드의 실제 설정(app.s3)으로 버킷 HeadBucket·리전 일치. 버킷 이름은 출력하지 않고 EC2 와 비교할 해시 앞 12자리만.
+- S3: 코드의 실제 설정(app.s3)으로 staging/ 접두사 목록 조회·리전 일치. 버킷 이름은 출력하지 않고 EC2 와 비교할 해시 앞 12자리만.
   자격 출처(환경 변수/파일/역할)는 종류만 출력한다.
 """
 import hashlib
@@ -67,10 +67,11 @@ def s3():
     if cred is None:
         raise RuntimeError("no credentials")
     cli = boto3.client("s3", region_name=s3mod.S3_REGION)
-    cli.head_bucket(Bucket=s3mod.S3_BUCKET)
+    # 최소 권한 정책(gpu/iam/school-worker-s3-policy.json)은 워커 접두사 목록만 허용하므로 HeadBucket 대신 접두사로 조회한다
+    cli.list_objects_v2(Bucket=s3mod.S3_BUCKET, Prefix="staging/", MaxKeys=1)
     loc = cli.get_bucket_location(Bucket=s3mod.S3_BUCKET).get("LocationConstraint") or "us-east-1"
     h = hashlib.sha256(s3mod.S3_BUCKET.encode()).hexdigest()[:12]
-    return (f"head ok | credential_source {cred.method} | region_match {loc == s3mod.S3_REGION} "
+    return (f"list ok | credential_source {cred.method} | region_match {loc == s3mod.S3_REGION} "
             f"| bucket_from_env {bool(os.environ.get('S3_BUCKET'))} | bucket_hash {h}")
 
 

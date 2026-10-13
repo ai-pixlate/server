@@ -2,9 +2,10 @@
 
 대역 엔진(LayoutEngine)은 섹션 좌표의 정답 박스를 받아, 넘겨받은 crop이 원본의 어느 행 구간인지(같은 메모리의 행 뷰)로
 보이는 부분만 crop 로컬 좌표로 돌려준다. 잘린 박스의 인식 결과 · 한 영역 대 여러 영역 · 서로 다른 판독은 박스별 함수로
-흉내 낸다. 여기 결과는 대역 검증이며 실제 PaddleOCR 검증과 구분한다.
+흉내 낸다. 실제 PaddleOCR 검증은 맨 아래(설치된 환경에서만)와 docs/ai-experiments 기록에 있다 — 여기 결과는 대역 검증이다.
 """
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -592,3 +593,58 @@ def test_analyze_split_failure_whole_image_section_goes_through_tiled_ocr(tmp_pa
     assert sorted(b.source_ko for b in res.blocks) == sorted(b["text"] for b in boxes)
     dbg = json.loads((out / "ocr_debug" / f"{res.sections[0].section_key}.json").read_text(encoding="utf-8"))
     assert len(dbg["tiles"]) >= 5 and dbg["engine_calls"]["supplements"] == 0
+
+
+# ---- 실제 PaddleOCR (설치된 환경에서만) ---------------------------------------------------------
+FONT = Path(__file__).resolve().parent.parent / "pipeline" / "data" / "fonts" / "pretendard" / "Pretendard-Regular.otf"
+
+
+def _render(path, h, w, lines, band=None):
+    from PIL import ImageDraw, ImageFont
+    arr = np.full((h, w, 3), 255, np.uint8)
+    if band:  # 가로 그라데이션 띠 — 행마다 색이 x로 변해 균일 행(여백)이 없다 → 고정 절단
+        grad = np.linspace(170, 250, w).astype(np.uint8)
+        arr[band[0]:band[1]] = np.stack([grad, np.full(w, 235, np.uint8), 255 - grad // 3], axis=1)[None]
+    im = Image.fromarray(arr)
+    dr = ImageDraw.Draw(im)
+    for text, y, px in lines:
+        dr.text((60, y), text, fill=(20, 20, 20), font=ImageFont.truetype(str(FONT), px))
+    im.save(path)
+    return Section(section_key="sec_9_01", source_image_id=9, section_order=1, top_offset=0, height=h, width=w, image_path=str(path))
+
+
+def _check_real(res, d, lines, h):
+    norm = [ocr_tile.normalize_text(r.text) for r in res.regions]
+    for text, y, px in lines:
+        hits = [r for r in res.regions if r.bbox.y < y + px and r.bbox.y2 > y]  # 그 줄 높이와 겹치는 영역
+        joined = "".join(ch for ch in "".join(ocr_tile.normalize_text(r.text) for r in sorted(hits, key=lambda r: r.bbox.x))
+                         if not ch in "·.,")
+        assert joined == ocr_tile.normalize_text(text), (text, [r.text for r in hits], norm)  # 누락 · 중복 · 잘림 없음
+    for i, a in enumerate(res.regions):  # 같은 자리 중복 잔존 없음
+        for b in res.regions[i + 1:]:
+            inter = max(0, min(a.bbox.x2, b.bbox.x2) - max(a.bbox.x, b.bbox.x)) * max(0, min(a.bbox.y2, b.bbox.y2) - max(a.bbox.y, b.bbox.y))
+            assert inter < 0.5 * min(a.bbox.w * a.bbox.h, b.bbox.w * b.bbox.h), (a.text, b.text)
+    assert all(0 <= y <= h for r in res.regions for _, y in r.poly)
+    assert d["engine_calls"]["supplements"] <= len(d["tiles"]) - 1
+
+
+def test_real_paddleocr_tiled_blank_cuts(cfg, tmp_path):
+    """여백 절단: 겹침 띠 · 절단선 근처 줄과 반복 문구가 정확히 한 번씩 남는다(실제 엔진, 2026-10-13 GPU 통과)."""
+    pytest.importorskip("paddleocr")
+    lines = [("첫째 줄 보습 크림", 120, 40), ("겹침 띠 위쪽 문장", 1730, 40), ("절단 근처 문장입니다", 1790, 40),
+             ("겹침 띠 아래 문장", 1950, 40), ("반복 문구", 3450, 40), ("반복 문구", 3520, 40), ("셋째 타일 본문", 4000, 40),
+             ("마지막 줄", 6100, 40)]
+    d = {}
+    res = ocr.run(_render(tmp_path / "blank.png", 6200, 900, lines), cfg, diag=d)
+    _check_real(res, d, lines, 6200)
+    assert all(t["cut"] in ("blank", "end") for t in d["tiles"]) and d["dropped"]
+
+
+def test_real_paddleocr_tiled_fixed_cut_through_large_text(cfg, tmp_path):
+    """여백 없는 띠에서 고정 절단선(2000)이 150px 제목을 가로지른다 → 충돌 → 경계를 옮긴 보완 OCR 1회로 해결."""
+    pytest.importorskip("paddleocr")
+    lines = [("그라데이션 위 첫 문장", 1500, 40), ("큰 제목", 1880, 150), ("절단선 아래 문장", 2150, 40), ("바닥 문장", 4700, 40)]
+    d = {}
+    res = ocr.run(_render(tmp_path / "fixed.png", 4800, 900, lines, band=(1300, 2400)), cfg, diag=d)
+    _check_real(res, d, lines, 4800)
+    assert d["tiles"][0]["cut"] == "fixed" and d["engine_calls"]["supplements"] == 1

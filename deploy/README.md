@@ -94,6 +94,13 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 모드 전환·Redis 보존·digest/env 교체(`modes.sh`)와 정지·기동 실패 경로(`stop.sh`: 늦은 종료, 조회 실패·paused,
 Docker 명령 실패, 옛 워커 정지 실패 시 live 차단, 모드 파일 저장 실패 시 재시작 금지)를 시험한다. 운영 서버에는 연결하지 않는다.
 
+`bash deploy/tests/worker_import.sh <앱 이미지>` — 가짜 이미지가 아닌 **실제 앱 이미지**로 cpu 워커 실행 방식을 시험한다.
+외부로 나가지 않는 내부 네트워크와 임시 Redis만 쓰고(운영 DB·Redis·모델 호출 없음), 시험 워커에서만 등록한
+탐침 태스크(`tests/probe/`, 기존 배포 이미지는 변경하지 않음)가 작업 실행 시점에 `pipeline`을 지연 import 한다.
+`celery` 실행 파일 방식은 실패(앱 로딩 때만 `/app`이 import 경로에 들어감), `python -m celery` 방식은 성공,
+유휴 워커의 TERM 전달·웜 종료 0, `start-pixlate.sh`가 후자를 쓰는지까지 확인한다.
+실행 중 작업을 마친 뒤의 종료는 가짜 워커 지연 종료 시험(`stop.sh`)이 본다.
+
 ### 로그 정제
 
 모든 앱 컨테이너는 `docker run --init … python /opt/pixlate/bin/redact_run.py -- <명령>`으로 실행합니다.

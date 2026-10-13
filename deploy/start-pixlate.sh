@@ -262,9 +262,12 @@ fi
 # 옛 워커(ocr·gpu) 정지가 확인되기 전에는 아무것도 새로 띄우지 않는다
 graceful_stop "${OFFLOADED[@]}"
 no_failures || { finish live || true; die "옛 워커 정지 미완료 — live 기동을 시작하지 않았다"; }
+# cpu 워커는 python -m celery 로 띄운다. celery 실행 파일은 앱을 불러올 때만 /app 을 import 경로에 넣었다가 빼므로,
+# 태스크 실행 중의 지연 import(pipeline)가 실패한다(tests/worker_import.sh). 학교 워커(gpu/worker.sh)와 같은 방식.
+# 실행 명령은 사양 해시에 들어가므로 이 줄을 바꾸면 cpu 워커만 교체된다. 래퍼(redact_run.py) 내용은 세 컨테이너 사양 모두에 들어간다.
 run_managed pixlate-api unless-stopped -p 8000:8000 --env-file "$ENVFILE" "$IMAGE" "${API_CMD[@]}" \
   && run_managed pixlate-worker-cpu unless-stopped --env-file "$ENVFILE" --env-file "$GEMINI_ENV" "$IMAGE" \
-       python /opt/pixlate/bin/redact_run.py -- celery -A app.celery_app:celery_app worker -Q cpu --pool=solo -n "cpu@%h" --loglevel=info \
+       python /opt/pixlate/bin/redact_run.py -- python -m celery -A app.celery_app:celery_app worker -Q cpu --pool=solo -n "cpu@%h" --loglevel=info \
   && run_managed pixlate-recovery unless-stopped --env-file "$ENVFILE" "$IMAGE" \
        python /opt/pixlate/bin/redact_run.py -- python -m app.recovery --interval 60 \
   || { finish live || true; die "live 기동 실패(위 실패 참고) — 남은 컨테이너는 그대로 두었다"; }

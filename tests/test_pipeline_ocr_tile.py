@@ -11,9 +11,11 @@ import pytest
 from PIL import Image
 
 from pipeline import config as cfgmod
+from pipeline import jsonio
+from pipeline import run as cli
 from pipeline.errors import AnalyzeError
 from pipeline.stages import ocr, ocr_tile
-from pipeline.types import BBox, Section
+from pipeline.types import BBox, Section, SplitResult
 
 W = 600
 
@@ -510,3 +512,54 @@ def test_order_follows_paddle_sort_rule(monkeypatch, cfg, tmp_path):
     img, eng = _band_case(boxes)
     res = run_ocr(monkeypatch, cfg, img, eng, tmp_path)
     assert texts(res) == ["위", "왼쪽", "오른쪽"]
+
+
+# ---- CLI · analyze() --------------------------------------------------------------------------
+def _split_with_long_section(tmp_path, boxes, h=4600):
+    img = draw(h, boxes)
+    d = tmp_path / "input"
+    (d / "sections").mkdir(parents=True)
+    p = d / "sections" / "sec_1_01.png"
+    Image.fromarray(img[:, :, ::-1]).save(p)
+    sec = Section(section_key="sec_1_01", source_image_id=1, section_order=1, top_offset=0, height=h, width=W, image_path=str(p))
+    jsonio.write_model(d / "split.json", SplitResult(source_image_id=1, source_width=W, source_height=h, sections=[sec]))
+    return d / "split.json"
+
+
+def _spy_loader(monkeypatch, eng):
+    orig = ocr.load_section_image
+    def spy(sec):
+        eng.full = orig(sec)
+        return eng.full
+    monkeypatch.setattr(ocr, "load_section_image", spy)
+
+
+def test_cli_tiled_section_writes_debug_and_summary(tmp_path, monkeypatch):
+    boxes = [box(50, 1800, 300, 1830, "띠 문구")]
+    eng = LayoutEngine(boxes)
+    _spy_loader(monkeypatch, eng)
+    monkeypatch.setattr(ocr, "build_engine", lambda cfg: eng)
+    out = tmp_path / "out"
+    assert cli.main(["ocr", "--split", str(_split_with_long_section(tmp_path, boxes)), "--out", str(out)]) == 0
+    rec = json.loads((out / "run.json").read_text(encoding="utf-8"))["sections"]["sec_1_01"]
+    assert rec["status"] == "ok" and rec["tiles"] == 3 and rec["engine_calls"] == 3 and rec["dropped"] == 1
+    dbg = json.loads((out / "ocr_debug" / "sec_1_01.json").read_text(encoding="utf-8"))
+    assert dbg["tiled"] and len(dbg["regions"]) == 1
+    assert [r.text for r in jsonio.load_ocr(out / "ocr" / "sec_1_01.json").regions] == ["띠 문구"]
+
+
+def test_cli_unresolved_conflict_exits_2_and_keeps_debug(tmp_path, monkeypatch):
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return crossed(50, 1800, role(n))
+    boxes = [box(50, 1800, 300, 1830, "x", render=render)]
+    eng = LayoutEngine(boxes)
+    _spy_loader(monkeypatch, eng)
+    monkeypatch.setattr(ocr, "build_engine", lambda cfg: eng)
+    out = tmp_path / "out"
+    assert cli.main(["ocr", "--split", str(_split_with_long_section(tmp_path, boxes)), "--out", str(out)]) == 2
+    rec = json.loads((out / "run.json").read_text(encoding="utf-8"))["sections"]["sec_1_01"]
+    assert rec["status"] == "failed" and rec["code"] == "OCR_FAILED" and rec["supplements"] == 1
+    assert json.loads((out / "ocr_debug" / "sec_1_01.json").read_text(encoding="utf-8"))["failed"]
+    assert not (out / "ocr" / "sec_1_01.json").exists()

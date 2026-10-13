@@ -35,8 +35,9 @@
 실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간·커밋 해시를 남긴다(계약 9장의 event_log.payload에 해당).
 split·ocr·merge 파일 읽기는 pipeline.jsonio를 거친다(버전 확인). split.json만 상대 image_path를 JSON 파일 폴더 기준으로 해석·기록하고,
 analyze.json(워커 인계 형식)은 버전 1 · 경로 변환 없이 그대로 쓴다(dev.md 3절).
-종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현(단계 또는 ② 4,000px 초과 섹션) · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
+종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
 ocr은 섹션 오류를 기록하고 계속하며 run.json에 status(ok · partial · failed)와 섹션별 결과를 남긴다(dev.md 4절).
+타일로 나눈 섹션(높이 > ocr.split_threshold_px)은 성공 · 실패와 관계없이 DIR/ocr_debug/<KEY>.json에 타일 진단을 남긴다.
 """
 from __future__ import annotations
 
@@ -153,10 +154,11 @@ def cmd_ocr(args) -> int:
     from pipeline.stages import ocr
 
     cfg = _load_cfg(args)
+    ocr.validate_config(cfg)  # 잘못된 분할 설정은 섹션을 돌리기 전에 ValueError
     started = datetime.now(timezone.utc)
     out = Path(args.out)
-    if (out / "run.json").exists() or (out / "ocr").exists():
-        raise FileExistsError(f"{out}에 이전 실행 결과(run.json 또는 ocr/)가 있음 — 실행마다 새 --out을 쓴다")
+    if (out / "run.json").exists() or (out / "ocr").exists() or (out / "ocr_debug").exists():
+        raise FileExistsError(f"{out}에 이전 실행 결과(run.json · ocr/ · ocr_debug/)가 있음 — 실행마다 새 --out을 쓴다")
     split = jsonio.load_split(args.split)
     targets = [_find_section(split, args.section)] if args.section else split.sections
     sections: dict[str, dict[str, Any]] = {s.section_key: {"status": "not_run"} for s in targets}
@@ -176,21 +178,18 @@ def cmd_ocr(args) -> int:
         return 2
 
     for sec in targets:
+        diag: dict[str, Any] = {}
         try:
-            res = ocr.run(sec, cfg, engine=engine)
-        except (AnalyzeError, NotImplementedError) as e:
+            res = ocr.run(sec, cfg, engine=engine, diag=diag)
+        except AnalyzeError as e:
             entry = _error_entry(e)
-            if isinstance(e, NotImplementedError):
-                entry["reason"] = "임시 분할 미구현"
-                exit_code = exit_code or 3
-            else:
-                exit_code = 2
-            sections[sec.section_key] = {"status": "failed", **entry}
+            exit_code = 2
+            sections[sec.section_key] = {"status": "failed", **entry, **_tile_summary(out, sec.section_key, diag)}
             first_error = first_error or entry
             print(f"{sec.section_key}: 실패 {entry['code'] or entry['exception']} — {entry['message']}")
             continue
         p = _write_json(out / "ocr" / f"{sec.section_key}.json", res)
-        sections[sec.section_key] = {"status": "ok", "regions": len(res.regions)}
+        sections[sec.section_key] = {"status": "ok", "regions": len(res.regions), **_tile_summary(out, sec.section_key, diag)}
         print(f"{sec.section_key}: 영역 {len(res.regions)}개 → {p}")
 
     status = _run_status(sections)
@@ -200,6 +199,19 @@ def cmd_ocr(args) -> int:
         print(json.dumps(first_error, ensure_ascii=False), file=sys.stderr)
     print(f"상태 {status}: " + " · ".join(f"{k} {sum(1 for s in sections.values() if s['status'] == k)}" for k in ("ok", "failed", "not_run")))
     return exit_code
+
+
+def _tile_summary(out: Path, key: str, diag: dict[str, Any]) -> dict[str, Any]:
+    """타일 섹션이면 ocr_debug/<key>.json을 쓰고 run.json용 요약을 돌려준다. 타일이 아니면 빈 dict."""
+    if not diag.get("tiled"):
+        return {}
+    path = out / "ocr_debug" / f"{key}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
+    calls = diag.get("engine_calls", {})
+    return {"tiles": len(diag.get("tiles", [])), "engine_calls": calls.get("tiles", 0) + calls.get("supplements", 0),
+            "supplements": calls.get("supplements", 0), "dropped": len(diag.get("dropped", [])),
+            "tile_warnings": len(diag.get("warnings", [])), "ocr_debug": str(path)}
 
 
 def cmd_merge(args) -> int:

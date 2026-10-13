@@ -281,7 +281,9 @@ def test_cli_ocr_oversized_section_is_tiled(tmp_path, fake_engine):
     out = tmp_path / "out"
     assert cli.main(["ocr", "--split", str(_split_dir(tmp_path, heights=(100, 4001))), "--out", str(out)]) == 0
     rec = _record(out)
-    assert rec["status"] == "ok" and rec["sections"]["sec_1_02"]["status"] == "ok"
+    assert rec["status"] == "ok"
+    assert "tiles" not in rec["sections"]["sec_1_01"] and rec["sections"]["sec_1_02"]["tiles"] >= 2
+    assert (out / "ocr_debug" / "sec_1_02.json").exists() and not (out / "ocr_debug" / "sec_1_01.json").exists()
 
 
 def test_cli_ocr_refuses_reused_output_folder(tmp_path, fake_engine):

@@ -321,9 +321,9 @@ def test_supplement_confirming_clean_tile_modulo_punctuation_resolves(monkeypatc
     assert cl["rule"] == "supplement_confirms_tile_punctuation_only" and cl["use_tile"] == 1
 
 
-def test_same_place_recognition_instability_keeps_one_tile_bundle_with_warning(monkeypatch, cfg, tmp_path):
-    """세 판독이 모두 잘림 없이 같은 자리 · 같은 줄 구조인데 글자만 다르면(실측: SPF 50+ / SPF EO+ / SPF 504) 분할이 만든
-    충돌이 아니라 판독 흔들림 — 대표 규칙으로 한 타일 묶음을 남기고 경고한다. 숫자가 달라도 같다(값 검증은 하지 않는다)."""
+def test_same_place_recognition_instability_fails(monkeypatch, cfg, tmp_path):
+    """세 판독이 모두 잘림 없이 같은 자리 · 같은 줄인데 글자가 서로 다르면(실측: SPF 50+ / SPF EO+ / SPF 504) 어느 판독이
+    맞는지 정하지 않고 실패한다(사용자 결정 2026-10-13 — 보완 후에도 남은 명백한 충돌)."""
     readings = {"upper": "SPF 1.5", "lower": "SPF 15", "supplement": "SPF 1,5"}
     def render(y0, y1, n):
         if y0 > 1800 or y1 < 1830:
@@ -331,11 +331,22 @@ def test_same_place_recognition_instability_keeps_one_tile_bundle_with_warning(m
         return [(100, 1800, 400, 1830, readings[role(n)])]
     img, eng = _band_case([box(100, 1800, 400, 1830, "x", render=render)])
     d = {}
-    res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
-    assert texts(res) in (["SPF 1.5"], ["SPF 15"])  # 보완 판독(SPF 1,5)은 섞지 않는다
-    w = d["warnings"][0]
-    assert w["kind"] == "recognition_unstable" and w["supplement_text"] == "SPF1,5"
-    assert w["clean_tile_readings"] == {"0": "SPF1.5", "1": "SPF15"}
+    with pytest.raises(AnalyzeError, match="readings_conflict") as ei:
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert ei.value.code == "OCR_FAILED" and len(eng.calls) == len(d["tiles"]) + 1
+    cl = d["supplements"][0]["clusters"][0]
+    assert cl["clean_tile_readings"] == {"0": "SPF1.5", "1": "SPF15"} and cl["supplement_text"] == "SPF1,5"
+
+
+def test_recognition_difference_without_supplement_fails(monkeypatch, cfg, tmp_path):
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return {"upper": [(100, 1800, 400, 1830, "보습크림")], "lower": [(100, 1800, 400, 1830, "보숩크림")],
+                "supplement": []}[role(n)]
+    img, eng = _band_case([box(100, 1800, 400, 1830, "x", render=render)])
+    with pytest.raises(AnalyzeError, match="readings_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})
 
 
 def crossed(x, y, who):
@@ -358,28 +369,40 @@ def test_no_bundle_covering_all_readings_fails_and_keeps_diag(monkeypatch, cfg, 
         run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
     assert ei.value.code == "OCR_FAILED" and ei.value.source_image_id == 3
     assert len(eng.calls) == len(d["tiles"]) + 1  # 같은 경계 보완은 1회 — 다시 부르지 않는다
-    assert d["failed"][0]["reason"] == "no_bundle_covers_all_readings"
+    assert d["failed"][0]["reason"] == "readings_conflict"
     json.dumps(d)  # 실패해도 진단은 직렬화 가능
 
 
-def test_under_detected_tile_covered_by_another_is_resolved(monkeypatch, cfg, tmp_path):
-    """실측 사례(작은 영문 본문): 한 타일은 줄 전체, 다른 타일은 앞부분만 검출, 보완은 줄 전체를 다른 글자로 읽음."""
+def _partial_case(lower_text):
     def render(y0, y1, n):
         if y0 > 1800 or y1 < 1814:
             return None
         return {"upper": [(100, 1800, 290, 1814, "cated in cutaseeus aging")],
-                "lower": [(103, 1803, 165, 1810, "catod io")],
-                "supplement": [(102, 1802, 290, 1812, "cated in cutesecus aging")]}[role(n)]
-    img, eng = _band_case([box(100, 1800, 290, 1814, "x", render=render)])
+                "lower": [(103, 1803, 165, 1810, lower_text)], "supplement": []}[role(n)]
+    return _band_case([box(100, 1800, 290, 1814, "x", render=render)])
+
+
+def test_under_detected_tile_contained_by_another_is_resolved(monkeypatch, cfg, tmp_path):
+    """한 타일은 줄 전체, 다른 타일은 앞부분만 같은 글자로 검출(위치 · 텍스트 모두 포함) → 덮는 묶음 + 경고."""
+    img, eng = _partial_case("cated in")
     d = {}
     res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
     assert texts(res) == ["cated in cutaseeus aging"]
     cl = d["supplements"][0]["clusters"][0]
-    assert cl["rule"] == "same_place_as_supplement" and cl["use_tile"] == 0 and d["warnings"][0]["kind"] == "recognition_unstable"
+    assert cl["rule"] == "tile_contains_all_readings" and cl["use_tile"] == 0
+    assert d["warnings"][0]["kind"] == "partial_detection"
+
+
+def test_under_detected_tile_with_different_text_fails(monkeypatch, cfg, tmp_path):
+    """실측 사례(작은 영문 본문): 짧은 쪽이 위치로는 포함되지만 글자가 다르면(catod io) 충돌로 실패한다."""
+    img, eng = _partial_case("catod io")
+    with pytest.raises(AnalyzeError, match="readings_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})
 
 
 def test_flaky_tiny_detection_without_supplement_keeps_covering_tile_bundle(monkeypatch, cfg, tmp_path):
-    """실측 사례(7px 아이콘 글자): 두 타일이 거의 같은 자리에서 'A' · 'PA+'를 읽고 보완은 못 찾음 → 덮는 묶음 하나 + 경고."""
+    """실측 사례(7px 아이콘 글자): 두 타일이 거의 같은 자리에서 'A' · 'PA+'를 읽고 보완은 못 찾음 → 'A'를 포함하는
+    'PA+' 묶음 하나 + 경고."""
     def render(y0, y1, n):
         if y0 > 1800 or y1 < 1807:
             return None
@@ -387,8 +410,7 @@ def test_flaky_tiny_detection_without_supplement_keeps_covering_tile_bundle(monk
     img, eng = _band_case([box(405, 1800, 435, 1807, "x", render=render)])
     d = {}
     res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
-    assert len(res.regions) == 1 and texts(res)[0] in ("A", "PA+")
-    assert d["warnings"][0]["kind"] == "detection_unstable"
+    assert texts(res) == ["PA+"] and d["warnings"][0]["kind"] == "partial_detection"
 
 
 def test_supplement_covering_both_partial_tile_readings_replaces_them(monkeypatch, cfg, tmp_path):
@@ -403,7 +425,7 @@ def test_supplement_covering_both_partial_tile_readings_replaces_them(monkeypatc
     res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
     assert texts(res) == ["ABC"] and res.regions[0].bbox == BBox(x=100, y=1800, w=150, h=30)
     cl = d["supplements"][0]["clusters"][0]
-    assert cl["rule"] == "supplement_covers_all_readings" and cl["use"] == "supplement"
+    assert cl["rule"] == "supplement_contains_all_readings" and cl["use"] == "supplement"
     w = d["warnings"][0]
     assert w["use"] == "supplement" and w["use_tile"] is None
     origins = {x["id"]: x["origin"] for x in d["detections"]}

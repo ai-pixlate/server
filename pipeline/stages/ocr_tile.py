@@ -16,10 +16,10 @@
 5. 보완 OCR — 충돌 · 잘림 의심(대표나 단독 검출이 내부 절단선에 접촉)이 있는 경계마다 최대 1회, 해당 성분을 감싸는
    crop(위아래 `tile_supplement_margin_px` 밖, 여백 우선)으로 다시 OCR한다. 보완 검출과 위치로 대응한 성분 묶음(군집)을
    판정한다(`_judge_supplement`): 보완 판독이 절단선 비접촉 타일 판독을 확인하면(같음, 또는 숫자에 붙지 않은
-   문장부호만 다름) 그 타일 묶음 전체를, 깨끗한 타일 판독이 없으면 보완 검출을 남긴다. 잘림 없는 판독끼리 글자 ·
-   박스만 다르면(판독 · 검출 흔들림) 나머지 판독의 가로 덮음을 모두 포함하는 한 묶음을 경고와 함께 남긴다. 군집의
-   나머지는 버린다(단순 추가 없음, 대응 없는 보완 검출은 버리고 기록). 잘림 없는 판독이 없거나 어느 한 묶음도 나머지
-   판독 내용을 포함하지 못하면(명백한 충돌) OCR_FAILED.
+   문장부호만 다름) 그 타일 묶음 전체를, 깨끗한 타일 판독이 없으면 보완 검출을 남긴다. 한 묶음이 나머지 판독을 위치와
+   텍스트(포함) 모두에서 포함하면(덜 검출) 그 묶음을 경고와 함께 남긴다. 군집의 나머지는 버린다(단순 추가 없음, 대응
+   없는 보완 검출은 버리고 기록). 그 밖 — 잘림 없는 판독이 같은 자리에서 서로 다르게 읽힌 경우를 포함한 명백한 충돌 —
+   은 OCR_FAILED.
 6. 정렬 — 최종 영역을 PaddleX `SortQuadBoxes`와 같은 규칙(첫 점 (y, x) 정렬 후 |Δy| < 10 인접 교환)으로 정렬하고
    region_key를 다시 매긴다.
 
@@ -525,6 +525,11 @@ def resolve_boundary(b: int, comps: list[Component], all_comps: list[Component],
     return rec, added
 
 
+def text_consistent(part: str, whole: str) -> bool:
+    """part 판독이 whole 판독과 모순되지 않는가 — 같음 · 숫자에 붙지 않은 문장부호만 다름 · whole 안에 그대로 포함(덜 검출)."""
+    return part == whole or punctuation_only_diff(part, whole) or part in whole
+
+
 def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile], p: TileParams) -> dict[str, Any]:
     """보완 OCR 뒤 군집을 판정한다. 남길 쪽은 언제나 한 crop의 검출 묶음 전체다(양쪽 박스를 섞지 않는다).
 
@@ -532,13 +537,12 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
     1. 보완 판독이 깨끗한 타일 판독과 같거나 숫자에 붙지 않은 문장부호만 다르면(확인) 그 타일 묶음(같음 우선, 여럿이면
        타일 내부 끝에서 더 먼 쪽 → 위 타일). 보완 검출은 확인에만 쓰고 버린다.
     2. 깨끗한 타일 판독이 없고 보완이 깨끗하면 보완 검출로 대체한다.
-    판독 불안정(경고) — 잘림 없는 판독들의 글자나 박스가 다른 것은 분할이 아니라 판독 · 검출 자체의 흔들림이다:
-    3. 보완과 같은 위치 · 줄 구조(가로 덮음 IoU ≥ tile_equiv_min_x_iou, 줄 수 같음)인 타일 묶음이 있고 나머지 깨끗한
-       묶음의 가로 덮음이 보완 안이면(덜 검출된 쪽) 같은 자리 묶음 중 하나.
-    4. 다른 깨끗한 판독(깨끗한 보완 포함) 모두의 가로 덮음을 포함하는 깨끗한 타일 묶음 중 하나.
-    5. 깨끗한 타일 묶음 모두의 가로 덮음을 포함하는 깨끗한 보완 묶음.
-    6. 그 밖 — 잘림 없는 판독이 없거나, 어느 한 묶음도 나머지 판독의 내용(가로 덮음)을 포함하지 못함 → 미해결(명백한 충돌).
-    같은 위치 · 포함 비교에는 tile_box_jitter_px 허용치를 둔다."""
+    덜 검출(경고 `partial_detection`) — 한 묶음이 나머지 판독을 위치(가로 덮음)와 텍스트(포함) 모두에서 포함할 때만:
+    3. 다른 깨끗한 판독(깨끗한 보완 포함) 모두를 포함하는 깨끗한 타일 묶음 중 하나.
+    4. 깨끗한 타일 묶음 모두를 포함하는 깨끗한 보완 묶음.
+    5. 그 밖 — 미해결(명백한 충돌). 잘림 없는 판독끼리 같은 자리에서 글자가 서로 다르면(판독 흔들림, 숫자 포함) 여기서
+       실패한다 — 어느 판독이 맞는지 OCR만으로 정하지 않는다(사용자 결정 2026-10-13).
+    위치 포함 비교에는 tile_box_jitter_px 허용치를 둔다."""
     members = [d for c in cl_comps for d in c.members]
     clean: dict[int, list[Det]] = {}
     for t in sorted({d.crop for d in members}):
@@ -565,6 +569,9 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
             out["warning"] = warning
         return out
 
+    def contains(dets: list[Det], text: str, other: list[Det], other_text: str) -> bool:
+        return x_covered_by(other, dets, jit) >= th and text_consistent(other_text, text)
+
     if s_ok:
         exact = [t for t, r in readings.items() if r == s_text]
         minor = [t for t, r in readings.items() if t not in exact and punctuation_only_diff(r, s_text)]
@@ -575,23 +582,18 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
         if not clean:
             out.update({"status": "resolved", "use": "supplement", "rule": "supplement_replaces_truncated"})
             return out
-        n_rows = len(reading_rows(ss, p))
-        same = [t for t, side in clean.items()
-                if x_cover_iou(side, ss, jit) >= th and len(reading_rows(side, p)) == n_rows]
-        if same and all(x_covered_by(clean[t], ss, jit) >= th for t in clean if t not in same):
-            return use_tile(same, "same_place_as_supplement", "recognition_unstable")
     if clean:
         cands = [t for t in clean
-                 if all(x_covered_by(clean[u], clean[t], jit) >= th for u in clean if u != t)
-                 and (not s_ok or x_covered_by(ss, clean[t], jit) >= th)]
+                 if all(contains(clean[t], readings[t], clean[u], readings[u]) for u in clean if u != t)
+                 and (not s_ok or contains(clean[t], readings[t], ss, s_text))]
         if cands:
-            return use_tile(cands, "tile_covers_all_readings", "recognition_unstable" if s_ok else "detection_unstable")
-        if s_ok and all(x_covered_by(side, ss, jit) >= th for side in clean.values()):
-            out.update({"status": "resolved", "use": "supplement", "rule": "supplement_covers_all_readings",
-                        "warning": "recognition_unstable"})
+            return use_tile(cands, "tile_contains_all_readings", "partial_detection")
+        if s_ok and all(contains(ss, s_text, side, readings[t]) for t, side in clean.items()):
+            out.update({"status": "resolved", "use": "supplement", "rule": "supplement_contains_all_readings",
+                        "warning": "partial_detection"})
             return out
     out.update({"status": "unresolved",
-                "reason": "no_untruncated_reading" if not clean and not s_ok else "no_bundle_covers_all_readings"})
+                "reason": "no_untruncated_reading" if not clean and not s_ok else "readings_conflict"})
     return out
 
 

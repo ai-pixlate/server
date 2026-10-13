@@ -655,7 +655,7 @@ def run_tiled(section: Section, image: np.ndarray, p: TileParams, recognize: Rec
                      for c in comps if c.kind != "conflict" and "unresolved" in c.detail]
     d["warnings"] += [{"boundary": s["boundary"], "components": cl["components"], "kind": cl["warning"],
                        "supplement_text": cl["supplement_text"], "clean_tile_readings": cl["clean_tile_readings"],
-                       "use_tile": cl["use_tile"]}
+                       "use": cl["use"], "use_tile": cl.get("use_tile")}  # 보완 검출을 쓴 군집은 use_tile이 없다
                       for s in supplements for cl in s["clusters"] if cl.get("warning")]
     kept = [x for c in comps for x in c.keep]
     dropped = sorted({x.id for x in dets} - {x.id for x in kept})

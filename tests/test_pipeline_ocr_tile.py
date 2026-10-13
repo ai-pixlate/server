@@ -391,6 +391,25 @@ def test_flaky_tiny_detection_without_supplement_keeps_covering_tile_bundle(monk
     assert d["warnings"][0]["kind"] == "detection_unstable"
 
 
+def test_supplement_covering_both_partial_tile_readings_replaces_them(monkeypatch, cfg, tmp_path):
+    """위 타일 'AB' · 아래 타일 'BC'가 서로를 덮지 못하고 보완이 'ABC' 전체를 덮으면 보완 검출로 대체한다(경고 기록 포함)."""
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return {"upper": [(100, 1800, 200, 1830, "AB")], "lower": [(150, 1800, 250, 1830, "BC")],
+                "supplement": [(100, 1800, 250, 1830, "ABC")]}[role(n)]
+    img, eng = _band_case([box(100, 1800, 250, 1830, "x", render=render)])
+    d = {}
+    res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert texts(res) == ["ABC"] and res.regions[0].bbox == BBox(x=100, y=1800, w=150, h=30)
+    cl = d["supplements"][0]["clusters"][0]
+    assert cl["rule"] == "supplement_covers_all_readings" and cl["use"] == "supplement"
+    w = d["warnings"][0]
+    assert w["use"] == "supplement" and w["use_tile"] is None
+    origins = {x["id"]: x["origin"] for x in d["detections"]}
+    assert [origins[r["det"]] for r in d["regions"]] == ["supplement"]
+
+
 def test_all_readings_truncated_fails(monkeypatch, cfg, tmp_path):
     def render(y0, y1, n):  # 500px 글자가 두 절단선을 모두 넘고, 보완 crop에서도 위 끝에 붙는다
         vy0, vy1 = max(1600, y0), min(2100, y1)

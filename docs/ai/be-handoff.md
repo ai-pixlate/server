@@ -284,7 +284,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 ### 9.1 BE에 보이는 변화
 
 - `analyze()`는 높이 > 4,000px 섹션(① 분해 실패로 원본 전체를 한 섹션으로 쓰는 경우 포함)을 OCR 처리용 타일로 나눠 처리한다. 타일은 의미 섹션이 아니며 저장되지 않는다. `AnalyzeResult` 형식 · 버전 · 좌표계(섹션 로컬)는 바뀌지 않는다.
-- 인계 `analyze`의 `unsupported_input`(② 4,000px 초과) 실패는 더 이상 생기지 않는다. 대신 **새 실패 원인**: 경계를 옮긴 보완 OCR 후에도 타일 경계 충돌이 남으면 `AnalyzeError(OCR_FAILED)`(기존 코드 · 기존 `retryable=True` 기본값)이며 인계 보고는 기존 매핑대로 `model_call_failed`다. 메시지는 `OCR 타일 경계 충돌 미해결 section=… — 경계 n y…~… 사유`. 새 오류 코드는 없다. 잘림 없는 판독끼리 같은 자리에서 글자가 다르면(숫자 포함) 고르지 않고 이 실패가 된다 — 이 PC 실측에서 골든 긴 이미지 9장 중 4장(대조 타일링 5장)이 이 사유로 실패했다.
+- 인계 `analyze`의 `unsupported_input`(② 4,000px 초과) 실패는 더 이상 생기지 않는다. 대신 **새 실패 원인**: 경계를 옮긴 보완 OCR 후에도 타일 경계 충돌이 남으면 `AnalyzeError(OCR_FAILED)`(기존 코드 · 기존 `retryable=True` 기본값)이며 인계 보고는 기존 매핑대로 `model_call_failed`다. 메시지는 `OCR 타일 경계 충돌 미해결 section=… — 경계 n y…~… 사유`. 새 오류 코드는 없다. 잘림 없는 판독끼리 같은 자리에서 글자가 다르거나, 버려질 판독의 숫자 값이 남길 판독과 다르면(다수결 포함) 고르지 않고 이 실패가 된다 — 이 PC 실측에서 골든 긴 이미지 9장 중 5장(대조 타일링 5장)이 이 사유로 실패했다(예: `9.9%개선` / `9.99%개선`).
 - `analyze` 입력 지문(`input_manifest`)의 `config.ocr`에 `tile_*` 6키가 더해져 **같은 원본이라도 `input_manifest_sha256`이 이전과 다르다.** OCR 동작이 바뀌었으므로 이전 분석 결과를 재사용하지 않는 것이 의도다. 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(지문 · 설정 외 변화 없음).
 - `out_dir/ocr_debug/<section_key>.json` 진단 파일이 타일 섹션마다 생긴다(실패해도). 개발 확인용이며 인계 형식 · artifact가 아니다. 섹션 이미지 artifact 검증 규칙은 그대로다.
 - 엔진 호출 수 = 타일 수 + 경계당 최대 1회 보완(상한 타일 수 × 2 − 1). 이 PC GPU(RTX 4060 Laptop, 모델 로드 제외) 실측: 37,665px 원본 OCR 약 12초(타일 24 · 보완 7), ①~③(LLM 없음) 약 17초. 메모리는 섹션 전체 배열(예: 1000×37,665×3 ≈ 113MB) + 타일 1장 추론분이다 — 측정값 아님.

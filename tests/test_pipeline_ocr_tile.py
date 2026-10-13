@@ -10,12 +10,14 @@ import numpy as np
 import pytest
 from PIL import Image
 
+from pipeline import analyze as analyze_mod
 from pipeline import config as cfgmod
 from pipeline import jsonio
 from pipeline import run as cli
 from pipeline.errors import AnalyzeError
 from pipeline.stages import ocr, ocr_tile
-from pipeline.types import BBox, Section, SplitResult
+from pipeline.types import BBox, Section, SourceImage, SplitResult
+from pipeline.vlm import VlmError
 
 W = 600
 
@@ -563,3 +565,30 @@ def test_cli_unresolved_conflict_exits_2_and_keeps_debug(tmp_path, monkeypatch):
     assert rec["status"] == "failed" and rec["code"] == "OCR_FAILED" and rec["supplements"] == 1
     assert json.loads((out / "ocr_debug" / "sec_1_01.json").read_text(encoding="utf-8"))["failed"]
     assert not (out / "ocr" / "sec_1_01.json").exists()
+
+
+class FailingVlm:
+    def __call__(self, image, prompt):
+        raise VlmError("합성 실패")
+
+
+def test_analyze_split_failure_whole_image_section_goes_through_tiled_ocr(tmp_path, monkeypatch):
+    """① VLM 실패 → 원본 전체 한 섹션(D9-1) → 높이 > 4000이라 타일 OCR → ③까지 진행."""
+    h = 9000
+    boxes = [box(50, 300, 400, 340, "첫 문단"), box(50, 1850, 400, 1890, "경계 근처"), box(50, 3600, 400, 3640, "둘째 경계"),
+             box(50, 8900, 400, 8940, "마지막")]
+    img = draw(h, boxes)
+    src = tmp_path / "src.png"
+    Image.fromarray(img[:, :, ::-1]).save(src)
+    eng = LayoutEngine(boxes)
+    _spy_loader(monkeypatch, eng)
+    cfg = cfgmod.load_config()
+    fallbacks = []
+    out = tmp_path / "out"
+    res = analyze_mod.analyze([SourceImage(source_image_id=5, upload_order=1, path=str(src))], cfg, out, use_llm=False,
+                              vlm=FailingVlm(), fallbacks=fallbacks, ocr_engine=eng)
+    assert [f["kind"] for f in fallbacks] == ["section_split_whole_image"]
+    assert len(res.sections) == 1 and res.sections[0].height == h
+    assert sorted(b.source_ko for b in res.blocks) == sorted(b["text"] for b in boxes)
+    dbg = json.loads((out / "ocr_debug" / f"{res.sections[0].section_key}.json").read_text(encoding="utf-8"))
+    assert len(dbg["tiles"]) >= 5 and dbg["engine_calls"]["supplements"] == 0

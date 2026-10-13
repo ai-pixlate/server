@@ -674,6 +674,127 @@ def test_analyze_split_failure_whole_image_section_goes_through_tiled_ocr(tmp_pa
     assert len(dbg["tiles"]) >= 5 and dbg["engine_calls"]["supplements"] == 0
 
 
+# ---- #33 재시도 분류 -----------------------------------------------------------------------------
+def _crossed_case():
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return crossed(100, 1800, role(n))
+    return _band_case([box(100, 1800, 220, 1830, "x", render=render)])
+
+
+def test_tile_conflict_is_ocr_failed_not_retryable_and_reason_stays_internal(monkeypatch, cfg, tmp_path):
+    img, eng = _crossed_case()
+    with pytest.raises(AnalyzeError) as ei:
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})
+    e = ei.value
+    assert (e.code, e.retryable, e.reason) == ("OCR_FAILED", False, "ocr_tile_conflict")
+    assert set(e.to_dict()) == {"code", "retryable", "message", "source_image_id"}  # 인계 형식은 그대로
+
+
+@pytest.mark.parametrize("where", ["tile", "supplement"])
+def test_engine_exception_during_tiling_stays_retryable(monkeypatch, cfg, tmp_path, where):
+    img, eng = _crossed_case()
+    def flaky(crop):
+        n = len(eng.calls)
+        if (where == "tile" and n == 1) or (where == "supplement" and n == 3):  # 흰 4,600px = 타일 3개 → 4번째가 보완
+            eng.calls.append(None)
+            raise RuntimeError("CUDA out of memory")
+        return eng(crop)
+    with pytest.raises(AnalyzeError) as ei:
+        run_ocr(monkeypatch, cfg, img, LayoutEngineProxy(eng, flaky), tmp_path, {})
+    assert (ei.value.code, ei.value.retryable, ei.value.reason) == ("OCR_FAILED", True, "ocr_inference")
+
+
+class LayoutEngineProxy:
+    """대역 엔진의 호출만 바꿔 끼운다(full 배열은 원래 엔진에 둔다)."""
+
+    def __init__(self, eng, fn):
+        self.eng, self.fn, self.info = eng, fn, eng.info
+
+    @property
+    def full(self):
+        return self.eng.full
+
+    @full.setter
+    def full(self, v):
+        self.eng.full = v
+
+    def __call__(self, crop):
+        return self.fn(crop)
+
+
+def test_output_invalid_keeps_existing_retryable(monkeypatch, cfg, tmp_path):
+    img, eng = _crossed_case()
+    with pytest.raises(AnalyzeError) as ei:
+        run_ocr(monkeypatch, cfg, img, LayoutEngineProxy(eng, lambda crop: {"rec_polys": [], "rec_texts": ["x"], "rec_scores": []}),
+                tmp_path, {})
+    assert (ei.value.retryable, ei.value.reason) == (True, "ocr_output_invalid")
+
+
+def test_engine_init_failure_keeps_existing_retryable(monkeypatch, cfg, tmp_path):
+    def boom(_cfg):
+        raise ocr.OcrEngineInitError("model files")
+    monkeypatch.setattr(ocr, "build_engine", boom)
+    path = tmp_path / "s.png"
+    Image.new("RGB", (W, 100)).save(path)
+    sec = Section(section_key="sec_1_09", source_image_id=3, section_order=1, top_offset=0, height=100, width=W, image_path=str(path))
+    with pytest.raises(AnalyzeError) as ei:
+        ocr.run(sec, cfg)
+    assert (ei.value.retryable, ei.value.reason) == (True, "ocr_engine_init")
+
+
+def test_cli_records_non_retryable_tile_conflict(tmp_path, monkeypatch):
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return crossed(50, 1800, role(n))
+    boxes = [box(50, 1800, 170, 1830, "x", render=render)]
+    eng = LayoutEngine(boxes)
+    _spy_loader(monkeypatch, eng)
+    monkeypatch.setattr(ocr, "build_engine", lambda cfg: eng)
+    out = tmp_path / "out"
+    assert cli.main(["ocr", "--split", str(_split_with_long_section(tmp_path, boxes)), "--out", str(out)]) == 2
+    rec = json.loads((out / "run.json").read_text(encoding="utf-8"))["sections"]["sec_1_01"]
+    assert (rec["code"], rec["retryable"], rec["reason"]) == ("OCR_FAILED", False, "ocr_tile_conflict")
+
+
+def test_analyze_propagates_non_retryable_conflict_without_partial_result(tmp_path, monkeypatch):
+    """① 실패 → 원본 전체 섹션 → 타일 충돌: analyze()는 결과 없이 재시도 불가 OCR_FAILED를 던지고 진단만 남긴다."""
+    h = 4600
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return crossed(100, 1800, role(n))
+    boxes = [box(50, 300, 400, 340, "첫 문단"), box(100, 1800, 220, 1830, "x", render=render)]
+    src = tmp_path / "src.png"
+    Image.fromarray(draw(h, boxes)[:, :, ::-1]).save(src)
+    eng = LayoutEngine(boxes)
+    _spy_loader(monkeypatch, eng)
+    out = tmp_path / "out"
+    with pytest.raises(AnalyzeError) as ei:
+        analyze_mod.analyze([SourceImage(source_image_id=5, upload_order=1, path=str(src))], cfgmod.load_config(), out,
+                            use_llm=False, vlm=FailingVlm(), fallbacks=[], ocr_engine=eng)
+    assert (ei.value.code, ei.value.retryable, ei.value.source_image_id) == ("OCR_FAILED", False, 5)
+    assert json.loads((out / "ocr_debug" / "sec_5_01.json").read_text(encoding="utf-8"))["failed"]
+    assert not (out / "analyze.json").exists()
+
+
+def test_handoff_reports_tile_conflict_as_failed_not_retryable(tmp_path, monkeypatch):
+    from pipeline.errors import ocr_tile_conflict
+    from pipeline.handoff import analysis, examples as ex
+    work = tmp_path / "w"
+    req = next(r for n, r, _ in ex.cases(work.resolve()) if n == "analyze.completed")
+    def conflict(*a, **k):
+        raise ocr_tile_conflict("sec_1_01", 1, "경계 0 y1800~1830 readings_conflict")
+    monkeypatch.setattr(analysis, "analyze", conflict)
+    rep = analysis.run_analyze(req, ex.config())
+    assert rep.outcome == "failed" and rep.failure.retryable is False and rep.failure.kind == "model_call_failed"
+    assert rep.payload == {"analyze_error": {"code": "OCR_FAILED", "retryable": False, "source_image_id": 1,
+                                             "message": "OCR 타일 경계 충돌 미해결 section=sec_1_01 — 경계 0 y1800~1830 readings_conflict"}}
+    assert not rep.artifacts
+
+
 # ---- 실제 PaddleOCR (설치된 환경에서만) ---------------------------------------------------------
 FONT = Path(__file__).resolve().parent.parent / "pipeline" / "data" / "fonts" / "pretendard" / "Pretendard-Regular.otf"
 

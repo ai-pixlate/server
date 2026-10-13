@@ -38,7 +38,7 @@ from typing import Any, Callable
 
 import numpy as np
 
-from pipeline.errors import AnalyzeError
+from pipeline.errors import ocr_tile_conflict
 from pipeline.types import BBox, OcrRegion, Section, region_key
 
 _ROW_CHUNK = 2048  # 행 프로파일 계산 단위(최대 1000×37,665px 섹션의 메모리 제한)
@@ -690,8 +690,7 @@ def run_tiled(section: Section, image: np.ndarray, p: TileParams, recognize: Rec
         d["failed"] = [{"component": c.id, "boundary": c.boundary, "rule": c.rule, "reason": c.detail["unresolved"],
                         "y": [min(m.bbox.y for m in c.members), max(m.bbox.y2 for m in c.members)]} for c in failed]
         summary = ", ".join(f"경계 {f['boundary']} y{f['y'][0]}~{f['y'][1]} {f['reason']}" for f in d["failed"])
-        raise AnalyzeError("OCR_FAILED", f"OCR 타일 경계 충돌 미해결 section={section.section_key} — {summary}",
-                           section.source_image_id)
+        raise ocr_tile_conflict(section.section_key, section.source_image_id, summary)  # 재시도 불가(errors.py 표, #33)
     ordered = sort_like_paddle(kept)
     d["regions"] = [{"region_key": region_key(i), "det": x.id} for i, x in enumerate(ordered, 1)]
     return [OcrRegion(region_key=region_key(i), text=x.text, score=x.score, poly=x.poly, bbox=x.bbox)

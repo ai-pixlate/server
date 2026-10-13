@@ -145,7 +145,10 @@ def _run_status(sections: dict[str, dict[str, Any]]) -> str:
 
 def _error_entry(e: BaseException) -> dict[str, Any]:
     if isinstance(e, AnalyzeError):
-        return {**e.to_dict(), "exception": type(e.__cause__ or e).__name__}
+        entry = {**e.to_dict(), "exception": type(e.__cause__ or e).__name__}
+        if e.reason:  # 진단용 내부 분류(errors.py 표, #33) — 인계 형식 아님
+            entry["reason"] = e.reason
+        return entry
     return {"code": None, "retryable": None, "message": str(e), "exception": type(e).__name__}
 
 

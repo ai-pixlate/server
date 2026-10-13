@@ -370,6 +370,82 @@ def test_same_numeric_values_still_resolve(monkeypatch, cfg, tmp_path, up, low, 
     assert texts(run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})) == [want]
 
 
+def _badge_case(sup):
+    """잡음 배경 · 고정 절단선 2000. 위 타일은 큰 글자 '큰'(절단선 접촉)과 잘리지 않은 '50%', 아래 타일은 한 박스 '큰제목 30%'."""
+    def render(y0, y1, n):
+        if y0 >= 3000:
+            return None
+        r = role(n)
+        if r == "upper":
+            return [(50, 1950, 350, 2000, "큰"), (400, 1960, 500, 1990, "50%")]
+        if r == "lower":
+            return [(50, 1950, 500, 2050, "큰제목 30%")]
+        return sup
+    return _band_case([box(50, 1950, 500, 2050, "x", render=render)], noise=True)
+
+
+@pytest.mark.parametrize("sup", [[], [(50, 1950, 500, 2050, "큰제목 30%")]])
+def test_untruncated_detection_in_touching_bundle_still_checks_numbers(monkeypatch, cfg, tmp_path, sup):
+    """리뷰 재현: 절단선에 닿은 검출이 섞인 묶음 안의 잘리지 않은 '50%'가 '30%'를 고를 때 조용히 버려지면 안 된다."""
+    img, eng = _badge_case(sup)
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert "50%" in d["supplements"][0]["clusters"][0]["conflict_with"]
+
+
+@pytest.mark.parametrize("full, part, ok", [
+    ("1,000 2,000", "1,000", True),   # 공백으로 나뉜 숫자는 각각의 값 — 덜 검출
+    ("50 100", "50", True),
+    ("1,000원 2,000원", "1,000원", True),
+    ("12 5", "125", False),           # 공백을 지우면 같아 보여도 숫자 값은 [12, 5] ≠ [125]
+])
+def test_numeric_tokens_keep_whitespace_boundaries(monkeypatch, cfg, tmp_path, full, part, ok):
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return {"upper": [(100, 1800, 400, 1830, full)], "lower": [(100, 1800, 250, 1830, part)], "supplement": []}[role(n)]
+    img, eng = _band_case([box(100, 1800, 400, 1830, "x", render=render)])
+    if ok:
+        assert texts(run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})) == [full]
+    else:
+        with pytest.raises(AnalyzeError):
+            run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})
+
+
+def test_equivalent_requires_same_numeric_tokens(monkeypatch, cfg, tmp_path):
+    """정규화 텍스트가 같아도('125') 숫자 토큰이 다르면 동등이 아니다 → 보완 OCR 대상."""
+    readings = {"upper": "12 5", "lower": "125", "supplement": "125"}
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return [(100, 1800, 400, 1830, readings[role(n)])]
+    img, eng = _band_case([box(100, 1800, 400, 1830, "x", render=render)])
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert d["components"][0]["rule"] == "numbers_differ"
+
+
+def test_conflict_found_while_settling_a_non_conflict_component_fails(monkeypatch, cfg, tmp_path):
+    """리뷰 재현: 한쪽만 검출(접촉) 조각을 보완했는데 보완이 옆의 정리된 줄 '가격 50%'를 '가격 80%'로 읽으면 실패한다."""
+    def render(y0, y1, n):
+        if y0 >= 3000:
+            return None
+        r = role(n)
+        if r == "upper":
+            return [(50, 1714, 300, 1740, "가격 50%")]
+        if r == "lower":
+            return [(320, 1700, 500, 1712, "조각"), (50, 1714, 300, 1740, "가격 50%")]
+        return [(50, 1700, 500, 1740, "가격 80% 조각글")]
+    img, eng = _band_case([box(50, 1700, 500, 1740, "x", render=render)], noise=True)
+    d = {}
+    with pytest.raises(AnalyzeError) as ei:
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert ei.value.retryable is False and d["failed"][0]["reason"] in ("readings_conflict", "numbers_conflict")
+    assert not d["warnings"]
+
+
 def test_numeric_tokens():
     f = ocr_tile.numbers_within
     assert f("SPF50", "SPF50PA++") and f("AB", "ABC") and f("", "SPF50")

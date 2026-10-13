@@ -43,6 +43,7 @@ from pipeline.types import BBox, OcrRegion, Section, region_key
 
 _ROW_CHUNK = 2048  # 행 프로파일 계산 단위(최대 1000×37,665px 섹션의 메모리 제한)
 _SORT_ROW_TOL = 10  # PaddleX SortQuadBoxes의 같은 줄 판정(|Δy| < 10)
+_CONFLICT_REASONS = {"readings_conflict", "numbers_conflict"}  # 잘림 없는 판독끼리 모순 — 성분 종류와 관계없이 실패
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)*")  # 숫자 값 토큰: 50 · 1.5 · 1,000 (구분 기호까지 값의 일부로 본다)
 
 
@@ -414,9 +415,9 @@ def classify(c: Component, tiles: list[Tile], p: TileParams) -> None:
     iou = x_cover_iou(up, lo, p.box_jitter_px)
     c.detail = {"upper_tile": crops[0], "lower_tile": crops[1], "upper_text": t_up, "lower_text": t_lo,
                 "x_cover_iou": round(iou, 4), "upper_count": len(up), "lower_count": len(lo)}
-    if t_up != t_lo or iou < p.min_x_iou:
+    if t_up != t_lo or iou < p.min_x_iou or det_numbers(up) != det_numbers(lo):
         c.kind = "conflict"
-        c.rule = "text_differs" if t_up != t_lo else "x_cover_differs"
+        c.rule = "text_differs" if t_up != t_lo else ("x_cover_differs" if iou < p.min_x_iou else "numbers_differ")
         c.keep = list(c.members)  # 해결 전에는 아무것도 버리지 않는다(실패 시 기록용)
         return
     touch_up, touch_lo = any(d.touching for d in up), any(d.touching for d in lo)
@@ -534,10 +535,19 @@ def numbers_within(part: str, whole: str) -> bool:
     return not (Counter(_NUMBER.findall(part)) - Counter(_NUMBER.findall(whole)))
 
 
+def det_numbers(dets: list[Det]) -> Counter:
+    """검출 묶음의 숫자 값 토큰(개수 포함). 검출마다 NFKC 원문에서 공백을 살린 채 뽑는다 — 공백을 지운 비교용 텍스트에서
+    뽑으면 '50 100'이 '50100' 한 값으로 붙고 '12 5'와 '125'가 같아진다."""
+    out: Counter = Counter()
+    for d in dets:
+        out.update(_NUMBER.findall(unicodedata.normalize("NFKC", d.text)))
+    return out
+
+
 def text_consistent(part: str, whole: str) -> bool:
-    """part 판독이 whole 판독과 모순되지 않는가 — (같음 · 숫자에 붙지 않은 문장부호만 다름 · whole 안에 그대로 포함(덜 검출))
-    이면서 숫자 값이 바뀌지 않음. 'SPF5' ⊂ 'SPF50'은 문자열로 포함되지만 숫자 값이 달라 모순이다."""
-    return (part == whole or punctuation_only_diff(part, whole) or part in whole) and numbers_within(part, whole)
+    """part 판독(정규화 텍스트)이 whole과 글자로 모순되지 않는가 — 같음 · 숫자에 붙지 않은 문장부호만 다름 · whole 안에
+    그대로 포함(덜 검출). 숫자 값은 따로 det_numbers로 본다('SPF5' ⊂ 'SPF50'은 글자로는 포함이지만 숫자 값이 다르다)."""
+    return part == whole or punctuation_only_diff(part, whole) or part in whole
 
 
 def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile], p: TileParams) -> dict[str, Any]:
@@ -552,8 +562,10 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
     4. 깨끗한 타일 묶음 모두를 포함하는 깨끗한 보완 묶음.
     5. 그 밖 — 미해결(명백한 충돌). 잘림 없는 판독끼리 같은 자리에서 글자가 서로 다르면(판독 흔들림, 숫자 포함) 여기서
        실패한다 — 어느 판독이 맞는지 OCR만으로 정하지 않는다(사용자 결정 2026-10-13).
-    숫자 값 확인 — 1~4로 고른 뒤에도, 버려지는 잘림 없는 판독(깨끗한 타일 · 깨끗한 보완)의 숫자 값 토큰이 고른 판독에 같은
-    값으로 모두 있지 않으면 미해결(`numbers_conflict`)이다. 2:1 확인(다수결)으로도 서로 다른 숫자 값을 덮지 않는다.
+    숫자 값 확인 — 1~4로 고른 뒤에도, 버려지는 잘림 없는 판독(깨끗한 타일 · 깨끗한 보완 묶음, 그리고 버려지는 잘림 없는
+    검출 하나하나 — 절단선에 닿은 검출이 섞인 묶음 안의 것 포함)의 숫자 값 토큰이 고른 판독에 같은 값으로 모두 있지 않으면
+    미해결(`numbers_conflict`)이다. 2:1 확인(다수결)으로도 서로 다른 숫자 값을 덮지 않는다. 접촉 묶음 안의 잘림 없는 검출은
+    글자도 고른 판독과 모순되지 않아야 한다(`readings_conflict`). 숫자 토큰은 검출 원문에서 공백을 살려 뽑는다(det_numbers).
     위치 포함 비교에는 tile_box_jitter_px 허용치를 둔다."""
     members = [d for c in cl_comps for d in c.members]
     clean: dict[int, list[Det]] = {}
@@ -574,13 +586,33 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
                [tile.y1 - d.bbox.y2 for d in clean[t] if tile.y1 < tiles[-1].y1]
         return min(gaps, default=1 << 30)
 
-    def numbers_ok(chosen: str, dropped: list[str]) -> dict[str, Any]:
-        bad = [r for r in dropped if not numbers_within(r, chosen)]
-        if bad:
+    nums = {t: det_numbers(side) for t, side in clean.items()}
+    s_nums = det_numbers(ss) if ss else Counter()
+
+    def settle(kept: list[Det]) -> dict[str, Any]:
+        """고른 묶음(kept) 밖으로 버려지는 잘림 없는 판독이 kept와 모순되면 미해결로 되돌린다.
+        - 숫자: 깨끗한 묶음 · 깨끗한 보완 묶음의 숫자 토큰, 그리고 버려지는 잘림 없는 검출 하나하나의 숫자 토큰이 kept에 같은 값으로
+          있어야 한다(2:1 확인 포함). 절단선에 닿은 검출이 섞인 묶음 안의 잘림 없는 검출도 여기서 본다.
+        - 글자: 접촉 묶음 안의 잘림 없는 검출은 묶음 판정에서 빠지므로 kept 텍스트와 글자로도 모순되지 않아야 한다. 단 같은
+          타일에서 절단선에 닿은 검출과 같은 줄(세로 겹침)인 검출은 잘린 줄의 일부일 수 있어 글자 검사에서 뺀다(실측: 박스가
+          절단선에서 11px 떨어진 잘린 '큰'이 '크'로 읽힘). 숫자 검사는 같은 줄이어도 한다."""
+        kept_ids = {d.id for d in kept}
+        kept_text, kept_nums = reading_text(kept, p), det_numbers(kept)
+        groups = [nums[t] for t in clean] + ([s_nums] if s_ok else [])
+        dropped = [d for d in members + list(ss) if d.id not in kept_ids and not d.touching]
+        bad_nums = [d.text for d in dropped if det_numbers([d]) - kept_nums]
+        if not bad_nums and any(g - kept_nums for g in groups):
+            bad_nums = [reading_text(side, p) for t, side in clean.items() if nums[t] - kept_nums]
+            bad_nums += [s_text] if s_ok and s_nums - kept_nums else []
+        touching = [m for m in members if m.touching]
+        bad_text = [d.text for d in dropped if d.crop not in clean and d.origin == "tile"
+                    and not any(m.crop == d.crop and v_overlap(m.bbox, d.bbox) >= p.min_v_overlap for m in touching)
+                    and not text_consistent(normalize_text(d.text), kept_text)]
+        if bad_nums or bad_text:
             for k in ("use", "use_tile", "warning"):  # 채택하지 않으므로 성공 표시를 남기지 않는다
                 out.pop(k, None)
-            out.update({"status": "unresolved", "reason": "numbers_conflict", "candidate_text": chosen,
-                        "numbers_conflict_with": bad})
+            out.update({"status": "unresolved", "reason": "numbers_conflict" if bad_nums else "readings_conflict",
+                        "candidate_text": kept_text, "conflict_with": bad_nums or bad_text})
         return out
 
     def use_tile(cands: list[int], rule: str, warning: str | None = None, **kw: Any) -> dict[str, Any]:
@@ -588,16 +620,17 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
         out.update({"status": "resolved", "use": "tile", "use_tile": t, "rule": rule, **kw})
         if warning:
             out["warning"] = warning
-        return numbers_ok(readings[t], [r for u, r in readings.items() if u != t] + ([s_text] if s_ok else []))
+        return settle(clean[t])
 
     def use_supplement(rule: str, warning: str | None = None) -> dict[str, Any]:
         out.update({"status": "resolved", "use": "supplement", "rule": rule})
         if warning:
             out["warning"] = warning
-        return numbers_ok(s_text, list(readings.values()))
+        return settle(list(ss))
 
     def contains(dets: list[Det], text: str, other: list[Det], other_text: str) -> bool:
-        return x_covered_by(other, dets, jit) >= th and text_consistent(other_text, text)
+        return (x_covered_by(other, dets, jit) >= th and text_consistent(other_text, text)
+                and not (det_numbers(other) - det_numbers(dets)))
 
     if s_ok:
         exact = [t for t, r in readings.items() if r == s_text]
@@ -676,9 +709,13 @@ def run_tiled(section: Section, image: np.ndarray, p: TileParams, recognize: Rec
     d["detections"] = [x.as_dict() for x in all_dets]
     d["components"] = [c.as_dict() for c in comps if len(c.members) > 1 or c.kind != "single"]
     d["supplements"] = supplements
-    failed = [c for c in comps if c.kind == "conflict" and "unresolved" in c.detail]
+    # 충돌 성분의 미해결, 그리고 성분 종류와 관계없이 잘림 없는 판독끼리 모순(판독 · 숫자 충돌)으로 끝난 미해결은 실패다.
+    # 그 밖의 미해결(보완 근거 없음 · 잘림 없는 판독 없음 등, 충돌 아님)은 원래 검출을 보존하고 경고로 남긴다.
+    failed = [c for c in comps if "unresolved" in c.detail
+              and (c.kind == "conflict" or c.detail["unresolved"] in _CONFLICT_REASONS)]
+    failed_ids = {c.id for c in failed}
     d["warnings"] = [{"component": c.id, "kind": c.kind, "reason": c.detail["unresolved"]}
-                     for c in comps if c.kind != "conflict" and "unresolved" in c.detail]
+                     for c in comps if "unresolved" in c.detail and c.id not in failed_ids]
     d["warnings"] += [{"boundary": s["boundary"], "components": cl["components"], "kind": cl["warning"],
                        "supplement_text": cl["supplement_text"], "clean_tile_readings": cl["clean_tile_readings"],
                        "use": cl["use"], "use_tile": cl.get("use_tile")}  # 보완 검출을 쓴 군집은 use_tile이 없다

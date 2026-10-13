@@ -398,7 +398,7 @@ def test_analyze_numbers_block_keys_across_the_run(monkeypatch, tmp_path):
     split = SplitResult(source_image_id=1, source_width=1000, source_height=1000, sections=secs)
     regions = [R("reg_0001", 100, 0, 400, 20, "위"), R("reg_0002", 100, 300, 400, 20, "아래")]  # 섹션마다 블록 2개
     monkeypatch.setattr(an.section_split, "run", lambda src, cfg, out: split)
-    monkeypatch.setattr(an.ocr, "run", lambda sec, cfg: OcrResult(section_key=sec.section_key, regions=regions))
+    monkeypatch.setattr(an.ocr, "run", lambda sec, cfg, **_: OcrResult(section_key=sec.section_key, regions=regions))
     # merge.run은 바꿔 끼우지 않는다 — use_llm이 analyze()에서 merge.run까지 전달되는지가 검증 대상
     res = an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(), tmp_path, use_llm=False)
     assert [b.block_key for b in res.blocks] == ["blk_001", "blk_002", "blk_003", "blk_004"]

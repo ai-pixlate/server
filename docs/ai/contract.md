@@ -391,6 +391,8 @@ AnalyzeError(code, retryable, message, source_image_id)
 | OCR 타임아웃·일시 오류 | `OCR_FAILED` | 허용 횟수 내 가능 |
 | 텍스트 0개 검출 | 오류 아님 | 해당 없음 |
 
+- ② 긴 섹션 타일 OCR에서 보완 OCR 후에도 판독 · 숫자 충돌이 남는 실패는 같은 `OCR_FAILED` 코드에 `retryable=false`로 낸다 — 같은 입력 · 설정 · 엔진의 재실행으로 해소될 근거가 없는 실패이며 새 오류 코드는 만들지 않는다. 그 밖의 `OCR_FAILED`(초기화 · 추론 · 출력 형식)는 기존대로 재시도 가능이다. 원인별 표는 `pipeline/errors.py`. (사용자 결정 2026-10-13, `open-questions.md` #33 중 타일 OCR 범위 — 상위 계약 반영 전)
+
 - 텍스트가 없는 섹션은 빈 `text_blocks`를 반환.
 - 원본 전체에서 텍스트가 검출되지 않으면 분석 경고 기록.
 - ① 분해 실패는 원본 전체를 한 섹션으로 대체해 후속 처리를 진행한다. [통합 D9] 대체 기록은 AnalyzeResult 버전 1을 바꾸지 않고 인계 보고의 `split_fallbacks`(원본 · 사유)로 전달한다 — 인계 위치는 BE 리뷰 대상(`dev.md` 3.2). [통합 D3] [통합 D9]

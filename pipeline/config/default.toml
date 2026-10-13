@@ -27,6 +27,13 @@ preprocess = "none"
 split_threshold_px = 4000
 tile_px = 2000
 tile_overlap_px = 300
+# 임시 분할 세부 기준(open-questions #31 · #32, 2026-10-13 구현). 아래 값은 실측은 수행했으나 운영 기준값은 미확정인 잠정값이다
+tile_blank_row_std = 6.0         # 행 색 표준편차가 이 값 이하이면 균일 행(여백). ① section.blank_row_std와 같은 값에서 시작, 키는 분리
+tile_match_min_v_overlap = 0.5   # 이웃 타일 검출의 위치 대응: 세로 교집합 / 작은 쪽 높이가 이 값 이상(+ 가로 교집합 > 0)
+tile_equiv_min_x_iou = 0.9       # 동등 판정: 양쪽 가로 덮음 구간(x 합집합)의 IoU가 이 값 이상 + 정규화 텍스트 일치
+tile_edge_touch_px = 3           # 검출 bbox가 타일 내부 절단선에서 이 거리 안이면 접촉(잘림 의심)
+tile_box_jitter_px = 3           # 위치 비교(가로 덮음 IoU · 포함)에서 검출 박스 흔들림으로 보고 넓혀 주는 거리
+tile_supplement_margin_px = 150  # 보완 OCR crop: 의심 성분 위아래로 이만큼 밖(그 너머 같은 폭 안의 여백 우선)에서 자른다
 
 [merge]                        # ③ 줄·문단 병합 + 역할 분류
 line_gap = 0.7

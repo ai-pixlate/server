@@ -279,6 +279,38 @@ def test_analyzer_retryable_error_recovers(env):
     assert c.get(f"/v1/jobs/{ids['job']}").json()["currentStep"] == "N3"
 
 
+def test_tile_conflict_fails_n2_without_auto_retry(env):
+    """② 타일 충돌(재시도 불가 OCR_FAILED, #33): 분석기를 다시 부르지 않고 N2 실패로 끝난다. 부분 결과는 채택하지 않는다."""
+    from pipeline.errors import ocr_tile_conflict
+
+    fake = FakeAnalyzer(fail=ocr_tile_conflict("sec_1_01", 1, "경계 0 y1800~1830 readings_conflict"))
+    ai_adapters.set_adapters(analyzer=fake)
+    ids = _job(env)
+    c = _client(ids)
+    c.post(f"/v1/jobs/{ids['job']}/analyze")
+    env["q"].drain()
+    assert fake.calls == 1
+    atts = _q("SELECT status, error_code, retry_count FROM job_async_task WHERE job_id = :j AND stage = 'analyze'", j=ids["job"])
+    assert atts == [{"status": "failed", "error_code": "OCR_FAILED", "retry_count": 0}]
+    job = c.get(f"/v1/jobs/{ids['job']}").json()
+    assert job["status"] == "failed" and job["currentStep"] == "N2"
+    assert _q("SELECT count(*) AS n FROM section WHERE job_id = :j", j=ids["job"])[0]["n"] == 0
+
+
+def test_retryable_ocr_failure_retries_up_to_limit(env):
+    """일시 오류(재시도 가능 OCR_FAILED)는 누적 한도(N2 자동 재시도 2회)까지 다시 실행한 뒤 실패한다."""
+    fake = FakeAnalyzer(fail=AnalyzeError("OCR_FAILED", "추론 실패: CUDA out of memory", 1))
+    ai_adapters.set_adapters(analyzer=fake)
+    ids = _job(env)
+    c = _client(ids)
+    c.post(f"/v1/jobs/{ids['job']}/analyze")
+    env["q"].drain()
+    assert fake.calls == 3
+    atts = _q("SELECT status, retry_count FROM job_async_task WHERE job_id = :j AND stage = 'analyze' ORDER BY id", j=ids["job"])
+    assert [a["retry_count"] for a in atts] == [0, 1, 2] and all(a["status"] == "failed" for a in atts)
+    assert c.get(f"/v1/jobs/{ids['job']}").json()["status"] == "failed"
+
+
 def test_section_image_missing_is_rejected(env):
     def drop_image(raw):
         import os

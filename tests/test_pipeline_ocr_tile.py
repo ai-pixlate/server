@@ -338,6 +338,44 @@ def test_same_place_recognition_instability_fails(monkeypatch, cfg, tmp_path):
     assert cl["clean_tile_readings"] == {"0": "SPF1.5", "1": "SPF15"} and cl["supplement_text"] == "SPF1,5"
 
 
+def _three_readings(up, low, sup):
+    readings = {"upper": up, "lower": low, "supplement": sup}
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return [(100, 1800, 400, 1830, readings[role(n)])]
+    return _band_case([box(100, 1800, 400, 1830, "x", render=render)])
+
+
+@pytest.mark.parametrize("up, low, sup", [
+    ("SPF 5", "SPF 50", "SPF 500"),   # 문자열은 서로 포함되지만 숫자 값이 다르다(리뷰 재현)
+    ("SPF 50", "SPF 30", "SPF 50"),   # 보완이 위 타일을 확인해도 버려지는 아래 판독의 숫자가 다르다
+    ("1,000원", "1000원", "1,000원"),  # 자릿수 구분 기호가 달라 숫자 토큰이 다르다
+])
+def test_different_numeric_values_fail_even_with_containment_or_majority(monkeypatch, cfg, tmp_path, up, low, sup):
+    img, eng = _three_readings(up, low, sup)
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict|readings_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    cl = d["supplements"][0]["clusters"][0]
+    assert cl["status"] == "unresolved" and "use" not in cl and "warning" not in cl and not d["warnings"]
+
+
+@pytest.mark.parametrize("up, low, sup, want", [
+    ("SPF 50", "SPF 50 PA++", "SPF 50 PA++", "SPF 50 PA++"),  # 덜 검출 — 숫자 값이 그대로 포함된다
+    ("보습크림 50ml", "보숩크림 50ml", "보습크림 50ml", "보습크림 50ml"),  # 글자만 다른 2:1 확인 — 숫자 값 같음
+])
+def test_same_numeric_values_still_resolve(monkeypatch, cfg, tmp_path, up, low, sup, want):
+    img, eng = _three_readings(up, low, sup)
+    assert texts(run_ocr(monkeypatch, cfg, img, eng, tmp_path, {})) == [want]
+
+
+def test_numeric_tokens():
+    f = ocr_tile.numbers_within
+    assert f("SPF50", "SPF50PA++") and f("AB", "ABC") and f("", "SPF50")
+    assert not f("SPF5", "SPF50") and not f("SPF50", "SPF500") and not f("1,000", "1000") and not f("1.5", "15")
+
+
 def test_recognition_difference_without_supplement_fails(monkeypatch, cfg, tmp_path):
     def render(y0, y1, n):
         if y0 > 1800 or y1 < 1830:

@@ -29,7 +29,9 @@
 from __future__ import annotations
 
 import difflib
+import re
 import unicodedata
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -40,6 +42,7 @@ from pipeline.types import BBox, OcrRegion, Section, region_key
 
 _ROW_CHUNK = 2048  # 행 프로파일 계산 단위(최대 1000×37,665px 섹션의 메모리 제한)
 _SORT_ROW_TOL = 10  # PaddleX SortQuadBoxes의 같은 줄 판정(|Δy| < 10)
+_NUMBER = re.compile(r"\d+(?:[.,]\d+)*")  # 숫자 값 토큰: 50 · 1.5 · 1,000 (구분 기호까지 값의 일부로 본다)
 
 
 # ---- 설정 -------------------------------------------------------------------------------
@@ -525,9 +528,15 @@ def resolve_boundary(b: int, comps: list[Component], all_comps: list[Component],
     return rec, added
 
 
+def numbers_within(part: str, whole: str) -> bool:
+    """part의 숫자 값 토큰이 whole에 같은 값으로 모두 있는가(개수 포함). '5'는 '50' 안에 문자열로 있어도 다른 값이다."""
+    return not (Counter(_NUMBER.findall(part)) - Counter(_NUMBER.findall(whole)))
+
+
 def text_consistent(part: str, whole: str) -> bool:
-    """part 판독이 whole 판독과 모순되지 않는가 — 같음 · 숫자에 붙지 않은 문장부호만 다름 · whole 안에 그대로 포함(덜 검출)."""
-    return part == whole or punctuation_only_diff(part, whole) or part in whole
+    """part 판독이 whole 판독과 모순되지 않는가 — (같음 · 숫자에 붙지 않은 문장부호만 다름 · whole 안에 그대로 포함(덜 검출))
+    이면서 숫자 값이 바뀌지 않음. 'SPF5' ⊂ 'SPF50'은 문자열로 포함되지만 숫자 값이 달라 모순이다."""
+    return (part == whole or punctuation_only_diff(part, whole) or part in whole) and numbers_within(part, whole)
 
 
 def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile], p: TileParams) -> dict[str, Any]:
@@ -542,6 +551,8 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
     4. 깨끗한 타일 묶음 모두를 포함하는 깨끗한 보완 묶음.
     5. 그 밖 — 미해결(명백한 충돌). 잘림 없는 판독끼리 같은 자리에서 글자가 서로 다르면(판독 흔들림, 숫자 포함) 여기서
        실패한다 — 어느 판독이 맞는지 OCR만으로 정하지 않는다(사용자 결정 2026-10-13).
+    숫자 값 확인 — 1~4로 고른 뒤에도, 버려지는 잘림 없는 판독(깨끗한 타일 · 깨끗한 보완)의 숫자 값 토큰이 고른 판독에 같은
+    값으로 모두 있지 않으면 미해결(`numbers_conflict`)이다. 2:1 확인(다수결)으로도 서로 다른 숫자 값을 덮지 않는다.
     위치 포함 비교에는 tile_box_jitter_px 허용치를 둔다."""
     members = [d for c in cl_comps for d in c.members]
     clean: dict[int, list[Det]] = {}
@@ -562,12 +573,27 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
                [tile.y1 - d.bbox.y2 for d in clean[t] if tile.y1 < tiles[-1].y1]
         return min(gaps, default=1 << 30)
 
+    def numbers_ok(chosen: str, dropped: list[str]) -> dict[str, Any]:
+        bad = [r for r in dropped if not numbers_within(r, chosen)]
+        if bad:
+            for k in ("use", "use_tile", "warning"):  # 채택하지 않으므로 성공 표시를 남기지 않는다
+                out.pop(k, None)
+            out.update({"status": "unresolved", "reason": "numbers_conflict", "candidate_text": chosen,
+                        "numbers_conflict_with": bad})
+        return out
+
     def use_tile(cands: list[int], rule: str, warning: str | None = None, **kw: Any) -> dict[str, Any]:
-        out.update({"status": "resolved", "use": "tile", "use_tile": max(cands, key=lambda t: (clearance(t), -t)),
-                    "rule": rule, **kw})
+        t = max(cands, key=lambda t: (clearance(t), -t))
+        out.update({"status": "resolved", "use": "tile", "use_tile": t, "rule": rule, **kw})
         if warning:
             out["warning"] = warning
-        return out
+        return numbers_ok(readings[t], [r for u, r in readings.items() if u != t] + ([s_text] if s_ok else []))
+
+    def use_supplement(rule: str, warning: str | None = None) -> dict[str, Any]:
+        out.update({"status": "resolved", "use": "supplement", "rule": rule})
+        if warning:
+            out["warning"] = warning
+        return numbers_ok(s_text, list(readings.values()))
 
     def contains(dets: list[Det], text: str, other: list[Det], other_text: str) -> bool:
         return x_covered_by(other, dets, jit) >= th and text_consistent(other_text, text)
@@ -580,8 +606,7 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
                             "supplement_confirms_tile" if exact else "supplement_confirms_tile_punctuation_only",
                             confirmed_tiles=exact or minor)
         if not clean:
-            out.update({"status": "resolved", "use": "supplement", "rule": "supplement_replaces_truncated"})
-            return out
+            return use_supplement("supplement_replaces_truncated")
     if clean:
         cands = [t for t in clean
                  if all(contains(clean[t], readings[t], clean[u], readings[u]) for u in clean if u != t)
@@ -589,9 +614,7 @@ def _judge_supplement(cl_comps: list[Component], ss: list[Det], tiles: list[Tile
         if cands:
             return use_tile(cands, "tile_contains_all_readings", "partial_detection")
         if s_ok and all(contains(ss, s_text, side, readings[t]) for t, side in clean.items()):
-            out.update({"status": "resolved", "use": "supplement", "rule": "supplement_contains_all_readings",
-                        "warning": "partial_detection"})
-            return out
+            return use_supplement("supplement_contains_all_readings", "partial_detection")
     out.update({"status": "unresolved",
                 "reason": "no_untruncated_reading" if not clean and not s_ok else "readings_conflict"})
     return out

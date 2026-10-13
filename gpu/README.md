@@ -199,18 +199,22 @@ CELERY_BROKER_URL=redis://:«Redis비번»@«EC2주소»:6379/0
 CELERY_RESULT_BACKEND=redis://:«Redis비번»@«EC2주소»:6379/1
 DATABASE_URL=postgresql+psycopg://«DB사용자»:«RDS비번»@«RDS주소»:5432/«DB이름»
 CELERY_VISIBILITY_TIMEOUT=3600
+AWS_ACCESS_KEY_ID=«학교 워커 전용 IAM 사용자 액세스 키 ID»
+AWS_SECRET_ACCESS_KEY=«같은 키의 비밀 키»
+AWS_REGION=ap-northeast-2
 ```
 
 - 비밀번호에 `@ : / # % ?`가 있으면 URL 인코딩합니다(예: `@` → `%40`, `#` → `%23`).
 - «EC2주소»는 EC2 탄력적 IP입니다. docker 내부 이름(`pixlate-redis`)은 이 서버에서 해석되지 않습니다.
 - `CELERY_VISIBILITY_TIMEOUT`은 EC2(API·워커)와 같은 값이어야 합니다.
-- **S3 자격: 방식 미결정.** 분석(원본 이미지 읽기)·인페인팅(결과 업로드) 모두 S3가 필요하지만, 학교 서버는 IAM 역할을 쓸 수 없고
-  승인된 제공 방식이 아직 없습니다(2026-10-12 확인: 현재 env 파일에 S3 자격 없음). 장기 액세스 키 신규 발급을 전제하지 않습니다.
+- **S3 자격: 전용 IAM 사용자 액세스 키(2026-10-12 결정·적용).** 분석(원본 이미지 읽기)·인페인팅(결과 업로드) 모두 S3가 필요하고,
+  학교 서버는 IAM 역할을 쓸 수 없어 아래 정책만 붙인 전용 IAM 사용자의 액세스 키를 위 `AWS_*` 세 줄로 둡니다.
   - 권한 범위는 [`iam/school-worker-s3-policy.json`](iam/school-worker-s3-policy.json)으로 한정합니다(`<BUCKET>`만 바꿔 씀).
     `source/`·`staging/`·`verified/` 읽기, `staging/`·`verified/` 쓰기, 점검용 접두사 목록·리전 조회. 삭제·다른 접두사는 없습니다.
-  - 제공 방식 후보: ① 이 정책만 붙인 전용 IAM 사용자의 액세스 키(간단, 장기 키 — 주기 교체 필요)
-    ② IAM Roles Anywhere(자체 CA 인증서로 임시 자격 발급, 장기 키 없음 — 인증서·서명 도우미를 `/data`에 둠).
-  - 정해지면 그 자격을 이 파일(또는 ②의 AWS 설정 파일)에 두고 `env_check.py`로 접근·리전·버킷 해시(EC2 값과 비교)를 확인합니다.
+  - 장기 키이므로 **발급 후 90일 안에 교체**합니다(새 키 발급 → 이 파일 교체 → `env_check.py` 확인 → 워커 재시작 → 옛 키 비활성·삭제).
+    임시 자격(IAM Roles Anywhere 등)으로 바꾸는 것은 후속 검토 대상입니다.
+  - 적용 후 `env_check.py`로 접근·리전·버킷 해시(EC2 값과 같음)와 최소 권한 거부(다른 접두사·전체 목록)를 확인했습니다.
+    2026-10-13 운영 통합 검증에서 ocr(원본 읽기)·gpu(인페인팅 결과 업로드) 모두 이 자격으로 동작했습니다.
 - Gemini 키는 이 파일에 넣지 않습니다(gpu 워커에는 필요 없음). `/data/pixlate/worker-gemini.env`에만 둡니다.
 
 ### 점검·시작·정지
@@ -260,4 +264,5 @@ pod 한도 CPU 4코어·메모리 30720Mi(**프로젝트 안 모든 컨테이너
 | 테스트(`pytest tests --ignore-glob='tests/test_pipeline_*'`) 후 `job_async_task`(inpaint) | 새 행 `done`, 소요 약 2초(스텁 `sleep(2)`) |
 | EC2 재부팅 후 `inspect ping` | `gpu@…` 자동 재접속 |
 
-EC2에는 gpu 워커가 없으므로 gpu 큐를 비운 것은 학교 GPU 워커입니다. 지금 `run_inpaint`는 스텁(2초 대기 후 결과 경로만 기록)이라, 이 결과는 **EC2 Redis ↔ GPU ↔ RDS 경로가 열렸다**는 뜻입니다. 실제 LaMa 인페인팅과 GPU에서의 S3 업로드(자격 증명)는 남은 작업입니다.
+EC2에는 gpu 워커가 없으므로 gpu 큐를 비운 것은 학교 GPU 워커입니다. 당시 `run_inpaint`는 스텁(2초 대기 후 결과 경로만 기록)이라, 이 결과는 **EC2 Redis ↔ GPU ↔ RDS 경로가 열렸다**는 뜻이었습니다.
+현재 `run_inpaint`는 실제 LaMa 추론입니다. 2026-10-13 운영 통합 검증에서 학교 V100의 실제 인페인팅, S3 결과 업로드, EC2 채택과 산출물 검증까지 확인했습니다([`../deploy/integration-verification-2026-10-13.md`](../deploy/integration-verification-2026-10-13.md)).

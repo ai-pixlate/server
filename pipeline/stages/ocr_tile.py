@@ -23,7 +23,8 @@
 6. 정렬 — 최종 영역을 PaddleX `SortQuadBoxes`와 같은 규칙(첫 점 (y, x) 정렬 후 |Δy| < 10 인접 교환)으로 정렬하고
    region_key를 다시 매긴다.
 
-임계값 · 후보값은 실측 전 잠정값이다(`pipeline/config/default.toml` `[ocr]`, open-questions #31 · #32).
+임계값 · 후보값은 실측은 수행했으나 운영 기준값으로 확정하지 않은 잠정값이다(`pipeline/config/default.toml` `[ocr]`,
+open-questions #31 · #32).
 진단(diag)은 계약 값이 아니라 개발 확인용이다(CLI `ocr_debug/<section_key>.json`).
 """
 from __future__ import annotations

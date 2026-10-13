@@ -27,7 +27,7 @@ preprocess = "none"
 split_threshold_px = 4000
 tile_px = 2000
 tile_overlap_px = 300
-# 임시 분할 세부 기준(open-questions #31 · #32, 2026-10-13 구현). 아래 값은 실측 전 잠정 후보값이며 검증된 운영 기본값이 아니다
+# 임시 분할 세부 기준(open-questions #31 · #32, 2026-10-13 구현). 아래 값은 실측은 수행했으나 운영 기준값은 미확정인 잠정값이다
 tile_blank_row_std = 6.0         # 행 색 표준편차가 이 값 이하이면 균일 행(여백). ① section.blank_row_std와 같은 값에서 시작, 키는 분리
 tile_match_min_v_overlap = 0.5   # 이웃 타일 검출의 위치 대응: 세로 교집합 / 작은 쪽 높이가 이 값 이상(+ 가로 교집합 > 0)
 tile_equiv_min_x_iou = 0.9       # 동등 판정: 양쪽 가로 덮음 구간(x 합집합)의 IoU가 이 값 이상 + 정규화 텍스트 일치

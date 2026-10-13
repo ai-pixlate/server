@@ -1,6 +1,6 @@
 # be-handoff.md — BE 워커가 부르는 AI 함수의 입력·출력과 BE 처리(공동 확인용 예제)
 
-> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
+> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값) · 8절 추가 2026-10-12(D12 번역문 검사 연결). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
 > 성격: BE 구현이 실제로 요구·검증하는 형식의 예제와 기대 결과다. 새 계약 결정이 아니며, 유형 코드·프롬프트·모델은 AI 소유다.
 > 모든 키는 BE가 준 임시 키(`sec_<id>`·`blk_<id>`)를 그대로 돌려준다. 모르는 키는 저장 실패다(D3). 파일은 절대 로컬 경로로만 주고받는다.
 
@@ -21,7 +21,7 @@
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 독립 검사 단계(`run_text_check`) 연결, GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
+- **남은 것**: 번역문 검사 두 단계(`run_text_check` · `run_translation_review`) 연결(8절), GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -276,3 +276,60 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 6. 각 입력에 대해 **모델 로드를 포함하는 새 CLI 프로세스 전체**의 최대 메모리와 경과 시간을 측정한다. GNU time이 있는 이미지에서는 `/usr/bin/time -v`로 CLI를 감싸 maximum resident set size(KiB, MiB 환산 시 1024로 나눔)·elapsed time·종료 코드를 보존한다. 컨테이너 전체 최대 메모리는 프로세스 RSS와 구분해 측정 수단·한도와 함께 기록한다. 모델 다운로드 포함 여부·캐시 상태도 남긴다.
 
 동일 합성 입력과 지원 범위의 긴 입력이 수정 이미지에서 모두 통과하고 위 기록이 확보돼야 Linux 수정 검증 완료로 판단한다. 배포 담당의 기존 최대 메모리 **2,104MiB**는 비교 참고값이며 이번 수정 실측값이나 운영 요구량이 아니다. EC2 자원 결정은 BE·배포 담당이 맡는다.
+
+## 8. 번역문 검사 연결 인계(2026-10-12, D12)
+
+규칙 검사 `run_text_check`(기존, 미연결)와 번역문 LLM 규제 판정 `run_translation_review`(신규)를 BE 실행 계층에 연결하는 사항이다. 계약은 `contract.md` 5.3 · 7.1, 결정은 [통합 D12](integration-decisions.md). **AI 코드만 있으며 테스트 · 실제 모델 호출 · BE 연결 · 통합 시험은 하지 않았다.** 아래 BE 수정 사항은 제안이며 BE가 구현 · 확인한다.
+
+### 8.1 요청 구성
+
+- 두 검사 모두 섹션 단위 시도이며 대상은 섹션의 검사 가능한 블록 전체(포함 섹션 · `is_excluded=false` · 비공백 원문 · 비공백 현재 `trans_1`)다. 한 블록만 수정돼도 섹션 전체를 다시 검사한다(U2 현재 시도 대체가 깔끔하고 문맥 변경 stale과 같은 단위).
+- `text_check`: 기존 형식(`targets[{block_key, revision, text}]` · 묶음 · 용어). 묶음은 그 분석 실행의 고정 묶음, 용어는 ⑧ 공급과 같은 선별 규칙.
+- `translation_review`: `targets`에 라벨 · 로고 값을, 대상 밖 섹션 블록은 `context[{block_key, revision, is_product_label, is_brand_logo}]`로 준다. 라벨 · 로고는 **BE 공급 계약 후보** — DB 값을 그대로 주며 누락을 false로 채우지 않는다. 대상 밖 블록의 번역문은 주지 않는다(대상 밖인데 번역문이 있으면 BE 불변식 위반).
+- 등록 때 `review_manifest(request, cfg)` · `text_check_manifest(request)`로 지문을 계산해 `expected_input_manifest_sha256`과 시도의 고정 지문에 둔다.
+
+### 8.2 등록 위치
+
+- ⑧ 번역 채택 트랜잭션(`downstream.py`의 trans_1 저장 · revision+1)과 실패 대상 재시도 채택: **실제 저장된 문구와 증가한 revision**으로 그 섹션의 두 검사 시도를 등록한다.
+- N5 수정(`cfm.py`): 수정 저장 · `edit_signal` · 재렌더 등록과 같은 트랜잭션에서 두 검사 시도를 새로 등록해 이전 시도를 대체한다.
+- 검사 실패 · 재시도는 번역 재시도를 만들지 않는다. N4→N5 전환 집계에서 두 검사 stage를 뺀다(검사 중에도 N5 진입 · 수정 · 검수 가능).
+
+### 8.3 채택
+
+- 현재 시도 · lease 세대 · `validate_report` 통과, 그리고 시도의 고정 지문 = 현재 입력으로 다시 계산한 지문(LLM은 섹션 문맥 포함)일 때만 보고 전체를 채택한다. 다르면 보고 전체를 거절한다(블록별 부분 채택 없음). 새 시도는 이미 등록돼 있어야 한다.
+- 채택 시 자기 producer의 `compliance_flags` 항목만 교체한다(`translation_validation` · `glossary_validation` / `translation_llm_review`). 다른 producer 항목 · 번역문 · 사용자 수정문은 건드리지 않는다. flag의 `external_id` · `glossary_id`는 DB id로 변환한다.
+- LLM 판정 전체(no_risk 포함) · 검사 범위 · `supplied_items`(근거 인용문 원문) · 입력 지문은 채택 인계 payload와 `audit_log.detail`에 보존한다.
+
+### 8.4 조회 · 집계
+
+- 블록 조회 때 `check_aggregate.aggregate_block_checks`에 검사별 `CheckInput(run_state, attempt_manifest_sha256, current_manifest_sha256, block_result, failed_scope)`를 준다. `run_state`는 현재 시도의 `job_async_task.status`를 그대로(pending · running), 채택 완료는 done, 정상 생략은 skipped, 더 재시도하지 않기로 정한 최종 실패는 failed, 시도가 없으면 none.
+- 집계 결과는 상태 · 두 축 정보다. 신호 코드 · `basis_summary` 표시 · 경고 등급은 BE · FE가 정한다(`open-questions.md` #82). AI 집계값을 API 경고 코드나 확정 정책으로 바로 연결하지 않는다.
+
+### 8.5 검수 확정
+
+- 확정 요청 시 job 잠금 아래에서 섹션별 두 검사의 `checks_settled`를 확인하고 false면 거절한다. 검사 채택도 같은 job 잠금 순서를 따른다. 확정이 하류 실행을 닫은 뒤 도착한 검사 결과는 거절한다. **구체 API 오류 코드 · 응답 필드는 AI가 정하지 않는다.**
+- 기존 D9의 재검사 실패 확인 원칙은 유지한다. LLM undetermined의 확인 의무, LLM 실패의 기존 확인 절차 연결, risk 표시 등급은 미확정이다(#81). `checks_settled`는 처리 종료 여부일 뿐 문제없음이나 확정 허용이 아니다.
+
+### 8.6 실패 · 재시도
+
+- `model_call_failed` · `response_invalid`(retryable=true)는 자동 재시도 후보다. 출력 잘림(`response_invalid` + retryable=false, 분할 `output_truncated`)과 `unsupported_input`은 같은 설정 재시도로 풀리지 않는다 — 설정을 바꾸면 지문이 바뀌어 새 시도가 된다. 한도는 BE 운영값이다.
+- 한도를 넘긴 최종 실패는 「재검사 실패」로 남긴다. 실패를 문제없음 · 검사 완료로 표시하지 않는다.
+
+### 8.7 마이그레이션 · 라우팅
+
+- 0008 후속 마이그레이션: `STAGES`에 `text_check` · `translation_review` 추가, 단계 ↔ `task_type='verify'` · `unit_type='section'` 대응, 부모 실행 트리거의 downstream 허용 단계에 두 검사 추가.
+- 디스패치(작업 태스크) · 복구(`app/recovery.py`) · 상태 집계에서 두 stage 처리.
+
+### 8.8 배포 순서
+
+1. 제약을 넓히는 마이그레이션 → 2. 새 stage를 처리하는 코드 배포(검사 등록 꺼 둠) → 3. 모든 워커 교체 확인 → 4. 등록 켬. 봉투 버전 `handoff@2026-10-08.1`은 유지하지만 옛 코드는 새 stage를 거절할 수 있다.
+- 등록을 켜기 전부터 N5에 있던 작업은 검사 시도가 없다(`run_state=none`). 일괄 등록 · 다음 수정 때 등록 · 그동안의 확정 처리를 BE가 정한다(`open-questions.md` #83).
+
+### 8.9 전체 취소
+
+- 검사 요청 · 보고 payload · `non_adoptable_diagnostics` · audit 상세(번역문 · 원문 · 근거 인용 포함)를 삭제 대상에 넣는다(D9-4). 늦은 검사 결과가 삭제 자료를 다시 남기지 않게 한다.
+
+### 8.10 API(feature/api-tracking) 반영 후보 · 검증 한계
+
+- 후보: 블록 검사 상태 필드, 규제 신호의 탐지 방식 · 판정 · 근거 목록, 경고 확인 식별(`acknowledgedWarnings`의 blockId+code 확장 · warningKey), 검사 진행 중 확정 거절. 이름 · 형식은 BE · FE가 정한다(#82).
+- AI 쪽 검증(단위 테스트 · 계약 예제 · 가짜 모델)과 실제 Gemini 스키마 수용 확인은 아직이다(#84).

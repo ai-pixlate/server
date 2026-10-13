@@ -57,6 +57,7 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 | `deploy/bin/redact_run.py` | `/opt/pixlate/bin/redact_run.py` | 로그 정제 래퍼(아래) |
 | `deploy/bin/gemini_check.py` | `/opt/pixlate/bin/gemini_check.py` | Gemini 키 주입 확인 / 실제 요청 1회 |
 | `deploy/bin/ocr_measure.py` | (학교 GPU `/data/pixlate/bin/`) | OCR 1섹션 메모리·시간 실측 |
+| `deploy/bin/state_check.py` | `/opt/pixlate/bin/state_check.py` | 큐·unacked·DB 진행 중 시도 개수 재조회(읽기 전용) |
 | `deploy/pixlate.env.example` | `/etc/pixlate/pixlate.env` (root 600) | API·cpu 워커·복구 공용 환경변수. 실제 값은 서버에만 |
 | — | `/etc/pixlate/worker-gemini.env` (root:root 600) | `GEMINI_API_KEY` 한 줄. **cpu 워커에만** 연결(API·복구에는 없음) |
 | — | `/etc/pixlate/release.conf` | `RELEASE_SHA=<40자리>`, `API_DIGEST=sha256:<64자리>` (비밀 아님) |
@@ -71,10 +72,27 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 | `live` | `:8000` 외부 공개 | 실행(API → cpu → 복구 순) | Docker restart 정책 + 서비스 재실행 |
 
 - 모드 파일이 없거나 값이 잘못되면 `maintenance`로 동작합니다. `live`로 시작하는 일은 없습니다.
+- **정지 방식**: 대상(API·복구·cpu)의 자동 재시작을 먼저 모두 끄고, API(신규 유입 차단) → 복구 → cpu 순으로 **TERM만** 보낸 뒤
+  따로 기다립니다(`STOP_WAIT_S`, 기본 600초). 하나가 늦거나 Docker 명령이 실패해도 나머지에는 계속 요청하고, 실패는 모아서 보고합니다.
+  기다려도 끝나지 않으면 **SIGKILL·삭제·재생성을 하지 않고** 적용 상태를 `<모드>-incomplete`로 남긴 채 실패로 끝냅니다
+  (남은 작업이 끝난 뒤 같은 명령을 다시 실행). `validate`·`live` 전환도 교체할 컨테이너의 정지가 확인돼야 다시 만듭니다.
+- 컨테이너 상태는 Docker가 "그 컨테이너가 없다"(`No such container/object`)고 답할 때만 부재로 봅니다. 데몬·소켓 연결 오류는
+  조회 실패로 처리해 정지 완료를 기록하지 않습니다.
+- 적용 상태(`/etc/pixlate/deploy.mode.applied`)는 시작할 때 `<모드>-in-progress`로 바꾸고, 끝날 때 임시 파일 → 원자적 교체 →
+  다시 읽기로 기록합니다. 기록에 실패하면 성공을 돌려주지 않고 완료 로그도 남기지 않습니다(이전 완료 값이 최신처럼 남지 않음).
+- `pixlate-mode`는 요청한 모드(`requested`)와 실제 적용 결과(`applied`)를 나눠 보여 주고, 대상 컨테이너 상태와
+  큐·unacked·DB 진행 중 시도 재조회(`deploy/bin/state_check.py`) 결과를 함께 출력합니다. 둘이 다르면 완료가 아닙니다.
+  정지 중인 요청·작업이 후속 메시지를 만들 수 있으므로, 정지 뒤 재조회 값이 0이 아니면 그대로 확인합니다.
 - 모드는 `sudo /opt/pixlate/bin/pixlate-mode <모드>`로만 바꿉니다. 파일만 고치고 적용하지 않은 채 재부팅하면, Docker가 이전 모드의 컨테이너를 먼저 켤 수 있습니다.
 - **Redis**: 기존 `pixlate-redis` 컨테이너·볼륨을 지우거나 다시 만들지 않습니다. 멈춰 있으면 같은 컨테이너를 시작하고, 없으면 빈 Redis를 만들지 않고 앱 컨테이너를 멈춘 뒤 실패합니다.
 - 이미지 digest·env 파일 내용·래퍼·포트·명령이 바뀐 컨테이너만 다시 만듭니다. 같은 사양이면 재사용합니다.
 - `live`는 `worker-gemini.env`가 root:root 600·`GEMINI_API_KEY` 한 줄일 때만 진행하고, 공유 env 파일에 Gemini 키가 있으면 거부합니다.
+
+### 시험
+
+`bash deploy/tests/run.sh` — `docker:27-dind`(privileged) 컨테이너 안에 실제 Docker 엔진을 띄워 가짜 이미지·가짜 값으로
+모드 전환·Redis 보존·digest/env 교체(`modes.sh`)와 정지·기동 실패 경로(`stop.sh`: 늦은 종료, 조회 실패·paused,
+Docker 명령 실패, 옛 워커 정지 실패 시 live 차단, 모드 파일 저장 실패 시 재시작 금지)를 시험한다. 운영 서버에는 연결하지 않는다.
 
 ### 로그 정제
 

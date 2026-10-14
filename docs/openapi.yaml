@@ -763,7 +763,7 @@ components:
               type: { type: string, enum: [images, csv, html, psd] }
               status: { type: string, enum: [generated, partial, failed, pending] }
               isGenerated: { type: boolean }
-              isActive: { type: boolean }
+              isActive: { type: boolean, description: '1.0.0 은 html·psd 를 만들지 않으므로 false' }
               failedCount: { type: integer }
               retryAction: { type: [string, 'null'], enum: [render, export, 'null'] }
     ValidationDetail:
@@ -1747,7 +1747,12 @@ paths:
       operationId: exportCreate
       x-screen: 'N6'
       x-source: API-FIN-04
-      description: 'content.csv(formula injection 방어) + manifest(서버 보관·미배포) + zip. 🟢9월.'
+      description: >
+        content.csv(formula injection 방어) + zip. 🟢9월. (manifest(서버 보관·미배포)는 1.0.0 범위에서 제외 — 2026-10-14 범위 변경 승인, 이후 릴리즈에서 규격과 함께 추가)
+        1.0.0: 만들 수 있는 구성요소 = csv(content.csv)·images. html·psd 는 이번 릴리즈 범위 밖 → 요청에 있으면 아무것도
+        만들지 않고 400 VALIDATION_ERROR(error.details.unsupported). csv·images와 html·psd가 섞여 있어도 전체 400이고 산출물을 만들지 않는다.
+        둘 이상 고르면 하나의 zip 으로 묶어 artifactType=zip 을
+        반환하고, 하나만 고르면 그 구성요소(csv·images)를 반환한다.
       requestBody:
         required: true
         content:
@@ -1759,6 +1764,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ExportResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/exports/{artifactId}/download:
     parameters:

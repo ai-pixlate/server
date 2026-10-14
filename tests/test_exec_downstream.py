@@ -604,3 +604,50 @@ def test_sections_list_and_detail_follow_contract(env):  # B
     assert {s["exclusionReason"] for s in again["exclude"]} <= {"auto_regulatory", "auto_channel", "auto_local", "auto_local_failed",
                                                                    "user_manual", "restored_by_user"}
 
+
+def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
+    import io as _io
+    import zipfile
+    from datetime import datetime
+
+    from app import s3
+
+    store = env["store"]
+    monkeypatch.setattr(s3, "_s3", None)
+    monkeypatch.setattr(s3, "upload_fileobj", lambda f, key, content_type=None: store.put(key, f.read()) or key)
+    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300: f"https://presigned.test/{key}" if key else None)
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+
+    def n():
+        return _q("SELECT count(*) AS n FROM export_artifact WHERE job_id = :j", j=ids["job"])[0]["n"]
+
+    # 지원 밖(html·psd)이 하나라도 있으면 지원 형식과 섞여 있어도 전체 거절, 아무것도 만들지 않는다(2026-10-14 결정)
+    for comps in (["html"], ["images", "html"], ["psd"], ["images", "psd"], ["content.csv", "images", "psd"], []):
+        r = c.post(f"/v1/jobs/{ids['job']}/export", json={"components": comps})
+        assert r.status_code == 400 and r.json()["error"]["code"] == "VALIDATION_ERROR", (comps, r.text)
+        assert r.json()["error"]["details"]["unsupported"] == [c for c in comps if c in ("html", "psd")]
+        assert n() == 0
+
+    r = c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["images", "content.csv"]})
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body["artifactType"] == "zip" and body["components"] == ["images", "csv"]
+    d = c.get(f"/v1/jobs/{ids['job']}/exports/{body['artifactId']}/download").json()
+    assert d["fileName"].endswith(".zip") and "expiresIn" not in d
+    assert datetime.fromisoformat(d["expiresAt"].replace("Z", "+00:00")).tzinfo is not None
+    names = zipfile.ZipFile(_io.BytesIO(store.get(d["url"].split("presigned.test/", 1)[1]))).namelist()
+    assert "content.csv" in names and any(x.startswith("images/deliverable_") and x.endswith(".png") for x in names)
+
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "images"}).json()["fileName"].endswith(".zip")
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "csv"}).json()["fileName"].endswith(".csv")
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download").json()["fileName"].endswith(".zip")  # 기본 zip
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "html"}).status_code == 404
+
+    one = c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["content.csv"]}).json()
+    assert one["artifactType"] == "csv"
+    comps = {x["type"]: x for x in c.get(f"/v1/jobs/{ids['job']}/deliverables").json()["components"]}
+    assert comps["html"]["isActive"] is False and comps["psd"]["isActive"] is False
+    assert comps["images"]["isActive"] is True and comps["csv"]["isActive"] is True

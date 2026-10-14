@@ -99,6 +99,10 @@ def _doc(generated, name):
     ("inpaint.completed", "completed"), ("inpaint.skipped_empty_mask", "skipped"), ("inpaint.failed_model", "failed"),
     ("style.skipped_no_targets", "skipped"), ("translate.failed_partial", "failed"), ("translate.completed_retry_target_only", "completed"),
     ("translate.skipped_no_targets", "skipped"),
+    ("translation_review.completed", "completed"), ("translation_review.completed_no_check_items", "completed"),
+    ("translation_review.skipped_no_targets", "skipped"), ("translation_review.failed_response_invalid", "failed"),
+    ("translation_review.failed_output_truncated", "failed"), ("translation_review.failed_input_too_large", "failed"),
+    ("translation_review.failed_chunk_call", "failed"),
 ])
 def test_example_outcomes(generated, name, outcome):
     assert _doc(generated, name)["report"]["outcome"] == outcome

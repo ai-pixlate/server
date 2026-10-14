@@ -216,7 +216,7 @@ components:
       enum: [include, exclude]
     ExclusionReason:
       type: string
-      enum: [auto_regulatory, auto_channel, auto_local_irrelevant, user_manual, restored_by_user]
+      enum: [auto_regulatory, auto_channel, auto_local, auto_local_failed, user_manual, restored_by_user]
     ExcludedStage:
       type: string
       enum: [N3, N5]
@@ -615,7 +615,7 @@ components:
         warningBadge: { oneOf: [ { $ref: '#/components/schemas/WarningBadge' }, { type: 'null' } ] }
         verdicts:
           type: array
-          description: '판정 목록 (정렬 불변식 regulated→policy→irrelevant). 제외 버킷만 전체 노출.'
+          description: '판정 목록 (정렬 불변식 regulated→policy→irrelevant→needs_fix→conditional, 같은 값은 id 순). 제외 버킷만 전체 노출 — 목록(sectionList)의 포함 섹션은 빈 배열, 상세(SEC-02)는 판정 근거 전체.'
           items: { $ref: '#/components/schemas/SectionVerdict' }
         signals:
           type: array

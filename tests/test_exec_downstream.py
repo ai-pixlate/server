@@ -561,3 +561,46 @@ def test_block_patch_returns_full_block_and_conflict_current(env):  # D
     assert err["details"]["current"]["revision"] == b["revision"] + 1 and err["details"]["current"]["trans1"] == "Edited"
     assert set(b) <= set(err["details"]["current"])
 
+
+def _mutate_regulatory(raw):
+    raw["blocks"][1]["source_ko"] = "피부 치료 효과와 주름 개선"
+
+
+def test_sections_list_and_detail_follow_contract(env):  # B
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer(mutate=_mutate_regulatory))
+    ids = _to_n3(env)
+    c = ids["c"]
+    secs = c.get(f"/v1/jobs/{ids['job']}/sections").json()
+    allsec = secs["include"] + secs["exclude"]
+    src = _q("SELECT id FROM source_image WHERE job_id = :j", j=ids["job"])[0]["id"]
+    for s in allsec:
+        assert s["sourceImageId"] == src and set(s["bbox"]) == {"x", "y", "w", "h"} and s["signals"] == []
+        for v in s["verdicts"]:
+            assert set(v) == {"id", "verdictStatus", "verdictType", "problemText", "alternativeExpression",
+                              "basisArticle", "evidenceUrl", "reason"}
+    ex = secs["exclude"][0]
+    assert [v["verdictStatus"] for v in ex["verdicts"]] == ["regulated", "conditional"]  # 정렬 불변식
+    assert ex["displayTop"] is None
+    top = 0
+    for s in sorted(secs["include"], key=lambda x: x["sectionOrder"]):
+        assert s["displayTop"] == top
+        top += s["height"] or 0
+    det = c.get(f"/v1/jobs/{ids['job']}/sections/{ex['id']}").json()
+    assert {k: v for k, v in det.items() if k != "contentFindings"} == ex and "contentFindings" in det
+    # 목록의 포함 섹션은 썸네일만(판정 목록 비움, 계약 sectionList). 상세(SEC-02)는 판정 근거 전체
+    inc = secs["include"][0]["id"]
+    _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type, reason) VALUES (:s, 'conditional', 'regulatory_conditional', 't')",
+       s=inc)
+    again = c.get(f"/v1/jobs/{ids['job']}/sections").json()
+    assert all(s["verdicts"] == [] for s in again["include"]) and again["exclude"][0]["verdicts"] == ex["verdicts"]
+    assert [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections/{inc}").json()["verdicts"]] == ["conditional"]
+    # 판정 정렬 전체 순서(2026-10-14 확정): regulated → policy → irrelevant → needs_fix → conditional
+    for st, vt in (("needs_fix", "needs_fix"), ("irrelevant", "local_irrelevant"), ("policy", "channel_policy")):
+        _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type) VALUES (:s, :st, :vt)", s=ex["id"], st=st, vt=vt)
+    got = [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections").json()["exclude"][0]["verdicts"]]
+    assert got == ["regulated", "policy", "irrelevant", "needs_fix", "conditional"]
+    assert got == [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections/{ex['id']}").json()["verdicts"]]
+    # 제외 사유는 BE 저장값(PRD 문자열) 그대로 — 계약 enum 을 auto_local·auto_local_failed 로 맞춘다(2026-10-14)
+    assert {s["exclusionReason"] for s in again["exclude"]} <= {"auto_regulatory", "auto_channel", "auto_local", "auto_local_failed",
+                                                                   "user_manual", "restored_by_user"}
+

@@ -28,6 +28,7 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 
 
 def _to_section(r) -> dict:
+    """PATCH(SEC-03) 응답용 요약. 목록·상세는 _sections() 가 계약 Section 전체를 만든다."""
     return {
         "id": r["id"],
         "bucket": r["bucket"],
@@ -38,6 +39,75 @@ def _to_section(r) -> dict:
     }
 
 
+# Section.verdicts 정렬(2026-10-14 확정): regulated → policy → irrelevant → needs_fix → conditional.
+# 계약 불변식(regulated→policy→irrelevant)에 AI 설계 기록의 심각도 순(irrelevant > needs_fix > conditional)을 이었다. 같은 값은 id 순
+_VERDICT_ORDER = {"regulated": 0, "policy": 1, "irrelevant": 2, "needs_fix": 3, "conditional": 4}
+_SECTION_COLUMNS = (
+    "s.id, s.section_order, s.source_image_id, s.top_offset, s.height, s.bbox, s.category, s.bucket, "
+    "s.exclusion_reason, s.excluded_stage, s.inpaint_status, s.warning_badge, s.content_findings"
+)
+
+
+def _verdict(v) -> dict:
+    return {
+        "id": v["id"],
+        "verdictStatus": v["verdict_status"],
+        "verdictType": v["verdict_type"],
+        "problemText": v["problem_text"],
+        "alternativeExpression": v["alternative_expression"],
+        "basisArticle": v["basis_article"],
+        "evidenceUrl": v["evidence_url"],
+        "reason": v["reason"],
+    }
+
+
+def _sections(db: Session, job_id: int) -> list[dict]:
+    """현재 보이는 섹션 전체를 계약 Section 으로(정렬 = section_order). displayTop 은 앞선 include 섹션 height 합(include 만)."""
+    rows = db.execute(
+        text(f"SELECT {_SECTION_COLUMNS} FROM section s JOIN job j ON j.id = s.job_id "
+             "WHERE s.job_id = :j AND " + VISIBLE + " ORDER BY s.section_order, s.id"),
+        {"j": job_id},
+    ).mappings().all()
+    verdicts: dict[int, list[dict]] = {}
+    if rows:
+        for v in db.execute(
+            text("SELECT id, section_id, verdict_status, verdict_type, problem_text, alternative_expression, "
+                 "basis_article, evidence_url, reason FROM section_verdict WHERE section_id = ANY(:ids) ORDER BY id"),
+            {"ids": [r["id"] for r in rows]},
+        ).mappings().all():
+            verdicts.setdefault(v["section_id"], []).append(v)
+    out, top = [], 0
+    for r in rows:
+        display_top = None
+        if r["bucket"] == "include":
+            display_top = top
+            top += r["height"] or 0
+        vs = sorted(verdicts.get(r["id"], []), key=lambda v: (_VERDICT_ORDER.get(v["verdict_status"], 9), v["id"]))
+        out.append({
+            "id": r["id"],
+            "sectionOrder": r["section_order"],
+            "sourceImageId": r["source_image_id"],
+            "topOffset": r["top_offset"],
+            "displayTop": display_top,
+            "height": r["height"],
+            "bbox": r["bbox"],
+            "category": r["category"],
+            "bucket": r["bucket"],
+            "exclusionReason": r["exclusion_reason"],
+            "excludedStage": r["excluded_stage"],
+            "inpaintStatus": r["inpaint_status"],
+            "warningBadge": r["warning_badge"],
+            "verdicts": [_verdict(v) for v in vs],
+            "signals": [],  # 섹션 단위 신호는 아직 만들지 않는다(블록 신호는 CFM-01)
+            "_contentFindings": r["content_findings"],
+        })
+    return out
+
+
+def _public(sec: dict) -> dict:
+    return {k: v for k, v in sec.items() if not k.startswith("_")}
+
+
 class SectionAction(BaseModel):
     action: Literal["restore", "exclude"] = "exclude"
 
@@ -46,52 +116,26 @@ class SectionAction(BaseModel):
 @router.get("/jobs/{job_id}/sections", summary="API-SEC-01 섹션 목록(버킷·배지) (DB)")
 def list_sections(job_id: int, bucket: Optional[SectionBucket] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     _require_job_owned(db, job_id, seller_id)
-    rows = db.execute(
-        text(
-            "SELECT s.id, s.bucket, s.exclusion_reason, s.excluded_stage, s.warning_badge, s.section_order "
-            "FROM section s JOIN job j ON j.id = s.job_id WHERE s.job_id = :j AND " + VISIBLE + " "
-            "ORDER BY s.section_order, s.id"
-        ),
-        {"j": job_id},
-    ).mappings().all()
-
+    secs = [_public(x) for x in _sections(db, job_id)]
+    for x in secs:  # 계약 sectionList: 제외 버킷=판정 목록 전부, 포함=썸네일만(판정 목록은 상세 SEC-02 에서)
+        if x["bucket"] != "exclude":
+            x["verdicts"] = []
     if bucket is not None:
-        return [_to_section(r) for r in rows if r["bucket"] == bucket.value]
+        return [x for x in secs if x["bucket"] == bucket.value]
     return {
-        "include": [_to_section(r) for r in rows if r["bucket"] == "include"],
-        "exclude": [_to_section(r) for r in rows if r["bucket"] == "exclude"],
+        "include": [x for x in secs if x["bucket"] == "include"],
+        "exclude": [x for x in secs if x["bucket"] == "exclude"],
     }
 
 
 @router.get("/jobs/{job_id}/sections/{section_id}", summary="API-SEC-02 섹션 상세(판정 근거) (DB)")
 def get_section(job_id: int, section_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     _require_job_owned(db, job_id, seller_id)
-    r = db.execute(
-        text(
-            "SELECT s.id, s.bucket, s.exclusion_reason, s.excluded_stage, s.warning_badge, s.section_order, "
-            "s.top_offset, s.height, s.content_findings "
-            "FROM section s JOIN job j ON j.id = s.job_id WHERE s.id = :id AND s.job_id = :j AND " + VISIBLE
-        ),
-        {"id": section_id, "j": job_id},
-    ).mappings().first()
-    if not r:
+    sec = next((x for x in _sections(db, job_id) if x["id"] == section_id), None)
+    if sec is None:
         raise HTTPException(status_code=404, detail="section not found")
-
-    verdicts = db.execute(
-        text(
-            "SELECT verdict_status, verdict_type, basis_article, evidence_url, reason "
-            "FROM section_verdict WHERE section_id = :id"
-        ),
-        {"id": section_id},
-    ).mappings().all()
-
-    detail = _to_section(r)
-    detail.update({
-        "topOffset": r["top_offset"],
-        "height": r["height"],
-        "contentFindings": r["content_findings"],
-        "verdicts": [dict(v) for v in verdicts],
-    })
+    detail = _public(sec)
+    detail["contentFindings"] = sec["_contentFindings"]  # 계약 밖 추가 필드(기존 유지 — 판정 근거 원문)
     return detail
 
 

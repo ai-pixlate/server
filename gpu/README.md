@@ -8,7 +8,8 @@
 | 파일 | 내용 |
 | --- | --- |
 | `Dockerfile` | CUDA 베이스 + Python venv(`/opt/venv`) + PyTorch·torchvision + SSH |
-| `entrypoint.sh` | 컨테이너 시작 시 SSH 공개키·호스트키 준비 후 `sshd` 실행 (PID 1) |
+| `opt-venv.constraints.txt` | `/opt/venv` 패키지 버전 고정(2026-10-13 운영 pod 기준, 1장) |
+| `entrypoint.sh` | 컨테이너 시작 시 SSH 공개키·호스트키·PaddleX 캐시 연결 준비 후 `sshd` 실행 (PID 1) |
 | `sshd_config` | 키 인증만 허용, 비밀번호 로그인 차단 |
 | `check_gpu.py` | PyTorch·GPU·`/data` 볼륨 상태 확인 |
 | `worker.sh` · `env_check.py` · `lama_check.py` | gpu·ocr 큐 워커 관리와 점검(4장) |
@@ -19,7 +20,7 @@
 | 항목 | 값 |
 | --- | --- |
 | 이미지 | `yeram109/pixlate-gpu:torch2.14-cu126` (Docker Hub, public) |
-| 베이스 이미지 | `nvidia/cuda:12.6.3-base-ubuntu24.04` |
+| 베이스 이미지 | `nvidia/cuda:12.6.3-base-ubuntu24.04` (`Dockerfile`에서 digest로 고정) |
 | PyTorch | `2.14.0+cu126` (V100 `sm_70` 지원 확인) |
 | Python | 3.12 |
 
@@ -58,16 +59,36 @@
 
 `Dockerfile`을 바꿨을 때만 필요합니다. 이미 올라간 이미지를 쓸 거면 2번으로 넘어갑니다.
 
+주요 의존성을 고정했습니다. 베이스 이미지는 digest로, `/opt/venv`는 `opt-venv.constraints.txt`로 고정합니다.
+`/data/venv`(gpu 워커)가 `.pth`로 `/opt/venv`의 torch를 공유하고, 두 워커 venv 모두 이미지의 `/usr/bin/python3.12`를 쓰기 때문입니다.
+apt 패키지는 고정하지 않으므로(우분투 저장소가 이전 버전을 지웁니다) 같은 이미지가 다시 나온다는 보장은 아닙니다.
+그래서 빌드한 뒤 푸시 전에 로컬 점검을 돌립니다(GPU 없이 가능, Docker 와 Git Bash 필요).
+
+```bash
+bash gpu/tests/image_check.sh <빌드한 이미지>   # 마지막 줄 RESULT ... fail=0 이어야 한다
+```
+
+| 구분 | 확인 |
+| --- | --- |
+| A. 이미지 | OCR 런타임 라이브러리(`ldconfig -p`), `/usr/bin/python3.12` = 3.12.3, `/opt/venv` freeze = 고정 파일, torch CUDA 빌드, sshd 설정 |
+| B. entrypoint | PaddleX 캐시 링크 — 빈 `/data`·기존 캐시·캐시 자리가 파일·`/root/.paddlex` 가 이미 있음·다른 링크·마운트 없음, 재시작 반복. 모든 경우 sshd 가 PID 1 |
+| C. 워커 Python | `gpu/baseline/` 의 운영 freeze 그대로 두 venv 를 `/tmp` 에 재현해 `pip check`·import(레포 코드 포함) |
+
+GPU·LaMa 가중치가 없으므로 CUDA·가중치·모델 로드는 이 점검에 없습니다. pod 교체 뒤 실제 워커 Python(`/data/venv`·`/data/venv-ocr`)으로 확인합니다.
+`gpu/baseline/` 은 2026-10-13 운영 pod 의 `/data/venv`·`/data/venv-ocr` `pip freeze` 입니다. `/data` venv 를 다시 설치했으면 새 freeze 로 바꿉니다.
+
+태그는 빌드마다 새로 붙이고 이미 쓰는 태그에 덮어쓰지 않습니다. 같은 태그를 다시 푸시하면 이전 이미지로 되돌릴 기준이 사라지고,
+재시작 때 어떤 이미지를 받는지가 pull 정책·노드 캐시에 따라 달라집니다. 푸시한 뒤 digest를 기록하고 Workload에는 digest로 지정합니다.
+
 ```bash
 cd gpu
 docker login
-docker build -t yeram109/pixlate-gpu:torch2.14-cu126 .
-docker push yeram109/pixlate-gpu:torch2.14-cu126
+docker build -t yeram109/pixlate-gpu:torch2.14-cu126-<YYYYMMDD> .
+docker push yeram109/pixlate-gpu:torch2.14-cu126-<YYYYMMDD>
+docker buildx imagetools inspect yeram109/pixlate-gpu:torch2.14-cu126-<YYYYMMDD>   # Digest 를 기록
 ```
 
 이미지에는 비밀 값이 없으므로 Docker Hub 저장소를 public으로 둡니다. private이면 서버가 이미지를 받지 못합니다.
-
-같은 태그로 다시 푸시한 경우 `imagePullPolicy: Always`라서 Workload를 재시작하면 새 이미지를 받습니다.
 
 ## 2. 서버 배포 (KubeSphere 콘솔)
 
@@ -133,8 +154,11 @@ docker build \
   --build-arg BASE_IMAGE=nvidia/cuda:11.8.0-base-ubuntu22.04 \
   --build-arg TORCH_VERSION=2.7.1 \
   --build-arg TORCH_INDEX_URL=https://download.pytorch.org/whl/cu118 \
+  --build-arg OPT_VENV_LOCK=0 \
   -t yeram109/pixlate-gpu:torch2.7-cu118 .
 ```
+
+`OPT_VENV_LOCK=0`은 CUDA 12.6 기준 버전 고정을 끕니다. 이 빌드를 계속 쓰게 되면 그 환경의 `pip freeze`로 고정 파일을 따로 만듭니다.
 
 ## 4. 백엔드 연동 (gpu·ocr 큐 워커)
 
@@ -182,12 +206,14 @@ cd /data/server && /data/venv/bin/pip install -r requirements.txt -r pipeline/re
 cd /data/server && /data/venv-ocr/bin/pip install -r requirements.txt -r pipeline/requirements-ocr.txt
 /data/venv-ocr/bin/pip check
 
-# PaddleX 모델 캐시를 /data 에(재시작 후 다시 받지 않게). pod 재시작마다 링크를 다시 만든다
+# PaddleX 모델 캐시를 /data 에(재시작 후 다시 받지 않게). entrypoint.sh 가 시작할 때마다 링크를 만든다(아래)
 mkdir -p /data/.cache/paddlex && [ -e /root/.paddlex ] || ln -s /data/.cache/paddlex /root/.paddlex
 ```
 
-- OCR 런타임 라이브러리(`libgomp1 libgl1 libglib2.0-0t64`)는 `Dockerfile`에 넣었습니다. 이 변경으로 이미지를 다시 빌드하기 전에는
-  pod가 재시작될 때마다 `apt-get install -y --no-install-recommends libgomp1 libgl1 libglib2.0-0t64`가 필요합니다(`worker.sh`가 없으면 시작을 거부).
+- OCR 런타임 라이브러리(`libgomp1 libgl1 libglib2.0-0t64`)는 `Dockerfile`에, PaddleX 캐시 링크(`/root/.paddlex` → `/data/.cache/paddlex`)는
+  `entrypoint.sh`에 넣었습니다. 링크는 이미 있는 디렉터리·파일·다른 링크를 바꾸지 않고 경고만 남깁니다(`kubectl logs`·콘솔 로그).
+  이 변경이 들어간 이미지로 교체하기 전에는 pod가 재시작될 때마다 아래 두 가지를 손으로 해야 합니다(`worker.sh`는 라이브러리가 없으면 시작을 거부).
+  `apt-get update && apt-get install -y --no-install-recommends libgomp1 libgl1 libglib2.0-0t64`, 위의 `ln -s` 한 줄.
 - 같은 SHA라도 `pipeline/requirements.txt`가 버전을 고정하지 않으므로 설치 후 `pip freeze`를 남겨 둡니다.
 
 ### 환경변수 파일

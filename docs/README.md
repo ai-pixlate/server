@@ -96,7 +96,7 @@ git push -u origin docs/add-xxx-endpoint
 | 🟢 9월 | MVP must | 요청/응답 전체 |
 | 🟡 9월(should) | FIN-07 CSV 재업로드 | 전체 |
 | 🔵 12월 | 로드맵 | 경로·요약 포함, 상세는 최소 스키마 + `TODO` |
-| 📌 조건부 | JOB-08 resume · PATCH /jobs (PM 확정 대기) | 포함, 최소 스키마 + `TODO` |
+| 📌 조건부 | JOB-08 resume (PM 확정 대기) | 포함, 최소 스키마 + `TODO` |
 
 ---
 
@@ -124,7 +124,7 @@ git push -u origin docs/add-xxx-endpoint
 
 - **59 = 60(API-* 행) − JOB-08 resume(📌·개수 미합산)**. 인벤토리 합계 규칙과 동일.
 - **스펙 총 61 = 60 + `PATCH /jobs`**(태스크 지침: "조건부(JOB-08 resume, PATCH /jobs)를 스펙에 포함"). resume·PATCH /jobs 둘 다 📌 최소 스키마 + `TODO`.
-- 릴리스 마커 집계(스펙): 🟢46 · 🟡1 · 🔵12 · 📌2(resume + PATCH /jobs).
+- 릴리스 마커 집계(스펙): 🟢46 · 🟡1 · 🔵12 · 📌2(resume + PATCH /jobs). 이후 `PATCH /jobs/{jobId}`(jobPatch)는 draft-first 로 확정돼 🟢9월로 바뀌었다(2026-10-14 BE 구현).
 
 ---
 
@@ -152,5 +152,5 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 스펙 내 `TODO` 주석으로 표시된 미확정 항목:
 - **Error code 전체 15종** — 근거(회신문 종합 1-C-5) 확정 시 `Error.code`를 enum으로 고정.
 - **🔵12월 스텁**: AUTH-06 · JOB-01 · INP-02 · LIB-02 · LIB-03 · ADM-01~07 — 상세 Request/Response 12월 확정.
-- **📌조건부**: JOB-08 `resume` · `PATCH /jobs` — PM 확정 후 계약 채움.
+- **📌조건부**: JOB-08 `resume` — PM 확정 후 계약 채움. (`PATCH /jobs/{jobId}` 는 jobPatch 로 확정·구현됨)
 - **verify 노드 분리**(N2 판정 vs N4 규제검증) — 오케스트레이션 §15-1 미결(스펙엔 영향 없음).

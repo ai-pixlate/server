@@ -137,7 +137,7 @@ def test_job_create_and_get():
         headers=_h(),
     )
     assert r.status_code == 201
-    CTX["job_id"] = r.json()["jobId"]
+    CTX["job_id"] = r.json()["id"]
     assert client.get(f"/v1/jobs/{CTX['job_id']}", headers=_h()).status_code == 200
 
 
@@ -152,7 +152,7 @@ def test_source_images():
     CTX["source_image_id"] = imgs.json()[0]["id"]
     r = client.patch(
         f"/v1/jobs/{CTX['job_id']}/source-images/reorder",
-        json={"orderedIds": [CTX["source_image_id"]]}, headers=_h(),
+        json={"order": [CTX["source_image_id"]]}, headers=_h(),
     )
     assert r.status_code == 200
 

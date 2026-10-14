@@ -82,6 +82,8 @@ def start_analysis(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
         return {"jobId": job_id, "accepted": True, "taskId": cur, "existing": True}
     if not (job["current_step"] == "N1" or (job["current_step"] == "N2" and job["status"] == "failed")):
         raise StartRejected(409, "INVALID_STATE", f"분석을 시작할 수 없는 단계({job['current_step']}/{job['status']})")
+    if not (job["product_name"] or "").strip():  # draft-first: 상품명은 생성이 아니라 여기서 필수(계약 F-SRC-11, 400)
+        raise StartRejected(400, "VALIDATION_ERROR", "productName is required")
     if not job["regulatory_class"]:
         raise StartRejected(409, "INVALID_STATE", "규제 분류 미선택 — 분석을 시작하지 않는다(D8)")
     if not job["target_country"]:

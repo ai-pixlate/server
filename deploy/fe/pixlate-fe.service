@@ -1,0 +1,21 @@
+[Unit]
+Description=Pixlate FE (compose — BE 가 live 로 적용됐을 때만)
+# BE(pixlate.service)가 끝난 뒤 실행한다. PartOf: BE 정지·재시작(pixlate-mode)이 FE 로 전파된다.
+# [Install] WantedBy=pixlate.service: BE 가 시작되면 FE 도 함께 시작된다(앞서 BE 가 live 가 아니라 FE 가 꺼져 있었어도).
+# Requires 가 아니므로 BE 가 실패해도 FE 는 실행되지만, pixlate-fe.sh 가 BE 적용 결과를 보고 띄우지 않는다.
+After=docker.service pixlate.service
+Requires=docker.service
+PartOf=pixlate.service
+
+[Service]
+# 재시작 주체는 systemd 하나다. run 이 FE 컨테이너 종료를 감시하다 끝나면 실패로 끝나고, Restart 가 조건부터 다시 확인한다
+Type=exec
+ExecStart=/opt/pixlate/fe/pixlate-fe.sh run
+ExecStop=/opt/pixlate/fe/pixlate-fe.sh stop
+Restart=on-failure
+RestartSec=30
+# pixlate-fe.sh 의 STOP_WAIT_S(120)보다 길게. 넘으면 systemd 가 스크립트를 끝낼 뿐 FE 컨테이너에는 신호를 보내지 않는다
+TimeoutStopSec=180
+
+[Install]
+WantedBy=multi-user.target pixlate.service

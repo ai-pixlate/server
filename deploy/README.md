@@ -62,6 +62,10 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 | — | `/etc/pixlate/worker-gemini.env` (root:root 600) | `GEMINI_API_KEY` 한 줄. **cpu 워커에만** 연결(API·복구에는 없음) |
 | — | `/etc/pixlate/release.conf` | `RELEASE_SHA=<40자리>`, `API_DIGEST=sha256:<64자리>` (비밀 아님) |
 | — | `/etc/pixlate/deploy.mode` | `maintenance` · `validate` · `live` 한 단어 |
+| `deploy/fe/compose.yaml` | `/opt/pixlate/fe/compose.yaml` | FE 컨테이너(`pixlate-fe`) 하나만 선언(아래 FE 절) |
+| `deploy/fe/pixlate-fe.sh` | `/opt/pixlate/fe/pixlate-fe.sh` | BE 가 live 로 적용됐을 때만 FE 기동·종료 감시·TERM 정지 |
+| `deploy/fe/pixlate-fe.service` | `/etc/systemd/system/pixlate-fe.service` | BE 다음에 위 스크립트 실행. FE 재시작 주체 |
+| `deploy/fe/fe.env.example` | `/etc/pixlate/fe.env` | FE 이미지 digest·포트·메모리 상한(비밀 아님) |
 
 ### 배포 모드
 
@@ -101,6 +105,23 @@ Docker 명령 실패, 옛 워커 정지 실패 시 live 차단, 모드 파일 �
 유휴 워커의 TERM 전달·웜 종료 0, `start-pixlate.sh`가 후자를 쓰는지까지 확인한다.
 실행 중 작업을 마친 뒤의 종료는 가짜 워커 지연 종료 시험(`stop.sh`)이 본다.
 
+`bash deploy/tests/run.sh fe` — 같은 dind 안에서 `pixlate-fe.sh`·`compose.yaml` 을 가짜 FE(`tests/fake-fe`)·가짜 API로 시험한다
+(BE 적용 결과에 따른 기동 여부, digest·네트워크·API 연결 확인, 실행 중 종료 감지, TERM 정지·대기 초과, 조회 실패·paused, 데몬 재시작).
+`FE_TESTS="gate stop"` 처럼 묶음만 고를 수 있다. 시험용 대기값은 짧게 주입한다(정지 대기 3초, run 상한 30초 — 운영 값은 그대로).
+실패 줄에는 사유를 붙이고, 사유가 시간 초과뿐인 실패와 환경 준비 실패를 따로 센다(`RESULT pass= fail= timeout= env=`).
+
+`bash deploy/tests/fe_mutation.sh` — `fe/` 사본에 결함을 하나씩 넣고(요청 모드만 확인, Docker 재시작 정책, docker stop, 조회 실패를 없음으로,
+정지 요청 표시 무시, API 연결 확인 생략) 그 결함을 잡아야 하는 묶음만 돌려, 기대한 시험이 **결함 사유로** 실패하는지 판정한다.
+정상 코드는 먼저 전체 묶음을 한 번 돌린다. dind 하나에서 레지스트리·가짜 이미지를 한 번만 만들고 재사용한다. 시간 초과·환경 오류는 검출로 세지 않는다.
+
+`bash deploy/tests/fe_systemd.sh` — 격리 컨테이너(Ubuntu 24.04 + systemd + Docker) 안에서 레포의 `pixlate.service`·`pixlate-fe.service` 를
+**실제 systemd** 로 돌린다(BE 는 가짜 `tests/systemd/fake-start-pixlate.sh`). BE 시작·모드 전환·BE 적용 실패·FE 비정상 종료·
+`systemctl stop`·Docker 데몬 재시작·정지 대기 초과·재부팅(컨테이너 재시작) 뒤 동작을 본다.
+
+시험 실행기(`run.sh`·`fe_mutation.sh`·`fe_systemd.sh`)는 `tests/lib.sh` 를 쓴다 — 자원 이름에 실행 ID 를 붙이고(이전 시험이 남아 있어도
+서로 지우지 않음), 같은 PC 에서 한 번에 하나만 돈다(잠금, 다른 실행 중이면 종료 코드 2). 중단(TERM·INT)하면 이 실행의 하위 프로세스와
+이 실행이 만든 컨테이너·볼륨·이미지 태그·임시 파일만 지운다. 이름이 이미 있으면 지우지 않고 중단한다.
+
 ### 로그 정제
 
 모든 앱 컨테이너는 `docker run --init … python /opt/pixlate/bin/redact_run.py -- <명령>`으로 실행합니다.
@@ -108,6 +129,28 @@ Docker 명령 실패, 옛 워커 정지 실패 시 live 차단, 모드 파일 �
 환경변수에 실제로 들어 있는 비밀 값(DB·Redis URL, 비밀번호, JWT, Gemini 키, 버킷 이름)을 가린 뒤에만 내보냅니다.
 원문은 Docker 로그·journald·파일에 도달하지 않습니다. 정제에 실패한 줄과 64KiB를 넘는 줄은 버립니다.
 시그널(TERM·INT 등)은 그대로 자식에게 전달하고, 자식의 종료 코드(시그널 종료는 128+번호)를 그대로 돌려줍니다.
+
+### FE 컨테이너 (Compose)
+
+FE(`ai-pixlate/client` 이미지, `next start`)는 같은 EC2 에서 `deploy/fe/compose.yaml` 로 **FE 하나만** 관리합니다.
+API·cpu 워커·복구·Redis 는 계속 `start-pixlate.sh` 가 관리하고, 두 쪽이 같은 컨테이너를 다루지 않습니다.
+FE 이미지는 로컬·CI 에서 빌드해 ECR 에 올리고 EC2 는 digest 로 받아 실행만 합니다(EC2 에서 빌드하지 않음).
+
+- **요청 경로**: 브라우저 → ALB → FE(`:3000`) → Next rewrite → `pixlate-api:8000`(`pixlate-net`). FE 는 `/jobs/…`·`/auth/…` 같은
+  상대 경로만 부르고 `/v1/*` 를 직접 부르지 않으므로, ALB 의 `/v1/*` → API 규칙은 FE 흐름에 쓰이지 않습니다(직접 호출용).
+- **재시작 주체는 systemd 하나**: 컨테이너는 `restart: "no"`. `pixlate-fe.sh run` 이 기동 뒤 `docker wait` 로 종료를 감시하고,
+  실행 중 끝나면 서비스가 실패로 끝나 `Restart=on-failure` 가 아래 조건부터 다시 확인합니다. Docker 데몬 재시작·재부팅 때 Docker 가 FE 를 먼저 켜지 않습니다.
+- **기동 조건**: `deploy.mode`=live, `deploy.mode.applied`=live, `pixlate.service` active/success 가 모두 맞을 때만 띄웁니다.
+  `live-incomplete`·`-in-progress`·BE 실패면 네트워크·API 가 남아 있어도 띄우지 않고(떠 있으면 TERM 으로 정지) 재시도하지 않습니다.
+  띄운 뒤 healthy(페이지 응답)와 FE 컨테이너에서 `pixlate-api:8000` 연결을 확인합니다.
+- **BE 와 연동**: `After=`·`PartOf=pixlate.service`, `WantedBy=pixlate.service`. `pixlate-mode` 가 BE 를 재시작하면 FE 도 조건을 다시 확인합니다
+  (`pixlate-mode` 는 바꾸지 않았다). maintenance·validate 에서는 FE 가 꺼집니다.
+- **정지**: TERM 만 보내고 `STOP_WAIT_S`(기본 120초)까지 확인합니다. 끝나지 않으면 미완료로 보고하고 실패로 끝냅니다 —
+  `docker stop`·SIGKILL·삭제를 하지 않습니다. Docker 조회 실패는 '없음'으로 보지 않고 정지 미확인으로 보고합니다.
+  (Docker 데몬이 스스로 멈출 때는 `stop_grace_period` 120초 뒤 Docker 가 SIGKILL 할 수 있습니다. 재부팅 때는 systemd 가 FE 를 먼저 멈춥니다.)
+- **로그**: FE 는 `redact_run.py` 를 거치지 않습니다(FE 환경에 비밀 값이 없음). Docker 로그는 10MiB × 3 개로 제한합니다.
+- 설치(서버 반영 단계): 파일 배치 → `/etc/pixlate/fe.env` → `systemctl daemon-reload` → `systemctl enable pixlate-fe.service`.
+  ECR `pixlate-fe` 저장소, ALB 대상 그룹·리스너 규칙, 보안 그룹(3000) 은 별도 AWS 변경입니다.
 
 ## 배포
 

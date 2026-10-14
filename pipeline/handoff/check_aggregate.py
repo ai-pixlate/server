@@ -12,17 +12,22 @@
   current · stale · not_comparable(시도 없음 · 지문 없음). 실패도 지문이 다르면 stale이다.
 - 섹션 단위 지문은 같은 섹션의 블록이 공유하므로 지문 일치만으로 블록을 가리지 못한다. 넘겨받은 결과의 block_key(LLM 실패는 scope의
   target_keys)가 집계 대상 블록과 다르면 AggregateError다.
-- checks_settled = 두 검사 모두 run_state ∈ {done, skipped, failed} ∧ freshness=current. **처리 종료 여부일 뿐** 문제없음 · 경고 등급 ·
-  검수 확정 허용을 뜻하지 않는다. 경고 · 실패 확인과 확정 조건은 BE가 따로 판단한다.
+- 활성 검사(`active_checks`): 이 실행에서 **돌리기로 한** 검사를 BE가 명시한다(1차 통합 `("rule",)`, 12월 최종 통합
+  `("rule", "llm")`). run_state=none에서 활성 여부를 추정하지 않는다 — 활성인데 시도가 없으면(none) 「실행해야 하는데 누락된 검사」로
+  미완료이고, 비활성 검사는 넘겨받은 결과를 **읽지 않는다**(축 값 `inactive`, 상태 null). 비활성 검사의 과거 결과를 현재 경고로 쓰지 않는다.
+- checks_settled = 활성 검사 모두 run_state ∈ {done, skipped, failed} ∧ freshness=current. 활성 검사가 none · pending · running · cancelled
+  이거나 stale · 비교 불가이면 false. 현재 입력의 최종 실패와 정상 생략(no_targets)은 종료로 본다(실패 확인 절차는 별도).
+  **처리 종료 여부일 뿐** 문제없음 · 경고 등급 · 검수 확정 허용을 뜻하지 않는다. 경고 · 실패 확인과 확정 조건은 BE가 따로 판단한다.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
-AGGREGATE_VERSION = "check-aggregate@2026-10-12.1"
+AGGREGATE_VERSION = "check-aggregate@2026-10-13.1"
 RUN_STATES = ("none", "pending", "running", "done", "skipped", "failed", "cancelled")
 SETTLED_STATES = frozenset({"done", "skipped", "failed"})
+CHECK_NAMES = ("rule", "llm")
 
 
 class AggregateError(ValueError):
@@ -126,17 +131,54 @@ def _llm_axis(block_key: str, c: CheckInput, fresh: str, check_ids: list[str]) -
     return state, out, allowed_refs
 
 
-def aggregate_block_checks(*, block_key: str, check_item_ids: list[str], rule: CheckInput, llm: CheckInput) -> dict[str, Any]:
-    """블록 하나의 두 검사 상태와 검사 항목별 두 축. check_item_ids는 `review.check_item_ids(bundle, …)`(묶음 순서)."""
-    rf, lf = _freshness(rule), _freshness(llm)
-    rstate, raxis, rrefs = _rule_axis(block_key, rule, rf, check_item_ids)
-    lstate, laxis, lrefs = _llm_axis(block_key, llm, lf, check_item_ids)
+def _active(active_checks: Any) -> frozenset[str]:
+    if isinstance(active_checks, str) or not isinstance(active_checks, (tuple, list, set, frozenset)):
+        raise AggregateError(f"active_checks는 검사 이름의 모음이어야 한다(예: ('rule',)): {active_checks!r}")
+    names = list(active_checks)
+    if not names or len(set(names)) != len(names) or set(names) - set(CHECK_NAMES):
+        raise AggregateError(f"active_checks는 {CHECK_NAMES}의 중복 없는 비어 있지 않은 부분집합이어야 한다: {active_checks!r}")
+    return frozenset(names)
+
+
+def _inactive(check_ids: list[str], axis: str) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    state = {"active": False, "run_state": None, "freshness": None, "scope": None}
+    if axis == "rule":
+        return state, {i: {"rule": "inactive", "rule_match_keys": [], "rule_suppressed_match_keys": []} for i in check_ids}
+    return state, {i: {"llm": "inactive", "llm_undetermined_reason": None, "llm_location_keys": [], "llm_basis_summary": None}
+                   for i in check_ids}
+
+
+def aggregate_block_checks(*, block_key: str, check_item_ids: list[str], active_checks: Any,
+                           rule: CheckInput | None, llm: CheckInput | None) -> dict[str, Any]:
+    """블록 하나의 검사 상태와 검사 항목별 두 축. check_item_ids는 `review.check_item_ids(bundle, …)`(묶음 순서).
+    active_checks: 이 실행에서 돌리기로 한 검사(('rule',) 또는 ('rule', 'llm')) — 기본값 없음. 활성 검사의 CheckInput은 필수(시도가 없으면
+    run_state='none'), 비활성 검사는 None을 넘기며 넘겨도 읽지 않는다."""
+    active = _active(active_checks)
+    given = {"rule": rule, "llm": llm}
+    missing = [n for n in CHECK_NAMES if n in active and given[n] is None]
+    if missing:
+        raise AggregateError(f"활성 검사 {missing}의 상태가 없다 — 시도가 없으면 run_state='none'으로 넘긴다(비활성으로 추정하지 않음)")
+    if "rule" in active:
+        assert rule is not None
+        rf = _freshness(rule)
+        rstate, raxis, rrefs = _rule_axis(block_key, rule, rf, check_item_ids)
+        rstate = {"active": True, **rstate}
+    else:
+        (rstate, raxis), rrefs = _inactive(check_item_ids, "rule"), None
+    if "llm" in active:
+        assert llm is not None
+        lf = _freshness(llm)
+        lstate, laxis, lrefs = _llm_axis(block_key, llm, lf, check_item_ids)
+        lstate = {"active": True, **lstate}
+    else:
+        (lstate, laxis), lrefs = _inactive(check_item_ids, "llm"), []
     items = [{"external_id": i, **raxis[i], **laxis[i]} for i in check_item_ids]
     return {
-        "aggregate_version": AGGREGATE_VERSION, "block_key": block_key,
+        "aggregate_version": AGGREGATE_VERSION, "block_key": block_key, "active_checks": [n for n in CHECK_NAMES if n in active],
         "checks": {"rule": rstate, "llm": lstate},
         "items": items,
         "references": {"rule_suppressions": rrefs["suppressions"] if rrefs else None, "llm_allowed_references": lrefs},
         "terms": rrefs["terms"] if rrefs else None,  # 강제 용어 결과는 그대로 전달(LLM 결과로 바꾸지 않음)
-        "checks_settled": all(s["run_state"] in SETTLED_STATES and s["freshness"] == "current" for s in (rstate, lstate)),
+        "checks_settled": all(s["run_state"] in SETTLED_STATES and s["freshness"] == "current"
+                              for s in (rstate, lstate) if s["active"]),
     }

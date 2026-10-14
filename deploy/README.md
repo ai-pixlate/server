@@ -248,6 +248,9 @@ RP=$(sudo grep '^REDIS_PASSWORD=' /etc/pixlate/pixlate.env | cut -d= -f2-); sudo
 - `/etc/pixlate/*.env`는 root 600이므로 `docker run --env-file`에는 `sudo`가 필요합니다.
 - `less` 화면에서 나올 때는 영문 입력으로 `q`를 누릅니다. 페이지 없이 보려면 `export AWS_PAGER=""`.
 - AMI 설명에는 ASCII만 넣을 수 있습니다(한글이 있으면 생성 실패).
+- Redis db1(Celery 결과 저장소)에는 `POST /jobs` Idempotency-Key 응답 재전송 기록도 들어 있습니다(`pixlate:idem:*`, 24시간 만료,
+  값 = 처리 상태와 최초 응답 본문). 전용 저장소를 쓰려면 API 컨테이너에 `PIXLATE_IDEMPOTENCY_REDIS_URL` 을 줍니다.
+  Redis 를 비우거나 바꾸면 24시간 안의 같은 키 재요청이 새 작업을 만들 수 있습니다. 상태별 처리는 `app/idempotency.py` 머리말.
 
 ## 남은 작업
 

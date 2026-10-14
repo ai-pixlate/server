@@ -199,7 +199,7 @@ def test_translation_partial_failure_goes_to_n5_and_retries_only_failed(env):
     assert failed["signals"][0]["taskId"] == att[0]["id"] and failed["signals"][0]["retryable"] is True
     # 확정은 빈 번역 확인이 필요하다
     r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert r.status_code == 409 and r.json()["error"]["warnings"] == [{"blockId": target, "code": "translation_failed"}]
+    assert r.status_code == 409 and r.json()["error"]["details"]["warnings"] == [{"blockId": target, "code": "translation_failed"}]
     # [다시 시도] — 실패 블록만 계산, 성공분은 다시 쓰지 않는다
     before = {b["id"]: b["revision"] for b in blocks}
     tr.fail_keys = set()
@@ -481,3 +481,173 @@ def test_full_cancel_deletes_content_and_blocks_late_results(env):
     assert env["store"].keys(f"staging/{j}/") == []
     job = c.get(f"/v1/jobs/{j}").json()
     assert job["status"] == "archived" and job["productName"] is None
+
+
+# ── 통합 계약(2026-10-14 묶음 A·B·C·D) ─────────────────────────────────
+def _to_n5(env, fail_first=False):
+    ids = _to_n3(env)
+    c = ids["c"]
+    target = None
+    if fail_first:
+        rows = _q("SELECT tb.id, tb.source_ko FROM text_block tb JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j ORDER BY tb.id",
+                  j=ids["job"])
+        target = [r for r in rows if r["source_ko"].startswith("Locks")][0]["id"]
+        ai_adapters.set_adapters(translator=FakeTranslator(fail_keys={f"blk_{target}"}))
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    return ids, target
+
+
+def _fe_acks(blocks):
+    """FE buildAcknowledgedWarnings 와 같다: 불러온 블록의 신호 전부."""
+    return [{"blockId": b["id"], "code": s["code"]} for b in blocks for s in b["signals"]]
+
+
+def _overflow_other(ids, not_id=None):
+    b = _q("SELECT tb.id FROM text_block tb JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j AND s.bucket = 'include' "
+           "AND tb.trans_1 IS NOT NULL ORDER BY tb.id", j=ids["job"])
+    oid = [x["id"] for x in b if x["id"] != not_id][0]
+    _q("UPDATE text_block SET overflow = true WHERE id = :b", b=oid)
+    return oid
+
+
+def test_confirm_accepts_fe_style_acks_with_overflow_and_out_of_scope(env):  # A
+    ids, target = _to_n5(env, fail_first=True)
+    c = ids["c"]
+    oid = _overflow_other(ids, not_id=target)
+    blocks = c.get(f"/v1/jobs/{ids['job']}/blocks").json()
+    codes = {(b["id"], s["code"]) for b in blocks for s in b["signals"]}
+    assert (target, "translation_failed") in codes and (oid, "width_overflow") in codes  # 경고는 그대로 표시
+    acks = _fe_acks(blocks) + [{"blockId": 987654321, "code": "translation_failed"}]  # 범위 밖 블록은 무시
+    r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": acks})
+    assert r.status_code == 200, r.text
+    assert _step(ids) == ("review", "N6")
+
+
+def test_confirm_rejects_missing_required_ack_with_details(env):  # A + E
+    ids, target = _to_n5(env, fail_first=True)
+    c = ids["c"]
+    oid = _overflow_other(ids, not_id=target)
+    r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": [{"blockId": oid, "code": "width_overflow"}]})
+    assert r.status_code == 409
+    err = r.json()["error"]
+    assert err["code"] == "INVALID_STATE" and err["details"]["warnings"] == [{"blockId": target, "code": "translation_failed"}]
+    assert err["retryable"] is False and isinstance(err["traceId"], str)
+    assert _step(ids) == ("review", "N5")
+
+
+def test_confirm_overflow_only_does_not_block(env):  # A
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    _overflow_other(ids)
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+
+
+def test_block_patch_returns_full_block_and_conflict_current(env):  # D
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    b = [x for x in c.get(f"/v1/jobs/{ids['job']}/blocks").json() if x["trans1"]][0]
+    r = c.patch(f"/v1/jobs/{ids['job']}/blocks/{b['id']}", json={"trans1": "Edited", "revision": b["revision"]})
+    assert r.status_code == 200, r.text
+    nb = r.json()["block"]
+    assert set(b) <= set(nb)  # 목록(CFM-01)과 같은 TextBlock 필드 전부
+    assert (nb["id"], nb["sectionId"], nb["role"], nb["trans1"], nb["blockStatus"], nb["revision"]) == (
+        b["id"], b["sectionId"], b["role"], "Edited", "edited", b["revision"] + 1)
+    stale = c.patch(f"/v1/jobs/{ids['job']}/blocks/{b['id']}", json={"trans1": "Again", "revision": b["revision"]})
+    assert stale.status_code == 409
+    err = stale.json()["error"]
+    assert err["code"] == "REVISION_CONFLICT" and err["details"]["current"]["id"] == b["id"]
+    assert err["details"]["current"]["revision"] == b["revision"] + 1 and err["details"]["current"]["trans1"] == "Edited"
+    assert set(b) <= set(err["details"]["current"])
+
+
+def _mutate_regulatory(raw):
+    raw["blocks"][1]["source_ko"] = "피부 치료 효과와 주름 개선"
+
+
+def test_sections_list_and_detail_follow_contract(env):  # B
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer(mutate=_mutate_regulatory))
+    ids = _to_n3(env)
+    c = ids["c"]
+    secs = c.get(f"/v1/jobs/{ids['job']}/sections").json()
+    allsec = secs["include"] + secs["exclude"]
+    src = _q("SELECT id FROM source_image WHERE job_id = :j", j=ids["job"])[0]["id"]
+    for s in allsec:
+        assert s["sourceImageId"] == src and set(s["bbox"]) == {"x", "y", "w", "h"} and s["signals"] == []
+        for v in s["verdicts"]:
+            assert set(v) == {"id", "verdictStatus", "verdictType", "problemText", "alternativeExpression",
+                              "basisArticle", "evidenceUrl", "reason"}
+    ex = secs["exclude"][0]
+    assert [v["verdictStatus"] for v in ex["verdicts"]] == ["regulated", "conditional"]  # 정렬 불변식
+    assert ex["displayTop"] is None
+    top = 0
+    for s in sorted(secs["include"], key=lambda x: x["sectionOrder"]):
+        assert s["displayTop"] == top
+        top += s["height"] or 0
+    det = c.get(f"/v1/jobs/{ids['job']}/sections/{ex['id']}").json()
+    assert {k: v for k, v in det.items() if k != "contentFindings"} == ex and "contentFindings" in det
+    # 목록의 포함 섹션은 썸네일만(판정 목록 비움, 계약 sectionList). 상세(SEC-02)는 판정 근거 전체
+    inc = secs["include"][0]["id"]
+    _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type, reason) VALUES (:s, 'conditional', 'regulatory_conditional', 't')",
+       s=inc)
+    again = c.get(f"/v1/jobs/{ids['job']}/sections").json()
+    assert all(s["verdicts"] == [] for s in again["include"]) and again["exclude"][0]["verdicts"] == ex["verdicts"]
+    assert [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections/{inc}").json()["verdicts"]] == ["conditional"]
+    # 판정 정렬 전체 순서(2026-10-14 확정): regulated → policy → irrelevant → needs_fix → conditional
+    for st, vt in (("needs_fix", "needs_fix"), ("irrelevant", "local_irrelevant"), ("policy", "channel_policy")):
+        _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type) VALUES (:s, :st, :vt)", s=ex["id"], st=st, vt=vt)
+    got = [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections").json()["exclude"][0]["verdicts"]]
+    assert got == ["regulated", "policy", "irrelevant", "needs_fix", "conditional"]
+    assert got == [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections/{ex['id']}").json()["verdicts"]]
+    # 제외 사유는 BE 저장값(PRD 문자열) 그대로 — 계약 enum 을 auto_local·auto_local_failed 로 맞춘다(2026-10-14)
+    assert {s["exclusionReason"] for s in again["exclude"]} <= {"auto_regulatory", "auto_channel", "auto_local", "auto_local_failed",
+                                                                   "user_manual", "restored_by_user"}
+
+
+def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
+    import io as _io
+    import zipfile
+    from datetime import datetime
+
+    from app import s3
+
+    store = env["store"]
+    monkeypatch.setattr(s3, "_s3", None)
+    monkeypatch.setattr(s3, "upload_fileobj", lambda f, key, content_type=None: store.put(key, f.read()) or key)
+    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300: f"https://presigned.test/{key}" if key else None)
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+
+    def n():
+        return _q("SELECT count(*) AS n FROM export_artifact WHERE job_id = :j", j=ids["job"])[0]["n"]
+
+    # 지원 밖(html·psd)이 하나라도 있으면 지원 형식과 섞여 있어도 전체 거절, 아무것도 만들지 않는다(2026-10-14 결정)
+    for comps in (["html"], ["images", "html"], ["psd"], ["images", "psd"], ["content.csv", "images", "psd"], []):
+        r = c.post(f"/v1/jobs/{ids['job']}/export", json={"components": comps})
+        assert r.status_code == 400 and r.json()["error"]["code"] == "VALIDATION_ERROR", (comps, r.text)
+        assert r.json()["error"]["details"]["unsupported"] == [c for c in comps if c in ("html", "psd")]
+        assert n() == 0
+
+    r = c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["images", "content.csv"]})
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body["artifactType"] == "zip" and body["components"] == ["images", "csv"]
+    d = c.get(f"/v1/jobs/{ids['job']}/exports/{body['artifactId']}/download").json()
+    assert d["fileName"].endswith(".zip") and "expiresIn" not in d
+    assert datetime.fromisoformat(d["expiresAt"].replace("Z", "+00:00")).tzinfo is not None
+    names = zipfile.ZipFile(_io.BytesIO(store.get(d["url"].split("presigned.test/", 1)[1]))).namelist()
+    assert "content.csv" in names and any(x.startswith("images/deliverable_") and x.endswith(".png") for x in names)
+
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "images"}).json()["fileName"].endswith(".zip")
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "csv"}).json()["fileName"].endswith(".csv")
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download").json()["fileName"].endswith(".zip")  # 기본 zip
+    assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "html"}).status_code == 404
+
+    one = c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["content.csv"]}).json()
+    assert one["artifactType"] == "csv"
+    comps = {x["type"]: x for x in c.get(f"/v1/jobs/{ids['job']}/deliverables").json()["components"]}
+    assert comps["html"]["isActive"] is False and comps["psd"]["isActive"] is False
+    assert comps["images"]["isActive"] is True and comps["csv"]["isActive"] is True

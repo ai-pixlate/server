@@ -106,9 +106,9 @@ def test_happy_path_analysis_to_n3(env):
     assert len(findings) == 1 and findings[0]["status"] == "present"
     blk = _q("SELECT id FROM text_block WHERE section_id = :s AND source_ko LIKE '%치료%'", s=ex["id"])[0]["id"]
     assert findings[0]["evidence_block_ids"] == [blk]  # 임시 키 → 이번 실행 DB id
-    vs = {v["verdict_status"]: v for v in det["verdicts"]}
-    assert vs["regulated"]["verdict_type"] == "regulatory" and vs["conditional"]["verdict_type"] == "regulatory_conditional"
-    assert vs["regulated"]["basis_article"] == "21 CFR 700"
+    vs = {v["verdictStatus"]: v for v in det["verdicts"]}
+    assert vs["regulated"]["verdictType"] == "regulatory" and vs["conditional"]["verdictType"] == "regulatory_conditional"
+    assert vs["regulated"]["basisArticle"] == "21 CFR 700"
     audit = _q("SELECT detail FROM audit_log WHERE action_type = 'analysis_result_adopted' AND target_id = :s", s=ex["id"])[0]["detail"]
     assert {m["matched_text"] for m in audit["matches"]} == {"치료", "주름 개선"}
     assert all(m["source_ko"][m["start"]:m["end"]] == m["matched_text"] for m in audit["matches"])

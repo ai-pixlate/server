@@ -197,7 +197,7 @@ def _api_job_to_n3(env, category_id):
     r = cl.post("/v1/jobs", json={"brandId": ids["brand"], "productName": "선크림", "targetCountry": "US",
                                   "regulatoryClass": "cosmetic", "targetLanguage": "en", "categoryId": category_id})
     assert r.status_code == 201, r.text
-    job = r.json()["jobId"]
+    job = r.json()["id"]
     data = sample_source_png()
     key = f"source/{job}/src.png"
     env["store"].put(key, data)

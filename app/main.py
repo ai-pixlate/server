@@ -3,7 +3,7 @@
 규격서(pixlate_db_docs v3.4.2)의 🟢9월 MVP 오퍼레이션을 실제 DB/S3/Celery로 구현.
 Swagger UI: /docs · ReDoc: /redoc · OpenAPI JSON: /openapi.json
 경로 접두어는 servers(/v1)에만 붙인다(규격서 03_API_Inventory).
-에러 응답은 전부 {"error": {"code", "message"}} 형식으로 표준화(app.errors).
+에러 응답은 전부 계약 Error {"error": {"code", "message", "retryable", "details", "traceId"}} 형식으로 표준화(app.errors).
 """
 import os
 

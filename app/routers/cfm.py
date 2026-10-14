@@ -49,12 +49,9 @@ def _block_dict(r, signals: dict) -> dict:
     }
 
 
-# ── CFM-01: 실제 DB ───────────────────────────────────────────────
-@router.get("/jobs/{job_id}/blocks", summary="API-CFM-01 텍스트 블록 표(대조) (DB)")
-def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block_id: Optional[int] = None) -> list[dict]:
+    """계약 TextBlock 목록(현재 보이는 섹션의 블록). CFM-01 목록과 CFM-02 응답·충돌 정보가 같은 모양을 쓴다."""
     from app.flows.final import block_signals
-
-    _require_job_owned(db, job_id, seller_id)
 
     sql = (
         "SELECT tb.id, tb.section_id, tb.block_order, tb.role, "
@@ -65,14 +62,24 @@ def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db:
         "WHERE s.job_id = :j AND " + VISIBLE
     )
     params = {"j": job_id}
-    if sectionId is not None:
+    if section_id is not None:
         sql += " AND tb.section_id = :sid"
-        params["sid"] = sectionId
+        params["sid"] = section_id
+    if block_id is not None:
+        sql += " AND tb.id = :bid"
+        params["bid"] = block_id
     sql += " ORDER BY tb.section_id, tb.block_order, tb.id"
 
     rows = db.execute(text(sql), params).mappings().all()
     signals = block_signals(db, job_id)
     return [_block_dict(r, signals) for r in rows]
+
+
+# ── CFM-01: 실제 DB ───────────────────────────────────────────────
+@router.get("/jobs/{job_id}/blocks", summary="API-CFM-01 텍스트 블록 표(대조) (DB)")
+def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
+    return _blocks(db, job_id, section_id=sectionId)
 
 
 # ── CFM-02: 셀 수정 (DB · 낙관적 잠금) ────────────────────────────
@@ -102,33 +109,33 @@ def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = De
     if job["current_step"] != "N5" or job["status"] != "review":
         raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "번역문은 N5 검수 중에만 수정한다"})
     if cur["revision"] != body.revision:
-        # 낙관적 잠금 충돌 — 최신 revision을 details로 반환
+        # 낙관적 잠금 충돌 — 최신 블록(계약 TextBlock)을 details.current 로 반환
+        latest = _blocks(db, job_id, block_id=block_id)[0]
+        db.rollback()
         raise HTTPException(
             status_code=409,
-            detail={"code": "REVISION_CONFLICT", "current": cur["revision"]},
+            detail={"code": "REVISION_CONFLICT", "message": "block was changed", "current": latest},
         )
 
-    r = db.execute(
+    db.execute(
         text(
             "UPDATE text_block SET trans_1 = :t, block_status = 'edited', "
             "char_count = char_length(:t), revision = revision + 1, updated_at = now() "
-            "WHERE id = :b RETURNING id, trans_1, block_status, revision"
+            "WHERE id = :b"
         ),
         {"t": body.trans1, "b": block_id},
-    ).mappings().one()
+    )
     db.execute(
         text("INSERT INTO edit_signal (job_id, text_block_id, signal_type, before_text, after_text) "
              "VALUES (:j, :b, 'user_edited', :bt, :at)"),
         {"j": job_id, "b": block_id, "bt": cur["trans_1"], "at": body.trans1},
     )
     rerender = rerender_section(db, job_id, cur["section_id"])
+    block = _blocks(db, job_id, block_id=block_id)[0]  # 계약 BlockPatchResponse.block = 전체 TextBlock(FE 가 캐시를 이것으로 바꾼다)
     db.commit()
     if rerender:
         execution.dispatch([rerender])
-    return {
-        "block": {"id": r["id"], "trans1": r["trans_1"], "blockStatus": r["block_status"], "revision": r["revision"]},
-        "rerenderTaskId": rerender,
-    }
+    return {"block": block, "rerenderTaskId": rerender}
 
 
 @router.get("/jobs/{job_id}/preview", summary="API-CFM-03 검수 뷰어 프리뷰(다폭) (DB+S3)")

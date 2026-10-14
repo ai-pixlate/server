@@ -1,12 +1,18 @@
 """에러 응답 표준화.
 
-모든 에러 응답을 하나의 형식으로 통일한다:
-    {"error": {"code": "<CODE>", "message": "<사람이 읽는 설명>", ...추가필드}}
+모든 에러 응답을 계약 `Error` 형식으로 통일한다(docs/openapi.yaml):
+    {"error": {"code": "<CODE>", "message": "<설명>", "retryable": <bool>, "details": {...}|null, "traceId": "<id>"}}
+- 코드별 부가 정보는 `details` 아래에 둔다(라우터가 detail dict 에 넣은 code·message·retryable 외 필드).
+  라우터가 이미 `details` 를 만들어 넘긴 경우 다시 감싸지 않는다.
+- retryable 은 라우터가 정하면 그 값, 아니면 코드별 기본값(재시도로 결과가 바뀔 수 있는 코드만 true).
+- traceId 는 요청 헤더 X-Request-ID(있으면, 128자까지) 또는 새로 만든 값.
 
 기존 라우터의 raise HTTPException(...) 을 거의 그대로 두고, 예외 핸들러에서
 detail(dict/str)을 표준 코드로 정규화한다. 새 코드가 필요하면 명시적 dict detail
 (예: {"code": "REVISION_CONFLICT", "current": 3})로 raise 하면 그대로 전달된다.
 """
+import uuid
+
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -50,6 +56,9 @@ _STRING_TO_ERROR = {
     "nameEn must not be empty": ("INVALID_INPUT", "nameEn must not be empty"),
 }
 
+# 계약 Error.code 주석의 (retryable) 표시 — 재시도(토큰 갱신 포함)로 결과가 바뀔 수 있는 코드
+_RETRYABLE = {"TOKEN_EXPIRED", "RATE_LIMITED", "INTERNAL_ERROR", "SERVICE_UNAVAILABLE"}
+
 _STATUS_DEFAULT = {
     400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN",
     404: "NOT_FOUND", 409: "CONFLICT", 422: "VALIDATION_ERROR", 500: "INTERNAL_ERROR",
@@ -73,14 +82,28 @@ def _normalize(status_code: int, detail) -> tuple[str, str, dict]:
     return _STATUS_DEFAULT.get(status_code, "ERROR"), str(detail), {}
 
 
+def _trace_id(request) -> str:
+    rid = request.headers.get("x-request-id") if request is not None else None
+    return rid[:128] if rid else uuid.uuid4().hex
+
+
+def error_body(request, code: str, message: str, extra: dict | None = None) -> dict:
+    extra = dict(extra or {})
+    retryable = extra.pop("retryable", None)
+    if not isinstance(retryable, bool):
+        retryable = code in _RETRYABLE
+    if set(extra) == {"details"}:  # 이미 details 로 넘어온 것은 다시 감싸지 않는다
+        details = extra["details"]
+    else:
+        details = extra or None
+    return {"error": {"code": code, "message": message, "retryable": retryable, "details": details, "traceId": _trace_id(request)}}
+
+
 def install_error_handlers(app) -> None:
     @app.exception_handler(StarletteHTTPException)
     async def _http_handler(request, exc: StarletteHTTPException):
         code, message, extra = _normalize(exc.status_code, exc.detail)
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={"error": {"code": code, "message": message, **extra}},
-        )
+        return JSONResponse(status_code=exc.status_code, content=error_body(request, code, message, extra))
 
     @app.exception_handler(RequestValidationError)
     async def _validation_handler(request, exc: RequestValidationError):
@@ -90,12 +113,9 @@ def install_error_handlers(app) -> None:
         ]
         return JSONResponse(
             status_code=422,
-            content={"error": {"code": "VALIDATION_ERROR", "message": "request validation failed", "fields": fields}},
+            content=error_body(request, "VALIDATION_ERROR", "request validation failed", {"fields": fields}),
         )
 
     @app.exception_handler(Exception)
     async def _unhandled_handler(request, exc: Exception):
-        return JSONResponse(
-            status_code=500,
-            content={"error": {"code": "INTERNAL_ERROR", "message": "internal server error"}},
-        )
+        return JSONResponse(status_code=500, content=error_body(request, "INTERNAL_ERROR", "internal server error"))

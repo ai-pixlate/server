@@ -199,7 +199,7 @@ def test_translation_partial_failure_goes_to_n5_and_retries_only_failed(env):
     assert failed["signals"][0]["taskId"] == att[0]["id"] and failed["signals"][0]["retryable"] is True
     # 확정은 빈 번역 확인이 필요하다
     r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert r.status_code == 409 and r.json()["error"]["warnings"] == [{"blockId": target, "code": "translation_failed"}]
+    assert r.status_code == 409 and r.json()["error"]["details"]["warnings"] == [{"blockId": target, "code": "translation_failed"}]
     # [다시 시도] — 실패 블록만 계산, 성공분은 다시 쓰지 않는다
     before = {b["id"]: b["revision"] for b in blocks}
     tr.fail_keys = set()

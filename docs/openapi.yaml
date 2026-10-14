@@ -716,7 +716,11 @@ components:
                 items: { $ref: '#/components/schemas/ReviewSignal' }
     ConfirmRequest:
       type: object
-      description: 'acknowledgedWarnings는 개수가 아니라 식별자. 서버 미해결 경고 집합과 다르면 409 INVALID_STATE.'
+      description: >
+        acknowledgedWarnings는 개수가 아니라 식별자. 필수 확인 대상 = 포함(include) 섹션 블록의 translation_failed.
+        서버는 받은 목록 중 필수 확인 대상만 골라 서버의 미해결 필수 경고 집합과 비교하고, 다르면 409 INVALID_STATE
+        (error.details.warnings = 서버 집합). 그 밖의 코드(width_overflow 등)·제외 섹션 블록은 보내도 무시한다 —
+        화면 신호 전부를 보내도 된다. 넘침 경고는 표시만 하고 확정을 막지 않는다(2026-10-14 결정).
       properties:
         acknowledgedWarnings:
           type: array

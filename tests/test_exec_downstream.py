@@ -481,3 +481,83 @@ def test_full_cancel_deletes_content_and_blocks_late_results(env):
     assert env["store"].keys(f"staging/{j}/") == []
     job = c.get(f"/v1/jobs/{j}").json()
     assert job["status"] == "archived" and job["productName"] is None
+
+
+# ── 통합 계약(2026-10-14 묶음 A·B·C·D) ─────────────────────────────────
+def _to_n5(env, fail_first=False):
+    ids = _to_n3(env)
+    c = ids["c"]
+    target = None
+    if fail_first:
+        rows = _q("SELECT tb.id, tb.source_ko FROM text_block tb JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j ORDER BY tb.id",
+                  j=ids["job"])
+        target = [r for r in rows if r["source_ko"].startswith("Locks")][0]["id"]
+        ai_adapters.set_adapters(translator=FakeTranslator(fail_keys={f"blk_{target}"}))
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    return ids, target
+
+
+def _fe_acks(blocks):
+    """FE buildAcknowledgedWarnings 와 같다: 불러온 블록의 신호 전부."""
+    return [{"blockId": b["id"], "code": s["code"]} for b in blocks for s in b["signals"]]
+
+
+def _overflow_other(ids, not_id=None):
+    b = _q("SELECT tb.id FROM text_block tb JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j AND s.bucket = 'include' "
+           "AND tb.trans_1 IS NOT NULL ORDER BY tb.id", j=ids["job"])
+    oid = [x["id"] for x in b if x["id"] != not_id][0]
+    _q("UPDATE text_block SET overflow = true WHERE id = :b", b=oid)
+    return oid
+
+
+def test_confirm_accepts_fe_style_acks_with_overflow_and_out_of_scope(env):  # A
+    ids, target = _to_n5(env, fail_first=True)
+    c = ids["c"]
+    oid = _overflow_other(ids, not_id=target)
+    blocks = c.get(f"/v1/jobs/{ids['job']}/blocks").json()
+    codes = {(b["id"], s["code"]) for b in blocks for s in b["signals"]}
+    assert (target, "translation_failed") in codes and (oid, "width_overflow") in codes  # 경고는 그대로 표시
+    acks = _fe_acks(blocks) + [{"blockId": 987654321, "code": "translation_failed"}]  # 범위 밖 블록은 무시
+    r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": acks})
+    assert r.status_code == 200, r.text
+    assert _step(ids) == ("review", "N6")
+
+
+def test_confirm_rejects_missing_required_ack_with_details(env):  # A + E
+    ids, target = _to_n5(env, fail_first=True)
+    c = ids["c"]
+    oid = _overflow_other(ids, not_id=target)
+    r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": [{"blockId": oid, "code": "width_overflow"}]})
+    assert r.status_code == 409
+    err = r.json()["error"]
+    assert err["code"] == "INVALID_STATE" and err["details"]["warnings"] == [{"blockId": target, "code": "translation_failed"}]
+    assert err["retryable"] is False and isinstance(err["traceId"], str)
+    assert _step(ids) == ("review", "N5")
+
+
+def test_confirm_overflow_only_does_not_block(env):  # A
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    _overflow_other(ids)
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+
+
+def test_block_patch_returns_full_block_and_conflict_current(env):  # D
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    b = [x for x in c.get(f"/v1/jobs/{ids['job']}/blocks").json() if x["trans1"]][0]
+    r = c.patch(f"/v1/jobs/{ids['job']}/blocks/{b['id']}", json={"trans1": "Edited", "revision": b["revision"]})
+    assert r.status_code == 200, r.text
+    nb = r.json()["block"]
+    assert set(b) <= set(nb)  # 목록(CFM-01)과 같은 TextBlock 필드 전부
+    assert (nb["id"], nb["sectionId"], nb["role"], nb["trans1"], nb["blockStatus"], nb["revision"]) == (
+        b["id"], b["sectionId"], b["role"], "Edited", "edited", b["revision"] + 1)
+    stale = c.patch(f"/v1/jobs/{ids['job']}/blocks/{b['id']}", json={"trans1": "Again", "revision": b["revision"]})
+    assert stale.status_code == 409
+    err = stale.json()["error"]
+    assert err["code"] == "REVISION_CONFLICT" and err["details"]["current"]["id"] == b["id"]
+    assert err["details"]["current"]["revision"] == b["revision"] + 1 and err["details"]["current"]["trans1"] == "Edited"
+    assert set(b) <= set(err["details"]["current"])
+

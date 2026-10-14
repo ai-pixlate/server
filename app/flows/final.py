@@ -1,6 +1,7 @@
 """N5 확정 → N6 최종 렌더 → 저장. (5.27·D9-3)
 
-- 확정(CFM-04): 서버의 미해결 경고 집합과 acknowledgedWarnings(blockId+code)가 같아야 한다. 빈 번역을 완료로 바꾸지 않는다.
+- 확정(CFM-04): 필수 확인 경고(포함 섹션의 translation_failed) 집합과, acknowledgedWarnings 중 그 범위에 드는 것이 같아야 한다.
+  그 밖의 신호(width_overflow 등)·제외 섹션 블록의 확인은 무시한다(표시만). 빈 번역을 완료로 바꾸지 않는다.
   확정하면 하류 실행을 닫고(진행 중 재렌더 취소) 최종 렌더 실행(run_kind=final_render)과 job 단위 시도를 만든다.
 - 최종 렌더는 미리보기를 재사용하지 않고 현재 번역문·배치·스타일·배경으로 다시 그린다. 원본(소스 이미지)별로 포함 섹션을
   세로로 쌓아 deliverable 1건, deliverable_section 에 위치(stack_offset)·순서(order_no)를 남긴다(contract 3.3).
@@ -78,14 +79,30 @@ def block_signals(db: Session, job_id: int) -> dict[int, list[dict[str, Any]]]:
     return out
 
 
-def unresolved_warnings(db: Session, job_id: int) -> list[dict[str, Any]]:
-    """확정 전에 확인받아야 하는 블록 경고: 포함 섹션의 번역하지 못한 칸(D9-3 빈 번역)."""
-    sig = block_signals(db, job_id)
-    inc = {r[0] for r in db.execute(
+# 확정 전에 반드시 확인받는 경고 코드(D9-3 빈 번역). 그 밖의 신호(width_overflow 등)는 화면에 표시하되 확정을 막지 않는다
+REQUIRED_ACK_CODES = frozenset({"translation_failed"})
+
+
+def _include_block_ids(db: Session, job_id: int) -> set[int]:
+    return {r[0] for r in db.execute(
         text("SELECT tb.id FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
              "WHERE s.job_id = :j AND s.bucket = 'include' AND " + common.VISIBLE), {"j": job_id}).all()}
+
+
+def unresolved_warnings(db: Session, job_id: int) -> list[dict[str, Any]]:
+    """확정 전에 확인받아야 하는 블록 경고: 포함 섹션 블록의 필수 확인 코드(REQUIRED_ACK_CODES)."""
+    sig = block_signals(db, job_id)
+    inc = _include_block_ids(db, job_id)
     return sorted(({"blockId": b, "code": s["code"]} for b, ss in sig.items() if b in inc for s in ss
-                   if s["code"] == "translation_failed"), key=lambda x: (x["blockId"], x["code"]))
+                   if s["code"] in REQUIRED_ACK_CODES), key=lambda x: (x["blockId"], x["code"]))
+
+
+def required_acks(db: Session, job_id: int, acknowledged: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """받은 확인 목록에서 대조 대상만 남긴다: 필수 확인 코드이면서 포함 섹션 블록인 것(중복 제거).
+    FE 는 화면 신호 전부를 보내도 된다 — 그 밖의 코드·제외 섹션 블록은 무시한다(계약 ConfirmRequest)."""
+    inc = _include_block_ids(db, job_id)
+    keep = {(int(a["blockId"]), a["code"]) for a in acknowledged if a["code"] in REQUIRED_ACK_CODES and int(a["blockId"]) in inc}
+    return [{"blockId": b, "code": c} for b, c in sorted(keep)]
 
 
 # ---------------------------------------------------------------------------------------------------------
@@ -108,8 +125,8 @@ def confirm(db: Session, job_id: int, seller_id: int, acknowledged: list[dict[st
         if busy:
             raise ConfirmRejected(409, "INVALID_STATE", "진행 중인 번역 재시도가 있다")
     want = unresolved_warnings(db, job_id)
-    got = sorted(({"blockId": int(a["blockId"]), "code": a["code"]} for a in acknowledged), key=lambda x: (x["blockId"], x["code"]))
-    if want != got:
+    got = required_acks(db, job_id, acknowledged)
+    if want != got:  # 필수 경고가 빠졌거나, 이미 해소된 필수 경고를 확인한 경우(낡은 화면) — 거절
         raise ConfirmRejected(409, "INVALID_STATE", "확인한 경고가 현재 미해결 경고와 다르다", {"warnings": want})
     if run is not None:
         # 하류 실행 종료: 진행 중 재렌더는 취소, 실행은 done(N5 결과 확정)

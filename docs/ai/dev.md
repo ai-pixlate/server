@@ -216,6 +216,8 @@ D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단
 
 ## 5. 샘플과 확인 방식
 
+**1.0.0 baseline 적용 예외**: 기존 OCR 품질 표본 12개는 [baseline 결정](../ai-baseline/decisions.md#ocr-품질-표본의-실행-제한)에 따라 정답 동결 전에도 1.0.0 baseline 입력에 포함한다. [OCR 채점 명세 v3](../ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md)의 다른 OCR 실험에 대한 제한과 과거 실험 기록은 유지한다. 기존 초안을 검수된 정답으로 간주하지 않는다.
+
 ```text
 pipeline/samples/<이름>/
   source.png                 원본 (여러 장이면 source_01.png …)

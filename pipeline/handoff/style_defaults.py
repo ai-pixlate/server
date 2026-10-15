@@ -8,7 +8,7 @@ AI 쪽 참고 렌더는 `pipeline/handoff/style_reference.py`(검증용, 운영 
   배포 파일의 출처 · 해시 · 굵기). 디자인이 명시한 값과 승인한 매핑을 구조로 분리해 출처를 섞지 않는다.
 - 측정값 우선: ⑦의 유효한 font_color · est_font_px · align은 그대로 쓴다. NULL인 항목만 역할 기본값으로 채운다.
   ⑦ 실패(객체 NULL)는 세 항목 모두 기본값이고 단계 실패 상태는 그대로 둔다 — 측정 성공으로 바꾸지 않는다.
-- 크기: 측정 est_font_px는 이미 원본 px다. 기준 폭 배율이나 em_ratio(1.35)를 다시 곱하지 않는다.
+- 크기: 측정 est_font_px는 이미 원본 px다. 기준 폭 배율이나 ⑦ em_ratio를 다시 곱하지 않는다.
   기본 크기만 `base_px * 원본 폭 / reference_width_px`로 환산한다(곱한 뒤 한 번 나눈다, 반올림 없음).
 - 폰트 · 굵기 · 자간 · 행간은 역할 설정(role_config)이다. 측정값처럼 기록하지 않는다.
   자간 px = (letter_spacing_pct / 100) × 적용 크기, 행간 px = line_height_ratio × 적용 크기.

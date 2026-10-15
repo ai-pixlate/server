@@ -160,7 +160,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 | ⑦ 실패(style 객체 NULL) | 세 항목 모두 역할 기본값. 단계 상태는 `failed` 그대로(측정 성공으로 만들지 않음) |
 | 계약 위반(⑦ 완료인데 대상 블록 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값) | `StyleInputInvalid` — 기본값으로 덮지 않는다 |
 
-- 크기: 측정 `est_font_px`는 원본 px 그대로. 기본값만 `기준 크기 × 원본 폭 / 375`(곱한 뒤 한 번 나눔, 반올림 없음). 1080px 원본의 title = 92.16, body = 46.08. 측정값에 1080/375나 1.35를 곱하지 않는다(사례 07).
+- 크기: 측정 `est_font_px`는 원본 px 그대로. 기본값만 `기준 크기 × 원본 폭 / 375`(곱한 뒤 한 번 나눔, 반올림 없음). 1080px 원본의 title = 92.16, body = 46.08. 측정값에 1080/375나 ⑦ `style.em_ratio`를 다시 곱하지 않는다(사례 07).
 - 자간 px = (자간 % / 100) × 적용 크기, 행간 px = 1.2 × 적용 크기 — 측정 크기에도 같은 비율을 쓴다. 폰트 · 굵기 · 자간 · 행간의 출처는 `role_config`.
 - `bg_color`는 적용값에 넣지 않는다. 배경을 칠하지 않으며 배경색 기본값은 없다.
 - 원본 폭: MVP 섹션은 원본 전체 폭이다(`section.bbox.w`). BE `_render_inputs`가 이미 섹션 폭을 알고 있다.
@@ -229,7 +229,7 @@ python -m pytest tests/test_pipeline_style_defaults.py
 | 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 단계 failed 유지 |
 | 05_excluded_targets | 라벨 · 로고 · 빈 원문 · 번역 NULL/빈 문자열 → 조판 안 함. ⑦ 완료 · 세 항목 NULL → 모두 role_default |
 | 06a · 06b · 06c | 원본 폭 375 · 860 · 1080 — 860이면 title 73.38666666666667(반올림 없음) |
-| 07_fractional_measured | 측정 37.25 · 18.6 유지(배율 · 1.35 미적용, 기본값보다 작아도 유지) |
+| 07_fractional_measured | 측정 37.25 · 18.6 유지(배율 · em_ratio 미적용, 기본값보다 작아도 유지) |
 | 08_wrap_overflow | `\n` 2줄 · 높이 48 = 넘침 아님 · 47 = 넘침 · 긴 단어 폭 넘침 · 빈 줄 유지 |
 
 BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):

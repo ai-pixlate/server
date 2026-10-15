@@ -111,7 +111,9 @@
 
 ## 6. 역할별 스타일 기본값 — BE 렌더 연결 인계(2026-10-12, D11)
 
-[D11](integration-decisions.md)의 사용자 승인값을 AI가 설정 자료 · 폰트 · 계산 함수 · 사례로 준비했다. **운영 렌더 연결은 하지 않았다.** 현행 `app/typeset.py`의 `PIXLATE_STYLE_DEFAULTS` 로더는 역할별 `font_color` · `est_font_px` · `align`만 읽고 폰트 · 굵기 · 자간 · 기준 폭을 모른다. 새 자료를 그 로더에 넣는다고 동작하지 않는다(형식이 다르고, 기본 크기가 원본 폭에 따라 달라진다). 6.6의 BE 수정이 필요하다.
+[D11](integration-decisions.md)의 사용자 승인값을 AI가 설정 자료 · 폰트 · 계산 함수 · 사례로 준비했다(2026-10-12). AI 작업에서는 운영 렌더 코드를 바꾸지 않았다.
+
+**연결 상태(2026-10-15, `origin/release/1.0.0` `f5b050a` 코드 대조)**: BE PR #71(`65f350e`)로 로더 · 폰트 검증 · `resolve_block` 규칙 · 렌더 입력 지문이 운영 렌더에 연결됐다. 실제 그리기 폰트는 아직 Pillow 내장 기본 폰트(`ImageFont.load_default`)다 — Pretendard · 역할별 굵기 적용은 release에서 BE가 진행하기로 했다([PR #72 코멘트](https://github.com/ai-pixlate/server/pull/72#issuecomment-6185856592)). 자간 · 행간 · 넘침 기준 · 기록 형식은 develop 후속이다. 항목별 상태는 6.6.
 
 ### 6.1 자료 위치
 
@@ -200,16 +202,16 @@ python -m pipeline.handoff.style_reference --out pipeline/out/style-defaults-che
 
 ### 6.6 BE 수정 대상과 순서
 
-이번 AI 작업에서 아래 운영 코드는 바꾸지 않았다.
+2026-10-12 AI 작업에서는 아래 운영 코드를 바꾸지 않았다. 각 항목 끝의 **상태**는 2026-10-15 `origin/release/1.0.0` `f5b050a` 코드와 대조한 것이다.
 
-1. **`app/typeset.py` 로더 교체**: `load_role_defaults()`가 `pipeline.handoff.style_defaults.load_style_defaults()` + `verify_fonts()`를 쓰게 한다. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS`는 대체 경로로 두는 안을 추천한다(정책 규칙 `PIXLATE_POLICY_RULES`와 같은 방식). 폰트 검증 실패는 기존 `StyleDefaultsUnavailable`처럼 렌더 실패로 처리하고 내장 폰트로 그리지 않는다. `deploy/pixlate.env.example` 설명도 함께 고친다.
-2. **스타일 해석**: `resolve_style()`을 `resolve_block()`으로 대체하거나 같은 규칙으로 고친다. 원본 폭(섹션 `bbox.w`)과 섹션의 ⑦ 시도 결과(done/failed)를 넘긴다. 현재는 단계 상태 없이 style NULL만 본다.
-3. **실제 폰트 · 굵기 · 자간 · 행간 적용**: `_font()`의 `ImageFont.load_default` 대신 역할 굵기의 실제 OTF를 적용 크기(소수 허용)로 연다. 자간 · 행간은 적용값의 px를 쓴다(`LINE_SPACING` 상수 대신 설정 자료의 비율).
-4. **넘침 계산을 실제 조판과 같은 기준으로**: 폭은 자간을 포함한 실제 줄 폭, 높이는 줄 수 × 행간 px. 높이가 영역과 같으면 넘침이 아니다. 넘쳐도 크기 축소 · 문구 축약 · 측정값 교체를 하지 않는다. 운영 엔진의 자간 끝 처리 · 커닝 기준은 #79.
-5. **입력 지문**: `app/flows/downstream.py`의 `_render_inputs`(미리보기 — 최종 렌더의 `app/flows/final.py` `_final_inputs`도 이것을 부른다)와 `_final_inputs`의 `style_defaults`를 `render_inputs(d)`(설정 버전 · SHA-256 · 폰트 SHA-256 · 규칙 버전)로 바꾸고, `RENDERER_VERSION`의 렌더 라이브러리 버전을 유지한다. `_render_section`의 대조도 같은 값으로 한다(다르면 `INPUT_CHANGED`).
-6. **미리보기 · 최종 렌더 공통**: 두 경로가 같은 로더 · 같은 `resolve_block` · 같은 조판 함수를 쓴다. 최종 렌더가 미리보기와 다른 설정을 읽을 수 없게 한다.
-7. **기록**: `text_block.style`은 측정값 그대로 둔다. 렌더 payload의 `applied` · `source`를 6.4 형식으로 넓힌다(저장 위치는 #78).
-8. **테스트**: `tests/exec_fakes.style_defaults_file`(테스트 전용 3키 형식)을 새 형식에 맞추고 6.7 사례를 BE 통합 시험으로 옮긴다. N4/N5/N6 상태 전이(D9-3)는 바꾸지 않는다.
+1. **`app/typeset.py` 로더 교체**: `load_role_defaults()`가 `pipeline.handoff.style_defaults.load_style_defaults()` + `verify_fonts()`를 쓰게 한다. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS`는 대체 경로로 두는 안을 추천한다(정책 규칙 `PIXLATE_POLICY_RULES`와 같은 방식). 폰트 검증 실패는 기존 `StyleDefaultsUnavailable`처럼 렌더 실패로 처리하고 내장 폰트로 그리지 않는다. `deploy/pixlate.env.example` 설명도 함께 고친다. **상태: 반영(PR #71 `65f350e`)** — `load_role_defaults()`가 정본 경로 + `verify_fonts()`, 실패하면 `STYLE_DEFAULTS_UNAPPROVED`로 중단. 검증 실패 시 내장 폰트로 대체하지 않는 정책은 유지한다(사용자 결정 2026-10-15, PR #72 코멘트).
+2. **스타일 해석**: `resolve_style()`을 `resolve_block()`으로 대체하거나 같은 규칙으로 고친다. 원본 폭(섹션 `bbox.w`)과 섹션의 ⑦ 시도 결과(done/failed)를 넘긴다. 현재는 단계 상태 없이 style NULL만 본다. **상태: 반영(PR #71)** — `resolve_style()`이 `resolve_block()`을 부르고, ⑦ 단계 상태는 렌더 manifest의 `style_stage`, 원본 폭은 섹션 배경 폭으로 넘긴다. 계약 위반은 `STYLE_RESULT_INVALID`.
+3. **실제 폰트 · 굵기 · 자간 · 행간 적용**: `_font()`의 `ImageFont.load_default` 대신 역할 굵기의 실제 OTF를 적용 크기(소수 허용)로 연다. 자간 · 행간은 적용값의 px를 쓴다(`LINE_SPACING` 상수 대신 설정 자료의 비율). **상태: 미반영** — `_font()`는 아직 `ImageFont.load_default`, 행간은 상수 1.2. 폰트(Pretendard) · 역할별 굵기는 release에서 BE 진행 예정(측정 · 그리기에 같은 폰트 객체, `RENDERER_VERSION` 갱신, 역할별 폰트 · 굵기와 특수문자 · 한글 출력 시험), 자간 · 행간은 develop 후속.
+4. **넘침 계산을 실제 조판과 같은 기준으로**: 폭은 자간을 포함한 실제 줄 폭, 높이는 줄 수 × 행간 px. 높이가 영역과 같으면 넘침이 아니다. 넘쳐도 크기 축소 · 문구 축약 · 측정값 교체를 하지 않는다. 운영 엔진의 자간 끝 처리 · 커닝 기준은 #79. **상태: develop 후속**(자간 적용과 함께).
+5. **입력 지문**: `app/flows/downstream.py`의 `_render_inputs`(미리보기 — 최종 렌더의 `app/flows/final.py` `_final_inputs`도 이것을 부른다)와 `_final_inputs`의 `style_defaults`를 `render_inputs(d)`(설정 버전 · SHA-256 · 폰트 SHA-256 · 규칙 버전)로 바꾸고, `RENDERER_VERSION`의 렌더 라이브러리 버전을 유지한다. `_render_section`의 대조도 같은 값으로 한다(다르면 `INPUT_CHANGED`). **상태: 반영(PR #71)** — manifest `style_defaults` = `typeset.style_inputs()`(`render_inputs`), 자료를 쓸 수 없으면 `unavailable`을 남기고 렌더 때 실패. 폰트 교체 시 `RENDERER_VERSION`을 올리는 것은 위 3의 release 작업에 포함. 지문이 달라진 기존 미리보기가 언제 다시 그려지는지는 단정하지 않는다 — 코드상 하류 실행이 `running`인 동안의 `progress()`만 새 시도를 만든다(N5 이후 · 재시도 영향은 BE 확인).
+6. **미리보기 · 최종 렌더 공통**: 두 경로가 같은 로더 · 같은 `resolve_block` · 같은 조판 함수를 쓴다. 최종 렌더가 미리보기와 다른 설정을 읽을 수 없게 한다. **상태: 반영(PR #71)** — 최종 렌더도 같은 `style_inputs()` · `_render_section` · `render`를 쓴다.
+7. **기록**: `text_block.style`은 측정값 그대로 둔다. 렌더 payload의 `applied` · `source`를 6.4 형식으로 넓힌다(저장 위치는 #78). **상태: develop 후속** — 현재 `applied` · `source`는 글자색 · 크기 · 정렬 세 키.
+8. **테스트**: `tests/exec_fakes.style_defaults_file`(테스트 전용 3키 형식)을 새 형식에 맞추고 6.7 사례를 BE 통합 시험으로 옮긴다. N4/N5/N6 상태 전이(D9-3)는 바꾸지 않는다. **상태: 일부 반영(PR #71)** — `tests/exec_fakes`가 정본 설정 자료를 쓰고, 기본값 적용 · 지문 불일치 · 자료 불가 시험이 `tests/test_exec_units.py` · `tests/test_exec_downstream.py`에 추가됐다. 6.7 사례 전체를 통합 시험으로 옮겼는지는 BE 확인.
 
 기존 `font_map` 테이블이 있어도 이번 연결에 새 DB 관리 기능 · 마이그레이션을 추가하지 않는 안이다(AI 쪽에서도 만들지 않았다).
 
@@ -242,7 +244,7 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 
 ### 6.8 남은 것 · 검증 한계
 
-- 운영 연결(6.6)과 BE · DB 통합 시험은 아직이다. 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽 단위 · 참고 렌더 검증만 했다.
+- 운영 연결(6.6)은 1 · 2 · 5 · 6이 PR #71로 반영됐고 8은 일부다(2026-10-15 코드 대조). 남은 것: 실제 폰트 · 굵기(release, BE 진행 예정), 자간 · 행간 · 넘침 기준 · 기록 형식(develop). 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽은 단위 · 참고 렌더 검증만 했고, PR #71의 BE 시험은 실행하지 않았다.
 - #78 적용값 기록 위치 · 키, #79 운영 조판 엔진의 측정 기준(자간 끝 · 커닝 · 서브픽셀)은 BE 확인이 필요하다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
 - 디자인 원본 이미지는 이 작업에서 직접 열람하지 않았다. 토큰 값은 사용자가 전달한 승인표 기준이다.
 

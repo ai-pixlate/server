@@ -1051,3 +1051,41 @@ def test_cleanup_sql_refuses_unexpected_state(env, monkeypatch):
     assert _q(CLEANUP_SQL, job=job, run=runs[0]["id"], att=new_id) == []  # pending 현재 시도
     assert _final(job)[0][0]["status"] == "running"
     env["q"].messages.clear()
+
+
+def test_final_render_lease_expiry_recovery_respects_limit(env, monkeypatch):
+    """복구 경로: 한도가 남은 시도의 권한 만료는 복구 재시도(실행 running), 마지막 허용 시도의 권한 만료는 실행 failed.
+    그 뒤 FIN-01·JOB-06 은 409 — 복구로도 한도를 넘지 않는다."""
+    from app import recovery
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+
+    def crash_current():
+        """현재 시도를 워커가 잡은 채 죽은 상태로 만든다(큐 메시지는 버리고, 권한은 만료)."""
+        env["q"].messages.clear()
+        att = _final(job)[1]["id"]
+        assert execution.acquire(att, "crashed-worker") is not None
+        _q("UPDATE job_async_task SET lease_expires_at = now() - interval '1 second' WHERE id = :t", t=att)
+        recovery.sweep()
+        return att
+
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    first = crash_current()  # retry_count 0 만료 → 복구 재시도
+    runs, cur = _final(job)
+    assert _q("SELECT status, error_code FROM job_async_task WHERE id = :t", t=first)[0] == {"status": "failed", "error_code": "LEASE_EXPIRED"}
+    assert [r["status"] for r in runs] == ["running"] and (cur["status"], cur["retry_count"]) == ("pending", 1)
+    fr.mode = "fatal"
+    env["q"].drain()  # retry_count 1 은 재시도 불가 실패 — 한도가 남아 실행 running
+    runs, cur = _final(job)
+    assert [r["status"] for r in runs] == ["running"] and (cur["status"], cur["retry_count"]) == ("failed", 1)
+    assert c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry").status_code == 200  # retry_count 2(마지막 허용)
+    last = crash_current()  # 마지막 허용 시도 만료 → 복구 재시도 없이 실행 failed
+    runs, cur = _final(job)
+    assert cur["id"] == last and (cur["status"], cur["error_code"], cur["retry_count"]) == ("failed", "LEASE_EXPIRED", 2)
+    assert [(r["status"], r["error_code"]) for r in runs] == [("failed", "LEASE_EXPIRED")]
+    assert _final_counts(job) == {"runs": 1, "attempts": 3}
+    env["q"].messages.clear()  # sweep 이 같은 모듈의 다른 시험 잔여 행에 보낸 메시지
+    fr.mode = "ok"
+    _assert_final_blocked(env, ids)

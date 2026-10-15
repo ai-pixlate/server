@@ -305,8 +305,9 @@ def test_style_failure_uses_role_defaults(env):
     assert c.post(f"/v1/jobs/{ids['job']}/save").status_code == 200
 
 
-def test_no_approved_defaults_render_fails_n5_opens_save_blocked(env, monkeypatch):
-    monkeypatch.delenv("PIXLATE_STYLE_DEFAULTS")
+def test_unreadable_style_defaults_render_fails_n5_opens_save_blocked(env, monkeypatch, tmp_path):
+    # 대체 경로가 가리키는 자료를 읽을 수 없으면 렌더 실패 — 저장소 정본·내장 값으로 조용히 넘어가지 않는다
+    monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(tmp_path / "missing-style-defaults.json"))
     ai_adapters.set_adapters(styler=FailingStyler())
     ids = _to_n3(env)
     c = ids["c"]
@@ -324,6 +325,56 @@ def test_no_approved_defaults_render_fails_n5_opens_save_blocked(env, monkeypatc
     fin = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND stage = 'final_render' AND is_current", j=ids["job"])
     assert fin == [{"status": "failed", "error_code": "STYLE_DEFAULTS_UNAPPROVED"}]
     assert c.post(f"/v1/jobs/{ids['job']}/save").status_code == 409  # 최종 렌더 성공 전 저장 불가
+
+
+def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
+    """F1 작업 15 재현(합성): ⑦ 완료인데 한 블록의 align 만 NULL → 그 항목만 승인 기본값(left), 글자색·크기는 측정값 유지.
+    미리보기·최종 렌더 모두 성공하고 저장까지 된다. text_block.style 은 그대로(측정값을 덮지 않는다)."""
+    ids = _to_n3(env)
+    c = ids["c"]
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    blk = [b for b in c.get(f"/v1/jobs/{ids['job']}/blocks").json() if b.get("trans1")][0]
+    before = _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"]
+    assert before and all(before[k] is not None for k in ("font_color", "est_font_px", "align"))
+    _q("UPDATE text_block SET style = jsonb_set(style, '{align}', 'null'::jsonb) WHERE id = :b", b=blk["id"])
+    nulled = _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"]
+    # 번역문을 고쳐 그 섹션 미리보기를 새 고정 입력으로 다시 만든다(같은 렌더 경로)
+    r = c.patch(f"/v1/jobs/{ids['job']}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]})
+    assert r.status_code == 200 and r.json()["rerenderTaskId"]
+    env["q"].drain()
+    pv = _q("SELECT a.status, a.error_code, h.payload FROM job_async_task a LEFT JOIN task_handoff h ON h.task_id = a.id AND h.state = 'adopted' "
+            "WHERE a.id = :t", t=r.json()["rerenderTaskId"])[0]
+    assert pv["status"] == "done", pv["error_code"]
+    rb = pv["payload"]["render"]["blocks"][str(blk["id"])]
+    assert rb["source"] == {"font_color": "measured", "est_font_px": "measured", "align": "role_default"}
+    assert rb["applied"]["align"] == "left"  # 승인값(pipeline_mapping.align)
+    assert rb["applied"]["font_color"] == before["font_color"] and rb["applied"]["est_font_px"] == before["est_font_px"]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    fin = _q("SELECT a.status, a.error_code, h.payload FROM job_async_task a LEFT JOIN task_handoff h ON h.task_id = a.id AND h.state = 'adopted' "
+             "WHERE a.job_id = :j AND a.stage = 'final_render' AND a.is_current", j=ids["job"])
+    assert [(f["status"], f["error_code"]) for f in fin] == [("done", None)]
+    fb = [v for s in fin[0]["payload"]["renders"].values() for k, v in s["applied"].items() if k == str(blk["id"])][0]
+    assert fb["source"]["align"] == "role_default" and fb["source"]["font_color"] == "measured"
+    assert c.post(f"/v1/jobs/{ids['job']}/save").status_code == 200
+    assert _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"] == nulled  # 측정값·NULL 그대로
+
+
+def test_render_input_changed_when_style_defaults_fingerprint_differs(monkeypatch):
+    from app import typeset
+    from app.flows import downstream
+    from app.execution import AdoptionRejected
+    from tests.exec_fakes import png_bytes
+
+    bg = png_bytes(100, 100)
+    monkeypatch.setattr(downstream, "get_store", lambda: type("S", (), {"get": staticmethod(lambda k: bg)})())
+    m = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done",
+         "style_defaults": {**typeset.style_inputs(), "rule": "role-style-rule/0"}}  # 고정 당시 규칙 버전이 다름
+    with pytest.raises(AdoptionRejected) as e:
+        downstream._render_section(m, {}, {}, {})
+    assert e.value.code == "INPUT_CHANGED"
 
 
 def test_label_failure_is_n4_error_abort_returns_n3_and_reproceed(env):

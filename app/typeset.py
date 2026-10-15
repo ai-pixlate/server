@@ -1,24 +1,28 @@
 """조판 렌더 — 배경(⑥ 결과 또는 원본) 위에 번역문을 블록 배치 영역에 그린다(⑨ 미리보기·N6 최종 렌더 공통).
 
 - 배치 영역: text_block.auto_adjust.layout_bbox 가 있으면 그것, 없으면 원본 bbox(contract.md 6.1). 섹션 로컬 px.
-- 스타일: ⑦ 측정값(font_color · est_font_px · align)을 쓰고, 측정 NULL·⑦ 실패는 **승인된 역할별 기본값**으로 채운다(D9-3).
-  기본값은 디자인→PM 확인 값만 쓴다(PIXLATE_STYLE_DEFAULTS JSON). 없으면 StyleDefaultsUnavailable — 임의 값으로 그리지 않는다.
+- 스타일: ⑦ 측정값(font_color · est_font_px · align)을 쓰고, 측정 NULL·⑦ 실패는 **승인된 역할별 기본값**으로 채운다(D9-3·D11).
+  기본값은 사용자 승인 설정 자료(pipeline/data/style_defaults.json, `PIXLATE_STYLE_DEFAULTS` 로 대체 경로)와 같은 폰트 파일을
+  `pipeline.handoff.style_defaults` 로 읽고 검증해 쓴다(be-handoff 6.6 ①②⑤⑥). 적용 규칙은 그 모듈의 `resolve_block`
+  (측정값이 있는 항목은 그대로, NULL 항목만 기본값, ⑦ 실패면 세 항목 모두 기본값, 계약 위반은 STYLE_RESULT_INVALID).
+  자료·폰트를 쓸 수 없으면 StyleDefaultsUnavailable — 임의 값이나 내장 기본값으로 그리지 않는다.
   실제 적용값과 출처(measured / role_default)는 측정값과 분리해 렌더 기록에 남긴다(5.12).
 - overflow: 실제 조판 결과 기준. 폭(가장 긴 단어가 영역 폭 초과) 또는 높이(줄 합계가 영역 높이 초과)면 true(6.2).
   문장을 축약하지 않는다. 글자 수 제한(char_limit)과는 별개다.
-- 폰트: Pillow 내장 TrueType(ImageFont.load_default). 역할별 폰트 매핑·Playwright 조판은 후속(README 현재 상태).
+- 폰트: Pillow 내장 TrueType(ImageFont.load_default). 승인 폰트(Pretendard)·자간·행간 적용과 넘침 기준 변경(be-handoff 6.6 ③④),
+  렌더 기록 6.4 형식 확장(⑦)은 아직 하지 않았다 — 기본값은 글자색·크기·정렬 세 항목에만 쓴다.
 """
 from __future__ import annotations
 
-import hashlib
 import io
-import json
 import os
 from dataclasses import dataclass, field
 from typing import Any
 
 import PIL
 from PIL import Image, ImageDraw, ImageFont
+
+from pipeline.handoff import style_defaults as sd
 
 RENDERER_VERSION = f"pillow-typeset/1+pillow-{PIL.__version__}"
 ROLES = ("title", "body", "caption", "price", "caution")
@@ -30,26 +34,45 @@ class StyleDefaultsUnavailable(RuntimeError):
     code = "STYLE_DEFAULTS_UNAPPROVED"
 
 
+class StyleInputInvalid(RuntimeError):
+    """⑦ 결과와 블록 스타일이 계약과 어긋남(⑦ 완료인데 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값 등). 기본값으로 덮지 않는다."""
+    code = "STYLE_RESULT_INVALID"
+
+
 @dataclass(frozen=True)
 class RoleDefaults:
-    version: str
-    roles: dict[str, dict[str, Any]]
-    sha256: str
+    """검증을 마친 승인 설정 자료(`sd.StyleDefaults`)와 렌더 입력 지문(`sd.render_inputs`)."""
+    data: Any
+    inputs: dict[str, Any]
+
+    @property
+    def version(self) -> str:
+        return self.data.version
+
+    @property
+    def sha256(self) -> str:
+        return self.data.sha256
 
 
-def load_role_defaults() -> RoleDefaults | None:
-    """승인된 역할별 기본값. {"version": "...", "roles": {"title": {"font_color": "#RRGGBB", "est_font_px": 40, "align": "left"}, ...}}"""
-    path = os.getenv("PIXLATE_STYLE_DEFAULTS")
-    if not path:
-        return None
-    raw = open(path, "rb").read()
-    data = json.loads(raw)
-    roles = data.get("roles") or {}
-    for r in ROLES:
-        v = roles.get(r)
-        if not isinstance(v, dict) or not all(k in v and v[k] is not None for k in STYLE_FIELDS):
-            raise ValueError(f"역할 기본값 {r} 에 {STYLE_FIELDS} 가 모두 있어야 한다")
-    return RoleDefaults(version=str(data["version"]), roles=roles, sha256=hashlib.sha256(raw).hexdigest())
+def load_role_defaults() -> RoleDefaults:
+    """승인된 역할별 기본값. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS` 는 대체 경로(be-handoff 6.6 ①).
+    자료를 읽을 수 없거나 폰트 파일·라이선스가 자료와 다르면 StyleDefaultsUnavailable(조용히 넘기지 않는다)."""
+    path = os.getenv("PIXLATE_STYLE_DEFAULTS") or None
+    try:
+        d = sd.load_style_defaults(path)
+        sd.verify_fonts(d)
+    except (sd.StyleDefaultsError, sd.FontAssetError) as e:
+        raise StyleDefaultsUnavailable(f"승인된 역할별 스타일 기본값을 쓸 수 없다: {e}") from e
+    return RoleDefaults(data=d, inputs=sd.render_inputs(d))
+
+
+def style_inputs() -> dict[str, Any]:
+    """렌더 고정 입력에 넣을 스타일 자료 지문(설정 버전·SHA-256·폰트 SHA-256·규칙 버전 — 6.6 ⑤).
+    쓸 수 없으면 {"unavailable": 이유} 를 남기고 렌더 때 StyleDefaultsUnavailable 로 실패시킨다."""
+    try:
+        return load_role_defaults().inputs
+    except StyleDefaultsUnavailable as e:
+        return {"unavailable": str(e)}
 
 
 @dataclass
@@ -59,6 +82,8 @@ class RenderBlock:
     text: str
     box: dict[str, int]
     style: dict[str, Any] | None  # ⑦ 측정값(4키) 또는 None(⑦ 실패·미실행)
+    style_stage: str  # 섹션의 ⑦ 단계 결과(done | failed)
+    source_ko: str | None  # 원문(빈 원문은 조판하지 않는다 — resolve_block 규칙)
 
 
 @dataclass
@@ -77,21 +102,21 @@ class RenderResult:
     blocks: dict[int, BlockRender] = field(default_factory=dict)
 
 
-def needs_defaults(blocks: list[RenderBlock]) -> bool:
-    return any(b.style is None or any(b.style.get(k) is None for k in STYLE_FIELDS) for b in blocks)
-
-
-def resolve_style(b: RenderBlock, defaults: RoleDefaults | None) -> tuple[dict[str, Any], dict[str, str]]:
-    applied, source = {}, {}
-    for k in STYLE_FIELDS:
-        v = (b.style or {}).get(k)
-        if v is not None:
-            applied[k], source[k] = v, "measured"
-            continue
-        if defaults is None:
-            raise StyleDefaultsUnavailable("승인된 역할별 스타일 기본값이 없다 — 측정 NULL·스타일 실패 블록을 조판하지 않는다")
-        applied[k], source[k] = defaults.roles[b.role][k], "role_default"
-    return applied, source
+def resolve_style(b: RenderBlock, defaults: RoleDefaults, source_width_px: int) -> tuple[dict[str, Any], dict[str, str]] | None:
+    """블록 적용값(글자색·크기·정렬)과 출처. 규칙은 `sd.resolve_block`(6.3): 측정값이 있는 항목은 그대로(measured),
+    NULL 항목만 역할 기본값(role_default, 크기는 기준 크기 × 원본 폭 / 기준 폭), ⑦ 실패면 세 항목 모두 기본값.
+    조판 대상이 아니면(빈 원문·빈 번역문) None — 그리지 않는다."""
+    try:
+        r = sd.resolve_block(sd.BlockInput(id=b.id, role=b.role, is_excluded=False, source_ko=b.source_ko, text=b.text,
+                                           style=b.style, style_stage=b.style_stage),  # type: ignore[arg-type]
+                             source_width_px, defaults.data)
+    except sd.StyleInputInvalid as e:
+        raise StyleInputInvalid(str(e)) from e
+    if not r.render:
+        return None
+    a, s = r.applied, r.source
+    return ({"font_color": a["font_color"], "est_font_px": a["font_size_px"], "align": a["align"]},
+            {"font_color": s["font_color"], "est_font_px": s["font_size_px"], "align": s["align"]})
 
 
 def _font(px: float):
@@ -129,13 +154,17 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, font, max_w: int) -> tuple[list[
     return lines, too_wide
 
 
-def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefaults | None) -> RenderResult:
+def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefaults) -> RenderResult:
+    """섹션 배경 위에 블록을 그린다. 원본 폭(기본 크기 환산 기준)은 섹션 배경 폭 = 섹션 bbox.w(MVP 섹션은 원본 전체 폭)."""
     with Image.open(io.BytesIO(background_png)) as im:
         img = im.convert("RGB")
     draw = ImageDraw.Draw(img)
     out = RenderResult(png=b"", width=img.width, height=img.height)
     for b in blocks:
-        applied, source = resolve_style(b, defaults)
+        resolved = resolve_style(b, defaults, img.width)
+        if resolved is None:
+            continue
+        applied, source = resolved
         font = _font(float(applied["est_font_px"]))
         bx = b.box
         lines, too_wide = _wrap(draw, b.text, font, max(1, bx["w"]))

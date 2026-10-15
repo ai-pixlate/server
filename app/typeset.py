@@ -9,8 +9,11 @@
   실제 적용값과 출처(measured / role_default)는 측정값과 분리해 렌더 기록에 남긴다(5.12).
 - overflow: 실제 조판 결과 기준. 폭(가장 긴 단어가 영역 폭 초과) 또는 높이(줄 합계가 영역 높이 초과)면 true(6.2).
   문장을 축약하지 않는다. 글자 수 제한(char_limit)과는 별개다.
-- 폰트: Pillow 내장 TrueType(ImageFont.load_default). 승인 폰트(Pretendard)·자간·행간 적용과 넘침 기준 변경(be-handoff 6.6 ③④),
-  렌더 기록 6.4 형식 확장(⑦)은 아직 하지 않았다 — 기본값은 글자색·크기·정렬 세 항목에만 쓴다.
+- 폰트: 승인 폰트(Pretendard) 역할별 굵기 — 검증을 마친 설정 자료의 `role_spec` → `font_path` OTF(title·price SemiBold,
+  body·caption·caution Regular)를 적용 크기(소수 허용)로 연다(be-handoff 6.2·6.6 ③). 블록마다 폰트 객체 하나로 줄바꿈·폭 측정·
+  그리기를 한다. 시스템·내장 폰트로 대체하지 않는다(검증 실패는 StyleDefaultsUnavailable).
+  자간·행간 적용과 넘침 기준 변경(6.6 ③④ 나머지), 렌더 기록 6.4 형식 확장(⑦)은 아직 하지 않았다 — 기본값은 글자색·크기·정렬
+  세 항목에만 쓴다.
 """
 from __future__ import annotations
 
@@ -24,7 +27,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pipeline.handoff import style_defaults as sd
 
-RENDERER_VERSION = f"pillow-typeset/1+pillow-{PIL.__version__}"
+RENDERER_VERSION = f"pillow-typeset/2+pillow-{PIL.__version__}"  # 2: 역할별 Pretendard·소수 크기(1: Pillow 내장 폰트·정수 크기)
 ROLES = ("title", "body", "caption", "price", "caution")
 STYLE_FIELDS = ("font_color", "est_font_px", "align")
 LINE_SPACING = 1.2  # 줄 높이 = 글자 크기 × 1.2 (조판 구현 상수, 렌더러 버전에 포함)
@@ -119,12 +122,14 @@ def resolve_style(b: RenderBlock, defaults: RoleDefaults, source_width_px: int) 
             {"font_color": s["font_color"], "est_font_px": s["font_size_px"], "align": s["align"]})
 
 
-def _font(px: float):
-    size = max(1, int(round(px)))
+def _font(defaults: RoleDefaults, role: str, px: float) -> ImageFont.FreeTypeFont:
+    """역할 굵기의 승인 OTF(load_role_defaults 가 검증한 파일)를 적용 크기로 연다. 크기는 반올림하지 않는다(1px 미만만 1px).
+    검증 뒤 파일을 열 수 없으면 StyleDefaultsUnavailable — 다른 폰트로 넘어가지 않는다."""
+    path = sd.font_path(defaults.data, sd.role_spec(defaults.data, role).face)
     try:
-        return ImageFont.load_default(size=size)
-    except TypeError:  # 구버전 Pillow
-        return ImageFont.load_default()
+        return ImageFont.truetype(str(path), size=max(1.0, float(px)))
+    except OSError as e:
+        raise StyleDefaultsUnavailable(f"승인 폰트 파일을 열 수 없다({path}): {e}") from e
 
 
 def _rgb(hex_color: str) -> tuple[int, int, int]:
@@ -165,7 +170,7 @@ def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefau
         if resolved is None:
             continue
         applied, source = resolved
-        font = _font(float(applied["est_font_px"]))
+        font = _font(defaults, b.role, float(applied["est_font_px"]))
         bx = b.box
         lines, too_wide = _wrap(draw, b.text, font, max(1, bx["w"]))
         line_h = float(applied["est_font_px"]) * LINE_SPACING

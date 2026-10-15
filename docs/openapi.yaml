@@ -1316,7 +1316,9 @@ paths:
       operationId: jobTaskRetry
       x-screen: 'N2·N4'
       x-source: API-JOB-06
-      description: task_type ∈ {translate, render} ∧ failed ∧ retry_count<max_retry. 그 외 409 RETRY_NOT_ALLOWED. 🟢9월.
+      description: task_type ∈ {translate, render} ∧ failed ∧ retry_count<max_retry. 그 외 409 RETRY_NOT_ALLOWED.
+        render(미리보기·최종) 시도의 고정 입력 renderer 가 실행 렌더러와 다르거나 없어도 409 RETRY_NOT_ALLOWED(같은 입력으로는
+        성공할 수 없어 새 시도·횟수를 만들지 않음 — 그 시도의 JOB-05 retryable=false). 🟢9월.
       responses:
         '200':
           description: '재시도 큐잉됨'
@@ -1695,6 +1697,7 @@ paths:
       description: >
         review/N6 확인. 진행 중이면 그 시도, 현재 시도 실패면 같은 실행의 재시도 시도(retry_count 누적·max_retry 한도,
         초기화 없음), 완료면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
+        현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
         202 renderTaskId(시도 id) → JOB-05 폴링.
         최초 렌더는 confirm(CFM-04)이 자동 등록하므로 이 엔드포인트는 수동 재렌더용(A4·Q9).
         렌더 실패 여부는 renderTaskId로 JOB-05 폴링(taskType=render·status=failed · 섹션 단위는 unitType=section) —

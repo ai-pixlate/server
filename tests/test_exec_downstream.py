@@ -655,3 +655,68 @@ def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
     comps = {x["type"]: x for x in c.get(f"/v1/jobs/{ids['job']}/deliverables").json()["components"]}
     assert comps["html"]["isActive"] is False and comps["psd"]["isActive"] is False
     assert comps["images"]["isActive"] is True and comps["csv"]["isActive"] is True
+
+
+# 수식으로 읽힐 첫 글자 → ' 접두, 그 밖은 원문 그대로(계약 FIN-04 formula injection 방어)
+_CSV_CASES = [
+    ("=1+1", "'=1+1"), ('=HYPERLINK("http://example.invalid","x")', '\'=HYPERLINK("http://example.invalid","x")'),
+    ("+1 202 555 0100", "'+1 202 555 0100"), ("-10% off", "'-10% off"), ("@SUM(A1)", "'@SUM(A1)"),
+    ("\t=1+1", "'\t=1+1"), ("\r=1+1", "'\r=1+1"), ("=cmd|' /C calc'!A0", "'=cmd|' /C calc'!A0"),
+    ("a, b", "a, b"), ('say "hi"', 'say "hi"'), ("line1\nline2", "line1\nline2"),
+    ("건조하고 당기는 피부", "건조하고 당기는 피부"), ("Dry, tight skin", "Dry, tight skin"), ("$29.00", "$29.00"),
+    # LF 시작, 전각 수식 문자, 앞 공백(스페이스·NBSP·전각 공백·탭+공백) 뒤 수식 문자 — 2026-10-15 확정 규칙
+    ("\n=1+1", "'\n=1+1"), ("＝1+1", "'＝1+1"), ("＋1", "'＋1"), ("－5", "'－5"), ("＠SUM(A1)", "'＠SUM(A1)"),
+    (" =1+1", "' =1+1"), (" +1", "' +1"), ("　＝1+1", "'　＝1+1"), ("  @x", "'  @x"),
+    # 음수·부호 문구도 문자열로 나간다(수용한 변화)
+    ("-5", "'-5"), ("+82 10", "'+82 10"),
+    # 그 밖은 원문 그대로 — 중간의 = · 문장 속 -, 공백만, 빈 값
+    ("x=1", "x=1"), ("a - b", "a - b"), ("ℹ =1", "ℹ =1"), ("   ", "   "), ("", ""), (None, ""),
+]
+
+
+@pytest.mark.parametrize("raw,want", _CSV_CASES)
+def test_csv_cell_neutralizes_formula_prefix_only(raw, want):
+    from app.routers.finalize import _csv_cell
+
+    assert _csv_cell(raw) == want
+
+
+def test_export_csv_cells_neutralized_same_in_csv_and_zip(env, monkeypatch):
+    import csv as _csv
+    import io as _io
+    import zipfile
+
+    from app import s3
+
+    store = env["store"]
+    monkeypatch.setattr(s3, "_s3", None)
+    monkeypatch.setattr(s3, "upload_fileobj", lambda f, key, content_type=None: store.put(key, f.read()) or key)
+    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300, download_name=None: f"https://presigned.test/{key}" if key else None)
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+
+    blocks = _q("SELECT tb.id FROM text_block tb JOIN section s ON s.id = tb.section_id "
+                "WHERE s.job_id = :j AND s.bucket = 'include' ORDER BY tb.section_id, tb.block_order, tb.id", j=ids["job"])
+    assert len(blocks) >= 2
+    a, b = blocks[0]["id"], blocks[1]["id"]
+    _q("UPDATE text_block SET source_ko = :s, trans_1 = :t WHERE id = :b", s="=SUM(1,2)", t='=HYPERLINK("http://example.invalid","x")', b=a)
+    _q("UPDATE text_block SET source_ko = :s, trans_1 = :t WHERE id = :b", s="건조하고, \"당기는\"\n피부", t="-10% off", b=b)
+
+    def get(artifact_id):
+        d = c.get(f"/v1/jobs/{ids['job']}/exports/{artifact_id}/download").json()
+        return store.get(d["url"].split("presigned.test/", 1)[1])
+
+    alone = get(c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["content.csv"]}).json()["artifactId"])
+    zipped = zipfile.ZipFile(_io.BytesIO(get(
+        c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["images", "content.csv"]}).json()["artifactId"]))).read("content.csv")
+    assert alone == zipped  # 개별 CSV 와 zip 안 CSV 는 같은 처리·같은 바이트
+    assert alone.startswith(b"\xef\xbb\xbf")
+    rows = list(_csv.reader(_io.StringIO(alone.decode("utf-8-sig"))))
+    assert rows[0] == ["sectionId", "blockOrder", "role", "sourceKo", "trans1"]
+    assert rows[1][3:] == ["'=SUM(1,2)", '\'=HYPERLINK("http://example.invalid","x")']
+    assert rows[2][3:] == ["건조하고, \"당기는\"\n피부", "'-10% off"]  # 구분자·따옴표·줄바꿈은 원문 그대로
+    # DB 원문·번역문은 바꾸지 않는다
+    assert _q("SELECT source_ko, trans_1 FROM text_block WHERE id = :b", b=a)[0] == {
+        "source_ko": "=SUM(1,2)", "trans_1": '=HYPERLINK("http://example.invalid","x")'}

@@ -615,7 +615,9 @@ def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
     store = env["store"]
     monkeypatch.setattr(s3, "_s3", None)
     monkeypatch.setattr(s3, "upload_fileobj", lambda f, key, content_type=None: store.put(key, f.read()) or key)
-    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300: f"https://presigned.test/{key}" if key else None)
+    names = []  # presigned_get 에 넘긴 저장 이름(Content-Disposition)
+    monkeypatch.setattr(s3, "presigned_get",
+                        lambda key, ttl=300, download_name=None: (names.append(download_name), f"https://presigned.test/{key}")[1] if key else None)
     ids, _ = _to_n5(env)
     c = ids["c"]
     assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
@@ -637,12 +639,14 @@ def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
     assert body["artifactType"] == "zip" and body["components"] == ["images", "csv"]
     d = c.get(f"/v1/jobs/{ids['job']}/exports/{body['artifactId']}/download").json()
     assert d["fileName"].endswith(".zip") and "expiresIn" not in d
+    assert names[-1] == d["fileName"] == f"pixlate_export_{ids['job']}.zip"  # 응답 이름 = 다운로드 저장 이름
     assert datetime.fromisoformat(d["expiresAt"].replace("Z", "+00:00")).tzinfo is not None
     names = zipfile.ZipFile(_io.BytesIO(store.get(d["url"].split("presigned.test/", 1)[1]))).namelist()
     assert "content.csv" in names and any(x.startswith("images/deliverable_") and x.endswith(".png") for x in names)
 
     assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "images"}).json()["fileName"].endswith(".zip")
     assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "csv"}).json()["fileName"].endswith(".csv")
+    assert names[-1] == f"pixlate_export_{ids['job']}.csv"
     assert c.get(f"/v1/jobs/{ids['job']}/export/download").json()["fileName"].endswith(".zip")  # 기본 zip
     assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "html"}).status_code == 404
 

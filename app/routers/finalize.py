@@ -167,9 +167,11 @@ def _download_info(job_id: int, artifact_type: str, key: str) -> dict:
     from datetime import datetime, timedelta, timezone
 
     expires = datetime.now(timezone.utc) + timedelta(seconds=s3.PRESIGN_TTL)
+    file_name = f"pixlate_export_{job_id}.{_EXT.get(artifact_type, artifact_type)}"
     return {
-        "url": s3.presigned_get(key),
-        "fileName": f"pixlate_export_{job_id}.{_EXT.get(artifact_type, artifact_type)}",
+        # 교차 출처 링크라 FE 의 <a download> 이름이 무시되므로, 저장 이름을 S3 응답 헤더로 지정한다
+        "url": s3.presigned_get(key, download_name=file_name),
+        "fileName": file_name,
         "expiresAt": expires.isoformat().replace("+00:00", "Z"),
     }
 

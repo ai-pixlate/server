@@ -42,6 +42,7 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
 def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     """N6 수동 재렌더. 진행 중이면 그 시도, 실패면 새 재시도 시도(누적 한도), 완료면 새 최종 렌더 실행을 만든다.
+    누적 한도를 소진해 실행이 failed 로 닫혔으면 409 RETRY_NOT_ALLOWED — 새 실행·시도를 만들지 않는다.
     renderTaskId 는 job_async_task.id(시도) — JOB-05 폴링 대상이다."""
     from app import execution
     from app.flows.final import start_final_render

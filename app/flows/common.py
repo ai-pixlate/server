@@ -71,6 +71,18 @@ def json_value(v: Any) -> Any:
     return json.loads(v) if isinstance(v, str) else v
 
 
+def renderer_mismatch(manifest: Any) -> str | None:
+    """렌더 고정 입력의 renderer 가 지금 렌더러(typeset.RENDERER_VERSION 전체 값)와 다르거나 없으면 사유, 같으면 None.
+    기록이 없는 고정 입력을 현재 버전으로 간주하지 않는다. 실행 시점 검사(_render_section)와 재시도 생성 전 검사가 같이 쓴다."""
+    from app import typeset
+
+    m = json_value(manifest)
+    got = m.get("renderer") if isinstance(m, dict) else None
+    if got == typeset.RENDERER_VERSION:
+        return None
+    return f"렌더러가 고정 입력과 다르다(고정 입력 {got or '기록 없음'} · 실행 {typeset.RENDERER_VERSION})"
+
+
 class Heartbeat:
     """긴 계산 동안 실행 권한을 독립 스레드로 갱신한다. 권한을 잃으면 lost=True — 호출자는 결과를 등록하지 않는다.
     모델 호출 자체를 즉시 멈추게 하지는 못한다(권한 상실 결과의 채택 차단은 BE가 따로 보장, 5.32)."""

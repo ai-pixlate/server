@@ -11,6 +11,8 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app import execution
+
 STAGE_KEYS = {
     "N2": ["ocr", "section", "verify"],
     "N3": ["ocr", "section", "verify"],
@@ -46,6 +48,7 @@ def retryable(item: dict[str, Any], run: dict[str, Any] | None) -> bool:
         item["status"] == "failed" and item.get("is_current", True) and item["task_type"] in USER_RETRY_TYPES
         and item["retry_count"] < item["max_retry"] and (run is None or run["status"] == "running")
         and item.get("error_code") not in ("AI_ADAPTER_UNAVAILABLE",)
+        and not (item.get("parent_task_id") and execution.retry_blocked(item))  # create_retry 생성 전 거절과 같은 판정
     )
 
 

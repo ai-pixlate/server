@@ -116,7 +116,8 @@ def _expired(stats: dict[str, Any]) -> None:
             att = execution._mark_failed(db, att, "LEASE_EXPIRED", "실행 권한 만료 — 결과 없음")
             db.execute(text("UPDATE task_lease_grant SET closed_at = coalesce(closed_at, now()), close_reason = coalesce(close_reason, 'expired') "
                             "WHERE task_id = :t AND closed_at IS NULL"), {"t": r["id"]})
-            if run["status"] == "running" and job["status"] != "archived" and att["retry_count"] < att["max_retry"]:
+            if (run["status"] == "running" and job["status"] != "archived" and att["retry_count"] < att["max_retry"]
+                    and not execution.retry_blocked(att)):  # 같은 고정 입력으로 성공할 수 없으면 복구 재시도를 만들지 않는다
                 ids = [execution.create_retry(db, att["id"], "recovery")]
             else:
                 ids = execution.handler_for(att["stage"]).after_failure(db, att, "LEASE_EXPIRED", False)

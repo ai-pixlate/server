@@ -869,6 +869,8 @@ def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, 
     data = get_store().get(m["background"]["key"])
     if m["background"]["sha256"] and sha256_bytes(data) != m["background"]["sha256"]:
         raise AdoptionRejected("배경이 고정 입력과 다르다", code="INPUT_CHANGED")
+    if mismatch := common.renderer_mismatch(m):  # 미리보기·최종 렌더 공통(최종 렌더는 고정 입력의 renderer 를 넘긴다)
+        raise AdoptionRejected(mismatch, code="INPUT_CHANGED")
     current = typeset.style_inputs()
     if "unavailable" in current:
         raise typeset.StyleDefaultsUnavailable(current["unavailable"])
@@ -947,6 +949,9 @@ class PreviewHandler:
 
     def after_failure(self, db, att, code, retryable):
         return _after_failure(db, att, code, retryable)
+
+    def retry_block_reason(self, att):
+        return common.renderer_mismatch(att["input_manifest"])
 
 
 # ---------------------------------------------------------------------------------------------------------

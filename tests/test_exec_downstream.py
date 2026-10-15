@@ -390,11 +390,11 @@ def test_render_input_changed_when_style_defaults_fingerprint_differs(monkeypatc
 
     bg = png_bytes(100, 100)
     monkeypatch.setattr(downstream, "get_store", lambda: type("S", (), {"get": staticmethod(lambda k: bg)})())
-    m = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done",
+    m = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done", "renderer": typeset.RENDERER_VERSION,
          "style_defaults": {**typeset.style_inputs(), "rule": "role-style-rule/0"}}  # 고정 당시 규칙 버전이 다름
     with pytest.raises(AdoptionRejected) as e:
         downstream._render_section(m, {}, {}, {})
-    assert e.value.code == "INPUT_CHANGED"
+    assert e.value.code == "INPUT_CHANGED" and "스타일" in str(e.value)
 
 
 def test_label_failure_is_n4_error_abort_returns_n3_and_reproceed(env):
@@ -1089,3 +1089,163 @@ def test_final_render_lease_expiry_recovery_respects_limit(env, monkeypatch):
     env["q"].messages.clear()  # sweep 이 같은 모듈의 다른 시험 잔여 행에 보낸 메시지
     fr.mode = "ok"
     _assert_final_blocked(env, ids)
+
+
+# ── 렌더러 버전 호환(실행 시점 검사 + 재시도 생성 전 검사) ───────────────────────────────────
+NEW_RENDERER = "pillow-typeset/test-new"
+
+
+def _attempt(tid):
+    return _q("SELECT id, stage, status, error_code, error_message, retry_count, max_retry, input_fingerprint "
+              "FROM job_async_task WHERE id = :t", t=tid)[0]
+
+
+def _item(c, job, tid):
+    return [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskId"] == tid][0]
+
+
+def _preview_count(job):
+    return _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND stage = 'preview'", j=job)[0]["n"]
+
+
+def test_render_section_checks_renderer_match_mismatch_missing(monkeypatch):
+    from app import typeset
+    from app.execution import AdoptionRejected
+    from app.flows import downstream
+    from tests.exec_fakes import png_bytes
+
+    bg = png_bytes(100, 100)
+    monkeypatch.setattr(downstream, "get_store", lambda: type("S", (), {"get": staticmethod(lambda k: bg)})())
+    base = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done", "style_defaults": typeset.style_inputs()}
+    assert downstream._render_section({**base, "renderer": typeset.RENDERER_VERSION}, {}, {}, {}).png  # 일치 → 그린다
+    for m, why in (({**base, "renderer": "pillow-typeset/0+old"}, "pillow-typeset/0+old"), (base, "기록 없음")):
+        with pytest.raises(AdoptionRejected) as e:
+            downstream._render_section(m, {}, {}, {})
+        assert e.value.code == "INPUT_CHANGED" and e.value.retryable is False and why in str(e.value)
+
+
+def test_final_render_renderer_mismatch_fails_and_retry_is_rejected_before_creation(env, monkeypatch):
+    """고정 입력(옛 렌더러)으로 큐에 있던 최종 렌더 → 실행 시점 INPUT_CHANGED(자동 재시도 없음, 한도가 남아 실행 running).
+    JOB-06·FIN-01 은 생성 전 거절(409) — 시도·큐 메시지·retry_count 증가 없음. JOB-05 retryable=false 와 일치."""
+    from app import typeset
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})  # 고정 입력 = 현재 렌더러, 큐 대기
+    monkeypatch.setattr(typeset, "RENDERER_VERSION", NEW_RENDERER)  # 배포로 렌더러가 바뀐 상황
+    env["q"].drain()
+    runs, cur = _final(job)
+    a = _attempt(cur["id"])
+    assert (a["status"], a["error_code"], a["retry_count"]) == ("failed", "INPUT_CHANGED", 0) and "렌더러" in a["error_message"]
+    assert [r["status"] for r in runs] == ["running"] and env["q"].messages == []
+    assert _item(c, job, cur["id"])["retryable"] is False
+    before = _final_counts(job)
+    for r in (c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry"), c.post(f"/v1/jobs/{job}/render")):
+        assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert _final_counts(job) == before and env["q"].messages == [] and _attempt(cur["id"]) == a
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 409
+
+
+def test_final_render_missing_renderer_is_rejected_like_mismatch(env, monkeypatch):
+    from app.flows import final
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    real = final._final_inputs
+    monkeypatch.setattr(final, "_final_inputs", lambda db, j: {k: v for k, v in real(db, j).items() if k != "renderer"})
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    env["q"].drain()
+    _, cur = _final(job)
+    a = _attempt(cur["id"])
+    assert (a["status"], a["error_code"]) == ("failed", "INPUT_CHANGED") and "기록 없음" in a["error_message"]
+    assert _item(c, job, cur["id"])["retryable"] is False
+    assert c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry").status_code == 409
+    assert _final_counts(job) == {"runs": 1, "attempts": 1}
+
+
+def test_preview_renderer_mismatch_and_missing(env, monkeypatch):
+    """미리보기: 옛 렌더러·기록 없음 → INPUT_CHANGED, JOB-06 생성 전 거절(행·메시지 없음), retryable=false.
+    N5 수정(PATCH)은 현재 렌더러로 새 고정 입력을 만들어 성공한다(기존 경로)."""
+    from app import typeset
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b.get("trans1")][0]
+    t1 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]}).json()["rerenderTaskId"]
+    monkeypatch.setattr(typeset, "RENDERER_VERSION", NEW_RENDERER)
+    env["q"].drain()
+    a = _attempt(t1)
+    assert (a["status"], a["error_code"]) == ("failed", "INPUT_CHANGED") and "렌더러" in a["error_message"]
+    assert _item(c, job, t1)["retryable"] is False
+    n = _preview_count(job)
+    r = c.post(f"/v1/jobs/{job}/tasks/{t1}/retry")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert _preview_count(job) == n and env["q"].messages == [] and _attempt(t1) == a
+    blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["id"] == blk["id"]][0]
+    t2 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care.", "revision": blk["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    assert _attempt(t2)["status"] == "done"  # 새 고정 입력(현재 렌더러)
+    real = downstream._render_inputs
+    monkeypatch.setattr(downstream, "_render_inputs", lambda db, run_id, sid: {k: v for k, v in real(db, run_id, sid).items() if k != "renderer"})
+    blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["id"] == blk["id"]][0]
+    t3 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care!", "revision": blk["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    a3 = _attempt(t3)
+    assert (a3["status"], a3["error_code"]) == ("failed", "INPUT_CHANGED") and "기록 없음" in a3["error_message"]
+    assert _item(c, job, t3)["retryable"] is False and c.post(f"/v1/jobs/{job}/tasks/{t3}/retry").status_code == 409
+    assert _step(ids) == ("review", "N5")
+
+
+def test_final_auto_retry_is_not_created_for_old_renderer_and_adoption_commits(env, monkeypatch):
+    """retryable 실패(자동 재시도 대상)여도 고정 입력 렌더러가 다르면 자동 재시도를 만들지 않는다.
+    예외로 채택 트랜잭션이 되돌아가지 않고(인계 adopted·시도 failed 기록), 한도가 남아 실행은 running."""
+    from app import typeset
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    monkeypatch.setattr(typeset, "RENDERER_VERSION", NEW_RENDERER)
+    fr.mode = "transient"  # 렌더러 검사 전에 일어나는 재시도 가능 실패
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert (cur["status"], cur["error_code"], cur["retry_count"]) == ("failed", "RENDER_FAILED", 0)
+    assert _final_counts(job) == {"runs": 1, "attempts": 1} and env["q"].messages == []  # 자동 재시도 없음
+    assert [r["status"] for r in runs] == ["running"]
+    assert _q("SELECT state FROM task_handoff WHERE task_id = :t", t=cur["id"]) == [{"state": "adopted"}]
+    assert _item(c, job, cur["id"])["retryable"] is False
+
+
+def test_recovery_lease_expiry_skips_old_renderer_and_keeps_other_job(env, monkeypatch):
+    """권한 만료 복구: 옛 렌더러 시도는 failed(LEASE_EXPIRED)만 기록하고 복구 재시도를 만들지 않는다(실행 running, 한도 남음).
+    같은 sweep 의 다른 작업(현재 렌더러)은 기존대로 복구 재시도. 다음 sweep 이 같은 대상을 다시 처리하지 않는다."""
+    from app import recovery, typeset
+
+    a_ids, _ = _to_n5(env)
+    b_ids, _ = _to_n5(env)
+
+    def crash(c, job):
+        c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+        env["q"].messages.clear()
+        att = _final(job)[1]["id"]
+        assert execution.acquire(att, "crashed-worker") is not None
+        _q("UPDATE job_async_task SET lease_expires_at = now() - interval '1 second' WHERE id = :t", t=att)
+        return att
+
+    a_att = crash(a_ids["c"], a_ids["job"])  # 옛 렌더러로 고정
+    monkeypatch.setattr(typeset, "RENDERER_VERSION", NEW_RENDERER)
+    b_att = crash(b_ids["c"], b_ids["job"])  # 현재 렌더러로 고정
+    recovery.sweep()
+    a_runs, a_cur = _final(a_ids["job"])
+    assert a_cur["id"] == a_att and (a_cur["status"], a_cur["error_code"]) == ("failed", "LEASE_EXPIRED")
+    assert [r["status"] for r in a_runs] == ["running"] and _final_counts(a_ids["job"]) == {"runs": 1, "attempts": 1}
+    b_runs, b_cur = _final(b_ids["job"])
+    assert _attempt(b_att)["error_code"] == "LEASE_EXPIRED" and (b_cur["status"], b_cur["retry_count"]) == ("pending", 1)
+    assert [r["status"] for r in b_runs] == ["running"]
+    a_row = _q("SELECT status, error_code, lease_epoch, finished_at FROM job_async_task WHERE id = :t", t=a_att)
+    recovery.sweep()
+    assert _q("SELECT status, error_code, lease_epoch, finished_at FROM job_async_task WHERE id = :t", t=a_att) == a_row
+    assert _final_counts(a_ids["job"]) == {"runs": 1, "attempts": 1}
+    assert _item(a_ids["c"], a_ids["job"], a_att)["retryable"] is False
+    env["q"].messages.clear()

@@ -208,7 +208,7 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
                     raise AdoptionRejected("최종 렌더 입력이 확정 당시와 다르다", code="INPUT_CHANGED")
                 texts[b["block_id"]], styles[b["block_id"]], sources[b["block_id"]] = (
                     r["trans_1"], json_value(r["style"]), r["source_ko"])
-            res = _render_section({**s, "style_defaults": m["style_defaults"]}, texts, styles, sources)
+            res = _render_section({**s, "style_defaults": m["style_defaults"], "renderer": m.get("renderer")}, texts, styles, sources)
             files[("render_image", f"sec_{s['section_id']}")] = res.png
             renders[str(s["section_id"])] = {"width": res.width, "height": res.height,
                                              "overflow": {str(k): v.overflow for k, v in res.blocks.items()},
@@ -314,12 +314,15 @@ class FinalRenderHandler:
         return []
 
     def after_failure(self, db, att, code, retryable):
-        if retryable and att["retry_count"] < min(1, att["max_retry"]):
+        if retryable and att["retry_count"] < min(1, att["max_retry"]) and not execution.retry_blocked(att):
             return [execution.create_retry(db, att["id"], "auto")]
         if att["retry_count"] >= att["max_retry"]:
             # 누적 한도 소진: 실행을 failed 로 닫는다. 이후 JOB-06·FIN-01 은 409, 새 실행으로 한도를 우회하지 못한다
             execution.finish_run(db, att["parent_task_id"], "failed", att["error_code"], att["error_message"])
         return []  # 한도가 남으면 retryable 과 무관하게 실행을 running 으로 두어 JOB-06·FIN-01 사용자 재시도가 가능하다. 저장은 막힌다
+
+    def retry_block_reason(self, att):
+        return common.renderer_mismatch(att["input_manifest"])
 
 
 def can_save(db: Session, job_id: int) -> bool:

@@ -843,8 +843,10 @@ def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
     bg_key = sec["inpaint_image_url"] if inp == "done" and sec["inpaint_image_url"] else sec["image_key"]
     blocks = []
     for r in rows:
-        if r["is_excluded"] is not False or not (r["source_ko"] or "").strip() or r["trans_1"] is None:
-            continue  # 라벨·로고·빈 원문·번역 없음(실패 칸)은 그리지 않는다
+        if r["is_excluded"] is not False or not (r["source_ko"] or "").strip() or not (r["trans_1"] or "").strip():
+            # 라벨·로고·빈 원문·번역 없음(실패 칸 NULL·빈 문자열·공백만)은 그리지 않는다 — resolve_block 의 조판 제외 규칙
+            # (be-handoff 6.3)과 같게 둬야 미리보기 채택의 대상 블록 집합이 렌더 결과와 맞는다
+            continue
         adj = json_value(r["auto_adjust"]) or {}
         box = adj.get("layout_bbox") or json_value(r["bbox"])
         blocks.append({"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),

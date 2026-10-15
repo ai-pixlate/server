@@ -362,6 +362,26 @@ def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
     assert _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"] == nulled  # 측정값·NULL 그대로
 
 
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_translation_edit_rerenders_preview_and_final(env, blank):
+    """N5 에서 번역문을 지우거나 공백만 남기면 그 블록은 조판하지 않는다(6.3) — 미리보기 고정 입력에서도 빠져 채택이 실패하지 않는다."""
+    ids = _to_n3(env)
+    c = ids["c"]
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    blk = [b for b in c.get(f"/v1/jobs/{ids['job']}/blocks").json() if b.get("trans1")][0]
+    r = c.patch(f"/v1/jobs/{ids['job']}/blocks/{blk['id']}", json={"trans1": blank, "revision": blk["revision"]})
+    assert r.status_code == 200 and r.json()["rerenderTaskId"]
+    env["q"].drain()
+    pv = _q("SELECT status, error_code, input_manifest FROM job_async_task WHERE id = :t", t=r.json()["rerenderTaskId"])[0]
+    assert (pv["status"], pv["error_code"]) == ("done", None)
+    assert blk["id"] not in [b["block_id"] for b in pv["input_manifest"]["blocks"]]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    fin = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND stage = 'final_render' AND is_current", j=ids["job"])
+    assert fin == [{"status": "done", "error_code": None}]
+
+
 def test_render_input_changed_when_style_defaults_fingerprint_differs(monkeypatch):
     from app import typeset
     from app.flows import downstream

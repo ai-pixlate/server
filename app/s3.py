@@ -38,11 +38,28 @@ def delete_object(key: str) -> None:
         _s3.delete_object(Bucket=S3_BUCKET, Key=key)
 
 
-def presigned_get(key: str | None, ttl: int = PRESIGN_TTL) -> str | None:
+def content_disposition(name: str) -> str:
+    """attachment 다운로드 이름(RFC 6266·5987).
+    제어문자(C0·DEL·C1 — CR·LF 포함)는 filename·filename* 양쪽에서 _ 로 바꾼다(헤더·파일명에 들어가지 않게).
+    한글·공백 등 정상 문자는 filename*(UTF-8 퍼센트 인코딩)에 그대로 두고, ASCII 대체 filename 에서만
+    비ASCII·따옴표·역슬래시를 _ 로 바꾼다."""
+    from urllib.parse import quote
+
+    clean = "".join("_" if ord(ch) < 32 or 127 <= ord(ch) < 160 else ch for ch in name)
+    fallback = "".join(ch if 32 <= ord(ch) < 127 and ch not in '"\\' else "_" for ch in clean)
+    return f"attachment; filename=\"{fallback}\"; filename*=UTF-8''{quote(clean, safe='')}"
+
+
+def presigned_get(key: str | None, ttl: int = PRESIGN_TTL, download_name: str | None = None) -> str | None:
+    """조회용 presigned URL. download_name 을 주면 S3 응답에 Content-Disposition(attachment) 을 붙여
+    브라우저가 그 이름으로 저장한다(다운로드 링크 전용 — 화면 표시용 호출은 그대로)."""
     if not key:
         return None
+    params = {"Bucket": S3_BUCKET, "Key": key}
+    if download_name:
+        params["ResponseContentDisposition"] = content_disposition(download_name)
     return _s3.generate_presigned_url(
         "get_object",
-        Params={"Bucket": S3_BUCKET, "Key": key},
+        Params=params,
         ExpiresIn=ttl,
     )

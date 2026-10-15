@@ -294,11 +294,11 @@ class FakeTranslator:
 
 
 def style_defaults_file(tmp_path) -> str:
-    """테스트 전용 역할 기본값(제품 기본값 아님 — 승인 값이 아니다)."""
-    roles = {r: {"font_color": "#111111", "est_font_px": 20, "align": "left"} for r in ("title", "body", "caption", "price", "caution")}
-    p = tmp_path / "style_defaults.test.json"
-    p.write_text(json.dumps({"version": "test-only", "roles": roles}), encoding="utf-8")
-    return str(p)
+    """승인된 역할별 기본값 정본(pipeline/data/style_defaults.json, D11) 경로. 폰트는 이 파일 기준 상대 경로라 복사하지 않는다.
+    (예전 테스트 전용 3키 형식은 운영 로더가 새 형식으로 바뀌어 쓰지 않는다 — be-handoff 6.6 ⑧)"""
+    from pipeline.handoff.style_defaults import STYLE_DEFAULTS_PATH
+
+    return str(STYLE_DEFAULTS_PATH)
 
 
 class SpyTranslate(FakeTranslate):

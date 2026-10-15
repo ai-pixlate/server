@@ -305,8 +305,9 @@ def test_style_failure_uses_role_defaults(env):
     assert c.post(f"/v1/jobs/{ids['job']}/save").status_code == 200
 
 
-def test_no_approved_defaults_render_fails_n5_opens_save_blocked(env, monkeypatch):
-    monkeypatch.delenv("PIXLATE_STYLE_DEFAULTS")
+def test_unreadable_style_defaults_render_fails_n5_opens_save_blocked(env, monkeypatch, tmp_path):
+    # 대체 경로가 가리키는 자료를 읽을 수 없으면 렌더 실패 — 저장소 정본·내장 값으로 조용히 넘어가지 않는다
+    monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(tmp_path / "missing-style-defaults.json"))
     ai_adapters.set_adapters(styler=FailingStyler())
     ids = _to_n3(env)
     c = ids["c"]
@@ -324,6 +325,76 @@ def test_no_approved_defaults_render_fails_n5_opens_save_blocked(env, monkeypatc
     fin = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND stage = 'final_render' AND is_current", j=ids["job"])
     assert fin == [{"status": "failed", "error_code": "STYLE_DEFAULTS_UNAPPROVED"}]
     assert c.post(f"/v1/jobs/{ids['job']}/save").status_code == 409  # 최종 렌더 성공 전 저장 불가
+
+
+def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
+    """F1 작업 15 재현(합성): ⑦ 완료인데 한 블록의 align 만 NULL → 그 항목만 승인 기본값(left), 글자색·크기는 측정값 유지.
+    미리보기·최종 렌더 모두 성공하고 저장까지 된다. text_block.style 은 그대로(측정값을 덮지 않는다)."""
+    ids = _to_n3(env)
+    c = ids["c"]
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    blk = [b for b in c.get(f"/v1/jobs/{ids['job']}/blocks").json() if b.get("trans1")][0]
+    before = _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"]
+    assert before and all(before[k] is not None for k in ("font_color", "est_font_px", "align"))
+    _q("UPDATE text_block SET style = jsonb_set(style, '{align}', 'null'::jsonb) WHERE id = :b", b=blk["id"])
+    nulled = _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"]
+    # 번역문을 고쳐 그 섹션 미리보기를 새 고정 입력으로 다시 만든다(같은 렌더 경로)
+    r = c.patch(f"/v1/jobs/{ids['job']}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]})
+    assert r.status_code == 200 and r.json()["rerenderTaskId"]
+    env["q"].drain()
+    pv = _q("SELECT a.status, a.error_code, h.payload FROM job_async_task a LEFT JOIN task_handoff h ON h.task_id = a.id AND h.state = 'adopted' "
+            "WHERE a.id = :t", t=r.json()["rerenderTaskId"])[0]
+    assert pv["status"] == "done", pv["error_code"]
+    rb = pv["payload"]["render"]["blocks"][str(blk["id"])]
+    assert rb["source"] == {"font_color": "measured", "est_font_px": "measured", "align": "role_default"}
+    assert rb["applied"]["align"] == "left"  # 승인값(pipeline_mapping.align)
+    assert rb["applied"]["font_color"] == before["font_color"] and rb["applied"]["est_font_px"] == before["est_font_px"]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    fin = _q("SELECT a.status, a.error_code, h.payload FROM job_async_task a LEFT JOIN task_handoff h ON h.task_id = a.id AND h.state = 'adopted' "
+             "WHERE a.job_id = :j AND a.stage = 'final_render' AND a.is_current", j=ids["job"])
+    assert [(f["status"], f["error_code"]) for f in fin] == [("done", None)]
+    fb = [v for s in fin[0]["payload"]["renders"].values() for k, v in s["applied"].items() if k == str(blk["id"])][0]
+    assert fb["source"]["align"] == "role_default" and fb["source"]["font_color"] == "measured"
+    assert c.post(f"/v1/jobs/{ids['job']}/save").status_code == 200
+    assert _q("SELECT style FROM text_block WHERE id = :b", b=blk["id"])[0]["style"] == nulled  # 측정값·NULL 그대로
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_translation_edit_rerenders_preview_and_final(env, blank):
+    """N5 에서 번역문을 지우거나 공백만 남기면 그 블록은 조판하지 않는다(6.3) — 미리보기 고정 입력에서도 빠져 채택이 실패하지 않는다."""
+    ids = _to_n3(env)
+    c = ids["c"]
+    c.post(f"/v1/jobs/{ids['job']}/sections/proceed")
+    env["q"].drain()
+    blk = [b for b in c.get(f"/v1/jobs/{ids['job']}/blocks").json() if b.get("trans1")][0]
+    r = c.patch(f"/v1/jobs/{ids['job']}/blocks/{blk['id']}", json={"trans1": blank, "revision": blk["revision"]})
+    assert r.status_code == 200 and r.json()["rerenderTaskId"]
+    env["q"].drain()
+    pv = _q("SELECT status, error_code, input_manifest FROM job_async_task WHERE id = :t", t=r.json()["rerenderTaskId"])[0]
+    assert (pv["status"], pv["error_code"]) == ("done", None)
+    assert blk["id"] not in [b["block_id"] for b in pv["input_manifest"]["blocks"]]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    fin = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND stage = 'final_render' AND is_current", j=ids["job"])
+    assert fin == [{"status": "done", "error_code": None}]
+
+
+def test_render_input_changed_when_style_defaults_fingerprint_differs(monkeypatch):
+    from app import typeset
+    from app.flows import downstream
+    from app.execution import AdoptionRejected
+    from tests.exec_fakes import png_bytes
+
+    bg = png_bytes(100, 100)
+    monkeypatch.setattr(downstream, "get_store", lambda: type("S", (), {"get": staticmethod(lambda k: bg)})())
+    m = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done",
+         "style_defaults": {**typeset.style_inputs(), "rule": "role-style-rule/0"}}  # 고정 당시 규칙 버전이 다름
+    with pytest.raises(AdoptionRejected) as e:
+        downstream._render_section(m, {}, {}, {})
+    assert e.value.code == "INPUT_CHANGED"
 
 
 def test_label_failure_is_n4_error_abort_returns_n3_and_reproceed(env):
@@ -615,7 +686,9 @@ def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
     store = env["store"]
     monkeypatch.setattr(s3, "_s3", None)
     monkeypatch.setattr(s3, "upload_fileobj", lambda f, key, content_type=None: store.put(key, f.read()) or key)
-    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300: f"https://presigned.test/{key}" if key else None)
+    names = []  # presigned_get 에 넘긴 저장 이름(Content-Disposition)
+    monkeypatch.setattr(s3, "presigned_get",
+                        lambda key, ttl=300, download_name=None: (names.append(download_name), f"https://presigned.test/{key}")[1] if key else None)
     ids, _ = _to_n5(env)
     c = ids["c"]
     assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
@@ -637,12 +710,14 @@ def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
     assert body["artifactType"] == "zip" and body["components"] == ["images", "csv"]
     d = c.get(f"/v1/jobs/{ids['job']}/exports/{body['artifactId']}/download").json()
     assert d["fileName"].endswith(".zip") and "expiresIn" not in d
+    assert names[-1] == d["fileName"] == f"pixlate_export_{ids['job']}.zip"  # 응답 이름 = 다운로드 저장 이름
     assert datetime.fromisoformat(d["expiresAt"].replace("Z", "+00:00")).tzinfo is not None
     names = zipfile.ZipFile(_io.BytesIO(store.get(d["url"].split("presigned.test/", 1)[1]))).namelist()
     assert "content.csv" in names and any(x.startswith("images/deliverable_") and x.endswith(".png") for x in names)
 
     assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "images"}).json()["fileName"].endswith(".zip")
     assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "csv"}).json()["fileName"].endswith(".csv")
+    assert names[-1] == f"pixlate_export_{ids['job']}.csv"
     assert c.get(f"/v1/jobs/{ids['job']}/export/download").json()["fileName"].endswith(".zip")  # 기본 zip
     assert c.get(f"/v1/jobs/{ids['job']}/export/download", params={"artifactType": "html"}).status_code == 404
 
@@ -651,3 +726,68 @@ def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C
     comps = {x["type"]: x for x in c.get(f"/v1/jobs/{ids['job']}/deliverables").json()["components"]}
     assert comps["html"]["isActive"] is False and comps["psd"]["isActive"] is False
     assert comps["images"]["isActive"] is True and comps["csv"]["isActive"] is True
+
+
+# 수식으로 읽힐 첫 글자 → ' 접두, 그 밖은 원문 그대로(계약 FIN-04 formula injection 방어)
+_CSV_CASES = [
+    ("=1+1", "'=1+1"), ('=HYPERLINK("http://example.invalid","x")', '\'=HYPERLINK("http://example.invalid","x")'),
+    ("+1 202 555 0100", "'+1 202 555 0100"), ("-10% off", "'-10% off"), ("@SUM(A1)", "'@SUM(A1)"),
+    ("\t=1+1", "'\t=1+1"), ("\r=1+1", "'\r=1+1"), ("=cmd|' /C calc'!A0", "'=cmd|' /C calc'!A0"),
+    ("a, b", "a, b"), ('say "hi"', 'say "hi"'), ("line1\nline2", "line1\nline2"),
+    ("건조하고 당기는 피부", "건조하고 당기는 피부"), ("Dry, tight skin", "Dry, tight skin"), ("$29.00", "$29.00"),
+    # LF 시작, 전각 수식 문자, 앞 공백(스페이스·NBSP·전각 공백·탭+공백) 뒤 수식 문자 — 2026-10-15 확정 규칙
+    ("\n=1+1", "'\n=1+1"), ("＝1+1", "'＝1+1"), ("＋1", "'＋1"), ("－5", "'－5"), ("＠SUM(A1)", "'＠SUM(A1)"),
+    (" =1+1", "' =1+1"), (" +1", "' +1"), ("　＝1+1", "'　＝1+1"), ("  @x", "'  @x"),
+    # 음수·부호 문구도 문자열로 나간다(수용한 변화)
+    ("-5", "'-5"), ("+82 10", "'+82 10"),
+    # 그 밖은 원문 그대로 — 중간의 = · 문장 속 -, 공백만, 빈 값
+    ("x=1", "x=1"), ("a - b", "a - b"), ("ℹ =1", "ℹ =1"), ("   ", "   "), ("", ""), (None, ""),
+]
+
+
+@pytest.mark.parametrize("raw,want", _CSV_CASES)
+def test_csv_cell_neutralizes_formula_prefix_only(raw, want):
+    from app.routers.finalize import _csv_cell
+
+    assert _csv_cell(raw) == want
+
+
+def test_export_csv_cells_neutralized_same_in_csv_and_zip(env, monkeypatch):
+    import csv as _csv
+    import io as _io
+    import zipfile
+
+    from app import s3
+
+    store = env["store"]
+    monkeypatch.setattr(s3, "_s3", None)
+    monkeypatch.setattr(s3, "upload_fileobj", lambda f, key, content_type=None: store.put(key, f.read()) or key)
+    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300, download_name=None: f"https://presigned.test/{key}" if key else None)
+    ids, _ = _to_n5(env)
+    c = ids["c"]
+    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+
+    blocks = _q("SELECT tb.id FROM text_block tb JOIN section s ON s.id = tb.section_id "
+                "WHERE s.job_id = :j AND s.bucket = 'include' ORDER BY tb.section_id, tb.block_order, tb.id", j=ids["job"])
+    assert len(blocks) >= 2
+    a, b = blocks[0]["id"], blocks[1]["id"]
+    _q("UPDATE text_block SET source_ko = :s, trans_1 = :t WHERE id = :b", s="=SUM(1,2)", t='=HYPERLINK("http://example.invalid","x")', b=a)
+    _q("UPDATE text_block SET source_ko = :s, trans_1 = :t WHERE id = :b", s="건조하고, \"당기는\"\n피부", t="-10% off", b=b)
+
+    def get(artifact_id):
+        d = c.get(f"/v1/jobs/{ids['job']}/exports/{artifact_id}/download").json()
+        return store.get(d["url"].split("presigned.test/", 1)[1])
+
+    alone = get(c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["content.csv"]}).json()["artifactId"])
+    zipped = zipfile.ZipFile(_io.BytesIO(get(
+        c.post(f"/v1/jobs/{ids['job']}/export", json={"components": ["images", "content.csv"]}).json()["artifactId"]))).read("content.csv")
+    assert alone == zipped  # 개별 CSV 와 zip 안 CSV 는 같은 처리·같은 바이트
+    assert alone.startswith(b"\xef\xbb\xbf")
+    rows = list(_csv.reader(_io.StringIO(alone.decode("utf-8-sig"))))
+    assert rows[0] == ["sectionId", "blockOrder", "role", "sourceKo", "trans1"]
+    assert rows[1][3:] == ["'=SUM(1,2)", '\'=HYPERLINK("http://example.invalid","x")']
+    assert rows[2][3:] == ["건조하고, \"당기는\"\n피부", "'-10% off"]  # 구분자·따옴표·줄바꿈은 원문 그대로
+    # DB 원문·번역문은 바꾸지 않는다
+    assert _q("SELECT source_ko, trans_1 FROM text_block WHERE id = :b", b=a)[0] == {
+        "source_ko": "=SUM(1,2)", "trans_1": '=HYPERLINK("http://example.invalid","x")'}

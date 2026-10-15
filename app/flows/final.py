@@ -164,13 +164,17 @@ def _final_inputs(db: Session, job_id: int) -> dict[str, Any]:
 
 
 def start_final_render(db: Session, job_id: int) -> int:
-    """최종 렌더 실행·시도 생성(호출자가 job 잠금·커밋·dispatch). 진행 중이면 그 시도를 돌려준다."""
+    """최종 렌더 실행·시도 생성(호출자가 job 잠금·커밋·dispatch). 진행 중이면 그 시도를 돌려준다.
+    최신 실행이 failed 로 닫혔으면(누적 한도 소진) 새 실행을 만들지 않는다 — 새 실행으로 한도를 우회하지 못하게."""
     active = execution.active_run(db, job_id, "final_render")
     if active is not None:
         cur = db.execute(text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND is_current"), {"r": active["id"]}).mappings().one()
         if cur["status"] == "failed":
             return execution.create_retry(db, cur["id"], "user")
         return cur["id"]
+    last = execution.latest_run(db, job_id, "final_render")
+    if last is not None and last["status"] == "failed":
+        raise execution.RetryNotAllowed("최종 렌더 실행이 누적 재시도 한도 소진으로 종료됐다")
     m = _final_inputs(db, job_id)
     run_id = execution.create_run(db, job_id, "final_render", {"job_id": job_id, "section_ids": [s["section_id"] for s in m["sections"]]})
     run = execution.lock_task(db, run_id)
@@ -312,7 +316,10 @@ class FinalRenderHandler:
     def after_failure(self, db, att, code, retryable):
         if retryable and att["retry_count"] < min(1, att["max_retry"]):
             return [execution.create_retry(db, att["id"], "auto")]
-        return []  # 실행은 running 으로 두어 JOB-06·FIN-01 재시도가 가능하다. 저장은 막힌다
+        if att["retry_count"] >= att["max_retry"]:
+            # 누적 한도 소진: 실행을 failed 로 닫는다. 이후 JOB-06·FIN-01 은 409, 새 실행으로 한도를 우회하지 못한다
+            execution.finish_run(db, att["parent_task_id"], "failed", att["error_code"], att["error_message"])
+        return []  # 한도가 남으면 retryable 과 무관하게 실행을 running 으로 두어 JOB-06·FIN-01 사용자 재시도가 가능하다. 저장은 막힌다
 
 
 def can_save(db: Session, job_id: int) -> bool:

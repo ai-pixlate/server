@@ -791,3 +791,263 @@ def test_export_csv_cells_neutralized_same_in_csv_and_zip(env, monkeypatch):
     # DB 원문·번역문은 바꾸지 않는다
     assert _q("SELECT source_ko, trans_1 FROM text_block WHERE id = :b", b=a)[0] == {
         "source_ko": "=SUM(1,2)", "trans_1": '=HYPERLINK("http://example.invalid","x")'}
+
+
+# ── 최종 렌더 실패 종료·누적 한도(작업 15 · task 272 재발 방지) ─────────────────────────────
+# 운영 정리안(C)과 같은 문장: 진행 중 시도가 없고 현재 시도가 한도에 닿은 최종 렌더 실행만 failed 로 닫는다.
+CLEANUP_SQL = (
+    "UPDATE job_async_task r SET status = 'failed', finished_at = now(), error_code = a.error_code, error_message = a.error_message "
+    "FROM job_async_task a "
+    "WHERE r.id = :run AND r.job_id = :job AND r.parent_task_id IS NULL AND r.run_kind = 'final_render' AND r.status = 'running' AND r.cancelled_at IS NULL "
+    "AND a.id = :att AND a.parent_task_id = r.id AND a.is_current AND a.status = 'failed' AND a.retry_count >= a.max_retry "
+    "AND NOT EXISTS (SELECT 1 FROM job_async_task x WHERE x.parent_task_id = r.id AND x.status IN ('pending', 'running')) "
+    "RETURNING r.id"
+)
+
+
+class _FinalRenderMode:
+    """최종 렌더 섹션 조판을 mode 대로 바꾼다(ok · transient = 재시도 가능 실패 · fatal = 재시도 불가 실패). N5 도달 뒤 설치한다."""
+
+    def __init__(self, monkeypatch):
+        from app import typeset
+        from app.execution import AdoptionRejected
+        from app.flows import downstream
+
+        self.mode = "ok"
+        real = downstream._render_section
+
+        def fake(*a, **k):
+            if self.mode == "transient":
+                raise AdoptionRejected("일시 렌더 실패(시험)", code="RENDER_FAILED", retryable=True)
+            if self.mode == "fatal":
+                raise typeset.StyleDefaultsUnavailable("승인된 역할별 스타일 기본값을 쓸 수 없다(시험)")
+            return real(*a, **k)
+
+        monkeypatch.setattr(downstream, "_render_section", fake)
+
+
+def _final(job):
+    """최종 렌더 대표 실행(오래된 순)과 현재 시도."""
+    runs = _q("SELECT id, status, finished_at, error_code FROM job_async_task WHERE job_id = :j AND parent_task_id IS NULL "
+              "AND run_kind = 'final_render' ORDER BY id", j=job)
+    cur = _q("SELECT id, status, error_code, retry_count, max_retry, input_fingerprint FROM job_async_task WHERE job_id = :j "
+             "AND stage = 'final_render' AND is_current ORDER BY id DESC LIMIT 1", j=job)
+    return runs, (cur[0] if cur else None)
+
+
+def _final_counts(job):
+    return _q("SELECT count(*) FILTER (WHERE parent_task_id IS NULL AND run_kind = 'final_render') AS runs, "
+              "count(*) FILTER (WHERE stage = 'final_render') AS attempts FROM job_async_task WHERE job_id = :j", j=job)[0]
+
+
+def _assert_final_blocked(env, ids):
+    """한도 초과·실패 종료 뒤: FIN-01·JOB-06 은 기존 409 RETRY_NOT_ALLOWED, 실행·시도·큐 메시지가 늘지 않고 저장도 막힌다."""
+    c, job = ids["c"], ids["job"]
+    _, cur = _final(job)
+    before = _final_counts(job)
+    assert env["q"].messages == []
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    r = c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert _final_counts(job) == before
+    assert env["q"].messages == []
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 409
+    item = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskId"] == cur["id"]][0]
+    assert item["status"] == "failed" and item["retryable"] is False
+    assert _step(ids) == ("review", "N6")
+
+
+def test_final_render_retryable_failures_close_run_at_limit(env, monkeypatch):
+    """재시도 가능 실패: 자동 1회 → 사용자 재시도(JOB-06) → 마지막 허용 시도 실패 시 실행 failed. 이후 FIN-01·JOB-06 우회 불가."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    fr.mode = "transient"
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    runs, cur = _final(job)
+    # 첫 시도 실패 → 자동 재시도 1회도 실패. 한도(2) 안이라 실행은 running, 사용자 재시도 가능
+    assert [r["status"] for r in runs] == ["running"]
+    assert (cur["status"], cur["retry_count"], cur["max_retry"]) == ("failed", 1, 2)
+    item = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskId"] == cur["id"]][0]
+    assert item["retryable"] is True
+    assert c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry").status_code == 200
+    env["q"].drain()
+    runs, cur = _final(job)
+    # 마지막 허용 시도(retry_count 2) 실패 → 실행 failed 로 종료
+    assert (cur["status"], cur["retry_count"]) == ("failed", 2)
+    assert [(r["status"], r["error_code"]) for r in runs] == [("failed", "RENDER_FAILED")] and runs[0]["finished_at"] is not None
+    assert _final_counts(job) == {"runs": 1, "attempts": 3}
+    fr.mode = "ok"  # 실패 원인이 사라져도 한도는 초기화되지 않는다
+    _assert_final_blocked(env, ids)
+
+
+def test_final_render_fin01_retry_within_limit_then_limit(env, monkeypatch):
+    """FIN-01 로도 한도 안에서는 재시도 시도를 만들고(기존 동작), 한도에 닿으면 실행이 닫혀 FIN-01 이 새 실행을 만들지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    fr.mode = "transient"
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    env["q"].drain()
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 202
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert cur["id"] == r.json()["renderTaskId"] and (cur["status"], cur["retry_count"]) == ("failed", 2)
+    assert [r["status"] for r in runs] == ["failed"]
+    _assert_final_blocked(env, ids)
+
+
+def test_final_render_non_retryable_failure_keeps_user_retry_until_limit(env, monkeypatch):
+    """retryable=false: 자동 재시도는 없다. 한도가 남아 있으면 실행은 running 이고 JOB-06·FIN-01 사용자 재시도가 기존대로 된다.
+    마지막 허용 시도까지 실패하면 실행 failed, 이후 우회 불가."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    fr.mode = "fatal"
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert (cur["status"], cur["error_code"], cur["retry_count"]) == ("failed", "STYLE_DEFAULTS_UNAPPROVED", 0)
+    assert [r["status"] for r in runs] == ["running"] and runs[0]["finished_at"] is None
+    assert _final_counts(job) == {"runs": 1, "attempts": 1} and env["q"].messages == []  # 자동 재시도 없음
+    item = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskId"] == cur["id"]][0]
+    assert item["retryable"] is True  # 사용자 재시도 가능 여부는 retryable 과 별개
+    assert c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry").status_code == 200  # JOB-06
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert [r["status"] for r in runs] == ["running"] and (cur["status"], cur["retry_count"]) == ("failed", 1)
+    r = c.post(f"/v1/jobs/{job}/render")  # FIN-01 = 같은 실행의 재시도 시도
+    assert r.status_code == 202
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert cur["id"] == r.json()["renderTaskId"] and (cur["status"], cur["retry_count"]) == ("failed", 2)
+    assert [(r["status"], r["error_code"]) for r in runs] == [("failed", "STYLE_DEFAULTS_UNAPPROVED")]
+    assert _final_counts(job) == {"runs": 1, "attempts": 3}
+    fr.mode = "ok"
+    _assert_final_blocked(env, ids)
+
+
+def test_final_render_non_retryable_failure_user_retry_succeeds(env, monkeypatch):
+    """retryable=false 실패 뒤 원인이 사라지면 한도 안의 사용자 재시도로 완료·저장된다(기존 동작 유지)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    fr.mode = "fatal"
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    env["q"].drain()
+    _, cur = _final(job)
+    fr.mode = "ok"
+    assert c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry").status_code == 200
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert [r["status"] for r in runs] == ["done"] and (cur["status"], cur["retry_count"]) == ("done", 1)
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
+
+
+def test_final_render_new_run_after_success_is_kept(env, monkeypatch):
+    """성공 완료 뒤 FIN-01 은 새 최종 렌더 실행을 만든다(기존 동작). 그 새 실행이 실패로 닫히면 이전 성공으로 우회하지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    env["q"].drain()
+    assert [r["status"] for r in _final(job)[0]] == ["done"]
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 202
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert [r["status"] for r in runs] == ["done", "done"] and (cur["status"], cur["retry_count"]) == ("done", 0)
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
+    # 저장 뒤(done/N6)에도 새 렌더는 기존대로 허용된다. 그 새 실행이 한도까지 실패하면 실행 failed, 이전 성공으로 우회 불가
+    fr.mode = "fatal"
+    for n in range(3):  # 새 실행(0) → 재시도(1·2)
+        assert c.post(f"/v1/jobs/{job}/render").status_code == 202
+        env["q"].drain()
+        assert _final(job)[1]["retry_count"] == n
+    assert [r["status"] for r in _final(job)[0]] == ["done", "done", "failed"]
+    before = _final_counts(job)
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert _final_counts(job) == before and env["q"].messages == []
+
+
+def test_legacy_running_final_run_at_limit_task272(env, monkeypatch):
+    """수정 전 코드가 남긴 상태(작업 15 · task 272): 실행 running, 현재 시도 failed·retry_count 2/2, 진행 중 시도 없음.
+    정리 전에도 FIN-01·JOB-06 은 409. 복구 sweep 은 건드리지 않는다. 운영 정리안 문장으로 실행만 failed 로 닫으면
+    진행 중 0 이 되고, 그 뒤에도 FIN-01 이 새 실행을 만들지 못한다. 시도·고정 입력·횟수는 그대로다."""
+    from app import recovery
+
+    from app.flows import final
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    fr.mode = "fatal"
+    # 수정 전 실패 후속(f5b050a): 자동 재시도 대상이 아니면 실행을 running 으로 둔다. 작업 15 와 같은 순서로 만든다
+    # (재시도 불가 실패 → JOB-06 두 번 → 한도 소진). 시도 행의 횟수는 DB 트리거가 막아 직접 고칠 수 없다
+    with monkeypatch.context() as m:
+        def old_after_failure(self, db, att, code, retryable):
+            if retryable and att["retry_count"] < min(1, att["max_retry"]):
+                return [execution.create_retry(db, att["id"], "auto")]
+            return []
+
+        m.setattr(final.FinalRenderHandler, "after_failure", old_after_failure)
+        c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+        env["q"].drain()
+        for _ in range(2):
+            assert c.post(f"/v1/jobs/{job}/tasks/{_final(job)[1]['id']}/retry").status_code == 200
+            env["q"].drain()
+    runs, cur = _final(job)
+    assert [r["status"] for r in runs] == ["running"] and runs[0]["finished_at"] is None
+    assert (cur["status"], cur["error_code"], cur["retry_count"], cur["max_retry"]) == ("failed", "STYLE_DEFAULTS_UNAPPROVED", 2, 2)
+    assert _final_counts(job) == {"runs": 1, "attempts": 3}
+    run_id, att_id = runs[0]["id"], cur["id"]
+    live = "SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND status IN ('pending', 'running')"
+    assert _q(live, j=job)[0]["n"] == 1  # 배포 전 상태 확인(state_check)이 세는 행 = 대표 실행
+    fr.mode = "ok"
+    # 정리 전: FIN-01 은 한도 초과 재시도로 409, JOB-06 도 409. 행·메시지 없음
+    before = _final_counts(job)
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert c.post(f"/v1/jobs/{job}/tasks/{att_id}/retry").status_code == 409
+    assert _final_counts(job) == before and env["q"].messages == []
+    snap = ("SELECT id, status, retry_count, max_retry, attempt_no, is_current, input_fingerprint, input_manifest, error_code "
+            "FROM job_async_task WHERE job_id = :j AND stage = 'final_render' ORDER BY id")
+    attempts_before = _q(snap, j=job)
+    rows = ("SELECT id, status, dispatch_count, lease_epoch, is_current, finished_at FROM job_async_task WHERE job_id = :j "
+            "AND (stage = 'final_render' OR run_kind = 'final_render') ORDER BY id")
+    rows_before = _q(rows, j=job)
+    recovery.sweep()  # DB 전체를 본다 — 같은 모듈의 다른 시험이 남긴 행의 메시지는 비우고, 이 작업의 행만 판정한다
+    env["q"].messages.clear()
+    assert _q(rows, j=job) == rows_before and _final_counts(job) == before  # 재전송·만료·새 시도 없음
+    # 운영 정리(C): 대상이 기대 상태일 때만 1행 바뀐다
+    assert _q(CLEANUP_SQL, job=job, run=run_id, att=att_id) == [{"id": run_id}]
+    assert _q(CLEANUP_SQL, job=job, run=run_id, att=att_id) == []  # 다시 실행해도 0행(이미 failed)
+    assert [(r["status"], r["error_code"]) for r in _final(job)[0]] == [("failed", "STYLE_DEFAULTS_UNAPPROVED")]
+    assert _q(live, j=job)[0]["n"] == 0
+    assert _q(snap, j=job) == attempts_before  # 시도 행·고정 입력·횟수 그대로
+    _assert_final_blocked(env, ids)
+    assert _q(snap, j=job) == attempts_before
+
+
+def test_cleanup_sql_refuses_unexpected_state(env, monkeypatch):
+    """정리 문장은 한도 미만이거나 진행 중 시도가 있으면 0행 — 기대와 다르면 바꾸지 않는다(중단 조건)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    fr = _FinalRenderMode(monkeypatch)
+    fr.mode = "transient"
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert runs[0]["status"] == "running" and cur["retry_count"] == 1  # 한도 미만
+    assert _q(CLEANUP_SQL, job=job, run=runs[0]["id"], att=cur["id"]) == []
+    r = c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry")
+    assert r.status_code == 200  # 큐에서 꺼내지 않음 → 새 시도 pending
+    new_id = r.json()["taskId"]
+    assert _q(CLEANUP_SQL, job=job, run=runs[0]["id"], att=cur["id"]) == []  # 현재 시도 아님 + 진행 중 시도 있음
+    assert _q(CLEANUP_SQL, job=job, run=runs[0]["id"], att=new_id) == []  # pending 현재 시도
+    assert _final(job)[0][0]["status"] == "running"
+    env["q"].messages.clear()

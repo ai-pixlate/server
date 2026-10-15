@@ -96,7 +96,7 @@ kill_grace_s = 5               # 시간 초과 후 종료 요청 → 이 시간 
 
 [style]                        # ⑦ 스타일 추출
 method = "otsu_border"
-em_ratio = 1.35
+em_ratio = 0.9                 # 잠정값(사용자 결정 2026-10-15, open-questions #85). 개발계획 6장 1.35는 OCR bbox가 em보다 커서 약 1.5배 과대
 align_tolerance = 0.12
 
 [translate]                    # ⑧ 로컬라이징 번역

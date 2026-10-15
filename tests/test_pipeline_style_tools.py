@@ -137,7 +137,7 @@ def test_driver_explicit_selection_saves_style_result(driver, tmp_path):
     assert rec["selection"] == {"mode": "explicit", "sections": [f"{IMAGE}/sec_1_01"]}
     assert rec["counts"] == {"selected": 1, "ok": 1, "input_error": 0, "failed": 0, "save_failed": 0}
     assert {"git_commit", "git_dirty", "started_at", "ran_at", "duration_s", "config"} <= set(rec)
-    assert rec["config"]["style"] == {"method": "otsu_border", "em_ratio": 1.35, "align_tolerance": 0.12}
+    assert rec["config"]["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_tolerance": 0.12}
     [entry] = rec["sections"]
     assert (entry["image_id"], entry["section_key"], entry["status"], entry["result"]) == (IMAGE, "sec_1_01", "ok", f"{IMAGE}/style/sec_1_01.json")
     assert entry["inputs"]["section_image"]["path"] == f"{IMAGE}/sections/sec_1_01.png"  # 원본 섹션 이미지(인페인팅 결과 아님)
@@ -281,7 +281,7 @@ def test_review_page_content_and_assets(driver, page, tmp_path):
     assert "없음(null) · 사유 <code>no_text</code>" in doc and "없음(null) · 사유 <code>no_text_lines</code>" in doc
     assert "없음(null) · 사유 <code>excluded</code>" in doc and "제외 사유 product_label" in doc and "제외 사유 brand_logo" in doc
     assert "기본값 · 한 줄(default_single_line)" in doc and 'class="basis dflt"' in doc
-    assert "4.05</b> px <span class=mut>(원본 이미지 기준)" in doc
+    assert "2.7</b> px <span class=mut>(원본 이미지 기준)" in doc  # 높이 3 × 기본 em_ratio 0.9(잠정, #85)
     assert "ok — 측정값 모두 얻음(품질 판정 아님)" in doc and "excluded — 라벨 · 로고 제외(오류 아님)" in doc
     assert "합격" not in doc.replace("자동 합격 판정은 없습니다", "").replace("품질 합격이 아니며", "")
     assert "single_class" in doc  # 영역 색 실패 사유

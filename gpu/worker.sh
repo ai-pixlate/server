@@ -2,6 +2,7 @@
 # 학교 GPU pod 의 큐 워커 관리: bash /data/pixlate/worker.sh <gpu|ocr> <start|stop|status>
 #
 # - EC2 Redis 의 gpu 큐(인페인팅)·ocr 큐(분석)를 소비한다. 둘 다 --pool=solo --concurrency=1(prefork 금지).
+# - 두 워커 모두 GPU 로만 돈다. 시작할 때 venv 의 CUDA 사용 가능 여부를 확인하고, 안 되면 시작하지 않는다.
 # - 게이트 파일(/data/pixlate/<큐>.enabled)이 없으면 시작하지 않는다. pod 재시작·재접속만으로 소비가 시작되지 않게 하고,
 #   검증이 끝난 뒤 담당자가 게이트를 만들어 시작한다.
 # - /data/server 코드가 /data/pixlate/release.sha 와 같을 때만 시작한다.
@@ -21,7 +22,7 @@ RELEASE=$BASE/release.sha
 
 case "$Q" in
   gpu) PY=/data/venv/bin/python;     LOG=/data/gpu-worker.log ;;   # torch 는 /opt/venv 를 .pth 로 공유
-  ocr) PY=/data/venv-ocr/bin/python; LOG=/data/ocr-worker.log ;;   # PaddleOCR(CPU) 전용 venv. gpu venv 와 섞지 않는다
+  ocr) PY=/data/venv-ocr-gpu/bin/python; LOG=/data/ocr-worker.log ;;   # PaddleOCR GPU(paddlepaddle-gpu, CUDA 12.6) 전용 venv. gpu venv 와 섞지 않는다
   *) echo "usage: $0 <gpu|ocr> <start|stop|status>" >&2; exit 2 ;;
 esac
 GATE=$BASE/$Q.enabled
@@ -40,6 +41,14 @@ case "$CMD" in
     fi
     [ -r "$WRAP" ] || die "로그 래퍼 없음"
     [ -x "$PY" ] || die "venv 없음($PY)"
+    # 인페인팅·OCR 은 GPU 로만 돈다(2026-10-19 결정) — GPU 를 쓸 수 없으면 CPU 로 시작하지 않는다
+    if [ "$Q" = ocr ]; then
+      "$PY" -c "import paddle,sys; sys.exit(0 if paddle.device.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0 else 1)" >/dev/null 2>&1 \
+        || die "OCR GPU 사용 불가(paddle CUDA 빌드·GPU 확인 실패) — CPU 로 시작하지 않는다"
+    else
+      "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" >/dev/null 2>&1 \
+        || die "인페인팅 GPU 사용 불가(torch CUDA 확인 실패) — CPU 로 시작하지 않는다"
+    fi
     want=$(tr -d ' \r\n' < "$RELEASE" 2>/dev/null || true); have=$(git -C "$SRC" rev-parse HEAD)
     [ -n "$want" ] && [ "$have" = "$want" ] || die "코드($SRC)가 배포 SHA 와 다르다"
     [ -z "$(git -C "$SRC" status --porcelain --untracked-files=no)" ] || die "코드에 커밋되지 않은 변경이 있다"

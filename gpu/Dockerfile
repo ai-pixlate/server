@@ -19,7 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TORCH_HOME=/data/.cache/torch \
     PIP_CACHE_DIR=/data/.cache/pip
 
-# libgomp1·libgl1·libglib2.0-0t64: OCR 워커(/data/venv-ocr, PaddlePaddle CPU·OpenCV) 런타임. pod 재시작 후에도 있어야 한다
+# libgomp1·libgl1·libglib2.0-0t64: OCR 워커(/data/venv-ocr-gpu, PaddlePaddle GPU·OpenCV) 런타임. pod 재시작 후에도 있어야 한다
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         python3 python3-venv python3-dev \

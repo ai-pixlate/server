@@ -10,7 +10,7 @@
 |---|---|---|
 | [README.md](README.md) | 진입점 | 문서 구성과 읽는 순서 |
 | [plan.md](plan.md) | 측정 계획 | 대상 버전과 측정 방향 |
-| [decisions.md](decisions.md) | 확정 결정 | 측정 목적과 1.0.0 baseline의 OCR 표본 실행 제한 해제 |
+| [decisions.md](decisions.md) | 확정 결정 | 측정 목적·로컬 실행 환경과 1.0.0 baseline의 OCR 표본 실행 제한 해제 |
 | [protocols/v1/dataset.md](protocols/v1/dataset.md) | 평가 대상과 기대값 | 원본 34장, K01~K09와 좌표, 처리 기대값·기준 자료 |
 | [protocols/v1/evaluation.md](protocols/v1/evaluation.md) | 평가와 검수 | 10개 지표, A/B/C 기준, AI 평가·사람 검수 |
 | [protocols/v1/aggregation.md](protocols/v1/aggregation.md) | 집계와 비교 | 원본별 집계, 예외 상태·완료율·시간, 판정 혼동행렬과 결함 추적 |
@@ -22,7 +22,7 @@
 
 처음 작업하는 에이전트는 이 README에서 문서 역할을 확인하고, 다음 순서로 읽는다.
 
-1. [plan.md](plan.md)와 [decisions.md](decisions.md): 측정 목적·범위와 기존 OCR 실험에 대한 적용 예외를 확인한다.
+1. [plan.md](plan.md)와 [decisions.md](decisions.md): 측정 목적·범위·로컬 실행 환경과 기존 OCR 실험에 대한 적용 예외를 확인한다.
 2. [dataset.md](protocols/v1/dataset.md): 어떤 원본과 영역을 어떤 기대값으로 평가하는지 확인한다.
 3. [evaluation.md](protocols/v1/evaluation.md): 지표·등급과 AI·사람의 판정 책임을 확인한다.
 4. [aggregation.md](protocols/v1/aggregation.md): 평가 단위·분모·예외 상태와 버전 비교 규칙을 확인한다.

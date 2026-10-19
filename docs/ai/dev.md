@@ -61,6 +61,11 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   samples/                   샘플 입력·기대 결과 — 5절
   requirements*.txt          환경별 의존성 — 6절
 tests/test_pipeline_*.py     파이프라인 테스트 (루트 pytest가 함께 돈다)
+
+tools/baseline/              격리 BE baseline 실행·입력 확인·평가 기록 도구 (pipeline/에서 import하지 않음)
+tests/test_baseline_tools.py 모델·DB 호출 없는 준비·기록 도구 검증
+tests/test_baseline_audit.py  집계·근거 연결·수집 오류 격리 회귀 검증
+tests/test_baseline_consistency.py 기록·정정·CLI 비교 일관성 및 프로세스 격리 검증
 gpu/                         GPU 서버 컨테이너·k8s (기존, gpu/README.md)
 docs/ai/                     정본 문서
 ```

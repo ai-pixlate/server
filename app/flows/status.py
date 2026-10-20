@@ -11,7 +11,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import execution
+from app import analysis_progress, execution
 
 STAGE_KEYS = {
     "N2": ["ocr", "section", "verify"],
@@ -93,8 +93,93 @@ def task_status(db: Session, job: dict[str, Any]) -> dict[str, Any]:
     total = len(items)
     done = sum(1 for i in items if i["status"] == "done")
     failed = sum(1 for i in items if i["status"] == "failed")
-    return {
+    out = {
         "jobStatus": job["status"], "currentStep": job["current_step"], "userFacingStatus": job["user_facing_status"],
         "total": total, "done": done, "failedCount": failed, "progress": round(done / total, 2) if total else 0,
         "stages": stages, "items": items,
     }
+    if job["current_step"] == "N2" and run is not None:
+        ap = _analysis_progress(db, run)
+        if ap is not None:
+            out["analysisProgress"] = ap
+    return out
+
+
+SPLIT_EVENTS = ("split_start", "split_done")
+PHASE_OF_EVENT = {"split_start": "split", "split_done": "split", "ocr_start": "ocr", "merge_start": "merge", "region_done": "merge"}
+
+
+def _fixed_regions(n: int) -> dict[str, Any]:
+    return {"done": n, "known": n, "totalFixed": True}
+
+
+def _analysis_progress(db: Session, run: dict[str, Any]) -> dict[str, Any] | None:
+    att = db.execute(
+        text("SELECT *, (lease_expires_at > now()) AS lease_alive FROM job_async_task "
+             "WHERE parent_task_id = :r AND stage = 'analyze' AND is_current ORDER BY id DESC LIMIT 1"),
+        {"r": run["id"]},
+    ).mappings().first()
+    if att is None:
+        return None
+    att = dict(att)
+    res: dict[str, Any] = {"phase": "analyze", "status": _ui(att), "sourceTotal": att["target_count"],
+                           "activity": None, "current": None, "regions": None, "judge": None}
+    if att["status"] == "done":
+        return {**res, **_judge_progress(db, run)}
+    if att["status"] != "running":
+        return res
+    h = db.execute(
+        text("SELECT outcome, state, late FROM task_handoff WHERE task_id = :t AND lease_epoch = :e"),
+        {"t": att["id"], "e": att["lease_epoch"]},
+    ).mappings().first()
+    snap = analysis_progress.read(att["id"])
+    if not isinstance(snap, dict) or snap.get("epoch") != att["lease_epoch"]:
+        snap = None
+    done_snap = snap if snap is not None and snap.get("event") == "analyze_done" else None
+    if h is not None:
+        if h["outcome"] == "done" and h["state"] in ("received", "verifying", "verified") and not h["late"]:
+            res["activity"] = "finalize"
+            res["regions"] = _fixed_regions(done_snap["snap"]["regions_done"]) if done_snap else None
+        return res
+    if not att["lease_alive"]:
+        return res
+    if done_snap is not None:
+        res["activity"] = "finalize"
+        res["regions"] = _fixed_regions(done_snap["snap"]["regions_done"])
+        return res
+    if snap is not None:
+        s, ev = snap["snap"], snap["event"]
+        res["activity"] = PHASE_OF_EVENT.get(ev)
+        res["current"] = {"sourceIndex": s.get("source_index"), "sourceImageId": s.get("source_image_id"),
+                          "regionIndex": None if ev in SPLIT_EVENTS else s.get("region_index"),
+                          "regionCountInSource": s.get("region_count_in_source")}
+        res["regions"] = {"done": s.get("regions_done"), "known": s.get("regions_known"),
+                          "totalFixed": s.get("sources_split") == s.get("source_total")}
+    return res
+
+
+def _judge_progress(db: Session, run: dict[str, Any]) -> dict[str, Any]:
+    rows = [dict(r) for r in db.execute(
+        text("SELECT status, error_code, retry_origin FROM job_async_task WHERE parent_task_id = :r AND stage = 'judge' AND is_current"),
+        {"r": run["id"]},
+    ).mappings().all()]
+    j = dict.fromkeys(("done", "excluded", "running", "waiting", "retrying", "failed", "cancelled"), 0)
+    for r in rows:
+        if r["status"] == "done":
+            j["done"] += 1
+        elif r["status"] == "failed":
+            j["excluded" if r["error_code"] == "LOCAL_JUDGE_FAILED" else "failed"] += 1
+        elif r["status"] == "cancelled":
+            j["cancelled"] += 1
+        elif r["status"] == "running":
+            j["running"] += 1
+        elif _ui(r) == "retrying":
+            j["retrying"] += 1
+        else:
+            j["waiting"] += 1
+    total = sum(j.values())
+    if run["status"] == "failed":
+        status = "failed"
+    else:
+        status = "running" if j["running"] else "retrying" if j["retrying"] else "waiting"
+    return {"phase": "judge", "status": status, "regions": _fixed_regions(total), "judge": {"total": total, **j}}

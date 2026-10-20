@@ -34,6 +34,8 @@ python -m tools.baseline.run summary .cache/baseline-preparation .cache/summary-
 
 실제 모델 호출은 별도 승인 후 `execute <준비묶음> --execute-models`로만 시작한다. 이 명령은 도구 검증용이 아니며 지금 실행해서는 안 된다. 사용 예시에 실제 실행 명령은 포함하지 않았다.
 
+실행자는 [사전 예산 승인 규칙](../../docs/ai-baseline/protocols/v1/execution.md#ai-실행자의-사전-예산-승인)에 따라 예상 금액·실행 범위·승인 상한을 먼저 제시하고 사용자 승인을 기록한다. `budget` 설정이나 실행 플래그 자체는 승인이 아니다. 사전 점검·공식 생성·AI 평가·보정 중 승인받은 범위만 실행하며, 초과 예상 또는 범위 추가 시 중단하고 재승인받는다.
+
 - `product_root`: 해당 릴리즈 코드가 checkout된 절대 경로. `product_commit`: 축약하지 않은 전체 HEAD SHA. 실행 코드의 미커밋 변경을 거부한다. 현재 계획 브랜치를 1.0.0 제품으로 자동 간주하지 않는다.
 - 별도 PostgreSQL에 해당 릴리즈의 Alembic 마이그레이션과 확인된 참조 데이터를 준비한다. 운영 DB를 복제해 직접 쓰지 않는다. 접속 정보는 설정 JSON에 넣지 않고 `BASELINE_DATABASE_URL` 환경변수로 전달한다. 도구는 localhost의 `px_baseline_*` DB만 허용하며 job·seller·brand가 이미 있으면 중단한다. DB 생성·삭제·참조 데이터 적재는 자동 수행하지 않는다.
 - PostgreSQL/BE 의존성과 실제 모델 실행 의존성, Gemini 키, OCR 실행 장치, LaMa 가중치·GPU가 필요하다. 실제 사전·용어집은 담당자가 확인한 데이터로 준비한다. 빈 용어집이 맞는지도 별도로 확인한다.

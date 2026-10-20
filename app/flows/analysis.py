@@ -156,7 +156,7 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
                 p.write_bytes(data)
                 sources.append(SourceImage(source_image_id=s["source_image_id"], upload_order=s["upload_order"], path=str(p)))
             analyzer = ai_adapters.analyzer()
-            with common.Heartbeat(lease) as hb:
+            with common.Heartbeat(lease) as hb:  # 계산부터 등록·S3 고정·채택(submit)까지 권한 갱신(S6)
                 try:
                     if hasattr(analyzer, "analyze_with_fallbacks"):
                         result, fallbacks = analyzer.analyze_with_fallbacks(sources, tmpd / "out")
@@ -168,29 +168,29 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
                     return report(attempt_id, submit(lease, failed_envelope(lease, e.code, e.message, e.retryable)))
                 except ai_adapters.AdapterUnavailable as e:
                     return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), False)))
-            if hb.lost:
-                return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
-            payload_result = result.model_dump(mode="json")
-            for sec in result.sections:
-                path = Path(sec.image_path)
-                if not path.is_absolute():
-                    path = (tmpd / "out" / path).resolve()
-                if not str(path).startswith(str(tmpd)):
-                    return report(attempt_id, submit(lease, failed_envelope(lease, "ARTIFACT_PATH", f"섹션 이미지가 작업 디렉터리 밖 {sec.section_key}", False)))
-                try:
-                    files[("section_image", sec.section_key)] = path.read_bytes()
-                except OSError:
-                    pass  # 채택 검증에서 누락으로 거절된다
-            for s in payload_result["sections"]:
-                s["image_path"] = f"artifact:section_image/{s['section_key']}"  # 로컬 경로는 공유 주소가 아니다
-            env = Envelope(
-                outcome="done", target_count=len(m["sources"]), input_fingerprint=lease.fingerprint,
-                impl_version=analyzer.impl_version,
-                payload={"analyze_result": payload_result, "bundle": bundle, "split_fallbacks": fallbacks},
-                artifacts=[ArtifactSpec(kind="section_image", part_key=s.section_key, data=files.get(("section_image", s.section_key)))
-                           for s in result.sections if ("section_image", s.section_key) in files],
-            )
-            return report(attempt_id, submit(lease, env, files))
+                if hb.lost:
+                    return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
+                payload_result = result.model_dump(mode="json")
+                for sec in result.sections:
+                    path = Path(sec.image_path)
+                    if not path.is_absolute():
+                        path = (tmpd / "out" / path).resolve()
+                    if not str(path).startswith(str(tmpd)):
+                        return report(attempt_id, submit(lease, failed_envelope(lease, "ARTIFACT_PATH", f"섹션 이미지가 작업 디렉터리 밖 {sec.section_key}", False)))
+                    try:
+                        files[("section_image", sec.section_key)] = path.read_bytes()
+                    except OSError:
+                        pass  # 채택 검증에서 누락으로 거절된다
+                for s in payload_result["sections"]:
+                    s["image_path"] = f"artifact:section_image/{s['section_key']}"  # 로컬 경로는 공유 주소가 아니다
+                env = Envelope(
+                    outcome="done", target_count=len(m["sources"]), input_fingerprint=lease.fingerprint,
+                    impl_version=analyzer.impl_version,
+                    payload={"analyze_result": payload_result, "bundle": bundle, "split_fallbacks": fallbacks},
+                    artifacts=[ArtifactSpec(kind="section_image", part_key=s.section_key, data=files.get(("section_image", s.section_key)))
+                               for s in result.sections if ("section_image", s.section_key) in files],
+                )
+                return report(attempt_id, submit(lease, env, files))
     except execution.LeaseLost:
         return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
     except Exception as e:  # noqa: BLE001 — 예기치 않은 오류: 선행 결과 생성 실패로 보고 자동 재시도 대상(D9-1)

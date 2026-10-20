@@ -65,9 +65,10 @@ def _load_cfg() -> dict[str, Any]:
 class Analyzer(Protocol):
     impl_version: str
 
-    def analyze(self, sources: list[Any], out_dir: Path) -> Any:
+    def analyze(self, sources: list[Any], out_dir: Path, *, progress: Any | None = None) -> Any:
         """sources: pipeline.types.SourceImage(절대 로컬 경로). 반환: pipeline.types.AnalyzeResult(버전 1).
-        섹션 이미지는 out_dir 아래 로컬 파일. 실패는 pipeline.errors.AnalyzeError(code, retryable)."""
+        섹션 이미지는 out_dir 아래 로컬 파일. 실패는 pipeline.errors.AnalyzeError(code, retryable).
+        progress: pipeline.analyze.ProgressCallback(선택)."""
         ...
 
 
@@ -77,15 +78,16 @@ class PipelineAnalyzer:
         self.use_llm = use_llm if use_llm is not None else os.getenv("PIXLATE_ANALYZE_USE_LLM", "1") != "0"
         self.impl_version = f"pipeline.analyze@cfg:{_cfg_hash(self.cfg, 'section', 'ocr', 'merge')[:16]}:llm={int(self.use_llm)}"
 
-    def analyze(self, sources: list[Any], out_dir: Path) -> Any:
-        return self.analyze_with_fallbacks(sources, out_dir)[0]
+    def analyze(self, sources: list[Any], out_dir: Path, *, progress: Any | None = None) -> Any:
+        return self.analyze_with_fallbacks(sources, out_dir, progress=progress)[0]
 
-    def analyze_with_fallbacks(self, sources: list[Any], out_dir: Path) -> tuple[Any, list[dict[str, Any]]]:
+    def analyze_with_fallbacks(self, sources: list[Any], out_dir: Path, *,
+                               progress: Any | None = None) -> tuple[Any, list[dict[str, Any]]]:
         """① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)의 기록(원본·사유)을 함께 돌려준다. AnalyzeResult v1 은 바꾸지 않는다(BE 확인 1)."""
         from pipeline.analyze import analyze
 
         fallbacks: list[dict[str, Any]] = []
-        return analyze(sources, self.cfg, out_dir, use_llm=self.use_llm, fallbacks=fallbacks), fallbacks
+        return analyze(sources, self.cfg, out_dir, use_llm=self.use_llm, fallbacks=fallbacks, progress=progress), fallbacks
 
 
 # ---------------------------------------------------------------------------------------------------------

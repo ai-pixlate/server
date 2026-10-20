@@ -132,6 +132,251 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
 
+  examples:
+    # ===== JOB-05 N2 세부 진행 (가상 값 · 운영 응답 캡처 아님) =====
+    JobTasksN2Queued:
+      summary: '(가상 값) N2 분석 대기'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: pending }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: pending, uiStatus: waiting, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: waiting
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: null
+          judge: null
+    JobTasksN2Split:
+      summary: '(가상 값) N2 두 번째 원본 영역 분해 중'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: running
+          sourceTotal: 2
+          activity: split
+          current: { sourceIndex: 2, sourceImageId: 702, regionIndex: null, regionCountInSource: null }
+          regions: { done: 3, known: 3, totalFixed: false }
+          judge: null
+    JobTasksN2RegionOcr:
+      summary: '(가상 값) N2 첫 원본 두 번째 영역 OCR 중'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: running
+          sourceTotal: 2
+          activity: ocr
+          current: { sourceIndex: 1, sourceImageId: 701, regionIndex: 2, regionCountInSource: 3 }
+          regions: { done: 1, known: 3, totalFixed: false }
+          judge: null
+    JobTasksN2Merge:
+      summary: '(가상 값) N2 두 번째 원본 첫 영역 병합·역할 분류 중'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: running
+          sourceTotal: 2
+          activity: merge
+          current: { sourceIndex: 2, sourceImageId: 702, regionIndex: 1, regionCountInSource: 2 }
+          regions: { done: 3, known: 5, totalFixed: true }
+          judge: null
+    JobTasksN2Judge:
+      summary: '(가상 값) N2 영역별 판정 중 (현지 판정 실패 1건 제외)'
+      description: 'failedCount=1 · stages.section=failed 지만 정상 진행 중이다(excluded=1). 남은 판정이 끝나면 N3 로 넘어간다.'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0.5
+        total: 6
+        done: 3
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: done }
+          - { key: section, label: section, status: failed }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9002, taskType: section, unitType: section, unitId: 8101, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9003, taskType: section, unitType: section, unitId: 8102, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9004, taskType: section, unitType: section, unitId: 8103, status: failed, uiStatus: failed, retryCount: 0, maxRetry: 2, retryable: false, errorCode: LOCAL_JUDGE_FAILED, revision: null }
+          - { taskId: 9005, taskType: section, unitType: section, unitId: 8104, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9006, taskType: section, unitType: section, unitId: 8105, status: pending, uiStatus: waiting, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: judge
+          status: running
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: { done: 5, known: 5, totalFixed: true }
+          judge: { total: 5, done: 2, excluded: 1, running: 1, waiting: 1, retrying: 0, failed: 0, cancelled: 0 }
+    JobTasksN2AutoRetry:
+      summary: '(가상 값) N2 분석 시도 자동 재시도 대기'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: pending }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9011, taskType: ocr, unitType: job, unitId: 501, status: pending, uiStatus: retrying, retryCount: 1, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: retrying
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: null
+          judge: null
+    JobTasksN2Failed:
+      summary: '(가상 값) N2 분석 실패 (재시도 소진)'
+      description: 'N2 시도는 JOB-06 재시도 대상이 아니다(retryable=false). 다시 하려면 분석 시작(ANL-01) 또는 중단(JOB-07).'
+      value:
+        jobStatus: failed
+        currentStep: N2
+        userFacingStatus: failed
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: failed }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9013, taskType: ocr, unitType: job, unitId: 501, status: failed, uiStatus: failed, retryCount: 2, maxRetry: 2, retryable: false, errorCode: OCR_FAILED, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: failed
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: null
+          judge: null
+    JobTasksN2JudgeFailed:
+      summary: '(가상 값) N2 판정 중 분석 실행 실패 종료'
+      description: '끝나지 않은 판정 2건은 기존 정책대로 cancelled 되어 items 에서 빠지고 이 실행의 숨은 섹션은 삭제된다. progress=0.75 · stages.ocr=done 이어도 분석 실패다(jobStatus=failed). 원래 영역 수는 judge.total(5)로 본다.'
+      value:
+        jobStatus: failed
+        currentStep: N2
+        userFacingStatus: failed
+        progress: 0.75
+        total: 4
+        done: 3
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: done }
+          - { key: section, label: section, status: failed }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9002, taskType: section, unitType: section, unitId: 8101, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9003, taskType: section, unitType: section, unitId: 8102, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9104, taskType: section, unitType: section, unitId: 8103, status: failed, uiStatus: failed, retryCount: 2, maxRetry: 2, retryable: false, errorCode: REGULATORY_JUDGE_FAILED, revision: null }
+        analysisProgress:
+          phase: judge
+          status: failed
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: { done: 5, known: 5, totalFixed: true }
+          judge: { total: 5, done: 2, excluded: 0, running: 0, waiting: 0, retrying: 0, failed: 1, cancelled: 2 }
+    JobTasksN3AfterPartialExclusion:
+      summary: '(가상 값) 현지 판정 실패 1건 제외 후 N3 전환'
+      description: '현지 AI 판정 실패 1건(LOCAL_JUDGE_FAILED)은 그 영역을 제외하고 N3 로 넘어간 정상 완료다. failedCount=1 · progress<1 · stages.section=failed 를 분석 실패로 해석하지 않는다. currentStep≠N2 이므로 analysisProgress 는 생략된다.'
+      value:
+        jobStatus: review
+        currentStep: N3
+        userFacingStatus: section_review
+        progress: 0.83
+        total: 6
+        done: 5
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: done }
+          - { key: section, label: section, status: failed }
+          - { key: verify, label: verify, status: done }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9002, taskType: section, unitType: section, unitId: 8101, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9003, taskType: section, unitType: section, unitId: 8102, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9004, taskType: section, unitType: section, unitId: 8103, status: failed, uiStatus: failed, retryCount: 0, maxRetry: 2, retryable: false, errorCode: LOCAL_JUDGE_FAILED, revision: null }
+          - { taskId: 9005, taskType: section, unitType: section, unitId: 8104, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9006, taskType: section, unitType: section, unitId: 8105, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+    JobTasksN2WithoutDetail:
+      summary: '(가상 값) N2 진행 중 · 세부 진행 없음'
+      description: 'analysisProgress 속성이 없다. FE 는 기존 progress·stages·items 로 대체 표시한다.'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+
   schemas:
     # ===== 공통 =====
     Error:
@@ -502,12 +747,20 @@ components:
         updatedAt: { type: string, format: date-time }
     JobTaskStatus:
       type: object
-      description: 'JOB-05 폴링 응답. progress·stages·uiStatus는 파생(미저장). cancelled 항목 제외.'
+      description: >
+        JOB-05 폴링 응답. progress·stages·uiStatus·analysisProgress는 DB에 저장하지 않고 응답 때 계산하는 파생 값이다(analysisProgress 의
+        분석 구간 값 중 일부는 BE 가 임시 진행 저장소에 TTL 로 보관한 AI 보고에서 읽는다). cancelled 항목 제외.
       properties:
         jobStatus: { $ref: '#/components/schemas/JobStatus' }
         currentStep: { $ref: '#/components/schemas/JobStep' }
         userFacingStatus: { $ref: '#/components/schemas/UserFacingStatus' }
-        progress: { type: number, format: float, description: '0.0~1.0 (done/total · 9/15 확정)' }
+        progress:
+          type: number
+          format: float
+          description: >
+            0.0~1.0 (done/total · 9/15 확정). 처리량·시간 비율이 아니다. N2: 분석 시도 1행이 끝날 때까지 0, 분석 채택 트랜잭션에서
+            분모가 1+영역 수로 바뀌며 값은 오른다. LOCAL_JUDGE_FAILED 로 제외된 영역은 done 이 아니어서 N3 전환 뒤에도 1 미만일 수 있다(분석 실패 아님).
+            판정 중 분석 실행이 실패 종료되면 취소된 시도가 빠져 분모가 줄 수 있다 — 실패 판단은 jobStatus 로 한다.
         total: { type: integer }
         done: { type: integer }
         failedCount: { type: integer }
@@ -517,6 +770,9 @@ components:
             step별 고정 단계 (N2 ocr→section→verify · N4 inpaint→translate→verify→render · N6 render).
             status는 해당 task_type 행 집계 — 전부 done→done / 하나라도 running→running /
             전부 pending→pending / failed 있으면 failed(cancelled 제외). 파생·미저장.
+            N2 현 구현 대응: ocr = 분석 시도(① 분해 · ② OCR · ③ 병합 전체 1행) · section = 영역별 판정(③-1·③-1′) ·
+            verify = N2 에 대응 시도 없음(실행 종료 전 pending, 완료 후 done). LOCAL_JUDGE_FAILED 가 있으면 section=failed 로
+            집계되지만 분석 실패가 아니다.
           items:
             type: object
             properties:
@@ -526,6 +782,11 @@ components:
         items:
           type: array
           items: { $ref: '#/components/schemas/JobAsyncTaskItem' }
+        analysisProgress:
+          allOf: [ { $ref: '#/components/schemas/AnalysisProgress' } ]
+          description: >
+            【구현 예정 — 운영 미제공】 선택. N2 세부 진행. currentStep=N2 가 아니면 속성을 생략한다(null 을 보내지 않음).
+            없으면 FE 는 기존 progress·stages·items 로 표시한다. 기존 필드의 값·의미는 바꾸지 않는다.
     JobAsyncTaskItem:
       type: object
       properties:
@@ -540,6 +801,84 @@ components:
         retryable: { type: boolean }
         errorCode: { type: [string, 'null'] }
         revision: { type: [integer, 'null'] }
+    AnalysisProgress:
+      type: object
+      description: >
+        【구현 예정 — 운영 미제공】 JOB-05 의 N2 분석 세부 진행. DB 에 저장하지 않는 파생 응답이다.
+        phase=analyze 의 activity·current·regions 근거는 AI 진행 보고이며 BE 가 임시 진행 저장소에 TTL 로 보관했다가 응답 때 읽는다
+        (영구 기록 아님 — 보고가 없거나 만료·읽기 실패·실행 권한 만료면 null). sourceTotal·judge 와 phase=judge 의 regions 는
+        응답 때 DB 시도 행에서 센다. 화면 표시용 세부 단계이며 TaskType·stages·items 와 다른 값 공간이다
+        (TaskType 을 늘리거나 실행·시도 단위를 나누지 않는다). 포함 조건: currentStep=N2 이고 현재 분석 실행(0008 이후 대표 실행)이
+        있을 때만. 그 밖(N1·N3~N6, 0008 이전 레거시 작업, 이 필드를 구현하기 전 서버)은 속성을 생략한다(null 아님).
+        완료·전환 판단은 jobStatus·currentStep 만 따른다. 퍼센트는 제공하지 않는다.
+      required: [phase, status, sourceTotal, activity, current, regions, judge]
+      properties:
+        phase:
+          type: string
+          enum: [analyze, judge]
+          description: >
+            analyze = 분석 시도(items 의 taskType=ocr·unitType=job 1행)가 done 이 아닌 동안 — 원본마다 ① 영역 분해 후
+            그 원본의 영역마다 ② OCR · ③ 병합·역할 분류를 반복. judge = 분석 결과 채택 뒤 영역별 판정(taskType=section·unitType=section 행).
+        status:
+          type: string
+          enum: [waiting, running, retrying, failed]
+          description: >
+            done 없음(분석 시도 done 이면 phase=judge, 판정이 끝나면 같은 트랜잭션에서 N3 전환되어 속성 생략).
+            analyze = 분석 시도 uiStatus 그대로. judge = failed(실행 실패 종료) > running > retrying > waiting.
+        sourceTotal:
+          type: integer
+          minimum: 1
+          description: '분석 대상 원본 수(시도의 고정 입력).'
+        activity:
+          type: [string, 'null']
+          enum: [split, ocr, merge, finalize, null]
+          description: >
+            마지막으로 시작한 처리(phase=analyze·status=running 일 때만). 끝난 영역 수는 regions.done 으로만 판단.
+            split 분해 · ocr 텍스트 추출(타일 OCR 포함) · merge 병합·역할 분류 · finalize = 분석 함수 정상 반환 뒤 채택 전.
+            finalize 근거는 현재 시도·lease 세대의 analyze_done 보고 또는 같은 시도·세대의 성공 결과 인계(채택 대기),
+            실패 결과 인계는 근거 아님(그때 null, 이후 표시는 DB 상태 전이).
+            null = 해당 없음 또는 알 수 없음(보고 전·만료·읽기 실패·실행 권한 만료 후 복구 전·실패 인계 등록 후).
+        current:
+          type: [object, 'null']
+          description: 'activity 가 split·ocr·merge 일 때만 객체.'
+          required: [sourceIndex, sourceImageId, regionIndex, regionCountInSource]
+          properties:
+            sourceIndex: { type: integer, minimum: 1, description: '업로드 순서 1부터' }
+            sourceImageId: { type: integer, format: int64, description: 'SRC-01 SourceImage.id' }
+            regionIndex: { type: [integer, 'null'], minimum: 1, description: 'split 이면 null' }
+            regionCountInSource:
+              type: [integer, 'null']
+              minimum: 1
+              description: '그 원본 분해가 끝나면 1 이상, 분해 중에만 null. ocr·merge 면 항상 정수.'
+        regions:
+          type: [object, 'null']
+          description: >
+            영역 = 분해 결과 섹션 1개, 타일 제외. analyze 는 AI 보고 누계·없으면 null. finalize 면 analyze_done 보고가 있을 때만
+            done=known·totalFixed=true, 없으면 null(완료 개수를 채우지 않음). judge 는 판정 시도 행으로 done=known=judge.total·totalFixed=true
+            (실패 때 지워지는 section 행으로 세지 않음).
+          required: [done, known, totalFixed]
+          properties:
+            done: { type: integer, minimum: 0, description: 'OCR·병합까지 끝난 영역 누계(현재 영역 OCR만 끝난 상태는 제외)' }
+            known: { type: integer, minimum: 0, description: '분해가 끝난 원본들의 영역 수 합(done ≤ known)' }
+            totalFixed: { type: boolean, description: '마지막 원본 분해 완료. false 면 known 을 분모로 쓰지 않음' }
+        judge:
+          type: [object, 'null']
+          description: >
+            phase=judge 일 때만. 판정 현재 시도 행(영역마다 1개, cancelled 포함).
+            total = done+excluded+running+waiting+retrying+failed+cancelled. items 의 section 개수 = total−cancelled.
+            excluded = LOCAL_JUDGE_FAILED 로 자동 제외(exclusionReason=auto_local_failed) — failedCount 에 들어가지만 분석 실패 아님,
+            N3 전환 안 막음. failed = excluded 제외 실패(실행 실패 종료 때만). cancelled = 실행 실패 종료 때 취소(items 에 없음).
+            total 은 채택 때 정해지고 재시도·실패 종료로 바뀌지 않음.
+          required: [total, done, excluded, running, waiting, retrying, failed, cancelled]
+          properties:
+            total: { type: integer, minimum: 0 }
+            done: { type: integer, minimum: 0 }
+            excluded: { type: integer, minimum: 0 }
+            running: { type: integer, minimum: 0 }
+            waiting: { type: integer, minimum: 0 }
+            retrying: { type: integer, minimum: 0 }
+            failed: { type: integer, minimum: 0 }
+            cancelled: { type: integer, minimum: 0 }
     AbortResponse:
       type: object
       properties:
@@ -1296,12 +1635,26 @@ paths:
         폴링 주기 2초. progress·stages·uiStatus는 파생. cancelled 항목 제외.
         섹션 렌더 실패 판별: items[]의 taskType=render + unitType=section + status=failed로 판별 —
         deliverable.render_status·section.warning_badge로 판별하지 않음(10차 #E). 🟢9월.
+        【구현 예정 — 운영 미제공】 N2 세부 진행 analysisProgress(선택, currentStep=N2 일 때만)를 더한다.
+        N2 완료는 currentStep=N3 전환으로만 판단한다. failedCount>0·progress<1 은 그 자체로 분석 실패가 아니다 —
+        분석 실패는 jobStatus=failed · currentStep=N2 다. 아래 예시는 가상 값이며 운영 응답 캡처가 아니다.
       responses:
         '200':
           description: '진행 상태'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/JobTaskStatus' }
+              examples:
+                n2Queued: { $ref: '#/components/examples/JobTasksN2Queued' }
+                n2Split: { $ref: '#/components/examples/JobTasksN2Split' }
+                n2RegionOcr: { $ref: '#/components/examples/JobTasksN2RegionOcr' }
+                n2Merge: { $ref: '#/components/examples/JobTasksN2Merge' }
+                n2Judge: { $ref: '#/components/examples/JobTasksN2Judge' }
+                n2AutoRetry: { $ref: '#/components/examples/JobTasksN2AutoRetry' }
+                n2Failed: { $ref: '#/components/examples/JobTasksN2Failed' }
+                n2JudgeFailed: { $ref: '#/components/examples/JobTasksN2JudgeFailed' }
+                n3AfterPartialExclusion: { $ref: '#/components/examples/JobTasksN3AfterPartialExclusion' }
+                n2WithoutDetail: { $ref: '#/components/examples/JobTasksN2WithoutDetail' }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/tasks/{taskId}/retry:
     parameters:

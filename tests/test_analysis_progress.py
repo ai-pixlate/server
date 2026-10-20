@@ -174,6 +174,12 @@ def test_read_missing_key_is_none():
     assert ap.read("nope", client=FakeRedis()) is None
 
 
+def test_progress_store_ignores_api_only_idempotency_redis(monkeypatch):
+    monkeypatch.setenv("PIXLATE_IDEMPOTENCY_REDIS_URL", "redis://idem.example:6379/5")
+    monkeypatch.setenv("CELERY_RESULT_BACKEND", "redis://shared.example:6379/1")
+    assert ap._redis_url() == "redis://shared.example:6379/1"
+
+
 def test_thread_stops_when_heartbeat_lost():
     fake = FakeRedis()
     hb = SimpleNamespace(lost=True)

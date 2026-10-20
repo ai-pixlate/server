@@ -52,7 +52,8 @@ def key(attempt_id: Any) -> str:
 
 
 def _redis_url() -> str:
-    return os.getenv("PIXLATE_IDEMPOTENCY_REDIS_URL") or os.getenv("CELERY_RESULT_BACKEND", "redis://pixlate-redis:6379/1")
+    # OCR 워커가 쓰고 API(JOB-05)가 읽으므로 두 프로세스가 공유하는 설정만 쓴다 — PIXLATE_IDEMPOTENCY_REDIS_URL 은 API 전용이다.
+    return os.getenv("CELERY_RESULT_BACKEND", "redis://pixlate-redis:6379/1")
 
 
 def _client(timeout: float) -> redis.Redis:

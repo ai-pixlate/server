@@ -9,9 +9,9 @@
 - 모델·온도는 config `[section]`(`vlm_model` · `vlm_temperature`)에서 받는다. API 키는 환경변수
   `GEMINI_API_KEY` [dev.md 6절]. 키는 커밋하지 않는다.
 - 응답은 JSON `{"boundaries": [y, ...]}`로 강제한다. y는 전달한 이미지의 픽셀 세로 좌표다.
-- 실패 처리는 open-questions #25 미정이다. 오류 코드·재시도 정책이 정해지기 전까지 이 모듈은
-  실패를 `VlmError`로 감싸 그대로 전파하고, 대체 처리(색 전환 경계만으로 진행)를 하지 않는다.
-  `AnalyzeError`로 변환하지도 않는다 — 코드가 계약 8장에 없다.
+- 이 모듈은 실패를 `VlmError`로 감싸 그대로 전파하고 대체 처리를 하지 않는다. `AnalyzeError`로 변환하지도
+  않는다 — 코드가 계약 8장에 없고 오류 코드·재시도 조건은 미정이다(#25 · #37). ① 분해 실패의 대체(원본 전체를
+  한 섹션으로)는 `analyze.split_or_whole`이 한다(#25, 통합 D9).
 - `google-genai`는 호출 시점에만 import한다. 키 없이 도는 로컬 테스트는 가짜 호출자를 주입한다
   (`section_split.run(..., vlm=...)`).
 - `seed`는 실험용이다. 기본(None)은 보내지 않는다. 고정해도 동일 응답이 보장되지는 않는다(SDK 문서).
@@ -39,7 +39,7 @@ _RESPONSE_SCHEMA: dict[str, Any] = {
 
 
 class VlmError(Exception):
-    """VLM 호출·응답 실패. #25 미정 — 코드·재시도 정책 결정 전까지 AnalyzeError로 바꾸지 않는다."""
+    """VLM 호출·응답 실패. AnalyzeError로 바꾸지 않는다 — 오류 코드·재시도 조건은 미정(#25 · #37)."""
 
     def __init__(self, message: str, cause: BaseException | None = None) -> None:
         self.cause = cause

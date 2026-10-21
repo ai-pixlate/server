@@ -52,7 +52,8 @@ CAUTION_RE = re.compile(
     )
 )
 
-# 설정 값 검증 대상 — pipeline.md 7.1절 "설정 값 검증". llm_model · llm_temperature · prompt_path는 llm_assist 착수 때.
+# 설정 값 검증 대상 — pipeline.md 7.1절 "설정 값 검증". llm_model · llm_temperature · llm_timeout_s · prompt_path는
+# validate_llm_config(7.2절)가 실행 모드별로 검사한다.
 _INT_KEYS = ("gutter_min_px", "gutter_width_div", "title_max_lines", "caption_max_chars", "price_max_chars")
 _NUM_KEYS = (
     "line_gap", "para_gap", "h_ratio", "overlap", "line_v_overlap", "line_gap_min", "para_gap_min",

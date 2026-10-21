@@ -35,7 +35,7 @@
 실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간·커밋 해시를 남긴다(계약 9장의 event_log.payload에 해당).
 split·ocr·merge 파일 읽기는 pipeline.jsonio를 거친다(버전 확인). split.json만 상대 image_path를 JSON 파일 폴더 기준으로 해석·기록하고,
 analyze.json(워커 인계 형식)은 버전 1 · 경로 변환 없이 그대로 쓴다(dev.md 3절).
-종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
+종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현 단계 · 4 VLM · LLM 호출 실패(AnalyzeError로 바꾸지 않음. analyze의 ① 실패는 원본 전체 섹션 대체, #25).
 ocr은 섹션 오류를 기록하고 계속하며 run.json에 status(ok · partial · failed)와 섹션별 결과를 남긴다(dev.md 4절).
 타일로 나눈 섹션(높이 > ocr.split_threshold_px)은 성공 · 실패와 관계없이 DIR/ocr_debug/<KEY>.json에 타일 진단을 남긴다.
 """
@@ -1135,7 +1135,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"미구현: {e}", file=sys.stderr)
         return 3
     except VlmError as e:
-        # open-questions #25 미정 — 오류 코드·재시도 정책 결정 전까지 AnalyzeError로 바꾸지 않는다.
+        # AnalyzeError로 바꾸지 않는다 — 오류 코드·재시도 조건은 미정(#25 · #37). analyze()의 ① 실패는 원본 전체 섹션으로
+        # 대체되므로(#25) 여기 오는 것은 CLI split의 ① 실패 · ③ llm_assist 실패 등이다.
         print(f"VLM 실패(#25 미정): {e}", file=sys.stderr)
         return 4
 

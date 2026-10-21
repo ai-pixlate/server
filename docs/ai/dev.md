@@ -4,7 +4,7 @@
 > 결정일: 2026-09-20 — `open-questions.md` #22 해결. 바꿀 때는 이 문서와 코드를 같은 커밋에서 고친다.
 > 범위: 코드·설정·프롬프트 위치 / 단계 간 Python 타입 / 단계별 실행 / 샘플·확인 / 환경·의존성. 구현 현황과 인수인계는 `status.md`.
 > 값의 의미·계산 규칙은 `contract.md`, 흐름은 `pipeline.md`. 여기서는 정하지 않는다.
-> 2026-10-06 통합 명세: 아래 3.1절은 `integration-decisions.md` D3·D5의 운영 인계 조건이며 **아직 워커에 연결되지 않았다**. 이번 갱신은 구현 동작 변경이 아니라 현재 코드와 적용 예정 계약의 구분이다.
+> 이전 원문(당시 구현 상태 · 착수일 서술 포함): `archive/dev-v1-full.md` — 기본으로 읽지 않는다.
 
 ---
 
@@ -17,7 +17,7 @@
 | 단계별 실행 방법 | `python -m pipeline.run <stage>` — 파일 입출력. 서버·DB·큐 없이 한 단계만 돈다 | 4 |
 | 샘플 입력과 결과 확인 | `pipeline/samples/<이름>/` 레이아웃 + `inspect` 오버레이 PNG | 5 |
 | 실행 환경·의존성 | 3단계 requirements: 로컬 기본 / OCR(CPU) / GPU 서버 | 6 |
-| 구현 현황·인수인계 | `docs/ai/status.md`. 세션을 끝낼 때마다 갱신 | `status.md` |
+| 구현 현황 | `docs/ai/status.md`. 구현 상태가 바뀔 때만 갱신(`README.md` 6.2) | `status.md` |
 
 ## 1. 폴더 구조
 
@@ -29,7 +29,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   config.py                  config 로더 · --set override
   config/default.toml        실행 파라미터 정본 — 2절
   prompts/                   프롬프트 원문 (문서에는 경로만) — 2절
-  vlm.py                     VLM·LLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택(실패 처리 #25 미정) · ③ llm_assist · ③-1 · ④ 호출 · 재생(#37 · #41 · #60 · #66)
+  vlm.py                     VLM·LLM 호출자(google-genai) · VlmError — ① 긴 구간 경계 선택 · ③ llm_assist · ③-1 · ④ 호출 · 재생(#37 · #41 · #60 · #66)
   dictionary.py              ③-1 · ③-1' 사전 데이터 스키마 · 로더 · 두 뷰(judge_view/policy_view) — 개발용 잠정 스키마(#60)
   data/dict/                 사전 변환 도구(tools/build_dict.py) · 합성 테스트 데이터(synthetic/) · README. 실제 값은 samples/local/dict/ (git 제외)
   stages/
@@ -37,15 +37,15 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     ocr.py                   ② 텍스트 추출
     ocr_tile.py              ② 임시 분할(4,000px 초과 섹션) — 타일 계획 · 좌표 복원 · 겹침 중복 정리 · 보완 OCR(`pipeline.md` 7.9절). run() 없음, ocr.run()이 부른다
     merge.py                 ③ 줄·문단 병합 + 역할 분류
-    judge.py                 ③-1 AI 섹션 판정(#60)
-    policy.py                ③-1' 정책 적용(#60)
-    label.py                 ④ 제품 라벨 판정 — 단독 개발 v1(#66, 전체 통합 전)
-    logo.py                  ⑤ 브랜드 로고 제외 — 단독 개발 v1(#68, 모델 호출 없음 · 전체 통합 전)
-    inpaint.py               ⑥ 인페인팅 — 단독 개발 v1(`pipeline.md` 7.6절, 입력 검증 · 마스크 · 모델 인터페이스 · 합성)
+    judge.py                 ③-1 AI 섹션 판정 — 개발용 경로(#60). 운영은 handoff/judgment.py
+    policy.py                ③-1' 정책 적용 — 개발용 경로(#60). 운영은 handoff/judgment.py
+    label.py                 ④ 제품 라벨 판정(#66)
+    logo.py                  ⑤ 브랜드 로고 제외(#68, 모델 호출 없음)
+    inpaint.py               ⑥ 인페인팅(`pipeline.md` 7.6절, 입력 검증 · 마스크 · 모델 인터페이스 · 합성)
     inpaint_lama.py          ⑥ LaMa 어댑터(`InpaintModel` 구현, iopaint 1.6.0 재현 · GPU · FP32). torch는 함수 안에서만 import
     inpaint_proc.py          ⑥ 모델 전용 자식 프로세스(spawn) — 시간 제한 · 강제 중단(`SubprocessInpaintModel`, 기본 팩토리가 사용)
-    style.py                 ⑦ 스타일 추출 — 단독 개발 v1(`pipeline.md` 7.7절, 핵심 계산 및 원본 섹션 이미지 읽기)
-    translate.py             ⑧ 로컬라이징 번역 — 섹션 1회 호출 · 블록별 결과(2026-10-08, 3.2절)
+    style.py                 ⑦ 스타일 추출(`pipeline.md` 7.7절, 핵심 계산 및 원본 섹션 이미지 읽기)
+    translate.py             ⑧ 로컬라이징 번역 — 섹션 1회 호출 · 블록별 결과(3.2절)
     text_check.py            번역문 검사 — 규제 표현 영어 재대조 · 강제 용어(규칙 기반, 3.2절)
   matching.py                통합 매칭 · 겹침 억제 규칙(5.23, `match@2026-10-08.1`) — 운영 인계가 쓴다. 개발용 ③-1a 검출은 그대로
   glossary.py                ⑧ 용어집 선별 · 강제 용어 적용 대상(통합 D10, `glossary-select@2026-10-11.1`) — BE 공급과 번역문 검사가 같이 쓴다
@@ -72,18 +72,18 @@ docs/ai/                     정본 문서
 
 원칙:
 
-- `pipeline/`은 `app/`(BE)을 import하지 않는다. 워커(`app/tasks.py`)가 `pipeline.analyze`를 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
+- `pipeline/`은 `app/`(BE)을 import하지 않는다. BE(`app/`, 연결 지점은 `app/ai_adapters.py` · `app/flows/`)가 `pipeline`을 부르는 방향만 허용한다. S3·DB·임시 식별자→DB id 변환은 워커 몫이다(`contract.md` 1.1, `db-map.md` 2절).
 - 단계 파일 하나 = `pipeline.md` 단계표 한 행. 파일은 `run()` 하나를 노출하고 타입은 `types.py`만 쓴다.
-- ⑥ `inpaint.py`는 2026-09-30 착수(기존 `[inpaint]` 키 사용, 새 키 없음). ⑦ `style.py`는 2026-10-06 착수(기존 `[style]` 키 사용, 새 키 없음). ⑧ `translate.py`는 2026-10-08 착수(`[translate]`에 개발용 `temperature` · `timeout_s` 추가). 운영 인계 계층 `handoff/`는 단계 함수를 감싸며 `app/`을 import하지 않는다.
+- 운영 인계 계층 `handoff/`는 단계 함수를 감싸며 `app/`을 import하지 않는다.
 
 ## 2. 설정과 프롬프트
 
 **config** — `pipeline/config/default.toml`이 값의 정본이다(`README.md` 4.1).
 
-- TOML 표 이름 = `pipeline.md` 3절 키의 접두어(`[ocr]` `split_threshold_px` ↔ `ocr.split_threshold_px`). 두 곳의 키와 기본값은 항상 같아야 한다.
-- 실험 중 값 변경은 `--set 표.키=값`(반복 가능)으로만 한다. 파일과 `pipeline.md` 3절은 사용자가 "확정"이라고 말할 때만 함께 고친다.
+- TOML 표 이름 = `pipeline.md` 3절 키의 접두어(`[ocr]` `split_threshold_px` ↔ `ocr.split_threshold_px`). 두 곳의 **키**는 항상 같아야 한다. 값은 config에만 두고 `pipeline.md` 3절은 의미 · 결정 상태만 적는다(`README.md` 4.1).
+- 실험 중 값 변경은 `--set 표.키=값`(반복 가능)으로만 한다. 사용자가 "확정"이라고 말할 때만 config 값과 `pipeline.md` 3절의 결정 열을 함께 고친다.
 - 파일에 없는 키는 **미정**이다. override로도 만들 수 없다(`ConfigKeyError`). 미정 키를 쓰려면 먼저 `open-questions.md`를 닫는다. `[section]`의 임계값·기준값은 키는 있으나 값이 잠정이다(#26). `[judge]` · `[policy]`는 설계 v1의 **실험 기준값**이며 판정 방식 채택(#5)은 실측 후다(#60).
-- `judge.dict_dir`은 실제 사전 JSON의 **로컬 위치**(git 제외, `pipeline/samples/local/dict/normalized`)를 가리킨다. 테스트는 `pipeline/data/dict/synthetic`(합성, 실제 값 아님)만 쓴다. 상대 경로는 레포 루트 기준.
+- `judge.dict_dir`은 실제 사전 JSON의 **로컬 위치**(git 제외, `pipeline/samples/local/dict/normalized`)를 가리킨다. 테스트는 `pipeline/data/dict/synthetic`(합성, 실제 값 아님)만 쓴다. 상대 경로는 레포 루트 기준. 개발용 경로이며 운영 사전은 BE 고정 묶음이다(3.2절).
 - 통째로 바꾸려면 `--config PATH`(실험용 사본). 사본은 커밋하지 않는다.
 
 **prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
@@ -92,20 +92,20 @@ docs/ai/                     정본 문서
 
 ## 3. 단계 간 타입 (`pipeline/types.py`)
 
-초기 분석(①~③) 범위만 정의했다. 후속 단계 타입은 착수 시 같은 파일에 덧붙인다.
+단계 함수(개발용 실행 · CLI가 쓰는 경로)와 타입이다. 함수의 세부 동작은 각 모듈 docstring과 테스트가 기준이다. BE가 부르는 운영 경로는 3.2절.
 
 | 단계 | 함수 | 입력 | 출력 |
 |---|---|---|---|
-| ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 테스트·실험용 호출자 주입, 기본은 `vlm.GeminiBoundaryPicker`. 긴 구간이 없으면 VLM을 부르지 않는다 |
-| ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None, diag=None)` | `Section` | `OcrResult`. 먼저 `ocr.validate_config(cfg)`(임시 분할 설정, 어기면 `ValueError`). `engine`은 테스트·실험용 호출자 주입(BGR 배열 → PaddleOCR 결과 dict), 기본은 `ocr.build_engine(cfg)`(설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 타일 OCR(`ocr_tile.run_tiled`, `pipeline.md` 7.9절) — 엔진을 타일 · 보완 crop(원본 배열의 행 뷰)마다 부르고 섹션 로컬로 복원 · 정리한 결과를 같은 `OcrResult`로 돌려준다. 보완 후에도 타일 경계 충돌이 남으면 `OCR_FAILED`. `diag`에 dict를 주면 타일 섹션의 진단을 채운다(실패해도 남음, 계약 값 아님). 실제 이미지 크기가 `Section.width`·`height`와 다르면 `IMAGE_OPEN_FAILED`(재시도 불가) — 분할 판단과 좌표 범위가 메타데이터와 어긋나지 않게. 엔진 반환값이 dict가 아니거나 배열이 아니면 `OCR_FAILED` |
-| ③ 병합·역할 | `stages.merge.run(section, ocr, cfg, *, use_llm=True)` | `Section` + `OcrResult` | `MergeResult`. 먼저 `validate_config(cfg)`(`pipeline.md` 7.1절 "설정 값 검증", 어기면 `ValueError`). `use_llm=False`면 `heuristic_v2`만(프롬프트 · API 키 불필요). `use_llm=True`면 `validate_llm_config`(7.2절, `llm`을 주지 않으면 API 키까지) 뒤 `heuristic_v2` → `llm_assist`. 전체 시그니처 `run(section, ocr, cfg, *, use_llm=True, llm=None, recorder=None)` — `llm`은 호출자 주입(테스트 · 재생, 기본 `vlm.GeminiMergeAssistant`), `recorder`는 섹션 기록을 받는 함수(`merge.json_recorder(dir)`). 호출 · 응답 검증 실패는 `VlmError`(검증 실패는 하위 클래스 `LlmResponseError`) |
-| ③-1 AI 섹션 판정 | `stages.judge.run(section, blocks, ctx, cfg, *, dicts=None, llm=None, recorder=None)` | `Section` + `TextBlock[]` + `JudgeContext` (+ 사전 핸들 `dictionary.Dictionaries`, 기본 `judge.load_dicts(cfg)`) | `JudgeResult`(2026-09-29 구현). 검출(`detect`) → 호출 범위(`judge.call_scope`) → 맥락 판정(LLM, LC 항목만) → 조립(`assemble`). 실패(호출 · 시간 초과 · 응답 검증 · 재생 불일치)는 예외가 아니라 `status=failed` 결과(`content_findings=None` · 매칭은 기록에만). `llm`은 호출자 주입(기본 `vlm.GeminiJudgeAssistant`, 재생 `vlm.ReplayJudgeAssistant`), `recorder`는 `judge.json_recorder(dir)`. 검출만은 `judge.detect_only(section_key, blocks, cfg, *, dicts=None, recorder=None) -> DetectionResult`(status `detect_only`, 판정 결과 아님 · `policy.run` 입력 불가). 설정 검증 `validate_config` · `validate_llm_config`(#60, `pipeline.md` 7.3절) |
-| ③-1' 정책 적용 | `stages.policy.run(judge_result, blocks, ctx, cfg, *, dicts)` | `JudgeResult` + 현재 섹션 `TextBlock[]`(정상 입력, 설계 3.5절) + `JudgeContext`(`regulatory_class`) + 사전 핸들 | `PolicyResult`(2026-09-29 구현). 적용 행 선택 → 예외 쌍 · 충돌(개별 매칭 단위) → 매핑(`policy_rules.json`) → 집계. `JudgeResult.status`가 ok · skipped가 아니면 `incomplete`, `regulatory_class`가 None이면 `input_error`(둘 다 권고 · verdict 없음). `DetectionResult`는 `PolicyInputError`로 거부. 처리 순서 버전 `policy.RULES_IMPL_VERSION`(#60, `pipeline.md` 7.3절) |
-| ④ 제품 라벨 판정 | `stages.label.run(section, blocks, cfg, *, llm=None, recorder=None)` | `Section` + 섹션의 `TextBlock[]` | `LabelResult`(2026-09-29 단독 구현, `pipeline.md` 7.4절). 공백 블록은 VLM에 보내지 않고 false, 블록이 없거나 공백뿐이면 호출 없이 `ok`. 실패(호출 · 시간 초과 · 응답 검증 · 재생 불일치)는 예외가 아니라 `status=failed`(`labels=None`). 입력 오류(섹션 불일치 · 중복 키 · 이미지 크기 불일치 · 설정)는 예외. `llm`은 호출자 주입(기본 `vlm.GeminiLabelAssistant`, 재생 `vlm.ReplayLabelAssistant`), `recorder`는 `label.json_recorder(dir)`. 설정 검증 `validate_config` · `validate_llm_config`. `analyze()` · 워커와 연결하지 않았다(#64) |
-| ⑤ 브랜드 로고 제외 | `stages.logo.run(image_id, merged, label, brand_meta, cfg)` | 원본 이미지 식별자 + `MergeResult` + 같은 섹션의 `LabelResult` + 브랜드 자료(`brand_metadata.json` dict) + 설정 | `(LogoResult, 기록 dict)`(2026-09-29 단독 구현, `pipeline.md` 7.5절). 모델 호출 · 파일 입출력 없음, 이미지 불필요. 먼저 `validate_inputs`(설정 · ③ · ④ · 브랜드 연결, 어기면 `LogoInputError` — 결과 없음). 판정 중 예기치 않은 예외는 그대로 올라가고 실행 계층(`run.execute_logo`)이 `failed_result`로 기록한다. 정규화 `logo.normalize`. `analyze()` · 워커와 연결하지 않았다(#64) |
-| ⑥ 인페인팅 | `stages.inpaint.validate_inputs(image_id, section, image_size, merged, label, logo, logo_record, cfg)` → `build_masks(plan)` → `apply(image, plan, masks, model)` | 원본 이미지 식별자 + `Section` + 실제 이미지 (W, H) + `MergeResult` + 같은 섹션의 `LabelResult` · `LogoResult` · ⑤ 기록(`logo_debug` dict) + 설정 / 합성 단계는 (H, W, 3) uint8 RGB 배열 + 주입한 `InpaintModel` | `SectionPlan`(검증 · 영역 분류, 래스터화 없음) → `SectionMasks`(delete · protect · final bool 배열 + 영역별 픽셀 수) → `ApplyResult`(배경 배열 · 호출 여부)(2026-09-30 단독 구현, `pipeline.md` 7.6절). 파일 입출력 없음. 입력 오류는 `InpaintInputError`, 모델 예외 · 잘못된 출력은 `InpaintModelError`. 빈 최종 마스크는 모델을 부르지 않는다. 기본 팩토리 `build_model`은 `inpaint_proc.SubprocessInpaintModel`로 **spawn 자식 프로세스**에서 `inpaint_lama.LamaModel`을 만든다(가중치는 iopaint 기본 캐시에서 읽고 내려받지 않음, 시간 제한 `[inpaint]` `*_timeout_s` · `kill_grace_s`) — torch · 가중치가 없으면 `ModelNotAvailable`, 시간 초과 · 자식 비정상 종료 · CUDA 없음 · MD5 불일치 · 로드 실패는 `InpaintProcessError`. 실행 계층은 끝날 때 `close()`로 자식을 닫는다. 실행 계층은 `run.execute_inpaint`. `analyze()` · 워커와 연결하지 않았다 |
-| ⑦ 스타일 추출 | `stages.style.extract(image_id, section, image, merged, label, logo, logo_record, cfg)` / `stages.style.run(image_id, section, merged, label, logo, logo_record, cfg)` | 원본 이미지 식별자 + `Section` + 원본 섹션 이미지 (H, W, 3) uint8 RGB 배열(`run`은 `Section.image_path`를 읽음, RGB 모드만 · 변환 없음) + `MergeResult` + 같은 섹션의 `LabelResult` · `LogoResult` · ⑤ 기록(`logo_debug` dict) + 설정 | `StyleResult`(2026-10-06 단독 구현, `pipeline.md` 7.7절). `extract`는 파일 입출력 없음. 먼저 `validate_inputs`(설정 · 식별자 · ④⑤ 판정 · 지문 · 이미지 크기 · 기하 · 설정 × 크기의 float 표현, 어기면 `StyleInputError` — 결과 없음). 정상 입력의 색 추출 불가는 예외가 아니라 결과에 기록. `analyze()` · 워커와 연결하지 않았다 |
-| 초기 분석 | `analyze(sources, cfg, out_dir, *, use_llm=True)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError`. ① 전에 ③ 설정(`use_llm`이면 LLM 설정 · API 키까지)을 검증하고, 끝에 `block_key`를 실행 전체에서 다시 매긴다(아래 임시 식별자). 전체 시그니처 `analyze(sources, cfg, out_dir, *, use_llm=True, llm=None)`. `use_llm`이면 `out_dir/merge_debug/<section_key>.json`(섹션 기록)과 `merge_debug/block_keys.json`((`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키)을 남긴다. `analyze()` 재생은 없다 |
+| ① 섹션 분해 | `stages.section_split.run(src, cfg, out_dir, vlm=None)` | `SourceImage` | `SplitResult` (+ 섹션 PNG 파일). `vlm`은 호출자 주입(기본 `vlm.GeminiBoundaryPicker`). 긴 구간이 없으면 VLM을 부르지 않는다. VLM 실패는 `VlmError` |
+| ② 텍스트 추출 | `stages.ocr.run(section, cfg, engine=None, diag=None)` | `Section` | `OcrResult`. 먼저 `ocr.validate_config(cfg)`(어기면 `ValueError`). `engine`은 호출자 주입(기본 `ocr.build_engine(cfg)`, 설정별 1회 생성). 높이 > `ocr.split_threshold_px`면 타일 OCR(`ocr_tile.run_tiled`, `pipeline.md` 7.9절). 실제 이미지 크기가 `Section`과 다르면 `IMAGE_OPEN_FAILED`(재시도 불가), 엔진 반환 형식 오류 · 미해결 타일 경계 충돌은 `OCR_FAILED`. `diag`는 타일 진단(계약 값 아님) |
+| ③ 병합·역할 | `stages.merge.run(section, ocr, cfg, *, use_llm=True, llm=None, recorder=None)` | `Section` + `OcrResult` | `MergeResult`. 먼저 `validate_config(cfg)`(어기면 `ValueError`). `use_llm=False`면 `heuristic_v2`만(프롬프트 · API 키 불필요), `True`면 `validate_llm_config` 뒤 `llm_assist`(기본 `vlm.GeminiMergeAssistant`). `recorder`는 `merge.json_recorder(dir)`. 호출 · 응답 검증 실패는 `VlmError`(검증 실패는 하위 클래스 `LlmResponseError`) |
+| ③-1 AI 섹션 판정(개발용) | `stages.judge.run(section, blocks, ctx, cfg, *, dicts=None, llm=None, recorder=None)` | `Section` + `TextBlock[]` + `JudgeContext` (+ 사전 핸들, 기본 `judge.load_dicts(cfg)`) | `JudgeResult`. 실패는 예외가 아니라 `status=failed` 결과. 검출만은 `judge.detect_only(...) -> DetectionResult`(판정 결과 아님 · `policy.run` 입력 불가). 운영 경로는 3.2절 `run_judgment` |
+| ③-1' 정책 적용(개발용) | `stages.policy.run(judge_result, blocks, ctx, cfg, *, dicts)` | `JudgeResult` + 현재 섹션 `TextBlock[]` + `JudgeContext` + 사전 핸들 | `PolicyResult`. `JudgeResult`가 완료가 아니면 `incomplete`, `regulatory_class`가 None이면 `input_error`(둘 다 권고 · verdict 없음). `DetectionResult`는 `PolicyInputError`로 거부 |
+| ④ 제품 라벨 판정 | `stages.label.run(section, blocks, cfg, *, llm=None, recorder=None)` | `Section` + 섹션의 `TextBlock[]` | `LabelResult`. 실패는 예외가 아니라 `status=failed`(`labels=None`), 입력 오류는 예외. `llm` 기본 `vlm.GeminiLabelAssistant`(재생 `vlm.ReplayLabelAssistant`), `recorder`는 `label.json_recorder(dir)` |
+| ⑤ 브랜드 로고 제외 | `stages.logo.run(image_id, merged, label, brand_meta, cfg)` | 원본 이미지 식별자 + `MergeResult` + 같은 섹션의 `LabelResult` + 브랜드 자료 dict + 설정 | `(LogoResult, 기록 dict)`. 모델 호출 · 파일 입출력 없음. 먼저 `validate_inputs`(어기면 `LogoInputError`, 결과 없음). 실행 계층은 `run.execute_logo` |
+| ⑥ 인페인팅 | `stages.inpaint.validate_inputs(...)` → `build_masks(plan)` → `apply(image, plan, masks, model)` | 원본 이미지 식별자 + `Section` + 실제 이미지 (W, H) + `MergeResult` + `LabelResult` · `LogoResult` · ⑤ 기록 + 설정 / 합성은 (H, W, 3) uint8 RGB 배열 + `InpaintModel` | `SectionPlan` → `SectionMasks` → `ApplyResult`. 입력 오류 `InpaintInputError`, 모델 오류 `InpaintModelError`. 기본 팩토리 `build_model`은 spawn 자식 프로세스(`inpaint_proc.SubprocessInpaintModel`)에서 `inpaint_lama.LamaModel`을 만든다 — torch · 가중치 없음은 `ModelNotAvailable`, 시간 초과 · 초기화 실패는 `InpaintProcessError`. 실행 계층 `run.execute_inpaint`(끝날 때 `close()`) |
+| ⑦ 스타일 추출 | `stages.style.extract(image_id, section, image, merged, label, logo, logo_record, cfg)` / `stages.style.run(image_id, section, merged, label, logo, logo_record, cfg)` | 원본 이미지 식별자 + `Section` + 원본 섹션 이미지 RGB 배열(`run`은 `Section.image_path`를 읽음) + `MergeResult` + `LabelResult` · `LogoResult` · ⑤ 기록 + 설정 | `StyleResult`. 먼저 `validate_inputs`(어기면 `StyleInputError`, 결과 없음). 정상 입력의 색 추출 불가는 예외가 아니라 결과에 기록 |
+| 초기 분석 | `analyze(sources, cfg, out_dir, *, use_llm=True, llm=None, vlm=None, fallbacks=None, ocr_engine=None)` | `list[SourceImage]` | `AnalyzeResult`, 실패는 `AnalyzeError`. ① 전에 ②③ 설정을 검증하고, ① VLM 실패는 원본 전체 한 섹션으로 대체해 `fallbacks`에 남긴다(#25). 끝에 `block_key`를 실행 전체에서 다시 매긴다(아래 임시 식별자). `use_llm`이면 `out_dir/merge_debug/`(섹션 기록 · `block_keys.json`)를 남긴다. `analyze()` 재생은 없다 |
 
 | 타입 | 필드 | 계약 |
 |---|---|---|
@@ -154,18 +154,20 @@ docs/ai/                     정본 문서
   버전 필드가 없거나 표에 없는 버전이면 `SchemaVersionError`. 원본 실측 출력(버전 1 `split.json`)은 전환하지 않고 보존한다.
 - **② `score`**: `stages/ocr.py`는 영역 `score`에 PaddleOCR `rec_scores[i]`(인식 신뢰도)를 넣는다. 2026-10-06 통합 D3에서 공유 정의를 영역별 텍스트 인식 신뢰도(0~1)로 합의했다(`contract.md` 2.5, #34 해결). 과거의 구현값 유지 승인과 이번 계약 합의를 구분한다. ⑥의 0.5 설정은 유지하며 품질 검증을 뜻하지 않는다.
 
-### 3.1 운영 워커 인계 — 합의 완료·연결 전
+### 3.1 운영 워커 인계
 
 - 운영 호출 경계는 `analyze()` → `AnalyzeResult` 버전 1이다. 현재 함수 시그니처·출력 모델을 변경하지 않았다. 호출자는 원본과 out_dir을 실행 환경의 절대 경로로 준비하고 반환 section.image_path를 검증한다. 개발용 split.json의 상대 경로 규칙을 AnalyzeResult에 적용하지 않는다. 호환 규칙 변경은 BE 합의 후 버전에 반영한다. [통합 D3]
 - 워커가 파일 준비·결과 검증·업로드·DB 저장을 담당한다. 다른 서버에서 후속 단계를 수행하면 그 환경의 로컬 경로를 준비해야 하며 이전 절대 경로를 공유 주소로 쓰지 않는다. 임시 키의 분석 실행 범위와 줄·영역의 섹션 내 유일성은 유지한다. 모르는 키는 저장 실패다. [통합 D3]
 - 운영 사전은 BE가 DB 적재본으로 만든 고정 실행 묶음이다. `pipeline/dictionary.py`와 `build_dict.py`는 개발용 파일 로더·xlsx 변환 도구이고, 운영 묶음의 AI 입력 검증은 `pipeline/handoff/bundle.py`(3.2절)가 한다. 기존 개발 묶음을 실행 중 다시 대조하거나 최신 DB를 AI가 읽지 않는다. [통합 D5]
 - 필드별 공급처, DB에 없는 필수값의 처리, 정책 규칙 공급·버전·해시, 일관된 조회·대상 행, 대체 표현 변환, 묶음·스냅샷 보존과 삭제 후 참조는 구현 전 명세다. 현재 개발용 형식에 맞추려고 값을 추정·생성하지 않는다. 대체 표현은 규칙 합의 전 임의 분할하지 않고 합의 후 BE 공급 계층에서 한 번 변환한다. [통합 D5]
 
-**2026-10-07 통합 시 변경할 개발용 동작 → 2026-10-08 운영 인계로 구현**: `content_type=사전 ID`와 개발용 Match · 예외 쌍 · `conflict_group`은 운영 계약이 아니다. 운영 경로(`handoff/judgment.py`)는 content_type 대응표(현지 8 + 규제 검출 1)로 섹션 · 항목당 finding 1건과 복수 근거를 내고, 원문 코드 포인트 `[start,end)` · 매칭 문구 · 당시 원문 · 억제 관계를 audit 재료로 인계한다(D9-2). 개발용 `stages/judge.run` · `policy.run` · CLI는 바꾸지 않았다. 재분석 실패 시 기존 저장본 보존은 BE 저장 책임이다. 상세 계약은 `contract.md` 4.4·4.5.
+**개발용 동작과 운영 경로의 차이**: `content_type=사전 ID`와 개발용 Match · 예외 쌍 · `conflict_group`은 운영 계약이 아니다. 운영 경로(`handoff/judgment.py`)는 content_type 대응표(현지 8 + 규제 검출 1)로 섹션 · 항목당 finding 1건과 복수 근거를 내고, 원문 코드 포인트 `[start,end)` · 매칭 문구 · 당시 원문 · 억제 관계를 audit 재료로 인계한다(D9-2). 개발용 `stages/judge.run` · `policy.run` · CLI는 바꾸지 않았다. 재분석 실패 시 기존 저장본 보존은 BE 저장 책임이다. 상세 계약은 `contract.md` 4.4·4.5.
 
-### 3.2 운영 인계 어댑터 — 구현 · 로컬 계약 검증(2026-10-08)
+### 3.2 운영 인계 어댑터
 
-D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단계별 함수를 **요청 dict → `StageReport`**로 부르고, 채택 전에 `pipeline.handoff.validate.validate_report(report, request)`로 검사한다(빈 목록 = 통과). 예외를 밖으로 던지지 않고 실패도 보고로 돌려준다. 계약 예제(정상 · 생략 · 실패 · 부분 실패 29건)는 `pipeline/samples/handoff/`이며 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다(테스트가 커밋본과 대조). **합성 입력 · 가짜 모델로만 검증했다 — 실제 Gemini · LaMa GPU · BE 워커 · S3 · DB 연결은 하지 않았다.**
+D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단계별 함수를 **요청 dict → `StageReport`**로 부르고, 채택 전에 `pipeline.handoff.validate.validate_report(report, request)`로 검사한다(빈 목록 = 통과). 예외를 밖으로 던지지 않고 실패도 보고로 돌려준다. 계약 예제(정상 · 생략 · 실패 · 부분 실패 29건)는 `pipeline/samples/handoff/`이며 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다(테스트가 커밋본과 대조).
+
+BE의 실제 연결 지점: ③-1 · ⑧은 이 인계 함수(`run_judgment` · `run_translate`)를 `app/ai_adapters.py`에서 부르고, ⑥은 GPU 워커(`app/flows/gpu_worker.py`)가 `GpuInpaintRunner`(내부에서 `run_inpaint`)를 부른다. ①~③ · ④ · ⑤ · ⑦은 `app/ai_adapters.py`가 `analyze()` · `stages.label` · `stages.logo` · `stages.style`을 직접 부른다 — 아래 표의 `run_analyze` · `run_label` · `run_logo` · `run_style`은 BE가 쓰지 않는 인계 함수다.
 
 | 단계 | 함수 | BE 공급 입력(요청 키) | 보고 payload · 산출물 |
 |---|---|---|---|
@@ -197,22 +199,22 @@ D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단
 | `python -m pipeline.run ocr --split DIR/split.json [--section KEY] --out DIR` | ② — 실행 구조는 아래 "② 실행 구조" | `DIR/ocr/<key>.json`(성공한 섹션만) · `DIR/ocr_debug/<key>.json`(타일 섹션, 성공 · 실패 모두) · `DIR/run.json` |
 | `python -m pipeline.run merge --split DIR/split.json --ocr DIR/ocr/<key>.json --out DIR [--no-llm \| --llm-replay DIR0/merge_debug/<key>.json]` | ③. 기본은 `heuristic_v2` → `llm_assist`(API 키 필요). `--no-llm`은 `heuristic_v2`만(개발·실측용, 2026-09-27 결정). `--llm-replay`는 이전 기록의 응답을 API 호출 없이 재생 — 모델 설정 · 프롬프트 · 페이로드 SHA-256이 기록과 같아야 하고 응답은 같은 검증을 거친다. 둘을 함께 주면 인자 오류. 잘못된 `[merge]` 설정은 `ValueError`로 traceback과 종료 코드 1, 호출 · 응답 검증 실패와 재생 불일치는 종료 코드 4 | `DIR/merge/<key>.json` · `DIR/merge_debug/<key>.json`(LLM 실행 · 재생) · `DIR/run.json`(`use_llm` · `llm_replay`) |
 | `python -m pipeline.run analyze --source IMG [--source IMG2] --out DIR [--no-llm]` | ①→②→③. `--no-llm`은 ③을 `heuristic_v2`만(`merge`와 같음). 없으면 `llm_assist`까지(API 키 필요, 없으면 ① 전에 `ValueError`) | `DIR/analyze.json` · `DIR/merge_debug/`(LLM 실행) · `DIR/ocr_debug/`(타일 섹션) · `DIR/run.json`(`use_llm`) |
-| `python -m pipeline.run judge --merge DIR/merge/<key>.json --split DIR/split.json --out DIR [--llm-replay DIR0/judge_debug/<key>.json]` | ③-1 전체(2026-09-29): 검출 → 맥락 판정(LLM, API 키 필요) → 조립. `--split`은 섹션 이미지 · 이웃 섹션용(앞뒤 문맥은 `--merge`와 같은 폴더의 이웃 `merge/<key>.json`에서 읽고 없으면 없음). `--llm-replay`는 이전 기록 재생(모델 설정 · 프롬프트 · 페이로드 · 이미지 해시 일치 필요). 판정 실패는 `status=failed`로 저장하고 종료 코드 4 | `DIR/judge/<key>.json`(`JudgeResult`) · `DIR/judge_debug/<key>.json`(페이로드 · 프롬프트 · 이미지 해시 · 모델 설정 · 원응답 · 검증 · 조립 결과) · `DIR/run.json`(`mode=full` · `status` · 사전 버전 · 해시) |
-| `python -m pipeline.run judge --merge DIR/merge/<key>.json --out DIR --no-llm` | ③-1a **검출만**(2026-09-28). `--no-llm`은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다 — 출력은 `DetectionResult`(status `detect_only`, `content_findings` 없음)이며 `policy`의 입력이 될 수 없다. 사전은 `judge.dict_dir`(레포 루트 기준, 없으면 `DictionaryError`) | `DIR/judge_detect/<key>.json` · `DIR/judge_debug/<key>.json`(원시 매칭 · 사전 버전 · 해시 · 매칭 규칙 · 정규화 규칙) · `DIR/run.json`(`mode=detect_only`) |
-| `python -m pipeline.run policy --judge DIR/judge/<key>.json --merge DIR/merge/<key>.json --regulatory-class cosmetic\|otc\|combination\|unknown --out DIR` | ③-1'(2026-09-29). `--regulatory-class`가 없으면 `input_error`(사용자가 고른 `unknown`과 구분), `judge`가 failed면 `incomplete` — 둘 다 권고 없이 저장하고 종료 코드 2. 실측용 분류는 `docs/ai-experiments/2026-09-29_03-1-judge_regulatory-class-candidates.md`(사람 확인 전 가정) | `DIR/policy/<key>.json`(`PolicyResult`: verdict 후보 · 버킷 권고 · 억제 · 충돌 · 적용 정보) · `DIR/run.json`(`regulatory_class` · `status` · 사전 · 규칙 · 구현 버전) |
-| `python -m pipeline.run label --merge DIR/merge/<key>.json --split DIR/split.json --out NEW_DIR [--llm-replay DIR0/label_debug/<key>.json]` | ④(2026-09-29 단독 구현). 실행마다 새 `--out`(이전 `run.json` · `label/`이 있으면 `FileExistsError`). `--llm-replay`는 기록 재생(모델 설정 · 프롬프트 · 페이로드 · 이미지 해시 · 입력 지문 일치 필요, 응답 재검증). 판정 실패는 `status=failed`로 저장하고 종료 코드 4 | `NEW_DIR/label/<key>.json`(`LabelResult`) · `NEW_DIR/label_debug/<key>.json` · `NEW_DIR/run.json`(`status` · `llm_called` · `sdk` 재시도 정보) |
-| `python -m pipeline.run logo --merge M.json --label L.json --brand-meta brand_metadata.json --image-id ID --out NEW_DIR` | ⑤(2026-09-29 단독 구현, 미실행). 모델 호출 없음, 이미지 · `split.json` 불필요, 섹션 키는 JSON에서 읽어 대조, 상대 경로는 실행 디렉터리 기준. `--out`이 이미 있으면 거부. 종료 코드는 ⑤ 방침(#68): **0 성공 · 2 입력 · 설정 오류(판정 결과 없음, `run.json`만) · 4 실행 · 저장 오류**. 결과 · 기록 · `run.json`은 임시 파일 → 교체 | `NEW_DIR/<ID>/logo/<key>.json`(`LogoResult`) · `NEW_DIR/<ID>/logo_debug/<key>.json` · `NEW_DIR/run.json`(상태 · 건수 · 입력 SHA-256 · 설정 · Git · Python · Unicode 버전) |
-| `python docs/ai-experiments/tools/logo_run_driver.py --input <logo-input-v1> --brand-meta <brand-meta-v1> --out NEW_DIR` | ⑤ 실측 드라이버(구현만, 미실행). 두 자료의 파일 집합 = 해시 목록(최상위 `SHA256SUMS` 제외, 목록 밖 파일도 입력 오류) · 연결 해시 · 브랜드 원본 목록 ↔ 개발 대상 · 전체 대상 입력을 사전 검사한 뒤 `MANIFEST.images[].sections`를 순서대로 판정. 실행 · 종료 코드는 CLI `logo`와 같은 `run.execute_logo` | CLI `logo`와 같은 배치(원본별 폴더) + `run.json`에 두 자료 버전 · `SHA256SUMS` 해시 · 대상 수 |
-| `python docs/ai-experiments/tools/style_run_driver.py --input <downstream-input-v1> --out NEW_DIR (--section 원본/섹션 … \| --all)` | ⑦ 개발용 실행 도구(2026-10-06, `pipeline.md` 7.7절). MANIFEST `images[].sections` 대상만(선택 대상이 그 밖이면 입력 오류), 계산은 `style.run`만 호출(원본 섹션 이미지). 사전 검사: `--out`이 있거나 입력본 안이면 아무것도 쓰지 않고 2 · 입력본 파일 집합 = 해시 목록(⑤ 드라이버와 같은 검사) · 선택 · 식별자 · split 섹션 · 설정(실패 → `run.json`만 · 2). 섹션 실패는 `input_error` · `failed` · `save_failed`로 기록하고 계속, 전체 `ok`(0) · `partial` · `failed`(4) | `NEW_DIR/run.json`(커밋 · 작업 트리 · 설정 · 선택 · 시각 · 섹션별 입력 해시와 상태) · `NEW_DIR/<원본>/style/<KEY>.json`(`StyleResult`) |
-| `python docs/ai-experiments/tools/style_review_page.py --run DIR --input <downstream-input-v1> --out NEW_DIR` | ⑦ 정적 검수 페이지(2026-10-06). 원문 · 좌표는 입력 merge에서 원본 + 섹션 + 블록 + 영역 키로 연결(대응이 어긋나면 그 섹션 오류 카드). 원본 섹션 · 블록 · 영역 crop, 색 견본 · `#RRGGBB` · 원본 px 크기 · 정렬과 근거 · 상태 · null 사유 · 진단. 품질 점수 · 자동 판정 없음. `--out`이 있거나 입력본 안이면 2 | `NEW_DIR/index.html` · `NEW_DIR/img/` |
-| `python -m pipeline.run inpaint --mode mask-only\|inpaint --split IMG/split.json --section KEY --image-id ID --merge M.json --label L.json --logo G.json --logo-debug GD.json --out NEW_DIR` | ⑥(2026-09-30 단독 구현 · 로컬, `pipeline.md` 7.6절). `--mode`는 필수(기본값 없음): `mask-only`는 마스크 · 진단만(인페인팅 아님), `inpaint`는 처음으로 비어 있지 않은 최종 마스크에서 모델을 지연 초기화 — LaMa 어댑터(모델 전용 자식 프로세스)로 GPU 추론, **torch · 가중치가 없는 환경이면 그 섹션부터 결과 없이 종료 코드 3**(빈 마스크 섹션만이면 모델 없이 `unchanged`). 초기화 시간 초과(`inpaint.init_timeout_s`)는 결과 없이 4, 섹션 추론 시간 초과(`inpaint.infer_timeout_s`)는 그 섹션 `failed` · 나머지 `not_run` · 4 — 자식만 종료(`kill_grace_s` 뒤 강제)하고 자동 재시도 없음. 상대 경로는 실행 디렉터리 기준. `--out`이 이미 있거나 입력 파일이 속한 고정 입력본(`SHA256SUMS`가 있는 모든 상위 폴더) 안이면 거부(2, 기록 없음) — 이 보호와 `image_id` · `section_key` 경로 식별자 검사(구분자 · `:` · 제어 문자 · `.` · `..` 거부, 최종 경로가 `--out` 안인지 확인)는 실행 함수 `run.execute_inpaint`가 보장하므로 드라이버 직접 호출에도 적용된다. 종료 코드는 ⑥ 방침: **0 성공 · 2 입력 · 설정 오류(결과 없음, `run.json`만) · 3 모델 사용 불가(torch · 가중치 없음, 결과 없음) · 4 모델 초기화 · 추론 · 출력 검증 · 저장 · 내부 오류**. 결과 · 진단 · PNG는 임시 파일 → 교체, PNG는 다시 읽어 픽셀 대조 | `NEW_DIR/<ID>/inpaint_mask/<KEY>.final.png` · `.protect.png` · `NEW_DIR/<ID>/inpaint_bg/<KEY>.png`(inpaint 모드) · `NEW_DIR/<ID>/inpaint_debug/<KEY>.json` · `NEW_DIR/<ID>/inpaint/<KEY>.json`(`InpaintResult`) · `NEW_DIR/run.json`(모드 · 상태 · 섹션별 상태 · 건수 · 입력 SHA-256 · 설정 · 래스터 규칙 · `timeout_s`(config 시간 제한 3개) · `model_termination` · Git · Python · numpy · Pillow · 플랫폼 · 모델 기록) |
+| `python -m pipeline.run judge --merge DIR/merge/<key>.json --split DIR/split.json --out DIR [--llm-replay DIR0/judge_debug/<key>.json]` | ③-1 전체(개발용): 검출 → 맥락 판정(LLM, API 키 필요) → 조립. `--split`은 섹션 이미지 · 이웃 섹션용(앞뒤 문맥은 `--merge`와 같은 폴더의 이웃 `merge/<key>.json`에서 읽고 없으면 없음). `--llm-replay`는 이전 기록 재생(모델 설정 · 프롬프트 · 페이로드 · 이미지 해시 일치 필요). 판정 실패는 `status=failed`로 저장하고 종료 코드 4 | `DIR/judge/<key>.json`(`JudgeResult`) · `DIR/judge_debug/<key>.json`(페이로드 · 프롬프트 · 이미지 해시 · 모델 설정 · 원응답 · 검증 · 조립 결과) · `DIR/run.json`(`mode=full` · `status` · 사전 버전 · 해시) |
+| `python -m pipeline.run judge --merge DIR/merge/<key>.json --out DIR --no-llm` | ③-1a **검출만**(개발용). `--no-llm`은 "규칙만으로 최종 판정"이 아니라 "후보 검출만"이다 — 출력은 `DetectionResult`(status `detect_only`, `content_findings` 없음)이며 `policy`의 입력이 될 수 없다. 사전은 `judge.dict_dir`(레포 루트 기준, 없으면 `DictionaryError`) | `DIR/judge_detect/<key>.json` · `DIR/judge_debug/<key>.json`(원시 매칭 · 사전 버전 · 해시 · 매칭 규칙 · 정규화 규칙) · `DIR/run.json`(`mode=detect_only`) |
+| `python -m pipeline.run policy --judge DIR/judge/<key>.json --merge DIR/merge/<key>.json --regulatory-class cosmetic\|otc\|combination\|unknown --out DIR` | ③-1'(개발용). `--regulatory-class`가 없으면 `input_error`(사용자가 고른 `unknown`과 구분), `judge`가 failed면 `incomplete` — 둘 다 권고 없이 저장하고 종료 코드 2. 실측용 분류는 `docs/ai-experiments/2026-09-29_03-1-judge_regulatory-class-candidates.md`(사람 확인 전 가정) | `DIR/policy/<key>.json`(`PolicyResult`: verdict 후보 · 버킷 권고 · 억제 · 충돌 · 적용 정보) · `DIR/run.json`(`regulatory_class` · `status` · 사전 · 규칙 · 구현 버전) |
+| `python -m pipeline.run label --merge DIR/merge/<key>.json --split DIR/split.json --out NEW_DIR [--llm-replay DIR0/label_debug/<key>.json]` | ④. 실행마다 새 `--out`(이전 `run.json` · `label/`이 있으면 `FileExistsError`). `--llm-replay`는 기록 재생(모델 설정 · 프롬프트 · 페이로드 · 이미지 해시 · 입력 지문 일치 필요, 응답 재검증). 판정 실패는 `status=failed`로 저장하고 종료 코드 4 | `NEW_DIR/label/<key>.json`(`LabelResult`) · `NEW_DIR/label_debug/<key>.json` · `NEW_DIR/run.json`(`status` · `llm_called` · `sdk` 재시도 정보) |
+| `python -m pipeline.run logo --merge M.json --label L.json --brand-meta brand_metadata.json --image-id ID --out NEW_DIR` | ⑤. 모델 호출 없음, 이미지 · `split.json` 불필요, 섹션 키는 JSON에서 읽어 대조, 상대 경로는 실행 디렉터리 기준. `--out`이 이미 있으면 거부. 종료 코드는 ⑤ 방침(#68): **0 성공 · 2 입력 · 설정 오류(판정 결과 없음, `run.json`만) · 4 실행 · 저장 오류**. 결과 · 기록 · `run.json`은 임시 파일 → 교체 | `NEW_DIR/<ID>/logo/<key>.json`(`LogoResult`) · `NEW_DIR/<ID>/logo_debug/<key>.json` · `NEW_DIR/run.json`(상태 · 건수 · 입력 SHA-256 · 설정 · Git · Python · Unicode 버전) |
+| `python docs/ai-experiments/tools/logo_run_driver.py --input <logo-input-v1> --brand-meta <brand-meta-v1> --out NEW_DIR` | ⑤ 실측 드라이버. 두 자료의 파일 집합 = 해시 목록(최상위 `SHA256SUMS` 제외, 목록 밖 파일도 입력 오류) · 연결 해시 · 브랜드 원본 목록 ↔ 개발 대상 · 전체 대상 입력을 사전 검사한 뒤 `MANIFEST.images[].sections`를 순서대로 판정. 실행 · 종료 코드는 CLI `logo`와 같은 `run.execute_logo` | CLI `logo`와 같은 배치(원본별 폴더) + `run.json`에 두 자료 버전 · `SHA256SUMS` 해시 · 대상 수 |
+| `python docs/ai-experiments/tools/style_run_driver.py --input <downstream-input-v1> --out NEW_DIR (--section 원본/섹션 … \| --all)` | ⑦ 개발용 실행 도구(`pipeline.md` 7.7절). MANIFEST `images[].sections` 대상만(선택 대상이 그 밖이면 입력 오류), 계산은 `style.run`만 호출(원본 섹션 이미지). 사전 검사: `--out`이 있거나 입력본 안이면 아무것도 쓰지 않고 2 · 입력본 파일 집합 = 해시 목록(⑤ 드라이버와 같은 검사) · 선택 · 식별자 · split 섹션 · 설정(실패 → `run.json`만 · 2). 섹션 실패는 `input_error` · `failed` · `save_failed`로 기록하고 계속, 전체 `ok`(0) · `partial` · `failed`(4) | `NEW_DIR/run.json`(커밋 · 작업 트리 · 설정 · 선택 · 시각 · 섹션별 입력 해시와 상태) · `NEW_DIR/<원본>/style/<KEY>.json`(`StyleResult`) |
+| `python docs/ai-experiments/tools/style_review_page.py --run DIR --input <downstream-input-v1> --out NEW_DIR` | ⑦ 정적 검수 페이지. 원문 · 좌표는 입력 merge에서 원본 + 섹션 + 블록 + 영역 키로 연결(대응이 어긋나면 그 섹션 오류 카드). 원본 섹션 · 블록 · 영역 crop, 색 견본 · `#RRGGBB` · 원본 px 크기 · 정렬과 근거 · 상태 · null 사유 · 진단. 품질 점수 · 자동 판정 없음. `--out`이 있거나 입력본 안이면 2 | `NEW_DIR/index.html` · `NEW_DIR/img/` |
+| `python -m pipeline.run inpaint --mode mask-only\|inpaint --split IMG/split.json --section KEY --image-id ID --merge M.json --label L.json --logo G.json --logo-debug GD.json --out NEW_DIR` | ⑥(`pipeline.md` 7.6절). `--mode`는 필수(기본값 없음): `mask-only`는 마스크 · 진단만(인페인팅 아님), `inpaint`는 처음으로 비어 있지 않은 최종 마스크에서 모델을 지연 초기화 — LaMa 어댑터(모델 전용 자식 프로세스)로 GPU 추론, **torch · 가중치가 없는 환경이면 그 섹션부터 결과 없이 종료 코드 3**(빈 마스크 섹션만이면 모델 없이 `unchanged`). 초기화 시간 초과(`inpaint.init_timeout_s`)는 결과 없이 4, 섹션 추론 시간 초과(`inpaint.infer_timeout_s`)는 그 섹션 `failed` · 나머지 `not_run` · 4 — 자식만 종료(`kill_grace_s` 뒤 강제)하고 자동 재시도 없음. 상대 경로는 실행 디렉터리 기준. `--out`이 이미 있거나 입력 파일이 속한 고정 입력본(`SHA256SUMS`가 있는 모든 상위 폴더) 안이면 거부(2, 기록 없음) — 이 보호와 `image_id` · `section_key` 경로 식별자 검사(구분자 · `:` · 제어 문자 · `.` · `..` 거부, 최종 경로가 `--out` 안인지 확인)는 실행 함수 `run.execute_inpaint`가 보장하므로 드라이버 직접 호출에도 적용된다. 종료 코드는 ⑥ 방침: **0 성공 · 2 입력 · 설정 오류(결과 없음, `run.json`만) · 3 모델 사용 불가(torch · 가중치 없음, 결과 없음) · 4 모델 초기화 · 추론 · 출력 검증 · 저장 · 내부 오류**. 결과 · 진단 · PNG는 임시 파일 → 교체, PNG는 다시 읽어 픽셀 대조 | `NEW_DIR/<ID>/inpaint_mask/<KEY>.final.png` · `.protect.png` · `NEW_DIR/<ID>/inpaint_bg/<KEY>.png`(inpaint 모드) · `NEW_DIR/<ID>/inpaint_debug/<KEY>.json` · `NEW_DIR/<ID>/inpaint/<KEY>.json`(`InpaintResult`) · `NEW_DIR/run.json`(모드 · 상태 · 섹션별 상태 · 건수 · 입력 SHA-256 · 설정 · 래스터 규칙 · `timeout_s`(config 시간 제한 3개) · `model_termination` · Git · Python · numpy · Pillow · 플랫폼 · 모델 기록) |
 | `python -m pipeline.run inspect --split\|--ocr\|--merge JSON --image IMG --out PNG` | 오버레이. `--label L --merge M`은 ④ 판정(true 빨강 · false 초록 · 공백 규칙 회색 점선 · 실패 회색 테두리) | PNG |
 | `python -m pipeline.run convert-split --in OLD/split.json --base DIR --out NEW/split.json [--overwrite]` | 버전 1 → 2 **일반 전환**. 옛 상대 경로를 `--base` 기준으로 해석(대상이 없으면 실패)해 새 JSON 위치 기준으로 다시 쓴다. **이미지는 옮기지 않으며 결과는 원래 이미지를 가리킨다.** `--out`이 있으면 `--overwrite` 없이는 거부. 원래 값은 stdout에 출력 | `NEW/split.json` |
 | `python -m pipeline.run freeze-input --split SRC/split.json [--base DIR] --out INPUT_DIR [--meta 키=값 ...]` | **고정 입력본 생성**(5절). 섹션 PNG를 `INPUT_DIR/sections/`로 복사하고 복사본을 가리키게 한 뒤 검증. 원본은 읽기만 하고 전후 해시 비교. `INPUT_DIR`이 비어 있지 않으면 거부. 버전 1 원본은 `--base` 필요 | `INPUT_DIR/split.json` · `sections/` · `origin/`(원본 `split.json` · `split_debug.json` · `run.json` 사본) · `provenance.json` |
 | `python -m pipeline.run verify-input --dir INPUT_DIR [--relocated]` | 고정 입력본 재검증. `--relocated`는 레포 밖 임시 위치로 통째 복사해 그 복사본만으로 검증 | stdout |
 
-- 종료 코드(⑤ `logo` · ⑥ `inpaint`는 위 행의 자체 규칙): `0` 성공 · `2` `AnalyzeError`(모든 하위 명령, stderr에 JSON) · `3` 미구현 단계 · `4` VLM · LLM 호출 실패와 응답 검증 실패(`VlmError`, #25 · #37 미정이라 `AnalyzeError`로 바꾸지 않는다). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)와 잘못된 `[merge]` · `[ocr]` 분할 설정(`ValueError`, API 키 없음 포함), 기록 저장 실패(`OSError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
-- **② 실행 구조(`ocr`, 2026-09-23 결정 · 2026-10-13 타일 반영)**: 먼저 `ocr.validate_config`(잘못된 분할 설정은 `ValueError`로 traceback · 종료 코드 1). `--out`에 이전 `run.json`이나 `ocr/` · `ocr_debug/`가 있으면 거부한다(실행마다 새 폴더 — 이전 성공 JSON이 이번 실패 섹션의 결과처럼 남지 않게). 엔진을 먼저 한 번 만들고, **초기화가 실패하면 즉시 중단**해 모든 섹션을 `not_run`으로, 실행 수준 오류를 `run_error`로 기록하고 종료 코드 2. 그 뒤 섹션마다 실행하며 **섹션 오류(이미지 열기 · 추론 · 출력 형식)는 기록하고 다음 섹션으로 계속**한다. 실패를 빈 결과로 바꿔치지 않으며 실패 섹션의 `ocr/<key>.json`은 쓰지 않는다. `run.json` 추가 필드: `status`(`ok` 대상 모두 성공 · `partial` 일부 성공 + 실패·미실행 · `failed` 성공 없음) · `sections`(섹션별 `ok`+영역 수 / `failed`+`code` · `retryable` · `exception` · `message`(+`reason`) / `not_run`) · `run_error` · `engine`(버전 · 플랫폼 · 실제 적용 설정, 예: `enable_mkldnn` · `text_rec_score_thresh`). 타일 섹션의 `sections` 항목에는 `tiles` · `engine_calls`(타일 + 보완) · `supplements` · `dropped`(정리로 버린 타일 검출 수) · `tile_warnings` · `ocr_debug`(진단 파일 경로)를 더한다. 종료 코드: `AnalyzeError` 실패가 있으면 2, 없으면 0(4,000px 초과 거부 · 종료 코드 3은 2026-10-13 타일 OCR 구현으로 없어졌다). stderr에는 첫 오류 JSON. `analyze()`는 계약 8장대로 첫 실패에서 `AnalyzeError`를 던진다. `retryable`은 `errors.ERROR_POLICY` 기본값(`IMAGE_OPEN_FAILED` False · `OCR_FAILED` True)이고, ② 타일 경계 충돌 미해결만 `OCR_FAILED` · False다(#33 타일 범위 결정 2026-10-13, 원인별 표는 `pipeline/errors.py`). 실패 섹션 항목의 `reason`은 진단용 내부 분류(`ocr_tile_conflict` · `ocr_inference` · `ocr_engine_init` · `ocr_output_invalid`)이며 인계 형식이 아니다. 나머지 세분은 #33 후속.
+- 종료 코드(⑤ `logo` · ⑥ `inpaint`는 위 행의 자체 규칙): `0` 성공 · `2` `AnalyzeError`(모든 하위 명령, stderr에 JSON) · `3` 미구현 단계 · `4` VLM · LLM 호출 실패와 응답 검증 실패(`VlmError`, `AnalyzeError`로 바꾸지 않는다). `analyze`에서 ① 실패는 원본 전체 섹션으로 대체되고(#25) ③ 실패는 전파된다(#37). 입력 파일 오류(`SchemaVersionError` · `InputCheckError` · `FileExistsError`)와 잘못된 `[merge]` · `[ocr]` 분할 설정(`ValueError`, API 키 없음 포함), 기록 저장 실패(`OSError`)는 별도 코드 없이 예외로 끝난다(파이썬 기본 `1`).
+- **② 실행 구조(`ocr`, 2026-09-23 결정 · 2026-10-13 타일 반영)**: 먼저 `ocr.validate_config`(잘못된 분할 설정은 `ValueError`로 traceback · 종료 코드 1). `--out`에 이전 `run.json`이나 `ocr/` · `ocr_debug/`가 있으면 거부한다(실행마다 새 폴더 — 이전 성공 JSON이 이번 실패 섹션의 결과처럼 남지 않게). 엔진을 먼저 한 번 만들고, **초기화가 실패하면 즉시 중단**해 모든 섹션을 `not_run`으로, 실행 수준 오류를 `run_error`로 기록하고 종료 코드 2. 그 뒤 섹션마다 실행하며 **섹션 오류(이미지 열기 · 추론 · 출력 형식)는 기록하고 다음 섹션으로 계속**한다. 실패를 빈 결과로 바꿔치지 않으며 실패 섹션의 `ocr/<key>.json`은 쓰지 않는다. `run.json` 추가 필드: `status`(`ok` 대상 모두 성공 · `partial` 일부 성공 + 실패·미실행 · `failed` 성공 없음) · `sections`(섹션별 `ok`+영역 수 / `failed`+`code` · `retryable` · `exception` · `message`(+`reason`) / `not_run`) · `run_error` · `engine`(버전 · 플랫폼 · 실제 적용 설정, 예: `enable_mkldnn` · `text_rec_score_thresh`). 타일 섹션의 `sections` 항목에는 `tiles` · `engine_calls`(타일 + 보완) · `supplements` · `dropped`(정리로 버린 타일 검출 수) · `tile_warnings` · `ocr_debug`(진단 파일 경로)를 더한다. 종료 코드: `AnalyzeError` 실패가 있으면 2, 없으면 0. stderr에는 첫 오류 JSON. `analyze()`는 계약 8장대로 첫 실패에서 `AnalyzeError`를 던진다. `retryable`은 `errors.ERROR_POLICY` 기본값(`IMAGE_OPEN_FAILED` False · `OCR_FAILED` True)이고, ② 타일 경계 충돌 미해결만 `OCR_FAILED` · False다(#33 타일 범위 결정 2026-10-13, 원인별 표는 `pipeline/errors.py`). 실패 섹션 항목의 `reason`은 진단용 내부 분류(`ocr_tile_conflict` · `ocr_inference` · `ocr_engine_init` · `ocr_output_invalid`)이며 인계 형식이 아니다. 나머지 세분은 #33 후속.
 - VLM 없이 ①을 돌리려면 `--set section.long_section_px=999999`(긴 구간 없음 → 호출 안 함). `GEMINI_API_KEY`가 없으면 긴 구간에서 종료 코드 4.
 - **VLM 응답 재생(실험용)**: `split --vlm-replay DIR0/split_debug.json`은 이전 실행의 창별 응답을 순서대로 재생하고 API를 부르지 않는다. 원본 지문(`input`) · VLM 설정(`vlm_config`) · 호출별 구간·창 좌표 · 실제 입력 이미지 픽셀 해시 · 크기 · 프롬프트 해시가 기록과 다르면 종료 코드 4로 멈추고, 기록이 다 쓰이지 않아도(호출 구성이 달라짐) 결과 파일 없이 종료 코드 4다. 보정(snap) 규칙처럼 **VLM 응답 이후** 단계만 바꾸는 비교에 쓴다. 색 경계가 바뀌어 구간·창이 달라지는 실험(`bg_row_ratio` 등)에는 쓸 수 없고, seed 효과 측정에도 쓸 수 없다(그건 실제 반복 호출).
 - **재현성 실험**: `--set section.vlm_seed=N`으로 seed를 보낸다. 기본(-1)은 보내지 않는다. 같은 이미지를 조건별로 3~5회 돌려 필요한 경계의 유지와 잘못된 경계의 고착을 따로 센다.
@@ -262,6 +264,7 @@ pipeline/samples/<이름>/
   - 두 색 구간 사이의 짧은 브랜드·로고 띠는 앞 주제의 꼬리로 본다. 띠 안에 다음 주제의 제목이 있으면 다음 주제의 머리다.
   - 채점: 정답 경계마다 허용 오차 안의 실행 경계를 일대일로 짝지어 정답 검출 · 누락 · 오절단 · 알려진 한계 절단을 센다. 오절단과 한계 절단은 둘 다 실제 잘못된 절단이므로 전체 품질에서는 합산해 보인다. **하나의 의미 경계에 유효한 절단 위치가 여럿이면**(예: 사진 끝의 색 경계와 그 아래 여백 중앙의 VLM 경계) 정답에 대체 위치로 기록하고 일대일로 채점한다 — 둘 중 하나를 잡으면 정답 1, 둘 다 잡아도 정답 1이며 중복 절단은 따로 평가한다. 허용 오차를 무조건 넓히지 않는다(중간의 부적절한 절단까지 정답이 된다). 채점 기준 변경은 비교하는 모든 실행에 같이 적용한다.
   - 표본별 정답 경계 목록과 판정 근거는 `README.md` 4.1의 실험 기록 폴더에 둔다.
+- **OCR 정답 도구(2026-09-23)**: `docs/ai-experiments/tools/ocr_truth/` — `truth.py`(`init` · `draft` Gemini 전사 초안 · `serve` 브라우저 작성·검수 화면 · `check` 자동 검사 · `status` · `freeze`)와 `annotator.html`. 정답은 `docs/ai-experiments/ocr_truth/v1/<표본>__<섹션>.json`(이미지 SHA-256 · 줄 ID · 텍스트 · bbox · 태그 · 검수 상태 · 변경 이력). Gemini 결과는 `verified: false` 초안이고 사람이 이미지와 전수 대조해야 `reviewed`가 된다. `freeze`는 12개 모두 검수 완료 · 자동 검사 통과 · 채점 명세 v3에 미커밋 수정 없음일 때만 명세 커밋 해시와 `MANIFEST.json`을 남긴다. 앱이 사용자 환경변수를 물려받지 못하면 실행 명령 안에서만 사용자 범위 `GEMINI_API_KEY`를 읽어 넘긴다(값 출력·기록 금지).
 - 실제 표본으로 한 실험의 결과·판단은 `README.md` 4.1의 실험 기록 폴더에 기록한다.
 
 ## 6. 환경·의존성
@@ -295,14 +298,5 @@ pipeline/samples/<이름>/
 4. `run.py`에 하위 명령을, 필요하면 `inspect.py`에 오버레이를 추가한다.
 5. `samples/*/expected/`에 기대 결과를 추가한다.
 6. `tests/test_pipeline_*.py`에 계약 검증을 추가한다.
-7. `status.md`를 갱신한다.
+7. 구현 상태가 바뀌었으면 `status.md` 1절의 해당 행을 고친다(`README.md` 6.2).
 
-## PM 확정 후 통합 구현 인계 — 2026-10-08
-
-현재 구현 기준은 integration-decisions.md D9 및 기존 BE·AI 코멘트 합의다. AI 쪽 인계 계층은 3.2절로 구현했고(로컬 계약 검증), BE 워커 · DB · API · S3 · 실제 모델/GPU 연결은 아직이다.
-
-- BE: 단계/실패별 N3·N5 집계, 승인 대체 렌더, N5 확인 후 확정, N6 최종 렌더·부분 내보내기, 오류 중단과 전체 취소 삭제, FE 고지/표시 연결.
-- AI: 원본 전체 대체 섹션, 전 섹션 8항목·항목당 1건, 원문 수치 번역, 성공/부분 실패/대상 없음·스타일 NULL 구분, GPU 중간 파일 삭제 인계.
-- 역할별 기본 색·크기·폰트는 D11(2026-10-12 사용자 승인)으로 정했고 AI 자료(설정 · 폰트 · 계산 · 사례 · 참고 렌더)를 준비했다. 운영 렌더 연결은 BE 작업이다(`be-handoff.md` 6.6). 기존 개발용 기본값(`tests/exec_fakes.py`의 테스트 전용 값)을 승격하지 않는다.
-- 실제 Gemini 키의 유료 등급과 전송 제공자·모델·항목을 확인한다. 키 원문은 기록하지 않는다.
-- 번역문 LLM 규제 판정은 PM의 제외 경위·12월 방식/일정 질문에 회신한다. 문서 반영으로 연락/일정 승인을 대신하지 않는다.

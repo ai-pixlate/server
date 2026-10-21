@@ -61,6 +61,11 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   samples/                   샘플 입력·기대 결과 — 5절
   requirements*.txt          환경별 의존성 — 6절
 tests/test_pipeline_*.py     파이프라인 테스트 (루트 pytest가 함께 돈다)
+
+tools/baseline/              격리 BE baseline 실행·입력 확인·평가 기록 도구 (pipeline/에서 import하지 않음)
+tests/test_baseline_tools.py 모델·DB 호출 없는 준비·기록 도구 검증
+tests/test_baseline_audit.py  집계·근거 연결·수집 오류 격리 회귀 검증
+tests/test_baseline_consistency.py 기록·정정·CLI 비교 일관성 및 프로세스 격리 검증
 gpu/                         GPU 서버 컨테이너·k8s (기존, gpu/README.md)
 docs/ai/                     정본 문서
 ```
@@ -215,6 +220,8 @@ D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단
 - 부분 재실행: 이전 단계 JSON을 손으로 고쳐 다음 단계에 넣을 수 있다(예: OCR 결과의 오인식을 고치고 `merge`만 다시). 파라미터 비교는 `--set`으로 같은 입력을 여러 `--out`에 돌린다.
 
 ## 5. 샘플과 확인 방식
+
+**1.0.0 baseline 적용 예외**: 기존 OCR 품질 표본 12개는 [baseline 결정](../ai-baseline/decisions.md#ocr-품질-표본의-실행-제한)에 따라 정답 동결 전에도 1.0.0 baseline 입력에 포함한다. [OCR 채점 명세 v3](../ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md)의 다른 OCR 실험에 대한 제한과 과거 실험 기록은 유지한다. 기존 초안을 검수된 정답으로 간주하지 않는다.
 
 ```text
 pipeline/samples/<이름>/

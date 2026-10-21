@@ -99,17 +99,6 @@ class ToolsTest(unittest.TestCase):
                                          ("GS-02_001", "partial_failure", 8))]
         r = core.execution_summary(events)
         self.assertEqual(r["completion_rate"], 2 / 34)
-        definition = r["metric_definitions"]
-        self.assertEqual(definition["unit"], "원본 이미지 1장")
-        self.assertIn("O1", definition["scope"])
-        self.assertIn("NFR-14", definition["metric_7"])
-        self.assertIn("시도 원본", definition["cost"]["per_attempted"])
-        self.assertIn("기술 처리 완료 원본", definition["cost"]["per_completed"])
-        completion = definition["completion_rate"]
-        self.assertEqual(completion["denominator_count"], r["planned"])
-        self.assertEqual(completion["included_statuses"], ["completed", "all_excluded"])
-        self.assertIn("partial_failure", completion["excluded_statuses"])
-        self.assertTrue(completion["unexecuted_in_denominator"])
         self.assertEqual(r["completed_seconds"]["p90"], 4)
         self.assertEqual(r["failed_seconds"]["n"], 1)
         with self.assertRaises(ValueError):

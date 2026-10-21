@@ -373,23 +373,7 @@ def execution_summary(events):
             latest[e["source_id"]] = e
     counts = Counter(e["status"] for e in latest.values())
     good = [e for e in latest.values() if e["status"] in ("completed", "all_excluded")]
-    return {"metric_definitions": {
-                "scope": "고정 평가셋 baseline 실행 지표; O1 대시보드 지표와 별개",
-                "unit": "원본 이미지 1장",
-                "completion_rate": {
-                    "label": "원본 이미지 기술 처리 완료 비율",
-                    "denominator": "계획된 전체 원본 수",
-                    "denominator_count": len(IDS),
-                    "included_statuses": ["completed", "all_excluded"],
-                    "excluded_statuses": ["partial_failure", "failed", "interrupted"],
-                    "unexecuted_in_denominator": True,
-                    "completion_condition": "기술 처리 종료; 산출물 생성 완료와 전체 제외 종료는 별도 건수 표시"},
-                "cost": {
-                    "per_attempted": "시도 원본당 실행 비용: 생성·인프라 비용 합계 / 시도 원본 수",
-                    "per_completed": "기술 처리 완료 원본당 실행 비용: 생성·인프라 비용 합계 / 기술 처리 완료 원본 수",
-                    "interpretation": "O1 건당 원가가 아님; 미산정 비용은 0원으로 보지 않음"},
-                "metric_7": "사전·정책 기대 처리 대조; 규제 검출 재현율 및 NFR-14 충족 근거로 사용하지 않음"},
-            "planned": len(IDS), "terminal": len(latest), "unexecuted": len(IDS) - len(latest),
+    return {"planned": len(IDS), "terminal": len(latest), "unexecuted": len(IDS) - len(latest),
             "first_attempt_completed": sum(e.get("retry_count") == 0 for e in good),
             "completed_after_retry": sum(e.get("retry_count", 0) > 0 for e in good),
             "retry_status_unknown": sum("retry_count" not in e for e in good),

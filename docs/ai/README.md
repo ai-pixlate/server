@@ -23,7 +23,8 @@
 | `status.md` | 구현 현황 · 다음 착수 · 고정 입력본 · 인수인계 메모. 구현 상태는 이 문서에만 쓴다(3절). 갱신 조건은 6.2 |
 | `integration-decisions.md` | BE 통합 결정(D1~D11)의 색인 — 출처 · 한 줄 요약 · 반영 위치, 5절 통합 계약 상세의 절 목록. 결정 원문은 `archive/integration-decisions-v1-full.md` |
 | `be-handoff.md` | BE 워커가 부르는 AI 함수의 입력·출력 예제와 BE 처리 기대 결과(2026-10-08 구현 기준) · 6절 역할별 스타일 기본값 렌더 연결 인계(2026-10-12) · 9절 긴 섹션 타일 OCR 인계(2026-10-13) |
-| `archive/` | 정리하며 옮긴 이전 원문(세부 명세 · 단독 개발 이력). 현재 규칙 · 상태가 아니며 기본으로 읽지 않는다. 설계 근거 · 경위를 추적할 때만 연다 |
+| `archive/integration-decisions-v1-full.md` | **지금도 유효한 결정 원문** — D1~D11 결정 전문과 5.27~5.32 BE·AI 합의 기술 구조(5.1~5.26은 비교 · 추천 이력). 원문 속 상태 표현만 작성 당시 기준이다. BE 경계 작업에서 해당 D · 5.x 절을 읽는다(1.2) |
+| `archive/` 그 밖의 파일 | 정리하며 옮긴 이전 원문(세부 명세 · 단독 개발 이력). 현재 규칙 · 상태가 아니며 기본으로 읽지 않는다. 설계 근거 · 경위를 추적하거나 코드 주석이 가리키는 세부 표를 볼 때 연다 |
 
 ### 1.2 작업별로 읽는 문서
 
@@ -32,7 +33,7 @@
 | 모든 AI 작업 | 이 `README.md` |
 | 단계 구현·수정 | `pipeline.md` 해당 단계(2절 행 · 7절 해당 절) · `contract.md` 해당 장 · `dev.md`(코드 위치 · 실행) · `status.md` 해당 단계 행 · 관련 `open-questions.md` 항목 |
 | 코드 검토 | 검토 대상 코드·변경분 · `contract.md` 해당 장 · 필요하면 `pipeline.md` 해당 단계. `status.md`는 읽지 않는다 |
-| BE 경계 변경(함수 입출력 · DB · 오류 코드) | `contract.md` · `db-map.md` · `integration-decisions.md` 해당 D · `be-handoff.md` 해당 절 |
+| BE 경계 변경(함수 입출력 · DB · 오류 코드) | `contract.md` · `db-map.md` · `integration-decisions.md` 색인과 `archive/integration-decisions-v1-full.md`의 해당 D · 5.x 절(확정 합의 5.27~5.32 포함) · `be-handoff.md` 해당 절 |
 | 파라미터 조정 · 고도화 · 실측 | `pipeline.md` 3절과 해당 단계 절 · `docs/ai-experiments/README.md` · 관련 `open-questions.md` 항목 |
 | 질문 답변 · 문서 대조 | 질문이 다루는 사안의 소유 문서(1.1)만 |
 | 문서에 없거나 `미정`인 사안을 만났을 때 | `open-questions.md`의 해당 항목(6.1) |

@@ -25,6 +25,7 @@
 | ⑨ 조판 · 렌더 | BE 소관 | — | — | — |
 | 1.0.0 baseline 측정 | 준비 — 평가 명세 · 측정 도구 · 로컬 환경 · 고정 평가셋 연결 준비, 공식 측정 없음 | — | 입력 · 평가 기준 자료와 회차 조건 확인 · 승인된 모델 연결 점검 · 실측 | `docs/ai-baseline/README.md` |
 | 타입 · config · CLI · inspect | 로컬 검증 | — | — | `dev.md` |
+| 환경 · 의존성 | `requirements-ocr.txt` 버전 고정 · 로컬 OCR(Windows CPU · GPU) 검증. `requirements-gpu.txt`의 OCR 부분은 설치 미검증 | — | `requirements-gpu.txt` 설치 검증 | `dev.md` 6절 |
 
 ## 2. 다음 착수
 

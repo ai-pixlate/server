@@ -165,7 +165,7 @@ docs/ai/                     정본 문서
 
 ### 3.2 운영 인계 어댑터
 
-D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. BE 워커는 단계별 함수를 **요청 dict → `StageReport`**로 부르고, 채택 전에 `pipeline.handoff.validate.validate_report(report, request)`로 검사한다(빈 목록 = 통과). 예외를 밖으로 던지지 않고 실패도 보고로 돌려준다. 계약 예제(정상 · 생략 · 실패 · 부분 실패 29건)는 `pipeline/samples/handoff/`이며 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다(테스트가 커밋본과 대조).
+D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. 아래 표의 인계 함수는 **요청 dict → `StageReport`** 인터페이스이며, 호출자는 채택 전에 `pipeline.handoff.validate.validate_report(report, request)`로 검사한다(빈 목록 = 통과). 인계 함수는 예외를 밖으로 던지지 않고 실패도 보고로 돌려준다. BE가 이 인터페이스를 쓰는 단계와 단계 함수를 직접 부르는 단계는 다음 문단이 구분한다. 계약 예제(정상 · 생략 · 실패 · 부분 실패 29건)는 `pipeline/samples/handoff/`이며 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다(테스트가 커밋본과 대조).
 
 BE의 실제 연결 지점: ③-1 · ⑧은 이 인계 함수(`run_judgment` · `run_translate`)를 `app/ai_adapters.py`에서 부르고, ⑥은 GPU 워커(`app/flows/gpu_worker.py`)가 `GpuInpaintRunner`(내부에서 `run_inpaint`)를 부른다. ①~③ · ④ · ⑤ · ⑦은 `app/ai_adapters.py`가 `analyze()` · `stages.label` · `stages.logo` · `stages.style`을 직접 부른다 — 아래 표의 `run_analyze` · `run_label` · `run_logo` · `run_style`은 BE가 쓰지 않는 인계 함수다.
 
@@ -274,12 +274,12 @@ pipeline/samples/<이름>/
 | 로컬 기본 | `pip install -r pipeline/requirements.txt` | 타입 · CLI · `inspect` · 테스트 · 샘플 재생성 · ① 섹션 분해(numpy · google-genai, VLM은 API 키 필요) | 로컬 모델 단계 실행 |
 | 로컬 OCR (CPU) | `pip install -r pipeline/requirements-ocr.txt` | ② (+ ③ 휴리스틱) | ⑥ |
 | 로컬 OCR (Windows GPU) | 아래 "Windows 로컬 GPU" | ② — 장치는 설치된 paddle 빌드가 자동 선택 | ⑥ |
-| GPU 서버 | `gpu/` 이미지 + ⑥만이면 분리 venv에 `pydantic`(아래 ⑥ GPU 실행 환경), 전체는 `pipeline/requirements-gpu.txt`(OCR 부분 설치 미검증) | ⑥ 실측 · 전체 | — |
+| GPU 서버 | `gpu/` 이미지 + ⑥만이면 분리 venv에 `pydantic`(아래 ⑥ GPU 실행 환경), 전체는 `pipeline/requirements-gpu.txt` | ⑥ 실측 · 전체 | — |
 
 - **⑥ 로컬 구현은 iopaint · torch 없이 돈다**(2026-09-30): 마스크 · 입력 검증 · 합성 · 실행 계층 · 어댑터 전처리/후처리 테스트는 numpy · Pillow만 쓰고(OpenCV · SciPy 없음) 추론 테스트는 가짜 모델을 주입한다. iopaint 패키지는 쓰지 않는다(`pipeline.md` 7.6절 LaMa 어댑터).
 - **⑥ GPU 실행 환경(2026-09-30 구성 · 검증, 기존 워커와 분리)**: 학교 GPU Pod의 `/data/inpaint/` — `venv/`(Python 3.12.3, `.pth`로 이미지 `/opt/venv`의 torch 2.14.0+cu126 · numpy · Pillow를 공유하고 pydantic · pytest만 추가) · `server/`(레포 별도 clone, 워커용 `/data/server`와 다름) · `inputs/downstream-input-v1/`(전체 묶음, `SHA256SUMS` 대조) · `runs/`(새 실행 폴더) · `logs/`. 가중치 `/data/.cache/torch/hub/checkpoints/big-lama.pt`(iopaint 기본 캐시 = `$TORCH_HOME/hub`). 실측 도구 `docs/ai-experiments/tools/inpaint_lama_probe.py`(`synthetic` · `sections --all` · `timeout-check`)는 서버 레포 사본에서 `venv/bin/python`으로 돌리고 결과는 `runs/`에 둔다(도구 종료 코드 0 = 실행 성공 + 자동 검사 통과). 기존 `/opt/venv` · `/data/venv` · `/data/server` · Celery 워커는 바꾸지 않았다. 접속은 SSH 별칭(`gpu/README.md` 3절)으로 하고 키 · 포트는 레포에 적지 않는다.
 - **로컬 테스트와 GPU 실측을 구분한다.** 형식·배선·휴리스틱은 로컬에서 끝내고, GPU 서버는 ⑥ 인페인팅과 전체 통과 실측에만 쓴다. GPU 서버에서는 코드와 모델 캐시를 `/data` 아래에 둔다(`gpu/README.md`).
-- `requirements-ocr.txt`는 2026-09-23 검증 버전으로 고정했다: `paddlepaddle==3.3.1` · `paddleocr==3.7.0` · `paddlex==3.7.2`(Windows 11 · Python 3.12.10 · CPU). 버전을 바꾸면 ② 영역 보존(`pipeline.md` 7절)의 코드 근거를 다시 확인한다. `-gpu.txt`는 아직 **설치 미검증**이다.
+- `requirements-ocr.txt`는 2026-09-23 검증 버전으로 고정했다: `paddlepaddle==3.3.1` · `paddleocr==3.7.0` · `paddlex==3.7.2`(Windows 11 · Python 3.12.10 · CPU). 버전을 바꾸면 ② 영역 보존(`pipeline.md` 7절)의 코드 근거를 다시 확인한다. 환경별 설치 검증 상태는 `status.md` 1절 "환경 · 의존성" 행.
 - **Windows 로컬 OCR 설치**: paddle 패키지의 파일 경로가 길어 Windows 경로 길이 한도(260자)에 걸릴 수 있다(2026-09-23, 긴 임시 폴더 경로의 가상환경에서 `OSError [Errno 2]`). 짧은 가상환경 경로를 권장한다. 시스템의 Long Path 설정은 이 문서가 요구하지 않는다.
 - **CPU 추론의 oneDNN 우회**: 고정 버전의 Windows CPU에서 `predict` 시 `ConvertPirAttribute2RuntimeAttribute` 오류가 났고 `enable_mkldnn=False`로 동작했다(2026-09-23). 2026-10-12 배포 담당도 develop `f8a1e67` 기반 Linux CPU 이미지(Python 3.12)에서 같은 오류와 oneDNN 비활성화 시 성공을 보고했다. 정확한 라이브러리 내부 원인은 미확정이다. ② 엔진은 OS와 관계없이 **선택 장치가 CPU이면** 생성 인자로 `enable_mkldnn=False`를 전달한다. 기존 Windows CPU 동작과 GPU 설정은 유지한다. 모델·인식 임계값·출력 계약·의존성 버전은 바꾸지 않으며 새 환경 변수도 없다. 실제 적용값은 `run.json`의 엔진 정보에 남긴다. 수정 이미지의 Linux 실측 완료 여부와 지원 범위는 `be-handoff.md` 7절을 따른다.
 - **② 장치 선택(2026-09-25 결정)**: 코드에서 장치를 지정하지 않는다. PaddleX 기본 규칙대로 **GPU 빌드 paddle이 설치되고 GPU가 보이면 `gpu:0`, 아니면 `cpu`**이며, 실제 장치는 `run.json` `engine.device`(와 CUDA 버전)에 남는다. 강제로 CPU를 쓰려면 CPU 빌드 환경에서 실행한다. 장치 지정 설정(config 키·환경변수)은 두지 않았다 — 필요해지면 먼저 결정한다.

@@ -3,10 +3,12 @@
 - 휴리스틱으로 영역 → 줄 → 문단(블록)을 만들고, LLM은 추가 병합과 역할 재판정만 한다. 분할 금지.
 - 블록 1건 = 문단 1개. role 5종. ocr_confidence = 구성 영역 score 최솟값(types.ocr_confidence_of).
 - 원시 영역은 모두 정확히 한 블록에 한 번 들어가고 값을 바꾸지 않는다 [계약 2.5].
-- 휴리스틱 정의(계산식 · 정렬 · 입력 분류 · 역할 패턴 · 설정 검증)는 pipeline.md 7.1절이 정본이다.
-  PoC 확인 동작과 우리 잠정 설계(open-questions #38)의 구분도 그 절에 있다. 규칙을 바꾸면 문서와 같은 커밋에서.
+- 휴리스틱의 정본 규칙 요약은 pipeline.md 7.1절이다. 세부 정의(계산식 · 정렬 · 입력 분류 · 역할 패턴 · 설정 검증)와
+  PoC 확인 동작 · 우리 잠정 설계(open-questions #38)의 구분은 docs/ai/archive/pipeline-v1-detail.md 7.1절 원문에 있고,
+  현재 동작의 기준은 이 모듈과 손 계산 테스트다. 규칙 수준의 변경은 pipeline.md 7.1절을 같은 커밋에서 고친다.
 
-- llm_assist v1 정의(입력 · 출력 · 응답 검증 · 로컬 조립 · 기록 · 실행 모드별 설정 검증)는 pipeline.md 7.2절(open-questions #41).
+- llm_assist v1 규칙 요약은 pipeline.md 7.2절, 세부 정의(입력 · 출력 · 응답 검증 · 로컬 조립 · 기록 · 실행 모드별 설정 검증)
+  원문은 archive 7.2절(open-questions #41).
   v1은 블록 병합만 한다 — 같은 줄 조각의 줄 복구는 하지 않는다. use_llm=False(CLI --no-llm)면 휴리스틱만 돈다.
 """
 from __future__ import annotations

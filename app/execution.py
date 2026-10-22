@@ -247,6 +247,15 @@ def register_handler(stage: str, handler: StageHandler) -> None:
     _handlers[stage] = handler
 
 
+def retry_blocked(att: dict[str, Any]) -> str | None:
+    """같은 고정 입력으로 재시도해도 성공할 수 없는 시도면 사유(단계 핸들러의 retry_block_reason), 아니면 None.
+    그 메서드가 있는 단계(preview·final_render)만 해당한다 — 다른 단계의 재시도 정책은 그대로."""
+    if not _handlers:
+        import app.flows  # noqa: F401 — 단계 핸들러 등록
+    fn = getattr(_handlers.get(att.get("stage")), "retry_block_reason", None)
+    return fn(att) if fn else None
+
+
 def handler_for(stage: str) -> StageHandler:
     if not _handlers:
         import app.flows  # noqa: F401 — 단계 핸들러 등록
@@ -422,6 +431,8 @@ def create_retry(db: Session, attempt_id: int, origin: str, *, manifest: dict[st
         raise RetryNotAllowed("현재 실패 시도만 재시도한다")
     if att["retry_count"] >= att["max_retry"]:
         raise RetryNotAllowed("재시도 한도 초과", code="RETRY_LIMIT_EXCEEDED")
+    if manifest is None and (blocked := retry_blocked(att)):  # 같은 고정 입력으로는 성공할 수 없다 — 시도·횟수를 만들지 않는다
+        raise RetryNotAllowed(blocked)
     return create_attempt(
         db, run=run, stage=att["stage"], unit_id=att["unit_id"],
         manifest=manifest if manifest is not None else att["input_manifest"],

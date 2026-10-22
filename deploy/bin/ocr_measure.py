@@ -13,7 +13,18 @@ limit = float(sys.argv[4]) if len(sys.argv) > 4 else 20.0
 sp = json.load(open(split))
 sec = next(s for s in sp["sections"] if s["section_key"] == section)
 img = os.path.join(os.path.dirname(split), sec["image_path"])
-print("python", sys.version.split()[0], "| paddlepaddle", version("paddlepaddle"), "| paddleocr", version("paddleocr"), "| paddlex", version("paddlex"))
+def _paddle_version():
+    """CPU 빌드는 paddlepaddle, GPU 빌드는 paddlepaddle-gpu 로 설치된다."""
+    from importlib.metadata import PackageNotFoundError
+    for name in ("paddlepaddle-gpu", "paddlepaddle"):
+        try:
+            return f"{name} {version(name)}"
+        except PackageNotFoundError:
+            pass
+    return "paddle 없음"
+
+
+print("python", sys.version.split()[0], "|", _paddle_version(), "| paddleocr", version("paddleocr"), "| paddlex", version("paddlex"))
 from PIL import Image
 w, h = Image.open(img).size
 print("input", f"{w}x{h}", "sha256", hashlib.sha256(open(img, "rb").read()).hexdigest())

@@ -652,11 +652,11 @@
       "logo_record_sha256": "df0f459c8c6024b7646486ce85c4e2e38e8570fbf524b34b9d7c958f37539ac3",
       "config": {
         "method": "otsu_border",
-        "em_ratio": 1.35,
+        "em_ratio": 0.9,
         "align_tolerance": 0.12
       }
     },
-    "input_manifest_sha256": "1dc68693d98d7eef61afb180e86879f562a25f8d9470ff8ec9a5fd5c44a001fc",
+    "input_manifest_sha256": "f0b743fa8c40f41037ce2fccaf2d2da94b01d4d11c5406bb7862429f3d540ad7",
     "outcome": "completed",
     "target_count": 2,
     "skip_reason": null,
@@ -667,7 +667,7 @@
           "block_key": "blk_003",
           "font_color": null,
           "bg_color": null,
-          "est_font_px": 32.4,
+          "est_font_px": 21.6,
           "align": "left",
           "align_basis": "default_single_line",
           "null_reasons": {
@@ -718,7 +718,7 @@
         "color": "#RRGGBB sRGB",
         "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
       },
-      "style_result_sha256": "ac9ffe97a161274d6d370100fb24148a016ceae63fcc53423ab62353fa2febb9"
+      "style_result_sha256": "66a296038570d7a9ce74d46c0a3d4d75a89a3b266cf2e93c835f0dc57ce47bcb"
     },
     "artifacts": [],
     "source_refs": [],

@@ -42,6 +42,7 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
 def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     """N6 수동 재렌더. 진행 중이면 그 시도, 실패면 새 재시도 시도(누적 한도), 완료면 새 최종 렌더 실행을 만든다.
+    누적 한도를 소진해 실행이 failed 로 닫혔으면 409 RETRY_NOT_ALLOWED — 새 실행·시도를 만들지 않는다.
     renderTaskId 는 job_async_task.id(시도) — JOB-05 폴링 대상이다."""
     from app import execution
     from app.flows.final import start_final_render
@@ -159,6 +160,24 @@ def validation(job_id: int, db: Session = Depends(get_db), seller_id: int = Depe
 
 _EXPORTABLE = ("csv", "images")  # 1.0.0 에서 만드는 구성요소. html·psd 는 생성기가 없어 이번 릴리즈 범위 밖(2026-10-14 결정)
 _ALIASES = {"content.csv": "csv"}
+# 계약 FIN-04 "content.csv(formula injection 방어)" — 2026-10-15 확정 규칙.
+# 수식 시작 문자(반각·전각)와, 값 맨 앞에 오면 그 자체로 위험한 제어문자(OWASP CSV Injection 목록 + LF).
+_CSV_FORMULA_CHARS = frozenset("=+-@＝＋－＠")
+_CSV_LEADING_CONTROL = ("\t", "\r", "\n")
+_CSV_LEADING_SPACE = " \t\r\n 　"  # 앞 공백(스페이스·탭·CR·LF·NBSP·전각 공백)을 건너뛰고 첫 글자를 본다
+
+
+def _csv_cell(value: str | None) -> str:
+    """사용자·모델 문자열 셀 하나(sourceKo·trans1). 값이 탭·CR·LF 로 시작하거나, 앞 공백을 건너뛴 첫 글자가
+    = + - @ 또는 전각 ＝ ＋ － ＠ 이면 원문 앞에 ' 를 붙여 스프레드시트가 텍스트로 열게 한다.
+    DB 값은 바꾸지 않고 CSV 출력에만 적용한다. 그 밖의 문자열은 그대로 둔다(따옴표·쉼표·줄바꿈은 csv 모듈이 처리).
+    -5·-10% off 같은 값도 '-5 로 나가 문자열이 된다(확정 규칙에서 수용). 실제 스프레드시트에서의 수식 실행 방지는
+    프로그램·열기 방식별로 따로 확인한다. 재업로드(API-FIN-07)를 만들 때는 이 접두를 되돌리는 규칙이 함께 필요하다."""
+    if not value:
+        return ""
+    if value.startswith(_CSV_LEADING_CONTROL) or value.lstrip(_CSV_LEADING_SPACE)[:1] in _CSV_FORMULA_CHARS:
+        return "'" + value
+    return value
 _EXT = {"zip": "zip", "images": "zip", "csv": "csv", "html": "html"}  # 다운로드 파일 확장자(images 는 zip 묶음)
 
 
@@ -167,9 +186,11 @@ def _download_info(job_id: int, artifact_type: str, key: str) -> dict:
     from datetime import datetime, timedelta, timezone
 
     expires = datetime.now(timezone.utc) + timedelta(seconds=s3.PRESIGN_TTL)
+    file_name = f"pixlate_export_{job_id}.{_EXT.get(artifact_type, artifact_type)}"
     return {
-        "url": s3.presigned_get(key),
-        "fileName": f"pixlate_export_{job_id}.{_EXT.get(artifact_type, artifact_type)}",
+        # 교차 출처 링크라 FE 의 <a download> 이름이 무시되므로, 저장 이름을 S3 응답 헤더로 지정한다
+        "url": s3.presigned_get(key, download_name=file_name),
+        "fileName": file_name,
         "expiresAt": expires.isoformat().replace("+00:00", "Z"),
     }
 
@@ -222,7 +243,7 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
         w = csv.writer(buf)
         w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1"])
         for b in blocks:
-            w.writerow([b["section_id"], b["block_order"], b["role"], b["source_ko"] or "", b["trans_1"] or ""])
+            w.writerow([b["section_id"], b["block_order"], b["role"], _csv_cell(b["source_ko"]), _csv_cell(b["trans_1"])])
         data = buf.getvalue().encode("utf-8-sig")  # 엑셀 한글 대비
         created["csv"] = _store_artifact(db, job_id, "csv", "content.csv", data, "text/csv")
         parts["csv"] = ("content.csv", data)

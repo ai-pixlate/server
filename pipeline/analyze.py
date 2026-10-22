@@ -12,14 +12,44 @@ out_dir/ocr_debug/<section_key>.json에 타일 진단을 남긴다 — 실패(OC
 from __future__ import annotations
 
 import json
+import logging
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from pipeline.stages import merge, ocr, section_split
 from pipeline.types import AnalyzeResult, AnalyzeWarning, SourceImage, SplitResult, block_key
 from pipeline.vlm import BoundaryPicker, MergeAssistant, VlmError
 
 SPLIT_FALLBACK_KIND = "section_split_whole_image"  # ① 분해 실패 → 원본 전체 한 섹션(D9-1 · #25). 인계 기록용 이름이며 API 코드가 아니다
+
+_log = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class AnalyzeProgress:
+    """analyze() 진행 이벤트. source_index · region_index는 1부터. 영역은 ① 섹션 단위이며 타일은 세지 않는다."""
+    event: str  # split_start | split_done | ocr_start | merge_start | region_done
+    source_index: int
+    source_total: int
+    source_image_id: int
+    region_index: int | None
+    region_count_in_source: int | None
+    regions_done: int
+    regions_known: int
+    sources_split: int
+
+
+ProgressCallback = Callable[[AnalyzeProgress], None]
+
+
+def _emit(progress: ProgressCallback | None, **kw: Any) -> None:
+    if progress is None:
+        return
+    try:
+        progress(AnalyzeProgress(**kw))
+    except Exception:
+        _log.warning("analyze progress callback failed (event=%s)", kw.get("event"), exc_info=True)
 
 
 def split_or_whole(
@@ -55,10 +85,11 @@ def _ocr_section(sec, cfg: dict[str, Any], engine: Any | None, debug_dir: Path):
 def analyze(
     sources: list[SourceImage], cfg: dict[str, Any], out_dir: Path, *, use_llm: bool = True,
     llm: MergeAssistant | None = None, vlm: BoundaryPicker | None = None, fallbacks: list[dict[str, Any]] | None = None,
-    ocr_engine: Any | None = None,
+    ocr_engine: Any | None = None, progress: ProgressCallback | None = None,
 ) -> AnalyzeResult:
     """use_llm은 ③ merge.run에 그대로 전달한다(CLI analyze --no-llm → False). llm · vlm · ocr_engine은 테스트·실험용 호출자 주입.
-    fallbacks에 list를 주면 ① 대체(원본 전체 섹션) 기록을 받는다. AnalyzeResult 버전 1 형식은 바꾸지 않는다(D3)."""
+    fallbacks에 list를 주면 ① 대체(원본 전체 섹션) 기록을 받는다. AnalyzeResult 버전 1 형식은 바꾸지 않는다(D3).
+    progress를 주면 원본 · 영역 단계마다 AnalyzeProgress를 넘긴다(콜백 예외는 경고로 남기고 무시한다)."""
     merge.validate_config(cfg)
     ocr.validate_config(cfg)
     debug_dir = out_dir / "merge_debug"
@@ -70,15 +101,33 @@ def analyze(
     sections = []
     blocks = []
     warnings: list[AnalyzeWarning] = []
-    for src in sorted(sources, key=lambda s: s.upload_order):
+    source_total = len(sources)
+    regions_done = 0
+    regions_known = 0
+    sources_split = 0
+    for source_index, src in enumerate(sorted(sources, key=lambda s: s.upload_order), start=1):
+        def emit(event: str, region_index: int | None, region_count: int | None) -> None:
+            _emit(progress, event=event, source_index=source_index, source_total=source_total,
+                  source_image_id=src.source_image_id, region_index=region_index, region_count_in_source=region_count,
+                  regions_done=regions_done, regions_known=regions_known, sources_split=sources_split)
+
+        emit("split_start", None, None)
         split = split_or_whole(src, cfg, out_dir / "sections", vlm=vlm, fallbacks=fallbacks)
+        n = len(split.sections)
+        sources_split += 1
+        regions_known += n
+        emit("split_done", None, n)
         text_found = False
-        for sec in split.sections:
+        for region_index, sec in enumerate(split.sections, start=1):
+            emit("ocr_start", region_index, n)
             ocr_res = _ocr_section(sec, cfg, ocr_engine, out_dir / "ocr_debug")
             text_found = text_found or bool(ocr_res.regions)
+            emit("merge_start", region_index, n)
             merged = merge.run(sec, ocr_res, cfg, use_llm=use_llm, llm=llm, recorder=recorder)
             sections.append(sec)
             blocks.extend(merged.blocks)
+            regions_done += 1
+            emit("region_done", region_index, n)
         if not text_found:
             warnings.append(
                 AnalyzeWarning(

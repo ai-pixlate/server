@@ -8,6 +8,8 @@
 """
 from __future__ import annotations
 
+import contextlib
+import inspect
 import json
 import logging
 import tempfile
@@ -17,7 +19,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import ai_adapters, artifacts, execution
+from app import ai_adapters, analysis_progress, artifacts, execution
 from app import db as app_db
 from app.dictionary_bundle import BundleError, build_bundle, entries_by_ref, primary_evidence, verify_bundle
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope, Lease
@@ -124,6 +126,15 @@ def start_analysis(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
 # ---------------------------------------------------------------------------------------------------------
 # 워커: analyze
 # ---------------------------------------------------------------------------------------------------------
+def _progress_kw(fn: Any, pr: Any) -> dict[str, Any]:
+    if pr is None:
+        return {}
+    try:
+        return {"progress": pr.on_progress} if "progress" in inspect.signature(fn).parameters else {}
+    except (TypeError, ValueError):
+        return {}
+
+
 def execute_analyze(attempt_id: int) -> dict[str, Any]:
     from pipeline.errors import AnalyzeError
     from pipeline.types import SourceImage
@@ -156,41 +167,51 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
                 p.write_bytes(data)
                 sources.append(SourceImage(source_image_id=s["source_image_id"], upload_order=s["upload_order"], path=str(p)))
             analyzer = ai_adapters.analyzer()
-            with common.Heartbeat(lease) as hb:
+            with common.Heartbeat(lease) as hb, contextlib.ExitStack() as stack:  # 계산부터 등록·S3 고정·채택(submit)까지 권한 갱신(S6)
+                try:
+                    pr = stack.enter_context(analysis_progress.ProgressReporter(attempt_id, lease.epoch, len(sources), hb=hb))
+                except Exception as e:  # noqa: BLE001 — 진행 표시는 분석을 실패시키지 않는다
+                    log.warning("analysis progress 시작 실패 attempt=%s: %s", attempt_id, e)
+                    pr = None
                 try:
                     if hasattr(analyzer, "analyze_with_fallbacks"):
-                        result, fallbacks = analyzer.analyze_with_fallbacks(sources, tmpd / "out")
+                        fn = analyzer.analyze_with_fallbacks
+                        kw = _progress_kw(fn, pr)
+                        result, fallbacks = fn(sources, tmpd / "out", **kw)
                     else:
-                        result, fallbacks = analyzer.analyze(sources, tmpd / "out"), []
+                        kw = _progress_kw(analyzer.analyze, pr)
+                        result, fallbacks = analyzer.analyze(sources, tmpd / "out", **kw), []
+                    if pr is not None:
+                        pr.mark_analyze_done(len(result.sections))
                 except AnalyzeError as e:
                     if hb.lost:
                         return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
                     return report(attempt_id, submit(lease, failed_envelope(lease, e.code, e.message, e.retryable)))
                 except ai_adapters.AdapterUnavailable as e:
                     return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), False)))
-            if hb.lost:
-                return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
-            payload_result = result.model_dump(mode="json")
-            for sec in result.sections:
-                path = Path(sec.image_path)
-                if not path.is_absolute():
-                    path = (tmpd / "out" / path).resolve()
-                if not str(path).startswith(str(tmpd)):
-                    return report(attempt_id, submit(lease, failed_envelope(lease, "ARTIFACT_PATH", f"섹션 이미지가 작업 디렉터리 밖 {sec.section_key}", False)))
-                try:
-                    files[("section_image", sec.section_key)] = path.read_bytes()
-                except OSError:
-                    pass  # 채택 검증에서 누락으로 거절된다
-            for s in payload_result["sections"]:
-                s["image_path"] = f"artifact:section_image/{s['section_key']}"  # 로컬 경로는 공유 주소가 아니다
-            env = Envelope(
-                outcome="done", target_count=len(m["sources"]), input_fingerprint=lease.fingerprint,
-                impl_version=analyzer.impl_version,
-                payload={"analyze_result": payload_result, "bundle": bundle, "split_fallbacks": fallbacks},
-                artifacts=[ArtifactSpec(kind="section_image", part_key=s.section_key, data=files.get(("section_image", s.section_key)))
-                           for s in result.sections if ("section_image", s.section_key) in files],
-            )
-            return report(attempt_id, submit(lease, env, files))
+                if hb.lost:
+                    return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
+                payload_result = result.model_dump(mode="json")
+                for sec in result.sections:
+                    path = Path(sec.image_path)
+                    if not path.is_absolute():
+                        path = (tmpd / "out" / path).resolve()
+                    if not str(path).startswith(str(tmpd)):
+                        return report(attempt_id, submit(lease, failed_envelope(lease, "ARTIFACT_PATH", f"섹션 이미지가 작업 디렉터리 밖 {sec.section_key}", False)))
+                    try:
+                        files[("section_image", sec.section_key)] = path.read_bytes()
+                    except OSError:
+                        pass  # 채택 검증에서 누락으로 거절된다
+                for s in payload_result["sections"]:
+                    s["image_path"] = f"artifact:section_image/{s['section_key']}"  # 로컬 경로는 공유 주소가 아니다
+                env = Envelope(
+                    outcome="done", target_count=len(m["sources"]), input_fingerprint=lease.fingerprint,
+                    impl_version=analyzer.impl_version,
+                    payload={"analyze_result": payload_result, "bundle": bundle, "split_fallbacks": fallbacks},
+                    artifacts=[ArtifactSpec(kind="section_image", part_key=s.section_key, data=files.get(("section_image", s.section_key)))
+                               for s in result.sections if ("section_image", s.section_key) in files],
+                )
+                return report(attempt_id, submit(lease, env, files))
     except execution.LeaseLost:
         return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
     except Exception as e:  # noqa: BLE001 — 예기치 않은 오류: 선행 결과 생성 실패로 보고 자동 재시도 대상(D9-1)

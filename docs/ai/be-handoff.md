@@ -21,7 +21,7 @@
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 검사 두 단계(`run_text_check` · `run_translation_review`) 연결(8절), GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
+- **남은 것**: 번역문 검사 연결(8절) — 규칙 검사(`run_text_check`)는 1차 통합 후속, LLM 판정(`run_translation_review`)은 12월 최종 통합. GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -111,7 +111,9 @@
 
 ## 6. 역할별 스타일 기본값 — BE 렌더 연결 인계(2026-10-12, D11)
 
-[D11](integration-decisions.md)의 사용자 승인값을 AI가 설정 자료 · 폰트 · 계산 함수 · 사례로 준비했다. **운영 렌더 연결은 하지 않았다.** 현행 `app/typeset.py`의 `PIXLATE_STYLE_DEFAULTS` 로더는 역할별 `font_color` · `est_font_px` · `align`만 읽고 폰트 · 굵기 · 자간 · 기준 폭을 모른다. 새 자료를 그 로더에 넣는다고 동작하지 않는다(형식이 다르고, 기본 크기가 원본 폭에 따라 달라진다). 6.6의 BE 수정이 필요하다.
+[D11](integration-decisions.md)의 사용자 승인값을 AI가 설정 자료 · 폰트 · 계산 함수 · 사례로 준비했다(2026-10-12). AI 작업에서는 운영 렌더 코드를 바꾸지 않았다.
+
+**연결 상태(2026-10-15, `origin/release/1.0.0` `f5b050a` 코드 대조 — 당시 기준)**: BE PR #71(`65f350e`)로 로더 · 폰트 검증 · `resolve_block` 규칙 · 렌더 입력 지문이 운영 렌더에 연결됐다. 실제 그리기 폰트는 아직 Pillow 내장 기본 폰트(`ImageFont.load_default`)다 — Pretendard · 역할별 굵기 적용은 release에서 BE가 진행하기로 했다([PR #72 코멘트](https://github.com/ai-pixlate/server/pull/72#issuecomment-6185856592)). 자간 · 행간 · 넘침 기준 · 기록 형식은 develop 후속이다. 항목별 상태는 6.6. 이 절의 상태 표기는 그 뒤 갱신하지 않는다 — 이후 PR #74(`32652ba`)로 Pretendard · 역할별 굵기가 반영됐고, 현재 연결 상태와 남은 작업은 `status.md` ⑨ 행이 소유한다.
 
 ### 6.1 자료 위치
 
@@ -160,7 +162,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 | ⑦ 실패(style 객체 NULL) | 세 항목 모두 역할 기본값. 단계 상태는 `failed` 그대로(측정 성공으로 만들지 않음) |
 | 계약 위반(⑦ 완료인데 대상 블록 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값) | `StyleInputInvalid` — 기본값으로 덮지 않는다 |
 
-- 크기: 측정 `est_font_px`는 원본 px 그대로. 기본값만 `기준 크기 × 원본 폭 / 375`(곱한 뒤 한 번 나눔, 반올림 없음). 1080px 원본의 title = 92.16, body = 46.08. 측정값에 1080/375나 1.35를 곱하지 않는다(사례 07).
+- 크기: 측정 `est_font_px`는 원본 px 그대로. 기본값만 `기준 크기 × 원본 폭 / 375`(곱한 뒤 한 번 나눔, 반올림 없음). 1080px 원본의 title = 92.16, body = 46.08. 측정값에 1080/375나 ⑦ `style.em_ratio`를 다시 곱하지 않는다(사례 07).
 - 자간 px = (자간 % / 100) × 적용 크기, 행간 px = 1.2 × 적용 크기 — 측정 크기에도 같은 비율을 쓴다. 폰트 · 굵기 · 자간 · 행간의 출처는 `role_config`.
 - `bg_color`는 적용값에 넣지 않는다. 배경을 칠하지 않으며 배경색 기본값은 없다.
 - 원본 폭: MVP 섹션은 원본 전체 폭이다(`section.bbox.w`). BE `_render_inputs`가 이미 섹션 폭을 알고 있다.
@@ -200,16 +202,16 @@ python -m pipeline.handoff.style_reference --out pipeline/out/style-defaults-che
 
 ### 6.6 BE 수정 대상과 순서
 
-이번 AI 작업에서 아래 운영 코드는 바꾸지 않았다.
+2026-10-12 AI 작업에서는 아래 운영 코드를 바꾸지 않았다. 각 항목 끝의 **상태**는 2026-10-15 `origin/release/1.0.0` `f5b050a` 코드와 대조한 당시 기준이다. 현재 상태는 `status.md` ⑨ 행.
 
-1. **`app/typeset.py` 로더 교체**: `load_role_defaults()`가 `pipeline.handoff.style_defaults.load_style_defaults()` + `verify_fonts()`를 쓰게 한다. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS`는 대체 경로로 두는 안을 추천한다(정책 규칙 `PIXLATE_POLICY_RULES`와 같은 방식). 폰트 검증 실패는 기존 `StyleDefaultsUnavailable`처럼 렌더 실패로 처리하고 내장 폰트로 그리지 않는다. `deploy/pixlate.env.example` 설명도 함께 고친다.
-2. **스타일 해석**: `resolve_style()`을 `resolve_block()`으로 대체하거나 같은 규칙으로 고친다. 원본 폭(섹션 `bbox.w`)과 섹션의 ⑦ 시도 결과(done/failed)를 넘긴다. 현재는 단계 상태 없이 style NULL만 본다.
-3. **실제 폰트 · 굵기 · 자간 · 행간 적용**: `_font()`의 `ImageFont.load_default` 대신 역할 굵기의 실제 OTF를 적용 크기(소수 허용)로 연다. 자간 · 행간은 적용값의 px를 쓴다(`LINE_SPACING` 상수 대신 설정 자료의 비율).
-4. **넘침 계산을 실제 조판과 같은 기준으로**: 폭은 자간을 포함한 실제 줄 폭, 높이는 줄 수 × 행간 px. 높이가 영역과 같으면 넘침이 아니다. 넘쳐도 크기 축소 · 문구 축약 · 측정값 교체를 하지 않는다. 운영 엔진의 자간 끝 처리 · 커닝 기준은 #79.
-5. **입력 지문**: `app/flows/downstream.py`의 `_render_inputs`(미리보기 — 최종 렌더의 `app/flows/final.py` `_final_inputs`도 이것을 부른다)와 `_final_inputs`의 `style_defaults`를 `render_inputs(d)`(설정 버전 · SHA-256 · 폰트 SHA-256 · 규칙 버전)로 바꾸고, `RENDERER_VERSION`의 렌더 라이브러리 버전을 유지한다. `_render_section`의 대조도 같은 값으로 한다(다르면 `INPUT_CHANGED`).
-6. **미리보기 · 최종 렌더 공통**: 두 경로가 같은 로더 · 같은 `resolve_block` · 같은 조판 함수를 쓴다. 최종 렌더가 미리보기와 다른 설정을 읽을 수 없게 한다.
-7. **기록**: `text_block.style`은 측정값 그대로 둔다. 렌더 payload의 `applied` · `source`를 6.4 형식으로 넓힌다(저장 위치는 #78).
-8. **테스트**: `tests/exec_fakes.style_defaults_file`(테스트 전용 3키 형식)을 새 형식에 맞추고 6.7 사례를 BE 통합 시험으로 옮긴다. N4/N5/N6 상태 전이(D9-3)는 바꾸지 않는다.
+1. **`app/typeset.py` 로더 교체**: `load_role_defaults()`가 `pipeline.handoff.style_defaults.load_style_defaults()` + `verify_fonts()`를 쓰게 한다. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS`는 대체 경로로 두는 안을 추천한다(정책 규칙 `PIXLATE_POLICY_RULES`와 같은 방식). 폰트 검증 실패는 기존 `StyleDefaultsUnavailable`처럼 렌더 실패로 처리하고 내장 폰트로 그리지 않는다. `deploy/pixlate.env.example` 설명도 함께 고친다. **상태: 반영(PR #71 `65f350e`)** — `load_role_defaults()`가 정본 경로 + `verify_fonts()`, 실패하면 `STYLE_DEFAULTS_UNAPPROVED`로 중단. 검증 실패 시 내장 폰트로 대체하지 않는 정책은 유지한다(사용자 결정 2026-10-15, PR #72 코멘트).
+2. **스타일 해석**: `resolve_style()`을 `resolve_block()`으로 대체하거나 같은 규칙으로 고친다. 원본 폭(섹션 `bbox.w`)과 섹션의 ⑦ 시도 결과(done/failed)를 넘긴다. 현재는 단계 상태 없이 style NULL만 본다. **상태: 반영(PR #71)** — `resolve_style()`이 `resolve_block()`을 부르고, ⑦ 단계 상태는 렌더 manifest의 `style_stage`, 원본 폭은 섹션 배경 폭으로 넘긴다. 계약 위반은 `STYLE_RESULT_INVALID`.
+3. **실제 폰트 · 굵기 · 자간 · 행간 적용**: `_font()`의 `ImageFont.load_default` 대신 역할 굵기의 실제 OTF를 적용 크기(소수 허용)로 연다. 자간 · 행간은 적용값의 px를 쓴다(`LINE_SPACING` 상수 대신 설정 자료의 비율). **상태: 미반영** — `_font()`는 아직 `ImageFont.load_default`, 행간은 상수 1.2. 폰트(Pretendard) · 역할별 굵기는 release에서 BE 진행 예정(측정 · 그리기에 같은 폰트 객체, `RENDERER_VERSION` 갱신, 역할별 폰트 · 굵기와 특수문자 · 한글 출력 시험), 자간 · 행간은 develop 후속.
+4. **넘침 계산을 실제 조판과 같은 기준으로**: 폭은 자간을 포함한 실제 줄 폭, 높이는 줄 수 × 행간 px. 높이가 영역과 같으면 넘침이 아니다. 넘쳐도 크기 축소 · 문구 축약 · 측정값 교체를 하지 않는다. 운영 엔진의 자간 끝 처리 · 커닝 기준은 #79. **상태: develop 후속**(자간 적용과 함께).
+5. **입력 지문**: `app/flows/downstream.py`의 `_render_inputs`(미리보기 — 최종 렌더의 `app/flows/final.py` `_final_inputs`도 이것을 부른다)와 `_final_inputs`의 `style_defaults`를 `render_inputs(d)`(설정 버전 · SHA-256 · 폰트 SHA-256 · 규칙 버전)로 바꾸고, `RENDERER_VERSION`의 렌더 라이브러리 버전을 유지한다. `_render_section`의 대조도 같은 값으로 한다(다르면 `INPUT_CHANGED`). **상태: 반영(PR #71)** — manifest `style_defaults` = `typeset.style_inputs()`(`render_inputs`), 자료를 쓸 수 없으면 `unavailable`을 남기고 렌더 때 실패. 폰트 교체 시 `RENDERER_VERSION`을 올리는 것은 위 3의 release 작업에 포함. 지문이 달라진 기존 미리보기가 언제 다시 그려지는지는 단정하지 않는다 — 코드상 하류 실행이 `running`인 동안의 `progress()`만 새 시도를 만든다(N5 이후 · 재시도 영향은 BE 확인).
+6. **미리보기 · 최종 렌더 공통**: 두 경로가 같은 로더 · 같은 `resolve_block` · 같은 조판 함수를 쓴다. 최종 렌더가 미리보기와 다른 설정을 읽을 수 없게 한다. **상태: 반영(PR #71)** — 최종 렌더도 같은 `style_inputs()` · `_render_section` · `render`를 쓴다.
+7. **기록**: `text_block.style`은 측정값 그대로 둔다. 렌더 payload의 `applied` · `source`를 6.4 형식으로 넓힌다(저장 위치는 #78). **상태: develop 후속** — 현재 `applied` · `source`는 글자색 · 크기 · 정렬 세 키.
+8. **테스트**: `tests/exec_fakes.style_defaults_file`(테스트 전용 3키 형식)을 새 형식에 맞추고 6.7 사례를 BE 통합 시험으로 옮긴다. N4/N5/N6 상태 전이(D9-3)는 바꾸지 않는다. **상태: 일부 반영(PR #71)** — `tests/exec_fakes`가 정본 설정 자료를 쓰고, 기본값 적용 · 지문 불일치 · 자료 불가 시험이 `tests/test_exec_units.py` · `tests/test_exec_downstream.py`에 추가됐다. 6.7 사례 전체를 통합 시험으로 옮겼는지는 BE 확인.
 
 기존 `font_map` 테이블이 있어도 이번 연결에 새 DB 관리 기능 · 마이그레이션을 추가하지 않는 안이다(AI 쪽에서도 만들지 않았다).
 
@@ -229,7 +231,7 @@ python -m pytest tests/test_pipeline_style_defaults.py
 | 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 단계 failed 유지 |
 | 05_excluded_targets | 라벨 · 로고 · 빈 원문 · 번역 NULL/빈 문자열 → 조판 안 함. ⑦ 완료 · 세 항목 NULL → 모두 role_default |
 | 06a · 06b · 06c | 원본 폭 375 · 860 · 1080 — 860이면 title 73.38666666666667(반올림 없음) |
-| 07_fractional_measured | 측정 37.25 · 18.6 유지(배율 · 1.35 미적용, 기본값보다 작아도 유지) |
+| 07_fractional_measured | 측정 37.25 · 18.6 유지(배율 · em_ratio 미적용, 기본값보다 작아도 유지) |
 | 08_wrap_overflow | `\n` 2줄 · 높이 48 = 넘침 아님 · 47 = 넘침 · 긴 단어 폭 넘침 · 빈 줄 유지 |
 
 BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
@@ -242,7 +244,7 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 
 ### 6.8 남은 것 · 검증 한계
 
-- 운영 연결(6.6)과 BE · DB 통합 시험은 아직이다. 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽 단위 · 참고 렌더 검증만 했다.
+- 운영 연결(6.6)은 1 · 2 · 5 · 6이 PR #71로 반영됐고 8은 일부다(2026-10-15 코드 대조, 당시 기준 — 현재 상태는 `status.md` ⑨ 행). 남은 것: 실제 폰트 · 굵기(release, BE 진행 예정), 자간 · 행간 · 넘침 기준 · 기록 형식(develop). 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽은 단위 · 참고 렌더 검증만 했고, PR #71의 BE 시험은 실행하지 않았다.
 - #78 적용값 기록 위치 · 키, #79 운영 조판 엔진의 측정 기준(자간 끝 · 커닝 · 서브픽셀)은 BE 확인이 필요하다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
 - 디자인 원본 이미지는 이 작업에서 직접 열람하지 않았다. 토큰 값은 사용자가 전달한 승인표 기준이다.
 
@@ -258,8 +260,8 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 ### 7.2 현재 지원 범위
 
 - 기본 `ocr.split_threshold_px=4000` 기준으로 높이 4,000px 이하 섹션을 통째로 처리한다. 실제 이미지 크기는 Section의 width·height와 같아야 한다. 임의 폭에서 메모리 사용량을 보장한다는 의미는 아니다.
-- `tile_px=2000` 설정은 있지만 타일 분할·겹침 병합은 미구현(#31·#32)이다. 높이 4,000px 초과는 `ocr.run()`이 `NotImplementedError`로 거절하고 OCR CLI는 해당 미지원 입력에 종료 코드 3을 반환한다. 실패를 빈 OCR 성공으로 취급하지 않는다.
-- 이번 수정에 타일 처리를 추가하지 않는다. 긴 섹션 검증과 메모리 측정은 **실제 입력 폭 × 지원 범위 내 높이**의 섹션 단위로 한다. 제한을 높여 우회하지 않는다.
+- (2026-10-12 기준) `tile_px=2000` 설정은 있지만 타일 분할·겹침 병합은 미구현(#31·#32)이었다. 높이 4,000px 초과는 `ocr.run()`이 `NotImplementedError`로 거절하고 OCR CLI는 종료 코드 3을 반환했다. **2026-10-13 타일 OCR 구현(`feature/ocr-long-section-tiling`)으로 4,000px 초과 섹션도 처리한다 — 9절.**
+- 이 oneDNN 수정 검증(7.3)은 타일 처리와 분리한다. 긴 섹션 검증과 메모리 측정은 **실제 입력 폭 × 4,000px 이하 높이**의 섹션 단위로 한다. 타일 OCR의 Linux 실측은 9.3절이다.
 
 ### 7.3 배포 환경 재검증과 완료 기준
 
@@ -279,7 +281,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 ## 8. 번역문 검사 연결 인계(2026-10-12 · 2026-10-13 PM 검토 반영, D12)
 
-규칙 검사 `run_text_check`(기존, 미연결)와 번역문 LLM 규제 판정 `run_translation_review`(신규)를 BE 실행 계층에 연결하는 사항이다. 계약은 `contract.md` 5.3 · 7.1, 결정은 [통합 D12 · D12 보완](integration-decisions.md). **1차 통합은 규칙 검사만 연결하고, LLM 판정은 12월 최종 통합에서 연결한다** — 두 구성을 모두 지원하도록 활성 검사를 명시한다(8.4). PR #63의 develop 머지는 1차 릴리즈 이후이며, 봉투 Stage 추가 · `compliance_flags` 7.1 확장 · 요청의 라벨 · 로고 값은 BE 경계 변경이므로 **머지 전 BE 검토 · 승인이 필요하다**. AI 쪽은 단위 테스트 · 계약 예제(가짜 모델 · 합성 입력)까지 했고 실제 모델 호출 · BE 연결 · 통합 시험은 하지 않았다. 아래 BE 수정 사항은 제안이며 BE가 구현 · 확인한다. `app/` · migrations · OpenAPI · FE는 AI가 수정하지 않는다.
+규칙 검사 `run_text_check`(기존)와 번역문 LLM 규제 판정 `run_translation_review`(신규)를 BE 실행 계층에 연결하는 사항이다. 계약은 `contract.md` 5.3 · 7.1, 결정은 [통합 D12 · D12 보완](integration-decisions.md). **1차 통합은 규칙 검사만 연결하고, LLM 판정은 12월 최종 통합에서 연결한다** — 두 구성을 모두 지원하도록 활성 검사를 명시한다(8.4). PR #63의 develop 머지는 1차 릴리즈 이후이며, 봉투 Stage 추가 · `compliance_flags` 7.1 확장 · 요청의 라벨 · 로고 값은 BE 경계 변경이므로 **머지 전 BE 검토 · 승인이 필요하다**. 구현 · 검증 현황은 `status.md` ⑧ 행, 남은 검증은 `open-questions.md` #84. 아래 BE 수정 사항은 제안이며 BE가 구현 · 확인한다. `app/` · migrations · OpenAPI · FE는 AI가 수정하지 않는다.
 
 ### 8.1 요청 구성
 
@@ -335,7 +337,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 ### 8.10 API(feature/api-tracking) 반영 후보 · 검증 한계
 
 - 후보: 블록 검사 상태 필드, 규제 신호의 탐지 방식 · 판정 · 근거 목록, 경고 확인 식별(`acknowledgedWarnings`의 blockId+code 확장 · warningKey), 검사 진행 중 확정 거절. 이름 · 형식은 BE · FE가 정한다(#82).
-- AI 쪽 단위 테스트 · 계약 예제(가짜 모델 · 합성 입력)는 2026-10-13 추가했다. 실제 Gemini 스키마 수용 확인 · 실측 · BE 통합 시험은 아직이다(#84).
+- 구현 · 검증 현황은 `status.md` ⑧ 행. 실제 Gemini 스키마 수용 확인 · 실측은 #84, BE 통합 시험은 BE 연결 때 한다.
 
 ### 8.11 결과 표시(2026-10-12 PM 검토)
 
@@ -345,3 +347,29 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - `insufficient_evidence` · `insufficient_context`의 표시는 12월 계획에서 정한다(미결).
 - 사전 기록만 근거인 risk(`basis_summary=dictionary_only`)를 법규 위반 확정처럼 표시하지 않는다.
 - 신호 코드 · warningKey · 검사 상태 API 필드는 BE · FE 조정 사항이다(#82). AI 집계값을 경고 코드 · 확정 정책으로 직접 연결하지 않는다.
+
+## 9. 긴 섹션 타일 OCR 인계(2026-10-13)
+
+규칙 정본은 `pipeline.md` 7.9절, 실측 기록은 `docs/ai-experiments/2026-10-13_02-ocr_tile-check.md`.
+
+### 9.1 BE에 보이는 변화
+
+- `analyze()`는 높이 > 4,000px 섹션(① 분해 실패로 원본 전체를 한 섹션으로 쓰는 경우 포함)을 OCR 처리용 타일로 나눠 처리한다. 타일은 의미 섹션이 아니며 저장되지 않는다. `AnalyzeResult` 형식 · 버전 · 좌표계(섹션 로컬)는 바뀌지 않는다.
+- 인계 `analyze`의 `unsupported_input`(② 4,000px 초과) 실패는 더 이상 생기지 않는다. 대신 **새 실패 원인**: 경계를 옮긴 보완 OCR 후에도 타일 경계 충돌이 남으면 `AnalyzeError(OCR_FAILED, retryable=False)`다(기존 코드, #33 타일 범위 결정 2026-10-13). AI 인계 어댑터 보고는 기존 매핑대로 `model_call_failed` · `retryable=false`다. 메시지는 `OCR 타일 경계 충돌 미해결 section=… — 경계 n y…~… 사유`. 새 오류 코드는 없다. 잘림 없는 판독끼리 같은 자리에서 글자가 다르거나, 버려질 판독의 숫자 값이 남길 판독과 다르면(다수결 포함) 고르지 않고 이 실패가 된다 — 이 PC 실측에서 골든 긴 이미지 9장 중 5장(대조 타일링 5장)이 이 사유로 실패했다(예: `9.9%개선` / `9.99%개선`).
+- `analyze` 입력 지문(`input_manifest`)의 `config.ocr`에 `tile_*` 6키가 더해져 **같은 원본이라도 `input_manifest_sha256`이 이전과 다르다.** OCR 동작이 바뀌었으므로 이전 분석 결과를 재사용하지 않는 것이 의도다. 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(지문 · 설정 외 변화 없음).
+- **BE 재시도 연결(코드 확인)** — BE 워커(`app/flows/analysis.py` `execute_analyze`)는 `analyze()`를 직접 부르고 `AnalyzeError`의 code · message · retryable을 실패 봉투로 넘긴다. 채택(`AnalyzeHandler.adopt`) → `execution.adopt` → `_retry_or_fail_run`에서 retryable이 false면 자동 재시도 없이 `fail_run`(N2 오류, 남은 시도 종료 · 채택 전 섹션 삭제 · 기존 채택 결과 보존), true면 누적 한도(`N2_MAX_RETRY=2`) 안에서 자동 재시도한다. 부분 결과는 채택되지 않는다(실패 봉투에는 payload 결과 · 산출물이 없다). 사용자 [다시 시도](N2 오류)는 새 분석 실행을 시작하는 별도 경로라 retryable과 무관하게 그대로 쓸 수 있고 [중단](N2 → N1)도 그대로다. retryable은 DB 컬럼 · API 응답에 노출되지 않는다. 이 연결은 코드 읽기로 확인했고, BE 실행 테스트(`tests/test_exec_analysis.py`에 타일 충돌 즉시 실패 · 일시 오류 한도까지 재시도 2건 추가)는 이 PC에 Postgres · BE 의존성이 없어 **실행하지 않았다.**
+- **입력 지문 · 재사용 영향** — BE 분석 매니페스트의 `analyzer`(`PipelineAnalyzer.impl_version` = `section` · `ocr` · `merge` 설정 해시)가 새 `tile_*` 키로 바뀌므로 배포 후 새로 만드는 분석 시도의 `input_fingerprint`가 이전과 다르다. BE는 분석 결과를 실행 사이에 재사용하지 않고, 채택 검증은 시도에 고정된 지문끼리 대조하므로(워커는 lease의 지문을 그대로 보고) 배포 시점에 진행 중인 시도가 지문 불일치로 거절되지는 않는다. API 서버와 OCR 워커의 설정이 다르면 매니페스트의 `analyzer`와 실제 실행 버전(봉투 `impl_version`)이 달라질 수 있으므로 함께 배포한다(기존 성질).
+- `out_dir/ocr_debug/<section_key>.json` 진단 파일이 타일 섹션마다 생긴다(실패해도). 개발 확인용이며 인계 형식 · artifact가 아니다. 섹션 이미지 artifact 검증 규칙은 그대로다.
+- 엔진 호출 수 = 타일 수 + 경계당 최대 1회 보완(상한 타일 수 × 2 − 1). 이 PC GPU(RTX 4060 Laptop, 모델 로드 제외) 실측: 37,665px 원본 OCR 약 12초(타일 24 · 보완 7), ①~③(LLM 없음) 약 17초. 메모리는 섹션 전체 배열(예: 1000×37,665×3 ≈ 113MB) + 타일 1장 추론분이다 — 측정값 아님.
+
+### 9.2 BE 확인 필요
+
+- ~~타일 충돌 실패의 재시도(#33)~~ — **2026-10-13 결정 · 구현**: 타일 경계 충돌 미해결은 `OCR_FAILED` · `retryable=false`(자동 재시도 없음). 근거: 이 PC GPU에서 실패 이미지 3장을 같은 프로세스 2회 · 새 프로세스 2회 돌린 검출 · 실패 내용이 모두 같았다(Linux · CPU 미확인). 그 밖의 `OCR_FAILED`는 기존대로 재시도 가능. BE 실행 테스트로 확인하는 것은 남았다.
+- **#33 나머지** — 엔진 초기화 실패 중 영구 원인(의존성 · 모델명)과 일시 원인의 구분, 엔진 출력 형식 오류, 분류되지 않은 예외는 기존 값(재시도 가능)을 유지했다. `analyze()`가 설정 오류로 던지는 `ValueError`(③ · ② 설정 선검증)는 BE에서 `ANALYZE_UNEXPECTED` · 재시도 가능으로 기록된다(기존 동작, 이번 범위 밖).
+- **긴 이미지 분석 실패의 운영 처리** — 위 판독 충돌 실패는 analyze 전체 실패다. 재시도해도 같은 결과일 가능성이 높으며, 대체 처리(예: 사용자 안내 · 수동 입력)를 둘지는 정해지지 않았다.
+
+### 9.3 남은 검증
+
+- Linux · CPU 배포 이미지에서 긴 원본(예: 1000×37,665)의 시간 · 최대 메모리 — 7.3과 같은 방식(새 CLI 프로세스 전체, `/usr/bin/time -v`)으로 `analyze` 또는 `ocr` CLI를 측정한다.
+- 기준값(`[ocr] tile_*`)은 잠정이다. 실측 표본은 골든 9장 · 이 PC GPU다.
+- **1.0.0 릴리즈 전 배포 환경 실측은 생략하기로 했다(사용자 결정 2026-10-13).** 위 Linux · CPU 시간 · 최대 메모리, 배포 환경의 짧은 · 긴 섹션 · 충돌 실패 경로, BE 재시도 실행은 미검증으로 남는다. 이 기능은 기존에 미지원(거부)이던 긴 입력의 일부를 처리하도록 개선한 것이며, 긴 이미지 지원 전체의 품질 · 배포 안정성이 검증된 것이 아니다. 표본 9장의 실패 비율은 운영 전체 실패율이 아니다.

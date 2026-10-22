@@ -1,0 +1,8 @@
+#!/bin/sh
+# 가짜 uvicorn/celery: 비밀 형태가 섞인 배너를 찍고 TERM 을 받으면 웜 종료 흉내 후 0 으로 끝난다.
+# celery 는 /slow 파일이 있으면 그 초만큼 웜 종료가 걸린다(실행 중 작업 흉내).
+[ -f /crash ] && [ "$(basename "$0")" = uvicorn ] && { echo "crash on start"; exit 1; }
+echo "$(basename "$0") $* starting; transport: redis://:${REDIS_PASSWORD}@pixlate-redis:6379/0 db=${DATABASE_URL} gemini=${GEMINI_API_KEY:-none}"
+D=1; [ "$(basename "$0")" = celery ] && [ -f /slow ] && D=$(cat /slow)
+trap 'echo "warm shutdown (${D}s)"; sleep $D; echo "bye"; exit 0' TERM
+while :; do sleep 1; done

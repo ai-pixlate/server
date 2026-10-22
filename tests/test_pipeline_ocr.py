@@ -166,12 +166,13 @@ def test_engine_init_failure_inside_run_is_ocr_failed(cfg, tmp_path, monkeypatch
         ocr.run(_section(tmp_path), cfg)
 
 
-def test_section_over_split_threshold_is_rejected_not_passed(cfg, tmp_path):
+def test_section_over_split_threshold_is_tiled_not_rejected(cfg, tmp_path):
     eng = FakeEngine()
-    ocr.run(_section(tmp_path, h=4000), cfg, engine=eng)  # 4000은 분할 대상 아님
-    with pytest.raises(NotImplementedError, match="임시 분할 미구현"):
-        ocr.run(_section(tmp_path, h=4001, key="sec_1_02"), cfg, engine=eng)
-    assert len(eng.calls) == 1
+    ocr.run(_section(tmp_path, h=4000), cfg, engine=eng)  # 4000은 분할 대상 아님 — 한 번에 돈다
+    assert [c.shape[0] for c in eng.calls] == [4000]
+    diag = {}
+    ocr.run(_section(tmp_path, h=4001, key="sec_1_02"), cfg, engine=eng, diag=diag)  # 4001은 타일 OCR(test_pipeline_ocr_tile.py)
+    assert diag["tiled"] and len(eng.calls) == 1 + len(diag["tiles"]) and len(diag["tiles"]) >= 2
 
 
 def test_unsupported_preprocess_is_rejected(cfg):
@@ -276,12 +277,13 @@ def test_cli_ocr_engine_init_failure_stops_run(tmp_path, monkeypatch, capsys):
     assert json.loads(capsys.readouterr().err.strip())["code"] == "OCR_FAILED"
 
 
-def test_cli_ocr_oversized_section_fails_with_exit_3(tmp_path, fake_engine):
+def test_cli_ocr_oversized_section_is_tiled(tmp_path, fake_engine):
     out = tmp_path / "out"
-    assert cli.main(["ocr", "--split", str(_split_dir(tmp_path, heights=(100, 4001))), "--out", str(out)]) == 3
+    assert cli.main(["ocr", "--split", str(_split_dir(tmp_path, heights=(100, 4001))), "--out", str(out)]) == 0
     rec = _record(out)
-    assert rec["status"] == "partial"
-    assert rec["sections"]["sec_1_02"]["reason"] == "임시 분할 미구현"
+    assert rec["status"] == "ok"
+    assert "tiles" not in rec["sections"]["sec_1_01"] and rec["sections"]["sec_1_02"]["tiles"] >= 2
+    assert (out / "ocr_debug" / "sec_1_02.json").exists() and not (out / "ocr_debug" / "sec_1_01.json").exists()
 
 
 def test_cli_ocr_refuses_reused_output_folder(tmp_path, fake_engine):

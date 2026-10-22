@@ -59,7 +59,13 @@
           "preprocess": "none",
           "split_threshold_px": 4000,
           "tile_px": 2000,
-          "tile_overlap_px": 300
+          "tile_overlap_px": 300,
+          "tile_blank_row_std": 6.0,
+          "tile_match_min_v_overlap": 0.5,
+          "tile_equiv_min_x_iou": 0.9,
+          "tile_edge_touch_px": 3,
+          "tile_box_jitter_px": 3,
+          "tile_supplement_margin_px": 150
         },
         "merge": {
           "line_gap": 0.7,
@@ -90,7 +96,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "5a5a95158dd2cb51062d5caaae0402f3ab8cd99d065b8c1e1c47162b46584d28",
+    "input_manifest_sha256": "c38d93e09ebc47370efd76114ed4cce7978a0e10a23826be8e073f1cc7c2906a",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,

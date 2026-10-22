@@ -1,0 +1,314 @@
+{
+  "dataset_id": "gs-v1",
+  "file_count": 34,
+  "total_bytes": 21120729,
+  "hash_algorithm": "SHA-256",
+  "files": [
+    {
+      "source_id": "GS-01_001",
+      "product_id": "GS-01",
+      "path": "GS-01/GS-01_001.jpg",
+      "bytes": 204400,
+      "width": 1000,
+      "height": 1360,
+      "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+    },
+    {
+      "source_id": "GS-01_002",
+      "product_id": "GS-01",
+      "path": "GS-01/GS-01_002.jpg",
+      "bytes": 5949260,
+      "width": 1000,
+      "height": 37665,
+      "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+    },
+    {
+      "source_id": "GS-02_001",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_001.jpg",
+      "bytes": 735450,
+      "width": 830,
+      "height": 5154,
+      "sha256": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4"
+    },
+    {
+      "source_id": "GS-02_002",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_002.jpg",
+      "bytes": 397810,
+      "width": 1000,
+      "height": 2117,
+      "sha256": "91dee0b2018a89e3c4e595bfd4e05eaaef141198284f5add4d1c65a3feee272a"
+    },
+    {
+      "source_id": "GS-02_003",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_003.jpg",
+      "bytes": 58547,
+      "width": 830,
+      "height": 641,
+      "sha256": "ca750554556880bd7437669d4bc0c3b5dc7fc8d742d5ba95a9da0efbd4cbb137"
+    },
+    {
+      "source_id": "GS-02_004",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_004.jpg",
+      "bytes": 411361,
+      "width": 830,
+      "height": 3867,
+      "sha256": "a565751f851e61176a1dfc2b016c814e7a50867b5966454bbad2f2491f8f94a3"
+    },
+    {
+      "source_id": "GS-02_005",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_005.jpg",
+      "bytes": 129093,
+      "width": 830,
+      "height": 760,
+      "sha256": "bd7eed2473ba95571701d0e2c253b473138c9618896de0378232df9e7d8522b4"
+    },
+    {
+      "source_id": "GS-02_006",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_006.jpg",
+      "bytes": 285075,
+      "width": 830,
+      "height": 2383,
+      "sha256": "2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b"
+    },
+    {
+      "source_id": "GS-02_007",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_007.jpg",
+      "bytes": 432173,
+      "width": 830,
+      "height": 4322,
+      "sha256": "0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86"
+    },
+    {
+      "source_id": "GS-02_008",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_008.jpg",
+      "bytes": 1324929,
+      "width": 830,
+      "height": 9967,
+      "sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1"
+    },
+    {
+      "source_id": "GS-02_009",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_009.jpg",
+      "bytes": 1131299,
+      "width": 830,
+      "height": 9868,
+      "sha256": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910"
+    },
+    {
+      "source_id": "GS-02_010",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_010.jpg",
+      "bytes": 233530,
+      "width": 830,
+      "height": 2599,
+      "sha256": "d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5"
+    },
+    {
+      "source_id": "GS-02_011",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_011.jpg",
+      "bytes": 487533,
+      "width": 830,
+      "height": 2994,
+      "sha256": "6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39"
+    },
+    {
+      "source_id": "GS-02_012",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_012.jpg",
+      "bytes": 19486,
+      "width": 800,
+      "height": 220,
+      "sha256": "031be239854f57cbabacca94612f9f9cb2ff53ddd50f351f73431e69a96a04fe"
+    },
+    {
+      "source_id": "GS-02_013",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_013.jpg",
+      "bytes": 304468,
+      "width": 830,
+      "height": 3225,
+      "sha256": "8cd5c87dcaa94cf0663194cbe5663563d8603def8ac92002aa0d9c2ca9896def"
+    },
+    {
+      "source_id": "GS-02_014",
+      "product_id": "GS-02",
+      "path": "GS-02/GS-02_014.jpg",
+      "bytes": 1710163,
+      "width": 830,
+      "height": 16414,
+      "sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81"
+    },
+    {
+      "source_id": "GS-03_001",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_001.jpg",
+      "bytes": 77822,
+      "width": 1000,
+      "height": 455,
+      "sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c"
+    },
+    {
+      "source_id": "GS-03_002",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_002.jpg",
+      "bytes": 2321841,
+      "width": 1000,
+      "height": 13425,
+      "sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20"
+    },
+    {
+      "source_id": "GS-03_003",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_003.jpg",
+      "bytes": 88821,
+      "width": 1000,
+      "height": 540,
+      "sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec"
+    },
+    {
+      "source_id": "GS-03_004",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_004.jpg",
+      "bytes": 227866,
+      "width": 1000,
+      "height": 1760,
+      "sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b"
+    },
+    {
+      "source_id": "GS-03_005",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_005.jpg",
+      "bytes": 310147,
+      "width": 1000,
+      "height": 2040,
+      "sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410"
+    },
+    {
+      "source_id": "GS-03_006",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_006.jpg",
+      "bytes": 87939,
+      "width": 1000,
+      "height": 679,
+      "sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688"
+    },
+    {
+      "source_id": "GS-03_007",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_007.jpg",
+      "bytes": 122987,
+      "width": 1000,
+      "height": 710,
+      "sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1"
+    },
+    {
+      "source_id": "GS-03_008",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_008.jpg",
+      "bytes": 160913,
+      "width": 1000,
+      "height": 1576,
+      "sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c"
+    },
+    {
+      "source_id": "GS-03_009",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_009.jpg",
+      "bytes": 83660,
+      "width": 1000,
+      "height": 710,
+      "sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9"
+    },
+    {
+      "source_id": "GS-03_010",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_010.jpg",
+      "bytes": 674646,
+      "width": 1000,
+      "height": 4700,
+      "sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea"
+    },
+    {
+      "source_id": "GS-03_011",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_011.jpg",
+      "bytes": 186268,
+      "width": 1000,
+      "height": 1720,
+      "sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d"
+    },
+    {
+      "source_id": "GS-03_012",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_012.jpg",
+      "bytes": 116089,
+      "width": 1000,
+      "height": 830,
+      "sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f"
+    },
+    {
+      "source_id": "GS-03_013",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_013.jpg",
+      "bytes": 380370,
+      "width": 1000,
+      "height": 2350,
+      "sha256": "4585ffd307e9ec9e5c042644c00d951f02d06679593569f091338c2fb2f33be0"
+    },
+    {
+      "source_id": "GS-03_014",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_014.jpg",
+      "bytes": 572400,
+      "width": 1000,
+      "height": 3352,
+      "sha256": "3e658d865927409bbddb98f7ccabf47feeab615a13796d40a0b9545e96ad5a2f"
+    },
+    {
+      "source_id": "GS-03_015",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_015.jpg",
+      "bytes": 91647,
+      "width": 1000,
+      "height": 800,
+      "sha256": "4251c02b6e935006f5d5848ebb846e1530b0d6fb31546999dea5a7224fd60e2a"
+    },
+    {
+      "source_id": "GS-03_016",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_016.jpg",
+      "bytes": 37490,
+      "width": 1000,
+      "height": 403,
+      "sha256": "d2493815f7b7cc96cbed23b5b64b10c25b1aa7493abc7ff5c19d028bd4152b58"
+    },
+    {
+      "source_id": "GS-03_017",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_017.jpg",
+      "bytes": 215637,
+      "width": 1000,
+      "height": 960,
+      "sha256": "3cec5ca60131774810cca56040d4775d9376a0ebc53073b218814dd6b5b51231"
+    },
+    {
+      "source_id": "GS-03_018",
+      "product_id": "GS-03",
+      "path": "GS-03/GS-03_018.jpg",
+      "bytes": 1549609,
+      "width": 1000,
+      "height": 10785,
+      "sha256": "d541ca2aee1d54dbd85b8ef5c434044cd8e05fe93cb58f667a189f72dc00c3be"
+    }
+  ]
+}

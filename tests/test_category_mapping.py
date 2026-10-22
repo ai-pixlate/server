@@ -13,7 +13,7 @@ SUN = "Sunscreens & Tanning Products"
 
 
 class FakeDB:
-    """category_mapping(category_id → internal_category 행 목록)만 아는 가짜 세션. 실행한 SQL과 rollback을 기록한다."""
+    """category_mapping(category_id → internal_category 행 목록)과 브랜드 소유 확인(항상 소유)만 아는 가짜 세션. 실행한 SQL과 rollback을 기록한다."""
 
     def __init__(self, mapping: dict[int, list[str]]):
         self.mapping = mapping
@@ -25,6 +25,8 @@ class FakeDB:
         self.sql.append(sql)
         if "FROM category_mapping" in sql:
             return _Rows([(v,) for v in self.mapping.get(params["c"], [])])
+        if "FROM brand" in sql:
+            return _Rows([(1,)])
         raise AssertionError(f"예상하지 않은 SQL: {sql}")
 
     def rollback(self):
@@ -37,6 +39,9 @@ class _Rows:
 
     def all(self):
         return self.rows
+
+    def first(self):
+        return self.rows[0] if self.rows else None
 
 
 # category 10 = 하위(선크림, 직접 매핑), 20 = 하위(매핑 없음, 부모 30에만 매핑), 40 = 같은 값 중복, 50 = 서로 다른 값

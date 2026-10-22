@@ -40,4 +40,27 @@ chmod 600 /etc/ssh/ssh_host_*_key
 
 mkdir -p "${HF_HOME:-$DATA_DIR/.cache/huggingface}" "${TORCH_HOME:-$DATA_DIR/.cache/torch}" 2>/dev/null || true
 
+# PaddleX 모델 캐시(OCR 워커): /root/.paddlex → /data/.cache/paddlex. 재시작마다 모델을 다시 받지 않게 한다.
+# 몇 번 실행해도 같은 결과이고, 이미 있는 디렉터리·파일·다른 링크는 바꾸지 않는다(경고만). 실패해도 sshd 는 띄운다.
+link_paddlex_cache() {
+    local target="$DATA_DIR/.cache/paddlex" link=/root/.paddlex
+    [ -d "$DATA_DIR" ] || return 0
+    if [ ! -d "$target" ]; then
+        if [ -e "$target" ] || [ -L "$target" ]; then
+            echo "[entrypoint] $target 가 디렉터리가 아니다. PaddleX 캐시 연결을 건너뛴다" >&2; return 0
+        fi
+        mkdir -p "$target" || { echo "[entrypoint] $target 생성 실패. PaddleX 캐시 연결을 건너뛴다" >&2; return 0; }
+    fi
+    if [ -L "$link" ]; then
+        [ "$(readlink "$link")" = "$target" ] \
+            || echo "[entrypoint] $link 가 다른 곳을 가리킨다. 그대로 둔다" >&2
+    elif [ -e "$link" ]; then
+        echo "[entrypoint] $link 가 이미 있다(링크 아님). 그대로 둔다" >&2
+    else
+        ln -s "$target" "$link" || echo "[entrypoint] $link 링크 생성 실패" >&2
+    fi
+    return 0
+}
+link_paddlex_cache || true
+
 exec /usr/sbin/sshd -D -e

@@ -29,8 +29,9 @@
 - 보호 기하가 유효하지 않음: 라벨 · 로고 블록 bbox의 w 또는 h가 0 · 경계 밖, 보호할 저신뢰 · 빈 텍스트 영역이 면적 0 · 경계 밖.
 - 영역 bbox가 poly의 외접 사각형(`BBox.from_poly`)과 다르면 글자 높이의 근거가 모호하므로 입력 오류다.
 
-이 모듈은 파일을 읽거나 쓰지 않는다(실행 계층 몫). 실제 LaMa 어댑터는 없다 — `InpaintModel` 인터페이스만 두고, 모델은 호출자가 주입한다.
-원시 영역을 지우거나 다시 묶지 않고, ④⑤ 판정을 보정하지 않는다(#36 · #40 · #67 · #69). #34: 영역 score는 현재 인식 신뢰도 구현값이다.
+이 모듈은 파일을 읽거나 쓰지 않는다(실행 계층 몫). 모델은 `InpaintModel` 인터페이스로만 쓰고 호출자가 주입한다 — LaMa 구현은
+`inpaint_lama.LamaModel`이며 기본 팩토리 `build_model`이 모델 전용 자식 프로세스(`inpaint_proc`)에서 만든다.
+원시 영역을 지우거나 다시 묶지 않고, ④⑤ 판정을 보정하지 않는다(#36 · #40 · #67 · #69). #34: 영역 score = 텍스트 인식 신뢰도(통합 D3).
 """
 from __future__ import annotations
 
@@ -94,7 +95,7 @@ def pixel_sha256(arr: np.ndarray) -> str:
 
 
 class InpaintModel(Protocol):
-    """인페인팅 모델 호출 인터페이스(개발용). 실제 LaMa 어댑터는 아직 없다(#72).
+    """인페인팅 모델 호출 인터페이스. LaMa 구현은 `inpaint_lama.LamaModel`(#72).
 
     - `describe()` — 실행 기록용 모델 식별(이름 · 버전 · 가중치 지문 등). 값은 구현이 정한다.
     - `inpaint(image, mask)` — image: (H, W, 3) uint8 RGB, mask: (H, W) uint8(0 = 보존 · 255 = 지움). 둘 다 호출마다 새 복사본을 넘긴다.

@@ -3,9 +3,10 @@
 > 근거: 개발계획 v3.6 · 스키마 계약 문서 v3.5 · PoC 검증 결과 요약 2026-09-17 (별도 PoC 레포, 이 레포 밖)
 > 범위: MVP — 원본 규격 유지 · 미국 · 영어. 12월 범위(규격 변경 경로·썸네일·정밀 누끼)는 이 문서에 없다.
 > 우선순위: 서비스 흐름은 이 문서 → 산출 값·함수 경계는 `contract.md` → 컬럼 타입·제약은 BE 정본 ERD.
-> 표기: `확정` 그대로 구현 / `미정` `open-questions.md` 참조 / `BE 확인 필요` BE와 합의 후 구현.
-> 통합 추가 합의: `[통합 Dn]`은 `integration-decisions.md`의 2026-10-06~07 승인 기록. 1.1절의 서비스 전이는 원칙 확정·미구현이며, 단독 단계의 완료 상태와 구분한다.
-> 파라미터 값의 정본은 `pipeline/config/default.toml`이고, 이 문서의 값은 기본값 기록이다. 실험 중 값 변경은 문서에 반영하지 않는다. config 파일 경로·프롬프트 디렉터리(`pipeline/prompts/`)는 세 정본에 없는 레포 구조 결정이며 `dev.md` 2절이 소유한다.
+> 표기: `확정` 그대로 구현 / `미정` `open-questions.md` 참조 / `BE 확인 필요` BE와 합의 후 구현. 구현 상태(어디까지 구현 · 연결됐는지)는 이 문서에 적지 않는다 — `status.md`.
+> 통합 추가 합의: `[통합 Dn]`은 `integration-decisions.md`의 2026-10-06~07 승인 기록.
+> 파라미터 값의 정본은 `pipeline/config/default.toml`이고, 이 문서 3절은 키의 의미 · 결정 상태 · 출처만 적는다. 실험 중 값 변경은 문서에 반영하지 않는다. config 파일 경로·프롬프트 디렉터리(`pipeline/prompts/`)는 세 정본에 없는 레포 구조 결정이며 `dev.md` 2절이 소유한다.
+> 세부 원문: 단계별 알고리즘 · 검증 · 기록 세부와 단독 개발 당시 이력은 `archive/pipeline-v1-detail.md`에 있다(기본으로 읽지 않음). 구현 세부는 코드와 테스트에서 확인한다.
 
 ---
 
@@ -31,7 +32,7 @@
 - ⑥⑦⑧은 두 제외 판정(④⑤)이 끝난 뒤 남은 대상에 대해서만, 입력이 준비되면 병렬 실행할 수 있다. [개발계획 2.1] [계약 1.1]
 - 앞 단계 산출물이 다음 단계 입력이다. [PoC 0장]
 
-### 1.1 BE 통합 서비스 전이 — 확정·미구현
+### 1.1 BE 통합 서비스 전이
 
 PM 최종 회신과 BE·AI 기술 합의를 적용한다. 단독 단계 성공과 화면 진행 가능은 다르다. [통합 D9]
 
@@ -39,7 +40,7 @@ PM 최종 회신과 BE·AI 기술 합의를 적용한다. 단독 단계 성공�
 |---|---|---|
 | 초기 분석 → N3 | 분해 실패는 원본 전체 대체 섹션. 현지 AI 실패는 제외/판정 실패, 현지 조회 실패는 제외 없음/미검사 안내 후 진행. 규제/공통 묶음 실패 및 기초 산출물 생성 불가는 N2 재시도·오류 | [통합 D9] |
 | N3 → N4 | 포함 섹션 없으면 거절. 대표·최초 작업만 생성. 되살린 판정 실패 섹션은 재판정 없이 진행 | [통합 D1] [통합 D9] |
-| ④→⑤→⑥⑦⑧ | 유효한 라벨·로고 판정 뒤 include/is_excluded false만 하류 병렬 생성. #63 마이그레이션 반영 전 생성 금지 | [통합 D1] |
+| ④→⑤→⑥⑦⑧ | 유효한 라벨·로고 판정 뒤 include/is_excluded false만 하류 병렬 생성. `is_excluded`는 3값 OR 생성식(#63)을 따른다 | [통합 D1] |
 | N4 → N5 | 인페인트 실패 원본 배경, 스타일 실패 역할 기본값, 미리보기 실패 원본 표시를 적용. 번역 일부 실패는 빈 칸·직접 입력. 복합 실패도 같은 규칙으로 진행 | [통합 D9] |
 | 번역 전체 실패 | 대상이 있는데 성공 0건이면 N4 자동 재시도·오류·재시도/중단. 대상 없음의 정상 생략과 구분 | [통합 D9] |
 | 번역 직후 검사 | 자동 번역 채택 뒤 번역문 검사는 N4에서 끝난 뒤 N5로 넘어간다. 재시도 후에도 최종 실패면 N4 오류로 막지 않고 「⚠ 검사하지 못했습니다」와 함께 N5로 진행. 1차 통합은 규칙 검사만, 12월 최종 통합은 LLM 판정 포함 | [통합 D12] |
@@ -55,70 +56,73 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 
 ## 2. 단계표
 
-| # | 단계 | 채택 기술 · 조건 | 입력 | 출력 | 상태 | 출처 |
-|---|---|---|---|---|---|---|
-| ① | 섹션 분해 | `color_snap_vlm2` — 배경색 전환으로 자르고, 색이 안 바뀌는 긴 구간만 VLM이 경계 선택. 입도 **소제목 단위**. 원본 1장 단위로 실행 | 상세페이지 원본(업로드 순서 = 원본 순서) | 섹션 이미지 + `top_offset` · `height` (`range`는 외부 필드로 추가하지 않음) | 확정 | [개발계획 2.1, 6장] [PoC 0장] [통합 D3] |
-| ② | 텍스트 추출 | PaddleOCR `PP-OCRv5_server_det` + `korean_PP-OCRv5_mobile_rec` · 전처리 없음. **4,000px 초과 섹션은 OCR 전 임시 분할**(여백 우선 · 없으면 2,000px 띠 300px 겹침). 타일 좌표는 섹션 로컬로 복원, 겹침 중복 정리 | ① 섹션 이미지 | 영역 `poly` · `bbox` · `text` · `score` (섹션 로컬) | 확정 | [개발계획 2.1, 6장] [계약 3.2] |
-| ③ | 줄·문단 병합 + 역할 분류 | `heuristic_v2` → `llm_assist`(`gemini-3.8-flash` · `temperature=0`). LLM은 **추가 병합·역할 재판정만**, 분할 금지. 블록 1건 = 문단 1개 | ② 영역 | 블록 + `role` 5종(`title` `body` `caption` `price` `caution`) + `source_lines` + `ocr_confidence` | 확정 | [개발계획 2.1, 6장] [계약 1.2, 2.1] |
-| ③-1 | AI 섹션 판정 | 섹션 이미지 + 블록(+ 필요 시 앞뒤 섹션 텍스트)으로 VLM이 **콘텐츠 항목별 해당 · 애매 · 근거 블록만** 기록. 텍스트 없는 섹션도 이미지 판정 대상. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉) | ① 섹션 이미지 + ③ 블록 | `content_findings` | **MVP 포함 · 판정 방식 미정**(`open-questions.md` #5). 전달 자료(사전 2종, `README.md` 2.1)로 후보 방식이 생겼으나 채택 전 · 판정 항목과 사전의 연결 미정(#4) · 상품 규제 분류 입력 필요(#47) | [개발계획 2.1, 4.1, 6장] [계약 1.3, 4.1] [설명서 §3 · §4] |
-| ③-1' | 정책 적용 | AI 판정 결과 × 정책 데이터 → 섹션별 유지 · 제외 · 확인 필요를 **로컬 로직**이 계산. 정책 변경만으로 AI 재호출 없음 | ③-1 findings + 정책 데이터 | `section_verdict` | 구조 확정 · 정책 데이터 후보 확보(규제사전 16행 · 현지부적합 8행, 계약 채택 전 — `open-questions.md` #3 · #7) · **구현 소유자 AI 서버**(사용자 결정 2026-09-28, `open-questions.md` 5절 #6) · 사이트별 게시 정책은 MVP 이후(4절) | [개발계획 2.1, 3장] [계약 1.3, 4.2] [`open-questions.md` 5절 #6] |
-| — | 섹션 확인 | 사용자 개입 1. 제외/포함 버킷 제시 · 되살리기/제외하기 · 무조작 통과 시 권고대로. AI 처리 없음 | ③-1' 결과 | `section.bucket` | — | [개발계획 2.1] |
-| ④ | 제품 라벨 판정 | `vlm_relation` — `gemini-3.8-flash` + **섹션 이미지 동봉**(긴 변 1024px). "애매하면 라벨" 편향 | ③ 블록 + ① 섹션 이미지 | 블록별 `is_product_label` | 확정 · 단독 구현 v1(7.4절, 전체 통합 전) | [개발계획 2.1, 6장] [계약 2.2] [`open-questions.md` #66] |
-| ⑤ | 브랜드 로고 제외 | `block_exact` — 블록 전체 텍스트 == 브랜드명(영·한). 정규화 NFKC → 소문자 → 공백·문장부호 제거. 브랜드명은 **상품 메타에서 받음**, 로고 파일 사용 안 함. ④ 라벨 블록은 비교도 건너뜀 | ③ 블록 + ④ 라벨 + `brand.name_ko/name_en` | 블록별 `is_brand_logo` | 확정 · 단독 구현 v1(7.5절, 전체 통합 전 · 테스트 · 실측 전) | [개발계획 2.1, 4.2] [계약 2.3] [`open-questions.md` #68] |
-| ⑥ | 인페인팅 | LaMa(iopaint) + `erase_s50` — **신뢰도 0.5 이상 · 텍스트 있는 원시 영역**만 마스크. 마스크 = poly 채움 + 글자 높이 15% 팽창. ④⑤ 보호 영역은 마스크에서 제외하고 팽창이 침범하지 않게 구성. 확대 재시도 없음 | ① 섹션 이미지 + ② 영역 `score` + ④⑤ 제외 | 글자 지운 배경 | 확정 · 단독 구현 v1(7.6절, LaMa 어댑터 GPU 소수 검증 · 100섹션 실측 전) | [개발계획 2.1, 6장] [계약 5.2] [`open-questions.md` 2.3절] |
-| ⑦ | 스타일 추출 | `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 → em ×1.35. 정렬 = 블록 안 줄들의 좌·중앙·우 분산 비교, 허용 오차 블록 폭 12%. **원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리·굵기는 추출하지 않고 역할 기반 매핑 | ② 영역 + ③ 블록 + ① 섹션 이미지 | 영역별 `font_color` · `bg_color` · `est_font_px`, 블록별 `align` → `text_block.style` | 확정 · 단독 개발 마무리 v1(7.7절, 소수 표본 사용자 육안 검수 · 전체 통합 전) | [개발계획 2.1, 4.1, 6장] [`open-questions.md` #76] [사용자 결정 2026-10-06] |
-| ⑧ | 로컬라이징 번역 | `gemini-3.8-flash` + **RAG 용어집**. 원본 세로 순서·블록 문맥 유지. 강제/참고 용어 구분. 번역 후 규제 표현·강제 용어 적용 여부 검증(규칙 검사 + 독립 LLM 규제 판정, 7.8절 · [통합 D12]). **자동 축약 없음**. 프롬프트는 RAG 구축 후 기술검증 | ③ 블록 − ④ 라벨 − ⑤ 로고 + 용어집 | `trans_1` + `compliance_flags` | 모델 확정 · 프롬프트 · 규제 표 미정 | [개발계획 2.1, 6장] [계약 5.1] |
-| ⑨ | 조판·렌더 | HTML 텍스트 레이어 + 헤드리스 캡처. **BE 소관.** AI는 ⑥⑦⑧ 산출물만 넘김 | ⑥ 배경 + ⑦ 스타일 + ⑧ 번역문 | 번역된 섹션 + `overflow` | BE | [개발계획 2.2, 4.2] |
+코드 경로는 `pipeline/` 기준이다. 전체 구조는 `dev.md` 1절, BE가 부르는 운영 인계 계층(`pipeline/handoff/`)은 `dev.md` 3.2절에 있다. 구현 상태는 이 표에 적지 않는다(`status.md`).
+
+| # | 단계 | 채택 기술 · 조건 | 입력 | 출력 | 결정 | 코드 | 출처 |
+|---|---|---|---|---|---|---|---|
+| ① | 섹션 분해 | `color_snap_vlm2` — 배경색 전환으로 자르고, 색이 안 바뀌는 긴 구간만 VLM이 경계 선택. 입도 **소제목 단위**. 원본 1장 단위로 실행 | 상세페이지 원본(업로드 순서 = 원본 순서) | 섹션 이미지 + `top_offset` · `height` (`range`는 외부 필드로 추가하지 않음) | 확정 | `stages/section_split.py` | [개발계획 2.1, 6장] [PoC 0장] [통합 D3] |
+| ② | 텍스트 추출 | PaddleOCR `PP-OCRv5_server_det` + `korean_PP-OCRv5_mobile_rec` · 전처리 없음. **4,000px 초과 섹션은 OCR 전 임시 분할**(여백 우선 · 없으면 2,000px 띠 300px 겹침). 타일 좌표는 섹션 로컬로 복원, 겹침 중복 정리(7.9절) | ① 섹션 이미지 | 영역 `poly` · `bbox` · `text` · `score` (섹션 로컬) | 확정 | `stages/ocr.py` · `stages/ocr_tile.py` | [개발계획 2.1, 6장] [계약 3.2] |
+| ③ | 줄·문단 병합 + 역할 분류 | `heuristic_v2` → `llm_assist`(`gemini-3.8-flash` · `temperature=0`). LLM은 **추가 병합·역할 재판정만**, 분할 금지. 블록 1건 = 문단 1개 | ② 영역 | 블록 + `role` 5종(`title` `body` `caption` `price` `caution`) + `source_lines` + `ocr_confidence` | 확정 | `stages/merge.py` (①~③ 묶음 `analyze.py`) | [개발계획 2.1, 6장] [계약 1.2, 2.1] |
+| ③-1 | AI 섹션 판정 | 섹션 이미지 + 블록(+ 필요 시 앞뒤 섹션 텍스트)으로 VLM이 **콘텐츠 항목별 해당 · 애매 · 근거 블록만** 기록. 텍스트 없는 섹션도 이미지 판정 대상. PoC 최선 후보 `sec_adj`(`gemini-3.8-flash` · 앞뒤 섹션 텍스트 동봉). 검사 범위는 모든 섹션 · 현지부적합 8항목 + 규제 표현 검출 1유형(7.3절) | ① 섹션 이미지 + ③ 블록 | `content_findings` | 검사 범위 확정 · 판정 방식 최종 채택 **미정**(`open-questions.md` #5) · 규제 분류 전달 형식 미정(#47) | `stages/judge.py`(개발용) · `handoff/judgment.py` · `matching.py` | [개발계획 2.1, 4.1, 6장] [계약 1.3, 4.1] [설명서 §3 · §4] [통합 D9] |
+| ③-1' | 정책 적용 | AI 판정 결과 × 정책 데이터 → 섹션별 유지 · 제외 · 확인 필요를 **로컬 로직**이 계산. 정책 변경만으로 AI 재호출 없음 | ③-1 findings + 정책 데이터 | `section_verdict` | 구조 확정 · **구현 소유자 AI 서버**(사용자 결정 2026-09-28, `open-questions.md` 5절 #6) · 정책 데이터 계약 채택 전(#3 · #7) · 사이트별 게시 정책은 MVP 이후(4절) | `stages/policy.py`(개발용) · `handoff/judgment.py` · `data/policy_rules.json` | [개발계획 2.1, 3장] [계약 1.3, 4.2] [`open-questions.md` 5절 #6] |
+| — | 섹션 확인 | 사용자 개입 1. 제외/포함 버킷 제시 · 되살리기/제외하기 · 무조작 통과 시 권고대로. AI 처리 없음 | ③-1' 결과 | `section.bucket` | — | BE | [개발계획 2.1] |
+| ④ | 제품 라벨 판정 | `vlm_relation` — `gemini-3.8-flash` + **섹션 이미지 동봉**(긴 변 1024px). "애매하면 라벨" 편향 | ③ 블록 + ① 섹션 이미지 | 블록별 `is_product_label` | 확정 | `stages/label.py` | [개발계획 2.1, 6장] [계약 2.2] [`open-questions.md` #66] |
+| ⑤ | 브랜드 로고 제외 | `block_exact` — 블록 전체 텍스트 == 브랜드명(영·한). 정규화 NFKC → 소문자 → 공백·문장부호 제거. 브랜드명은 **상품 메타에서 받음**, 로고 파일 사용 안 함. ④ 라벨 블록은 비교도 건너뜀 | ③ 블록 + ④ 라벨 + `brand.name_ko/name_en` | 블록별 `is_brand_logo` | 확정 | `stages/logo.py` | [개발계획 2.1, 4.2] [계약 2.3] [`open-questions.md` #68] |
+| ⑥ | 인페인팅 | LaMa(iopaint) + `erase_s50` — **신뢰도 0.5 이상 · 텍스트 있는 원시 영역**만 마스크. 마스크 = poly 채움 + 글자 높이 15% 팽창. ④⑤ 보호 영역은 마스크에서 제외하고 팽창이 침범하지 않게 구성. 확대 재시도 없음 | ① 섹션 이미지 + ② 영역 `score` + ④⑤ 제외 | 글자 지운 배경 | 확정 | `stages/inpaint.py` · `inpaint_lama.py` · `inpaint_proc.py` · `handoff/gpu.py` | [개발계획 2.1, 6장] [계약 5.2] [`open-questions.md` 2.3절] |
+| ⑦ | 스타일 추출 | `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 × `style.em_ratio`(잠정 적용 · 최종값 미정, #85). 정렬 = 블록 안 줄들의 좌·중앙·우 분산 비교, 허용 오차 블록 폭 12%. **원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리·굵기는 추출하지 않고 역할 기반 매핑 | ② 영역 + ③ 블록 + ① 섹션 이미지 | 영역별 `font_color` · `bg_color` · `est_font_px`, 블록별 대표값 · `align`. `text_block.style`의 키 구성은 미정(#14) | 채택 기술 확정 · 환산 비율 잠정(#85) | `stages/style.py` · 역할 기본값 `handoff/style_defaults.py` | [개발계획 2.1, 4.1, 6장] [`open-questions.md` #76 · #14] [사용자 결정 2026-10-06] [통합 D11] [`open-questions.md` #85] [사용자 결정 2026-10-15] |
+| ⑧ | 로컬라이징 번역 | `gemini-3.8-flash` + **RAG 용어집** — 용어는 BE가 이번 대상 블록 원문에서 선별해 공급한다(AI가 검색하지 않음). 원본 세로 순서·블록 문맥 유지. 강제/참고 용어 구분. 번역 후 규제 표현·강제 용어 적용 여부는 번역과 분리된 검사(규칙 검사 + 독립 LLM 규제 판정, 7.8절)가 확인한다. [통합 D12] **자동 축약 없음**. 프롬프트는 RAG 구축 후 기술검증 | ③ 블록 − ④ 라벨 − ⑤ 로고 + 용어집 | `trans_1`(번역) + `compliance_flags`(번역 후 검사) | 모델 확정 · 프롬프트 · 규제 표 미정 | `stages/translate.py` · `stages/text_check.py` · `handoff/translation.py` · `glossary.py` | [개발계획 2.1, 6장] [계약 5.1] [통합 D10] |
+| ⑨ | 조판·렌더 | HTML 텍스트 레이어 + 헤드리스 캡처. **BE 소관.** AI는 ⑥⑦⑧ 산출물만 넘김 | ⑥ 배경 + ⑦ 스타일 + ⑧ 번역문 | 번역된 섹션 + `overflow` | BE | BE | [개발계획 2.2, 4.2] |
 
 **곁가지 없음** — 제품컷 누끼는 본 파이프라인 단계가 아니며 MVP 제외. [개발계획 4.1] [PoC 0장]
 
-## 3. 실행 파라미터 기본값
+## 3. 실행 파라미터
 
-값의 정본은 코드가 아닌 `pipeline/config/default.toml`이다 [`dev.md` 2절]. 아래 키는 그 파일의 `표.키`와 같다(`ocr.tile_px` ↔ `[ocr] tile_px`). 값을 바꾸면 이 표와 config를 함께 갱신한다. 표에 `미정`·`확인 필요`인 키는 config에도 없다.
+값의 정본은 코드가 아닌 `pipeline/config/default.toml`이다 [`dev.md` 2절]. 이 표는 키의 **의미 · 결정 상태 · 출처만** 적고 값은 적지 않는다 — 값은 config에서 확인한다. 키는 그 파일의 `표.키`와 같다(`ocr.tile_px` ↔ `[ocr] tile_px`). 사용자가 값을 "확정"하면 config 값과 이 표의 결정 열을 함께 고친다(`README.md` 4.1). 표에 `미정`·`확인 필요`인 키는 config에도 없다. 값이 들어 있던 이전 표와 키별 실측 근거는 `archive/pipeline-v1-detail.md` 3절.
 
-| 단계 | 키 | 기본값 | 의미 · 제약 | 출처 |
+| 단계 | 키 | 의미 · 제약 | 결정 | 출처 |
 |---|---|---|---|---|
-| ① | `section.granularity` | `subheading` | 의미 섹션 입도 | [PoC 0장] |
-| ① | `section.vlm_model` / `section.vlm_temperature` | `gemini-3.8-flash` / `0` | 긴 구간 경계 선택 모델. 사용자 확정 2026-09-21 | [PoC 9장] [`open-questions.md` 5절 #21] |
-| ① | `section.vlm_seed` | `-1` | 실험용. 음수면 보내지 않는다(기본). 고정해도 동일 응답은 보장되지 않는다. 재현성 실험(`dev.md` 4절)에서만 `--set` | [`open-questions.md` #26] |
-| ① | `section.color_window_px` / `section.color_delta` | `8` / `12` | 행 배경색(행 픽셀 중앙값)을 창으로 평활해 앞 창과 비교. RGB 거리가 `color_delta` 이상이면 전환 후보(경계 = 행 간 변화가 가장 큰 행). 경계 행과 바로 위 행이 모두 균일 행이 아니면(글자 위에 놓임) 반경 `snap_radius_px` 안 위쪽 여백의 끝 행으로, 없으면 아래쪽 여백의 시작 행으로 옮기고, 여백이 없으면 기각 — 글자를 가르는 절단은 ② OCR을 망친다. 여백 구간의 높이는 보지 않으므로 줄 간격도 목적지가 된다(5차 실측 34장 기준 글자 획 절단 0건, 제목 두 줄 분리 1건 잔존 — #29). 후보 양쪽 구간(이웃 후보까지, 최대 `min_section_px`)의 중앙값 차이도 `color_delta` 이상이어야 확정. `color_delta` **확정**(MVP 기본값, 34장 실측: 20·24는 옅은 배경 전환을 놓침) · `color_window_px` 잠정 | [`open-questions.md` 5절 #26] [`open-questions.md` #26] |
-| ① | `section.blank_row_std` / `section.bg_row_ratio` | `6.0` / `0.25` | 행 색 표준편차가 `blank_row_std` 이하이면 균일 행(여백). 후보 양쪽 구간 **모두** 균일 행 비율이 `bg_row_ratio` 이상이어야 배경 전환으로 확정 — 사진·표·일러스트 띠는 균일 행이 없어 그 위아래 경계가 기각된다. 모든 행이 균일한 구간(여백뿐인 띠)은 앞 구간에 붙인다. `bg_row_ratio` **확정**(MVP 기본값, 34장 실측: 0.35는 오절단 2 감소·정상 경계 2 소실) · `blank_row_std` 잠정(단독 비교 예정) | [`open-questions.md` 5절 #26] [`open-questions.md` #26] |
-| ① | `section.min_section_px` | `200` | 최소 섹션 높이. 더 짧은 구간을 만드는 경계 중 **강도(중앙값 거리)가 약한 쪽**을 버린다(같으면 위쪽을 남김). **잠정** | [`open-questions.md` #26] |
-| ① | `section.long_section_px` | `1500` | 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택. **잠정** | [`open-questions.md` #26] |
-| ① | `section.snap_radius_px` | `40` | 반경은 **여백을 찾는 거리**이고 목적지는 그 여백 구간의 **중앙**이다(둘은 별개 — 넓은 여백에서는 반경보다 멀리 움직이며, 같은 여백을 가리킨 응답들이 한 점으로 모인다). 여백은 현재 구간 안에서만 찾고, 반경 안에 없으면 폐기(진단에 기록). 보정 뒤 여백뿐인 구간이 생기면 색 경계를 지키고 VLM 경계를 지운다. **확정**(MVP 기본값, 34장 실측: 80과 결과 동일) | [`open-questions.md` 5절 #26] |
-| ① | `section.vlm_width_px` / `section.vlm_window_px` / `section.vlm_window_overlap_px` | `768` / `4000` / `300` | VLM 입력은 **폭 기준**으로 줄이고(긴 변 기준은 긴 띠에서 글자 판독 불가) 왼쪽에 y 눈금 띠를 붙인다. 구간 높이(원본 px)가 `vlm_window_px`를 넘으면 겹침 창으로 나눠 여러 번 호출해 합친다. **잠정** | [`open-questions.md` #26] |
-| ① | `section.prompt_path` | `pipeline/prompts/section_boundary.md` | 소제목 위 여백에서 자르고 소항목·목록 항목·라벨 아래에서는 자르지 않도록 지시. 초안 | [`open-questions.md` #26] |
-| ② | `ocr.det_model` / `ocr.rec_model` | `PP-OCRv5_server_det` / `korean_PP-OCRv5_mobile_rec` | 한국어 인식은 mobile만 존재 | [PoC 1장] |
-| ② | `ocr.preprocess` | `none` | 전처리 적용 안 함 | [PoC 1장] |
-| ② | `ocr.split_threshold_px` / `ocr.tile_px` / `ocr.tile_overlap_px` | `4000` / `2000` / `300` | 임시 분할 규칙. 여백 우선 | [개발계획 2.1] [계약 3.2] |
-| ③ | `merge.line_gap` / `para_gap` / `h_ratio` / `overlap` / `gutter` | `0.7` / `0.6` / `1.5` / `0.5` / `on` | `heuristic_v2`. 줄 가로 간격 상한 · 블록 세로 간격 상한(base 비율) · 줄·블록 높이비 상한 · 블록 가로 겹침 하한(겹친 폭 ÷ 좁은 폭) · 줄 병합의 gutter 사용. 계산식은 7.1절 | [PoC 5장] [PoC 5장 · heuristic_v2 코드] |
-| ③ | `merge.line_v_overlap` / `line_gap_min` / `para_gap_min` / `left_align_tol` | `0.5` / `-0.5` / `-0.3` / `0.5` | 줄 병합 세로 겹침 하한(겹친 길이 ÷ 작은 높이) · 줄 가로 간격 하한 · 블록 세로 간격 하한 · 좌정렬 왼쪽 끝 허용 오차(모두 base 비율). 값은 PoC 코드의 고정 상수, config 키화는 우리 결정. **잠정**. `overlap`과 별개 키 | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
-| ③ | `merge.gutter_min_px` / `gutter_width_div` | `20` / `16` | gutter 최소 폭 = max(`gutter_min_px`, 섹션 폭 // `gutter_width_div`). **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
-| ③ | `merge.title_pct` / `caption_pct` / `title_max_lines` / `caption_max_chars` / `price_max_chars` | `75` / `25` / `2` / `25` / `40` | 휴리스틱 역할 판정의 높이 백분위와 줄 수·글자 수 상한. **잠정** | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
-| ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `gemini-3.8-flash` / `0` / `false` | 분할 금지 고정 | [개발계획 6장] |
-| ③ | `merge.prompt_path` | `pipeline/prompts/merge_assist.md` | `llm_assist` 프롬프트 위치. 초안 v1(2026-09-28, 실측 전). 2026-09-26 사용자 승인. 상대 경로는 레포 루트 기준(7.2절) | [`dev.md` 2절] [`open-questions.md` #41] |
-| ③ | `merge.llm_timeout_s` | `60` | `llm_assist` 호출 시간 제한(초). 개발용 **잠정값** — 무기한 대기를 막기 위한 값이며 운영 값은 #37에서 정한다 | [`open-questions.md` #37, #41] |
-| ③-1 | `judge.llm_model` / `judge.llm_temperature` / `judge.llm_timeout_s` / `judge.prompt_path` | `gemini-3.8-flash` / `0` / `60` / `pipeline/prompts/judge_context.md` | ③과 같은 계열의 **실험 기준값**. 판정 방식 채택(#5)은 실측 후. 프롬프트 초안은 ③-1b 구현 시. PoC 최선 후보 `sec_adj`는 참고값 | [개발계획 6장] [PoC 10-1장] [`open-questions.md` #60] |
-| ③-1 | `judge.call_scope` | `all` | LLM 호출 섹션 범위 — `all` 전 섹션(LLM 판정 항목은 현지부적합 8개) / `matched` 매칭 섹션만. 실측 1회는 `all`(D3-2). 운영값은 실측 후(D3-3) | [`open-questions.md` #60] [계약 1.3] |
-| ③-1 | `judge.image_width_px` | `768` | 섹션 이미지를 폭 기준으로 축소해 동봉(①과 같은 근거 — 긴 띠에서 긴 변 기준은 판독 불가). 잠정 | [`open-questions.md` #60] |
-| ③-1 | `judge.context_sections` | `1` | 같은 원본 안 앞뒤 섹션 텍스트 수(참고 문맥, 근거 지정 불가). 0이면 없음. 잠정 | [`open-questions.md` #60] [PoC 13장] |
-| ③-1 | `judge.match_mode` | `substring` | 사전 패턴 매칭 — 공백 제거 부분 문자열(실험 기준). 비교 실험용 대안 `eojeol_prefix`(가격 표기 미탐이 있어 기본값 후보 아님) | [`open-questions.md` #42 · #60] [설명서 §2 · 잠정] |
-| ③-1 | `judge.dict_dir` | `pipeline/samples/local/dict/normalized` | 정규화 사전 JSON 3개의 위치(실제 값은 git 제외 · 로컬 배치). 테스트는 `pipeline/data/dict/synthetic` | [`open-questions.md` #3 · #60] [`dev.md` 5절] |
-| ③-1' | `policy.problem_text_max_chars` | `300` | 현지부적합 `problem_text`(근거 블록 텍스트) 길이 상한. 잠정 | [`open-questions.md` #60] |
-| ④ | `label.model` / `label.long_side_px` / `label.bias` | `gemini-3.8-flash` / `1024` / `label` | 애매하면 라벨. `bias`는 정의된 값 `label`만 허용(7.4절) | [개발계획 6장] |
-| ④ | `label.temperature` / `label.timeout_s` / `label.prompt_path` | `0` / `60` / `pipeline/prompts/label.md` | 단독 개발 기준값(운영값 아님 — #65). 애플리케이션 재시도 없음. 프롬프트 초안 v1, 상대 경로는 레포 루트 기준 | [`open-questions.md` #66] |
-| ⑤ | `logo.normalize` | `nfkc, lower, strip_space_punct` | 정규화 결과 빈 문자열은 비교 제외. 단계별 구현(`lower` = `str.lower()`, `strip_space_punct` = `str.isspace()` 공백과 Unicode 범주 P* 제거 · S* 유지)과 이 목록 외 값 거부는 7.5절 | [계약 2.3] [`open-questions.md` #68] |
-| ⑥ | `inpaint.model` | `lama` (iopaint) | | [PoC 2장] |
-| ⑥ | `inpaint.score_min` / `inpaint.require_text` | `0.5` / `true` | **파라미터화 필수.** `erase_all`↔`erase_s50` 차이는 이 필터 한 줄 | [개발계획 6장] [PoC 0장] |
-| ⑥ | `inpaint.dilate_ratio` / `inpaint.dilate_retry` | `0.15` / `false` | 글자 높이 대비 팽창. 확대 재시도 금지 | [개발계획 6장] |
-| ⑥ | `inpaint.init_timeout_s` / `inpaint.infer_timeout_s` / `inpaint.kill_grace_s` | `60` / `30` / `5` | 모델 전용 자식 프로세스의 초기화(시작~준비 완료) · 섹션 추론(요청~결과 수신) 시간 제한과 시간 초과 뒤 강제 종료 유예(초). **100섹션 실측용 잠정값** — 13섹션 소수 실측(최대 추론 3.55 s · 초기화 약 4 s) 근거, 운영값 아님. 다른 단계의 60초를 가져온 값이 아니다 | [`open-questions.md` #75] [사용자 결정 2026-09-30] [`docs/ai-experiments/2026-09-30_06-inpaint_lama-gpu-probe.md` 5절] |
-| ⑦ | `style.method` / `style.em_ratio` / `style.align_tolerance` | `otsu_border` / `1.35` / `0.12` | 정렬 허용 오차는 블록 폭 비율 | [개발계획 6장] |
-| ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | `gemini-3.8-flash` / `rag` / `pipeline/prompts/translate.md` | 용어는 BE가 이번 대상 블록 원문에서 선별해 실행 입력으로 공급한다(`contract.md` 5.1). 프롬프트는 초안 v1(2026-10-08, 실측 전) — 확정은 #11 기술검증 후 | [개발계획 6장] [계약 5.1] [통합 D10] [`open-questions.md` #11] |
-| ⑧ | `translate.temperature` / `translate.timeout_s` | `0` / `60` | 섹션 1회 호출 설정. ③-1 · ④와 같은 계열의 **개발용 잠정값** — 운영 시간 제한 · 재시도 상한은 BE 실행 정책에서 정하며 이 값을 운영 최댓값으로 쓰지 않는다 | [통합 D9] [`open-questions.md` #11] |
-| ⑧ 검사 | `translation_review.model` / `translation_review.prompt_path` | `gemini-3.8-flash` / `pipeline/prompts/translation_review.md` | 번역문 LLM 규제 판정 — 번역기와 독립된 호출. 모델은 설정으로 고르며 번역 모델과 같을 필요 없다. 프롬프트 초안 v1(2026-10-12, 실측 전). **개발용 잠정값** | [통합 D12] |
-| ⑧ 검사 | `translation_review.temperature` / `translation_review.timeout_s` | `0` / `60` | 분할 1회 호출 설정. **개발용 잠정값** — 운영 시간 제한 · 재시도 한도는 BE 실행 정책 | [통합 D12] |
-| ⑧ 검사 | `translation_review.max_input_chars` / `translation_review.max_pairs_per_call` / `translation_review.max_output_tokens` | `60000` / `120` / `16384` | 분할 상한(입력 코드 포인트 · 쌍 수)과 출력 상한. 문자 수는 토큰 한도를 보장하지 않는다. 출력 상한으로 잘린 응답은 같은 설정 재시도 불가. **개발용 잠정값** | [통합 D12] |
-| 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | — | 실행마다 `event_log.payload`에 기록 | [계약 9장] |
+| ① | `section.granularity` | 의미 섹션 입도(소제목 단위) | — | [PoC 0장] |
+| ① | `section.vlm_model` / `section.vlm_temperature` | 긴 구간 경계 선택 모델 · 온도 | 확정(2026-09-21) | [PoC 9장] [`open-questions.md` 5절 #21] |
+| ① | `section.vlm_seed` | 실험용. 음수면 보내지 않는다. 재현성 실험(`dev.md` 4절)에서만 `--set` | 실험용 | [`open-questions.md` #26] |
+| ① | `section.color_window_px` / `section.color_delta` | 행 배경색 평활 창 · 배경색 전환으로 볼 RGB 거리. 글자 위에 놓인 경계는 여백으로 옮기고 여백이 없으면 기각한다 | `color_delta` 확정 · `color_window_px` 잠정 | [`open-questions.md` 5절 #26] [`open-questions.md` #26] |
+| ① | `section.blank_row_std` / `section.bg_row_ratio` | 균일 행(여백) 판정 표준편차 · 전환 후보 양쪽 구간에 필요한 균일 행 비율(사진·표 띠 경계 기각) | `bg_row_ratio` 확정 · `blank_row_std` 잠정 | [`open-questions.md` 5절 #26] [`open-questions.md` #26] |
+| ① | `section.min_section_px` | 최소 섹션 높이. 더 짧은 구간을 만드는 경계 중 강도가 약한 쪽을 버린다 | 잠정 | [`open-questions.md` #26] |
+| ① | `section.long_section_px` | 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택 | 잠정 | [`open-questions.md` #26] |
+| ① | `section.snap_radius_px` | VLM 경계에서 여백을 찾는 반경(목적지는 그 여백 구간의 중앙). 반경 안에 없으면 폐기 | 확정 | [`open-questions.md` 5절 #26] |
+| ① | `section.vlm_width_px` / `section.vlm_window_px` / `section.vlm_window_overlap_px` | VLM 입력은 폭 기준으로 줄이고 y 눈금 띠를 붙인다. 긴 구간은 겹침 창으로 나눠 호출한다 | 잠정 | [`open-questions.md` #26] |
+| ① | `section.prompt_path` | 경계 선택 프롬프트 위치 | 초안 | [`open-questions.md` #26] |
+| ② | `ocr.det_model` / `ocr.rec_model` | 검출 · 인식 모델. 한국어 인식은 mobile만 존재 | — | [PoC 1장] |
+| ② | `ocr.preprocess` | 전처리 적용 안 함 | — | [PoC 1장] |
+| ② | `ocr.split_threshold_px` / `ocr.tile_px` / `ocr.tile_overlap_px` | 임시 분할 기준 높이 · 타일 높이 · 겹침. 여백 우선 · 여백에서 잘라도 겹침 유지(7.9절) | — | [개발계획 2.1] [계약 3.2] [사용자 결정 2026-10-13] |
+| ② | `ocr.tile_blank_row_std` / `tile_match_min_v_overlap` / `tile_equiv_min_x_iou` / `tile_edge_touch_px` / `tile_box_jitter_px` / `tile_supplement_margin_px` | 임시 분할 세부 기준 — 균일 행 · 위치 대응 세로 겹침 · 동등 판정 가로 덮음 IoU · 절단선 접촉 거리 · 박스 흔들림 허용 · 보완 crop 여유(7.9절) | 잠정(운영 기준값 미확정) | [`open-questions.md` #31 · #32] [사용자 결정 2026-10-13] |
+| ③ | `merge.line_gap` / `para_gap` / `h_ratio` / `overlap` / `gutter` | `heuristic_v2` 줄 가로 간격 상한 · 블록 세로 간격 상한 · 높이비 상한 · 블록 가로 겹침 하한 · 줄 병합의 gutter 사용 | — | [PoC 5장] [PoC 5장 · heuristic_v2 코드] |
+| ③ | `merge.line_v_overlap` / `line_gap_min` / `para_gap_min` / `left_align_tol` | 줄 세로 겹침 하한 · 줄 가로 간격 하한 · 블록 세로 간격 하한 · 좌정렬 허용 오차. `overlap`과 별개 키 | 잠정 | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
+| ③ | `merge.gutter_min_px` / `gutter_width_div` | gutter 최소 폭 = max(`gutter_min_px`, 섹션 폭 // `gutter_width_div`) | 잠정 | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
+| ③ | `merge.title_pct` / `caption_pct` / `title_max_lines` / `caption_max_chars` / `price_max_chars` | 휴리스틱 역할 판정의 높이 백분위와 줄 수·글자 수 상한 | 잠정 | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
+| ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `llm_assist` 모델 · 온도. `llm_split`은 분할 금지 고정(false만 허용) | — | [개발계획 6장] |
+| ③ | `merge.prompt_path` | `llm_assist` 프롬프트 위치. 상대 경로는 레포 루트 기준 | 초안 v1 | [`dev.md` 2절] [`open-questions.md` #41] |
+| ③ | `merge.llm_timeout_s` | `llm_assist` 호출 시간 제한(초). 운영 값은 #37 | 개발용 잠정 | [`open-questions.md` #37, #41] |
+| ③-1 | `judge.llm_model` / `judge.llm_temperature` / `judge.llm_timeout_s` / `judge.prompt_path` | ③-1 판정 모델 · 온도 · 시간 제한 · 프롬프트 위치. 판정 방식 채택(#5)은 미정 | 실험 기준 | [개발계획 6장] [PoC 10-1장] [`open-questions.md` #60] |
+| ③-1 | `judge.call_scope` | LLM 호출 섹션 범위 — `all` 전 섹션 / `matched` 매칭 섹션만. 운영 인계는 모든 섹션 판정(`all`)만 허용한다 | 운영 `all` | [`open-questions.md` #60] [계약 1.3] [통합 D9] |
+| ③-1 | `judge.image_width_px` | 섹션 이미지를 폭 기준으로 축소해 동봉 | 잠정 | [`open-questions.md` #60] |
+| ③-1 | `judge.context_sections` | 같은 원본 안 앞뒤 섹션 텍스트 수(참고 문맥, 근거 지정 불가). 0이면 없음 | 잠정 | [`open-questions.md` #60] [PoC 13장] |
+| ③-1 | `judge.match_mode` | 개발용 검출(`stages/judge.py`)의 사전 패턴 매칭 방식. 운영 매칭은 `contract.md` 4.6 | 실험 기준 | [`open-questions.md` #42 · #60] [설명서 §2 · 잠정] |
+| ③-1 | `judge.dict_dir` | 개발용 정규화 사전 JSON 위치(실제 값은 git 제외 · 로컬 배치). 운영 사전은 BE 고정 묶음 | 개발용 | [`open-questions.md` #3 · #60] [`dev.md` 5절] [통합 D5] |
+| ③-1' | `policy.problem_text_max_chars` | 현지부적합 `problem_text`(근거 블록 텍스트) 길이 상한 | 잠정 | [`open-questions.md` #60] |
+| ④ | `label.model` / `label.long_side_px` / `label.bias` | 라벨 판정 모델 · 이미지 긴 변. `bias`는 정의된 값 `label`(애매하면 라벨)만 허용 | — | [개발계획 6장] |
+| ④ | `label.temperature` / `label.timeout_s` / `label.prompt_path` | 온도 · 시간 제한 · 프롬프트 위치. 애플리케이션 재시도 없음. 운영값은 #65 | 개발용 기준 | [`open-questions.md` #66] |
+| ⑤ | `logo.normalize` | 정규화 단계 목록(계약 2.3 순서). 정규화 결과 빈 문자열은 비교 제외, 이 목록 외 값은 거부(7.5절) | — | [계약 2.3] [`open-questions.md` #68] |
+| ⑥ | `inpaint.model` | 인페인팅 모델. `lama`(iopaint)만 허용 | — | [PoC 2장] |
+| ⑥ | `inpaint.score_min` / `inpaint.require_text` | **파라미터화 필수.** `erase_all`↔`erase_s50` 차이는 이 필터 한 줄 | — | [개발계획 6장] [PoC 0장] |
+| ⑥ | `inpaint.dilate_ratio` / `inpaint.dilate_retry` | 글자 높이 대비 팽창. 확대 재시도 금지(false만 허용) | — | [개발계획 6장] |
+| ⑥ | `inpaint.init_timeout_s` / `inpaint.infer_timeout_s` / `inpaint.kill_grace_s` | 모델 전용 자식 프로세스의 초기화 · 섹션 추론 시간 제한과 강제 종료 유예(초). 운영값은 #75 | 실측용 잠정 | [`open-questions.md` #75] [사용자 결정 2026-09-30] |
+| ⑦ | `style.method` / `style.em_ratio` / `style.align_tolerance` | 스타일 추출 방식 · bbox 높이 → em 환산 비율 · 정렬 허용 오차(블록 폭 비율) | 환산 비율 잠정 적용 · 최종값 미정(#85) | [개발계획 6장] [`open-questions.md` #85] [사용자 결정 2026-10-15] |
+| ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | 번역 모델 · 용어 공급 방식(BE가 선별해 공급, `contract.md` 5.1) · 프롬프트 위치. 프롬프트 확정은 #11 기술검증 후 | 모델 확정 · 프롬프트 초안 v1 | [개발계획 6장] [계약 5.1] [통합 D10] [`open-questions.md` #11] |
+| ⑧ | `translate.temperature` / `translate.timeout_s` | 섹션 1회 호출 설정. 운영 시간 제한 · 재시도 상한은 BE 실행 정책에서 정하며 이 값을 운영 최댓값으로 쓰지 않는다 | 개발용 잠정 | [통합 D9] [`open-questions.md` #11] |
+| ⑧ 검사 | `translation_review.model` / `translation_review.prompt_path` | 번역문 LLM 규제 판정 모델 · 프롬프트 위치 — 번역기와 독립된 호출. 모델은 설정으로 고르며 번역 모델과 같을 필요 없다 | 개발용 잠정 · 프롬프트 초안 v1 | [통합 D12] |
+| ⑧ 검사 | `translation_review.temperature` / `translation_review.timeout_s` | 분할 1회 호출 설정. 운영 시간 제한 · 재시도 한도는 BE 실행 정책 | 개발용 잠정 | [통합 D12] |
+| ⑧ 검사 | `translation_review.max_input_chars` / `translation_review.max_pairs_per_call` / `translation_review.max_output_tokens` | 분할 상한(입력 코드 포인트 · 쌍 수)과 출력 상한. 문자 수는 토큰 한도를 보장하지 않는다. 출력 상한으로 잘린 응답은 같은 설정 재시도 불가 | 개발용 잠정 | [통합 D12] |
+| 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | 실행마다 `event_log.payload`에 기록 | — | [계약 9장] |
 
 ## 4. 순서를 바꾸면 안 되는 지점
 
@@ -156,247 +160,75 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 
 ## 7. 구현 시 유의
 
+단계마다 정본 규칙 · 결정과 코드 위치만 적는다. 알고리즘 · 검증 · 기록 · CLI의 세부와 단독 개발 당시의 실측 · 검수 이력은 `archive/pipeline-v1-detail.md` 7절(같은 절 번호)에 원문 그대로 있고, 구현 세부는 코드와 테스트에서 확인한다. 코드 주석 · 테스트가 `pipeline.md` 7.x절의 표나 세부 정의(예: 7.1절 "역할 판정" 표 · "설정 값 검증", 7.6절 개발용 v1 형식)를 가리키면 archive의 같은 절을 뜻한다.
+
 - 인페인팅 **마스크를 넓혀 다시 지우지 말 것** — 팽창 50%에서 얼룩이 늘고 좋은 섹션이 가장 크게 나빠짐. 잔존율 측정·재시도는 MVP 이후. [PoC 0장] [개발계획 4.1]
-- **빈 텍스트·저신뢰 영역을 "글자 아님"으로 읽지 말 것** — 빈 텍스트 40개 중 28개가 실제 글자였음. `score_min`에서 제외된 영역은 원문을 보존한다. **제외된 저신뢰 글자를 번역·렌더에서 어떻게 다룰지는 미정** — 정합성 확인이 필요하다는 방향만 정본에 있음. [PoC 1장] [개발계획 6장]
-- **② OCR은 빈 텍스트·낮은 인식 신뢰도만을 이유로 영역을 제거하지 않는다**(2026-09-23 확정, 조건 충족은 **paddlex 3.7.2 · 인식 신뢰도 임계값 0** 한정) — 임계값은 기본값에 기대지 않고 0으로 명시하고 실제 값을 `run.json`에 남긴다. 타일 겹침 중복 정리는 별도 규칙(`open-questions.md` #32)이다. 근거 구분: 배열 대응(`rec_polys` · `rec_texts` · `rec_scores` 길이·순서, `rec_polys` = `dt_polys`)은 프로브 4개 섹션 **실측**과 코드 확인, 빈 텍스트 보존은 **코드 확인**(빈 인식 결과 → score 0.0 → 임계값 0에서 유지)에 더해 2026-09-25 육안 확인 실행(v1 섹션 100개, GPU)에서 빈 텍스트 39개가 모두 score 0.0으로 반환·보존된 것으로 **실측 확인**했다(이 버전·설정·표본 범위). 예외: 크기 0인 잘라낸 이미지는 라이브러리가 인식 전에 제외한다. 인식 결과 없이 검출만 된 박스의 추가 복원은 **현재 버전에서 구현하지 않는다.** [PoC 1장] [`open-questions.md` #32, #34]
+- **빈 텍스트·저신뢰 영역을 "글자 아님"으로 읽지 말 것** — 빈 텍스트 40개 중 28개가 실제 글자였음. `score_min`에서 제외된 영역은 원문을 보존한다. **제외된 저신뢰 글자를 번역·렌더에서 어떻게 다룰지는 미정**(#12) — 정합성 확인이 필요하다는 방향만 정본에 있음. [PoC 1장] [개발계획 6장] [`open-questions.md` #12]
+- **② OCR은 빈 텍스트·낮은 인식 신뢰도만을 이유로 영역을 제거하지 않는다**(2026-09-23 확정, 조건 충족은 **paddlex 3.7.2 · 인식 신뢰도 임계값 0** 한정) — 임계값은 기본값에 기대지 않고 0으로 명시하고 실제 값을 `run.json`에 남긴다. 타일 겹침 중복 정리(7.9절)도 빈 텍스트 · 신뢰도로 고르지 않는다. 크기 0인 잘라낸 이미지는 라이브러리가 인식 전에 제외하며, 인식 결과 없이 검출만 된 박스는 추가 복원하지 않는다. [PoC 1장] [`open-questions.md` #32, #34]
 - **③ 텍스트 결합**(2026-09-26 사용자 결정): 한 줄 안의 영역은 공백 1개로 이어 `Line.text`를 만들고, 블록 `source_ko`는 줄 사이를 줄바꿈(`\n`)으로 보존해 잇는다. 한국어는 어절 중간에서 줄이 바뀌기도 하므로 줄 사이를 공백으로 잇지 않는다. ⑤ 로고 비교의 공백 제거는 줄바꿈도 지워야 한다. BE·FE에 `source_ko`에 줄바꿈이 들어간다는 점을 공유한다. [`open-questions.md` 5절 #24] [계약 2장, 2.3]
-- **③ 빈 텍스트 영역과 LLM 실패**: 빈 텍스트 영역은 단독 블록으로 두고, `llm_assist` 호출 실패는 휴리스틱 결과로 대체하지 않고 전파한다 — 둘 다 BE 합의 전 구현 방침이다. [`open-questions.md` #36, #37]
+- **③ 빈 텍스트 영역과 LLM 실패**: 빈 텍스트 영역은 단독 블록으로 보존하고, 빈 문자열 블록은 번역·텍스트 조판에서 제외한다. [통합 D3] [`open-questions.md` #36] `llm_assist` 호출 실패는 휴리스틱 결과로 대체하지 않고 전파한다 — 대체 허용 여부 · 오류 코드 · 재시도는 미정이다. [`open-questions.md` #37]
 - 인페인팅 대상 판정은 블록 `ocr_confidence`가 아니라 **원시 영역별 `score`**. [계약 2.5]
 - **섹션 판정은 텍스트만으로 안 됨** — 비포·애프터 절반이 라벨 없는 사진 짝·그래프. 섹션 이미지를 항상 동봉. [PoC 0장, 11장] 전달 자료의 텍스트 중심 입력 예시만으로 이 규칙을 지우지 않는다. [`open-questions.md` #5]
 - **③-1 전달 자료의 한계 — 임의 보완 금지**(`open-questions.md` 2.7절): 규제사전은 화장품 일부 주제 + 선크림 OTC 중심이며 전체 규제 검토가 아니다(#52) · 여드름 OTC 행이 없고 미검출은 허용 판단이 아니다(#53) · PA 등급 · 수치 주장은 행이 없거나 미검토라 코드에서 규칙을 만들지 않는다(#54) · cosmetic 행의 한국어 변형은 OCR 대조 전 초안이라 검출 성능을 별도 검증한다(#55) · RG-021 · 022 템플릿은 이번에 쓰지 않고 원문 수치 유지·조건부 경고를 적용한다(#56, [통합 D9]) · `kr_freq`는 신호 발생 상품 수이지 성능 지표가 아니다(#58) · `blocks-input-v1`은 정답이 아니므로 OCR · 병합 오류와 판정 오류를 평가에서 구분한다(#57). [설명서 §10] [현지부적합 00_읽는법]
-- **③-1 매칭 · 집계 · 불확실성은 미정** — 한국어 매칭 경계(#42) · 규제 패턴 중복(#43) · 섹션 결과 집계(#44) · `uncertain`과 실패 · 미완료의 구분(#45). 설명서의 리터럴 매칭 규칙(어절 시작 일치 · 조사/어미 허용 · 2어절 이상 공백 제거 · regex 아님)은 자료 서술이며 채택 전이다. [설명서 §2] [`open-questions.md` #42~#45]
+- **③-1 매칭 · 집계** — 운영 매칭의 겹침 규칙(완전 포함은 긴 매칭 유지 · allowed 억제 · 동일 구간 조합)과 섹션 집계(제외형 하나라도 있으면 제외)는 `contract.md` 4.6이 소유한다. [통합 D8] [통합 D9] 한국어 매칭 경계(#42)는 미정이다. 설명서의 리터럴 매칭 규칙(어절 시작 일치 · 조사/어미 허용 · 2어절 이상 공백 제거 · regex 아님)은 자료 서술이며 채택 전이다. [설명서 §2] [`open-questions.md` #42]
 - VLM은 **항목별 해당·애매·근거만** 낸다. 정책 데이터를 항목 on/off로 구조화하는 것은 PoC 실험 방식이며 **미정**. [계약 1.3] [PoC 0장]
 - 심볼형 로고는 텍스트 대조로 못 잡음 — 미검증, MVP 이후. [PoC 0장]
 - 주의문구 미탐 위험 — 시험 조건 각주는 캡션으로, 경고 문장은 본문으로 가는 경향. 범위는 **미정**. [PoC 5장] [개발계획 4.1]
 - 가격 `role`은 표본 부족으로 사실상 미검증. [PoC 5장]
-- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] ① 분해 실패는 원본 전체 대체 섹션으로 진행하며 코드/인계 적용은 #25에서 추적한다. [통합 D9] ③ `llm_assist` 호출 실패도 같다(`open-questions.md` #37). ③-1 판정의 실패 처리는 ① · ③ 방침을 승계하지 않고 별도로 정한다(`open-questions.md` #46).
+- 실패 처리: `AnalyzeError(code, retryable, message, source_image_id)`. `IMAGE_OPEN_FAILED` 재시도 불가, `OCR_FAILED` 허용 횟수 내 재시도, 텍스트 0개는 오류 아님(빈 `text_blocks`). [계약 8장] 예외: ② 타일 경계 충돌 미해결은 `OCR_FAILED` · `retryable=false`(7.9절). [사용자 결정 2026-10-13] [`open-questions.md` #33] ① 분해 실패(VLM 실패)는 원본 전체를 한 섹션으로 대체해 후속 OCR·병합을 진행한다. [통합 D9] [`open-questions.md` #25] ③ `llm_assist` 실패는 위 ③ 항목대로 전파한다(#37). ③-1 판정 실패는 7.3절.
 
 **⑧ RG-021/022 현재 처리**: 원문 수치를 그대로 번역하며 N5에 사전 사유의 조건부 경고를 표시한다. 빈칸 템플릿 치환·상품 시험값 입력/검증은 이번 제외다. 영어 표현 검출은 수치 적합성 검증이 아니며 자리표시자를 임의 정규식/와일드카드로 바꾸지 않는다. [통합 D9]
 
-
 ### 7.1 ③ `heuristic_v2` 정의
 
-목적은 PoC 결과의 정확한 재현이 아니라 PoC에서 확인한 접근법을 참고해 병합 단계를 개발하는 것이다. PoC 자료로 확인한 동작은 `[PoC 5장 · heuristic_v2 코드]`, 그 밖의 우리 잠정 설계는 `[open-questions.md #38]`로 구분한다. 잠정 설계는 실측으로 다듬으며 값·규칙 확정은 사용자 "확정" 시에만 한다. 수치 임계값은 3절 키 이름으로 적는다. [`open-questions.md` #38]
+PoC에서 확인한 접근법을 참고한 우리 잠정 설계이며, 값·규칙 확정은 사용자 "확정" 시에만 한다. [`open-questions.md` #38]
 
-**높이의 세 정의** — 모두 bbox 높이 기반이다. [PoC 5장 · heuristic_v2 코드]
-
-| 이름 | 정의 | 쓰이는 곳 |
-|---|---|---|
-| 영역 높이 | 영역 bbox의 `h`(= y2 − y1) | 줄 병합의 base · 높이비, 역할 판정의 백분위 |
-| 줄 높이 | 줄에 속한 영역 높이의 최댓값. 줄 bbox 높이와 다르다 | 블록 병합의 base · 높이비 |
-| font_h | 블록을 구성하는 모든 원시 영역(줄 구분 없음)의 높이를 오름차순 정렬한 배열에서 0부터 센 위치 `n // 2`(n = 영역 수)의 값 — 홀수 개면 중앙값, 짝수 개면 가운데 두 값 중 큰 값, 1개면 그 값 | 역할 판정의 제목 · 캡션 조건 |
-
-**좌표** — 판단에는 bbox만 쓰고 poly는 읽지 않으며 기울기 보정은 하지 않는다. [PoC 5장 · heuristic_v2 코드] bbox는 `BBox{x,y,w,h}`, x2 = x + w, y2 = y + h로 계산한다. [`open-questions.md` #38]
-
-**입력 영역 분류** — 원시 영역은 모두 정확히 한 블록의 `source_lines`에 한 번 들어가고 키 · 텍스트 · score · poly · bbox를 바꾸지 않는다. [계약 2.5]
-
-| 영역 | 판정 | 병합 | gutter 계산 | 높이 통계(백분위) |
-|---|---|---|---|---|
-| 텍스트 있음(저신뢰 포함) | 아래 두 경우가 아닌 영역 | 참여 | 참여 | 참여 |
-| 빈 텍스트 | `text.strip() == ""` | 불참 — 단독 블록 | 참여(잠정) | 제외(잠정) |
-| 크기 0 | `w == 0` 또는 `h == 0` | 불참 — 단독 블록 | 제외 | 제외 |
-
-두 조건을 모두 만족하는 영역(빈 텍스트이면서 크기 0)은 **크기 0으로 분류한다** — 차지하는 열이 없거나 기하 정보가 없어 gutter · 높이 통계에 쓸 수 없다. 빈 텍스트 단독 블록은 `open-questions.md` #36의 잠정 방침이다. 크기 0 처리 · 빈 텍스트의 gutter 포함과 통계 제외는 효과가 검증되지 않은 잠정 설계다. [`open-questions.md` #36, #38]
-
-**정렬과 동률** — 병합 처리 순서와 줄 안 영역 순서는 (x, y, `region_key`), 줄 순서는 (첫 영역 y, 첫 영역 x, 첫 영역 `region_key`), 블록 순서는 (블록 bbox y, 블록 bbox x, 첫 줄 첫 영역 `region_key`) 오름차순이다. 앞 두 성분은 PoC 순서(영역 x1 · 줄 첫 영역 (y1, x1) · 블록 bbox (y1, x1))이고 `region_key` 동률 기준은 우리 결정이다 — 입력 배열 위치가 결과에 들어가지 않는다. 섹션 안에서 `region_key`가 중복되면 입력 오류다. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
-
-**줄 병합** — 병합 참여 영역을 위 순서로 하나씩 처리한다. 이미 만든 줄을 만든 순서대로 보며 그 줄에 마지막으로 붙은 영역 a와 새 영역 b를 비교하고, 조건을 모두 만족하는 **첫 번째 줄**에 붙인다. 맞는 줄이 없으면 새 줄을 만든다. base = min(a.h, b.h). 조건(검사 순서대로): [PoC 5장 · heuristic_v2 코드]
-
-1. 세로 겹침 max(0, min(a.y2, b.y2) − max(a.y, b.y)) ÷ max(1, min(a.h, b.h)) ≥ `line_v_overlap`
-2. `line_gap_min`·base ≤ b.x − a.x2 ≤ `line_gap`·base
-3. max(a.h, b.h) ÷ min(a.h, b.h) ≤ `h_ratio`
-4. `gutter`가 켜져 있으면 a.x2 ≤ g0 이고 g1 ≤ b.x인 gutter 구간 [g0, g1)이 없다
-
-**gutter** — 섹션 폭 W 전체에서 gutter 계산 참여 영역의 bbox가 차지하지 않는 열이 이어진 구간 중 폭이 max(`gutter_min_px`, W // `gutter_width_div`) 이상이고 x = 0 · x = W에 붙지 않은 구간. 섹션마다 한 번 계산하고 줄 병합에만 쓴다. [PoC 5장 · heuristic_v2 코드] 영역이 차지하는 열은 [x, x2)다. [`open-questions.md` #38]
-
-**블록 병합** — 줄을 위 순서로 하나씩 처리한다. 이미 만든 그룹을 만든 순서대로 보며 그 그룹의 마지막 줄 P와 새 줄 L을 비교하고, 조건을 모두 만족하는 **첫 번째 그룹**에 붙인다. 맞는 그룹이 없으면 새 그룹을 만든다. base = min(P 줄 높이, L 줄 높이). 조건(검사 순서대로): [PoC 5장 · heuristic_v2 코드]
-
-1. `para_gap_min`·base ≤ L.y − P.y2 ≤ `para_gap`·base (줄 bbox 기준 — 세로 간격 계산 대상을 줄 bbox로 둔 것은 우리 결정) [`open-questions.md` #38]
-2. max(줄 높이) ÷ min(줄 높이) ≤ `h_ratio`
-3. 가로 겹침(겹친 폭 ÷ 좁은 줄 폭) ≥ `overlap` 이거나 |P.x − L.x| ≤ `left_align_tol`·base
-
-**줄·블록 구성**
-- `Line.text` = 줄 안 영역 텍스트의 앞뒤 공백을 제거해 공백 1개로 이은 것(내부 공백 보존), `source_ko` = 줄 텍스트를 `\n`으로 이은 것. [`open-questions.md` 5절 #24, #38]
-- 빈 텍스트 단독 블록의 `Line.text` · `source_ko`는 `""`. [`open-questions.md` #36, #38]
-- 줄 bbox · 블록 bbox = 구성 영역 bbox의 합집합. 블록 bbox는 PoC와 같고 줄 bbox는 우리 결정이다. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
-- `ocr_confidence` = 구성 영역 score의 최솟값 — 단독 블록은 그 영역의 score 그대로다. [계약 2장]
-
-**역할 판정** — 블록마다 아래 순서로 처음 맞는 규칙 하나를 적용하고 어디에도 맞지 않으면 `body`다. 규칙 순서와 제목·캡션 조건의 형태는 PoC와 같다. [PoC 5장 · heuristic_v2 코드]
-
-| 순서 | role | 조건 |
-|---|---|---|
-| 1 | `price` | 가격 패턴이 `source_ko`에 있고(부분 일치) 글자 수 ≤ `price_max_chars` |
-| 2 | `caution` | 주의 패턴 중 하나가 `source_ko`에 있음(부분 일치, 길이 조건 없음) |
-| 3 | `title` | font_h ≥ h_big 이고 줄 수 ≤ `title_max_lines` |
-| 4 | `caption` | font_h ≤ h_small 이고 글자 수 ≤ `caption_max_chars` |
-| 5 | `body` | 나머지 |
-
-- 경계값은 포함한다(≤ · ≥). [PoC 5장 · heuristic_v2 코드]
-- h_big · h_small = 섹션의 높이 통계 대상 영역 높이에 대한 `title_pct` · `caption_pct` 백분위, 선형 보간(`numpy.percentile`, `method="linear"`). 대상이 0개이거나 h_big == h_small이면 3 · 4 규칙을 건너뛴다(PoC와 다름 — 크기로 구별할 정보가 없는데 2줄 이하 블록이 모두 제목이 되는 것을 막는다). 글자 수 = `len(source_ko)`(정규화 없이 줄바꿈·공백 포함). [`open-questions.md` #38]
-- 빈 텍스트 · 크기 0 단독 블록도 같은 규칙에 넣은 결과를 쓴다. [`open-questions.md` #36, #38]
-- 탐지 패턴(우리 개선안). 주의문구의 의미 범위는 #9에서 정하며 여기서 바꾸지 않는다. [`open-questions.md` #9, #38]
-
-| 패턴 | PoC | 현재 |
-|---|---|---|
-| 가격 | `₩` · `\d[\d,]*\s*원` · `\d+\s*%` · `\d+\s*개월` | `₩` · `\d[\d,]*\s*원` — `%` · `개월` 제거(가격 = 통화 금액 표기. `%`는 입력 스캔에서 만족도·개선율 표기에 걸림) |
-| 주의 | 주의 · 경고 · 유의 · 금지 · 삼가 · 반드시 · 사용을 중지 · 보관 · 직사광선 · 어린이 · 알레르기 · 이상 · 증상 · 전문의 · 상담 · 문의 · ※ | 같은 목록에서 `유의` → `유의\s*사항` · `유의하(?!게)`, `이상` → `이상\s*(이\|증상\|반응)`, `문의` → `(?<!전)문의`로 좁힘(입력 스캔에서 "특유의" · "유의한" · "이상의" · "전문의"에 걸림) |
-
-**출력 순서** — 블록은 위 블록 순서로 `block_order` 1부터, 블록 안 줄은 줄 순서, 줄 안 영역은 영역 순서다. 임시 키와 유일 범위는 `dev.md` 3절. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38]
-
-**설정 값 검증** — 병합 모듈의 검증 함수가 `merge.run` 시작 시(입력을 건드리기 전) 그리고 `analyze()` 시작 시(① 섹션 분해 전) 아래 기준을 검사하고, 어기면 `ValueError`를 낸다. 범용 config 로더는 값을 검사하지 않는다. Python 호출에서는 `ValueError`가 전파되고, CLI 프로세스는 traceback을 출력하고 종료 코드 1로 끝난다(`run.py` `main()`이 잡지 않음). [`open-questions.md` #38]
-
-| 대상 | 기준 |
-|---|---|
-| 휴리스틱 수치 키(아래 행의 키) | `int` 또는 `float`, bool 제외, 유한값(`NaN` · `±inf` 거부) |
-| 정수 전용 키 `gutter_min_px` · `gutter_width_div` · `title_max_lines` · `caption_max_chars` · `price_max_chars` | 실제 `int`, bool 제외(`20.0`을 정수로 바꾸지 않음) |
-| `line_v_overlap` · `overlap` | 0 ≤ 값 ≤ 1 |
-| `line_gap_min` · `line_gap` / `para_gap_min` · `para_gap` | 하한 ≤ 상한 |
-| `h_ratio` | ≥ 1 |
-| `left_align_tol` · `gutter_min_px` · `caption_max_chars` · `price_max_chars` | ≥ 0 |
-| `gutter_width_div` · `title_max_lines` | ≥ 1 |
-| `title_pct` · `caption_pct` | 0 ≤ 값 ≤ 100, `caption_pct` ≤ `title_pct` |
-| `gutter` | 정확히 bool 타입 |
-| `llm_split` | `False` 그 자체(`is False`) — 숫자 0 등은 거부 |
-
-`llm_model` · `llm_temperature` · `llm_timeout_s` · `prompt_path`의 기준과 검증 시점(실행 모드별)은 7.2절. [`open-questions.md` #38, #41]
-
-**알려진 위험** — 처리 순서 의존(가장 잘 맞는 줄이 아니라 처음 맞는 줄) · 섹션 전체 gutter가 전폭 영역 하나로 사라짐 · gutter는 0.7·h ≥ 최소 폭인 큰 글자에서만 효과 · 블록 단계 gutter 미사용 · 오른쪽 정렬 미판정 · 기울어진 글자의 bbox 높이 부풀림은 PoC 정의에서 논리적으로 예상되는 위험이며 우리 입력에서 확인되지 않았다. 초기 검증 항목이고 유지할 요구사항이 아니다. [`open-questions.md` #38]
+- 판단에는 bbox만 쓰고 poly · 기울기 보정은 쓰지 않는다. 줄 병합 → 블록 병합 → 역할 판정 순이며, 병합은 가장 잘 맞는 곳이 아니라 **처음 맞는** 줄 · 그룹에 붙인다. [PoC 5장 · heuristic_v2 코드]
+- 원시 영역은 모두 정확히 한 블록의 `source_lines`에 한 번 들어가고 키 · 텍스트 · score · poly · bbox를 바꾸지 않는다. [계약 2.5] 빈 텍스트 · 크기 0 영역은 병합에 참여하지 않고 단독 블록이 된다. [`open-questions.md` #36, #38]
+- `ocr_confidence` = 구성 영역 score의 최솟값. [계약 2장] 텍스트 결합은 7절 머리의 ③ 텍스트 결합을 따른다.
+- 역할은 `price` → `caution` → `title` → `caption` → `body` 순으로 처음 맞는 규칙 하나를 적용한다. 가격 · 주의 탐지 패턴은 PoC 패턴을 좁힌 우리 개선안이며 주의문구의 의미 범위는 #9에서 정한다. [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #9, #38]
+- 설정 값은 병합 모듈의 검증 함수가 `merge.run`과 `analyze()` 시작 시 검사하고, 어기면 `ValueError`다. [`open-questions.md` #38]
+- 코드 `pipeline/stages/merge.py`, 손 계산 테스트 `tests/test_pipeline_merge.py`. 높이 정의 · 병합 조건식 · gutter · 정렬과 동률 · 역할 패턴 표 · 설정 검증 표 · 알려진 위험의 원문은 archive 7.1절.
 
 ### 7.2 ③ `llm_assist` 정의
 
-`heuristic_v2` 블록을 LLM이 **추가 병합하고 역할을 다시 판정**한다. 분할은 하지 않는다. [`pipeline.md` 단계표 ③] [개발계획 6장] PoC에서 분할을 허용한 초기 조건에서도 휴리스틱의 과병합이 해소되지 않고 남았고, 병합만 맡기는 조건이 확정 조건이다. [PoC 5장] 그 결과 휴리스틱 과병합은 이 단계에서 복구되지 않는다. PoC 자료에는 입력·출력 형식·프롬프트가 없으므로 아래 세부는 모두 우리 잠정 설계다(v1). [`open-questions.md` #41]
+`heuristic_v2` 블록을 LLM이 **추가 병합하고 역할을 다시 판정**한다. 분할은 하지 않는다. [`pipeline.md` 단계표 ③] [개발계획 6장] 휴리스틱 과병합은 이 단계에서 복구되지 않는다. [PoC 5장] 입력 · 출력 형식 · 프롬프트는 우리 잠정 설계(v1)다. [`open-questions.md` #41]
 
-**호출** — 섹션마다 1회. 보낼 블록이 0개면 호출하지 않는다(기록 `skipped`). 모델·온도는 `merge.llm_model` · `merge.llm_temperature`, 호출 시간 제한은 `merge.llm_timeout_s`(개발용 잠정값, 운영 값은 #37). 애플리케이션은 재시도하지 않으며, 설치된 `google-genai` 2.24.0은 `retry_options`를 지정하지 않으면 1회만 시도한다(코드 확인 — SDK 버전을 바꾸면 다시 확인). [`open-questions.md` #37, #41]
+- 섹션마다 1회, 보낼 블록이 0개면 호출하지 않는다. 텍스트가 있고 크기가 0이 아닌 블록만 보내며 섹션 이미지와 휴리스틱 역할은 보내지 않는다(비교 실험 후보). 애플리케이션은 재시도하지 않는다. [`open-questions.md` #36, #37, #41]
+- LLM은 휴리스틱 블록을 통째로만 묶고 원문을 쓰지 않는다. 같은 줄 조각의 줄 복구는 하지 않는다(v2에서 판단). [`open-questions.md` #41]
+- 호출 실패 · 응답 검증 실패는 휴리스틱 결과로 대체하지 않고 `VlmError`로 전파한다. 운영 처리는 미정이다. [`open-questions.md` #37, #41]
+- 프롬프트 원문 `pipeline/prompts/merge_assist.md`. 그 caution 정의는 #9(주의문구 범위)의 확정이 아니다. [`open-questions.md` #9, #41]
+- 코드 `pipeline/stages/merge.py`(`llm_assist`) · 호출 `pipeline/vlm.py`, 테스트 `tests/test_pipeline_merge_llm.py`. 입출력 형식 · 응답 검증 · 로컬 조립 · 불변식 · 기록 · 재생 · 실행 모드별 설정 검증의 원문은 archive 7.2절.
 
-**입력** — 텍스트가 있고 크기가 0이 아닌 휴리스틱 블록만 보낸다. 블록마다 임시 ID(`b1`… 블록 순서) · `source_ko`(줄바꿈 포함) · bbox · 줄 수 · font_h, 그리고 섹션 폭·높이. 섹션 이미지와 휴리스틱 역할은 보내지 않는다(초기 비교 기준이며, 이미지 사용을 금지한다는 뜻은 아니다 — 둘 다 비교 실험 후보). 빈 텍스트 블록은 #36 방침으로, 크기 0 블록은 기하 정보가 유효하지 않고 단독 보존 방침을 따르므로 보내지 않고 그대로 둔다. [`open-questions.md` #36, #41]
+### 7.3 ③-1 · ③-1' 섹션 판정 · 정책 적용
 
-**출력** — `{"blocks": [{"members": ["b1", "b2"], "role": "body"}, …]}`(JSON 스키마 강제). 텍스트는 받지 않는다 — LLM은 원문을 쓰지 않고, 휴리스틱 블록을 통째로만 묶으므로 블록 분할도 표현할 수 없다. [`open-questions.md` #41]
+코드 경로는 둘이다. 개발용 `pipeline/stages/judge.py` · `policy.py`(CLI `judge` · `policy`)는 2026-09-28 잠정 승인한 설계 v1(#60)이고, BE가 부르는 운영 인계 `pipeline/handoff/judgment.py`는 판정과 정책 적용을 한 번에 수행한다(`dev.md` 3.2). 운영 규칙은 `contract.md` 4.3~4.6과 아래 통합 합의를 따른다. [`open-questions.md` #60] [통합 D8] [통합 D9]
 
-**응답 검증** — 하나라도 어기면 실패(`validation_failed`): JSON · 스키마 형식 · 모든 입력 ID가 정확히 한 번 · 모르는 ID 없음 · 빈 `members` 없음 · `role`이 5종 중 하나. 인접하지 않은 블록의 병합은 허용한다(2단 배치). 잘못된 병합은 평가에서 따로 판정한다. [`open-questions.md` #41]
+- **검사 범위**: 모든 섹션 · 현지부적합 8항목을 판정하며 패턴은 참고 신호다. 판단은 섹션 · 항목당 1건이고 복수 근거를 허용한다. 규제는 표현 검출 1유형이며 규칙 매칭만 쓰고 LLM에 보내지 않는다. 문맥별 분리 · cultural · 규제 의미 추론은 이번 제외다. [통합 D9]
+- **LLM 입력**: 현지부적합 항목(이름 · 맥락 2열 · 후보 블록 · 매칭 패턴)과 현재 섹션 블록 · 섹션 이미지(폭 기준 축소)를 보낸다. 앞뒤 섹션 텍스트는 해석 참고용이며 근거 블록으로 지정하지 못한다. 판정값 · 안내문 · `kr_freq`는 보내지 않는다. [`open-questions.md` #60 D4 · D5] [계약 1.3]
+- **응답**: 항목별 `present` · `absent` · `uncertain`과 실제 근거. 호출 · 응답 실패를 `uncertain` · `absent`로 바꾸지 않는다. [`open-questions.md` #60 D7] [계약 4.1]
+- **정책 적용**: 규제 분류에 따라 적용 행을 고르고(`combination` → OTC 기준, `unknown` → 화장품 기준, 미선택은 차단) 원래 분류 · 적용 분류 · 검사 범위를 기록에 남긴다. [통합 D8] [설명서 §4 · 잠정] [`open-questions.md` #47] 판정값 매핑은 `allowed` → 판정 행 없음, `regulated` + 대체 표현 없음 → 제외, 현지부적합 `irrelevant` · `needs_fix` → 제외 등이다. [`contract.md` 4.2] [`open-questions.md` #7 · #60 D10 · D11] `uncertain`은 제외 버킷이고 `reason`은 사전 사유의 스냅샷만 쓴다. [통합 D8] [`open-questions.md` #45 · #60 D12] `verdict_type` · `exclusion_reason`은 BE가 파생한다. [`contract.md` 4.2] 부분 부적합은 섹션 전체 제외(5절).
+- **실패**: 현지 AI 판정 실패는 제외 · 판정 실패, 현지 사전 조회 실패는 제외 없음 · 미검사 안내로 N3를 연다. 규제 사전 · 공통 묶음 실패는 N2 재시도 · 오류다(1.1절). [통합 D9]
+- **사전 데이터**: 운영 입력은 BE가 DB 적재본으로 만든 고정 실행 묶음이다. [통합 D5] 정책 규칙은 `pipeline/data/policy_rules.json`(`dev.md` 3.2), 콘텐츠 유형 대응표는 `pipeline/data/content_types.json`(데이터 · BE 대조 전에는 운영 enum이 아님)이다. [통합 D9] 개발용 로더는 `pipeline/dictionary.py`, 로컬 정규화 JSON 위치는 `dev.md` 5절. [`open-questions.md` #3 · #60 D8]
+- **미결**: 판정 방식 최종 채택(#5) · 한국어 매칭 경계(#42) · 규제 분류 전달 형식(#47) · 근거 대응 저장(#48) · 전달 자료의 불일치 · 한계(#50~#59)는 `open-questions.md`.
+- 단독 개발 설계 v1의 책임 분리 · 검출 규칙(`match@2026-09-29.1`) · 출력 · 실패 · 정책 적용 세부, 실측 1회(2026-09-29) 결과, 당시 미확정 경계의 원문은 archive 7.3절.
 
-**로컬 조립(v1 — 블록 병합만)** — 묶음마다 멤버를 휴리스틱 블록 순서로 정렬해 줄을 그 순서대로 이어 붙인다. 휴리스틱 블록 안의 줄 순서와 줄 안의 영역 순서는 바꾸지 않는다. `source_ko`는 줄 텍스트를 `\n`으로 다시 잇고, bbox는 합집합, `ocr_confidence`는 최솟값, `role`은 LLM 값이다. 보내지 않은 단독 블록은 그대로 두고, 블록 순서와 키는 7.1절 규칙대로 다시 매긴다. **같은 줄 조각의 줄 복구는 하지 않는다** — "98" | "%"나 "…성분" | "으로"처럼 같은 줄의 조각이 한 블록으로 합쳐져도 별도 줄로 남는다(v2에서 판단). [`open-questions.md` #41]
+### 7.4 ④ 제품 라벨 판정
 
-**불변식(테스트)** — 모든 원시 영역이 정확히 한 번 · 영역의 키 · 텍스트 · score · poly · bbox가 입력과 같음 · 휴리스틱 블록 하나의 영역이 여러 출력 블록으로 나뉘지 않음 · 보내지 않은 단독 블록이 그대로 · LLM이 준 `members` · `blocks` 순서에 관계없이 조립 결과가 같음 · 휴리스틱 블록 안의 줄 순서와 줄 안의 영역 순서 유지. [계약 2.5] [`open-questions.md` #41]
+정본의 방식(`vlm_relation` · 섹션 이미지 긴 변 1024px · 애매하면 라벨)과 판정 정의(용기 · 패키지에 인쇄된 텍스트, 판정 후에도 분석 결과 보존)를 따른다. [개발계획 2.1, 6장] [계약 2.2] 호출 단위 · 입출력 · 응답 검증 · 실패는 사용자가 승인한 방침(K1~K9)이다. [`open-questions.md` #66]
 
-**실패** — 호출 실패(`call_failed`, 시간 초과 포함)와 응답 검증 실패는 휴리스틱 결과로 대체하지 않고 ①과 같은 `VlmError`로 전파한다(CLI 종료 코드 4). [`open-questions.md` #37, #41]
+- 섹션마다 VLM 1회. 공백만 있는 블록은 보내지 않고 false로 기록하며, 텍스트가 있는 블록은 OCR 신뢰도와 관계없이 보낸다. [`open-questions.md` #66 K1 · K8]
+- 블록마다 임시 ID · `source_ko` · 정규화 좌표(`box_2d`)만 보내고 역할 · 신뢰도는 보내지 않는다. [`open-questions.md` #66]
+- 호출 실패 · 시간 초과 · 응답 검증 실패는 **섹션 전체 실패**다. 일부 판정만 내보내거나 false · 빈 성공으로 바꾸지 않는다. [`open-questions.md` #66 K4 · K6]
+- 경계 사례: 라벨과 일반 문구가 한 블록에 과병합됐으면 블록 전체 true(분할 없음) · 패키지 밖 제품명 · 브랜드명은 이름이라는 이유로 true가 아니다 · 문서 · 화면 캡처 글자는 문서라는 이유로 true가 아니다(#39) · 애매하면 true, 단 패키지가 보이지 않는 블록을 추측으로 true로 하지 않는다. [`open-questions.md` #66 K8, #39]
+- 알려진 한계: 반사상 1블록 · 기프트카드 2블록 미탐은 수정 보류(#67). [사용자 결정 2026-09-29] 운영 시간 제한 · 재시도 · 오류 코드는 #65에서 정한다. [`open-questions.md` #65]
+- 코드 `pipeline/stages/label.py`, 프롬프트 `pipeline/prompts/label.md`, 테스트 `tests/test_pipeline_label.py`. 응답 검증 항목 · 결과 형식 · 기록 · 재생의 원문과 2026-09-29 실측 · 검수 이력은 archive 7.4절.
 
-**기록** — 섹션마다 호출 기록을 남기며, 실패해도 기록을 먼저 쓴 뒤 예외를 전파한다. [`open-questions.md` #41]
+### 7.5 ⑤ 브랜드 로고 제외
 
-| 필드 | 내용 |
-|---|---|
-| `status` | `ok` · `validation_failed` · `call_failed` · `skipped` |
-| 입력 | 보낸 페이로드 전문 · 프롬프트 SHA-256 · 모델 설정(모델 · 온도 · 시간 제한) |
-| 원응답 | 받은 텍스트. `call_failed`면 `null` |
-| 실패 이유 | 검증 실패 항목 또는 호출 예외 |
-| 결과 | 해석한 묶음 · 역할과 **휴리스틱 블록 키 → 섹션 최종 블록 키** 대응 |
-| 사용량 | 응답의 토큰 사용량 |
+**정본 규칙** — `block_exact`: 블록 `source_ko` 전체와 `brand.name_ko` · `brand.name_en`을 ① NFKC → ② 소문자 → ③ 공백 · 문장부호 제거로 정규화해 완전 일치 비교하고, 정규화 결과가 빈 문자열인 값은 비교하지 않는다. 부분 일치는 쓰지 않고 불일치는 경고가 아니다. 브랜드명은 상품 메타에서 받고 로고 파일 · 이미지 매칭은 MVP 이후다. [계약 2.3] [개발계획 2.1] ④ 라벨 블록은 로고 비교도 건너뛴다. [개발계획 2.1] 판정 플래그는 `NULL` · `false` · `true` 3상태이고 `is_excluded`는 DB 자동계산이다. [계약 2.4] 나머지는 사용자가 승인한 방침(M1~M9)이다. [`open-questions.md` #68]
 
-- 경로: CLI `merge`는 `DIR/merge_debug/<section_key>.json`, `analyze()`는 `out_dir/merge_debug/<section_key>.json`(`section_key`에 원본 ID가 들어 있어 한 실행 안에서 겹치지 않는다). `analyze()`는 `merge_debug/block_keys.json`에 **(`section_key`, 섹션 최종 블록 키) → 실행 최종 블록 키** 대응을 남긴다 — 키 문자열만으로는 섹션마다 반복되는 `blk_001`을 구분할 수 없다.
-- 기록 저장 자체가 실패하면: 호출·검증이 **실패한 경우** 원래 `VlmError`를 전파하고 기록 저장 오류는 그 예외의 부가 설명(note)으로 붙인다(종료 코드 4 유지). 호출·검증이 **성공한 경우** 기록 저장 오류(`OSError`)를 그대로 전파해 실행을 실패시킨다 — 기록 없는 결과를 남기지 않는다.
-- 재생: `merge --llm-replay <기록>`은 섹션 하나의 응답을 API 호출 없이 재생한다. 입력 페이로드 · 프롬프트 SHA-256 · 모델 설정이 기록과 같아야 하고, 재생한 응답도 실제 호출과 같은 검증을 거친다. `--no-llm`과 함께 지정하면 거부한다. `analyze()` 재생은 v1 범위 밖이다.
-
-**설정 검증(실행 모드별, 어기면 `ValueError`)** [`open-questions.md` #41]
-
-| 모드 | 검증 |
-|---|---|
-| 공통(`--no-llm` 포함) | 7.1절 휴리스틱 설정만. 프롬프트 파일 · API 키를 요구하지 않는다 |
-| LLM 실행 · 재생 | `llm_model` 비어 있지 않은 문자열 · `llm_temperature` 수치(bool 제외) · 유한값 · 0 이상 2 이하 · `llm_timeout_s` 수치(bool 제외) · 유한값 · 0 초과 · `prompt_path` 문자열이고, 상대 경로는 `pipeline` 패키지의 상위 폴더(레포 루트) 기준, 절대 경로는 그대로 해석해 실제 파일이며 UTF-8로 읽히고 비어 있지 않음 |
-| 실제 호출 | 위에 더해 환경변수 `GEMINI_API_KEY`가 있음 |
-
-`analyze()`는 해당 모드의 검증을 모두 ① 실행 전에 마친다. ① `section.prompt_path`는 현재 작업 디렉터리 기준이며 같은 기준으로 맞추는 일은 별도 작업이다.
-
-**프롬프트** — 원문은 `pipeline/prompts/merge_assist.md`. 역할의 의미는 이번 프롬프트의 잠정 정의로 적는다: title 제목·소제목·강조 헤드라인 / body 본문 문장 / caption 보조 라벨·짧은 설명·일반 각주·출처·시험 정보·이미지 주석 / price 가격 / caution 사용상 주의·경고·보관·이상 시 대응 문구. 이 caution 정의는 #9(주의문구 범위)의 확정이 아니며 7.1절 탐지 정규식의 동작과도 같지 않다. #9가 정해지면 프롬프트를 고친다. [`open-questions.md` #9, #41]
-
-### 7.3 ③-1 · ③-1' 잠정 설계 v1 — 승인된 규칙만
-
-설계 검토 · 대안 · 이력은 `docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md`(초안 파일)에 있고, 여기에는 사용자가 조건부 · 잠정 승인한 규칙(2026-09-28)만 옮긴다. 결정 항목 번호(D1~D13)와 승인 조건은 `open-questions.md` #60. **어느 것도 BE가 확정한 저장 · 인계 계약이 아니다** — BE 합의 · 원문 확인 대기 항목은 끝의 "미확정 경계"에 있다. 실측 후 채택 · 변경 결정과 검증 범위는 실측 뒤에 적는다. [`open-questions.md` #60]
-
-**범위** — 판정 데이터는 사전 2종(규제사전 16행 · 현지부적합 8행, `README.md` 2.1)이며 지원 항목은 현지부적합 LC-01~08(LLM 맥락 판정)과 규제사전 16행(규칙 매칭만)이다(D3-1). 기존 #4-2 항목(비포·애프터 · 시술 비유 · 타사 비교 · 외부 플랫폼 표시)은 v1 미지원이고 사이트별 게시 정책은 MVP 이후(4절)다. [`open-questions.md` #60 D3-1] [계약 1.3]
-
-**책임 분리와 재실행 조건** [`open-questions.md` #60] [계약 1.3, 9장]
-
-| 하위 단계 | 책임 | 재실행 조건 |
-|---|---|---|
-| ③-1a 검출(규칙) | 사전의 **모든 행**(판정값 · 규제 분류 · `allowed` 여부와 무관)의 패턴을 블록 `source_ko`에 리터럴 매칭해 원시 매칭만 만든다. 판정 · 억제 · 필터를 하지 않고 **정책 필드를 읽지 않는다**(사전 로더의 `judge_view`) | 블록 텍스트 · 사전 패턴 · 매칭 규칙 버전 변경 |
-| ③-1b 맥락 판정(LLM) | 현지부적합 LC 항목만, 항목별 `present` · `absent` · `uncertain`과 실제 근거(블록 · 근거 출처). 최종 제외를 결정하지 않는다 | 매칭 · 사전 맥락 2열 · 프롬프트 · 모델 · 입력 구성 변경 |
-| ③-1' 정책 적용(규칙) | (1) 상품 규제 분류로 적용 행 선택 → (2) 적용 행 사이의 중복 · 허용 예외(개별 매칭 단위) → (3) 매핑(`policy_rules.json`) → (4) 집계. 미완료 입력에서는 포함 권고를 만들지 않는다 | 사전 판정값 · 대체 표현 · 안내문 · 근거 · 매핑 · 예외 규칙 · `regulatory_class` 변경. **AI 재호출 없음** |
-
-**③-1 입력 · 검출 · 호출** (D1 · D3-2 · D4 · D5 · D9, 값은 3절 `[judge]` 실험 기준)
-
-- **검출(③-1a, 2026-09-28 구현 — 승인한 실험용 매칭 규칙만)**: 대상은 현재 적용 묶음(`judge.dict_dir`)의 규제 16행 · 현지부적합 8행 전부(`allowed` · 모든 규제 분류 포함, 보류 · 백업 시트는 묶음에 없음). 정규화는 블록 `source_ko`와 패턴 모두 **문자 단위**로 NFKC → 소문자 → 공백 · 줄바꿈 제거(문자 간 합성 없음, 한 원문 문자가 여러 정규화 문자가 될 수 있음 — `㎖` → `ml`). 정규화 문자마다 원문 문자(코드 포인트) 인덱스를 담은 **대응표**로 매칭 구간을 원문 **반개구간 `raw_span=[start, end)`** 로 되돌리고 `matched_text = source_ko[start:end]`(원문 공백 · 줄바꿈 포함). 매칭은 **공백 제거 부분 문자열**(실험 기준 — 접두 일치는 `10,000원` · `3만원` · `5천원`을 놓친다), 겹침 · 반복 출현 모두 보존, 블록 안에서만(블록 경계를 사이에 둔 표현은 매칭하지 않음), 정규화 후 빈 패턴은 거부. 순서는 사전 항목(현지부적합 → 규제) → 패턴 → 블록 순 → 위치 순이며 `match_key`는 섹션 안 일련번호. 같은 항목 안에서 정규화 결과가 같은 패턴(`가짜방수` · `가짜 방수`)은 한 번만 매칭한다. 매칭 규칙 버전 `match@2026-09-29.1`(규칙을 바꾸면 올린다 — 2026-09-29.1은 동일 패턴 1회 매칭 반영). `judge.match_mode=eojeol_prefix`는 비교 실험용 값이며 미구현. 원료 · 연구원 매칭은 의도된 후보 생성이지 부적합 판정 성공이 아니다. **데이터 담당 확인(2026-09-29)**: 데이터 담당의 매칭기는 `원`으로 `연구원`을 검출하지 않으므로 현재 규칙은 그 방식과 다르다(어절 경계 · 조사 · 어미 · 숫자 처리는 미확정). 이 규칙은 우리 잠정 실험 규칙이며 데이터 담당 매칭기의 재현이 아니다. 어절 경계 규칙은 후속 변경 후보(#42). [`open-questions.md` #42 · #60 D1] [설명서 §2 · 잠정] [데이터 담당 확인 2026-09-29]
-- **검출 전용 출력(`judge --no-llm`)**: `DetectionResult`(status `detect_only`뿐, `content_findings` 없음, `finding_key` 없는 원시 `matches` · 항목별 `candidates` · 검사 범위 `checked`). "규칙만으로 최종 판정"이 아니라 "후보 검출만"이며 `findings=[]` · `status=ok`로 판정 완료처럼 전달하지 않는다. ③-1'(`policy.run`)은 이 결과를 입력으로 거부한다. 기록 `judge_debug/<section_key>.json`에 원시 매칭 · 적용 사전 버전 · 해시 · 매칭 규칙 · 정규화 규칙 · 실행 정보를 남기고 `run.json`에도 사전 버전 · 해시를 적는다. [`open-questions.md` #60] [계약 4.1, 9장]
-- 검출은 규제 분류를 보지 않고 전체 규제 행으로 매칭한다(분류 변경 시 정책만 재계산하기 위해). 필터는 ③-1'. [`open-questions.md` #47 · #60 D9]
-- LLM 호출: `judge.call_scope=all`이면 모든 섹션(텍스트 없는 섹션 포함)에 LC 8개 전체를 보내고 매칭은 참고 표시만, `matched`면 현지부적합 매칭이 있는 섹션에 매칭된 LC 항목만. 규제 항목은 어느 쪽도 LLM에 보내지 않는다. 실측 1회는 `all`. [`open-questions.md` #5 · #60 D3-2] [계약 1.2]
-- 이미지는 폭 768px(잠정)로 축소해 동봉하되 `evidence_source`는 AI가 실제로 쓴 근거를 보고한 값이다. 앞뒤 섹션 텍스트는 같은 원본 안 ±1을 참고 문맥으로만 주고 근거 블록으로 지정하지 못한다(원본 경계를 넘지 않음). 사전 맥락 2열 · 항목명은 그대로 전달하고 안내문 · `kr_freq` · 판정값은 보내지 않는다. [`open-questions.md` #60 D4 · D5] [계약 1.3]
-
-**③-1 출력** (`JudgeResult`, `dev.md` 3절)
-
-- **단독 개발 구현 기록 — 통합 규칙으로 사용하지 않음**: `content_findings`는 계약 구조 그대로(6키). finding은 **사전 항목당 1개**(근거 블록은 합집합), 항목은 서로 독립. `allowed` 행의 매칭도 finding이 된다(③-1은 판정값을 모른다). 규칙 finding은 `status=present` · `evidence_source=text`. `content_type` 값은 잠정으로 사전 항목 ID(`LC-xx` · `RG-xxx`, D6 — 값 목록 등재는 BE 합의). [계약 4.1] [`open-questions.md` #4 · #60 D6]
-- **누락 · absent · NULL 구분**: 매칭이 없어 검사되지 않은 항목은 finding을 만들지 않고(누락), `absent`는 검사해서 해당 없음, `content_findings=NULL`은 실패 · 미실행뿐. 검사 범위(사전 버전 · 해시 · 매칭 규칙 버전 · 항목 집합 · LLM 호출 여부)는 `JudgeResult.checked`와 실행 기록 · `event_log.payload`에 남긴다. [계약 4.1, 9장] [`open-questions.md` #45 · #60]
-- 규칙 매칭 근거 `matches`(항목 · 패턴 · 블록 · 원문 구간 · 원문 텍스트)는 `content_findings` 밖의 형제 필드이며 ③-1'의 **정상 입력**이다(디버그 기록이 아님). 운영 저장 위치는 audit_log.detail로 합의했으며 세부 키는 구현 전 명세다. [통합 D6] [`open-questions.md` #48 · #60 D13]
-- 혼합 섹션(살려야 할 내용이 섞임)에서 AI가 판정값을 낮추지 않는다. `reason` 서술로만 남긴다. [설명서 §3 · 잠정] [`open-questions.md` #45]
-
-**③-1b 맥락 판정 구현(2026-09-29, 승인 조건 반영)**: LLM 판정 항목은 현지부적합 LC 항목뿐이며 규제 항목은 보내지 않는다. 페이로드는 현재 섹션 블록(임시 ID `b1`…, 역할 · 텍스트) · 항목(이름 · 맥락 2열 · 후보 블록 · 매칭 패턴) · 앞뒤 섹션 텍스트(`context`, **해석 참고용**이라고 페이로드와 프롬프트에 명시) · 섹션 이미지. 판정값 · 안내문 · `kr_freq`는 보내지 않는다. 응답은 JSON 스키마 강제(`items[]{id, status, evidence_source, evidence, reason}`)이고 검증은 보낸 항목 ID가 정확히 한 번씩(누락 · 중복 · 모르는 ID 거부) · `status` 3종 · `evidence_source` 3종(실제 근거) · `evidence`는 **현재 섹션 블록 ID만**(앞뒤 섹션 · 모르는 ID는 근거가 될 수 없다) · `text` 근거면 1개 이상 · `reason` 비어 있지 않음. 검증 실패 · 호출 실패 · 시간 초과 · 재생 불일치는 그 섹션의 `status=failed`(아래)이며 어느 경우도 `absent`로 바꾸지 않는다. 조립은 판정된 LC 항목(뷰 순서) → 매칭이 있는 RG 항목 순으로 finding을 만들고 매칭을 해당 finding에 묶는다. 같은 항목 안에서 정규화 결과가 같은 패턴(`가짜방수` · `가짜 방수`)은 한 번만 매칭한다. 프롬프트 초안 `pipeline/prompts/judge_context.md`(사용자 검토 · 실측 전 확정 대상). 호출 생략(`skipped`) 기록도 재생할 수 있으며(모델 설정이 없어도 됨), 재생 중 현재 실행이 호출하려 하면 불일치로 실패한다. [`open-questions.md` #60 D3-2 · D4 · D5 · D7] [계약 4.1]
-
-**운영 통합 추가 합의(2026-10-07)**: PRD의 패턴 신호 섹션만 검사·현지 사전 항목 1:1과 아래 개발/통합 원칙의 차이는 D8 C2·C3으로 추적하며 자동 전환하지 않는다. [통합 D8] content_type은 검사 대상이며 사전 ID·정책 결론과 분리한다. 판단 범위·근거가 다른 finding은 나누고 대응표만으로 합치거나 복제하지 않는다. 실제 지원 목록·판정 기준·사전 대응표는 미정이다. 기존 단독 개발의 항목별 1개 조립과 ID 값은 통합 때 변경한다. 저장·스냅샷·재분석은 contract.md 4.4·4.5를 따른다. [통합 D6] [통합 D7]
-
-**③-1 실패** (D7, ① · ③ 방침 승계 아님) — 호출 실패 · 시간 초과 · 응답 검증 실패는 그 섹션을 `status=failed` · `content_findings=null`(판정 미완료)로 두고 오류를 기록한 뒤 **다른 섹션은 계속** 처리한다. 규칙 매칭이 성공했어도 부분 결과를 `content_findings`에 넣지 않는다. 애플리케이션 재시도 없음, 시간 제한은 개발용 잠정 60초. 오류 코드 · 워커 재시도 · 미완료 섹션의 표시는 BE 합의. [계약 4.1, 7.2, 8장] [`open-questions.md` #46 · #60 D7]
-
-**③-1' 정책 적용** (`PolicyResult`, `dev.md` 3절)
-
-**실패 결과와 저장본 구분**: 위 null은 이번 단독 단계의 실패 결과다. 최초 분석에 기존 유효 결과가 없을 때만 저장본이 NULL이며, 재분석 실패는 기존 판정을 보존하고 이번 실행 성공으로 보지 않는다. N3 진입은 현지 실패 예외와 규제/기초 분석 차단을 구분한 1.1절을 따른다. [통합 D6] [통합 D9]
-
-**2026-10-07 정책 갱신**: combination/unknown 검사 기준·고지와 현지 uncertain 기본 제외는 PRD 관련 조항에서 확인했고, 겹침 네 규칙의 운영 적용은 PM 회신으로 승인됐다. 미해결 판정은 모두 유지하며 제외형 하나라도 있으면 제외하고, 별도 겹침 안내 없이 제외 섹션의 모든 판정 행을 표시한다. 알고리즘·API 상세는 미정이며 현 코드가 승인 규칙을 구현했다는 뜻은 아니다. 아래 2026-10-06 대기 상태는 당시 이력이다. [통합 D8]
-
-**2026-10-06 운영 통합 상태(과거 기록)**: 아래 분류 변환·불확실 제외·겹침 처리는 기존 개발용 잠정 동작의 기록이다. combination/unknown 검사 범위·안내·진행, uncertain의 확인·포함/제외, 겹침 후속 네 규칙의 이번 운영 적용은 **PM 검토 대기**다. 기존 후속 동의 기록이나 단독 실측 성공으로 운영 승인을 대신하지 않는다. 근거 분리·복수 판정 보존·이미지 전용 근거·사용자 선택과 AI 원본 분리는 `contract.md` 4.3의 합의를 따른다. [통합 D4] [통합 D5]
-
-- 적용 행 선택: 규제 항목은 `regulatory_class`에 따라 `cosmetic` → cosmetic + common / `otc` → otc + common / `combination` → otc + common / `unknown` → cosmetic + common, 현지부적합 항목은 전부. **원래 선택값 · 실제 적용 분류 · 검사 범위 값(`dict_coverage`: `selected_class_all_entries` · `partial_class_combination` · `unverified_class`)을 결과 · `audit_log.detail` · `event_log.payload`에 항상 남긴다.** 검사 범위 값은 "선택 분류에 해당하는 현재 사전 항목을 모두 적용했다"는 뜻이지 전체 규제를 검사했다는 뜻이 아니다(사전 범위 #52). `regulatory_class`가 **누락**(None)이면 `unknown`과 구분해 `status=input_error`로 두고 정상 권고를 만들지 않으며 입력 보완 전 자동 재시도하지 않는다 — 누락 처리는 설명서에 없는 우리 제안이다. [설명서 §4 · 잠정] [`open-questions.md` #47 · #60 D9]
-- 중복 · 허용 예외: **개별 매칭 단위**로, `policy_rules.json`의 명시적 예외 쌍(`overrides`)만 적용한다. 억제되지 않은 매칭이 하나라도 남은 finding은 verdict를 유지하고 `problem_text`는 남은 매칭에서 고른다. `allowed` 행은 예외자로만 쓰이고 verdict를 만들지 않는다. **근거 확인 전 `overrides`는 빈 목록**이며 도구가 채우지 않는다. **합의된 후속 규칙(PM 제안 · 사용자 동의 2026-09-29, 적용은 발표 이후 · PRD 10월 개정)**: 한 구간이 다른 구간을 완전히 감싸면 긴 매칭만 유지, 일부 겹침 · 비겹침은 둘 다 유지, 같은 구간의 금지 · allowed 조합은 로더가 거부, `allowed`는 자신이 감싸는 매칭을 억제하되 판정 행은 없음. 현재 구현은 이 규칙이 반영된 상태가 아니다(#43). [`open-questions.md` #43 · #60 D2] [설명서 §4 · 잠정] [PM 메시지 · 사용자 동의 2026-09-29]
-- 미확정 겹침(예: RG-015 조건형 안의 RG-013 금지형)은 **보수적으로 모두 계산에 넣고**(금지형이면 제외 권고) 관련 verdict에 `conflict_group`(관련 사전 ID · 매칭 근거 포함)을 붙여 "규칙 충돌에 따른 잠정 제외"로 구분한다 — 확정된 규제 위반이 아니며 사용자 확인 화면까지 전달돼야 한다. 독립 금지형 매칭은 정상 반영. 평가에서 충돌 제외는 별도 집계한다. 예외 쌍 확인 전의 실험용 방침이며 규제 해석 확정이 아니다. [`open-questions.md` #60 D2-b] [설명서 §0 · 잠정]
-- 매핑(설명서 §3 · §4 기반 잠정, `policy_rules.json`): 규제 `allowed` → 판정 행 없음 / `conditional` → `conditional` · 포함 / `rewritable` → 출력 `regulated`로 정규화하고 원값을 `source_verdict_status`에 보존 · 포함 / `regulated` + 대체 표현 있음 → 포함 / `regulated` + 대체 표현 없음 → 제외. 현지부적합 `irrelevant` · `needs_fix` → 각 값 그대로 · 제외. `absent`는 verdict 없음. `verdict_type` · `exclusion_reason`은 ③-1'이 내지 않는다(`verdict_status` + 대체 표현 유무에서 BE가 파생). [`contract.md` 4.2] [`open-questions.md` #7 · #60 D10 · D11] [설명서 §3 · §4 · 잠정]
-- `uncertain`: 제외 버킷 권고 + 해당 사전 판정값 그대로. 확신 상태는 `finding.status`(저장)와 verdict `finding_status`로 보존하고 **`reason`은 어느 경우에도 사전 사유의 스냅샷만**(AI 서술 · 확신 표시 · 처리 메모를 섞지 않는다). [`open-questions.md` #45 · #60 D12]
-- 집계: `status=ok`에서만 "제외형 verdict가 하나라도 있으면 `exclude`, 아니면 `include`". `JudgeResult.status != ok`면 `PolicyResult.status=incomplete`로 verdict · 권고를 만들지 않는다. verdict 후보는 전부 보존(정렬은 BE). `problem_text`: 규제 = 억제되지 않은 첫 매칭의 원문, 현지부적합 = 근거 블록 `source_ko`를 이은 것(상한 `policy.problem_text_max_chars`), 이미지 전용 근거 = `null`. 현재 섹션 블록은 ③-1'의 정상 입력이다. `reason` · `basis_article` · `evidence_url`은 판정 시점 사전 값의 스냅샷. [`open-questions.md` #44 · #60 D7 · D13] [설명서 §4 · 잠정]
-- 부분 부적합은 섹션 전체 제외(5절).
-- **입력 동일성**: ③-1은 판정 당시 블록의 지문(`JudgeChecked.input_fingerprint` — `block_order` 순 `(block_key, source_ko)`의 SHA-256)을 결과에 남기고, ③-1'은 받은 블록의 지문이 다르면(텍스트 · 순서 · 구성 변경) 이전 finding으로 계산하지 않고 입력 오류로 거부한다 — ③-1 재실행 대상. BE의 revision 계약(#16 · D13)이 정해지기 전 CLI에서 오래된 판정과 새 병합 파일이 섞이는 것을 막는 장치다. [`open-questions.md` #60 D13] [계약 6.3, 9장]
-- **구현(2026-09-29)**: `stages/policy.py`가 위 순서를 그대로 따른다. 충돌 집합은 같은 블록에서 서로 다른 항목의 억제되지 않은 매칭이 겹치는 연결 성분(항목 2개 이상)이며 `conflicts[]`(관련 사전 ID · 매칭 근거 · 블록)로 결과에 남고 해당 verdict에 `conflict_group`이 붙는다. `allowed` 행의 매칭도 충돌 집합에 참여한다(예외 쌍이 없으면 겹침으로 표시). `problem_text`는 규제 = 억제되지 않은 첫 매칭 원문, 현지부적합 = 근거 블록 `source_ko`를 줄바꿈으로 이은 것(상한 넘으면 자르고 `…`), 이미지 전용 근거 = `null`. 처리 순서 · 집계 규칙의 버전은 `policy.RULES_IMPL_VERSION`이고 데이터 규칙 버전(`rules_version`)과 함께 `run.json`에 남는다. 실측용 규제 분류는 사람 확인 전 후보(`docs/ai-experiments/2026-09-29_03-1-judge_regulatory-class-candidates.md`)이며 확인 전 결과는 "가정한 분류에 따른 정책 동작 실험"이다. [`open-questions.md` #60 D2 · D2-b · D9 · D10 · D11 · D12 · D13]
-
-**사전 데이터** (D8) — 스키마 · 로더 · 변환 도구 · 합성 데이터는 `pipeline/dictionary.py` · `pipeline/data/dict/`, 실제 값이 든 정규화 JSON과 원본은 git 밖 `pipeline/samples/local/dict/`(`dev.md` 5절). 버전은 셋을 구분한다: `schema_version`(JSON 구조) · `dictionary_version` / `rules_version`(데이터 묶음 고유 식별자, 예 `regulation@2026-09-28.1`) · 원본이 주장하는 버전과 확인 상태(`source.claimed_version` · `version_status` · `version_note`, 현지부적합 v5/v7 불일치는 `mismatch_pending`). 실행마다 묶음 버전 + 파일 SHA-256을 기록하고 묶음을 고정 입력본처럼 별도 보관한다. 허용 열은 목록으로 정하며 `confidence`는 검증(high만)에만 쓰고 출력하지 않는다. [`open-questions.md` #3 · #60 D8] [`pipeline/data/dict/README.md`]
-
-**실측 1회(2026-09-29, `blocks-input-v1` 100섹션 · 가정한 분류 · 각 1회 호출)** — 결론은 "이 표본의 실행과 에이전트 1차 검수에서 큰 결함 미발견, v1 유지"로 한정한다. 실행: 판정 · 정책 `ok` 100, 실패 0, 권고 exclude 3 · include 97, 토큰 총 53.6만(입력 38.3만 · 출력 6.1만 · 사고 9.1만), 지연 중앙값 8.0초 · 최대 29.6초, `uncertain` 0. 에이전트 5명 1차 검수(각 20섹션, 교차 검증 아님 · 사용자 이미지 검수 없음): 항목 판정 800/800 일치, 권고 동의 100. 2차 검수(AI 에이전트 1명 · 원본 이미지 100섹션 · 비블라인드)도 같은 결과이며, 규제 매칭의 검색 경계(`브라이트닝` 안의 `라이트닝`, 전체 12건 · 6섹션) · 문맥 4건(커버 · 부정문 · 톤업 2)은 포함 배지 문제로 권고 불변. 매칭 없음의 원인은 OCR 누락 · 검출기 검사 범위(한국어 패턴만) · 변형 목록으로 구분해 기록. **사용자 검수 · 머지 판단(2026-09-29, 우선순위 12섹션)**: 제외 3섹션 동의, 머지를 보류할 중대한 문제 없음 · v1 유지 · 규제 판정 전체 정확성 검증 아님. **검사 한계**: 이미지에 있는 문구가 OCR에서 누락되면 규제 검출도 놓친다 · OCR에 있는 영문은 한국어 패턴 검사 범위 밖이다 · 현지부적합 800건 일치는 전체 정확도 보장이 아니다(해당 7건). **후속 과제**: 혼합 섹션의 블록 단위 제거 · 섹션 분리(#62) · 제품명 · 부분 문자열 과매칭의 경계와 문맥 구분(#42 · #43, 제품명 일괄 면제 없음) · 톤업 · 부정문 · 효능 주장 구분(#61). **결정(사용자 2026-09-29)**: D3-3 `judge.call_scope=all` 유지 — `matched`는 호출 섹션뿐 아니라 보내는 항목도 매칭된 LC로 제한하므로 매칭 없이 `present`였던 LC-05 2건을 판정하지 못한다. D1 부분 문자열은 v1 잠정 기준으로 유지 — 사전 의도와의 일치 · 규제 정밀도는 검증되지 않았고(규제 항목에는 LLM 보정이 없다) 어절 경계 · 긴 표현 우선 규칙은 후속 변경 후보. 비용의 금액 추정은 미검증. 검증 범위는 이 표본 · 이 사전 묶음 · 1차 검수에 한한다. [`docs/ai-experiments/2026-09-29_03-1-judge_run-v1.md`] [`open-questions.md` #60]
-
-**미확정 경계** — 아래는 잠정 구현하되 확정으로 표기하지 않는다. (BE 합의) 호출 단위 · 인계 형식 · `regulatory_class` 전달(#47) · `content_type` 값 목록(D6) · `matches` 저장 위치(D13) · `rewritable` 저장(D11) · `finding_status` · `conflict_group` · `dict_coverage`의 저장과 신호 파생(D12 · D2-b · D9) · 미완료 섹션 표시와 재시도(D7) · `verdict_type` · `exclusion_reason` 파생 전제 · 운영 사전 공급의 필드별 상세(#3·#71; DB 기반 실행 묶음 원칙은 [통합 D5]로 확정) · 맥락 2열의 AI 인계 형식. (원문 확인) 결정기록 · PRD F-LOC-01·02 · F-TXT-05 · F-SEC-04(#51) — 매핑표 · 매칭 엔진 정의 · 불확실 처리. (데이터 담당) 매칭 엔진의 실제 정의와 `kr_freq` 집계 엔진(D1) · 예외 쌍 목록과 근거(D2) · #50 · #53 · #54 · #55 · #56. (실측 후) 운영 호출 방식(D3-3) · 모델 · 프롬프트 · 매칭 방식 · 이미지 · 문맥 효과 · 비용. [`open-questions.md` #60 · 2.7절]
-
-### 7.4 ④ 제품 라벨 판정 — 단독 개발 v1
-
-정본의 방식(`vlm_relation` · 섹션 이미지 긴 변 1024px · 애매하면 라벨)과 판정 정의(용기 · 패키지에 인쇄된 텍스트, 판정 후에도 분석 결과 보존)는 그대로 따른다. [개발계획 2.1, 6장] [계약 2.2] 호출 단위 · 입출력 · 응답 검증 · 실패 · 기록은 정본에 없어 사용자가 승인한 단독 개발 방침(K1~K9)으로 정했다. **전체 파이프라인(API · DB · 워커 · `analyze()` · ⑤ · 하류) 연결 전의 개발용 설계이며 운영 계약이 아니다.** [`open-questions.md` #66, #64, #65]
-
-**호출** — 섹션마다 VLM 1회. 섹션 이미지(긴 변 `label.long_side_px`, 작으면 그대로)와 판정 대상 블록을 함께 보낸다. `temperature` · 시간 제한은 `[label]` 개발 기준값, 애플리케이션 재시도는 없고 설치된 `google-genai` 2.24.0도 `retry_options`가 없으면 1회만 시도한다(코드 확인 2026-09-29, 실행 기록 `sdk`에 남김). [`open-questions.md` #66 K1 · K5]
-
-**판정 대상** — 공백만 있는 블록(`source_ko.strip() == ""`, ③ #38 A와 같은 정의)은 VLM에 보내지 않고 false(`basis=blank_text`)를 기록한다. 텍스트가 있는 블록은 OCR 신뢰도와 관계없이 보낸다. 블록이 없으면 호출 없이 빈 판정 목록으로, 공백 블록만 있으면 호출 없이 각 false로 정상 완료한다. [`open-questions.md` #66 K8] [`open-questions.md` #38]
-
-**입력** — 블록마다 임시 ID(`b1`… `block_order` 순) · `source_ko` · `box_2d`(`[ymin, xmin, ymax, xmax]`, 이미지 기준 0~1000 정규화 정수 — 축소와 무관)만 보낸다. 역할 · 신뢰도는 보내지 않는다. 섹션 이미지 크기가 `Section` 메타데이터와 다르면 좌표를 대응시킬 수 없으므로 입력 오류다. [`open-questions.md` #66]
-
-**출력** — `{"labels": [{"id": "b1", "is_product_label": true}, …]}`(JSON 스키마 강제). **응답 검증**: 보낸 ID마다 정확히 하나 · 누락 · 중복 · 미등록 ID · 모르는 키(최상위 · 항목) · boolean이 아닌 값(`"true"` · `1` · `null`) · **JSON 객체 안의 중복 키**(예 한 항목에 `is_product_label`이 두 번 — 표준 파서는 마지막 값으로 덮어써 상충을 숨긴다)는 실패, 묵시 변환 없음. [`open-questions.md` #66 K3]
-
-**결과** — `LabelResult`(`dev.md` 3절): 분석 결과와 분리한 섹션별 판정 목록(`block_key` · `is_product_label` · `basis`)이며 원문 · 좌표 · 역할 · 블록 구성 · 원시 OCR을 담지 않고 바꾸지 않는다. 파일 버전은 공통 `SCHEMA_VERSION`을 그대로 쓰며 `AnalyzeResult`는 바꾸지 않는다. `ok`면 섹션의 모든 블록에 판정이 하나씩, `failed`면 `labels=null`(미판정). [`open-questions.md` #66 K2] [계약 2.4]
-
-**실패** — 호출 실패 · 시간 초과 · 응답 검증 실패 · 재생 불일치는 **섹션 전체 실패**다. 일부 판정만 내보내거나 false · 빈 성공으로 바꾸지 않는다. 예외가 아니라 `status=failed` 결과로 돌려주므로 여러 섹션 실행은 다음 섹션을 계속 처리하고 전체 성공(`ok`)과 부분 실패(`partial`)를 구분한다. 입력 오류(섹션 불일치 · 중복 `block_key` · 이미지 열기 · 크기 불일치 · 설정)는 예외다. 실패 섹션은 명시적으로 새 출력 폴더에서 다시 돌린다. 오류 코드 · 워커 재시도 · 미판정 저장은 통합 때 정한다. [`open-questions.md` #66 K4 · K6, #65]
-
-**기록 · 재생** — `label_debug/<section_key>.json`: 상태(`ok` · `skipped` · `call_failed` · `validation_failed` · `replay_mismatch` · `input_mismatch`) · 보낸/공백 블록 · 입력 지문(블록 전체 JSON SHA-256) · 페이로드와 SHA-256 · 프롬프트 SHA-256 · 이미지 크기와 픽셀 해시 · 모델 설정 · 원응답 · 검증 결과 · 호출 · 전체 소요 시간 · 사용량. 성공 결과의 기록 저장 실패는 실행 실패, 실패 결과의 기록 저장 실패는 오류에 덧붙인다(③ · ③-1과 같음). 재생(`label --llm-replay`)은 모델 설정 · 프롬프트 · 페이로드 · 이미지 해시와 **보내지 않은 공백 블록까지 포함한 입력 지문**이 기록과 같아야 하고, 재생한 응답도 같은 검증을 거친다. [`open-questions.md` #66 K7]
-
-**경계 사례(프롬프트 `pipeline/prompts/label.md`)** — 라벨과 일반 문구가 한 블록에 과병합됐으면 블록 전체 true(분할 없음 — 평가에서 과보호 · 상류 과병합 영향으로 따로 센다) · 패키지 밖 제품명 · 브랜드명은 이름이라는 이유로 true가 아니다(인쇄 위치로 판단) · 논문 · 인증서 · 화면 캡처 글자는 문서라는 이유로 true가 아니다(별도 제외 정책은 #39) · 애매하면 true, 단 이미지에 패키지가 보이지 않는 블록을 추측으로 true로 하지 않는다. 긴 섹션은 현재 해상도 규칙으로 먼저 검증한다. [`open-questions.md` #66 K8, #39]
-
-**실측·사용자 검수(2026-09-29)** — 100섹션 실행 실패 0 · 재생 100/100 동일. AI 1차 검토의 미탐·과보호 0은 당시 관찰값이다. 이후 사용자 경계 사례 4종 · 8블록 검수에서 반사상 1블록 · 기프트카드 2블록이 false→true 미탐으로 확인됐고, 손글씨 4블록 · `+` 기호 1블록은 현재 true에 문제 없음. **사용자 판단: 미탐 2종 · 3블록을 알려진 한계로 남기고 수정은 보류하며, ④ 단독 개발을 현 상태로 마무리하고 다음 단계 개발을 우선한다.** 전체 정확도·오류 없음·통합 완료를 뜻하지 않는다. 혼합 블록은 실데이터 미검증이며 반사상 미탐의 해상도 원인은 미검증이다. 코드·프롬프트·설정·판정 산출물은 유지하고 보호 대상 정의의 일반화·개선·회귀 검증은 #67 후속 과제로 둔다. [`docs/ai-experiments/2026-09-29_04-label_run-v1.md` 4.4·5절] [`open-questions.md` #66 · #67] [사용자 결정 2026-09-29]
-
-### 7.5 ⑤ 브랜드 로고 제외 — 단독 개발 v1
-
-**정본 규칙** — `block_exact`: 블록 `source_ko` 전체와 `brand.name_ko` · `brand.name_en`을 ① NFKC → ② 소문자 → ③ 공백 · 문장부호 제거로 정규화해 완전 일치 비교하고, 정규화 결과가 빈 문자열인 값은 비교하지 않는다. 부분 일치는 쓰지 않고 불일치는 경고가 아니다. 브랜드명은 상품 메타에서 받고 로고 파일 · 이미지 매칭은 MVP 이후다. [계약 2.3] [개발계획 2.1] ④ 라벨 블록은 로고 비교도 건너뛴다. [개발계획 2.1] 판정 플래그는 `NULL` · `false` · `true` 3상태이고 `is_excluded`는 DB 자동계산이다. [계약 2.4] 아래 나머지는 정본에 없어 사용자가 승인한 단독 개발 방침(M1~M9)이다. **전체 파이프라인(API · DB · 워커 · `analyze()` · 하류) 연결 전의 개발용 설계이며, 결과 형식 · 실패 정책은 운영 API · DB 계약이 아니다.** [`open-questions.md` #68]
-
-**범위 · 입력** — 모델 호출 없는 독립 단계(`pipeline/stages/logo.py`). 입력은 원본 이미지 식별자 · 섹션의 ③ 블록 · 대응 ④ 결과 · 브랜드 자료 · 설정이며 섹션 이미지는 판정 입력이 아니다. 파일 읽기 · 저장은 실행 계층(CLI · 실측 드라이버)이 한다. 원문 · 좌표 · 역할 · 원시 OCR · ④ 결과를 바꾸지 않고 `is_excluded`는 산출 · 저장하지 않는다. [`open-questions.md` #68 M1]
-
-**정규화 구현** — NFKC → `str.lower()` → `str.isspace()`인 문자(줄바꿈 포함)와 Unicode 범주 P*(문장부호) 제거. S*(기호)는 남긴다. casefold · 악센트 제거 · 별칭 · 번역 · 음역 · OCR 오타 보정 · 부분 일치는 하지 않는다. `[logo] normalize`가 `["nfkc", "lower", "strip_space_punct"]`와 다르면 설정 오류로 거부한다. 결과는 Unicode 데이터 버전(`unicodedata.unidata_version`)에 따라 달라질 수 있어 기록에 남긴다. [`open-questions.md` #68 M2 · M8]
-
-**판정** [`open-questions.md` #68 M3]
+- 정규화 구현: NFKC → `str.lower()` → `str.isspace()`인 문자(줄바꿈 포함)와 Unicode 범주 P*(문장부호) 제거. S*(기호)는 남긴다. casefold · 별칭 · 번역 · 음역 · 오타 보정은 하지 않는다. `[logo] normalize`가 승인 목록과 다르면 설정 오류로 거부한다. [`open-questions.md` #68 M2 · M8]
 
 | 조건(순서대로) | `is_brand_logo` | `basis` |
 |---|---|---|
@@ -405,114 +237,35 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ④ false, 정규화 텍스트 = 정규화 한글명 또는 영문명 | true | `exact_match` |
 | 그 외(정상 불일치, 경고 아님) | false | `no_match` |
 
-블록이 없는 섹션은 입력 검증 뒤 빈 판정 목록으로 성공한다.
+[`open-questions.md` #68 M3]
 
-**입력 검증(판정 전)** — ③ · ④ 섹션 키 일치 · 블록 키 중복 없음 · ④ `status=ok` · ③ 블록마다 ④ 판정이 정확히 하나(strict boolean, ③에 없는 블록의 판정도 거부) · ④ `checked.input_fingerprint` = 현재 ③ 블록 지문(④와 같은 계산) · 원본 이미지가 브랜드 자료의 `images` 목록에 정확히 한 번(접두사로 추정하지 않음) · 브랜드 값 상태(`provided` · `absent` · `unconfirmed`)와 값 형식 · 연결 그룹의 한글명 · 영문명 모두 `provided`이고 정규화 후 비어 있지 않음 · 승인된 정규화 설정. 어기면 `LogoInputError`(입력 오류)이며 결과를 만들지 않는다. `absent` · `unconfirmed` · ④ 실패 · 누락 · NULL을 false로 대체하지 않는다 — **v1 지원 범위의 제한이며 브랜드 부재의 운영 정책이 아니다**. 파일 간 식별은 원본 이미지 식별자 + `section_key` + `block_key`. [`open-questions.md` #68 M4]
+- 입력 검증에 어긋나면 `LogoInputError`이며 결과를 만들지 않는다. ④ 실패 · 누락 · NULL과 브랜드 값 `absent` · `unconfirmed`를 false로 대체하지 않는다. 브랜드 부재 · 미확인의 운영 정책은 미정이다. [`open-questions.md` #68 M4] ④⑤의 생략 · 완료 조합은 `contract.md` 2.4. [통합 D1]
+- 코드 `pipeline/stages/logo.py`, 테스트 `tests/test_pipeline_logo.py` · `test_pipeline_logo_run.py`. 입력 검증 항목 · 결과 형식 · CLI · 드라이버 · 기록 · 구현 세부 결정 5건의 원문은 archive 7.5절.
 
-**결과** — `LogoResult`(`dev.md` 3절): 전용 `schema_version="1"` · `image_id` · `section_key` · `status`(`ok` · `failed`) · `decisions`(`LogoDecision`: `block_key` · `is_brand_logo` · `basis`) · `error`. ok면 모든 블록이 정확히 한 번(`block_order` → `block_key` 순) · `error=null`, failed면 `decisions=null` · 비어 있지 않은 `error`. `product_label`만 null, `exact_match`만 true. 부분 성공은 저장하지 않는다. `AnalyzeResult` · 공통 `SCHEMA_VERSION`은 그대로이고 `basis` · 오류 문자열은 운영 enum · 오류 코드가 아니다. [`open-questions.md` #68 M5]
+### 7.6 ⑥ 인페인팅
 
-**실행 · 실패 · 저장** [`open-questions.md` #68 M6 · M7]
-- CLI `logo`(한 섹션, `dev.md` 4절)와 실측 드라이버 `docs/ai-experiments/tools/logo_run_driver.py`(`logo-input-v1` + `brand-meta-v1`)가 같은 실행 함수(`run.execute_logo`)를 쓴다. 출력은 `<out>/run.json` · `<out>/<image_id>/logo/<key>.json` · `<out>/<image_id>/logo_debug/<key>.json`, `--out`이 이미 있으면 거부한다.
-- 드라이버 사전 검사: 두 자료의 파일 집합 · 해시(아래 결정 5), 브랜드 자료의 연결 입력본(`for_input` name · `SHA256SUMS` 해시) = 이 입력본, 브랜드 원본 목록 ↔ 개발 대상, 대상 섹션 전부의 입력 검증. `MANIFEST.images[].sections`만 순회하고 자료 속 옛 경로는 출처 정보일 뿐 실제 경로는 실행 인자다.
-- 사전 검사 실패 → 전체 중단 · 판정 결과 없음(종료 코드 2). 판정 중 예기치 않은 오류 → 그 섹션 `failed` 결과와 기록을 남기고 전체 중단(4). 저장 오류 → 성공으로 보고하지 않고 실패 종료(4). 이미 끝난 섹션 결과는 보존하되 실행은 실패로 표시한다. 자동 재시도 · 이어 실행은 없고 재실행은 새 출력 폴더에서 한다.
-- 결과 · 기록 · `run.json`은 같은 폴더의 임시 파일에 쓴 뒤 최종 경로로 교체한다(`jsonio.write_text_atomic`). 섹션마다 기록 → 결과 순서로 쓴다.
+**정본 규칙** — 마스크는 처리 허용 블록에 속한 **원시 OCR 영역**에서 만들고 영역별 `score`와 비어 있지 않은 텍스트 조건을 적용한다. 라벨 · 로고 블록은 마스크 생성 대상에서 빼고 보호 영역을 침범하지 않게 구성한다. [계약 5.2] 판정은 블록 `ocr_confidence`가 아니라 원시 영역 `score`다. [계약 2.5] 기준은 `erase_s50`(신뢰도 0.5 이상 · 텍스트 있음) · 마스크 = poly 채움 + 글자 높이 15% 팽창 · 확대 재시도 없음. [개발계획 2.1, 6장] 저신뢰 · 빈 텍스트 영역은 원문을 보존한다. [개발계획 6장] 나머지는 사용자가 승인한 계획(2026-09-30)이다. [`open-questions.md` 2.3절 · #74 · #75 · #72]
 
-**기록** — `logo_debug/<key>.json`: 블록 지문 · ④ 결과 지문 · ④ 입력 지문 · 브랜드 원문과 정규화 값 · 브랜드 그룹 항목 지문 · 블록별(④ 값 · 비교한 블록의 정규화 텍스트 · 일치한 이름 · 판정 · 근거) · 근거별 건수 · 정규화 규칙 · Unicode 데이터 버전. `run.json`: 설정 · Git 커밋 · 변경 여부 · Python · Unicode 데이터 버전 · 시작 시각 · 소요 시간 · 상태 · 처리 건수 · 섹션별 상태와 지문, 드라이버는 두 자료의 버전 · `SHA256SUMS` 해시 · `brand_metadata.json` 해시 · 연결 검사, CLI는 입력 파일 3개의 SHA-256. 모델 응답 재생은 없다 — 후속 검증은 같은 입력을 다시 실행해 `LogoResult`를 비교한다(시각 · 소요 시간 제외). [`open-questions.md` #68 M8]
+- 삭제 후보 블록 = ④ `is_product_label=false` 그리고 ⑤ `is_brand_logo=false`. 후보 블록의 원시 영역마다 `score >= inpaint.score_min`과(`inpaint.require_text`이면) `text.strip() != ""`를 판단한다. 블록 신뢰도 · 역할 · 블록 원문으로 대체하지 않는다. [`open-questions.md` 2.3절 · #74]
+- 영역별로 poly를 채우고 `bbox.h`를 글자 높이로 반경 `ceil(bbox.h × inpaint.dilate_ratio)` 픽셀의 원형 커널로 **영역마다 따로** 팽창한 뒤 합집합한다. 합친 마스크를 다시 팽창하지 않는다. [`open-questions.md` 2.3절 · #74]
+- 보호 = 라벨 · 로고 블록 `bbox` 전체 + 후보 블록의 저신뢰 · 빈 텍스트 원시 poly. 삭제 합집합에서 보호를 **마지막에** 뺀다(보호 우선). 원시 영역을 지우거나 다시 묶지 않고 ④⑤ 판정을 보정하지 않는다. [`open-questions.md` 2.3절 · #74]
+- 모델은 LaMa(iopaint 1.6.0 LaMa 경로 재현, `big-lama.pt`)를 모델 전용 자식 프로세스에서 실행하고 시간 제한은 `[inpaint]` 키다(운영값은 #75). 원본을 돌려주는 대체 모델은 두지 않고 재시도 · 자동 축소 · CPU 대체는 없다. 빈 최종 마스크는 모델을 부르지 않으며, 최종 마스크 안 픽셀만 모델 결과로 합성한다. [`open-questions.md` #72 · #75] [사용자 결정 2026-09-30]
+- 인페인트 실패 시 하류는 원본 배경을 쓴다(1.1절). [통합 D9] 저신뢰 글자의 번역 · 렌더 처리는 미정(#12). 품질 결함 D1~D9의 고도화는 수정 보류(#73). [사용자 결정 2026-09-30]
+- 코드 `pipeline/stages/inpaint.py` · `inpaint_lama.py` · `inpaint_proc.py`, 운영 인계 `pipeline/handoff/downstream.py` · `gpu.py`, 테스트 `tests/test_pipeline_inpaint*.py`. 좌표 해석 · 입력 검증 · 어댑터 사양 · 자식 프로세스 · 개발용 형식 · 실측 · 검수 이력의 원문은 archive 7.6절.
 
-**후속 검증(이번 범위 밖, 미수행)** [`open-questions.md` #68 M9]
-1. 합성 테스트 — 정규화(공백 · 줄바꿈 · P* 제거 · S* 유지 · NFKC) · 판정 4근거 · 입력 오류 전 항목 · 타입 불변식 · CLI 종료 코드 · 저장 실패(임시 파일 정리 · 완료 섹션 보존 · 실행 실패 표시).
-2. 실측 — `logo-input-v1` 32원본 · 100섹션 · 948블록: ④ 라벨 232블록 생략, 나머지 716블록 처리.
-3. 같은 입력 재실행 비교(시각 · 소요 시간 제외).
-4. 로고 판정과 브랜드 관련 불일치 검수(예: 표기 변형 · 등록상표 기호처럼 S*로 남는 문자 때문에 일치하지 않는 블록).
-5. ④ 알려진 미탐 3블록(#67) · OCR 오인식 · ③ 과병합의 영향을 ⑤ 결과에서 분리.
-6. ⑤ 마무리 후 기존 입력본 · 브랜드 자료 · ⑤ 결과 · 기록을 다음 단계 입력본으로 묶고 해시 · 이동 검증.
+### 7.7 ⑦ 스타일 추출
 
-**구현 세부 결정(사용자 2026-09-29, 구현 설명에 대한 설계 결정 — 코드 검증 결과 아님)** [`open-questions.md` #68]
-1. `run.json` 전체 상태는 `ok` · `input_error` · `failed`, 섹션 실행 상태는 `ok` · `failed` · `save_failed`. `save_failed`는 실행 기록에만 쓰고 `LogoResult.status`는 `ok` · `failed` 그대로다. 실패하거나 처리하지 못한 섹션이 하나라도 있으면 전체를 `ok`로 기록하지 않는다(`counts.sections_not_run`).
-2. 사전 검사 실패 시 새 출력 폴더에 `run.json`(`input_error`)만 남기고 판정 결과 파일은 만들지 않는다. 기존 출력 폴더는 거부하고 덮어쓰지 않는다.
-3. 사전 검사 중 예상하지 못한 내부 예외는 `failed` · 종료 코드 4, 검출한 입력 오류는 `input_error` · 2. 사전 검사 구간은 기록 머리 생성 · 설정 로딩 · 해시 검사 · 입력 로딩 · 입력 검증 전체이며, 검출 입력 오류는 `ValueError`(입력 검증 · 버전 · 스키마 · JSON 오류 포함) · `OSError` · 없는 config 키로 본다(2026-09-30 검토 반영). 같은 (원본 이미지, `section_key`) 작업이 두 번 이상이면 같은 출력 경로를 덮어쓰므로 입력 오류로 거부한다(CLI · 드라이버 공통, 드라이버는 MANIFEST 단계에서도). 출력 폴더 생성이나 `run.json` 저장 자체가 실패하면 원래 상태 · 오류와 함께 표준 오류로 알리고 4로 끝내며, 기록을 남겼다고 보고하지 않는다.
-4. 브랜드 자료는 **모든 그룹**의 형식 · 상태와 값의 일관성, 그룹 이름 중복, 그룹 간(과 그룹 안) 원본 중복, `not_in_input`과 `products[].images`의 상충을 자료 전체에서 검사한다. 한글명 · 영문명 모두 `provided`라는 v1 제한은 실제 연결된 그룹에만 적용한다.
-5. (수정) 드라이버는 입력본 · 브랜드 자료 각각 최상위 `SHA256SUMS` 자신을 뺀 실제 파일 집합이 해시 목록과 같아야 한다 — 누락 · 해시 불일치 · 목록 밖 파일은 입력 오류, 하위 폴더의 `SHA256SUMS`는 일반 파일로 검사, 목록 밖 파일을 자동 삭제하지 않는다. `products[].images`에 개발 입력본(`MANIFEST.images`) 밖 원본이 있으면 입력 오류다. `not_in_input`에 명시한 제외 원본(현재 GS-02_002 · GS-03_016)은 허용하고 개발 대상과 겹치지 않는지만 검사한다.
+**정본 규칙** — `otsu_border`(테두리에 많이 닿는 쪽을 배경으로) · 크기 = bbox 높이 × `style.em_ratio`(잠정 적용 · 최종값 미정 [`open-questions.md` #85] [사용자 결정 2026-10-15]) · 정렬 = 블록 안 줄들의 좌 · 중앙 · 우 분산 비교, 허용 오차 블록 폭 12% · **원본 섹션 이미지** 사용(⑥ 출력 아님) · 폰트 패밀리 · 굵기는 추출하지 않는다. [개발계획 2.1, 6장] 라벨 · 로고로 판정된 블록은 스타일 추출에서 제외한다. [계약 1.3] 나머지는 사용자가 승인한 명세 v1(2026-10-06)이다. [`open-questions.md` #76] [사용자 결정 2026-10-06]
 
-### 7.6 ⑥ 인페인팅 — 단독 개발 v1 (로컬 구현)
+- 처리 대상 = ④ `is_product_label=false` 그리고 ⑤ `is_brand_logo=false`. 공백만 있는 영역은 추출하지 않는다. 저신뢰지만 텍스트가 있는 영역은 추출한다 — ⑥ `inpaint.score_min`을 적용하지 않는다. [`open-questions.md` #76]
+- 색: 영역 bbox crop의 명도 Otsu로 두 집단을 나누고 외곽에 더 많이 닿는 집단이 배경이다. 나눌 수 없거나 외곽 접촉이 같으면 그 영역의 색만 null이다. 크기: `est_font_px` = bbox.h × `style.em_ratio`. 블록 값은 유효 영역 값의 중앙값(색은 그 중앙값에 가장 가까운 실제 영역 색)이다. [`open-questions.md` #76]
+- 정렬: 줄마다 왼쪽 · 중앙 · 오른쪽 좌표의 분산을 허용 오차와 비교해 최소 분산 후보를 고른다. 유효 줄이 1개면 left가 기본값이며, **기본값 적용은 정렬 추정 성공이 아니다.** [`open-questions.md` #76]
+- 추출할 수 없는 값은 null과 사유로 남기고 검정 · 흰색 같은 기본값으로 덮지 않는다. [`open-questions.md` #76] 렌더에서 NULL 항목과 ⑦ 실패에는 역할별 기본값(`pipeline/data/style_defaults.json`)을 쓴다(`contract.md` 11.1). [통합 D11] `text_block.style`의 키 구성은 미정(#14).
+- 코드 `pipeline/stages/style.py` · 역할 기본값 `pipeline/handoff/style_defaults.py`, 테스트 `tests/test_pipeline_style.py` · `test_pipeline_style_defaults.py`. 함수 경계 · Otsu 계산식 · 집계 · 정렬 결정 표 · 입력 오류 · 개발용 결과 형식 · 확인 이력의 원문은 archive 7.7절.
 
-**정본 규칙** — 마스크는 처리 허용 블록에 속한 **원시 OCR 영역**에서 만들고 영역별 `score`와 비어 있지 않은 텍스트 조건을 적용한다. 라벨 · 로고 블록은 마스크 생성 대상에서 빼고 보호 영역을 침범하지 않게 구성한다. [계약 5.2] 판정은 블록 `ocr_confidence`가 아니라 원시 영역 `score`다. [계약 2.5] 기준은 `erase_s50`(신뢰도 0.5 이상 · 텍스트 있음) · 마스크 = poly 채움 + 글자 높이 15% 팽창 · 확대 재시도 없음. [개발계획 2.1, 6장] 저신뢰 · 빈 텍스트 영역은 원문을 보존한다. [개발계획 6장] 아래 나머지는 정본에 없어 사용자가 승인한 단독 개발 계획(2026-09-30)과 개발용 v1 형식이다. **전체 파이프라인(API · DB · 워커 · `analyze()`) 연결 전의 개발용 설계이며 운영 계약이 아니다. 실제 LaMa 어댑터 · GPU 설정 · 실측은 아직 없다.** [`open-questions.md` 2.3절 · #74 · #75 · #72]
+### 7.8 ⑧ 번역문 LLM 규제 판정 — 초안 v1
 
-**대상 · 보호** [`open-questions.md` 2.3절 · #74]
-- 삭제 후보 블록 = ④ `is_product_label=false` 그리고 ⑤ `is_brand_logo=false`. 후보 블록의 원시 영역마다 `score >= inpaint.score_min`과(`inpaint.require_text`이면) `text.strip() != ""`를 판단한다. 블록 신뢰도 · 역할 · 블록 원문으로 대체하지 않는다.
-- 영역별로 poly를 채우고 `bbox.h`를 글자 높이로 반경 `ceil(bbox.h × inpaint.dilate_ratio)` 픽셀의 원형 커널로 **영역마다 따로** 팽창한 뒤 합집합한다. 합친 마스크를 다시 팽창하지 않는다(중복 OCR 영역 #40도 누적 재팽창 없음).
-- 보호 = 라벨 · 로고 블록 `bbox` 전체 + 후보 블록의 저신뢰 · 빈 텍스트 원시 poly. 삭제 합집합에서 보호를 **마지막에** 뺀다(보호 우선). 충돌 면적과 영역별 처리 이유를 진단에 남긴다.
-- 원시 영역을 지우거나 다시 묶지 않고 ④⑤ 판정을 보정하지 않는다(#36 · #40 · #67 · #69). 문서 삽입 글자(#39)도 같은 필터를 적용하며 자동 제외 규칙을 두지 않는다. 영역별 처리 기록은 ⑥의 기록이며 ⑧ · ⑨ 처리 정책이 아니다(#12).
-
-**잠정 구현 정의(코드 `pipeline/stages/inpaint.py` 소유, 실측 검수 전 · PoC 검증 동작 아님)** [`open-questions.md` #74]
-- 좌표: 정수 좌표는 픽셀 경계, 픽셀 (x, y)는 [x, x+1) × [y, y+1), 섹션은 [0, W] × [0, H]. x = W · y = H는 가장자리 접촉(허용), 그 밖은 경계 밖(오류 — 자르거나 보정하지 않음). 입력본 poly 최댓값이 W · H인 영역이 있고 W-1 · H-1에서 멈춘 영역은 없어 이 해석을 택했다.
-- poly 채움: 픽셀 중심 (x+0.5, y+0.5)가 내부(0이 아닌 감김수)이거나 경계 위면 포함. 축 정렬 사각형은 bbox와 같은 w×h 픽셀. bbox 보호도 같은 규칙(열 x..x+w-1 · 행 y..y+h-1).
-- 원형 커널: dx² + dy² ≤ r². 영상 밖으로 나가는 팽창은 버린다. 반경이 영상보다 커도 영상과 겹치지 않는 커널 행은 건너뛴다. 반경은 `dilate_ratio`의 10진 표기를 정확한 분수로 계산한다 — 기본값 0.15에서는 높이 0~200,000 전 범위에서 부동소수 올림과 차이가 없고(입력본 1,815영역도 0건), `--set`으로 바꾼 값에서 달라질 수 있어 둔 방어다(예 부동소수 `100 × 0.07` = 7.000000000000001 → 8, 분수로 7).
-- 면적 0 = 정수 신발끈 면적 0. 필터를 통과한 면적 0 영역은 삭제하지 않고 진단(`zero_area`). 영역 bbox가 poly 외접 사각형과 다르면 입력 오류.
-- 보호 기하가 유효하지 않으면(라벨 · 로고 bbox의 w · h가 0 · 경계 밖, 보호할 저신뢰 · 빈 텍스트 영역의 면적 0 · 경계 밖) 섹션 중단.
-
-**입력 검증(모델 호출 전)** [`open-questions.md` 2.3절 · #75] — 연결 키는 원본 식별자 + `section_key` + `block_key`. 섹션 · 블록 대응, ④ · ⑤ `status=ok`, 블록마다 판정이 정확히 하나(누락 · 중복 · 미등록 키 거부), ④ true ⇔ ⑤ `product_label`/null(정상 생략), ④ false면 ⑤ boolean, ④ 입력 지문 = 현재 ③ 블록 지문, ⑤ 기록(`logo_debug`)의 블록 · ④ 결과 지문과 판정 목록 = 현재 입력, 섹션 이미지 RGB · 크기 = 섹션 메타데이터, 원시 `region_key` 중복 없음, 설정(`model=lama`만 · `dilate_retry=false`만). 미판정 · 누락 · 실패를 false로 바꾸지 않는다.
-
-**모델 · 합성** [`open-questions.md` 2.3절 · #72] — 모델은 `InpaintModel` 인터페이스(`describe()` · `inpaint(image (H,W,3) uint8 RGB, mask (H,W) uint8 0/255) -> (H,W,3) uint8`)로만 연결하고 호출자가 주입한다. 기본 팩토리는 LaMa 어댑터(아래)이고, torch · 가중치가 없으면 `ModelNotAvailable`(종료 코드 3)이다. 원본을 돌려주는 대체 모델은 두지 않는다. 빈 최종 마스크는 모델을 부르지 않고 원본 사본을 쓴다. 모델 출력의 형식 · 크기를 검증하고(보정 없음) 최종 마스크 안 픽셀만 모델 결과에서, 나머지는 원본에서 복사한다. 모델 시간 제한은 **자식 프로세스 격리**로 적용한다(아래) — 값은 3절 `inpaint.*_timeout_s` · `kill_grace_s`(100섹션 실측용 잠정값).
-
-**LaMa 어댑터 실행 사양(사용자 결정 2026-09-30, 코드 `pipeline/stages/inpaint_lama.py`)** [`open-questions.md` #72] — 정본의 LaMa(iopaint)[개발계획 6장]를 iopaint 패키지 호출이 아니라 **iopaint 1.6.0 LaMa 경로의 재현**으로 연결한다(패키지는 `Pillow==9.5.0` 고정으로 Python 3.12 설치가 어렵고 LaMa 하나에도 모든 모델 의존성을 불러온다).
-- 가중치: iopaint 1.6.0과 같은 `big-lama.pt`(TorchScript, 205,669,692 B, MD5 `e3aa4aaa15225a33ec84f9f4bc47e500` 대조, SHA-256 `344c77bb…9ea9` 기록), iopaint 기본 캐시 위치 `torch.hub.get_dir()/checkpoints/`에서 읽고 내려받지 않는다. 새 config 키 없음.
-- 처리: HWC→CHW · float32 /255, 마스크 `/255 > 0` → 정수 0/1, 아래 · 오른쪽만 8의 배수까지 `symmetric` 패딩 → 1회 forward → 원래 H×W로 자름 → `clip(×255).astype(uint8)`(버림). RGB 입출력.
-- iopaint와 다른 점: iopaint 요청 기본값 `hd_strategy=CROP`(긴 변 800 초과 시 마스크 박스 주변 부분 추론)은 원본 해상도 · 섹션당 1회와 충돌해 쓰지 않는다(= ORIGINAL). BGR 변환 · `sd_keep_unmasked_area` 합성은 하지 않고 `composite`가 맡는다.
-- 실행: CUDA · FP32(가중치 dtype 확인만, autocast 없음) · `inference_mode` · 배치 1 · 순차 · cuDNN 설정은 기본값. CUDA 없음 · MD5 불일치 · 로드 실패는 초기화 실패(4). 재시도 · 자동 축소 · 분할 · CPU 대체 없음. `describe()`는 개발용 재현 정보(버전 · 가중치 해시 · 장치 · 정밀도 · 크기 처리 · 초기화 시간)이며 BE 계약이 아니다.
-- 후처리 검사: 변환 전에 출력 모양(3 × 8배수 패딩 크기) · 실수 dtype · 유한값을 확인하고 어기면 추론 실패 — NaN · Inf가 0 · 255로 바뀌어 정상 이미지처럼 저장되지 않게 한다(2026-09-30 검토 반영).
-- GPU 소수 검증(2026-09-30, `docs/ai-experiments/2026-09-30_06-inpaint_lama-gpu-probe.md`): 학교 V100 · torch 2.14.0+cu126에서 합성 · 실제 13섹션의 자동 검사(크기 · 형식 · 최종 마스크 ∩ 보호 0 · 마스크 밖 동일 · 빈 마스크 호출 0 · 입력본 불변) 통과. 같은 입력 반복은 최대 차 1(GPU 비결정성). 품질 승인이 아니다.
-
-**모델 전용 자식 프로세스 · 시간 제한(사용자 결정 2026-09-30, 코드 `pipeline/stages/inpaint_proc.py`)** [`open-questions.md` #75 · #72] — 같은 프로세스에서는 진행 중인 CUDA 호출을 끊을 수 없어 기본 팩토리가 LaMa를 **spawn 자식 프로세스 1개**에서 초기화하고 부모가 시간 제한 · 결과 저장을 맡는다(부모는 torch를 import하지 않는다).
-- 자식은 첫 비어 있지 않은 마스크에서 1회 만들고 섹션마다 다시 로드하지 않는다(순차 · 섹션당 요청 1회). 별도 워밍업은 두지 않는다 — 첫 호출 지연도 추론 시간 제한 안에 포함하고 호출 번호(`n`)로 첫 호출과 이후를 구분해 기록한다.
-- 초기화 시간 초과 · 비정상 종료 · 오류는 초기화 실패(종료 코드 4, 그 섹션부터 파일 없이 `not_run`), 모델 사용 불가(torch · 가중치 없음)는 3. 추론 시간 초과 · 자식 비정상 종료 · 자식 쪽 오류는 그 섹션 `failed`(마스크 보존) · 나머지 `not_run` · 4.
-- 마감은 **요청 전송 시작부터 응답 전체 수신까지** 하나로 잰다(초기화는 시작 ~ 준비 응답 전체 수신). 전송 · 수신은 보조 스레드에서 하고 부모는 마감까지만 기다리므로 자식이 요청을 읽지 않거나 응답을 일부만 보내고 멈춰도 부모가 함께 막히지 않는다(2026-09-30 검토 반영 — 이전 구현은 전송 뒤부터 쟀고 수신에 제한이 없었다).
-- 시간 초과 · 비정상 종료 시 그 자식만 `terminate` → `kill_grace_s` 뒤에도 살아 있으면 `kill` → `join`, 강제 종료한 뒤 통신 채널은 다시 쓰지 않는다. 실행이 끝나면(성공 · 실패 모두, **초기화 실패 포함** — 예외에 종료 기록을 담아 넘긴다) 자식 종료 기록을 `run.json` `model_termination`에 남긴다. 자동 재시도 · 재기동 · CPU 대체 없음. 운영 워커의 시간 제한 · 재시도 정책은 바꾸지 않았다.
-- 100섹션 실측 v1(2026-09-30, `docs/ai-experiments/2026-09-30_06-inpaint_run100-v1.md`): MANIFEST 개발 대상 100섹션 실행 `ok`(`inpainted` 96 · `unchanged` 4), 자동 검사 전부 통과, 입력본 1,268파일 전후 일치. 초기화 벽시계 5.9 s, 첫 4회 호출 1.4~3.2 s, 이후 최대 0.86 s · 중앙값 0.29 s, 최대 할당 1,966 MiB. GPU 강제 중단(시간 제한을 일부러 짧게) 시 자식 종료 · GPU 메모리 반환 · 실패 기록 확인. 이 실행은 위 마감 보완 **전** 구현으로 돌았으나 시간 초과가 한 번도 없어(최대 3.18 s) 결과는 그대로 쓴다. 실행 당시에는 육안 검수 전이었고, 이후 사용자 육안 검수 결과는 아래 문단(현 수준 유지 · 결함 기록, #73)이다.
-
-**실측 · 사용자 검수(2026-09-30)** — 100섹션 실측 v1에 자동 선별 · AI 1차 분류(참고)를 붙여 사용자가 육안 검수했다. **사용자 판단: 현재 인페인팅 수준은 당장 수정할 정도가 아니며, 확인된 결함은 기록해 두고 추후 인페인팅 고도화 때 참고한다.** AI 우선순위 '높음' 10섹션의 결함(디자인 요소 동반 삭제 · 휜 글자 조각 · 어두운 배경 번짐 · 저신뢰 보호 조각 · 병합 로고 삭제)에는 동의했고 나머지는 AI 관찰이다. 결함 유형 D1~D9와 원인 단계 · 영향 · 후속 방향은 실험 기록에 두고, 개선 결정은 #73 후속이다. 코드 · 설정 · 마스크 규칙 · 결과는 바꾸지 않았다. 전수 품질 승인이 아니다. [`docs/ai-experiments/2026-09-30_06-inpaint_run100-v1.md` 4.3절] [`open-questions.md` #73] [사용자 결정 2026-09-30]
-
-**개발용 v1 형식 · 실행(사용자 승인 2026-09-30)** [`open-questions.md` #75]
-- CLI `inpaint --mode mask-only|inpaint`(기본값 없음, `dev.md` 4절). `mask-only`는 마스크 · 진단만 만들고 인페인팅이 아니다. `inpaint`는 처음으로 비어 있지 않은 최종 마스크를 만났을 때 LaMa 어댑터(모델 전용 자식 프로세스)를 만들며, **torch 또는 가중치가 없으면** 그 섹션부터 결과 없이 종료 코드 3(빈 마스크 섹션만 있으면 모델 없이 `unchanged`).
-- 출력(`--out` 기준 상대 경로): `<image_id>/inpaint_mask/<key>.final.png` · `.protect.png`(L 0/255) · `inpaint_bg/<key>.png`(RGB, inpaint 모드) · `inpaint_debug/<key>.json` · `inpaint/<key>.json`(`InpaintResult`, 마지막에 씀) · `run.json`. 보호 차감 전 삭제 합집합은 저장하지 않는다.
-- `InpaintResult`(전용 버전 `"1"`): 상태 `masked`(마스크만) · `inpainted`(모델 1회 · 합성) · `unchanged`(빈 마스크 · 호출 없음 · 원본 사본) · `failed`(배경 없음 · error 필수). 진단: 영역별 `kind`(`target` · `zero_area` · `protected_region` · `in_protected_block`) · 이유(`low_score` · `blank_text` · `product_label` · `brand_logo`) · 반경 · 픽셀 수 · 충돌, 보호 블록, 입력 · 판정 · 이미지 · 마스크 · 배경 지문, 모델 기록. 값은 운영 enum · 오류 코드가 아니다.
-- 출력 보호(실행 함수 `run.execute_inpaint`가 보장, CLI · 드라이버 공통): `--out`이 이미 있거나 입력 파일이 속한 고정 입력본(`SHA256SUMS`가 있는 **모든** 상위 폴더 — 입력본 안에 묶인 입력본이면 바깥 입력본도) 안이면 아무것도 쓰지 않고 2. `image_id` · `section_key`는 경로 구성 요소로 검사해 구분자(`/` `\`) · `:` · 제어 문자 · 앞뒤 공백 · `.` · `..` · 빈 값을 거부하고, 최종 출력 경로가 `--out` 안인지 사전 검사에서 다시 확인한다(2026-09-30 검토 반영).
-- 실행: 전체 사전 검사(실패 → 결과 없이 `input_error` · 2) → 섹션마다 마스크 → (inpaint 모드, 처음 비어 있지 않은 마스크에서 1회) 모델 지연 초기화(실패 → 그 섹션부터 파일 없이 `not_run`, 모델 사용 불가(torch · 가중치 없음) 3 · 그 밖 4, 앞선 완료 섹션은 보존) → 추론 → 저장(마스크 → 배경 → 진단 → 결과, 임시 파일 → 교체, PNG는 다시 읽어 픽셀 대조). 모델 오류는 그 섹션 `failed` 결과를 남기고, 저장 오류는 `save_failed`로 전체 중단(4). 완료 결과는 보존하고 남은 섹션은 `not_run`, 전체를 `ok`로 기록하지 않는다. 자동 재시도 · 축소 · CPU 대체 없음, 재실행은 새 출력 폴더.
-- 실행 함수 `run.execute_inpaint`는 후속 실측 드라이버가 재사용한다. 드라이버 · 검수 도구는 이번 범위 밖이다.
-
-**로컬 검증(2026-09-30)** — 합성 입력 · 가짜 모델 테스트 111개(손으로 적은 픽셀 기대값 포함, 검토 반영 24개 추가: 경로 식별자 · 중첩 입력본 · 실행 함수 직접 호출 · 큰 반경 · 지연 초기화). 입력본 `downstream-input-v1` 100섹션은 **입력 검증만** 메모리에서 통과(오류 0, 마스크 생성 · 파일 저장 · 실측 아님, 입력본 해시 불변). 품질 · 0.5 기준 · 보호 적정성은 검증하지 않았다. [`open-questions.md` #34 · #74]
-
-### 7.7 ⑦ 스타일 추출 — 단독 개발 v1 (핵심 계산)
-
-**정본 규칙** — `otsu_border`(테두리에 많이 닿는 쪽을 배경으로) · 크기 = bbox 높이 → em ×1.35 · 정렬 = 블록 안 줄들의 좌 · 중앙 · 우 분산 비교, 허용 오차 블록 폭 12% · **원본 섹션 이미지** 사용(⑥ 출력 아님) · 폰트 패밀리 · 굵기는 추출하지 않는다. [개발계획 2.1, 6장] 라벨 · 로고로 판정된 블록은 스타일 추출에서 제외한다. [계약 1.3] 아래 나머지는 정본에 없어 사용자가 승인한 단독 개발 명세 v1(2026-10-06)이다. **전체 파이프라인(API · DB · 워커 · `analyze()`) 연결 전의 개발용 설계이며 운영 `text_block.style` 계약(#14)이 아니다.** 역할 기반 폰트 매핑은 이번 범위에 없다. [`open-questions.md` #76] [사용자 결정 2026-10-06]
-
-**함수 경계 · 처리 대상** [`open-questions.md` #76]
-- 코드 `pipeline/stages/style.py` — `extract`(핵심 계산, 파일 입출력 없음, 이미지는 (H, W, 3) uint8 RGB 배열) · `run`(`Section.image_path`를 읽어 `extract`, RGB 모드만 · 변환 없음). 입력 = 원본 이미지 식별자 + `Section` + ③ 블록(원시 영역 포함) + ④ · ⑤ 결과 + ⑤ 기록(`logo_debug`) + `[style]` 설정. 입력 객체를 바꾸지 않는다.
-- 처리 대상 = ④ `is_product_label=false` 그리고 ⑤ `is_brand_logo=false`. 라벨 · 로고 블록은 추출을 생략하고 제외 사유를 남긴다(④ true → ⑤ `product_label`/null은 정상 생략).
-- 공백만 있는 영역(`text.strip() == ""`)은 추출을 생략하고 원본 데이터를 보존한다. 저신뢰지만 텍스트가 있는 영역은 추출하고 score를 보존한다 — ⑥ `inpaint.score_min`을 적용하지 않는다.
-
-**영역 측정** [`open-questions.md` #76]
-- 색: 영역 bbox를 여백 없이 crop → 명도 Y = (299R + 587G + 114B + 500) // 1000(정수 0~255) → 256구간 Otsu. 임계값 t = 0~254, A = Y ≤ t, B = Y > t, 두 집단이 모두 있는 t만 후보, 집단 간 분산 ∝ (S_A·n_B − S_B·n_A)² / (n_A·n_B)를 Python 정수 교차곱으로 비교, 최댓값 동률이면 가장 작은 t.
-- 배경 = crop 외곽 픽셀(중복 없이 한 번씩, 폭 또는 높이 1이면 crop 전체)에 더 많이 닿는 집단. 집단 대표색 = RGB 채널별 중앙값(짝수 개면 가운데 두 값의 평균)을 floor(m + 0.5)로 정수화한 sRGB `"#RRGGBB"`.
-- 두 집단으로 나눌 수 없으면(단색 포함) `single_class`, 외곽 접촉 수가 같으면 `border_tie` — 그 영역의 색만 null이고 크기 · 정렬은 독립 계산한다. 단색 crop에서 글자색을 만들지 않으며 저대비 · 그라데이션용 추가 임계값은 없다.
-- 크기: `est_font_px` = bbox.h × `style.em_ratio`(설정 값 10진 표기의 정확한 분수, 원본 이미지 기준 px 실수, 정수 반올림 없음).
-
-**블록 집계 · 정렬** [`open-questions.md` #76]
-- 크기 = 유효 영역 크기의 중앙값(짝수 개면 가운데 두 값의 평균). 글자색 · 배경색은 독립 집계 — 유효 영역 정수 RGB의 채널별 중앙값(반올림하지 않음)에 sRGB 유클리드 제곱 거리가 가장 가까운 **실제 영역 색**, 동률은 `source_lines`의 영역 순서. 면적 · 문자 수 가중치 · Lab 변환 없음. 유효 값이 없으면 null.
-- 정렬: 공백 영역만 있는 줄은 빼고, 나머지 줄은 비공백 영역 bbox 합집합의 왼쪽 x · 중앙 x + w/2 · 오른쪽 x + w. 세 좌표군의 모분산(ddof=0)과 (블록 `bbox.w` × `style.align_tolerance`)²를 정확한 분수로 비교한다(표준편차 실수는 진단 기록일 뿐 판단에 쓰지 않음).
-- 결정: 유효 줄 0개 → null(`no_text_lines`) · 1개 → left(`default_single_line`) · 여러 줄 → 허용 오차 안 후보 중 분산 최소(`estimated`) · 최솟값 동률 → left(`default_tie`, left가 후보 밖이어도) · 후보 없음 → null(`no_candidate`). **기본값 적용은 정렬 추정 성공이 아니다.**
-
-**입력 오류** [`open-questions.md` #76] — 결과 없이 `StyleInputError`(문제를 모아 한 번에, 예상하지 못한 구현 오류는 감싸지 않음): 설정(`method=otsu_border` · `em_ratio` > 0 · `align_tolerance` ≥ 0 유한값, bool 불가, 누락을 채우지 않음) · 섹션 안 `block_key` · `line_key` · `region_key` 중복(제외 블록 포함) · ④⑤ 정상 완료 · 블록과 일대일 · ④ true ⇔ ⑤ `product_label`/null · ④ false → ⑤ boolean · ④ 입력 지문과 ⑤ 기록(상태 · 식별자 · 블록 지문 · ④ 결과 지문 · 판정 목록) 대조(⑥과 같음) · 실제 이미지 크기 = 섹션 메타데이터 · 모든 블록 · 줄 · 영역 bbox의 경계 밖(제외 블록 포함) · 영역 bbox ≠ poly 외접 사각형 · 측정 대상(처리 대상 블록의 비공백 영역) bbox 면적 0 · 설정 × 실제 높이 · 폭이 float로 표현 불가. bbox를 자르거나 보정하지 않는다. 공백 영역 · 제외 대상은 면적 0만으로 실패시키지 않는다. 배치에서 섹션별로 계속 처리할지는 후속 실행 계층이 정한다.
-
-**개발용 결과** [`open-questions.md` #76] — `StyleResult`(전용 버전 `"1"`) · `BlockStyle` · `RegionStyle`과 진단 타입(`pipeline/types.py`, 필드는 `dev.md` 3절). 블록 status는 영역 측정 상태(`excluded` · `no_text` · `ok` · `partial`)이며 정렬 성공 여부는 `align` · `align_basis` · `null_reasons`로 따로 본다 — `ok`여도 `align`이 null일 수 있다. 추출 불가 값은 null과 사유로 남기고 검정 · 흰색 같은 기본값으로 덮지 않는다. 값 · 사유는 운영 enum · 오류 코드가 아니다.
-
-**핵심 구현 당시 확인 이력(`333b5cd` 기준, 2026-10-06)** — 품질 · 실측 검증이 아니었다. 출처별: (개발 에이전트) 기존 파이프라인 테스트 693 통과 · 5 건너뜀 · 1 실패(알려진 DejaVu `test_sample_generator_is_reproducible`), 레포 밖 스크래치 스크립트의 합성 입력 손 계산 대조 통과, `downstream-input-v1` 100섹션 메모리 실행 입력 오류 0(결과 미저장 · 품질 판단 없음) / (독립 재검토, 사용자 전달) 수정 권고 2건(`line_key` 중복 · 설정 곱의 float 초과) 해결, 결과 타입의 모순 거부, 100섹션 재실행 성공. 당시(`333b5cd` 기준) ⑦ 레포 테스트 코드는 로컬 · 원격 브랜치 · 작업 트리를 확인한 범위에서 없었고, CLI · 결과 저장 · 실측 · 검수는 그 작업의 범위 밖이었다. 이후 진행은 다음 문단이다.
-
-**합성 테스트 · 개발용 도구 · 사용자 검수(2026-10-06)** — 합성 사례 테스트(`tests/test_pipeline_style.py`, 커밋 `201d712` · 영역 경계 밖 단독 사례 보완 `de86a49`)와 개발용 실행 · 검수 도구(`docs/ai-experiments/tools/style_run_driver.py` · `style_review_page.py`, 도구 테스트 `tests/test_pipeline_style_tools.py`, `de86a49`)를 추가했다. 도구로 MANIFEST 대상 중 3섹션을 실행해 검수 페이지를 만들었고(`docs/ai-experiments/2026-10-06_07-style_sample-review.md`), **사용자 판단: 소수 표본 육안 검수에서 큰 결함이 관찰되지 않아 현재 구현으로 단독 개발을 마무리한다. 지속적인 품질 개선과 운영 계약(#14) · BE 통합은 후속 과제로 둔다.** 3섹션 범위의 관찰이며 전수 품질 승인 · 100섹션 실측 · 운영 통합이 아니다. 코드 · 설정 · 계산 규칙은 바꾸지 않았다. [`open-questions.md` #76] [사용자 결정 2026-10-06]
-
-### 7.8 ⑧ 번역문 LLM 규제 판정 — 초안 v1 (AI 구현 · 검증 전)
-
-계약은 `contract.md` 5.3이다. 아래는 구현 규칙이다. 코드 `pipeline/stages/translation_review.py`(판정 · 분할 · 응답 검증) · `pipeline/handoff/review.py`(운영 인계 `run_translation_review` · 지문 `review_manifest`) · `pipeline/handoff/check_aggregate.py`(두 축 집계), 프롬프트 `pipeline/prompts/translation_review.md`(초안 v1, 실측 전). [통합 D12]
+계약은 `contract.md` 5.3이다. 아래는 구현 규칙이다. 코드 `pipeline/stages/translation_review.py`(판정 · 분할 · 응답 검증) · `pipeline/handoff/review.py`(운영 인계 `run_translation_review` · 지문 `review_manifest`) · `pipeline/handoff/check_aggregate.py`(두 축 집계), 프롬프트 `pipeline/prompts/translation_review.md`(초안 v1). [통합 D12]
 
 - **번역과 분리**: 번역기와 다른 호출 · 프롬프트 · 설정(`[translation_review]`)을 쓰며 규칙 검사 결과를 입력으로 받지 않는다. 입력 문구 · 근거 문서 안의 지시문은 검사 대상 데이터로 다룬다. [통합 D12]
 - **모델 입력**: 섹션 블록 전체(순서 · 역할 · 원문 · 대상 번역문 · 라벨/로고/공백 원문 사실), 대상 ID(`t1` …), 검사 항목(`r1` …: 판정값 · 원판정값 · 국문 표현 · 영어 예시 · 사전 사유 · 근거 행 `r1.e1` …), 참고 항목(`a1` …), 분류 근거(선택 · 적용 분류 · `dict_coverage`), 이번 분할의 필수 쌍. 근거 URL은 모델에 보내지 않고 스냅샷에만 보존한다. [통합 D12]
@@ -520,14 +273,23 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 - **호출**: 분할을 순서대로 부르고 하나라도 실패하면 이후 분할을 부르지 않는다. 애플리케이션 · SDK 재시도는 없다(재시도는 BE 시도 단위). 공급자 종료 사유가 `MAX_TOKENS`이면 파싱 가능해도 잘림으로 거절한다. 종료 사유를 주지 않는 호출자에서는 잘림을 알 수 없어 파싱 검증에만 의존한다. [통합 D12]
 - **보조 검사**: 판단 이유 · 미확인 조건의 URL과, 공급 근거 · 사전 사유에 없는 조문 표기(CFR · U.S.C. · § · Section · FD&C 등 정규식)를 거절한다. 휴리스틱이며 판단 내용의 정확성을 보장하지 않는다. [통합 D12]
 - **통합 시점**: AI 구현은 지금 진행하고, BE 연결은 12월 최종 통합에서 한다. 1차 통합은 규칙 검사만 활성화한다(활성 검사는 BE가 명시, `contract.md` 5.3). [통합 D12]
-- **구현 상태**: AI 코드 · 단위 테스트 · 계약 예제(가짜 모델 · 합성 입력)까지 있다. 실제 모델 호출 · BE 연결은 하지 않았다(`be-handoff.md` 8절, `open-questions.md` #84). [통합 D12]
+
+### 7.9 ② OCR 임시 분할 — 긴 섹션 타일 OCR
+
+**정본 규칙** — 4,000px 초과 섹션은 OCR 실행을 위해 임시 분할할 수 있다. 임시 분할은 OCR 처리 단위이며 의미 섹션으로 저장하지 않는다. 타일 좌표는 원래 섹션 로컬 좌표로 복원하고 중첩 영역의 중복 검출을 정리한 뒤 반환한다. [계약 3.2] 여백 우선 · 없으면 2,000px 띠 300px 겹침. [개발계획 2.1] 아래는 사용자가 승인한 설계(2026-10-13: 여백 우선 · 여백 절단에도 겹침 유지 · 전체 좌표 복원 후 정리 · 위치로 후보 · 텍스트와 실제 가로 덮음 위치로 자동 제거 판단 · 한 영역 대 여러 영역 · 한쪽 타일 묶음 전체를 대표로 · 절단선 비접촉 → 절단선에서 먼 쪽 · 한쪽만 검출은 보존 · 잘림 의심 · 판독 충돌은 경계를 옮긴 보완 OCR · 같은 경계 보완 최대 1회 · 단순 추가 금지 · 미해결 명백한 충돌은 실패)와 사용자가 위임한 세부 기준이다. 세부 기준값은 운영 기준값으로 확정하지 않은 잠정값이다. [사용자 결정 2026-10-13] [`open-questions.md` #31 · #32] 코드는 `pipeline/stages/ocr_tile.py`(`ocr.run()`이 부른다).
+
+- **적용 범위** — 높이 > `ocr.split_threshold_px`(4000은 한 번에, 4001부터 분할). ① 분해 실패로 원본 전체를 한 섹션으로 쓰는 경우도 같다. 이하 섹션의 처리 · 결과는 바뀌지 않는다. 출력은 기존 `OcrResult` 그대로(필드 추가 없음)다. [계약 3.2] [통합 D9] [사용자 결정 2026-10-13]
+- **대응 · 대표 선택** — 이웃 타일의 겹침 띠에 걸친 검출만 위치로 대응시키고 텍스트는 대응에 쓰지 않는다. 텍스트와 가로 덮음 위치가 모두 같을 때만 동등하며, 대표는 한쪽 타일의 검출 묶음 전체다. OCR 신뢰도 · 빈 텍스트 여부로 고르지 않는다. 다른 타일에 대응이 없는 검출은 보존한다. [사용자 결정 2026-10-13] [`open-questions.md` #32]
+- **실패** — 보완 OCR 뒤에도 잘림 없는 판독끼리 판독 · 숫자 값이 충돌하면 섹션 전체를 `OCR_FAILED` · **`retryable=false`**로 실패시킨다(#33). 엔진 초기화 · 추론 예외는 `retryable=true` 그대로다. 실패를 빈 결과나 일부 결과로 바꾸지 않는다. 충돌 없이 확인되지 않은 잘림 의심 · 한쪽만 검출은 보존하고 경고로 남긴다. [계약 8장] [사용자 결정 2026-10-13]
+- **정렬 · 식별자** — 최종 영역을 PaddleX `SortQuadBoxes`와 같은 규칙으로 정렬하고 `reg_0001`부터 다시 매긴다. 영역의 text · score · poly는 고른 검출 그대로다. [`dev.md` 3절] [사용자 결정 2026-10-13]
+- 테스트 `tests/test_pipeline_ocr_tile.py`. 타일 계획 · 설정 검증 · 좌표 복원 · 동등 판정 · 보완 OCR · 해결 판정 · 숫자 값 확인 · 진단 · 검증 현황 · 알려진 한계의 원문은 archive 7.9절.
 
 ## 8. AI가 넘기는 값 · 받는 값 (하류 경계)
 
 | 하류 단계 | AI가 넘기는 것 | AI가 받는 것 | 담당 | 출처 |
 |---|---|---|---|---|
 | ⑨ 조판·렌더 | ⑥ 배경, ⑦ `style`, ⑧ `trans_1`, 원본 `bbox` | — | BE | [개발계획 2.2, 4.2] |
-| 검수 | 확인 필요 신호의 근거(`compliance_flags` · 라벨 · 섹션 판정 · 인식 경고) | 번역문 수정 → AI 규제·용어 재검증(규칙 검사 + LLM 규제 판정, [통합 D12]) **+ 렌더 갱신** / 배치 영역 수정 → AI 재검증 없음 **+ 렌더 갱신**. 상태·revision 규칙은 `contract.md` | FE·BE·AI | [개발계획 2.2] [계약 9장] |
+| 검수 | 확인 필요 신호의 근거(`compliance_flags` · 라벨 · 섹션 판정 · 인식 경고) | 번역문 수정 → AI 규제·용어 재검증(규칙 검사 + LLM 규제 판정 — 1차 통합은 규칙 검사만, [통합 D12]) **+ 렌더 갱신** / 배치 영역 수정 → AI 재검증 없음 **+ 렌더 갱신**. 상태·revision 규칙은 `contract.md` | FE·BE·AI | [개발계획 2.2] [계약 9장] |
 | 출력 분할 | 절단 가능 지점(섹션 경계·블록 여백 좌표) | — | 절단·장수 결정·파일 분할은 BE | [개발계획 3.1] |
 | 저장 | — | — | BE (`stack_offset` · `order_no`) | [계약 3.3] |
 
@@ -536,27 +298,11 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 
 ## 9. 미결 항목
 
-세부는 `open-questions.md`. 이 문서에서 `미정`·`확인 필요`로 표기된 것:
-
-- ③-1 · ③-1' 잠정 설계 v1(7.3절, #60)의 실측 확정 — 판정 방식(#5) · 운영 호출 방식(D3-3) · 매칭 방식(#42) · `[judge]` `[policy]` 값. 잠정 결정이 있는 미결: 판정 항목과 사전 연결(#4 D6) · 정책 데이터 구조(#3 D8) · 정책 계약 매핑(#7 D10 · D11) · 규제 패턴 중복(#43 D2 · D2-b) · 섹션 집계(#44) · 불확실 판정(#45 D12) · 실행 실패(#46 D7) · 규제 분류 입력(#47 D9) · 근거 대응(#48 D13) · 사전 버전과 캐시(#49 재실행표) — 모두 BE 합의 · 원문 확인 전
-- 전달 자료의 불일치 · 한계(#50~#59, 데이터 담당 확인)
-- (해결) 정책 적용 구현 소유자 = AI 서버(5절 #6) · 부분 부적합은 MVP 섹션 전체 제외(5절 #8) · 사이트별 게시 정책은 MVP 이후(4절, 구 #2)
-- ④ 단독 개발 v1(7.4절, #66)의 실측 판단 — 긴 섹션 판독 · 혼합 블록 · 과보호 · 미탐. 운영 실패 계약 · 결과 인계 · 미판정 저장은 통합 때(#63 · #64 · #65 · #16)
-- ⑤ 단독 개발 v1(7.5절, #68)의 테스트 · 실측 · 검수(미수행). 구현 세부 5건은 결정됨(2026-09-29). 브랜드 부재 · 미확인의 운영 정책, `product_label` 생략(null)과 미판정(NULL)의 저장 구분, 결과 인계는 통합 때(#63 · #64 · #16)
-- ⑥에서 제외된 저신뢰 글자의 번역·렌더 처리 규칙
-- ⑥ 단독 개발 v1(7.6절)의 남은 것 — 시간 제한 운영값(#75, 현재 100섹션 실측용 잠정값 60 · 30 · 5 s), 품질 결함 D1~D9의 고도화 — 옅은 색조 차이 · 디자인 요소 훼손 · 마스크 과팽창 · 과보호 포함(#73, 수정 보류), 첫 추론 지연(#72, 실행 사양), 운영 인계(#63 · #64 · #16)
-- ⑦ 단독 개발 v1(7.7절, #76) — 단독 개발 마무리(소수 표본 사용자 육안 검수, 2026-10-06). 남은 것: 지속적인 품질 개선 · 100섹션 실측 · 운영 `text_block.style` 계약(#14, BE 확인) · 운영 실행 계층(워커 · 결과 인계 · 재시도) · 통합(#63 · #64 · #16)
-- ① 색 전환 임계값 · 최소 섹션 높이 · 긴 구간 기준 · 보정 반경의 실측 확정 — config 초기값은 잠정
-- ① VLM 호출 실패 처리 — 대체 처리 허용 여부 · 오류·경고 코드 · 실패 유형별 재시도 조건 (BE 합의)
-- ③ `heuristic_v2` 잠정 설계(7.1절)의 실측 확정 — config 초기값 · 역할 패턴은 잠정 (#38)
-- ③ `llm_assist` 잠정 설계(7.2절) v1 — 입력 구성 · 같은 줄 조각 미복구 · 시간 제한 잠정값 (#41)
-- ⑧ 규제 매핑 표·프롬프트, 주의문구 범위, 제품명/효능 주장 구분
-- ⑧ 번역문 LLM 규제 판정(7.8절) — 검증 · 실측 전. 표시(#81 — PM 회신으로 대부분 결정, insufficient_* 표시는 12월 계획), 신호 · 확인 식별 · 검사 상태 API(#82), 등록 활성화 전 N5 작업(#83), 초기 구현 한계(#84)
-- 출력 분할 한도 값
+미결의 정본은 `open-questions.md`다. 이 문서의 `미정` · `BE 확인 필요` 표기는 그 번호를 가리킨다. 이전 미결 목록 원문은 `archive/pipeline-v1-detail.md` 9절.
 
 ## 10. PM 최종 범위와 운영 인계
 
 - RG-021/022는 원문 수치를 그대로 옮기고 조건부 사전 경고로 확인받는다. 빈칸 템플릿·시험값 입력/검증을 이번 번역 선행조건으로 두지 않는다. [통합 D9]
 - N1 기존 동의에 외부 AI 전송 고지를 추가하고 유료 등급 키만 사용한다. 실제 등급은 확인 작업이며 제공자·모델·항목 변경 시 고지를 갱신한다. [통합 D9]
 - 자동 만료 없이 작업이 있는 동안 보존한다. 전체 취소는 콘텐츠 포함 감사/인계/중간 자료까지 삭제한다. GPU 정리는 기존 채택/원격 복구 확인과 취소 삭제를 구분해 적용한다. [통합 D9]
-- 7절 단독 개발의 실패 전파·잠정 호출 범위·운영 합의 대기 서술은 당시 구현 이력이다. 현행 통합 전이는 1.1절/D9가 우선하며 코드 적용 완료로 표시하지 않는다. 번역문 LLM 규제 판정은 AI 구현을 진행하되(7.8절) 1차 통합 범위에서는 제외를 유지하고 12월 최종 통합에서 BE에 연결한다(PM 검토 · 사용자 일정 설명). [통합 D12]
+- 번역문 LLM 규제 판정은 AI 구현을 진행하되(7.8절) 1차 통합 범위에서는 제외를 유지하고, BE 연결은 12월 최종 통합에서 한다(D12 보완). 1차 통합은 규칙 검사만 연결한다. [통합 D12]

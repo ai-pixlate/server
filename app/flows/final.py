@@ -1,6 +1,7 @@
 """N5 확정 → N6 최종 렌더 → 저장. (5.27·D9-3)
 
-- 확정(CFM-04): 서버의 미해결 경고 집합과 acknowledgedWarnings(blockId+code)가 같아야 한다. 빈 번역을 완료로 바꾸지 않는다.
+- 확정(CFM-04): 필수 확인 경고(포함 섹션의 translation_failed) 집합과, acknowledgedWarnings 중 그 범위에 드는 것이 같아야 한다.
+  그 밖의 신호(width_overflow 등)·제외 섹션 블록의 확인은 무시한다(표시만). 빈 번역을 완료로 바꾸지 않는다.
   확정하면 하류 실행을 닫고(진행 중 재렌더 취소) 최종 렌더 실행(run_kind=final_render)과 job 단위 시도를 만든다.
 - 최종 렌더는 미리보기를 재사용하지 않고 현재 번역문·배치·스타일·배경으로 다시 그린다. 원본(소스 이미지)별로 포함 섹션을
   세로로 쌓아 deliverable 1건, deliverable_section 에 위치(stack_offset)·순서(order_no)를 남긴다(contract 3.3).
@@ -78,14 +79,30 @@ def block_signals(db: Session, job_id: int) -> dict[int, list[dict[str, Any]]]:
     return out
 
 
-def unresolved_warnings(db: Session, job_id: int) -> list[dict[str, Any]]:
-    """확정 전에 확인받아야 하는 블록 경고: 포함 섹션의 번역하지 못한 칸(D9-3 빈 번역)."""
-    sig = block_signals(db, job_id)
-    inc = {r[0] for r in db.execute(
+# 확정 전에 반드시 확인받는 경고 코드(D9-3 빈 번역). 그 밖의 신호(width_overflow 등)는 화면에 표시하되 확정을 막지 않는다
+REQUIRED_ACK_CODES = frozenset({"translation_failed"})
+
+
+def _include_block_ids(db: Session, job_id: int) -> set[int]:
+    return {r[0] for r in db.execute(
         text("SELECT tb.id FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
              "WHERE s.job_id = :j AND s.bucket = 'include' AND " + common.VISIBLE), {"j": job_id}).all()}
+
+
+def unresolved_warnings(db: Session, job_id: int) -> list[dict[str, Any]]:
+    """확정 전에 확인받아야 하는 블록 경고: 포함 섹션 블록의 필수 확인 코드(REQUIRED_ACK_CODES)."""
+    sig = block_signals(db, job_id)
+    inc = _include_block_ids(db, job_id)
     return sorted(({"blockId": b, "code": s["code"]} for b, ss in sig.items() if b in inc for s in ss
-                   if s["code"] == "translation_failed"), key=lambda x: (x["blockId"], x["code"]))
+                   if s["code"] in REQUIRED_ACK_CODES), key=lambda x: (x["blockId"], x["code"]))
+
+
+def required_acks(db: Session, job_id: int, acknowledged: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """받은 확인 목록에서 대조 대상만 남긴다: 필수 확인 코드이면서 포함 섹션 블록인 것(중복 제거).
+    FE 는 화면 신호 전부를 보내도 된다 — 그 밖의 코드·제외 섹션 블록은 무시한다(계약 ConfirmRequest)."""
+    inc = _include_block_ids(db, job_id)
+    keep = {(int(a["blockId"]), a["code"]) for a in acknowledged if a["code"] in REQUIRED_ACK_CODES and int(a["blockId"]) in inc}
+    return [{"blockId": b, "code": c} for b, c in sorted(keep)]
 
 
 # ---------------------------------------------------------------------------------------------------------
@@ -108,8 +125,8 @@ def confirm(db: Session, job_id: int, seller_id: int, acknowledged: list[dict[st
         if busy:
             raise ConfirmRejected(409, "INVALID_STATE", "진행 중인 번역 재시도가 있다")
     want = unresolved_warnings(db, job_id)
-    got = sorted(({"blockId": int(a["blockId"]), "code": a["code"]} for a in acknowledged), key=lambda x: (x["blockId"], x["code"]))
-    if want != got:
+    got = required_acks(db, job_id, acknowledged)
+    if want != got:  # 필수 경고가 빠졌거나, 이미 해소된 필수 경고를 확인한 경우(낡은 화면) — 거절
         raise ConfirmRejected(409, "INVALID_STATE", "확인한 경고가 현재 미해결 경고와 다르다", {"warnings": want})
     if run is not None:
         # 하류 실행 종료: 진행 중 재렌더는 취소, 실행은 done(N5 결과 확정)
@@ -140,20 +157,24 @@ def _final_inputs(db: Session, job_id: int) -> dict[str, Any]:
         if m is None:
             raise AdoptionRejected("하류 실행 없음", code="INPUT_MISSING")
         sections.append({"section_id": s["id"], "source_image_id": s["source_image_id"], "section_order": s["section_order"],
-                         "height": s["height"], "background": m["background"], "blocks": m["blocks"]})
-    defaults = typeset.load_role_defaults()
+                         "height": s["height"], "background": m["background"], "blocks": m["blocks"], "style_stage": m["style_stage"]})
+    # 미리보기와 같은 로더·같은 지문(6.6 ⑥) — 최종 렌더가 다른 설정을 읽을 수 없게 한다
     return {"stage": "final_render", "job_id": job_id, "sections": sections, "renderer": typeset.RENDERER_VERSION,
-            "style_defaults": {"version": defaults.version, "sha256": defaults.sha256} if defaults else None}
+            "style_defaults": typeset.style_inputs()}
 
 
 def start_final_render(db: Session, job_id: int) -> int:
-    """최종 렌더 실행·시도 생성(호출자가 job 잠금·커밋·dispatch). 진행 중이면 그 시도를 돌려준다."""
+    """최종 렌더 실행·시도 생성(호출자가 job 잠금·커밋·dispatch). 진행 중이면 그 시도를 돌려준다.
+    최신 실행이 failed 로 닫혔으면(누적 한도 소진) 새 실행을 만들지 않는다 — 새 실행으로 한도를 우회하지 못하게."""
     active = execution.active_run(db, job_id, "final_render")
     if active is not None:
         cur = db.execute(text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND is_current"), {"r": active["id"]}).mappings().one()
         if cur["status"] == "failed":
             return execution.create_retry(db, cur["id"], "user")
         return cur["id"]
+    last = execution.latest_run(db, job_id, "final_render")
+    if last is not None and last["status"] == "failed":
+        raise execution.RetryNotAllowed("최종 렌더 실행이 누적 재시도 한도 소진으로 종료됐다")
     m = _final_inputs(db, job_id)
     run_id = execution.create_run(db, job_id, "final_render", {"job_id": job_id, "section_ids": [s["section_id"] for s in m["sections"]]})
     run = execution.lock_task(db, run_id)
@@ -179,14 +200,15 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
         finally:
             db.close()
         for s in m["sections"]:
-            texts, styles = {}, {}
+            texts, styles, sources = {}, {}, {}
             for b in s["blocks"]:
                 r = rows.get(b["block_id"])
                 if (r is None or r["revision"] != b["revision"] or r["trans_1"] is None or sha256_text(r["trans_1"]) != b["trans_sha256"]
                         or stable_hash(json_value(r["style"])) != b["style_sha256"]):
                     raise AdoptionRejected("최종 렌더 입력이 확정 당시와 다르다", code="INPUT_CHANGED")
-                texts[b["block_id"]], styles[b["block_id"]] = r["trans_1"], json_value(r["style"])
-            res = _render_section({**s, "style_defaults": m["style_defaults"]}, texts, styles)
+                texts[b["block_id"]], styles[b["block_id"]], sources[b["block_id"]] = (
+                    r["trans_1"], json_value(r["style"]), r["source_ko"])
+            res = _render_section({**s, "style_defaults": m["style_defaults"], "renderer": m.get("renderer")}, texts, styles, sources)
             files[("render_image", f"sec_{s['section_id']}")] = res.png
             renders[str(s["section_id"])] = {"width": res.width, "height": res.height,
                                              "overflow": {str(k): v.overflow for k, v in res.blocks.items()},
@@ -213,7 +235,7 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
                        impl_version=typeset.RENDERER_VERSION, payload={"renders": renders, "stacks": stacks},
                        artifacts=[ArtifactSpec(kind=k, part_key=p, data=d) for (k, p), d in files.items()])
         return report(attempt_id, submit(lease, env, files))
-    except typeset.StyleDefaultsUnavailable as e:
+    except (typeset.StyleDefaultsUnavailable, typeset.StyleInputInvalid) as e:
         return report(attempt_id, submit(lease, common.failed_envelope(lease, e.code, str(e), False, len(m["sections"]))))
     except AdoptionRejected as e:
         return report(attempt_id, submit(lease, common.failed_envelope(lease, e.code, str(e), e.retryable, len(m["sections"]))))
@@ -292,9 +314,15 @@ class FinalRenderHandler:
         return []
 
     def after_failure(self, db, att, code, retryable):
-        if retryable and att["retry_count"] < min(1, att["max_retry"]):
+        if retryable and att["retry_count"] < min(1, att["max_retry"]) and not execution.retry_blocked(att):
             return [execution.create_retry(db, att["id"], "auto")]
-        return []  # 실행은 running 으로 두어 JOB-06·FIN-01 재시도가 가능하다. 저장은 막힌다
+        if att["retry_count"] >= att["max_retry"]:
+            # 누적 한도 소진: 실행을 failed 로 닫는다. 이후 JOB-06·FIN-01 은 409, 새 실행으로 한도를 우회하지 못한다
+            execution.finish_run(db, att["parent_task_id"], "failed", att["error_code"], att["error_message"])
+        return []  # 한도가 남으면 retryable 과 무관하게 실행을 running 으로 두어 JOB-06·FIN-01 사용자 재시도가 가능하다. 저장은 막힌다
+
+    def retry_block_reason(self, att):
+        return common.renderer_mismatch(att["input_manifest"])
 
 
 def can_save(db: Session, job_id: int) -> bool:

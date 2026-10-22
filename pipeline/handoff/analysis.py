@@ -137,7 +137,7 @@ def run_analyze(raw: Any, cfg: dict[str, Any], *, llm: MergeAssistant | None = N
     except AnalyzeError as e:
         kind = "input_invalid" if e.code == "IMAGE_OPEN_FAILED" else "model_call_failed"
         return fail(kind, str(e), retryable=e.retryable, payload={"analyze_error": e.to_dict()})
-    except NotImplementedError as e:  # ② 4,000px 초과 섹션(#31 · #32 미구현)
+    except NotImplementedError as e:  # 미구현 경로(② 4,000px 초과 섹션은 2026-10-13부터 타일 OCR로 처리 — #31 · #32)
         return fail("unsupported_input", f"{e}")
     except VlmError as e:  # ③ llm_assist 호출 · 응답 검증 실패 — 휴리스틱 대체는 승인되지 않았다(#37)
         kind = "response_invalid" if isinstance(e, merge.LlmResponseError) else "model_call_failed"

@@ -1,15 +1,18 @@
 """JOB — 작업 (API-JOB-02~07, 🟢9월) + ANL-01 분석 시작.
 
 JOB-02~07·ANL-01 실제 DB/Celery. seller_id는 Bearer 토큰에서 추출(get_current_seller).
+N1 은 draft-first(계약 jobCreate): POST /jobs(brandId 만) → SRC-02 업로드 → PATCH /jobs/{jobId}(N1 값) → analyze.
+생성·조회·PATCH 응답은 모두 계약 `Job`(식별자 `id`)이다.
 """
 import logging
-from typing import Optional
+from typing import Any, Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Response
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Response
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app import idempotency
 from app.category_mapping import CategoryMappingConflict, resolve_internal_category
 from app.db import get_db
 from app.security import get_current_seller
@@ -17,10 +20,15 @@ from app.security import get_current_seller
 router = APIRouter(tags=["Jobs"])
 log = logging.getLogger(__name__)
 
+RegulatoryClass = Literal["cosmetic", "otc", "combination", "unknown"]
+SpecType = Literal["original", "site", "custom"]
+ImageContinuity = Literal["multi_section", "single"]
+
 
 class JobCreate(BaseModel):
+    """계약 JobCreate — brandId 만 필수. 나머지 N1 값은 업로드 뒤 PATCH 로 세팅하고, 필수값 검증은 analyze 게이트에서 한다."""
     brandId: int = Field(examples=[1])
-    productName: str = Field(examples=["수분 크림 50ml"])  # 필수
+    productName: Optional[str] = Field(default=None, examples=["수분 크림 50ml"])
     productCode: Optional[str] = Field(default=None, examples=["SKU-1001"])
     targetCountry: Optional[str] = Field(default="US", examples=["US"])
     regulatoryClass: Optional[str] = Field(default=None, examples=["cosmetic"])
@@ -29,75 +37,56 @@ class JobCreate(BaseModel):
     channelSpecId: Optional[int] = None
     categoryId: Optional[int] = None
     keywords: list[str] = Field(default_factory=list, examples=[["moisture", "cream"]])
+    imageType: Optional[ImageContinuity] = None
     consentId: Optional[str] = None  # consent 연동은 추후(현재 미저장)
 
 
-# ── JOB-02·03·04: 실제 DB ─────────────────────────────────────────
-@router.post("/jobs", status_code=201, summary="API-JOB-02 작업 생성(draft) = N1 완료 (DB)")
-def create_job(body: JobCreate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    if not body.productName.strip():
-        raise HTTPException(status_code=400, detail="productName is required")
-
-    # 선택 카테고리의 직접 매핑 → 내부 분류(용어집 적용 분류). 같은 트랜잭션에서 작업과 함께 저장한다(통합 D10)
-    try:
-        internal_category = resolve_internal_category(db, body.categoryId)
-    except CategoryMappingConflict as e:
-        db.rollback()
-        log.error("작업 생성 거절 — 카테고리 매핑 충돌: category=%s values=%s", e.category_id, e.values)
-        # 데이터·설정 오류. 전용 오류 코드가 계약에 없어 기존 INTERNAL_ERROR(500)를 쓴다
-        raise HTTPException(status_code=500, detail={"code": "INTERNAL_ERROR", "message": "category mapping is inconsistent"}) from e
-
-    row = db.execute(
-        text(
-            "INSERT INTO job (seller_id, brand_id, product_name, product_code, "
-            "target_country, regulatory_class, target_lang, spec_type, "
-            "channel_spec_id, display_category_id, internal_category, user_facing_status) "
-            "VALUES (:s, :brand, :pname, :pcode, :country, :regclass, :lang, :spec, "
-            ":chspec, :cat, :icat, 'draft') "
-            "RETURNING id, status, current_step, user_facing_status, product_name, product_code"
-        ),
-        {
-            "s": seller_id, "brand": body.brandId, "pname": body.productName,
-            "pcode": body.productCode, "country": body.targetCountry,
-            "regclass": body.regulatoryClass, "lang": body.targetLanguage,
-            "spec": body.specType, "chspec": body.channelSpecId, "cat": body.categoryId,
-            "icat": internal_category,
-        },
-    ).mappings().one()
-
-    job_id = row["id"]
-    for i, kw in enumerate(body.keywords, start=1):
-        db.execute(
-            text("INSERT INTO job_keyword (job_id, keyword, order_no) VALUES (:j, :k, :o)"),
-            {"j": job_id, "k": kw, "o": i},
-        )
-    db.commit()
-
-    return {
-        "jobId": job_id,
-        "status": row["status"],
-        "userFacingStatus": row["user_facing_status"],
-        "currentStep": row["current_step"],
-        "productName": row["product_name"],
-        "productCode": row["product_code"],
-    }
+class JobPatch(BaseModel):
+    """계약 JobPatch — 보낸 필드만 반영(생략 = 그대로, null = 비움). 모르는 필드는 무시한다."""
+    model_config = ConfigDict(extra="ignore")
+    productName: Optional[str] = None
+    productCode: Optional[str] = None
+    targetCountry: Optional[str] = None
+    regulatoryClass: Optional[RegulatoryClass] = None
+    targetLanguage: Optional[str] = None
+    specType: Optional[SpecType] = None
+    channelSpecId: Optional[int] = None
+    categoryId: Optional[int] = None
+    keywords: Optional[list[str]] = None
+    imageType: Optional[ImageContinuity] = None
+    consentId: Optional[int] = None  # 계약 필드. 현재 저장하지 않는다(생성과 같음)
 
 
-@router.get("/jobs/{job_id}", summary="API-JOB-03 작업 조회(상태+N1 입력값) (DB)")
-def get_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+# 계약 필드 → job 컬럼(값을 그대로 쓰는 것). categoryId·keywords·consentId 는 따로 처리한다
+_PATCH_COLUMNS = {
+    "productName": "product_name", "productCode": "product_code", "targetCountry": "target_country",
+    "regulatoryClass": "regulatory_class", "targetLanguage": "target_lang", "specType": "spec_type",
+    "channelSpecId": "channel_spec_id", "imageType": "image_type",
+}
+_NOT_NULL = {"specType", "keywords"}  # DB NOT NULL(spec_type) · 계약상 배열(keywords) — null 은 받지 않는다
+
+
+def _validation_error(message: str, fields: list[dict[str, Any]] | None = None) -> HTTPException:
+    detail: dict[str, Any] = {"code": "VALIDATION_ERROR", "message": message}
+    if fields:
+        detail["fields"] = fields
+    return HTTPException(status_code=400, detail=detail)
+
+
+def job_payload(db: Session, job_id: int, seller_id: int) -> Optional[dict[str, Any]]:
+    """계약 `Job`. 남의 작업이면 None."""
     r = db.execute(
         text(
             "SELECT id, status, current_step, user_facing_status, product_name, product_code, "
             "brand_id, target_country, regulatory_class, target_lang, spec_type, "
-            "channel_spec_id, display_category_id, internal_category, is_saved, "
+            "channel_spec_id, display_category_id, internal_category, image_type, is_saved, "
             "created_at, updated_at "
             "FROM job WHERE id = :id AND seller_id = :s"
         ),
         {"id": job_id, "s": seller_id},
     ).mappings().first()
     if not r:
-        raise HTTPException(status_code=404, detail="job not found")
-
+        return None
     keywords = [
         kw["keyword"]
         for kw in db.execute(
@@ -105,9 +94,8 @@ def get_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
             {"id": job_id},
         ).mappings().all()
     ]
-
     return {
-        "jobId": r["id"],
+        "id": r["id"],
         "status": r["status"],
         "currentStep": r["current_step"],
         "userFacingStatus": r["user_facing_status"],
@@ -122,10 +110,186 @@ def get_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
         "categoryId": r["display_category_id"],
         "internalCategory": r["internal_category"],
         "keywords": keywords,
+        "imageType": r["image_type"],
         "isSaved": r["is_saved"],
         "createdAt": r["created_at"].isoformat() if r["created_at"] else None,
         "updatedAt": r["updated_at"].isoformat() if r["updated_at"] else None,
     }
+
+
+def _category(db: Session, category_id: Optional[int]) -> Optional[str]:
+    """선택 카테고리의 직접 매핑 → 내부 분류(용어집 적용 분류). 작업과 같은 트랜잭션에서 저장한다(통합 D10)."""
+    try:
+        return resolve_internal_category(db, category_id)
+    except CategoryMappingConflict as e:
+        db.rollback()
+        log.error("작업 N1 값 거절 — 카테고리 매핑 충돌: category=%s values=%s", e.category_id, e.values)
+        # 데이터·설정 오류. 전용 오류 코드가 계약에 없어 기존 INTERNAL_ERROR(500)를 쓴다
+        raise HTTPException(status_code=500, detail={"code": "INTERNAL_ERROR", "message": "category mapping is inconsistent"}) from e
+
+
+def _replace_keywords(db: Session, job_id: int, keywords: list[str]) -> None:
+    db.execute(text("DELETE FROM job_keyword WHERE job_id = :j"), {"j": job_id})
+    for i, kw in enumerate(keywords, start=1):
+        db.execute(
+            text("INSERT INTO job_keyword (job_id, keyword, order_no) VALUES (:j, :k, :o)"),
+            {"j": job_id, "k": kw, "o": i},
+        )
+
+
+# ── JOB-02·03·04: 실제 DB ─────────────────────────────────────────
+def _insert(db: Session, body: JobCreate, seller_id: int) -> tuple[int, dict[str, Any]]:
+    """작업 행·키워드를 넣고 응답 본문을 만든다(커밋하지 않음). 남의·없는 브랜드면 404 — 아무것도 넣지 않는다."""
+    if db.execute(
+        text("SELECT 1 FROM brand WHERE id = :b AND seller_id = :s"), {"b": body.brandId, "s": seller_id}
+    ).first() is None:
+        raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "brand not found"})
+    internal_category = _category(db, body.categoryId)
+    job_id = db.execute(
+        text(
+            "INSERT INTO job (seller_id, brand_id, product_name, product_code, "
+            "target_country, regulatory_class, target_lang, spec_type, "
+            "channel_spec_id, display_category_id, internal_category, image_type, user_facing_status) "
+            "VALUES (:s, :brand, :pname, :pcode, :country, :regclass, :lang, :spec, "
+            ":chspec, :cat, :icat, :itype, 'draft') RETURNING id"
+        ),
+        {
+            "s": seller_id, "brand": body.brandId, "pname": body.productName,
+            "pcode": body.productCode, "country": body.targetCountry,
+            "regclass": body.regulatoryClass, "lang": body.targetLanguage,
+            "spec": body.specType, "chspec": body.channelSpecId, "cat": body.categoryId,
+            "icat": internal_category, "itype": body.imageType,
+        },
+    ).scalar_one()
+    _replace_keywords(db, job_id, body.keywords)
+    return job_id, job_payload(db, job_id, seller_id)
+
+
+def _committed(job_id: int, seller_id: int) -> Optional[bool]:
+    """커밋 결과가 불명할 때 새 연결로 작업 행이 있는지 본다. 확인하지 못하면 None."""
+    from app import db as app_db
+
+    try:
+        with app_db.SessionLocal() as s:
+            return s.execute(text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"), {"j": job_id, "s": seller_id}).first() is not None
+    except Exception:
+        log.exception("작업 생성 커밋 결과 확인 실패 job=%s", job_id)
+        return None
+
+
+_IDEM_OP = "post_jobs"
+
+
+@router.post("/jobs", status_code=201, summary="API-JOB-02 작업 생성(draft) (DB)")
+def create_job(
+    body: JobCreate,
+    db: Session = Depends(get_db),
+    seller_id: int = Depends(get_current_seller),
+    idempotency_key: Optional[str] = Header(default=None, alias="Idempotency-Key"),
+):
+    if not idempotency_key:
+        _, payload = _insert(db, body, seller_id)
+        db.commit()
+        return payload
+
+    # 상태·장애 구간 처리는 app.idempotency 머리말
+    try:
+        rec = idempotency.begin(seller_id, _IDEM_OP, idempotency_key)
+    except idempotency.InFlight:
+        raise HTTPException(status_code=409, detail={"code": "DUPLICATE", "message": "same Idempotency-Key request is in progress"})
+    except idempotency.Unavailable:
+        raise HTTPException(status_code=503, detail={"code": "SERVICE_UNAVAILABLE", "message": "idempotency store unavailable"})
+    if rec.state == "done":
+        return rec.body  # 완료된 같은 키 → 최초 응답(본문이 달라도)
+    if rec.state == "committing":
+        if _committed(rec.job_id, seller_id):
+            idempotency.complete(seller_id, _IDEM_OP, idempotency_key, rec.body)
+            return rec.body
+        # 커밋이 아직 진행 중이거나 실패·확인 불가 — 같은 키로는 새로 만들지 않는다
+        raise HTTPException(status_code=409, detail={"code": "DUPLICATE", "message": "same Idempotency-Key request is not settled"})
+
+    try:  # 커밋 시도 전 실패는 저장되지 않았음이 확실하다 → 키 삭제
+        job_id, payload = _insert(db, body, seller_id)
+        idempotency.mark_committing(seller_id, _IDEM_OP, idempotency_key, job_id, payload)
+    except idempotency.Unavailable:
+        db.rollback()
+        idempotency.release(seller_id, _IDEM_OP, idempotency_key)
+        raise HTTPException(status_code=503, detail={"code": "SERVICE_UNAVAILABLE", "message": "idempotency store unavailable"})
+    except BaseException:
+        db.rollback()
+        idempotency.release(seller_id, _IDEM_OP, idempotency_key)
+        raise
+    try:
+        db.commit()
+    except Exception:
+        # 커밋 결과 불명: 작업 행이 확인될 때만 확정한다. 없거나 확인하지 못하면 committing 을 남긴다(키 삭제 안 함)
+        if _committed(job_id, seller_id):
+            idempotency.complete(seller_id, _IDEM_OP, idempotency_key, payload)
+            return payload
+        raise
+    idempotency.complete(seller_id, _IDEM_OP, idempotency_key, payload)  # 실패해도 committing 이 남아 재요청 때 확정
+    return payload
+
+
+@router.get("/jobs/{job_id}", summary="API-JOB-03 작업 조회(상태+N1 입력값) (DB)")
+def get_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    r = job_payload(db, job_id, seller_id)
+    if r is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return r
+
+
+@router.patch("/jobs/{job_id}", summary="API-JOB-02 N1 입력값 세팅/수정 (draft-first, DB)")
+def patch_job(
+    job_id: int,
+    raw: Any = Body(default=None),
+    db: Session = Depends(get_db),
+    seller_id: int = Depends(get_current_seller),
+):
+    """보낸 필드만 갱신한다(생략은 그대로, null 은 비움). draft/N1 에서만 허용, 아니면 409 INVALID_STATE.
+    남의 작업·없는 작업은 404 NOT_FOUND. 검증 실패는 400 VALIDATION_ERROR 이고 아무것도 바꾸지 않는다."""
+    job = db.execute(
+        text("SELECT id, status, current_step FROM job WHERE id = :j AND seller_id = :s FOR UPDATE"),
+        {"j": job_id, "s": seller_id},
+    ).mappings().first()
+    if job is None:
+        db.rollback()
+        raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "job not found"})
+    if not isinstance(raw, dict):
+        db.rollback()
+        raise _validation_error("request body must be a JSON object")
+    try:
+        body = JobPatch.model_validate(raw)
+    except ValidationError as e:
+        db.rollback()
+        raise _validation_error("request validation failed",
+                                [{"loc": list(x.get("loc", [])), "msg": str(x.get("msg", ""))} for x in e.errors()]) from e
+    sent = body.model_fields_set
+    nulls = sorted(f for f in sent & _NOT_NULL if getattr(body, f) is None)
+    if nulls:
+        db.rollback()
+        raise _validation_error("field must not be null", [{"loc": ["body", f], "msg": "null not allowed"} for f in nulls])
+    if not (job["status"] == "draft" and job["current_step"] == "N1"):
+        db.rollback()
+        raise HTTPException(status_code=409, detail={
+            "code": "INVALID_STATE", "message": f"N1 값은 draft/N1 에서만 바꿀 수 있다({job['current_step']}/{job['status']})"})
+
+    sets, params = [], {"j": job_id}
+    for f in sorted(sent & _PATCH_COLUMNS.keys()):
+        sets.append(f"{_PATCH_COLUMNS[f]} = :{f}")
+        params[f] = getattr(body, f)
+    if "categoryId" in sent:
+        sets += ["display_category_id = :categoryId", "internal_category = :icat"]
+        params["categoryId"] = body.categoryId
+        params["icat"] = _category(db, body.categoryId)
+    if "keywords" in sent:
+        _replace_keywords(db, job_id, body.keywords)
+    if sets or "keywords" in sent:
+        sets.append("updated_at = now()")
+        db.execute(text(f"UPDATE job SET {', '.join(sets)} WHERE id = :j"), params)
+    payload = job_payload(db, job_id, seller_id)
+    db.commit()
+    return payload
 
 
 @router.delete("/jobs/{job_id}", summary="API-JOB-04 작업 취소 (DB · archived · 콘텐츠 삭제)")

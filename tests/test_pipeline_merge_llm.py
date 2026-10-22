@@ -358,7 +358,7 @@ def test_analyze_records_each_section_and_run_key_mapping(monkeypatch, tmp_path)
     split = SplitResult(source_image_id=1, source_width=1000, source_height=1000, sections=secs)
     regions = [R("reg_0001", 100, 0, 400, 20, "위"), R("reg_0002", 100, 300, 400, 20, "아래")]
     monkeypatch.setattr(an.section_split, "run", lambda src, cfg, out: split)
-    monkeypatch.setattr(an.ocr, "run", lambda sec, cfg: OcrResult(section_key=sec.section_key, regions=regions))
+    monkeypatch.setattr(an.ocr, "run", lambda sec, cfg, **_: OcrResult(section_key=sec.section_key, regions=regions))
     llm = FakeLlm([(["위"], "title"), (["아래"], "body")])
     res = an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(), tmp_path, llm=llm)
     assert len(llm.calls) == 2

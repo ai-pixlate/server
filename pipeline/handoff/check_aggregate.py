@@ -12,8 +12,8 @@
   current · stale · not_comparable(시도 없음 · 지문 없음). 실패도 지문이 다르면 stale이다.
 - 섹션 단위 지문은 같은 섹션의 블록이 공유하므로 지문 일치만으로 블록을 가리지 못한다. 넘겨받은 결과의 block_key(LLM 실패는 scope의
   target_keys)가 집계 대상 블록과 다르면 AggregateError다.
-- 활성 검사(`active_checks`): 이 실행에서 **돌리기로 한** 검사를 BE가 명시한다(1차 통합 `("rule",)`, 12월 최종 통합
-  `("rule", "llm")`). run_state=none에서 활성 여부를 추정하지 않는다 — 활성인데 시도가 없으면(none) 「실행해야 하는데 누락된 검사」로
+- 활성 검사(`active_checks`): 이 실행에서 **돌리기로 한** 검사를 BE가 명시한다(예: 규칙 검사만 `("rule",)` · 두 검사
+  `("rule", "llm")`. 어느 구성을 언제 쓸지는 BE 연동 때 정한다). run_state=none에서 활성 여부를 추정하지 않는다 — 활성인데 시도가 없으면(none) 「실행해야 하는데 누락된 검사」로
   미완료이고, 비활성 검사는 넘겨받은 결과를 **읽지 않는다**(축 값 `inactive`, 상태 null). 비활성 검사의 과거 결과를 현재 경고로 쓰지 않는다.
 - checks_settled = 활성 검사 모두 run_state ∈ {done, skipped, failed} ∧ freshness=current. 활성 검사가 none · pending · running · cancelled
   이거나 stale · 비교 불가이면 false. 현재 입력의 최종 실패와 정상 생략(no_targets)은 종료로 본다(실패 확인 절차는 별도).

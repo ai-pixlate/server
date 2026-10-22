@@ -1637,24 +1637,14 @@ paths:
         deliverable.render_status·section.warning_badge로 판별하지 않음(10차 #E). 🟢9월.
         【구현 예정 — 운영 미제공】 N2 세부 진행 analysisProgress(선택, currentStep=N2 일 때만)를 더한다.
         N2 완료는 currentStep=N3 전환으로만 판단한다. failedCount>0·progress<1 은 그 자체로 분석 실패가 아니다 —
-        분석 실패는 jobStatus=failed · currentStep=N2 다. 아래 예시는 가상 값이며 운영 응답 캡처가 아니다.
+        분석 실패는 jobStatus=failed · currentStep=N2 다. N2 진행 상황별 예시(가상 값, 운영 응답 캡처 아님)는
+        components/examples 의 JobTasks* 10개에 둔다 — 화면에는 다른 API 처럼 200 응답 스키마 예시만 표시한다.
       responses:
         '200':
           description: '진행 상태'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/JobTaskStatus' }
-              examples:
-                n2Queued: { $ref: '#/components/examples/JobTasksN2Queued' }
-                n2Split: { $ref: '#/components/examples/JobTasksN2Split' }
-                n2RegionOcr: { $ref: '#/components/examples/JobTasksN2RegionOcr' }
-                n2Merge: { $ref: '#/components/examples/JobTasksN2Merge' }
-                n2Judge: { $ref: '#/components/examples/JobTasksN2Judge' }
-                n2AutoRetry: { $ref: '#/components/examples/JobTasksN2AutoRetry' }
-                n2Failed: { $ref: '#/components/examples/JobTasksN2Failed' }
-                n2JudgeFailed: { $ref: '#/components/examples/JobTasksN2JudgeFailed' }
-                n3AfterPartialExclusion: { $ref: '#/components/examples/JobTasksN3AfterPartialExclusion' }
-                n2WithoutDetail: { $ref: '#/components/examples/JobTasksN2WithoutDetail' }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/tasks/{taskId}/retry:
     parameters:

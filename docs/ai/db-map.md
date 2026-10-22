@@ -75,7 +75,7 @@ PRD 관련 조항에서는 auto_local·auto_local_failed를 확인했다. 아래
 | `trans_1` | 번역문 | [계약 2장, 5.1] |
 | `overflow` | 최신 렌더 기준 폭·높이 초과 여부 | [계약 6.2] |
 | `auto_adjust` | 사용자 배치 영역 조정 JSON (`layout_bbox`) | [계약 6.1] |
-| `compliance_flags` | 현재 revision에 유효한 확인 필요 근거 JSON. producer별 소유 — `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). LLM 판정 전체(no_risk 포함) · 검사 범위 · 공급 스냅샷은 이 컬럼이 아니라 채택 인계 payload · `audit_log.detail`에 둔다 | [계약 7.1] [통합 D12] |
+| `compliance_flags` | 현재 revision에 유효한 확인 필요 근거 JSON. producer별 소유 — `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). LLM 판정 전체(no_risk 포함) · 검사 범위 · 공급 스냅샷은 이 컬럼이 아니라 채택 인계 payload · `audit_log.detail`에 둔다. `translation_llm_review` producer와 이 보존 위치는 AI 측 제안 · BE 미합의 · 연동 전 검토 대상 | [계약 7.1] [통합 D12] [사용자 결정 2026-10-22] |
 | `revision` | 번역문 또는 배치 영역 변경 시 증가 | [계약 6.3] |
 | `block_status` | `'edited'`가 `user_edited`에 대응 | [계약 0장, 7장] |
 

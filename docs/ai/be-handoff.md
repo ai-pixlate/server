@@ -21,7 +21,7 @@
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 검사 연결(8절) — 규칙 검사(`run_text_check`)는 1차 통합 후속, LLM 판정(`run_translation_review`)은 12월 최종 통합. GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
+- **남은 것**: 번역문 검사 연결(8절) — 규칙 검사(`run_text_check`) · LLM 판정(`run_translation_review`) 모두 BE 연동 때 일괄 검토 후 연결(시점 · 순서 미정, D12 보완 2). GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -279,9 +279,9 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 동일 합성 입력과 지원 범위의 긴 입력이 수정 이미지에서 모두 통과하고 위 기록이 확보돼야 Linux 수정 검증 완료로 판단한다. 배포 담당의 기존 최대 메모리 **2,104MiB**는 비교 참고값이며 이번 수정 실측값이나 운영 요구량이 아니다. EC2 자원 결정은 BE·배포 담당이 맡는다.
 
-## 8. 번역문 검사 연결 인계(2026-10-12 · 2026-10-13 PM 검토 반영, D12)
+## 8. 번역문 검사 연결 제안 — BE 미합의 · 연동 전 검토(2026-10-12 · 2026-10-13 PM 검토 반영 · 2026-10-22 사용자 결정, D12)
 
-규칙 검사 `run_text_check`(기존)와 번역문 LLM 규제 판정 `run_translation_review`(신규)를 BE 실행 계층에 연결하는 사항이다. 계약은 `contract.md` 5.3 · 7.1, 결정은 [통합 D12 · D12 보완](integration-decisions.md). **1차 통합은 규칙 검사만 연결하고, LLM 판정은 12월 최종 통합에서 연결한다** — 두 구성을 모두 지원하도록 활성 검사를 명시한다(8.4). PR #63의 develop 머지는 1차 릴리즈 이후이며, 봉투 Stage 추가 · `compliance_flags` 7.1 확장 · 요청의 라벨 · 로고 값은 BE 경계 변경이므로 **머지 전 BE 검토 · 승인이 필요하다**. 구현 · 검증 현황은 `status.md` ⑧ 행, 남은 검증은 `open-questions.md` #84. 아래 BE 수정 사항은 제안이며 BE가 구현 · 확인한다. `app/` · migrations · OpenAPI · FE는 AI가 수정하지 않는다.
+규칙 검사 `run_text_check`(기존)와 번역문 LLM 규제 판정 `run_translation_review`(신규)를 BE 실행 계층에 연결하기 위한 **AI 측 제안**이다. **BE와 합의하지 않았으며, BE 연동 작업을 시작할 때 일괄 검토한다**(검토 항목은 8.12). 계약은 `contract.md` 5.3 · 7.1, 결정은 [통합 D12 · D12 보완 · D12 보완 2](integration-decisions.md). 이번 작업에서는 두 검사 모두 BE에 연결하지 않으며 연결 시점 · 순서는 정하지 않았다 — 「1차 통합은 규칙 검사 · LLM 판정은 12월 최종 통합」은 과거 계획(D12 보완)이다. 어느 구성이든 지원하도록 활성 검사를 명시한다(8.4). 봉투 Stage 추가 · `compliance_flags` 7.1 확장 · 요청의 라벨 · 로고 값은 BE 경계 변경이며 연동 전 검토 대상이다. PR #63의 develop 머지는 1차 릴리즈 이후다. 구현 · 검증 현황은 `status.md` ⑧ 행, 남은 검증은 `open-questions.md` #84. 아래 BE 수정 사항은 제안이며 BE가 구현 · 확인한다. `app/` · migrations · OpenAPI · FE는 AI가 수정하지 않는다.
 
 ### 8.1 요청 구성
 
@@ -289,11 +289,11 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - `text_check`: 기존 형식(`targets[{block_key, revision, text}]` · 묶음 · 용어). 묶음은 그 분석 실행의 고정 묶음, 용어는 ⑧ 공급과 같은 선별 규칙.
 - `translation_review`: `targets`에 라벨 · 로고 값을, 대상 밖 섹션 블록은 `context[{block_key, revision, is_product_label, is_brand_logo}]`로 준다. 라벨 · 로고는 **BE 공급 계약 후보** — DB 값을 그대로 주며 누락을 false로 채우지 않는다. 대상 밖 블록의 번역문은 주지 않는다(대상 밖인데 번역문이 있으면 BE 불변식 위반).
 - 등록 때 `review_manifest(request, cfg)` · `text_check_manifest(request)`로 지문을 계산해 `expected_input_manifest_sha256`과 시도의 고정 지문에 둔다.
-- **활성 검사 구성**: 실행(작업)마다 이번에 돌릴 검사를 정해 등록 · 집계에 같은 값을 쓴다 — 1차 통합 `("rule",)`, 12월 최종 통합 `("rule", "llm")`. 비활성 검사는 등록하지 않는다. 구성을 어디에 둘지(설정 · 실행 행 등)는 BE가 정한다. 새 API 필드 · DB 스키마는 AI가 정하지 않는다.
+- **활성 검사 구성**: 실행(작업)마다 이번에 돌릴 검사를 정해 등록 · 집계에 같은 값을 쓴다 — 규칙 검사만 `("rule",)` 또는 두 검사 `("rule", "llm")`. 어느 구성을 언제 쓸지는 BE 연동 때 정한다(과거 계획: 1차 통합 규칙 검사 · 12월 최종 통합 두 검사). 비활성 검사는 등록하지 않는다. 구성을 어디에 둘지(설정 · 실행 행 등)는 BE가 정한다. 새 API 필드 · DB 스키마는 AI가 정하지 않는다.
 
 ### 8.2 등록 위치
 
-- ⑧ 번역 채택 트랜잭션(`downstream.py`의 trans_1 저장 · revision+1)과 실패 대상 재시도 채택: **실제 저장된 문구와 증가한 revision**으로 그 섹션의 활성 검사 시도를 등록한다(1차 통합은 규칙 검사, 12월 최종 통합은 규칙 · LLM 판정. 비활성 검사는 등록하지 않는다).
+- ⑧ 번역 채택 트랜잭션(`downstream.py`의 trans_1 저장 · revision+1)과 실패 대상 재시도 채택: **실제 저장된 문구와 증가한 revision**으로 그 섹션의 활성 검사 시도를 등록한다(활성 검사만 등록하고 비활성 검사는 등록하지 않는다).
 - N5 수정(`cfm.py`): 수정 저장 · `edit_signal` · 재렌더 등록과 같은 트랜잭션에서 활성 검사 시도를 새로 등록해 이전 시도를 대체한다.
 - 검사 실패 · 재시도는 번역 재시도를 만들지 않는다.
 - **N4→N5**: 번역 직후 검사(활성 검사)는 N4→N5 전환 조건에 들어간다 — 검사가 끝난(채택 또는 최종 실패) 뒤 N5로 넘어간다. 재시도 후에도 최종 실패면 N4 오류로 막지 않고 해당 블록에 「⚠ 검사하지 못했습니다」를 표시해 N5로 진행한다(2026-10-12 PM 검토 — 이전 초안의 「N4→N5 집계에서 검사 stage 제외」를 대체). N5 수정 후 검사만 N5에서 돈다.
@@ -307,22 +307,22 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 ### 8.4 조회 · 집계
 
 - 블록 조회 때 `check_aggregate.aggregate_block_checks(block_key=…, check_item_ids=review.check_item_ids(bundle, 분류, 국가), active_checks=…, rule=…, llm=…)`를 부른다. 활성 검사에는 `CheckInput(run_state, attempt_manifest_sha256, current_manifest_sha256, block_result, failed_scope)`를 **반드시** 주고(시도가 없으면 `run_state='none'` — 누락된 검사로 미완료), 비활성 검사는 `None`을 준다(넘겨도 읽지 않으며 축 값은 `inactive`). `run_state`는 현재 시도의 `job_async_task.status`를 그대로(pending · running), 채택 완료는 done, 정상 생략은 skipped, 더 재시도하지 않기로 정한 최종 실패는 failed, 시도가 없으면 none. `attempt_manifest_sha256`은 시도에 고정한 지문, `current_manifest_sha256`은 현재 입력으로 다시 만든 지문이다.
-- 적용 예: 1차 통합 `aggregate_block_checks(block_key="blk_1", check_item_ids=ids, active_checks=("rule",), rule=CheckInput("done", fp, fp, rule_block), llm=None)` → 규칙이 현재 입력으로 끝났으므로 `checks_settled=true`, LLM 축은 `inactive`. 12월 `active_checks=("rule", "llm")`에서 LLM이 `CheckInput("running", fp, fp)`면 false. 사례는 `tests/test_pipeline_translation_review.py`.
+- 적용 예: 규칙 검사만 활성일 때 `aggregate_block_checks(block_key="blk_1", check_item_ids=ids, active_checks=("rule",), rule=CheckInput("done", fp, fp, rule_block), llm=None)` → 규칙이 현재 입력으로 끝났으므로 `checks_settled=true`, LLM 축은 `inactive`. 두 검사가 활성(`active_checks=("rule", "llm")`)일 때 LLM이 `CheckInput("running", fp, fp)`면 false. 사례는 `tests/test_pipeline_translation_review.py`.
 - 집계 결과는 상태 · 두 축 정보다. 표시 등급은 PM 결정으로 확정됐다 — 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호다(8.11). 신호 코드 · API 필드 · `basis_summary` 표시 방식 등 코드 · API · 표시 구현만 BE · FE 조정 사항이다(`open-questions.md` #82). AI 집계값을 API 경고 코드나 확정 정책으로 바로 연결하지 않는다.
 
 ### 8.5 검수 확정
 
 - N5 수정 후 검사가 도는 동안 확정 버튼을 비활성으로 두고, 서버도 확정 요청 시 job 잠금 아래에서 블록별 `checks_settled`(활성 검사 기준)를 확인해 false면 거절한다. 검사 채택도 같은 job 잠금 순서를 따른다. 확정이 하류 실행을 닫은 뒤 도착한 검사 결과는 거절한다. **구체 API 오류 코드 · 응답 필드 · 비활성 안내 문구는 AI가 정하지 않는다.**
-- 검사 종료 뒤 미해결 규제 경고 · 검사 실패가 남으면 확인을 받고 진행하며 확인 이력을 저장한다(막지 않음, D9 · F-CFM-09). LLM 최종 실패도 같은 절차다(12월). `checks_settled`는 처리 종료 여부일 뿐 문제없음이나 확정 허용이 아니다.
+- 검사 종료 뒤 미해결 규제 경고 · 검사 실패가 남으면 확인을 받고 진행하며 확인 이력을 저장한다(막지 않음, D9 · F-CFM-09). LLM 최종 실패도 같은 절차다. `checks_settled`는 처리 종료 여부일 뿐 문제없음이나 확정 허용이 아니다.
 
 ### 8.6 실패 · 재시도
 
 - `model_call_failed` · `response_invalid`(retryable=true)는 자동 재시도 후보다. 출력 잘림(`response_invalid` + retryable=false, 분할 `output_truncated`)과 `unsupported_input`은 같은 설정 재시도로 풀리지 않는다 — 설정을 바꾸면 지문이 바뀌어 새 시도가 된다. 한도는 BE 운영값이다.
-- 한도를 넘긴 최종 실패는 검사 실패로 남기고, 번역 직후든 N5 수정 후든 해당 블록에 「⚠ 검사하지 못했습니다」를 표시해 확정 시 확인 대상에 넣는다(1차 통합의 규칙 검사부터). 실패를 문제없음 · 검사 완료로 표시하지 않는다.
+- 한도를 넘긴 최종 실패는 검사 실패로 남기고, 번역 직후든 N5 수정 후든 해당 블록에 「⚠ 검사하지 못했습니다」를 표시해 확정 시 확인 대상에 넣는다(규칙 검사 · LLM 판정 모두 같은 절차). 실패를 문제없음 · 검사 완료로 표시하지 않는다.
 
 ### 8.7 마이그레이션 · 라우팅
 
-- 0008 후속 마이그레이션(1차 통합은 `text_check`만 등록하지만 12월을 위해 두 stage를 함께 허용하는 안을 추천): `STAGES`에 `text_check` · `translation_review` 추가, 단계 ↔ `task_type='verify'` · `unit_type='section'` 대응, 부모 실행 트리거의 downstream 허용 단계에 두 검사 추가.
+- 0008 후속 마이그레이션(어느 검사부터 등록하든 두 stage를 함께 허용하는 안을 추천): `STAGES`에 `text_check` · `translation_review` 추가, 단계 ↔ `task_type='verify'` · `unit_type='section'` 대응, 부모 실행 트리거의 downstream 허용 단계에 두 검사 추가.
 - 디스패치(작업 태스크) · 복구(`app/recovery.py`) · 상태 집계에서 두 stage 처리.
 
 ### 8.8 배포 순서
@@ -347,6 +347,20 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - `insufficient_evidence` · `insufficient_context`의 표시는 12월 계획에서 정한다(미결).
 - 사전 기록만 근거인 risk(`basis_summary=dictionary_only`)를 법규 위반 확정처럼 표시하지 않는다.
 - 신호 코드 · warningKey · 검사 상태 API 필드는 BE · FE 조정 사항이다(#82). AI 집계값을 경고 코드 · 확정 정책으로 직접 연결하지 않는다.
+
+### 8.12 BE 연동 전 검토 항목(2026-10-22 사용자 결정)
+
+아래는 BE 연동 작업을 시작할 때 일괄 검토할 항목이다. 모두 AI 측 제안 · BE 미합의이며 현재 운영 계약이 아니다. 새 필드 · 정책은 여기서 정하지 않는다. AI 내부 함수 · 검증 규칙(`contract.md` 5.3)은 구현 기준으로 유지한다(D12 보완 2).
+
+| 검토 항목 | 제안 위치 | 관련 미결 |
+|---|---|---|
+| 입출력 계약 — 요청 구성(대상 · 문맥 · 라벨 · 로고 값 공급) · 보고 payload · 지문 · 봉투 Stage 추가 | 8.1 · `contract.md` 5.3 · `dev.md` 3.2 | — |
+| 활성 검사 지정 — 실행마다 돌릴 검사와 그 구성을 어디에 둘지 | 8.1 · 8.4 | — |
+| DB · 라우팅 · 복구 — 0008 후속 마이그레이션 · 디스패치 · 복구 · 배포 순서 · 등록 활성화 전 N5 작업 | 8.7 · 8.8 | #83 |
+| 결과 저장 — 자기 producer 교체 · `compliance_flags` 7.1 확장 · 채택 인계 payload · `audit_log.detail` 보존 | 8.3 · `contract.md` 7.1 · `db-map.md` | — |
+| 검사와 확정의 동시성 — 같은 job 잠금 · 확정 거절 · 확정 뒤 늦은 결과 거절 · N4→N5 전환 | 8.2 · 8.5 | — |
+| API · 화면 연결 — 블록 검사 상태 · 신호 코드 · 경고 확인 식별 · 확정 거절 응답 · 결과 표시 | 8.10 · 8.11 | #82 |
+| 통합 테스트 — BE 통합 시험 · 실제 Gemini 스키마 수용 확인 · 실측 | 8.10 | #84 |
 
 ## 9. 긴 섹션 타일 OCR 인계(2026-10-13)
 

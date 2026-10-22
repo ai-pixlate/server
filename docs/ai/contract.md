@@ -288,7 +288,7 @@ is_product_label OR is_brand_logo
 
 **RG-021·RG-022 이번 범위**: 빈칸 템플릿을 사용하지 않고 원문 수치를 그대로 번역한다. N5 조건부 규제 경고에 사전 사유를 표시하며 시스템이 수치를 추정하거나 상품 검증 완료로 표시하지 않는다. 시험값 입력·템플릿 치환·수치 검증은 12월 검토 범위다. [통합 D9]
 
-영어 금지 표현 사전 재대조·강제 용어 검사(`text_check`)와 번역문 LLM 규제 판정(`translation_review`)은 번역과 분리된 독립 검사이며 자동 번역 직후와 번역문 수정 뒤 같은 경로로 실행한다. 검사 결과로 번역문을 바꾸지 않는다. 1차 통합은 규칙 검사만 연결하고 LLM 판정의 BE 연결은 12월 최종 통합이다. 계약은 5.3. [통합 D12] 번역은 `stages/translate.py`다. [통합 D9]
+영어 금지 표현 사전 재대조·강제 용어 검사(`text_check`)와 번역문 LLM 규제 판정(`translation_review`)은 번역과 분리된 독립 검사이며 자동 번역 직후와 번역문 수정 뒤 같은 경로로 실행한다. 검사 결과로 번역문을 바꾸지 않는다. 두 검사의 BE 연결 시점 · 순서는 정하지 않았다. 계약은 5.3. [통합 D12] [사용자 결정 2026-10-22] 번역은 `stages/translate.py`다. [통합 D9]
 
 ### 5.2 인페인팅
 
@@ -300,8 +300,10 @@ is_product_label OR is_brand_logo
 
 ### 5.3 번역문 검사 — 규칙 검사와 LLM 규제 판정 — 통합 추가 합의
 
+> 구분: 이 절의 검사 구성 · 판정 · 위치 · 결과 · 실패 분류 · 검증 · 유효성 · 집계 규칙과 AI 함수 입출력은 **AI 내부 구현 기준**이다. 흐름 · 표시는 PM이 정한 제품 동작이다. BE 요청 · 응답 구성(대상 · 문맥 · 라벨 · 로고 값 공급), 봉투 Stage 추가, `compliance_flags` 확장(7.1), 활성 검사 지정 · 등록 · 결과 저장 · 실행 흐름 · 검사와 확정의 동시성 · API · 화면 연결은 **AI 측 제안 · BE 미합의 · 연동 전 검토 대상**이며 현재 운영 계약이 아니다(`be-handoff.md` 8.12). [통합 D12] [사용자 결정 2026-10-22]
+
 - **구성**: 규칙 검사 `text_check`(영어 금지 표현 재대조 · 강제 용어)와 번역문 LLM 규제 판정 `translation_review`는 독립된 검사다. 서로의 결과를 입력으로 받거나 지우지 않으며 번역문 · 사용자 수정문 · `section_verdict` · `content_findings`를 바꾸지 않는다. 섹션 단위 시도 · 블록별 결과이며 자동 번역 직후와 번역문 수정 뒤 같은 경로를 쓴다. [통합 D12]
-- **통합 시점 · 활성 검사**: AI는 두 검사를 모두 제공한다. 1차 통합은 규칙 검사만, 12월 최종 통합은 LLM 판정도 연결한다. 이번 실행에서 돌릴 검사(활성 검사)는 BE가 명시하며 실행 상태 none에서 추정하지 않는다. 비활성 검사의 과거 결과는 현재 경고로 쓰지 않는다. [통합 D12]
+- **통합 시점 · 활성 검사**: AI는 두 검사를 모두 제공한다. 두 검사의 BE 연결 시점 · 순서는 정하지 않았다(과거 계획: 1차 통합 규칙 검사 · 12월 최종 통합 LLM 판정). [사용자 결정 2026-10-22] 이번 실행에서 돌릴 검사(활성 검사)는 BE가 명시하며 실행 상태 none에서 추정하지 않는다. 비활성 검사의 과거 결과는 현재 경고로 쓰지 않는다. [통합 D12]
 - **흐름 · 표시**: 자동 번역 직후 검사는 N4에서 끝난 뒤 N5로 넘어가고, 최종 실패면 실패 안내와 함께 N5로 진행한다. N5 수정 후 검사 중에는 확정을 거절한다. 종료 뒤 미해결 경고 · 검사 실패는 확인받고 진행한다. 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호이며 화면에 출처 · 불일치 안내를 두지 않는다(내부 구분은 유지). 검사 실패 블록은 「⚠ 검사하지 못했습니다」 · 확정 시 확인 대상이다. `condition_unverifiable`은 확인할 조건을 포함한 조건부 경고로 보이며 같은 블록 · 같은 사전 항목의 조건부 경고와 중복 표시하지 않는다. `insufficient_evidence` · `insufficient_context`의 표시는 미결(12월 계획)이다. [통합 D12]
 - **입력**: `targets[{block_key, revision, text, is_product_label, is_brand_logo}]`는 검사 대상(라벨 · 로고 false · false, 비공백 원문 · 번역문), `context[{block_key, revision, is_product_label, is_brand_logo}]`는 대상 밖 섹션 블록(번역문 없음, 라벨 · 로고는 2.4 완료 조합)이다. 섹션 블록 키는 두 목록의 합집합에 정확히 한 번 나온다. 라벨 · 로고 값은 BE 공급 계약 후보이며 누락을 false로 추정하지 않는다. 이웃 섹션은 넣지 않는다. [통합 D12]
 - **항목**: 검사 항목 = 적용 분류의 regulated · conditional 전체(문자열 매칭과 무관). 참고 항목 = 적용 분류의 allowed(판정 대상 아님 · 다른 항목의 위험이나 규칙 경고를 해제하지 않음 · risk 근거 불가). 적용 분류 밖 항목은 ID만 기록한다. [통합 D12]
@@ -409,6 +411,7 @@ is_product_label OR is_brand_logo
 - `detected_in`: `source` | `translation`. `detected_by`: `rule` | `llm`.
 - 사유·조문·대체표현을 `section_verdict`에서 조회할 수 있으면 중복 저장하지 않는다.
 - producer는 결과 소유 단위다: `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). [통합 D12]
+- `translation_llm_review` producer와 추가 필드(`judgment` · `undetermined_reason` · `location_key`), 위치 네 필드(`problem_text` · `start` · `end` · `location_key`)의 null 허용은 AI 측 제안 · BE 미합의 · 연동 전 검토 대상이다. 기존 producer · 필드의 의미는 바꾸지 않는다. [통합 D12] [사용자 결정 2026-10-22]
 - `translation_llm_review` 항목은 `detected_by: "llm"`이며 `judgment`(risk · undetermined) · `undetermined_reason` · `location_key`를 더 갖는다. no_risk는 항목을 만들지 않는다. 위치마다 1건이고 위치 없는 undetermined는 `problem_text` · `start` · `end` · `location_key` 네 필드가 모두 null인 1건이다(네 필드는 모두 있거나 모두 null). `location_key`는 한 보고의 블록 결과 안에서만 유일하므로 시도와 함께 식별한다. 근거 ID는 원본 `external_id`로 받으며 DB id 변환은 BE가 한다. [통합 D12]
 
 ```json

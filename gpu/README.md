@@ -74,8 +74,9 @@ bash gpu/tests/image_check.sh <빌드한 이미지>   # 마지막 줄 RESULT ...
 | B. entrypoint | PaddleX 캐시 링크 — 빈 `/data`·기존 캐시·캐시 자리가 파일·`/root/.paddlex` 가 이미 있음·다른 링크·마운트 없음, 재시작 반복. 모든 경우 sshd 가 PID 1 |
 | C. 워커 Python | `gpu/baseline/` 의 운영 freeze 그대로 두 venv 를 `/tmp` 에 재현해 `pip check`·import(레포 코드 포함) |
 
-GPU·LaMa 가중치가 없으므로 CUDA·가중치·모델 로드는 이 점검에 없습니다. pod 교체 뒤 실제 워커 Python(`/data/venv`·`/data/venv-ocr`)으로 확인합니다.
-`gpu/baseline/` 은 2026-10-13 운영 pod 의 `/data/venv`·`/data/venv-ocr` `pip freeze` 입니다. `/data` venv 를 다시 설치했으면 새 freeze 로 바꿉니다.
+GPU·LaMa 가중치가 없으므로 CUDA·가중치·모델 로드는 이 점검에 없습니다. pod 교체 뒤 실제 워커 Python(`/data/venv`·`/data/venv-ocr-gpu`)으로 확인합니다.
+`gpu/baseline/` 은 운영 pod 의 `pip freeze` 입니다 — `venv.freeze.txt`·`venv-ocr.freeze.txt`(2026-10-13, OCR CPU 시절), `venv-ocr-gpu.freeze.txt`(2026-10-19, 현재 OCR).
+`/data` venv 를 다시 설치했으면 새 freeze 로 바꿉니다. 점검 C 는 아직 CPU OCR freeze(`venv-ocr.freeze.txt`)로 재현합니다 — GPU 빌드(약 5GB)로 바꾸는 것은 후속.
 
 태그는 빌드마다 새로 붙이고 이미 쓰는 태그에 덮어쓰지 않습니다. 같은 태그를 다시 푸시하면 이전 이미지로 되돌릴 기준이 사라지고,
 재시작 때 어떤 이미지를 받는지가 pull 정책·노드 캐시에 따라 달라집니다. 푸시한 뒤 digest를 기록하고 Workload에는 digest로 지정합니다.
@@ -169,10 +170,13 @@ EC2에는 `cpu` 워커·API·복구 프로세스만 둡니다(`deploy/README.md`
 | 워커 | venv | 로그 | 명령(`gpu/worker.sh`가 실행) |
 | --- | --- | --- | --- |
 | gpu | `/data/venv` (+ `/opt/venv` torch를 `.pth`로 공유) | `/data/gpu-worker.log` | `celery -A app.celery_app:celery_app worker -Q gpu --pool=solo --concurrency=1 -n gpu@%h` |
-| ocr | `/data/venv-ocr` (PaddleOCR CPU 전용, torch 없음) | `/data/ocr-worker.log` | `celery -A app.celery_app:celery_app worker -Q ocr --pool=solo --concurrency=1 -n ocr@%h` |
+| ocr | `/data/venv-ocr-gpu` (PaddleOCR GPU — paddlepaddle-gpu 3.3.1·CUDA 12.6, torch 없음) | `/data/ocr-worker.log` | `celery -A app.celery_app:celery_app worker -Q ocr --pool=solo --concurrency=1 -n ocr@%h` |
 
 - 두 워커 모두 `--pool=solo --concurrency=1`입니다. prefork로 띄우지 않습니다(LaMa는 spawn 자식 프로세스를 쓰고, OCR은 프로세스 하나가 수 GiB를 씁니다).
 - 두 venv를 섞지 않습니다. OCR venv에 `requirements-gpu.txt`·torch·iopaint를 넣지 않고, gpu venv에 PaddleOCR을 넣지 않습니다.
+- **인페인팅·OCR 은 GPU 로만 돕니다(2026-10-19).** `worker.sh` 가 시작할 때 venv 의 CUDA 사용 가능 여부(gpu: torch, ocr: paddle CUDA 빌드·GPU 수)를
+  확인하고, 안 되면 CPU 로 시작하지 않습니다. 인페인팅 코드도 CUDA 가 없으면 초기화를 거부합니다(`pipeline/stages/inpaint_lama.py`).
+- 옛 CPU OCR venv `/data/venv-ocr` 는 되돌리기용으로 남겨 둡니다(아래 "OCR GPU 전환").
 - 코드는 `/data/server` 하나를 같이 씁니다. 배포 SHA는 `/data/pixlate/release.sha`에 적고, 코드가 그 SHA와 다르면 워커가 시작되지 않습니다.
 
 ### 파일 배치
@@ -201,10 +205,13 @@ python -m venv /data/venv
 echo /opt/venv/lib/python3.12/site-packages > /data/venv/lib/python3.12/site-packages/opt-venv.pth
 cd /data/server && /data/venv/bin/pip install -r requirements.txt -r pipeline/requirements.txt
 
-# ocr 워커 venv(시스템 Python, /opt/venv 와 분리)
-/usr/bin/python3.12 -m venv /data/venv-ocr
-cd /data/server && /data/venv-ocr/bin/pip install -r requirements.txt -r pipeline/requirements-ocr.txt
-/data/venv-ocr/bin/pip check
+# ocr 워커 venv(시스템 Python, /opt/venv 와 분리) — PaddlePaddle GPU 빌드. CPU 빌드(paddlepaddle)와 같은 venv 에 넣지 않는다(둘 다 paddle 모듈)
+/usr/bin/python3.12 -m venv /data/venv-ocr-gpu
+/data/venv-ocr-gpu/bin/pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/ --extra-index-url https://pypi.org/simple
+cd /data/server && grep -v '^paddlepaddle==' pipeline/requirements-ocr.txt > /tmp/requirements-ocr-nopaddle.txt
+/data/venv-ocr-gpu/bin/pip install -r requirements.txt -r /tmp/requirements-ocr-nopaddle.txt
+/data/venv-ocr-gpu/bin/pip check
+/data/venv-ocr-gpu/bin/python -c "import paddle; paddle.utils.run_check(); print(paddle.device.get_device())"   # gpu:0 이어야 한다
 
 # PaddleX 모델 캐시를 /data 에(재시작 후 다시 받지 않게). entrypoint.sh 가 시작할 때마다 링크를 만든다(아래)
 mkdir -p /data/.cache/paddlex && [ -e /root/.paddlex ] || ln -s /data/.cache/paddlex /root/.paddlex
@@ -248,7 +255,7 @@ AWS_REGION=ap-northeast-2
 ```bash
 cd /data/server
 (set -a; . /data/server.env; set +a; /data/venv/bin/python /data/pixlate/bin/env_check.py)        # gpu 환경
-(set -a; . /data/server.env; set +a; /data/venv-ocr/bin/python /data/pixlate/bin/env_check.py)    # ocr 환경
+(set -a; . /data/server.env; set +a; /data/venv-ocr-gpu/bin/python /data/pixlate/bin/env_check.py)    # ocr 환경
 /data/venv/bin/python /data/pixlate/bin/lama_check.py
 
 touch /data/pixlate/gpu.enabled /data/pixlate/ocr.enabled    # 소비 재개를 결정한 뒤에만
@@ -279,7 +286,29 @@ pod 한도 CPU 4코어·메모리 30720Mi(**프로젝트 안 모든 컨테이너
 - **운영 범위: 폭 860px 이하·높이 4,000px 이하가 실측 통과 범위입니다.** 폭 1080 이상의 긴 섹션은 약 22GiB 이상으로 추정되며,
   같은 pod의 LaMa와 동시에 돌면 메모리 한도를 넘을 수 있습니다. 4,000px 타일 처리(#31·#32)가 들어오면 다시 측정합니다.
 - 실제 상품 이미지로는 아직 측정하지 않았습니다. 빈 배경 860×4,000에서 글자 1줄이 검출되지 않은(영역 0) 점은 AI 담당 확인 대상입니다.
-- 측정: `cd /data/server && /data/venv-ocr/bin/python /data/pixlate/bin/ocr_measure.py <split.json> <section> <out> [한도GiB]`
+- 측정: `cd /data/server && /data/venv-ocr-gpu/bin/python /data/pixlate/bin/ocr_measure.py <split.json> <section> <out> [한도GiB]`
+- 위 표는 CPU 시절 기록입니다. 현재 OCR 은 GPU 입니다(아래).
+
+### OCR GPU 전환 (2026-10-19, 7a67a61)
+
+- 실행 환경 `/data/venv-ocr-gpu`: paddlepaddle-gpu 3.3.1(Paddle 공식 cu126 저장소 wheel, cp312) + `/data/venv-ocr` 와 같은 버전의 나머지 패키지 +
+  CUDA 12.6 라이브러리(nvidia-* pip 패키지 — 시스템에 cuDNN 이 없어도 된다). 약 7GB. 학교 pod 인터넷이 약 1MiB/s 라 설치에 약 40분.
+- 확인: `paddle.utils.run_check()` 통과, gpu:0, CUDA 12.6, cuDNN 9.5.1 — V100(`sm_70`)에서 동작.
+- 같은 영역 CPU·GPU 비교(실제 상품 이미지 GS 2장, 고정 위치 영역 4개, 새 프로세스·모델 로딩 포함):
+
+| 영역(폭×높이) | CPU 시간 / RSS | GPU 시간 / RSS / GPU 메모리 | OCR 결과 |
+| --- | --- | --- | --- |
+| 830×2,000 | 69.0초 / 8.75GiB | 7.9초 / 1.76GiB / +1.8GB | 46개 모두 같음 |
+| 830×2,000 | 86.7초 / 8.73GiB | 7.4초 / 1.67GiB / +1.9GB | 69개 모두 같음 |
+| 830×1,154 | 58.7초 / 5.39GiB | 7.4초 / 1.56GiB / +1.3GB | 31개 모두 같음 |
+| 830×4,322(타일) | 144.1초 / 8.82GiB | 8.5초 / 1.73GiB / +1.9GB | 47개 모두 같음 |
+| 1000×4,000 | (CPU 20GiB 초과 기록) | 8.0초 / 1.60GiB / +3.8GB | — |
+
+- 운영 확인(GS 2장 N1→N6): OCR 태스크 430초(CPU) → 113.5초(GPU), N2 전체 517초 → 237초. GPU 메모리 최대 5.3GB(LaMa 상주 2.8GB 포함).
+- 전환: `worker.sh` 의 ocr `PY` 를 `/data/venv-ocr-gpu` 로 바꾸고(이 레포 파일), 분석이 없을 때 `worker.sh ocr stop` → `start`.
+- 되돌리기: `PY` 를 `/data/venv-ocr/bin/python` 으로 되돌리고 GPU 검사를 빼고 재시작(2026-10-19 운영 백업 `/data/pixlate/worker.sh.bak-20261019-cpu-ocr`).
+  "GPU 로만" 결정과 어긋나므로 장애 대응 때만.
+- `pipeline/requirements-ocr.txt`(paddlepaddle CPU 고정)는 로컬 CPU 개발용으로 그대로 둔다 — 운영 GPU 환경은 위 설치 절차·`baseline/venv-ocr-gpu.freeze.txt` 가 기준.
 
 ### 연동 확인 결과 (2026-09-28, 이전 구성 기록)
 

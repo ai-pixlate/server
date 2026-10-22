@@ -43,6 +43,13 @@
 
 운영 인계는 `analyze()` → `AnalyzeResult` 버전 1을 유지한다. 워커가 실행 환경의 절대 로컬 경로를 준비하고 검증·업로드·저장을 맡으며 AI는 DB/S3에 직접 접근하지 않는다. 임시 키→DB ID 변환은 BE 책임이고 모르는 키는 저장 실패다. 개발용 Split·DB JSON 버전은 별개이며 호환 규칙 변경은 BE 합의 후 버전에 반영한다. 각 단계 결과·참조 관계를 일관되게 저장하고 부분 저장을 N3 준비 완료로 노출하지 않는다. [통합 D3]
 
+진행 보고(JOB-05 N2 `analysisProgress`의 근거): `analyze()`는 선택 키워드 인자 `progress`(콜백)를 받는다. 없으면 기존과 동일하게 동작한다. [사용자 승인 계약 2026-10-19 · JOB-05 N2 계약 확정]
+
+- 이벤트: `split_start` · `split_done`(원본 영역 분해 ①) · `ocr_start`(영역 OCR ②) · `merge_start`(영역 병합·역할 분류 ③) · `region_done`(영역의 ②·③ 완료). [사용자 승인 계약 2026-10-19 · JOB-05 N2 계약 확정]
+- 각 보고는 누계 스냅샷 `AnalyzeProgress`다: `event`, `source_index`, `source_total`, `source_image_id`, `region_index`, `region_count_in_source`, `regions_done`, `regions_known`, `sources_split`. `source_index` · `region_index`는 1부터, 영역은 분해 결과 섹션이며 OCR 타일은 세지 않는다. [사용자 승인 계약 2026-10-19 · JOB-05 N2 계약 확정]
+- 콜백 예외는 무시하고 분석을 계속한다. `AnalyzeResult` 버전 1은 바뀌지 않는다. [사용자 승인 계약 2026-10-19 · JOB-05 N2 계약 확정]
+- `analyze_done`은 AI 이벤트가 아니다 — BE 보고기가 분석 함수 정상 반환 직후 남긴다. [사용자 승인 계약 2026-10-19 · JOB-05 N2 계약 확정]
+
 ### 1.2 AI 섹션 판정과 정책 적용 [계약 1.3]
 
 - AI 섹션 판정 입력: 섹션 이미지 + 텍스트 블록(+ 필요 시 앞뒤 섹션 텍스트). **텍스트가 없는 섹션도 이미지 기반 판정 대상.**

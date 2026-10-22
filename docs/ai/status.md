@@ -9,7 +9,7 @@
 
 ## 1. 단계별 현황 — 2026-10-21
 
-기준: `develop` `b62317a` 코드 정적 대조. `release/1.0.0`에만 있는 변경(⑦ `em_ratio` 잠정값, 렌더의 역할별 기본값 사용, 분석 진행 정보 등)은 역병합 뒤 반영한다. ④⑤ 판정 조합의 `is_excluded` 3값 OR 생성식(`open-questions.md` 5절 #63, 통합 D1)은 마이그레이션 0007로 DB에 반영돼 있다. 운영 처리 경로는 2026-10-13 운영 환경에서 합성 입력 1건으로 N2→N6 처리 성공을 확인했다(실제 Gemini · 학교 V100 LaMa, 렌더 시각 품질은 미달 — `deploy/integration-verification-2026-10-13.md`). 처리 성공은 품질 승인이 아니다.
+기준: `develop` `b62317a` 코드 정적 대조에 `release/1.0.0` `0716d57` 역병합분(⑦ `em_ratio` 잠정값 · 렌더의 역할별 기본값 사용 · `analyze()` 진행 보고 `progress` 연결)의 코드 정적 대조를 더했다. 실행 검증은 아니다. ④⑤ 판정 조합의 `is_excluded` 3값 OR 생성식(`open-questions.md` 5절 #63, 통합 D1)은 마이그레이션 0007로 DB에 반영돼 있다. 운영 처리 경로는 2026-10-13 운영 환경에서 합성 입력 1건으로 N2→N6 처리 성공을 확인했다(실제 Gemini · 학교 V100 LaMa, 렌더 시각 품질은 미달 — `deploy/integration-verification-2026-10-13.md`). 처리 성공은 품질 승인이 아니다.
 
 | 단계 | 상태 | BE 연결 | 남은 큰 과업 | 기록 |
 |---|---|---|---|---|
@@ -20,9 +20,9 @@
 | ④ 제품 라벨 | 로컬 검증 · 실측 1회(100섹션) · 사용자 경계 검수(미탐 3블록 수정 보류) | 연결(`PipelineLabeler`) | 미탐 개선(#67) · 운영 시간 제한 · 재시도 · 오류 코드(#65) | `docs/ai-experiments/2026-09-29_04-label_run-v1.md` |
 | ⑤ 브랜드 로고 | 로컬 검증 · 실측 2회 · 주요 사례 사용자 검수 | 연결(`PipelineLogo`) | 브랜드 부재 · 미확인 운영 정책(#68) · 병합 로고 한계(#69) | `docs/ai-experiments/2026-09-30_05-logo_rerun-brand-v2.md` |
 | ⑥ 인페인팅 | GPU 실측(100섹션) · 사용자 육안 검수(현 수준 유지, 결함 기록) | 연결(GPU 워커 · `GpuInpaintRunner`) | 고도화(#73) · 운영 시간 제한(#75) · GPU 제어 HTTP 바인딩(BE, `open-questions.md` 0.1) | `docs/ai-experiments/2026-09-30_06-inpaint_run100-v1.md` |
-| ⑦ 스타일 추출 | 로컬 검증 · 소수 표본(3섹션) 사용자 검수 | 연결(`PipelineStyler`). 렌더의 역할별 기본값 사용은 `release/1.0.0`에만 있음 | 100섹션 실측 · `text_block.style` 키(#14) | `docs/ai-experiments/2026-10-06_07-style_sample-review.md` |
+| ⑦ 스타일 추출 | 로컬 검증 · 소수 표본(3섹션) 사용자 검수 · `em_ratio` 잠정값 적용(#85) | 연결(`PipelineStyler`). 렌더는 측정 NULL 항목과 ⑦ 실패에 역할별 기본값을 쓴다 | 100섹션 실측 · `text_block.style` 키(#14) · `em_ratio` 최종값(#85) | `docs/ai-experiments/2026-10-06_07-style_sample-review.md` · `2026-10-15_07-style_em-ratio.md` |
 | ⑧ 번역 · 번역 후 검사 | 구현 · 가짜 모델 계약 검증 | 번역 연결(`HandoffTranslator`). **번역 후 검사(`run_text_check`) 미연결** | 번역 후 검사 BE 연결 · 실제 Gemini 실측 · 프롬프트 기술검증(#11) · 유료 키 확인 · 대안 표기(#77) | `be-handoff.md` 0절 |
-| ⑨ 조판 · 렌더 | BE 소관 | — | — | — |
+| ⑨ 조판 · 렌더 | BE 소관. 역할별 기본값 · Pretendard 역할별 굵기 · 소수 크기 구현 반영 확인(`app/typeset.py`, 렌더러 버전 `pillow-typeset/2`, 코드 정적 대조 · 실행 검증 아님) | 연결(미리보기 · 최종 렌더 공통 로더 · `resolve_block` · 입력 지문) | 자간 미적용 · 행간은 설정 자료 비율이 아닌 구현 상수 1.2 · 넘침 기준 · 적용값 기록 형식(#78) · 운영 엔진 측정 기준(#79) · 6.7 사례 통합 시험 이관(BE 확인) | `be-handoff.md` 6절 |
 | 1.0.0 baseline 측정 | 준비 — 평가 명세 · 측정 도구 · 로컬 환경 · 고정 평가셋 연결 준비, 공식 측정 없음 | — | 입력 · 평가 기준 자료와 회차 조건 확인 · 승인된 모델 연결 점검 · 실측 | `docs/ai-baseline/README.md` |
 | 타입 · config · CLI · inspect | 로컬 검증 | — | — | `dev.md` |
 | 환경 · 의존성 | `requirements-ocr.txt` 버전 고정 · 로컬 OCR(Windows CPU · GPU) 검증. `requirements-gpu.txt`의 OCR 부분은 설치 미검증 | — | `requirements-gpu.txt` 설치 검증 | `dev.md` 6절 |
@@ -32,8 +32,8 @@
 우선순위는 사용자가 정한다. 아래는 현재 기록된 다음 작업이며 순서를 정한 목록이 아니다.
 
 - **1.0.0 baseline 실측 준비** — 입력 · 평가 기준 자료와 회차 조건 확인, 승인된 모델 연결 점검(`docs/ai-baseline/`).
-- **BE 연결 남은 것** — 번역 후 검사(`run_text_check`) · GPU 제어 HTTP 바인딩 · 대체 표현 구분 규칙(#71) 확정 뒤 변환(`be-handoff.md` 0절).
-- **역병합 뒤 반영** — `release/1.0.0` → `develop` 역병합(팀 승인 대기) 뒤 1절 기준과 ⑦ 행을 갱신한다.
+- **BE 연결 남은 것** — 번역 후 검사(`run_text_check`) · GPU 제어 HTTP 바인딩 · 대체 표현 구분 규칙(#71) 확정 뒤 변환(`be-handoff.md` 0절) · 렌더 자간 · 행간 · 넘침 기준 · 기록 형식(⑨ 행, `be-handoff.md` 6.6).
+- **⑦ `em_ratio` 최종값(#85)** — 사람 육안 검수로 잠정값을 확인하고 최종값 · 측정 방식을 정한다. 잠정값 반영 전에 ⑦을 실행한 작업은 ⑦을 다시 실행해야 새 크기가 적용된다(BE 공유 여부 확인). 크기를 맞춰도 남는 줄 늘어남 · 겹침(배치 영역 · 줄바꿈)은 조판 과제로 따로 다룬다.
 
 현재 사용할 고정 입력본은 아래와 같다.
 

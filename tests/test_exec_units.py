@@ -42,33 +42,84 @@ def test_lease_repr_hides_token():
 
 
 def _defaults():
-    roles = {r: {"font_color": "#000000", "est_font_px": 20, "align": "left"} for r in typeset.ROLES}
-    return typeset.RoleDefaults(version="t", roles=roles, sha256="0" * 64)
+    """승인된 역할별 기본값 정본(D11) — 운영과 같은 로더로 읽는다."""
+    return typeset.load_role_defaults()
+
+
+def _blk(i, style, *, role="body", text="ok", stage="done", source="원문", box=None):
+    return typeset.RenderBlock(id=i, role=role, text=text, box=box or {"x": 0, "y": 0, "w": 300, "h": 100}, style=style,
+                               style_stage=stage, source_ko=source)
 
 
 def test_typeset_overflow_width_and_height():
     bg = png_bytes(300, 200)
     style = {"font_color": "#112233", "bg_color": "#FFFFFF", "est_font_px": 20.0, "align": "center"}
     blocks = [
-        typeset.RenderBlock(id=1, role="body", text="ok", box={"x": 10, "y": 10, "w": 200, "h": 40}, style=style),
-        typeset.RenderBlock(id=2, role="body", text="Supercalifragilistic", box={"x": 10, "y": 60, "w": 30, "h": 40}, style=style),
-        typeset.RenderBlock(id=3, role="body", text="a b c d e f g h i j k l", box={"x": 10, "y": 110, "w": 20, "h": 20}, style=style),
+        _blk(1, style, text="ok", box={"x": 10, "y": 10, "w": 200, "h": 40}),
+        _blk(2, style, text="Supercalifragilistic", box={"x": 10, "y": 60, "w": 30, "h": 40}),
+        _blk(3, style, text="a b c d e f g h i j k l", box={"x": 10, "y": 110, "w": 20, "h": 20}),
     ]
-    res = typeset.render(bg, blocks, None)
+    res = typeset.render(bg, blocks, _defaults())
     assert (res.width, res.height) == (300, 200)
     assert res.blocks[1].overflow is False and res.blocks[2].overflow is True and res.blocks[3].overflow is True
     assert res.blocks[1].source == {"font_color": "measured", "est_font_px": "measured", "align": "measured"}
 
 
-def test_typeset_requires_approved_defaults_for_null_measurements():
-    bg = png_bytes(100, 100)
-    b = typeset.RenderBlock(id=1, role="title", text="x", box={"x": 0, "y": 0, "w": 100, "h": 50},
-                            style={"font_color": None, "bg_color": None, "est_font_px": 18.0, "align": None})
+def test_typeset_null_measurements_use_approved_defaults_only_for_null_fields():
+    bg = png_bytes(1000, 400)
+    # F1 작업 15 재현(합성): ⑦ 완료, align 만 NULL → align 만 승인 기본값, 측정된 글자색·크기는 그대로
+    res = typeset.render(bg, [_blk(1, {"font_color": "#424B55", "bg_color": "#FEFFFF", "est_font_px": 70.2, "align": None}, role="title")],
+                         _defaults())
+    assert res.blocks[1].applied == {"font_color": "#424B55", "est_font_px": 70.2, "align": "left"}
+    assert res.blocks[1].source == {"font_color": "measured", "est_font_px": "measured", "align": "role_default"}
+    # 측정값 3개가 모두 있으면 기본값과 다르더라도 그대로(덮지 않는다)
+    res = typeset.render(bg, [_blk(2, {"font_color": "#C2CA6B", "bg_color": None, "est_font_px": 9.5, "align": "right"}, role="title")],
+                         _defaults())
+    assert res.blocks[2].applied == {"font_color": "#C2CA6B", "est_font_px": 9.5, "align": "right"}
+    assert set(res.blocks[2].source.values()) == {"measured"}
+
+
+def test_typeset_style_stage_failed_uses_all_defaults_scaled_by_source_width():
+    # ⑦ 실패(style 객체 NULL) → 세 항목 모두 승인 기본값. 크기 = 기준 크기 × 원본 폭 / 기준 폭(반올림 없음, be-handoff 6.3)
+    res = typeset.render(png_bytes(1000, 400), [_blk(1, None, role="title", stage="failed")], _defaults())
+    assert res.blocks[1].applied == {"font_color": "#222222", "est_font_px": 32 * 1000 / 375, "align": "left"}
+    assert set(res.blocks[1].source.values()) == {"role_default"}
+
+
+def test_typeset_skips_non_targets_and_rejects_contract_violations():
+    bg = png_bytes(300, 200)
+    measured = {"font_color": "#111111", "bg_color": None, "est_font_px": 20.0, "align": "left"}
+    # 빈 번역문·빈 원문은 그리지 않는다(기본값으로 되살리지 않음)
+    res = typeset.render(bg, [_blk(1, measured, text=""), _blk(2, measured, source="  ")], _defaults())
+    assert res.blocks == {}
+    # ⑦ 완료인데 style 없음 / ⑦ 실패인데 style 있음 / 알 수 없는 단계 → 계약 위반(기본값으로 덮지 않는다)
+    for blk in (_blk(3, None, stage="done"), _blk(4, measured, stage="failed"), _blk(5, measured, stage=None)):
+        with pytest.raises(typeset.StyleInputInvalid) as e:
+            typeset.render(bg, [blk], _defaults())
+        assert e.value.code == "STYLE_RESULT_INVALID"
+
+
+def test_style_defaults_unreadable_or_font_mismatch_is_not_silently_ignored(monkeypatch, tmp_path):
+    import shutil
+
+    from pipeline.handoff.style_defaults import STYLE_DEFAULTS_PATH
+
+    # 대체 경로가 없는 파일
+    monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(tmp_path / "nope.json"))
     with pytest.raises(typeset.StyleDefaultsUnavailable):
-        typeset.render(bg, [b], None)
-    res = typeset.render(bg, [b], _defaults())
-    assert res.blocks[1].applied["font_color"] == "#000000" and res.blocks[1].source["font_color"] == "role_default"
-    assert res.blocks[1].applied["est_font_px"] == 18.0 and res.blocks[1].source["est_font_px"] == "measured"
+        typeset.load_role_defaults()
+    assert "unavailable" in typeset.style_inputs()
+    # 자료는 같지만 그 위치에 폰트 파일이 없음(폰트 검증 실패 → 내장 폰트로 넘어가지 않는다)
+    copy = tmp_path / "style_defaults.json"
+    shutil.copy(STYLE_DEFAULTS_PATH, copy)
+    monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(copy))
+    with pytest.raises(typeset.StyleDefaultsUnavailable) as e:
+        typeset.load_role_defaults()
+    assert "폰트" in str(e.value)
+    # 대체 경로를 비우면 저장소 정본 — 지문은 설정 버전·SHA-256·폰트 SHA-256·규칙 버전(6.6 ⑤)
+    monkeypatch.delenv("PIXLATE_STYLE_DEFAULTS")
+    inputs = typeset.style_inputs()
+    assert inputs["style_defaults"]["version"] == "role-style@2026-10-12.1" and set(inputs) == {"style_defaults", "fonts", "rule"}
 
 
 @pytest.mark.skipif(not __import__("os").getenv("PIXLATE_TEST_DATABASE_URL"), reason="PIXLATE_TEST_DATABASE_URL 없음")

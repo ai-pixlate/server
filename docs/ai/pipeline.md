@@ -67,7 +67,7 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ④ | 제품 라벨 판정 | `vlm_relation` — `gemini-3.8-flash` + **섹션 이미지 동봉**(긴 변 1024px). "애매하면 라벨" 편향 | ③ 블록 + ① 섹션 이미지 | 블록별 `is_product_label` | 확정 | `stages/label.py` | [개발계획 2.1, 6장] [계약 2.2] [`open-questions.md` #66] |
 | ⑤ | 브랜드 로고 제외 | `block_exact` — 블록 전체 텍스트 == 브랜드명(영·한). 정규화 NFKC → 소문자 → 공백·문장부호 제거. 브랜드명은 **상품 메타에서 받음**, 로고 파일 사용 안 함. ④ 라벨 블록은 비교도 건너뜀 | ③ 블록 + ④ 라벨 + `brand.name_ko/name_en` | 블록별 `is_brand_logo` | 확정 | `stages/logo.py` | [개발계획 2.1, 4.2] [계약 2.3] [`open-questions.md` #68] |
 | ⑥ | 인페인팅 | LaMa(iopaint) + `erase_s50` — **신뢰도 0.5 이상 · 텍스트 있는 원시 영역**만 마스크. 마스크 = poly 채움 + 글자 높이 15% 팽창. ④⑤ 보호 영역은 마스크에서 제외하고 팽창이 침범하지 않게 구성. 확대 재시도 없음 | ① 섹션 이미지 + ② 영역 `score` + ④⑤ 제외 | 글자 지운 배경 | 확정 | `stages/inpaint.py` · `inpaint_lama.py` · `inpaint_proc.py` · `handoff/gpu.py` | [개발계획 2.1, 6장] [계약 5.2] [`open-questions.md` 2.3절] |
-| ⑦ | 스타일 추출 | `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 → em ×1.35. 정렬 = 블록 안 줄들의 좌·중앙·우 분산 비교, 허용 오차 블록 폭 12%. **원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리·굵기는 추출하지 않고 역할 기반 매핑 | ② 영역 + ③ 블록 + ① 섹션 이미지 | 영역별 `font_color` · `bg_color` · `est_font_px`, 블록별 대표값 · `align`. `text_block.style`의 키 구성은 미정(#14) | 확정 | `stages/style.py` · 역할 기본값 `handoff/style_defaults.py` | [개발계획 2.1, 4.1, 6장] [`open-questions.md` #76 · #14] [사용자 결정 2026-10-06] [통합 D11] |
+| ⑦ | 스타일 추출 | `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 × `style.em_ratio`(잠정 적용 · 최종값 미정, #85). 정렬 = 블록 안 줄들의 좌·중앙·우 분산 비교, 허용 오차 블록 폭 12%. **원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리·굵기는 추출하지 않고 역할 기반 매핑 | ② 영역 + ③ 블록 + ① 섹션 이미지 | 영역별 `font_color` · `bg_color` · `est_font_px`, 블록별 대표값 · `align`. `text_block.style`의 키 구성은 미정(#14) | 채택 기술 확정 · 환산 비율 잠정(#85) | `stages/style.py` · 역할 기본값 `handoff/style_defaults.py` | [개발계획 2.1, 4.1, 6장] [`open-questions.md` #76 · #14] [사용자 결정 2026-10-06] [통합 D11] [`open-questions.md` #85] [사용자 결정 2026-10-15] |
 | ⑧ | 로컬라이징 번역 | `gemini-3.8-flash` + **RAG 용어집** — 용어는 BE가 이번 대상 블록 원문에서 선별해 공급한다(AI가 검색하지 않음). 원본 세로 순서·블록 문맥 유지. 강제/참고 용어 구분. 번역 후 규제 표현·강제 용어 적용 여부는 번역과 분리된 검사가 확인한다. **자동 축약 없음**. 프롬프트는 RAG 구축 후 기술검증 | ③ 블록 − ④ 라벨 − ⑤ 로고 + 용어집 | `trans_1`(번역) + `compliance_flags`(번역 후 검사) | 모델 확정 · 프롬프트 · 규제 표 미정 | `stages/translate.py` · `stages/text_check.py` · `handoff/translation.py` · `glossary.py` | [개발계획 2.1, 6장] [계약 5.1] [통합 D10] |
 | ⑨ | 조판·렌더 | HTML 텍스트 레이어 + 헤드리스 캡처. **BE 소관.** AI는 ⑥⑦⑧ 산출물만 넘김 | ⑥ 배경 + ⑦ 스타일 + ⑧ 번역문 | 번역된 섹션 + `overflow` | BE | BE | [개발계획 2.2, 4.2] |
 
@@ -114,7 +114,7 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ⑥ | `inpaint.score_min` / `inpaint.require_text` | **파라미터화 필수.** `erase_all`↔`erase_s50` 차이는 이 필터 한 줄 | — | [개발계획 6장] [PoC 0장] |
 | ⑥ | `inpaint.dilate_ratio` / `inpaint.dilate_retry` | 글자 높이 대비 팽창. 확대 재시도 금지(false만 허용) | — | [개발계획 6장] |
 | ⑥ | `inpaint.init_timeout_s` / `inpaint.infer_timeout_s` / `inpaint.kill_grace_s` | 모델 전용 자식 프로세스의 초기화 · 섹션 추론 시간 제한과 강제 종료 유예(초). 운영값은 #75 | 실측용 잠정 | [`open-questions.md` #75] [사용자 결정 2026-09-30] |
-| ⑦ | `style.method` / `style.em_ratio` / `style.align_tolerance` | 스타일 추출 방식 · bbox 높이 → em 환산 비율 · 정렬 허용 오차(블록 폭 비율) | — | [개발계획 6장] |
+| ⑦ | `style.method` / `style.em_ratio` / `style.align_tolerance` | 스타일 추출 방식 · bbox 높이 → em 환산 비율 · 정렬 허용 오차(블록 폭 비율) | 환산 비율 잠정 적용 · 최종값 미정(#85) | [개발계획 6장] [`open-questions.md` #85] [사용자 결정 2026-10-15] |
 | ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | 번역 모델 · 용어 공급 방식(BE가 선별해 공급, `contract.md` 5.1) · 프롬프트 위치. 프롬프트 확정은 #11 기술검증 후 | 모델 확정 · 프롬프트 초안 v1 | [개발계획 6장] [계약 5.1] [통합 D10] [`open-questions.md` #11] |
 | ⑧ | `translate.temperature` / `translate.timeout_s` | 섹션 1회 호출 설정. 운영 시간 제한 · 재시도 상한은 BE 실행 정책에서 정하며 이 값을 운영 최댓값으로 쓰지 않는다 | 개발용 잠정 | [통합 D9] [`open-questions.md` #11] |
 | 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | 실행마다 `event_log.payload`에 기록 | — | [계약 9장] |
@@ -250,7 +250,7 @@ PoC에서 확인한 접근법을 참고한 우리 잠정 설계이며, 값·규�
 
 ### 7.7 ⑦ 스타일 추출
 
-**정본 규칙** — `otsu_border`(테두리에 많이 닿는 쪽을 배경으로) · 크기 = bbox 높이 → em ×1.35 · 정렬 = 블록 안 줄들의 좌 · 중앙 · 우 분산 비교, 허용 오차 블록 폭 12% · **원본 섹션 이미지** 사용(⑥ 출력 아님) · 폰트 패밀리 · 굵기는 추출하지 않는다. [개발계획 2.1, 6장] 라벨 · 로고로 판정된 블록은 스타일 추출에서 제외한다. [계약 1.3] 나머지는 사용자가 승인한 명세 v1(2026-10-06)이다. [`open-questions.md` #76] [사용자 결정 2026-10-06]
+**정본 규칙** — `otsu_border`(테두리에 많이 닿는 쪽을 배경으로) · 크기 = bbox 높이 × `style.em_ratio`(잠정 적용 · 최종값 미정 [`open-questions.md` #85] [사용자 결정 2026-10-15]) · 정렬 = 블록 안 줄들의 좌 · 중앙 · 우 분산 비교, 허용 오차 블록 폭 12% · **원본 섹션 이미지** 사용(⑥ 출력 아님) · 폰트 패밀리 · 굵기는 추출하지 않는다. [개발계획 2.1, 6장] 라벨 · 로고로 판정된 블록은 스타일 추출에서 제외한다. [계약 1.3] 나머지는 사용자가 승인한 명세 v1(2026-10-06)이다. [`open-questions.md` #76] [사용자 결정 2026-10-06]
 
 - 처리 대상 = ④ `is_product_label=false` 그리고 ⑤ `is_brand_logo=false`. 공백만 있는 영역은 추출하지 않는다. 저신뢰지만 텍스트가 있는 영역은 추출한다 — ⑥ `inpaint.score_min`을 적용하지 않는다. [`open-questions.md` #76]
 - 색: 영역 bbox crop의 명도 Otsu로 두 집단을 나누고 외곽에 더 많이 닿는 집단이 배경이다. 나눌 수 없거나 외곽 접촉이 같으면 그 영역의 색만 null이다. 크기: `est_font_px` = bbox.h × `style.em_ratio`. 블록 값은 유효 영역 값의 중앙값(색은 그 중앙값에 가장 가까운 실제 영역 색)이다. [`open-questions.md` #76]

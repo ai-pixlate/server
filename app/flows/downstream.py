@@ -843,29 +843,42 @@ def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
     bg_key = sec["inpaint_image_url"] if inp == "done" and sec["inpaint_image_url"] else sec["image_key"]
     blocks = []
     for r in rows:
-        if r["is_excluded"] is not False or not (r["source_ko"] or "").strip() or r["trans_1"] is None:
-            continue  # 라벨·로고·빈 원문·번역 없음(실패 칸)은 그리지 않는다
+        if r["is_excluded"] is not False or not (r["source_ko"] or "").strip() or not (r["trans_1"] or "").strip():
+            # 라벨·로고·빈 원문·번역 없음(실패 칸 NULL·빈 문자열·공백만)은 그리지 않는다 — resolve_block 의 조판 제외 규칙
+            # (be-handoff 6.3)과 같게 둬야 미리보기 채택의 대상 블록 집합이 렌더 결과와 맞는다
+            continue
         adj = json_value(r["auto_adjust"]) or {}
         box = adj.get("layout_bbox") or json_value(r["bbox"])
         blocks.append({"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),
                        "box": {k: int(box[k]) for k in ("x", "y", "w", "h")}, "style_sha256": stable_hash(json_value(r["style"]))})
     bg_sha = db.execute(text("SELECT sha256 FROM task_artifact WHERE verified_key = :k OR source_ref->>'key' = :k LIMIT 1"),
                         {"k": bg_key}).scalar()
-    defaults = typeset.load_role_defaults()
+    # 섹션의 ⑦ 단계 결과 — 기본값 적용 규칙(6.3)이 done / failed 를 나눈다(style 값만으로 판단하지 않는다)
+    style_stage = db.execute(
+        text("SELECT status FROM job_async_task WHERE parent_task_id = :r AND stage = 'style' AND unit_id = :s AND is_current"),
+        {"r": run_id, "s": sid},
+    ).scalar()
     return {"stage": "preview", "section_id": sid, "background": {"key": bg_key, "sha256": bg_sha,
                                                                     "source": "inpaint" if bg_key != sec["image_key"] else "original"},
-            "blocks": blocks, "renderer": typeset.RENDERER_VERSION,
-            "style_defaults": {"version": defaults.version, "sha256": defaults.sha256} if defaults else None}
+            "blocks": blocks, "style_stage": style_stage, "renderer": typeset.RENDERER_VERSION,
+            "style_defaults": typeset.style_inputs()}
 
 
-def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, Any]) -> typeset.RenderResult:
+def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, Any],
+                    sources: dict[int, str | None]) -> typeset.RenderResult:
     data = get_store().get(m["background"]["key"])
     if m["background"]["sha256"] and sha256_bytes(data) != m["background"]["sha256"]:
         raise AdoptionRejected("배경이 고정 입력과 다르다", code="INPUT_CHANGED")
+    if mismatch := common.renderer_mismatch(m):  # 미리보기·최종 렌더 공통(최종 렌더는 고정 입력의 renderer 를 넘긴다)
+        raise AdoptionRejected(mismatch, code="INPUT_CHANGED")
+    current = typeset.style_inputs()
+    if "unavailable" in current:
+        raise typeset.StyleDefaultsUnavailable(current["unavailable"])
+    if current != m.get("style_defaults"):  # 설정 자료·폰트·규칙 버전 중 하나라도 다르면(6.6 ⑤)
+        raise AdoptionRejected("스타일 기본값 자료가 고정 입력과 다르다", code="INPUT_CHANGED")
     defaults = typeset.load_role_defaults()
-    if (defaults.sha256 if defaults else None) != (m["style_defaults"] or {}).get("sha256"):
-        raise AdoptionRejected("스타일 기본값이 고정 입력과 다르다", code="INPUT_CHANGED")
-    rbs = [typeset.RenderBlock(id=b["block_id"], role=b["role"], text=texts[b["block_id"]], box=b["box"], style=styles[b["block_id"]])
+    rbs = [typeset.RenderBlock(id=b["block_id"], role=b["role"], text=texts[b["block_id"]], box=b["box"], style=styles[b["block_id"]],
+                               style_stage=m.get("style_stage"), source_ko=sources[b["block_id"]])
            for b in m["blocks"]]
     return typeset.render(data, rbs, defaults)
 
@@ -878,17 +891,17 @@ def execute_preview(attempt_id: int) -> dict[str, Any]:
             rows = {r["id"]: r for r in _block_rows(db, m["section_id"])}
         finally:
             db.close()
-        texts, styles = {}, {}
+        texts, styles, sources = {}, {}, {}
         for b in m["blocks"]:
             r = rows.get(b["block_id"])
             if r is None or r["revision"] != b["revision"] or r["trans_1"] is None or sha256_text(r["trans_1"]) != b["trans_sha256"]:
                 raise AdoptionRejected("블록 번역문·revision 이 고정 입력과 다르다(옛 렌더)", code="INPUT_CHANGED")
             if stable_hash(json_value(r["style"])) != b["style_sha256"]:
                 raise AdoptionRejected("블록 스타일이 고정 입력과 다르다", code="INPUT_CHANGED")
-            texts[b["block_id"]], styles[b["block_id"]] = r["trans_1"], json_value(r["style"])
+            texts[b["block_id"]], styles[b["block_id"]], sources[b["block_id"]] = r["trans_1"], json_value(r["style"]), r["source_ko"]
         try:
-            res = _render_section(m, texts, styles)
-        except typeset.StyleDefaultsUnavailable as e:
+            res = _render_section(m, texts, styles, sources)
+        except (typeset.StyleDefaultsUnavailable, typeset.StyleInputInvalid) as e:
             return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), False, len(m["blocks"]))))
         env = Envelope(outcome="done", target_count=len(m["blocks"]), input_fingerprint=lease.fingerprint,
                        impl_version=typeset.RENDERER_VERSION,
@@ -936,6 +949,9 @@ class PreviewHandler:
 
     def after_failure(self, db, att, code, retryable):
         return _after_failure(db, att, code, retryable)
+
+    def retry_block_reason(self, att):
+        return common.renderer_mismatch(att["input_manifest"])
 
 
 # ---------------------------------------------------------------------------------------------------------

@@ -157,20 +157,24 @@ def _final_inputs(db: Session, job_id: int) -> dict[str, Any]:
         if m is None:
             raise AdoptionRejected("하류 실행 없음", code="INPUT_MISSING")
         sections.append({"section_id": s["id"], "source_image_id": s["source_image_id"], "section_order": s["section_order"],
-                         "height": s["height"], "background": m["background"], "blocks": m["blocks"]})
-    defaults = typeset.load_role_defaults()
+                         "height": s["height"], "background": m["background"], "blocks": m["blocks"], "style_stage": m["style_stage"]})
+    # 미리보기와 같은 로더·같은 지문(6.6 ⑥) — 최종 렌더가 다른 설정을 읽을 수 없게 한다
     return {"stage": "final_render", "job_id": job_id, "sections": sections, "renderer": typeset.RENDERER_VERSION,
-            "style_defaults": {"version": defaults.version, "sha256": defaults.sha256} if defaults else None}
+            "style_defaults": typeset.style_inputs()}
 
 
 def start_final_render(db: Session, job_id: int) -> int:
-    """최종 렌더 실행·시도 생성(호출자가 job 잠금·커밋·dispatch). 진행 중이면 그 시도를 돌려준다."""
+    """최종 렌더 실행·시도 생성(호출자가 job 잠금·커밋·dispatch). 진행 중이면 그 시도를 돌려준다.
+    최신 실행이 failed 로 닫혔으면(누적 한도 소진) 새 실행을 만들지 않는다 — 새 실행으로 한도를 우회하지 못하게."""
     active = execution.active_run(db, job_id, "final_render")
     if active is not None:
         cur = db.execute(text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND is_current"), {"r": active["id"]}).mappings().one()
         if cur["status"] == "failed":
             return execution.create_retry(db, cur["id"], "user")
         return cur["id"]
+    last = execution.latest_run(db, job_id, "final_render")
+    if last is not None and last["status"] == "failed":
+        raise execution.RetryNotAllowed("최종 렌더 실행이 누적 재시도 한도 소진으로 종료됐다")
     m = _final_inputs(db, job_id)
     run_id = execution.create_run(db, job_id, "final_render", {"job_id": job_id, "section_ids": [s["section_id"] for s in m["sections"]]})
     run = execution.lock_task(db, run_id)
@@ -196,14 +200,15 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
         finally:
             db.close()
         for s in m["sections"]:
-            texts, styles = {}, {}
+            texts, styles, sources = {}, {}, {}
             for b in s["blocks"]:
                 r = rows.get(b["block_id"])
                 if (r is None or r["revision"] != b["revision"] or r["trans_1"] is None or sha256_text(r["trans_1"]) != b["trans_sha256"]
                         or stable_hash(json_value(r["style"])) != b["style_sha256"]):
                     raise AdoptionRejected("최종 렌더 입력이 확정 당시와 다르다", code="INPUT_CHANGED")
-                texts[b["block_id"]], styles[b["block_id"]] = r["trans_1"], json_value(r["style"])
-            res = _render_section({**s, "style_defaults": m["style_defaults"]}, texts, styles)
+                texts[b["block_id"]], styles[b["block_id"]], sources[b["block_id"]] = (
+                    r["trans_1"], json_value(r["style"]), r["source_ko"])
+            res = _render_section({**s, "style_defaults": m["style_defaults"], "renderer": m.get("renderer")}, texts, styles, sources)
             files[("render_image", f"sec_{s['section_id']}")] = res.png
             renders[str(s["section_id"])] = {"width": res.width, "height": res.height,
                                              "overflow": {str(k): v.overflow for k, v in res.blocks.items()},
@@ -230,7 +235,7 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
                        impl_version=typeset.RENDERER_VERSION, payload={"renders": renders, "stacks": stacks},
                        artifacts=[ArtifactSpec(kind=k, part_key=p, data=d) for (k, p), d in files.items()])
         return report(attempt_id, submit(lease, env, files))
-    except typeset.StyleDefaultsUnavailable as e:
+    except (typeset.StyleDefaultsUnavailable, typeset.StyleInputInvalid) as e:
         return report(attempt_id, submit(lease, common.failed_envelope(lease, e.code, str(e), False, len(m["sections"]))))
     except AdoptionRejected as e:
         return report(attempt_id, submit(lease, common.failed_envelope(lease, e.code, str(e), e.retryable, len(m["sections"]))))
@@ -309,9 +314,15 @@ class FinalRenderHandler:
         return []
 
     def after_failure(self, db, att, code, retryable):
-        if retryable and att["retry_count"] < min(1, att["max_retry"]):
+        if retryable and att["retry_count"] < min(1, att["max_retry"]) and not execution.retry_blocked(att):
             return [execution.create_retry(db, att["id"], "auto")]
-        return []  # 실행은 running 으로 두어 JOB-06·FIN-01 재시도가 가능하다. 저장은 막힌다
+        if att["retry_count"] >= att["max_retry"]:
+            # 누적 한도 소진: 실행을 failed 로 닫는다. 이후 JOB-06·FIN-01 은 409, 새 실행으로 한도를 우회하지 못한다
+            execution.finish_run(db, att["parent_task_id"], "failed", att["error_code"], att["error_message"])
+        return []  # 한도가 남으면 retryable 과 무관하게 실행을 running 으로 두어 JOB-06·FIN-01 사용자 재시도가 가능하다. 저장은 막힌다
+
+    def retry_block_reason(self, att):
+        return common.renderer_mismatch(att["input_manifest"])
 
 
 def can_save(db: Session, job_id: int) -> bool:

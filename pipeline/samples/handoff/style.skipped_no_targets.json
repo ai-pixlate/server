@@ -383,11 +383,11 @@
       "logo_record_sha256": "131958a68ab5d4552902056ee4d98ee18e7693112491c9e86569d7ca59f9d7f1",
       "config": {
         "method": "otsu_border",
-        "em_ratio": 1.35,
+        "em_ratio": 0.9,
         "align_tolerance": 0.12
       }
     },
-    "input_manifest_sha256": "4271cb39f5e011eb8be0192341324358a52fea61dc5825e8223044943b54fe35",
+    "input_manifest_sha256": "025d85fce2ef18467ce4d13bb07147bec969ace86947f21bf8b56ab1d7893e35",
     "outcome": "skipped",
     "target_count": 0,
     "skip_reason": "no_targets",
@@ -408,7 +408,7 @@
         "color": "#RRGGBB sRGB",
         "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
       },
-      "style_result_sha256": "57b092c6bfe2709d6115030239de6f6559e8c5ef5b1a65ab443e1d78e8f018d8"
+      "style_result_sha256": "a89743bee6e265e70d01b348663f021e8ffe963844b49e86a229277076d4da96"
     },
     "artifacts": [],
     "source_refs": [],

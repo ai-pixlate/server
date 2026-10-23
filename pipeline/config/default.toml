@@ -105,3 +105,12 @@ glossary = "rag"               # 용어는 BE가 검색해 실행 입력으로 �
 prompt_path = "pipeline/prompts/translate.md"   # 초안 v1(실측 전). 확정은 #11 기술검증 후. 상대 경로는 레포 루트 기준
 temperature = 0                # 개발용 잠정값(③-1 · ④와 같은 계열)
 timeout_s = 60                 # 섹션 1회 호출 시간 제한(초). 개발용 잠정값 — 운영값 아님(BE 실행 정책에서 정한다)
+
+[translation_review]           # ⑧ 번역문 LLM 규제 판정 — 번역기와 독립된 호출 · 프롬프트(사용자 결정 2026-10-12). 아래 값은 모두 개발용 잠정값(운영 확정값 아님)
+model = "gemini-3.8-flash"     # 개발용. 모델 선택은 이 설정으로 바꾼다(번역 모델과 같을 필요 없음)
+prompt_path = "pipeline/prompts/translation_review.md"   # 초안 v1(실측 전). 상대 경로는 레포 루트 기준
+temperature = 0                # 개발용 잠정값
+timeout_s = 60                 # 분할 1회 호출 시간 제한(초). 개발용 — 운영 시간 · 재시도 한도는 BE 실행 정책
+max_input_chars = 60000        # 분할 1회 입력(프롬프트 원문 + 직렬화 페이로드)의 Unicode 코드 포인트 상한. 토큰 한도를 보장하지 않는다
+max_pairs_per_call = 120       # 분할 1회의 (대상 × 검사 항목) 쌍 상한. 개발용
+max_output_tokens = 16384      # 응답 출력 상한. 이 한도로 잘린 응답은 같은 설정 재시도 불가 실패(response_invalid · retryable=false)

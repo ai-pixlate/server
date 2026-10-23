@@ -20,7 +20,8 @@ from pipeline.handoff.canonical import sha256_canonical, sha256_file
 
 CONTRACT_VERSION = "handoff@2026-10-08.1"  # 이 봉투의 버전. AnalyzeResult 버전 1 · 개발용 결과 버전과 별개
 
-Stage = Literal["analyze", "judge", "label", "logo", "inpaint", "style", "translate", "text_check"]
+# translation_review(번역문 LLM 규제 판정, 2026-10-12)는 가산 추가 — 봉투 구조 · 기존 단계 의미는 그대로라 CONTRACT_VERSION을 유지한다
+Stage = Literal["analyze", "judge", "label", "logo", "inpaint", "style", "translate", "text_check", "translation_review"]
 Outcome = Literal["completed", "skipped", "failed"]
 # AI 인계용 실패 분류 — 운영 오류 코드가 아니다(BE가 매핑). retryable은 후보이며 실제 재시도는 BE의 누적 한도 · 정책으로 정한다
 FailureKind = Literal[

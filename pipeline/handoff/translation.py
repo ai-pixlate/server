@@ -11,6 +11,7 @@
 - 용어는 BE가 `pipeline.glossary` 규칙으로 이번 대상 블록에서 선별해 고정한 목록을 그대로 쓴다(AI는 다시 검색 · 거르지 않음, 통합 D10).
   용어 공급 실패는 빈 용어 목록과 다르다: 번역하지 않고 failed(input_invalid).
 번역문 검사(`run_text_check`): 블록별 현재 revision 문구의 영어 규제 재대조 · 강제 용어. 번역 계산과 별개 논리 작업이다(5.32).
+`text_check_manifest`는 실행 없이 입력 지문을 계산한다(BE 유효성 판단용). 번역문 LLM 규제 판정은 `handoff/review.py`의 독립 단계다.
 """
 from __future__ import annotations
 
@@ -258,6 +259,45 @@ def _failed_block(key: str, revision: int, by_key: dict[str, TextBlock], why: st
             "applied_instructions": [], "trans_1": None, "translation_sha256": None, "error": why}
 
 
+_TEXT_CHECK_IMPL = {"adapter": TRANSLATE_ADAPTER_VERSION, "match_rules": MATCH_RULES_VERSION, "term_rules": text_check.TERM_RULES_VERSION,
+                    "glossary_select": glossary_rules.SELECT_RULES_VERSION}
+
+
+def _text_check_inputs(req: TextCheckRequest) -> tuple[CheckedBundle, dict[str, TextBlock], list[TermIn], list[text_check.RegRow],
+                                                        dict[str, Any], str]:
+    """검사 입력 검증과 입력 지문. 묶음 오류는 BundleError, 그 밖의 입력 오류는 HandoffInputError(run_text_check와 같은 순서)."""
+    cb = check_bundle(req.bundle, target_country=req.target_country, types=load_type_map())
+    blocks = _blocks(req.blocks, req.section_key)
+    by_key = {b.block_key: b for b in blocks}
+    keys = [t.block_key for t in req.targets]
+    if len(set(keys)) != len(keys) or set(keys) - set(by_key):
+        raise HandoffInputError("검사 대상 블록 중복 또는 섹션에 없는 블록")
+    terms = _glossary(req.glossary)
+    applied = cb.applied_classes(req.regulatory_class)
+    rows = [text_check.RegRow(r.external_id, r.verdict_status, tuple(r.variant_en)) for r in cb.regulation.values()
+            if r.regulatory_class in applied]
+    manifest, msha = manifest_of({
+        "stage": "text_check", "contract_version": CONTRACT_VERSION, "adapter": TRANSLATE_ADAPTER_VERSION,
+        "rules": dict(_TEXT_CHECK_IMPL), "bundle": cb.identity, "regulatory_class": req.regulatory_class, "applied_classes": applied,
+        "section_key": req.section_key,
+        "targets": [{"block_key": t.block_key, "revision": t.revision, "text_sha256": sha256_text(t.text),
+                     "source_sha256": sha256_text(by_key[t.block_key].source_ko)} for t in req.targets],
+        "glossary": {"version": req.glossary.version, "terms": [t.model_dump() for t in terms]},
+    })
+    return cb, by_key, terms, rows, manifest, msha
+
+
+def text_check_manifest(raw: Any) -> tuple[dict[str, Any], str]:
+    """실행 없이 규칙 검사의 입력 지문을 계산한다. BE가 등록 때 고정하고 조회 때 현재 입력의 지문과 비교한다(유효성 판단).
+    요청 · 묶음이 잘못되면 ValueError. expected 지문은 대조하지 않는다."""
+    try:
+        req = TextCheckRequest.model_validate(raw)
+        _, _, _, _, manifest, msha = _text_check_inputs(req)
+    except (ValidationError, BundleError, HandoffInputError) as e:
+        raise ValueError(str(e)) from e
+    return manifest, msha
+
+
 def run_text_check(raw: Any, cfg: dict[str, Any] | None = None) -> StageReport:
     del cfg  # 규칙 기반 — 설정 없음
     try:
@@ -268,31 +308,12 @@ def run_text_check(raw: Any, cfg: dict[str, Any] | None = None) -> StageReport:
         req = TextCheckRequest.model_validate(raw)
     except ValidationError as e:
         return failed_report(ident, "input_invalid", f"요청 형식 오류: {e}")
-    impl = {"adapter": TRANSLATE_ADAPTER_VERSION, "match_rules": MATCH_RULES_VERSION, "term_rules": text_check.TERM_RULES_VERSION,
-            "glossary_select": glossary_rules.SELECT_RULES_VERSION}
+    impl = dict(_TEXT_CHECK_IMPL)
     try:
-        cb = check_bundle(req.bundle, target_country=req.target_country, types=load_type_map())
+        cb, by_key, terms, rows, manifest, msha = _text_check_inputs(req)
+        check_expected_manifest(ident, msha)
     except BundleError as e:
         return failed_report(ident, "bundle_invalid", str(e), implementation=impl)
-    try:
-        blocks = _blocks(req.blocks, req.section_key)
-        by_key = {b.block_key: b for b in blocks}
-        keys = [t.block_key for t in req.targets]
-        if len(set(keys)) != len(keys) or set(keys) - set(by_key):
-            raise HandoffInputError("검사 대상 블록 중복 또는 섹션에 없는 블록")
-        terms = _glossary(req.glossary)
-        applied = cb.applied_classes(req.regulatory_class)
-        rows = [text_check.RegRow(r.external_id, r.verdict_status, tuple(r.variant_en)) for r in cb.regulation.values()
-                if r.regulatory_class in applied]
-        manifest, msha = manifest_of({
-            "stage": "text_check", "contract_version": CONTRACT_VERSION, "adapter": TRANSLATE_ADAPTER_VERSION,
-            "rules": impl, "bundle": cb.identity, "regulatory_class": req.regulatory_class, "applied_classes": applied,
-            "section_key": req.section_key,
-            "targets": [{"block_key": t.block_key, "revision": t.revision, "text_sha256": sha256_text(t.text),
-                         "source_sha256": sha256_text(by_key[t.block_key].source_ko)} for t in req.targets],
-            "glossary": {"version": req.glossary.version, "terms": [t.model_dump() for t in terms]},
-        })
-        check_expected_manifest(ident, msha)
     except HandoffInputError as e:
         return failed_report(ident, e.kind, str(e), implementation=impl)
     if not req.targets:

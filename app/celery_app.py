@@ -39,6 +39,13 @@ RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://pixlate-redis:6379/
 # 값을 바꿀 때는 API·EC2 워커·GPU 워커가 같은 값을 쓰게 한다.
 VISIBILITY_TIMEOUT = int(os.getenv("CELERY_VISIBILITY_TIMEOUT", "3600"))
 
+# 브로커(kombu redis) 소켓 읽기 시간 제한(초). kombu 기본값은 제한 없음(None)이라, 연결이 응답 없이 끊기면
+# 재연결 정리 단계(Channel.close → BRPOP 응답 읽기)에서 워커가 무기한 멈출 수 있다(2026-10-22 학교 워커 정지,
+# 격리 재현으로 확인). 제한이 있으면 그 읽기가 예외로 끝나 기존 재연결·재시도 경로로 넘어간다.
+# BRPOP 은 1초마다 응답하므로 평소 대기에는 걸리지 않게 충분히 길게 둔다. 전체 복구 시간을 보장하는 값은 아니다.
+# 연결 제한·keepalive·결과 저장소 설정은 바꾸지 않는다. 값을 바꿀 때는 API·EC2 워커·GPU 워커가 같은 값을 쓰게 한다.
+BROKER_SOCKET_TIMEOUT = float(os.getenv("CELERY_BROKER_SOCKET_TIMEOUT", "30"))
+
 celery_app = Celery(
     "pixlate",
     broker=BROKER_URL,
@@ -76,5 +83,5 @@ celery_app.conf.update(
     task_reject_on_worker_lost=True,
     # acks_late 에서 미리 여러 건을 가져가 두면 워커가 죽을 때 그만큼 재처리가 늦어진다
     worker_prefetch_multiplier=1,
-    broker_transport_options={"visibility_timeout": VISIBILITY_TIMEOUT},
+    broker_transport_options={"visibility_timeout": VISIBILITY_TIMEOUT, "socket_timeout": BROKER_SOCKET_TIMEOUT},
 )

@@ -106,6 +106,27 @@ def test_send_failure_keeps_pending_then_recovers(env):
     assert _job(ids)["current_step"] == "N3"
 
 
+def test_judge_send_failure_after_adoption_keeps_pending_then_recovers(env):
+    # 분석 채택 안에서 보내는 판정 dispatch 가 실패해도(브로커 무응답 → 소켓 시간 제한 예외) 분석 결과·채택은 남고,
+    # 판정 시도는 pending 으로 남아 복구 프로세스가 같은 시도 id 로 다시 보낸다
+    ids, att = _start(env)
+    env["q"].fail_send = True
+    env["q"].drain()
+    assert _q("SELECT status FROM job_async_task WHERE id = :t", t=att)[0]["status"] == "done"
+    assert [h["state"] for h in _q("SELECT state FROM task_handoff WHERE task_id = :t", t=att)] == ["adopted"]
+    judges = _q("SELECT status, dispatch_count, last_dispatched_at FROM job_async_task WHERE job_id = :j AND stage = 'judge' ORDER BY id",
+                j=ids["job"])
+    assert judges and all(r == {"status": "pending", "dispatch_count": 0, "last_dispatched_at": None} for r in judges)
+    assert env["q"].messages == []  # 유실이 아니라 미전송
+    assert _job(ids)["current_step"] == "N2"
+    env["q"].fail_send = False
+    assert recovery.sweep()["redispatched"] == len(judges)
+    env["q"].drain()
+    assert _job(ids)["current_step"] == "N3"
+    assert [r["status"] for r in _q("SELECT status FROM job_async_task WHERE job_id = :j AND stage = 'judge'", j=ids["job"])] == ["done"] * len(judges)
+    assert [h["state"] for h in _q("SELECT state FROM task_handoff WHERE task_id = :t", t=att)] == ["adopted"]  # 분석 인계 중복 없음
+
+
 def test_lease_expiry_without_result_creates_recovery_attempt(env):
     ids, att = _start(env)
     env["q"].messages.clear()

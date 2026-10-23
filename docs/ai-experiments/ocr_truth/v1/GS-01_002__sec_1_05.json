@@ -1,0 +1,347 @@
+{
+  "truth_format": 1,
+  "id": "GS-01_002__sec_1_05",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_05",
+  "kind": "영문·숫자(SPF/PA) 표",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-01_002/sections/sec_1_05.png",
+    "sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+    "width": 1000,
+    "height": 966
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "인체적용시험으로 확인된",
+      "bbox": {
+        "x": 298,
+        "y": 166,
+        "w": 408,
+        "h": 41
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "자외선 차단 효과",
+      "bbox": {
+        "x": 222,
+        "y": 268,
+        "w": 559,
+        "h": 85
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "SPF 50+ PA++++",
+      "bbox": {
+        "x": 154,
+        "y": 385,
+        "w": 692,
+        "h": 70
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "SPF 자외선B 차단지수",
+      "bbox": {
+        "x": 103,
+        "y": 555,
+        "w": 337,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "PA 자외선A 차단지수",
+      "bbox": {
+        "x": 571,
+        "y": 554,
+        "w": 311,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "SPF 61.2 ± 6.9",
+      "bbox": {
+        "x": 153,
+        "y": 682,
+        "w": 238,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "PA++++ (17.0 ± 3.3)",
+      "bbox": {
+        "x": 573,
+        "y": 682,
+        "w": 307,
+        "h": 37
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "[자외선 A(PFA), B(SPF) 차단지수 인체적용시험]",
+      "bbox": {
+        "x": 318,
+        "y": 835,
+        "w": 364,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "한국피부과학연구원 | 10명 대상 | 2023.01.16~2023.02.10 | 개인차 있음",
+      "bbox": {
+        "x": 215,
+        "y": 865,
+        "w": 570,
+        "h": 22
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "인체적용시험으로 확인된",
+        "bbox": {
+          "x": 298,
+          "y": 166,
+          "w": 408,
+          "h": 41
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "자외선 차단 효과",
+        "bbox": {
+          "x": 222,
+          "y": 268,
+          "w": 559,
+          "h": 85
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "SPF 50+ PA++++",
+        "bbox": {
+          "x": 154,
+          "y": 385,
+          "w": 692,
+          "h": 70
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "SPF 자외선B 차단지수",
+        "bbox": {
+          "x": 103,
+          "y": 555,
+          "w": 337,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "PA 자외선A 차단지수",
+        "bbox": {
+          "x": 571,
+          "y": 554,
+          "w": 311,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "SPF 61.2 ± 6.9",
+        "bbox": {
+          "x": 153,
+          "y": 682,
+          "w": 238,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "PA++++ (17.0 ± 3.3)",
+        "bbox": {
+          "x": 573,
+          "y": 682,
+          "w": 307,
+          "h": 37
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "[자외선 A(PFA), B(SPF) 차단지수 인체적용시험]",
+        "bbox": {
+          "x": 318,
+          "y": 835,
+          "w": 364,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:40+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "한국피부과학연구원 | 10명 대상 | 2023.01.16~2023.02.10 | 개인차 있음",
+        "bbox": {
+          "x": 215,
+          "y": 865,
+          "w": 570,
+          "h": 22
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

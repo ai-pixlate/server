@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# /opt/pixlate/bin/pixlate-mode maintenance|validate|live|status — 모드 기록과 적용을 한 번에.
+# 모드 파일만 바꾸고 적용하지 않으면 재부팅 때 Docker restart 정책(이전 모드)과 어긋날 수 있으므로 반드시 이것으로 바꾼다.
+#
+# 출력: requested(요청한 모드) · applied(실제 적용 결과 — 정지가 덜 끝나면 <모드>-incomplete) · 대상 컨테이너 상태 ·
+#       큐·DB 재조회(state_check.py). requested 와 applied 가 다르면 완료가 아니다. 종료 코드는 적용 결과를 따른다.
+set -uo pipefail
+CONF_DIR=${CONF_DIR:-/etc/pixlate}
+SYSTEMCTL=${SYSTEMCTL:-systemctl}
+DOCKER=${DOCKER:-docker}
+BIN=${BIN:-/opt/pixlate/bin}
+TARGETS=(pixlate-api pixlate-recovery pixlate-worker-cpu pixlate-worker-ocr pixlate-worker-gpu)
+
+report() {
+  local req app
+  req=$(cat "$CONF_DIR/deploy.mode" 2>/dev/null || echo none)
+  app=$(cat "$CONF_DIR/deploy.mode.applied" 2>/dev/null || echo none)
+  echo "requested=$req applied=$app$([ "$req" = "$app" ] || echo ' (미완료)')"
+  for c in "${TARGETS[@]}"; do
+    s=$($DOCKER container inspect -f '{{.State.Status}} restart={{.HostConfig.RestartPolicy.Name}}' "$c" 2>/dev/null) && echo "  $c: $s"
+  done
+  # 큐·DB 재조회 — 배포 digest 이미지가 이 서버에 있을 때만(없으면 건너뛴다고 표시)
+  local dg img
+  dg=$(grep -E '^API_DIGEST=' "$CONF_DIR/release.conf" 2>/dev/null | cut -d= -f2- | tr -d ' \r')
+  img=$($DOCKER images --no-trunc --digests --format '{{.ID}} {{.Digest}}' 2>/dev/null | awk -v d="$dg" '$1==d || $2==d {print $1; exit}')
+  if [ -n "$dg" ] && [ -n "$img" ] && [ -r "$BIN/state_check.py" ]; then
+    $DOCKER run --rm --network pixlate-net --env-file "$CONF_DIR/pixlate.env" -v "$BIN:/opt/pixlate/bin:ro" "$img" \
+      python /opt/pixlate/bin/state_check.py 2>/dev/null | sed 's/^/  /' || echo "  state check failed"
+  else
+    echo "  state check skipped (배포 이미지 또는 state_check.py 없음)"
+  fi
+  [ "$req" = "$app" ]
+}
+
+case "${1:-}" in
+  maintenance|validate|live)
+    # 모드 파일 저장이 하나라도 실패하면 서비스를 재시작하지 않는다(이전 모드로 다시 기동되는 것을 막는다)
+    tmp=$(mktemp "$CONF_DIR/.deploy.mode.XXXXXX") || { echo "모드 파일 저장 실패(임시 파일) — 서비스를 재시작하지 않았다" >&2; exit 1; }
+    if ! { echo "$1" > "$tmp" && chmod 644 "$tmp" && mv -f "$tmp" "$CONF_DIR/deploy.mode"; } \
+       || [ "$(cat "$CONF_DIR/deploy.mode" 2>/dev/null)" != "$1" ]; then
+      rm -f "$tmp"
+      echo "모드 파일 저장 실패 — 서비스를 재시작하지 않았다(현재 모드 파일: $(cat "$CONF_DIR/deploy.mode" 2>/dev/null || echo none))" >&2
+      exit 1
+    fi
+    $SYSTEMCTL restart pixlate.service; rc=$?
+    [ "$rc" -eq 0 ] || echo "적용 실패(pixlate.service 종료 코드 $rc) — applied 값은 최신이 아닐 수 있다. journalctl -u pixlate 로 원인 확인" >&2
+    report; rr=$?
+    [ "$rc" -eq 0 ] && [ "$rr" -eq 0 ]
+    ;;
+  status)
+    report
+    ;;
+  *) echo "usage: $0 maintenance|validate|live|status" >&2; exit 2 ;;
+esac

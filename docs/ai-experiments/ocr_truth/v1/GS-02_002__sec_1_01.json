@@ -1,0 +1,1299 @@
+{
+  "truth_format": 1,
+  "id": "GS-02_002__sec_1_01",
+  "sample": "GS-02_002",
+  "section_key": "sec_1_01",
+  "kind": "로고·제품 라벨",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-02_002/sections/sec_1_01.png",
+    "sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+    "width": 1000,
+    "height": 2117
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "celimax × OLIVE YOUNG",
+      "bbox": {
+        "x": 276,
+        "y": 91,
+        "w": 471,
+        "h": 38
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "레티날 부스터",
+      "bbox": {
+        "x": 281,
+        "y": 218,
+        "w": 441,
+        "h": 83
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "올리브영 단독 증정 기획",
+      "bbox": {
+        "x": 122,
+        "y": 320,
+        "w": 751,
+        "h": 95
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "FOR",
+      "bbox": {
+        "x": 684,
+        "y": 608,
+        "w": 45,
+        "h": 46
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "313, 638, 404, 807",
+      "bbox": {
+        "x": 638,
+        "y": 663,
+        "w": 169,
+        "h": 192
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "304, 595, 396, 780",
+      "bbox": {
+        "x": 595,
+        "y": 644,
+        "w": 185,
+        "h": 194
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "판매랭킹",
+      "bbox": {
+        "x": 755,
+        "y": 735,
+        "w": 113,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "TOP.1",
+      "bbox": {
+        "x": 755,
+        "y": 690,
+        "w": 181,
+        "h": 136
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "FIRM SKIN",
+      "bbox": {
+        "x": 551,
+        "y": 707,
+        "w": 87,
+        "h": 100
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "20,250 A-Shot TM",
+      "bbox": {
+        "x": 529,
+        "y": 682,
+        "w": 75,
+        "h": 93
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "Retinal",
+      "bbox": {
+        "x": 807,
+        "y": 845,
+        "w": 59,
+        "h": 17
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "모공",
+      "bbox": {
+        "x": 781,
+        "y": 946,
+        "w": 112,
+        "h": 64
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "탄력",
+      "bbox": {
+        "x": 782,
+        "y": 1012,
+        "w": 110,
+        "h": 63
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "Retinal 0.1% Panthenol 1%",
+      "bbox": {
+        "x": 313,
+        "y": 1023,
+        "w": 163,
+        "h": 194
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "MATRIXYL 3000 3%",
+      "bbox": {
+        "x": 292,
+        "y": 1042,
+        "w": 137,
+        "h": 156
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "celimax",
+      "bbox": {
+        "x": 214,
+        "y": 1008,
+        "w": 109,
+        "h": 129
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "FOR",
+      "bbox": {
+        "x": 363,
+        "y": 1486,
+        "w": 9,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "RETINAL SHOT",
+      "bbox": {
+        "x": 395,
+        "y": 1486,
+        "w": 14,
+        "h": 91
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "TIGHTENING BOOSTER",
+      "bbox": {
+        "x": 383,
+        "y": 1486,
+        "w": 10,
+        "h": 87
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "FIRM SKIN",
+      "bbox": {
+        "x": 363,
+        "y": 1535,
+        "w": 8,
+        "h": 49
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "20,250 A-Shot TM",
+      "bbox": {
+        "x": 350,
+        "y": 1524,
+        "w": 5,
+        "h": 55
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "Retinal 0.1% Panthenol 1%",
+      "bbox": {
+        "x": 394,
+        "y": 1666,
+        "w": 6,
+        "h": 81
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "MATRIXYL 3000 3%",
+      "bbox": {
+        "x": 385,
+        "y": 1681,
+        "w": 6,
+        "h": 66
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "+",
+      "bbox": {
+        "x": 478,
+        "y": 1666,
+        "w": 35,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "FOR",
+      "bbox": {
+        "x": 613,
+        "y": 1639,
+        "w": 6,
+        "h": 10
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "RETINAL SHOT",
+      "bbox": {
+        "x": 638,
+        "y": 1636,
+        "w": 9,
+        "h": 64
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "TIGHTENING BOOSTER",
+      "bbox": {
+        "x": 630,
+        "y": 1639,
+        "w": 7,
+        "h": 59
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "Retinal 0.1% Panthenol 1%",
+      "bbox": {
+        "x": 639,
+        "y": 1708,
+        "w": 5,
+        "h": 58
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "MATRIXYL 3000 3%",
+      "bbox": {
+        "x": 631,
+        "y": 1717,
+        "w": 5,
+        "h": 46
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "celimax",
+      "bbox": {
+        "x": 347,
+        "y": 1696,
+        "w": 13,
+        "h": 55
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "FIRM SKIN",
+      "bbox": {
+        "x": 613,
+        "y": 1672,
+        "w": 6,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "20,250 A-Shot TM",
+      "bbox": {
+        "x": 604,
+        "y": 1662,
+        "w": 4,
+        "h": 42
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L033",
+      "text": "celimax",
+      "bbox": {
+        "x": 599,
+        "y": 1719,
+        "w": 10,
+        "h": 47
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L034",
+      "text": "구성",
+      "bbox": {
+        "x": 195,
+        "y": 1914,
+        "w": 48,
+        "h": 27
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L035",
+      "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml",
+      "bbox": {
+        "x": 290,
+        "y": 1912,
+        "w": 540,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L036",
+      "text": "증정",
+      "bbox": {
+        "x": 195,
+        "y": 1977,
+        "w": 48,
+        "h": 28
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L037",
+      "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml",
+      "bbox": {
+        "x": 290,
+        "y": 1975,
+        "w": 526,
+        "h": 34
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "celimax × OLIVE YOUNG",
+        "bbox": {
+          "x": 276,
+          "y": 91,
+          "w": 471,
+          "h": 38
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "레티날 부스터",
+        "bbox": {
+          "x": 281,
+          "y": 218,
+          "w": 441,
+          "h": 83
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "올리브영 단독 증정 기획",
+        "bbox": {
+          "x": 122,
+          "y": 320,
+          "w": 751,
+          "h": 95
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "FOR",
+        "bbox": {
+          "x": 684,
+          "y": 608,
+          "w": 45,
+          "h": 46
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "313, 638, 404, 807",
+        "bbox": {
+          "x": 638,
+          "y": 663,
+          "w": 169,
+          "h": 192
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "304, 595, 396, 780",
+        "bbox": {
+          "x": 595,
+          "y": 644,
+          "w": 185,
+          "h": 194
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "판매랭킹",
+        "bbox": {
+          "x": 755,
+          "y": 735,
+          "w": 113,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "TOP.1",
+        "bbox": {
+          "x": 755,
+          "y": 690,
+          "w": 181,
+          "h": 136
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "FIRM SKIN",
+        "bbox": {
+          "x": 551,
+          "y": 707,
+          "w": 87,
+          "h": 100
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "20,250 A-Shot TM",
+        "bbox": {
+          "x": 529,
+          "y": 682,
+          "w": 75,
+          "h": 93
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "Retinal",
+        "bbox": {
+          "x": 807,
+          "y": 845,
+          "w": 59,
+          "h": 17
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "모공",
+        "bbox": {
+          "x": 781,
+          "y": 946,
+          "w": 112,
+          "h": 64
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "탄력",
+        "bbox": {
+          "x": 782,
+          "y": 1012,
+          "w": 110,
+          "h": 63
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "Retinal 0.1% Panthenol 1%",
+        "bbox": {
+          "x": 313,
+          "y": 1023,
+          "w": 163,
+          "h": 194
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "MATRIXYL 3000 3%",
+        "bbox": {
+          "x": 292,
+          "y": 1042,
+          "w": 137,
+          "h": 156
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "celimax",
+        "bbox": {
+          "x": 214,
+          "y": 1008,
+          "w": 109,
+          "h": 129
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "FOR",
+        "bbox": {
+          "x": 363,
+          "y": 1486,
+          "w": 9,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "RETINAL SHOT",
+        "bbox": {
+          "x": 395,
+          "y": 1486,
+          "w": 14,
+          "h": 91
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "TIGHTENING BOOSTER",
+        "bbox": {
+          "x": 383,
+          "y": 1486,
+          "w": 10,
+          "h": 87
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "FIRM SKIN",
+        "bbox": {
+          "x": 363,
+          "y": 1535,
+          "w": 8,
+          "h": 49
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "20,250 A-Shot TM",
+        "bbox": {
+          "x": 350,
+          "y": 1524,
+          "w": 5,
+          "h": 55
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "Retinal 0.1% Panthenol 1%",
+        "bbox": {
+          "x": 394,
+          "y": 1666,
+          "w": 6,
+          "h": 81
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "MATRIXYL 3000 3%",
+        "bbox": {
+          "x": 385,
+          "y": 1681,
+          "w": 6,
+          "h": 66
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "+",
+        "bbox": {
+          "x": 478,
+          "y": 1666,
+          "w": 35,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "FOR",
+        "bbox": {
+          "x": 613,
+          "y": 1639,
+          "w": 6,
+          "h": 10
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "RETINAL SHOT",
+        "bbox": {
+          "x": 638,
+          "y": 1636,
+          "w": 9,
+          "h": 64
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "TIGHTENING BOOSTER",
+        "bbox": {
+          "x": 630,
+          "y": 1639,
+          "w": 7,
+          "h": 59
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "Retinal 0.1% Panthenol 1%",
+        "bbox": {
+          "x": 639,
+          "y": 1708,
+          "w": 5,
+          "h": 58
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "MATRIXYL 3000 3%",
+        "bbox": {
+          "x": 631,
+          "y": 1717,
+          "w": 5,
+          "h": 46
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "celimax",
+        "bbox": {
+          "x": 347,
+          "y": 1696,
+          "w": 13,
+          "h": 55
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "FIRM SKIN",
+        "bbox": {
+          "x": 613,
+          "y": 1672,
+          "w": 6,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "20,250 A-Shot TM",
+        "bbox": {
+          "x": 604,
+          "y": 1662,
+          "w": 4,
+          "h": 42
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L033",
+      "after": {
+        "line_id": "L033",
+        "text": "celimax",
+        "bbox": {
+          "x": 599,
+          "y": 1719,
+          "w": 10,
+          "h": 47
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L034",
+      "after": {
+        "line_id": "L034",
+        "text": "구성",
+        "bbox": {
+          "x": 195,
+          "y": 1914,
+          "w": 48,
+          "h": 27
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L035",
+      "after": {
+        "line_id": "L035",
+        "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml",
+        "bbox": {
+          "x": 290,
+          "y": 1912,
+          "w": 540,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L036",
+      "after": {
+        "line_id": "L036",
+        "text": "증정",
+        "bbox": {
+          "x": 195,
+          "y": 1977,
+          "w": 48,
+          "h": 28
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:48+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L037",
+      "after": {
+        "line_id": "L037",
+        "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml",
+        "bbox": {
+          "x": 290,
+          "y": 1975,
+          "w": 526,
+          "h": 34
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

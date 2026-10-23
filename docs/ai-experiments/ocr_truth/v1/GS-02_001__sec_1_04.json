@@ -1,0 +1,1333 @@
+{
+  "truth_format": 1,
+  "id": "GS-02_001__sec_1_04",
+  "sample": "GS-02_001",
+  "section_key": "sec_1_04",
+  "kind": "어두운 배경 유의사항",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-02_001/sections/sec_1_04.png",
+    "sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+    "width": 830,
+    "height": 1628
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "꼭 읽어주세요",
+      "bbox": {
+        "x": 61,
+        "y": 124,
+        "w": 142,
+        "h": 26
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "지급 대상",
+      "bbox": {
+        "x": 61,
+        "y": 265,
+        "w": 75,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "• 2026년 8월 30일(일)부터 9월 5일(토)까지 대상 제품을 구매한 고객에 한 해 지급됩니다.",
+      "bbox": {
+        "x": 64,
+        "y": 300,
+        "w": 709,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "• 개인정보 수집 및 유의사항에 동의하지 않은 경우 기프트카드 발송이 제한됩니다.",
+      "bbox": {
+        "x": 63,
+        "y": 330,
+        "w": 636,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "참여 횟수",
+      "bbox": {
+        "x": 61,
+        "y": 374,
+        "w": 75,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "• 행사 기간 내 휴대전화 번호 당 1회만 참여할 수 있습니다.",
+      "bbox": {
+        "x": 64,
+        "y": 409,
+        "w": 451,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "• 대상 제품을 2개 이상 구매하더라도 기프트카드는 1회만 지급됩니다.",
+      "bbox": {
+        "x": 63,
+        "y": 438,
+        "w": 542,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "지급 대상에서 제외되는 경우",
+      "bbox": {
+        "x": 61,
+        "y": 480,
+        "w": 223,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "• 실제 구매자가 아니거나 도용 등 부정 참여가 확인된 경우, 별도 안내 없이 지급 대상에서",
+      "bbox": {
+        "x": 64,
+        "y": 514,
+        "w": 688,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "제외됩니다.",
+      "bbox": {
+        "x": 76,
+        "y": 545,
+        "w": 92,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "• 환불·교환 또는 참여 조건 미충족 시 사전 안내 없이 지급 대상에서 제외될 수 있습니다.",
+      "bbox": {
+        "x": 63,
+        "y": 576,
+        "w": 677,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "언제 어디로 발송되나요?",
+      "bbox": {
+        "x": 61,
+        "y": 620,
+        "w": 195,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "• 9월 1일(화) / 4일(금) / 11일(금) 오후 5시 이후 네이버 폼에 기입하신 전화번호로",
+      "bbox": {
+        "x": 64,
+        "y": 656,
+        "w": 638,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "일괄 발송됩니다.",
+      "bbox": {
+        "x": 76,
+        "y": 687,
+        "w": 131,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "• 휴대폰 번호를 잘못 입력하신 경우에는 정상 발송되지 않으며, 번호 변경은 불가하므로",
+      "bbox": {
+        "x": 64,
+        "y": 716,
+        "w": 676,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "반드시 확인 부탁드립니다.",
+      "bbox": {
+        "x": 76,
+        "y": 747,
+        "w": 205,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "• 기프트카드는 카카오 알림톡 또는 문자로 발송됩니다.",
+      "bbox": {
+        "x": 63,
+        "y": 777,
+        "w": 425,
+        "h": 17
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "알림톡이 보이지 않는 경우, 문자 수신함과 스팸함을 함께 확인해 주세요.",
+      "bbox": {
+        "x": 76,
+        "y": 806,
+        "w": 558,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "• 기프트카드는 발송 일로부터 30일 동안 사용 가능하며, 해당 기간 동안 해외 체류하는 경우",
+      "bbox": {
+        "x": 64,
+        "y": 835,
+        "w": 714,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "수신 및 사용이 불가합니다.",
+      "bbox": {
+        "x": 76,
+        "y": 866,
+        "w": 210,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "기프트카드가 안 왔어요!",
+      "bbox": {
+        "x": 61,
+        "y": 908,
+        "w": 189,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "1. 카카오톡에서 '셀리맥스' 검색 → 받은 상품권 확인",
+      "bbox": {
+        "x": 61,
+        "y": 943,
+        "w": 404,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "2. 카카오톡에서 확인이 안 된다면 문자 수신함과 스팸함 확인",
+      "bbox": {
+        "x": 61,
+        "y": 974,
+        "w": 473,
+        "h": 17
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "3. 카카오톡, 문자 둘 다 확인이 안 된다면",
+      "bbox": {
+        "x": 85,
+        "y": 1003,
+        "w": 454,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "* 기프티쇼 고객 센터에서 휴대폰 번호로 인증 후 조회 가능",
+      "bbox": {
+        "x": 85,
+        "y": 1034,
+        "w": 452,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "기프티쇼 확인하러 가기 ▶ https://mobilecs.giftishow.co.kr/user/login",
+      "bbox": {
+        "x": 98,
+        "y": 1065,
+        "w": 578,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "재발송 요청 기한",
+      "bbox": {
+        "x": 61,
+        "y": 1107,
+        "w": 132,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "• 기프트카드 재발송 요청 기한은 2026년 9월 15일(화) 자정까지입니다.",
+      "bbox": {
+        "x": 63,
+        "y": 1141,
+        "w": 563,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "• 그 이후 요청 건은 재발송이 어려우니, 미수령 기한 내 꼭 문의해 주세요.",
+      "bbox": {
+        "x": 63,
+        "y": 1172,
+        "w": 563,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "구매 인증 폼 작성 전 확인해 주세요",
+      "bbox": {
+        "x": 61,
+        "y": 1218,
+        "w": 271,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "• 구매 인증 폼 오작성으로 기프트카드가 발송되지 않은 경우 별도 안내가 진행되지 않으며,",
+      "bbox": {
+        "x": 63,
+        "y": 1252,
+        "w": 697,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "당사에서 책임지지 않습니다.",
+      "bbox": {
+        "x": 76,
+        "y": 1283,
+        "w": 223,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L033",
+      "text": "폼 제출 후에는 작성 내용을 수정할 수 없습니다.",
+      "bbox": {
+        "x": 76,
+        "y": 1312,
+        "w": 369,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L034",
+      "text": "• 제출 전 작성 내용과 첨부 사진에 오류가 없는지 반드시 확인해 주세요.",
+      "bbox": {
+        "x": 63,
+        "y": 1343,
+        "w": 553,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L035",
+      "text": "문의 및 기타 안내",
+      "bbox": {
+        "x": 61,
+        "y": 1387,
+        "w": 136,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L036",
+      "text": "• 본 이벤트는 셀리맥스 자체 이벤트입니다.",
+      "bbox": {
+        "x": 63,
+        "y": 1423,
+        "w": 333,
+        "h": 19
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L037",
+      "text": "• 문의사항은 셀리맥스 고객센터를 통해 접수해 주세요.",
+      "bbox": {
+        "x": 63,
+        "y": 1452,
+        "w": 425,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L038",
+      "text": "• 본 이벤트는 운영 상황에 따라 행사 기간 중이라도 별도의 공지 없이 종료될 수 있습니다.",
+      "bbox": {
+        "x": 64,
+        "y": 1483,
+        "w": 689,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "꼭 읽어주세요",
+        "bbox": {
+          "x": 61,
+          "y": 124,
+          "w": 142,
+          "h": 26
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "지급 대상",
+        "bbox": {
+          "x": 61,
+          "y": 265,
+          "w": 75,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "• 2026년 8월 30일(일)부터 9월 5일(토)까지 대상 제품을 구매한 고객에 한 해 지급됩니다.",
+        "bbox": {
+          "x": 64,
+          "y": 300,
+          "w": 709,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "• 개인정보 수집 및 유의사항에 동의하지 않은 경우 기프트카드 발송이 제한됩니다.",
+        "bbox": {
+          "x": 63,
+          "y": 330,
+          "w": 636,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "참여 횟수",
+        "bbox": {
+          "x": 61,
+          "y": 374,
+          "w": 75,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "• 행사 기간 내 휴대전화 번호 당 1회만 참여할 수 있습니다.",
+        "bbox": {
+          "x": 64,
+          "y": 409,
+          "w": 451,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "• 대상 제품을 2개 이상 구매하더라도 기프트카드는 1회만 지급됩니다.",
+        "bbox": {
+          "x": 63,
+          "y": 438,
+          "w": 542,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "지급 대상에서 제외되는 경우",
+        "bbox": {
+          "x": 61,
+          "y": 480,
+          "w": 223,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "• 실제 구매자가 아니거나 도용 등 부정 참여가 확인된 경우, 별도 안내 없이 지급 대상에서",
+        "bbox": {
+          "x": 64,
+          "y": 514,
+          "w": 688,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "제외됩니다.",
+        "bbox": {
+          "x": 76,
+          "y": 545,
+          "w": 92,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "• 환불·교환 또는 참여 조건 미충족 시 사전 안내 없이 지급 대상에서 제외될 수 있습니다.",
+        "bbox": {
+          "x": 63,
+          "y": 576,
+          "w": 677,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "언제 어디로 발송되나요?",
+        "bbox": {
+          "x": 61,
+          "y": 620,
+          "w": 195,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "• 9월 1일(화) / 4일(금) / 11일(금) 오후 5시 이후 네이버 폼에 기입하신 전화번호로",
+        "bbox": {
+          "x": 64,
+          "y": 656,
+          "w": 638,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "일괄 발송됩니다.",
+        "bbox": {
+          "x": 76,
+          "y": 687,
+          "w": 131,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "• 휴대폰 번호를 잘못 입력하신 경우에는 정상 발송되지 않으며, 번호 변경은 불가하므로",
+        "bbox": {
+          "x": 64,
+          "y": 716,
+          "w": 676,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "반드시 확인 부탁드립니다.",
+        "bbox": {
+          "x": 76,
+          "y": 747,
+          "w": 205,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "• 기프트카드는 카카오 알림톡 또는 문자로 발송됩니다.",
+        "bbox": {
+          "x": 63,
+          "y": 777,
+          "w": 425,
+          "h": 17
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "알림톡이 보이지 않는 경우, 문자 수신함과 스팸함을 함께 확인해 주세요.",
+        "bbox": {
+          "x": 76,
+          "y": 806,
+          "w": 558,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "• 기프트카드는 발송 일로부터 30일 동안 사용 가능하며, 해당 기간 동안 해외 체류하는 경우",
+        "bbox": {
+          "x": 64,
+          "y": 835,
+          "w": 714,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "수신 및 사용이 불가합니다.",
+        "bbox": {
+          "x": 76,
+          "y": 866,
+          "w": 210,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "기프트카드가 안 왔어요!",
+        "bbox": {
+          "x": 61,
+          "y": 908,
+          "w": 189,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "1. 카카오톡에서 '셀리맥스' 검색 → 받은 상품권 확인",
+        "bbox": {
+          "x": 61,
+          "y": 943,
+          "w": 404,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "2. 카카오톡에서 확인이 안 된다면 문자 수신함과 스팸함 확인",
+        "bbox": {
+          "x": 61,
+          "y": 974,
+          "w": 473,
+          "h": 17
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "3. 카카오톡, 문자 둘 다 확인이 안 된다면",
+        "bbox": {
+          "x": 85,
+          "y": 1003,
+          "w": 454,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "* 기프티쇼 고객 센터에서 휴대폰 번호로 인증 후 조회 가능",
+        "bbox": {
+          "x": 85,
+          "y": 1034,
+          "w": 452,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "기프티쇼 확인하러 가기 ▶ https://mobilecs.giftishow.co.kr/user/login",
+        "bbox": {
+          "x": 98,
+          "y": 1065,
+          "w": 578,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "재발송 요청 기한",
+        "bbox": {
+          "x": 61,
+          "y": 1107,
+          "w": 132,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "• 기프트카드 재발송 요청 기한은 2026년 9월 15일(화) 자정까지입니다.",
+        "bbox": {
+          "x": 63,
+          "y": 1141,
+          "w": 563,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "• 그 이후 요청 건은 재발송이 어려우니, 미수령 기한 내 꼭 문의해 주세요.",
+        "bbox": {
+          "x": 63,
+          "y": 1172,
+          "w": 563,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "구매 인증 폼 작성 전 확인해 주세요",
+        "bbox": {
+          "x": 61,
+          "y": 1218,
+          "w": 271,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "• 구매 인증 폼 오작성으로 기프트카드가 발송되지 않은 경우 별도 안내가 진행되지 않으며,",
+        "bbox": {
+          "x": 63,
+          "y": 1252,
+          "w": 697,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "당사에서 책임지지 않습니다.",
+        "bbox": {
+          "x": 76,
+          "y": 1283,
+          "w": 223,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L033",
+      "after": {
+        "line_id": "L033",
+        "text": "폼 제출 후에는 작성 내용을 수정할 수 없습니다.",
+        "bbox": {
+          "x": 76,
+          "y": 1312,
+          "w": 369,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L034",
+      "after": {
+        "line_id": "L034",
+        "text": "• 제출 전 작성 내용과 첨부 사진에 오류가 없는지 반드시 확인해 주세요.",
+        "bbox": {
+          "x": 63,
+          "y": 1343,
+          "w": 553,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L035",
+      "after": {
+        "line_id": "L035",
+        "text": "문의 및 기타 안내",
+        "bbox": {
+          "x": 61,
+          "y": 1387,
+          "w": 136,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L036",
+      "after": {
+        "line_id": "L036",
+        "text": "• 본 이벤트는 셀리맥스 자체 이벤트입니다.",
+        "bbox": {
+          "x": 63,
+          "y": 1423,
+          "w": 333,
+          "h": 19
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L037",
+      "after": {
+        "line_id": "L037",
+        "text": "• 문의사항은 셀리맥스 고객센터를 통해 접수해 주세요.",
+        "bbox": {
+          "x": 63,
+          "y": 1452,
+          "w": 425,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:00:41+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L038",
+      "after": {
+        "line_id": "L038",
+        "text": "• 본 이벤트는 운영 상황에 따라 행사 기간 중이라도 별도의 공지 없이 종료될 수 있습니다.",
+        "bbox": {
+          "x": 64,
+          "y": 1483,
+          "w": 689,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

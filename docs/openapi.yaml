@@ -1,0 +1,2339 @@
+openapi: 3.1.0
+info:
+  title: Pixate Backend API
+  version: 3.4.2
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+  summary: AI 상세페이지 로컬라이제이션 서비스 백엔드 API
+  description: |
+    Pixate 백엔드 API 명세. 근거: `API설계_Inventory_데이터흐름_v3.4.2`(정본) ·
+    `오케스트레이션 v0.3` · `CHECK_enum_허용값_v3.4.1` · `ERD_PIX_ateV5.sql` · `FK감사_V5대조_v3.4.2`.
+
+    ## 릴리스 스코프 (태그·설명에 표기)
+    - 🟢 9월 (MVP must) · 🟡 9월(should) · 🔵 12월 · 📌 조건부(PM 확정 대기)
+    - 12월·조건부 오퍼레이션은 스펙에 **포함**하되 상세 계약이 미확정이라 최소 스키마 + `TODO` 주석으로 둔다.
+
+    ## 화면(Screen) ↔ API 매핑 (MVP=Must)
+    각 오퍼레이션에 `x-screen` 확장으로 대응 PRD 화면을 표기했다. Must 화면 전부 API로 커버됨.
+    - **G1** 로그인·회원가입 → AUTH-01~05
+    - **S0** 프로세스 바(전역) → JOB-03·04·05·07 (상태·취소·중단 · 전역 바라 전용 화면 API 없음)
+    - **N1** 입력 → SRC-01~04 · JOB-02 · MST-01~07 · AUTH-05
+    - **N2** 분석 → ANL-01 · JOB-05
+    - **N3** 섹션확인 → SEC-01~04 · INP-01
+    - **N4** 번역 → SEC-04(트리거) · JOB-05 · INP-01
+    - **N5** 검수 → CFM-01~04 · SEC-03
+    - **N6** 저장 → FIN-01~07
+    - **M1** 보관함 → LIB-01
+    - **M2** 브랜드 정보 → BRD-01~07
+    - 🔵12월 화면(MVP=X): M0 브랜드관리 · M3 작업관리(JOB-01) · O1~O5 운영콘솔(ADM-01~07) → 스텁
+
+    ## 공통 규칙
+    - **Base-path**: 경로는 접두어 없는 상대경로(`/auth/login`). 버전·호스트는 `servers`에서만 선언(`/v1`).
+    - **인증**: `bearerAuth`(JWT access) 전역 적용. refresh 토큰은 httpOnly 쿠키로만 오간다(요청 바디 금지).
+      `/auth/refresh`·`/auth/logout`은 쿠키 기반(+ CSRF 헤더 `X-Requested-With`). `/admin/**`은 역할 권한(403).
+    - **소유 검증**: 남의 `/jobs/{jobId}/**`·`/brands/{brandId}/**` 접근은 존재 은닉 위해 **404 NOT_FOUND**.
+    - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
+    - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
+    - **멱등·동시성**: `POST /jobs`는 `Idempotency-Key` 헤더 · `PATCH /jobs/{jobId}/blocks/{blockId}`는 `revision` 낙관적 잠금(409 REVISION_CONFLICT).
+    - **비동기**: `/analyze`·`/sections/proceed`·`/render`·`PATCH /blocks` 등은 202 + taskId를 반환하고, 진행은 `GET /jobs/{jobId}/tasks` 폴링(2초).
+    - **파생 필드**: `verdictType`·`displayTop`·`scale`·`signals[]`·`uiStatus`·`stages[]` 등은 응답에만 포함(서버 계산·미저장).
+  contact:
+    name: Pixate Backend
+servers:
+  - url: https://api.pixate.example.com/v1
+    description: '운영 게이트웨이 (base-path·버전은 여기서만 선언)'
+
+tags:
+  - name: G1 Auth
+    description: 'G1 로그인·회원가입 — 계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜은 🔵12월)'
+  - name: M2 Brand
+    description: 'M2 브랜드 정보 — 브랜드·로고 (F-BRD) · 🟢9월'
+  - name: N1 Source
+    description: 'N1 입력 — 원본 이미지 업로드·순서 (F-SRC-01) · 🟢9월'
+  - name: N2 Analysis
+    description: 'N2 분석 — 비동기 트리거(OCR·섹션분해·판정) (F-SEC-01) · 🟢9월'
+  - name: N3 Section Review
+    description: 'N3 섹션 확인 — 섹션 버킷·판정 배지·되살리기 (F-SEC) · 🟢9월'
+  - name: N4 Translate
+    description: 'N4 번역 — 인페인팅·번역 결과 조회 (F-INP) · 🟢9월 (INP-02 🔵12월)'
+  - name: N5 Review
+    description: 'N5 검수 — 블록 대조·셀 수정·검수 프리뷰·확정 (F-CFM) · 🟢9월'
+  - name: N6 Save & Export
+    description: 'N6 저장 — 렌더·산출물·규격검증·묶음·저장 (F-FIN·F-EXP·F-CH) · 🟢9월 (FIN-07 🟡should)'
+  - name: M1 Library
+    description: 'M1 보관함 — 보관함 카드 (F-LST) · 🟢9월 (LIB-02/03 🔵12월)'
+  - name: S0 Job
+    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · PATCH /jobs draft-first 확정 · JOB-08 resume 📌조건부)'
+  - name: Master
+    description: '마스터 데이터 읽기 전용 시드 (F-LNG·F-CH·F-SRC) · 🟢9월 (전용 화면 O3는 🔵12월)'
+  - name: Admin
+    description: '운영 콘솔 O1~O5 (A-*) · 🔵12월 · 역할 권한 필요(403)'
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT access 토큰. FE는 access를 메모리 보관, 요청은 `credentials: include`.'
+
+  parameters:
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      description: '작업 ID (미소유 시 404 NOT_FOUND)'
+      schema: { type: integer, format: int64 }
+    BrandId:
+      name: brandId
+      in: path
+      required: true
+      description: '브랜드 ID (미소유 시 404 NOT_FOUND)'
+      schema: { type: integer, format: int64 }
+    SectionId:
+      name: sectionId
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+    BlockId:
+      name: blockId
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+
+  responses:
+    BadRequest:
+      description: '400 잘못된 요청 (VALIDATION_ERROR 등)'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: '401 인증 실패·만료'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: '403 권한 없음 (역할 · /admin)'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: '404 없음 / 미소유(존재 은닉)'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: '409 상태 충돌 (INVALID_STATE · REVISION_CONFLICT · ALL_SECTIONS_EXCLUDED · RETRY_NOT_ALLOWED)'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  examples:
+    # ===== JOB-05 N2 세부 진행 (가상 값 · 운영 응답 캡처 아님) =====
+    JobTasksN2Queued:
+      summary: '(가상 값) N2 분석 대기'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: pending }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: pending, uiStatus: waiting, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: waiting
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: null
+          judge: null
+    JobTasksN2Split:
+      summary: '(가상 값) N2 두 번째 원본 영역 분해 중'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: running
+          sourceTotal: 2
+          activity: split
+          current: { sourceIndex: 2, sourceImageId: 702, regionIndex: null, regionCountInSource: null }
+          regions: { done: 3, known: 3, totalFixed: false }
+          judge: null
+    JobTasksN2RegionOcr:
+      summary: '(가상 값) N2 첫 원본 두 번째 영역 OCR 중'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: running
+          sourceTotal: 2
+          activity: ocr
+          current: { sourceIndex: 1, sourceImageId: 701, regionIndex: 2, regionCountInSource: 3 }
+          regions: { done: 1, known: 3, totalFixed: false }
+          judge: null
+    JobTasksN2Merge:
+      summary: '(가상 값) N2 두 번째 원본 첫 영역 병합·역할 분류 중'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: running
+          sourceTotal: 2
+          activity: merge
+          current: { sourceIndex: 2, sourceImageId: 702, regionIndex: 1, regionCountInSource: 2 }
+          regions: { done: 3, known: 5, totalFixed: true }
+          judge: null
+    JobTasksN2Judge:
+      summary: '(가상 값) N2 영역별 판정 중 (현지 판정 실패 1건 제외)'
+      description: 'failedCount=1 · stages.section=failed 지만 정상 진행 중이다(excluded=1). 남은 판정이 끝나면 N3 로 넘어간다.'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0.5
+        total: 6
+        done: 3
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: done }
+          - { key: section, label: section, status: failed }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9002, taskType: section, unitType: section, unitId: 8101, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9003, taskType: section, unitType: section, unitId: 8102, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9004, taskType: section, unitType: section, unitId: 8103, status: failed, uiStatus: failed, retryCount: 0, maxRetry: 2, retryable: false, errorCode: LOCAL_JUDGE_FAILED, revision: null }
+          - { taskId: 9005, taskType: section, unitType: section, unitId: 8104, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9006, taskType: section, unitType: section, unitId: 8105, status: pending, uiStatus: waiting, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: judge
+          status: running
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: { done: 5, known: 5, totalFixed: true }
+          judge: { total: 5, done: 2, excluded: 1, running: 1, waiting: 1, retrying: 0, failed: 0, cancelled: 0 }
+    JobTasksN2AutoRetry:
+      summary: '(가상 값) N2 분석 시도 자동 재시도 대기'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: pending }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9011, taskType: ocr, unitType: job, unitId: 501, status: pending, uiStatus: retrying, retryCount: 1, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: retrying
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: null
+          judge: null
+    JobTasksN2Failed:
+      summary: '(가상 값) N2 분석 실패 (재시도 소진)'
+      description: 'N2 시도는 JOB-06 재시도 대상이 아니다(retryable=false). 다시 하려면 분석 시작(ANL-01) 또는 중단(JOB-07).'
+      value:
+        jobStatus: failed
+        currentStep: N2
+        userFacingStatus: failed
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: failed }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9013, taskType: ocr, unitType: job, unitId: 501, status: failed, uiStatus: failed, retryCount: 2, maxRetry: 2, retryable: false, errorCode: OCR_FAILED, revision: null }
+        analysisProgress:
+          phase: analyze
+          status: failed
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: null
+          judge: null
+    JobTasksN2JudgeFailed:
+      summary: '(가상 값) N2 판정 중 분석 실행 실패 종료'
+      description: '끝나지 않은 판정 2건은 기존 정책대로 cancelled 되어 items 에서 빠지고 이 실행의 숨은 섹션은 삭제된다. progress=0.75 · stages.ocr=done 이어도 분석 실패다(jobStatus=failed). 원래 영역 수는 judge.total(5)로 본다.'
+      value:
+        jobStatus: failed
+        currentStep: N2
+        userFacingStatus: failed
+        progress: 0.75
+        total: 4
+        done: 3
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: done }
+          - { key: section, label: section, status: failed }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9002, taskType: section, unitType: section, unitId: 8101, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9003, taskType: section, unitType: section, unitId: 8102, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9104, taskType: section, unitType: section, unitId: 8103, status: failed, uiStatus: failed, retryCount: 2, maxRetry: 2, retryable: false, errorCode: REGULATORY_JUDGE_FAILED, revision: null }
+        analysisProgress:
+          phase: judge
+          status: failed
+          sourceTotal: 2
+          activity: null
+          current: null
+          regions: { done: 5, known: 5, totalFixed: true }
+          judge: { total: 5, done: 2, excluded: 0, running: 0, waiting: 0, retrying: 0, failed: 1, cancelled: 2 }
+    JobTasksN3AfterPartialExclusion:
+      summary: '(가상 값) 현지 판정 실패 1건 제외 후 N3 전환'
+      description: '현지 AI 판정 실패 1건(LOCAL_JUDGE_FAILED)은 그 영역을 제외하고 N3 로 넘어간 정상 완료다. failedCount=1 · progress<1 · stages.section=failed 를 분석 실패로 해석하지 않는다. currentStep≠N2 이므로 analysisProgress 는 생략된다.'
+      value:
+        jobStatus: review
+        currentStep: N3
+        userFacingStatus: section_review
+        progress: 0.83
+        total: 6
+        done: 5
+        failedCount: 1
+        stages:
+          - { key: ocr, label: ocr, status: done }
+          - { key: section, label: section, status: failed }
+          - { key: verify, label: verify, status: done }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9002, taskType: section, unitType: section, unitId: 8101, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9003, taskType: section, unitType: section, unitId: 8102, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9004, taskType: section, unitType: section, unitId: 8103, status: failed, uiStatus: failed, retryCount: 0, maxRetry: 2, retryable: false, errorCode: LOCAL_JUDGE_FAILED, revision: null }
+          - { taskId: 9005, taskType: section, unitType: section, unitId: 8104, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+          - { taskId: 9006, taskType: section, unitType: section, unitId: 8105, status: done, uiStatus: done, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+    JobTasksN2WithoutDetail:
+      summary: '(가상 값) N2 진행 중 · 세부 진행 없음'
+      description: 'analysisProgress 속성이 없다. FE 는 기존 progress·stages·items 로 대체 표시한다.'
+      value:
+        jobStatus: processing
+        currentStep: N2
+        userFacingStatus: analyzing
+        progress: 0
+        total: 1
+        done: 0
+        failedCount: 0
+        stages:
+          - { key: ocr, label: ocr, status: running }
+          - { key: section, label: section, status: pending }
+          - { key: verify, label: verify, status: pending }
+        items:
+          - { taskId: 9001, taskType: ocr, unitType: job, unitId: 501, status: running, uiStatus: running, retryCount: 0, maxRetry: 2, retryable: false, errorCode: null, revision: null }
+
+  schemas:
+    # ===== 공통 =====
+    Error:
+      type: object
+      description: '공통 에러 래퍼 (전 엔드포인트 4xx/5xx). FE는 `error.code`로 분기.'
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, retryable, traceId]
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR       # 400
+                - UNAUTHORIZED           # 401
+                - TOKEN_EXPIRED          # 401 (retryable: refresh 후)
+                - NOT_FOUND              # 404 (미존재 + 남의 리소스 소유 위반)
+                - DUPLICATE              # 409
+                - UNSUPPORTED_FORMAT     # 415
+                - FILE_TOO_LARGE         # 413
+                - INVALID_STATE          # 409
+                - ALL_SECTIONS_EXCLUDED  # 409
+                - RETRY_NOT_ALLOWED      # 409
+                - REVISION_CONFLICT      # 409
+                - CSV_SCHEMA_MISMATCH    # 422
+                - RATE_LIMITED           # 429 (retryable)
+                - INTERNAL_ERROR         # 500 (retryable)
+                - SERVICE_UNAVAILABLE    # 503 (retryable)
+              description: >
+                HTTP `error.code` 15종 enum (근거: 인벤토리 §14-1 · 회신문 종합 1-C-5 · 10차 #D).
+                코드 네임스페이스 3종은 서로 다른 값 공간이며 섞지 않는다 —
+                ① HTTP `error.code`(이 15종 · 4xx/5xx · 이 래퍼) /
+                ② task `errorCode`(비동기 task 실패 · 자유 텍스트 · HTTP 200 · JOB-05 items[].errorCode) /
+                ③ signal `code`(검수 신호 · 계약 §6 · CFM-01 signals[].code).
+                번역·렌더 실패는 HTTP error.code가 아니라 task/signal로 전달된다.
+                # 403 FORBIDDEN은 /admin/** 역할 권한 전용(ADM=12월)이라 9월 15종에서 제외 — ADM 활성 시 추가 예정.
+            message: { type: string }
+            retryable: { type: boolean, description: '재시도 가능 여부(FE 재시도 버튼 노출 판단)' }
+            details:
+              type: [object, 'null']
+              additionalProperties: true
+              description: 코드별 부가 정보 (예 REVISION_CONFLICT → { current })
+            traceId: { type: string, description: '서버 추적 ID' }
+    AcceptedTask:
+      type: object
+      description: 비동기 트리거 202 응답. 진행은 GET /jobs/{jobId}/tasks 폴링(2초).
+      properties:
+        jobId: { type: integer, format: int64 }
+        taskId: { type: [integer, 'null'], format: int64, description: '등록된 task ID(renderTaskId·rerenderTaskId 등)' }
+
+    # ===== enum (CHECK_enum_허용값 v3.4.1 · ERD V5 그대로) =====
+    JobStatus:
+      type: string
+      description: 'DB job.status (6종)'
+      enum: [draft, processing, review, done, failed, archived]
+    JobStep:
+      type: string
+      enum: [N1, N2, N3, N4, N5, N6]
+    UserFacingStatus:
+      type: string
+      description: '사용자 노출 상태 영문 enum 8종 (GENERATED · 한글은 FE i18n gloss, API 값 아님)'
+      enum: [draft, analyzing, section_review, translating, reviewing, done, failed, archived]
+    SpecType:
+      type: string
+      enum: [original, site, custom]
+      description: '9월은 original 고정'
+    RegulatoryClass:
+      type: string
+      description: '셀러 선택값 (job.regulatory_class)'
+      enum: [cosmetic, otc, combination, unknown]
+    ImageContinuity:
+      type: string
+      description: 'job.image_type — 입력 연속성 축 (12월 분기)'
+      enum: [multi_section, single]
+    SourceImageType:
+      type: string
+      description: 'source_image.image_type — 입력 유형(연속성 축과 별개)'
+      enum: [detail, thumbnail]
+    SectionBucket:
+      type: string
+      enum: [include, exclude]
+    ExclusionReason:
+      type: string
+      enum: [auto_regulatory, auto_channel, auto_local, auto_local_failed, user_manual, restored_by_user]
+    ExcludedStage:
+      type: string
+      enum: [N3, N5]
+    InpaintStatus:
+      type: string
+      enum: [pending, running, done, failed]
+    WarningBadge:
+      type: string
+      enum: [processing_failed, quality_warning]
+    BlockRole:
+      type: string
+      enum: [title, body, caption, price, caution, product_label]
+    BlockStatus:
+      type: string
+      enum: [machine, edited]
+    VerdictStatus:
+      type: string
+      description: 'section_verdict.verdict_status — 판정행 5값 (allowed·cultural은 행 미생성)'
+      enum: [regulated, conditional, irrelevant, needs_fix, policy]
+    VerdictType:
+      type: string
+      description: '파생(GENERATED) 배지 6종 — verdict_status(+대체표현 유무)에서 계산. 읽기 전용.'
+      enum: [regulatory, regulatory_replaceable, regulatory_conditional, local_irrelevant, needs_fix, channel_policy]
+    TaskType:
+      type: string
+      enum: [ocr, section, inpaint, translate, verify, render]
+    TaskUnitType:
+      type: string
+      description: 'unit_id가 가리키는 대상'
+      enum: [job, source_image, section, text_block]
+    TaskStatus:
+      type: string
+      enum: [pending, running, done, failed, cancelled]
+    TaskUiStatus:
+      type: string
+      description: 'JOB-05 파생 표시 상태'
+      enum: [waiting, retrying, running, done, failed]
+    UsageType:
+      type: string
+      enum: [detail, thumbnail_main, thumbnail_sub]
+    RenderStatus:
+      type: string
+      enum: [pending, running, done, failed]
+    SignalCode:
+      type: string
+      description: >
+        확인 필요 신호 코드 (원천 10 · 화면 8). admin 2종(low_ocr_confidence·inpaint_residual_flag)은
+        서버가 셀러 응답 signals[]에서 제외.
+      enum:
+        - prohibited_expression
+        - mandatory_term_unapplied
+        - translation_failed
+        - empty_block
+        - logo_match_failed
+        - width_overflow
+        - low_ocr_confidence
+        - inpaint_residual_flag
+
+    # ===== 파생·공통 DTO =====
+    ReviewSignal:
+      type: object
+      description: '서버가 여러 소스를 조합해 만드는 파생 DTO(테이블 아님). Block/Section 객체에 signals[]로 중첩.'
+      required: [code]
+      properties:
+        code: { $ref: '#/components/schemas/SignalCode' }
+        reason: { type: [string, 'null'] }
+        basisArticle: { type: [string, 'null'], description: '조문 식별자만 (전문 미수록, OI-58)' }
+        evidenceUrl: { type: [string, 'null'], format: uri, description: 'presigned, 만료 5분' }
+        taskId: { type: [integer, 'null'], format: int64, description: 'translation_failed 신호에 동봉' }
+        retryable: { type: [boolean, 'null'], description: 'translation_failed 신호에 동봉' }
+    AutoAdjust:
+      type: object
+      description: >
+        자동 조정 결과. DB JSONB(`font_scale`·`line_break_applied`)를 응답 시
+        `fontScale`·`lineBreakApplied`로 매핑한다(직렬화 계층 · 저장값 불변 · 10차 #A).
+      properties:
+        fontScale: { type: number }
+        lineBreakApplied: { type: boolean }
+    Bbox:
+      type: object
+      description: '{x,y,w,h} px · 원점 좌상단'
+      properties:
+        x: { type: integer }
+        y: { type: integer }
+        w: { type: integer }
+        h: { type: integer }
+
+    # ===== Auth =====
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+    LoginResponse:
+      type: object
+      description: 'access 토큰은 본문, refresh는 Set-Cookie(HttpOnly·Secure·SameSite=Strict·Path=/auth).'
+      properties:
+        accessToken: { type: string }
+        seller: { $ref: '#/components/schemas/Seller' }
+    TokenResponse:
+      type: object
+      properties:
+        accessToken: { type: string }
+    Seller:
+      type: object
+      description: 'ERD seller'
+      properties:
+        id: { type: integer, format: int64 }
+        email: { type: string, format: email }
+        accountType: { type: string, enum: [individual, business] }
+        createdAt: { type: string, format: date-time }
+    ConsentRequest:
+      type: object
+      required: [agreed]
+      properties:
+        agreed: { type: boolean, description: '책임 한계 동의(true)' }
+    ConsentResponse:
+      type: object
+      description: 'consentId를 JOB-02 바디에 넣어 작업과 연결'
+      properties:
+        consentId: { type: integer, format: int64 }
+        consentType: { type: string }
+        consentedAt: { type: string, format: date-time }
+
+    # ===== Brand =====
+    Brand:
+      type: object
+      description: 'ERD brand'
+      properties:
+        id: { type: integer, format: int64 }
+        nameKo: { type: string }
+        nameEn: { type: string, description: '영문명 필수(NOT NULL · F-BRD-01)' }
+        overview: { type: [string, 'null'] }
+        targetCustomer: { type: [string, 'null'] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    BrandCreate:
+      type: object
+      required: [nameKo, nameEn]
+      properties:
+        nameKo: { type: string }
+        nameEn: { type: string, description: '필수 — 누락 시 400 VALIDATION_ERROR' }
+        overview: { type: [string, 'null'] }
+        targetCustomer: { type: [string, 'null'] }
+    BrandUpdate:
+      type: object
+      description: '부분 수정. nameEn을 null·빈값으로 바꾸는 요청은 400.'
+      properties:
+        nameKo: { type: string }
+        nameEn: { type: string }
+        overview: { type: [string, 'null'] }
+        targetCustomer: { type: [string, 'null'] }
+    BrandLogo:
+      type: object
+      description: 'ERD brand_logo (복수 로고)'
+      properties:
+        id: { type: integer, format: int64 }
+        format: { type: string, enum: [svg, png, jpg] }
+        orderNo: { type: integer }
+        logoUrl: { type: string, format: uri, description: 'presigned, 만료 5분 (DB엔 logo_key만)' }
+
+    # ===== Master =====
+    Country:
+      type: object
+      description: 'master_country (자연키 code)'
+      properties:
+        code: { type: string }
+        name: { type: string }
+        hasRegulatoryDictionary: { type: boolean }
+        release: { type: [string, 'null'] }
+    Language:
+      type: object
+      properties:
+        code: { type: string }
+        name: { type: string }
+        release: { type: [string, 'null'] }
+    RegulatoryClassItem:
+      type: object
+      description: 'master_regulatory_class (국가별)'
+      properties:
+        code: { type: string }
+        name: { type: string }
+        isEscapeHatch: { type: boolean }
+    Category:
+      type: object
+      description: 'category_master 트리 노드'
+      properties:
+        id: { type: integer, format: int64 }
+        parentId: { type: [integer, 'null'], format: int64 }
+        name: { type: string }
+        amazonNode: { type: [string, 'null'] }
+        isLeaf: { type: boolean }
+        path: { type: [string, 'null'] }
+    ChannelSpec:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        code: { type: string }
+        name: { type: string }
+        specType: { $ref: '#/components/schemas/SpecType' }
+        description: { type: [string, 'null'] }
+        isActive: { type: boolean }
+        release: { type: [string, 'null'] }
+    UploadGuide:
+      type: object
+      description: '규격 종속 업로드 안내 (파생 · 미저장)'
+      properties:
+        formats: { type: array, items: { type: string } }
+        maxFileSize: { type: [integer, 'null'], description: '바이트. 9월 원본 규격 미검사(null)' }
+        recommendedResolution: { type: [string, 'null'] }
+        notes: { type: array, items: { type: string } }
+    MasterVersion:
+      type: object
+      properties:
+        dataType: { type: string }
+        version: { type: string }
+        isCurrent: { type: boolean }
+        loadedAt: { type: string, format: date-time }
+
+    # ===== Job =====
+    JobCreate:
+      type: object
+      required: [brandId]
+      description: >
+        draft 생성 (A3 draft-first). brandId만 필수 — 나머지 N1 값은 업로드(SRC-02) 후
+        PATCH /jobs/{jobId}로 세팅한다. 필수값 검증은 analyze(ANL-01) 게이트에서 수행.
+        keywords는 job_keyword로 저장.
+      properties:
+        brandId: { type: integer, format: int64 }
+        productName: { type: [string, 'null'], description: 'F-SRC-11 · analyze 게이트에서 필수(400)' }
+        productCode: { type: [string, 'null'] }
+        targetCountry: { type: string }
+        regulatoryClass: { $ref: '#/components/schemas/RegulatoryClass' }
+        targetLanguage: { type: string }
+        specType: { $ref: '#/components/schemas/SpecType' }
+        channelSpecId: { type: [integer, 'null'], format: int64 }
+        categoryId: { type: integer, format: int64 }
+        keywords: { type: array, items: { type: string } }
+        imageType: { $ref: '#/components/schemas/ImageContinuity' }
+        consentId: { type: integer, format: int64, description: 'AUTH-05 응답값(본인·미사용 검증 후 연결)' }
+    JobPatch:
+      type: object
+      description: >
+        N1 입력값 세팅/수정 (A3 draft-first · PATCH /jobs/{jobId}). 부분 갱신 — 보낸 필드만 반영.
+        전부 기존 job 컬럼(스키마 무변경). 필수값 최종 검증은 analyze(ANL-01) 게이트.
+      properties:
+        productName: { type: [string, 'null'], description: 'F-SRC-11' }
+        productCode: { type: [string, 'null'] }
+        targetCountry: { type: [string, 'null'] }
+        regulatoryClass: { oneOf: [ { $ref: '#/components/schemas/RegulatoryClass' }, { type: 'null' } ] }
+        targetLanguage: { type: [string, 'null'] }
+        specType:
+          allOf: [ { $ref: '#/components/schemas/SpecType' } ]
+          description: 'null 불가(400 VALIDATION_ERROR) — 생략하면 기존 값 유지. 1.0.0 은 original 만 사용(2026-10-14 결정)'
+        channelSpecId: { type: [integer, 'null'], format: int64 }
+        categoryId: { type: [integer, 'null'], format: int64 }
+        keywords: { type: array, items: { type: string }, description: '보내면 전체 교체. null 불가' }
+        imageType: { oneOf: [ { $ref: '#/components/schemas/ImageContinuity' }, { type: 'null' } ] }
+        consentId: { type: [integer, 'null'], format: int64, description: 'AUTH-05 응답값' }
+    Job:
+      type: object
+      description: 'ERD job — 상태 + N1 입력값 전체'
+      properties:
+        id: { type: integer, format: int64 }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        currentStep: { $ref: '#/components/schemas/JobStep' }
+        userFacingStatus: { $ref: '#/components/schemas/UserFacingStatus' }
+        productName: { type: [string, 'null'] }
+        productCode: { type: [string, 'null'] }
+        brandId: { type: integer, format: int64 }
+        targetCountry: { type: [string, 'null'] }
+        regulatoryClass: { type: [string, 'null'] }
+        targetLanguage: { type: [string, 'null'] }
+        specType: { $ref: '#/components/schemas/SpecType' }
+        channelSpecId: { type: [integer, 'null'], format: int64 }
+        categoryId: { type: [integer, 'null'], format: int64 }
+        internalCategory: { type: [string, 'null'] }
+        keywords: { type: array, items: { type: string } }
+        imageType: { oneOf: [ { $ref: '#/components/schemas/ImageContinuity' }, { type: 'null' } ] }
+        isSaved: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    JobTaskStatus:
+      type: object
+      description: >
+        JOB-05 폴링 응답. progress·stages·uiStatus·analysisProgress는 DB에 저장하지 않고 응답 때 계산하는 파생 값이다(analysisProgress 의
+        분석 구간 값 중 일부는 BE 가 임시 진행 저장소에 TTL 로 보관한 AI 보고에서 읽는다). cancelled 항목 제외.
+      properties:
+        jobStatus: { $ref: '#/components/schemas/JobStatus' }
+        currentStep: { $ref: '#/components/schemas/JobStep' }
+        userFacingStatus: { $ref: '#/components/schemas/UserFacingStatus' }
+        progress:
+          type: number
+          format: float
+          description: >
+            0.0~1.0 (done/total · 9/15 확정). 처리량·시간 비율이 아니다. N2: 분석 시도 1행이 끝날 때까지 0, 분석 채택 트랜잭션에서
+            분모가 1+영역 수로 바뀌며 값은 오른다. LOCAL_JUDGE_FAILED 로 제외된 영역은 done 이 아니어서 N3 전환 뒤에도 1 미만일 수 있다(분석 실패 아님).
+            판정 중 분석 실행이 실패 종료되면 취소된 시도가 빠져 분모가 줄 수 있다 — 실패 판단은 jobStatus 로 한다.
+        total: { type: integer }
+        done: { type: integer }
+        failedCount: { type: integer }
+        stages:
+          type: array
+          description: >
+            step별 고정 단계 (N2 ocr→section→verify · N4 inpaint→translate→verify→render · N6 render).
+            status는 해당 task_type 행 집계 — 전부 done→done / 하나라도 running→running /
+            전부 pending→pending / failed 있으면 failed(cancelled 제외). 파생·미저장.
+            N2 현 구현 대응: ocr = 분석 시도(① 분해 · ② OCR · ③ 병합 전체 1행) · section = 영역별 판정(③-1·③-1′) ·
+            verify = N2 에 대응 시도 없음(실행 종료 전 pending, 완료 후 done). LOCAL_JUDGE_FAILED 가 있으면 section=failed 로
+            집계되지만 분석 실패가 아니다.
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              label: { type: string, description: 'FE 표시 문구(런타임 값)' }
+              status: { type: string, enum: [pending, running, done, failed] }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/JobAsyncTaskItem' }
+        analysisProgress:
+          allOf: [ { $ref: '#/components/schemas/AnalysisProgress' } ]
+          description: >
+            【구현 예정 — 운영 미제공】 선택. N2 세부 진행. currentStep=N2 가 아니면 속성을 생략한다(null 을 보내지 않음).
+            없으면 FE 는 기존 progress·stages·items 로 표시한다. 기존 필드의 값·의미는 바꾸지 않는다.
+    JobAsyncTaskItem:
+      type: object
+      properties:
+        taskId: { type: integer, format: int64 }
+        taskType: { $ref: '#/components/schemas/TaskType' }
+        unitType: { $ref: '#/components/schemas/TaskUnitType' }
+        unitId: { type: [integer, 'null'], format: int64 }
+        status: { $ref: '#/components/schemas/TaskStatus' }
+        uiStatus: { $ref: '#/components/schemas/TaskUiStatus' }
+        retryCount: { type: integer }
+        maxRetry: { type: integer }
+        retryable: { type: boolean }
+        errorCode: { type: [string, 'null'] }
+        revision: { type: [integer, 'null'] }
+    AnalysisProgress:
+      type: object
+      description: >
+        【구현 예정 — 운영 미제공】 JOB-05 의 N2 분석 세부 진행. DB 에 저장하지 않는 파생 응답이다.
+        phase=analyze 의 activity·current·regions 근거는 AI 진행 보고이며 BE 가 임시 진행 저장소에 TTL 로 보관했다가 응답 때 읽는다
+        (영구 기록 아님 — 보고가 없거나 만료·읽기 실패·실행 권한 만료면 null). sourceTotal·judge 와 phase=judge 의 regions 는
+        응답 때 DB 시도 행에서 센다. 화면 표시용 세부 단계이며 TaskType·stages·items 와 다른 값 공간이다
+        (TaskType 을 늘리거나 실행·시도 단위를 나누지 않는다). 포함 조건: currentStep=N2 이고 현재 분석 실행(0008 이후 대표 실행)이
+        있을 때만. 그 밖(N1·N3~N6, 0008 이전 레거시 작업, 이 필드를 구현하기 전 서버)은 속성을 생략한다(null 아님).
+        완료·전환 판단은 jobStatus·currentStep 만 따른다. 퍼센트는 제공하지 않는다.
+      required: [phase, status, sourceTotal, activity, current, regions, judge]
+      properties:
+        phase:
+          type: string
+          enum: [analyze, judge]
+          description: >
+            analyze = 분석 시도(items 의 taskType=ocr·unitType=job 1행)가 done 이 아닌 동안 — 원본마다 ① 영역 분해 후
+            그 원본의 영역마다 ② OCR · ③ 병합·역할 분류를 반복. judge = 분석 결과 채택 뒤 영역별 판정(taskType=section·unitType=section 행).
+        status:
+          type: string
+          enum: [waiting, running, retrying, failed]
+          description: >
+            done 없음(분석 시도 done 이면 phase=judge, 판정이 끝나면 같은 트랜잭션에서 N3 전환되어 속성 생략).
+            analyze = 분석 시도 uiStatus 그대로. judge = failed(실행 실패 종료) > running > retrying > waiting.
+        sourceTotal:
+          type: integer
+          minimum: 1
+          description: '분석 대상 원본 수(시도의 고정 입력).'
+        activity:
+          type: [string, 'null']
+          enum: [split, ocr, merge, finalize, null]
+          description: >
+            마지막으로 시작한 처리(phase=analyze·status=running 일 때만). 끝난 영역 수는 regions.done 으로만 판단.
+            split 분해 · ocr 텍스트 추출(타일 OCR 포함) · merge 병합·역할 분류 · finalize = 분석 함수 정상 반환 뒤 채택 전.
+            finalize 근거는 현재 시도·lease 세대의 analyze_done 보고 또는 같은 시도·세대의 성공 결과 인계(채택 대기),
+            실패 결과 인계는 근거 아님(그때 null, 이후 표시는 DB 상태 전이).
+            null = 해당 없음 또는 알 수 없음(보고 전·만료·읽기 실패·실행 권한 만료 후 복구 전·실패 인계 등록 후).
+        current:
+          type: [object, 'null']
+          description: 'activity 가 split·ocr·merge 일 때만 객체.'
+          required: [sourceIndex, sourceImageId, regionIndex, regionCountInSource]
+          properties:
+            sourceIndex: { type: integer, minimum: 1, description: '업로드 순서 1부터' }
+            sourceImageId: { type: integer, format: int64, description: 'SRC-01 SourceImage.id' }
+            regionIndex: { type: [integer, 'null'], minimum: 1, description: 'split 이면 null' }
+            regionCountInSource:
+              type: [integer, 'null']
+              minimum: 1
+              description: '그 원본 분해가 끝나면 1 이상, 분해 중에만 null. ocr·merge 면 항상 정수.'
+        regions:
+          type: [object, 'null']
+          description: >
+            영역 = 분해 결과 섹션 1개, 타일 제외. analyze 는 AI 보고 누계·없으면 null. finalize 면 analyze_done 보고가 있을 때만
+            done=known·totalFixed=true, 없으면 null(완료 개수를 채우지 않음). judge 는 판정 시도 행으로 done=known=judge.total·totalFixed=true
+            (실패 때 지워지는 section 행으로 세지 않음).
+          required: [done, known, totalFixed]
+          properties:
+            done: { type: integer, minimum: 0, description: 'OCR·병합까지 끝난 영역 누계(현재 영역 OCR만 끝난 상태는 제외)' }
+            known: { type: integer, minimum: 0, description: '분해가 끝난 원본들의 영역 수 합(done ≤ known)' }
+            totalFixed: { type: boolean, description: '마지막 원본 분해 완료. false 면 known 을 분모로 쓰지 않음' }
+        judge:
+          type: [object, 'null']
+          description: >
+            phase=judge 일 때만. 판정 현재 시도 행(영역마다 1개, cancelled 포함).
+            total = done+excluded+running+waiting+retrying+failed+cancelled. items 의 section 개수 = total−cancelled.
+            excluded = LOCAL_JUDGE_FAILED 로 자동 제외(exclusionReason=auto_local_failed) — failedCount 에 들어가지만 분석 실패 아님,
+            N3 전환 안 막음. failed = excluded 제외 실패(실행 실패 종료 때만). cancelled = 실행 실패 종료 때 취소(items 에 없음).
+            total 은 채택 때 정해지고 재시도·실패 종료로 바뀌지 않음.
+          required: [total, done, excluded, running, waiting, retrying, failed, cancelled]
+          properties:
+            total: { type: integer, minimum: 0 }
+            done: { type: integer, minimum: 0 }
+            excluded: { type: integer, minimum: 0 }
+            running: { type: integer, minimum: 0 }
+            waiting: { type: integer, minimum: 0 }
+            retrying: { type: integer, minimum: 0 }
+            failed: { type: integer, minimum: 0 }
+            cancelled: { type: integer, minimum: 0 }
+    AbortResponse:
+      type: object
+      properties:
+        returnTo: { type: string, enum: [N1, N3] }
+        job: { $ref: '#/components/schemas/Job' }
+
+    # ===== Source Image =====
+    SourceImage:
+      type: object
+      description: 'ERD source_image'
+      properties:
+        id: { type: integer, format: int64 }
+        uploadOrder: { type: integer }
+        imageType: { $ref: '#/components/schemas/SourceImageType' }
+        fileUrl: { type: string, format: uri, description: 'presigned, 만료 5분 (DB엔 S3 키만)' }
+        width: { type: integer }
+        height: { type: integer }
+        createdAt: { type: string, format: date-time }
+    SourceImageUploadResult:
+      type: object
+      description: '파일별 성공/실패 개별 기록 (한 파일 실패해도 나머지 적재)'
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              fileName: { type: string }
+              ok: { type: boolean }
+              sourceImageId: { type: [integer, 'null'], format: int64 }
+              errorCode: { type: [string, 'null'] }
+        sourceImages:
+          type: array
+          items: { $ref: '#/components/schemas/SourceImage' }
+    ReorderRequest:
+      type: object
+      required: [order]
+      properties:
+        order:
+          type: array
+          description: 'sourceImageId 순서 배열'
+          items: { type: integer, format: int64 }
+
+    # ===== Section / Verdict =====
+    SectionVerdict:
+      type: object
+      description: 'ERD section_verdict — 판정 배지. verdictType은 파생(읽기 전용).'
+      properties:
+        id: { type: integer, format: int64 }
+        verdictStatus: { $ref: '#/components/schemas/VerdictStatus' }
+        verdictType: { $ref: '#/components/schemas/VerdictType' }
+        problemText: { type: [string, 'null'] }
+        alternativeExpression: { type: [string, 'null'], description: '안전한 대체 표현 (N5 문구·regulatory_replaceable)' }
+        basisArticle: { type: [string, 'null'], description: '조문 식별자만 (OI-58)' }
+        evidenceUrl: { type: [string, 'null'], format: uri }
+        reason: { type: [string, 'null'] }
+    Section:
+      type: object
+      description: 'ERD section'
+      properties:
+        id: { type: integer, format: int64 }
+        sectionOrder: { type: integer }
+        sourceImageId: { type: integer, format: int64 }
+        topOffset: { type: [integer, 'null'], description: '원본 이미지 내 세로 좌표(px). N5 스택엔 displayTop 사용' }
+        displayTop: { type: [integer, 'null'], description: '서버 계산·미저장 (Σ 앞선 include 섹션 height)' }
+        height: { type: [integer, 'null'] }
+        bbox: { oneOf: [ { $ref: '#/components/schemas/Bbox' }, { type: 'null' } ] }
+        category: { type: [string, 'null'] }
+        bucket: { $ref: '#/components/schemas/SectionBucket' }
+        exclusionReason: { oneOf: [ { $ref: '#/components/schemas/ExclusionReason' }, { type: 'null' } ] }
+        excludedStage: { oneOf: [ { $ref: '#/components/schemas/ExcludedStage' }, { type: 'null' } ] }
+        inpaintStatus: { oneOf: [ { $ref: '#/components/schemas/InpaintStatus' }, { type: 'null' } ] }
+        warningBadge: { oneOf: [ { $ref: '#/components/schemas/WarningBadge' }, { type: 'null' } ] }
+        verdicts:
+          type: array
+          description: '판정 목록 (정렬 불변식 regulated→policy→irrelevant→needs_fix→conditional, 같은 값은 id 순). 제외 버킷만 전체 노출 — 목록(sectionList)의 포함 섹션은 빈 배열, 상세(SEC-02)는 판정 근거 전체.'
+          items: { $ref: '#/components/schemas/SectionVerdict' }
+        signals:
+          type: array
+          items: { $ref: '#/components/schemas/ReviewSignal' }
+    SectionList:
+      type: object
+      description: '버킷 2단 (제외=판정 목록 / 포함=썸네일만)'
+      properties:
+        exclude:
+          type: array
+          items: { $ref: '#/components/schemas/Section' }
+        include:
+          type: array
+          items: { $ref: '#/components/schemas/Section' }
+    SectionPatch:
+      type: object
+      required: [action]
+      description: 'N3(드래그)·N5(휴지통 F-CFM-14) 공용. excludedStage는 서버가 currentStep으로 기록.'
+      properties:
+        action: { type: string, enum: [restore, exclude] }
+    InpaintResult:
+      type: object
+      properties:
+        sectionId: { type: integer, format: int64 }
+        inpaintStatus: { $ref: '#/components/schemas/InpaintStatus' }
+        inpaintImageUrl: { type: [string, 'null'], format: uri, description: 'presigned, 만료 5분' }
+        residualRatio: { type: [number, 'null'], format: float }
+        warningBadge: { oneOf: [ { $ref: '#/components/schemas/WarningBadge' }, { type: 'null' } ] }
+
+    # ===== N5 Blocks / Preview =====
+    TextBlock:
+      type: object
+      description: 'ERD text_block. isExcluded는 파생(role=product_label). 번역 실패는 signals[].code=translation_failed.'
+      properties:
+        id: { type: integer, format: int64 }
+        sectionId: { type: integer, format: int64 }
+        displayTop: { type: [integer, 'null'], description: '소속 섹션 displayTop 복사(파생)' }
+        blockOrder: { type: integer }
+        role: { $ref: '#/components/schemas/BlockRole' }
+        isExcluded: { type: boolean, description: '파생 (role=product_label)' }
+        sourceKo: { type: [string, 'null'] }
+        trans1: { type: [string, 'null'] }
+        trans2: { type: [string, 'null'], description: '9월 null' }
+        blockStatus: { $ref: '#/components/schemas/BlockStatus' }
+        bbox: { oneOf: [ { $ref: '#/components/schemas/Bbox' }, { type: 'null' } ] }
+        charCount: { type: [integer, 'null'] }
+        charLimit: { type: [integer, 'null'], description: '항상 필드 포함, 상한 없으면 null' }
+        overflow: { type: boolean }
+        autoAdjust: { oneOf: [ { $ref: '#/components/schemas/AutoAdjust' }, { type: 'null' } ] }
+        signals:
+          type: array
+          items: { $ref: '#/components/schemas/ReviewSignal' }
+        alternativeExpression: { type: [string, 'null'] }
+        revision: { type: integer, description: '낙관적 잠금 버전' }
+    BlockPatch:
+      type: object
+      required: [trans1, revision]
+      properties:
+        trans1: { type: string, description: '수정 번역문' }
+        revision: { type: integer, description: '현재 블록 revision. 불일치 시 409 REVISION_CONFLICT' }
+    BlockPatchResponse:
+      type: object
+      properties:
+        block: { $ref: '#/components/schemas/TextBlock' }
+        rerenderTaskId: { type: integer, format: int64, description: '/tasks 폴링 → done 시 블록·/preview 재조회' }
+    ReviewPreview:
+      type: object
+      description: >
+        다폭 대응 검수 프리뷰 (계산값·미저장). scale=previewWidth/maxOriginalWidth · align=left.
+        요청 파라미터는 jobId뿐(폭 파라미터 없음). 리사이즈 시 재요청하지 않고 FE가
+        `transform: scale(표시폭/previewWidth)`로 축소 · 재조회는 구성 변경(SEC-03·CFM-02) 시만(10차 #B).
+      properties:
+        maxOriginalWidth: { type: integer }
+        originalHeight: { type: integer }
+        previewWidth:
+          type: integer
+          description: '서버 고정 상수 500 (설정값·server constant). 뷰포트 무관 좌표 기준 폭 — FE 코드젠이 변수로 오해하지 않도록 example 미지정.'
+        previewHeight: { type: integer }
+        scale: { type: number, format: float }
+        align: { type: string, enum: [left] }
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer, format: int64 }
+              sectionOrder: { type: integer }
+              bucket: { $ref: '#/components/schemas/SectionBucket' }
+              excludedStage: { oneOf: [ { $ref: '#/components/schemas/ExcludedStage' }, { type: 'null' } ] }
+              sourceImageId: { type: integer, format: int64 }
+              width: { type: integer, description: '소속 원본 폭 (source_image.width 조인)' }
+              displayTop: { type: integer }
+              height: { type: integer }
+              originalUrl: { type: [string, 'null'], format: uri, description: 'presigned' }
+              renderedUrl: { type: [string, 'null'], format: uri, description: 'presigned · 렌더 전/실패/제외 시 null' }
+              signals:
+                type: array
+                items: { $ref: '#/components/schemas/ReviewSignal' }
+    ConfirmRequest:
+      type: object
+      description: >
+        acknowledgedWarnings는 개수가 아니라 식별자. 필수 확인 대상 = 포함(include) 섹션 블록의 translation_failed.
+        서버는 받은 목록 중 필수 확인 대상만 골라 서버의 미해결 필수 경고 집합과 비교하고, 다르면 409 INVALID_STATE
+        (error.details.warnings = 서버 집합). 그 밖의 코드(width_overflow 등)·제외 섹션 블록은 보내도 무시한다 —
+        화면 신호 전부를 보내도 된다. 넘침 경고는 표시만 하고 확정을 막지 않는다(2026-10-14 결정).
+      properties:
+        acknowledgedWarnings:
+          type: array
+          items:
+            type: object
+            properties:
+              blockId: { type: integer, format: int64 }
+              code: { $ref: '#/components/schemas/SignalCode' }
+
+    # ===== N6 Deliverable / Export =====
+    RenderResponse:
+      type: object
+      properties:
+        renderTaskId: { type: integer, format: int64 }
+    Deliverable:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        sourceImageId: { type: [integer, 'null'], format: int64 }
+        usageType: { $ref: '#/components/schemas/UsageType' }
+        imageUrl: { type: [string, 'null'], format: uri, description: 'presigned, 만료 5분' }
+        format: { type: [string, 'null'] }
+        colorSpace: { type: [string, 'null'] }
+        fileSize: { type: [integer, 'null'], format: int64 }
+        renderStatus: { $ref: '#/components/schemas/RenderStatus' }
+        validationResult: { type: [object, 'null'], additionalProperties: true }
+    DeliverableList:
+      type: object
+      properties:
+        deliverables:
+          type: array
+          items: { $ref: '#/components/schemas/Deliverable' }
+        components:
+          type: array
+          description: 'N6 산출물 구성요소 상태 (manifest 제외)'
+          items:
+            type: object
+            properties:
+              artifactId: { type: [integer, 'null'], format: int64 }
+              type: { type: string, enum: [images, csv, html, psd] }
+              status: { type: string, enum: [generated, partial, failed, pending] }
+              isGenerated: { type: boolean }
+              isActive: { type: boolean, description: '1.0.0 은 html·psd 를 만들지 않으므로 false' }
+              failedCount: { type: integer }
+              retryAction: { type: [string, 'null'], enum: [render, export, 'null'] }
+    ValidationDetail:
+      type: object
+      description: '규격 검증 항목별 (deliverable.validation_result). 9월 포맷·색공간만, 용량 passed=null.'
+      properties:
+        itemKey: { type: string }
+        scope: { type: string, enum: [detail, thumbnail_main, thumbnail_sub, all] }
+        passed: { type: [boolean, 'null'] }
+        measuredValue: { type: [string, 'null'] }
+        severity: { type: string, enum: [error, warning] }
+    ExportRequest:
+      type: object
+      properties:
+        components:
+          type: array
+          description: '셀러 선택 (images·csv·html…)'
+          items: { type: string }
+    ExportResponse:
+      type: object
+      properties:
+        artifactId: { type: integer, format: int64 }
+        artifactType: { type: string, enum: [zip, images, csv, html] }
+        components:
+          type: array
+          items: { type: string }
+    DownloadResponse:
+      type: object
+      properties:
+        url: { type: string, format: uri, description: 'presigned, 만료 5분' }
+        fileName: { type: string }
+        expiresAt: { type: string, format: date-time }
+    SaveRequest:
+      type: object
+      properties:
+        save: { type: boolean }
+    LibraryCard:
+      type: object
+      description: 'job(is_saved=true) 투영 + deliverable 썸네일 (테이블 아님 · Response DTO)'
+      properties:
+        jobId: { type: integer, format: int64 }
+        productName: { type: [string, 'null'] }
+        brandName: { type: [string, 'null'] }
+        targetCountry: { type: [string, 'null'] }
+        targetLanguage: { type: [string, 'null'] }
+        specType: { $ref: '#/components/schemas/SpecType' }
+        thumbnailUrl: { type: [string, 'null'], format: uri, description: 'presigned, 만료 5분' }
+        savedAt: { type: [string, 'null'], format: date-time }
+    StubResponse:
+      type: object
+      description: '🔵12월/📌조건부 — 상세 계약 미확정. TODO: 확정 시 스키마 채움.'
+      additionalProperties: true
+
+paths:
+  /auth/login:
+    post:
+      tags: [G1 Auth]
+      summary: 셀러 로그인 / JWT 발급 🟢9월
+      operationId: authLogin
+      x-screen: 'G1'
+      x-source: API-AUTH-01
+      description: 'Cognito 자격 검증 → access(본문) + refresh(Set-Cookie HttpOnly). 🟢9월.'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: '로그인 성공 (Set-Cookie로 refresh 발급)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/refresh:
+    post:
+      tags: [G1 Auth]
+      summary: 액세스 토큰 갱신 🟢9월
+      operationId: authRefresh
+      x-screen: 'G1'
+      x-source: API-AUTH-02
+      description: '쿠키의 refresh로 검증(+ CSRF 헤더 X-Requested-With). 바디 없음. 새 access 발급 + refresh 회전. 🟢9월.'
+      security: []
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          schema: { type: string }
+          description: 'CSRF 방지 헤더'
+      responses:
+        '200':
+          description: '갱신됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/logout:
+    post:
+      tags: [G1 Auth]
+      summary: 로그아웃 / 토큰 무효화 🟢9월
+      operationId: authLogout
+      x-screen: 'G1'
+      x-source: API-AUTH-03
+      description: 'access 무효화(캐시) + refresh 쿠키 삭제. 쿠키 기반(+ CSRF 헤더). 🟢9월.'
+      responses:
+        '204': { description: '로그아웃됨' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/me:
+    get:
+      tags: [G1 Auth]
+      summary: 현재 셀러 조회 🟢9월
+      operationId: authMe
+      x-screen: 'G1'
+      x-source: API-AUTH-04
+      responses:
+        '200':
+          description: '셀러 정보'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Seller' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /consents:
+    post:
+      tags: [G1 Auth]
+      summary: 책임 한계 동의 기록 🟢9월
+      operationId: consentCreate
+      x-screen: 'G1'
+      x-source: API-AUTH-05
+      description: '작업 시작 시점(N1). consentId를 JOB-02 바디에 넣어 연결. audit_log 부수 적재. 🟢9월.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConsentRequest' }
+      responses:
+        '201':
+          description: '동의 기록됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConsentResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/social:
+    post:
+      tags: [G1 Auth]
+      summary: 소셜 로그인/회원가입 🔵12월
+      operationId: authSocial
+      x-screen: 'G1(12월)'
+      x-source: API-AUTH-06
+      description: '🔵12월 · 상세 계약 미확정. 제공자+회원번호 식별 분기. TODO: 12월 확정(임의 설계 금지).'
+      security: []
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '200':
+          description: '🔵12월 미확정'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StubResponse' }
+
+  /brands:
+    get:
+      tags: [M2 Brand]
+      summary: 브랜드 목록 조회 🟢9월
+      operationId: brandList
+      x-screen: 'M2'
+      x-source: API-BRD-01
+      responses:
+        '200':
+          description: '브랜드 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Brand' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [M2 Brand]
+      summary: 브랜드 등록 🟢9월
+      operationId: brandCreate
+      x-screen: 'M2'
+      x-source: API-BRD-02
+      description: 'nameEn 필수(누락 400 VALIDATION_ERROR). 동일 셀러 중복 시 409. 🟢9월.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BrandCreate' }
+      responses:
+        '201':
+          description: '등록됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Brand' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /brands/{brandId}:
+    parameters:
+      - $ref: '#/components/parameters/BrandId'
+    get:
+      tags: [M2 Brand]
+      summary: 브랜드 상세 조회 🟢9월
+      operationId: brandGet
+      x-screen: 'M2'
+      x-source: API-BRD-03
+      responses:
+        '200':
+          description: '브랜드 상세'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Brand' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [M2 Brand]
+      summary: 브랜드 정보 수정 🟢9월
+      operationId: brandUpdate
+      x-screen: 'M2'
+      x-source: API-BRD-04
+      description: 'nameEn을 null·빈값으로 바꾸는 요청은 400. 완료 작업엔 소급 없음(F-BRD-07). 🟢9월.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BrandUpdate' }
+      responses:
+        '200':
+          description: '갱신됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Brand' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /brands/{brandId}/logos:
+    parameters:
+      - $ref: '#/components/parameters/BrandId'
+    get:
+      tags: [M2 Brand]
+      summary: 브랜드 로고 목록 🟢9월
+      operationId: brandLogoList
+      x-screen: 'M2'
+      x-source: API-BRD-06
+      description: 'order_no ASC. 각 항목 presigned URL(만료 5분). 🟢9월.'
+      responses:
+        '200':
+          description: '로고 배열'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/BrandLogo' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [M2 Brand]
+      summary: 브랜드 로고 추가 🟢9월
+      operationId: brandLogoCreate
+      x-screen: 'M2'
+      x-source: API-BRD-05
+      description: '로고 1개(multipart). svg/png/jpg. SVG는 서버 sanitize. S3 키 저장·응답 presigned. 🟢9월.'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '201':
+          description: '로고 생성됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BrandLogo' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '415':
+          description: '415 지원하지 않는 포맷'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /brands/{brandId}/logos/{logoId}:
+    parameters:
+      - $ref: '#/components/parameters/BrandId'
+      - name: logoId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    delete:
+      tags: [M2 Brand]
+      summary: 브랜드 로고 삭제 🟢9월
+      operationId: brandLogoDelete
+      x-screen: 'M2'
+      x-source: API-BRD-07
+      responses:
+        '204': { description: '삭제됨' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /master/countries:
+    get:
+      tags: [Master]
+      summary: 타겟 국가 목록 🟢9월
+      operationId: masterCountries
+      x-screen: 'N1'
+      x-source: API-MST-01
+      responses:
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '200':
+          description: '국가 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Country' } }
+  /master/languages:
+    get:
+      tags: [Master]
+      summary: 도착 언어 목록 🟢9월
+      operationId: masterLanguages
+      x-screen: 'N1'
+      x-source: API-MST-02
+      responses:
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '200':
+          description: '언어 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Language' } }
+  /master/regulatory-classes:
+    get:
+      tags: [Master]
+      summary: 규제 분류 목록(국가별) 🟢9월
+      operationId: masterRegulatoryClasses
+      x-screen: 'N1'
+      x-source: API-MST-03
+      parameters:
+        - name: country
+          in: query
+          required: true
+          schema: { type: string }
+          description: '국가 코드(필수)'
+      responses:
+        '200':
+          description: '규제 분류 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/RegulatoryClassItem' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /master/categories:
+    get:
+      tags: [Master]
+      summary: 카테고리 트리 🟢9월
+      operationId: masterCategories
+      x-screen: 'N1'
+      x-source: API-MST-04
+      responses:
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '200':
+          description: '카테고리 트리(노드 배열)'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Category' } }
+  /master/channel-specs:
+    get:
+      tags: [Master]
+      summary: 규격(채널) 목록 🟢9월
+      operationId: masterChannelSpecs
+      x-screen: 'N1'
+      x-source: API-MST-05
+      responses:
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '200':
+          description: '규격 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/ChannelSpec' } }
+  /master/channel-specs/{channelSpecId}/upload-guide:
+    parameters:
+      - name: channelSpecId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    get:
+      tags: [Master]
+      summary: 규격 종속 업로드 안내 🟢9월
+      operationId: masterUploadGuide
+      x-screen: 'N1'
+      x-source: API-MST-06
+      responses:
+        '200':
+          description: '업로드 안내'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UploadGuide' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /master/versions:
+    get:
+      tags: [Master]
+      summary: 마스터 버전 조회 🟢9월
+      operationId: masterVersions
+      x-screen: 'N1'
+      x-source: API-MST-07
+      responses:
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '200':
+          description: '마스터 버전 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/MasterVersion' } }
+
+  /jobs:
+    get:
+      tags: [S0 Job]
+      summary: 작업 목록 조회 🔵12월
+      operationId: jobList
+      x-screen: 'M3(12월)'
+      x-source: API-JOB-01
+      description: '🔵12월 · 상세는 M3 화면과 함께 확정. TODO: 필터·정렬·페이징 미확정.'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '200':
+          description: '🔵12월 미확정'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StubResponse' }
+    post:
+      tags: [S0 Job]
+      summary: 작업 생성 = N1 완료 🟢9월
+      operationId: jobCreate
+      x-screen: 'N1'
+      x-source: API-JOB-02
+      description: >
+        draft 생성 (A3 draft-first). brandId만으로 빈 draft를 만들고 jobId 반환.
+        흐름: POST /jobs(draft) → SRC-02(원본 업로드) → PATCH /jobs/{jobId}(N1 값) → analyze.
+        N1 필수값 검증은 analyze(ANL-01) 게이트. Idempotency-Key 헤더 권장. 🟢9월.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema: { type: string }
+          description: >
+            같은 키 재요청은 첫 응답 재전송(Redis 24h · 중복 생성 방지).
+            키 범위 = 판매자 + 작업 생성 API + 키(다른 판매자의 같은 키와 섞이지 않음).
+            완료된 같은 키는 요청 본문이 달라도 최초 응답(201 Job)을 재전송 — 다른 작업을 만들려면 새 키를 쓴다.
+            키 없는 요청도 허용(멱등 보장 없음). 같은 키 동시 요청에서도 작업은 하나만 생성.
+            같은 키가 처리 중이거나 결과가 확정되지 않았으면 409 DUPLICATE. 키를 받은 요청에서 저장소(Redis)를 쓸 수 없으면 503
+            SERVICE_UNAVAILABLE(작업을 만들지 않음). 결과를 모르는 응답(5xx)을 받았으면 새 키로 자동 재시도하지 않는다(중복 위험).
+            중복 방지는 기록이 유지되는 동안(24시간)만 보장한다(2026-10-14 결정).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobCreate' }
+      responses:
+        '201':
+          description: '작업 생성됨 (status=draft)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404':
+          description: 'brandId 미존재·미소유(존재 은닉) — 작업을 만들지 않는다'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    patch:
+      tags: [S0 Job]
+      summary: N1 입력값 세팅/수정 (draft-first) 🟢9월
+      operationId: jobPatch
+      x-screen: 'N1'
+      x-source: API-JOB-02
+      description: >
+        draft job의 N1 입력값을 세팅/수정(A3 draft-first · 8차 #32). 부분 갱신 — 보낸 필드만 반영.
+        전부 기존 job 컬럼(스키마 무변경). draft/N1 단계에서만 허용(아니면 409 INVALID_STATE).
+        N1 필수값 최종 검증은 analyze 게이트. 🟢9월.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobPatch' }
+      responses:
+        '200':
+          description: '갱신된 작업 (상태 + N1 입력값)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    get:
+      tags: [S0 Job]
+      summary: 작업 조회 — 상태 + N1 입력값 🟢9월
+      operationId: jobGet
+      x-screen: 'S0·N1'
+      x-source: API-JOB-03
+      description: 'N1 입력값 전체 포함(중단 후 복귀 복원 F-JOB-08). 🟢9월.'
+      responses:
+        '200':
+          description: '작업 상태 + 입력값'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [S0 Job]
+      summary: 작업 취소 🟢9월
+      operationId: jobCancel
+      x-screen: 'S0'
+      x-source: API-JOB-04
+      description: '본문 없음. status=archived + 종속 리소스 정리(DELETE) + audit_log. 🟢9월.'
+      responses:
+        '204': { description: '취소됨' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/tasks:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [S0 Job]
+      summary: 비동기 큐 상태 조회 (폴링) 🟢9월
+      operationId: jobTasks
+      x-screen: 'N2·N4·N6'
+      x-source: API-JOB-05
+      description: >
+        폴링 주기 2초. progress·stages·uiStatus는 파생. cancelled 항목 제외.
+        섹션 렌더 실패 판별: items[]의 taskType=render + unitType=section + status=failed로 판별 —
+        deliverable.render_status·section.warning_badge로 판별하지 않음(10차 #E). 🟢9월.
+        【구현 예정 — 운영 미제공】 N2 세부 진행 analysisProgress(선택, currentStep=N2 일 때만)를 더한다.
+        N2 완료는 currentStep=N3 전환으로만 판단한다. failedCount>0·progress<1 은 그 자체로 분석 실패가 아니다 —
+        분석 실패는 jobStatus=failed · currentStep=N2 다. N2 진행 상황별 예시(가상 값, 운영 응답 캡처 아님)는
+        components/examples 의 JobTasks* 10개에 둔다 — 화면에는 다른 API 처럼 200 응답 스키마 예시만 표시한다.
+      responses:
+        '200':
+          description: '진행 상태'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JobTaskStatus' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/tasks/{taskId}/retry:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - name: taskId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    post:
+      tags: [S0 Job]
+      summary: 실패 작업 재시도 🟢9월
+      operationId: jobTaskRetry
+      x-screen: 'N2·N4'
+      x-source: API-JOB-06
+      description: task_type ∈ {translate, render} ∧ failed ∧ retry_count<max_retry. 그 외 409 RETRY_NOT_ALLOWED.
+        render(미리보기·최종) 시도의 고정 입력 renderer 가 실행 렌더러와 다르거나 없어도 409 RETRY_NOT_ALLOWED(같은 입력으로는
+        성공할 수 없어 새 시도·횟수를 만들지 않음 — 그 시도의 JOB-05 retryable=false). 🟢9월.
+      responses:
+        '200':
+          description: '재시도 큐잉됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JobAsyncTaskItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}/abort:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [S0 Job]
+      summary: 처리 중단·직전 화면 복귀 🟢9월
+      operationId: jobAbort
+      x-screen: 'S0·N2·N4'
+      x-source: API-JOB-07
+      description: 'N2·N4 처리 중만(아니면 409 INVALID_STATE). 진행 task는 cancelled. N2→draft/N1 · N4→review/N3. 🟢9월.'
+      responses:
+        '200':
+          description: '복귀됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AbortResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}/resume:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [S0 Job]
+      summary: 실패 단계 전체 재시도 📌조건부
+      operationId: jobResume
+      x-screen: 'N2·N4(조건부)'
+      x-source: API-JOB-08
+      description: >
+        📌9월 조건부(PM 확정 대기 · openapi 개수 미합산). status=failed의 실패 task만 재큐잉,
+        인페인팅 실패는 재실행 안 함. TODO: 상세 계약 미확정.
+      responses:
+        '202':
+          description: '재개 수락 (→ JOB-05 폴링)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptedTask' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /jobs/{jobId}/source-images:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N1 Source]
+      summary: 원본 이미지 목록 🟢9월
+      operationId: sourceImageList
+      x-screen: 'N1'
+      x-source: API-SRC-01
+      responses:
+        '200':
+          description: '원본 목록 (presigned)'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/SourceImage' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [N1 Source]
+      summary: 원본 이미지 업로드(다중) 🟢9월
+      operationId: sourceImageUpload
+      x-screen: 'N1'
+      x-source: API-SRC-02
+      description: >
+        multipart 다중. JPG·PNG(파일당 20MB·작업당 20장). 파일별 성공/실패 개별 기록.
+        서버가 업로드 시 원본 width·height를 측정(디코딩)해 저장 — NOT NULL(V5)이라
+        측정 실패 파일은 results[].ok=false로 개별 처리(클라이언트 보고 치수 불신 · 10차 #C). 🟢9월.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  items: { type: string, format: binary }
+      responses:
+        '200':
+          description: '업로드 결과 (파일별)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SourceImageUploadResult' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/source-images/reorder:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    patch:
+      tags: [N1 Source]
+      summary: 원본 순서 재정렬 🟢9월
+      operationId: sourceImageReorder
+      x-screen: 'N1'
+      x-source: API-SRC-03
+      description: >
+        `order` = 작업의 현재 원본 이미지 id 전체를 정확히 한 번씩 담은 배열(앞이 1번). 검증에 실패하면 순서를 전혀 바꾸지 않는다.
+        `order` 누락·타입 오류·중복·현재 이미지 일부 누락 → 400 VALIDATION_ERROR.
+        작업 미존재·미소유, 이미지 id 미존재·다른 작업 소속 → 404 NOT_FOUND.
+        통과하면 한 트랜잭션에서 1..N 으로 다시 매기고 재정렬된 SourceImage 배열을 반환한다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReorderRequest' }
+      responses:
+        '200':
+          description: '재정렬된 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/SourceImage' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/source-images/{sourceImageId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - name: sourceImageId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    delete:
+      tags: [N1 Source]
+      summary: 원본 이미지 삭제 🟢9월
+      operationId: sourceImageDelete
+      x-screen: 'N1'
+      x-source: API-SRC-04
+      responses:
+        '204': { description: '삭제됨' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /jobs/{jobId}/analyze:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N2 Analysis]
+      summary: 분석 시작 (OCR→분해→판정) 🟢9월
+      operationId: analyzeStart
+      x-screen: 'N2'
+      x-source: API-ANL-01
+      description: >
+        draft·원본 존재·N1 게이트(product_name NULL이면 400 VALIDATION_ERROR). 큐 등록까지만(202),
+        산출물은 오케스트레이터. 진행은 JOB-05 폴링. 🟢9월.
+      responses:
+        '202':
+          description: '분석 수락'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptedTask' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /jobs/{jobId}/sections:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N3 Section Review]
+      summary: 섹션 목록(버킷·배지) 🟢9월
+      operationId: sectionList
+      x-screen: 'N3'
+      x-source: API-SEC-01
+      description: '제외 버킷=판정 목록 전부(정렬 불변식), 포함=썸네일만. verdictType 파생. 🟢9월.'
+      parameters:
+        - name: bucket
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/SectionBucket' }
+      responses:
+        '200':
+          description: '버킷 2단 섹션'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SectionList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/sections/{sectionId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [N3 Section Review]
+      summary: 섹션 상세(판정 근거) 🟢9월
+      operationId: sectionGet
+      x-screen: 'N3'
+      x-source: API-SEC-02
+      responses:
+        '200':
+          description: '섹션 상세 + 판정 근거'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Section' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [N3 Section Review]
+      summary: 섹션 되살리기/제외 (N3·N5 공용) 🟢9월
+      operationId: sectionPatch
+      x-screen: 'N3·N5'
+      x-source: API-SEC-03
+      description: 'excludedStage는 서버가 currentStep으로 기록. N5에서 excludedStage=N3 조작 시 409 INVALID_STATE. 🟢9월.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SectionPatch' }
+      responses:
+        '200':
+          description: '갱신된 섹션 전체 (정렬 verdicts)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Section' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}/sections/proceed:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N3 Section Review]
+      summary: 이대로 진행 = N3→N4 🟢9월
+      operationId: sectionProceed
+      x-screen: 'N3'
+      x-source: API-SEC-04
+      description: '전 섹션 제외면 409 ALL_SECTIONS_EXCLUDED. include≥1일 때 N4 chord 시작(202). 🟢9월.'
+      responses:
+        '202':
+          description: '번역 시작 수락'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptedTask' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /jobs/{jobId}/sections/{sectionId}/inpaint:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [N4 Translate]
+      summary: 섹션 인페인팅 결과 조회 🟢9월
+      operationId: inpaintGet
+      x-screen: 'N3·N4'
+      x-source: API-INP-01
+      responses:
+        '200':
+          description: '인페인팅 결과 (presigned)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InpaintResult' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/sections/{sectionId}/mask:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - $ref: '#/components/parameters/SectionId'
+    put:
+      tags: [N4 Translate]
+      summary: 마스크 조정 후 재실행 🔵12월
+      operationId: maskAdjust
+      x-screen: 'N4(12월)'
+      x-source: API-INP-02
+      description: '🔵12월 · 상세 계약 미확정. TODO: 마스크 입력·재실행 계약 12월 확정.'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '202':
+          description: '🔵12월 미확정'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StubResponse' }
+
+  /jobs/{jobId}/blocks:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N5 Review]
+      summary: 텍스트 블록 표(대조) 🟢9월
+      operationId: blockList
+      x-screen: 'N5'
+      x-source: API-CFM-01
+      description: 'sectionId 필터(섹션 단위 lazy-load), 페이징 없음. signals[] 조립(admin 2종 제외). 🟢9월.'
+      parameters:
+        - name: sectionId
+          in: query
+          required: false
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: '블록 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/TextBlock' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/blocks/{blockId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - $ref: '#/components/parameters/BlockId'
+    patch:
+      tags: [N5 Review]
+      summary: 번역문 셀 수정 🟢9월
+      operationId: blockPatch
+      x-screen: 'N5'
+      x-source: API-CFM-02
+      description: >
+        revision 낙관적 잠금(불일치 409 REVISION_CONFLICT · details.current). char_count 즉시,
+        overflow·autoAdjust는 재렌더 후. 응답 rerenderTaskId → /tasks 폴링. 🟢9월.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BlockPatch' }
+      responses:
+        '200':
+          description: '수정됨 (재렌더·재검증 트리거)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BlockPatchResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}/preview:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N5 Review]
+      summary: 검수 뷰어 프리뷰 — 다폭 대응 🟢9월
+      operationId: reviewPreview
+      x-screen: 'N5'
+      x-source: API-CFM-03
+      description: >
+        displayTop·scale·previewHeight 서버 계산(미저장). scale=previewWidth/maxOriginalWidth · align=left.
+        섹션별 presigned. N3 제외 제외 · N5 제외는 bucket=exclude 포함. 🟢9월.
+      responses:
+        '200':
+          description: '다폭 프리뷰'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewPreview' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/confirm:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N5 Review]
+      summary: 검수 확정 = N5→N6 🟢9월
+      operationId: confirmReview
+      x-screen: 'N5'
+      x-source: API-CFM-04
+      description: >
+        전 섹션 제외 차단. acknowledgedWarnings 정합 아니면 409 INVALID_STATE(+현재 경고 목록).
+        job→review/N6. confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
+        FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmRequest' }
+      responses:
+        '200':
+          description: 'N6 진입'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /jobs/{jobId}/render:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N6 Save & Export]
+      summary: 최종 이미지 렌더링 (FE가 N6 진입 시 호출) 🟢9월
+      operationId: renderStart
+      x-screen: 'N6'
+      x-source: API-FIN-01
+      description: >
+        review/N6 확인. 진행 중이면 그 시도, 현재 시도 실패면 같은 실행의 재시도 시도(retry_count 누적·max_retry 한도,
+        초기화 없음), 완료면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
+        현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
+        202 renderTaskId(시도 id) → JOB-05 폴링.
+        최초 렌더는 confirm(CFM-04)이 자동 등록하므로 이 엔드포인트는 수동 재렌더용(A4·Q9).
+        렌더 실패 여부는 renderTaskId로 JOB-05 폴링(taskType=render·status=failed · 섹션 단위는 unitType=section) —
+        deliverable.render_status로 판별하지 않음(10차 #E). 🟢9월.
+      responses:
+        '202':
+          description: '렌더 수락'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RenderResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}/deliverables:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N6 Save & Export]
+      summary: 산출물 목록 + 검증 + 구성요소 상태 🟢9월
+      operationId: deliverableList
+      x-screen: 'N6'
+      x-source: API-FIN-02
+      description: '이미지(presigned) + validation 요약 + components[]. 🟢9월.'
+      responses:
+        '200':
+          description: '산출물 + 구성요소'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliverableList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/validation:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N6 Save & Export]
+      summary: 규격 검증 상세 🟢9월
+      operationId: validationGet
+      x-screen: 'N6'
+      x-source: API-FIN-03
+      responses:
+        '200':
+          description: '항목별 검증 결과'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/ValidationDetail' } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/export:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N6 Save & Export]
+      summary: 산출물 묶음 생성 (export.zip) 🟢9월
+      operationId: exportCreate
+      x-screen: 'N6'
+      x-source: API-FIN-04
+      description: >
+        content.csv(formula injection 방어) + zip. 🟢9월. (manifest(서버 보관·미배포)는 1.0.0 범위에서 제외 — 2026-10-14 범위 변경 승인, 이후 릴리즈에서 규격과 함께 추가)
+        1.0.0: 만들 수 있는 구성요소 = csv(content.csv)·images. html·psd 는 이번 릴리즈 범위 밖 → 요청에 있으면 아무것도
+        만들지 않고 400 VALIDATION_ERROR(error.details.unsupported). csv·images와 html·psd가 섞여 있어도 전체 400이고 산출물을 만들지 않는다.
+        둘 이상 고르면 하나의 zip 으로 묶어 artifactType=zip 을
+        반환하고, 하나만 고르면 그 구성요소(csv·images)를 반환한다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExportRequest' }
+      responses:
+        '201':
+          description: '묶음 생성됨'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExportResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/exports/{artifactId}/download:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - name: artifactId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    get:
+      tags: [N6 Save & Export]
+      summary: 산출물 다운로드 — presigned 🟢9월
+      operationId: exportDownload
+      x-screen: 'N6'
+      x-source: API-FIN-05
+      description: 'presigned URL(5분)을 JSON으로 반환. manifest·미생성·남의 job은 404. 🟢9월.'
+      responses:
+        '200':
+          description: 'presigned 다운로드 정보'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/export/download:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [N6 Save & Export]
+      summary: 산출물 개별 다운로드 — 타입별 presigned 🟢9월
+      operationId: exportDownloadByType
+      x-screen: 'N6'
+      x-source: API-FIN-05
+      description: >
+        N6 행별 개별 다운로드. artifactType으로 구성요소(zip|images|csv|html)를 지정 —
+        기본 zip. export_artifact 구성요소 행에서 presigned URL(5분) 반환.
+        manifest·미생성·남의 job은 404. 🟢9월.
+      parameters:
+        - name: artifactType
+          in: query
+          required: false
+          schema: { type: string, enum: [zip, images, csv, html], default: zip }
+          description: '구성요소 타입(기본 zip). images·csv·html은 해당 구성요소만 반환.'
+      responses:
+        '200':
+          description: 'presigned 다운로드 정보'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /jobs/{jobId}/save:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N6 Save & Export]
+      summary: 저장 = 보관함 카드 생성 🟢9월
+      operationId: jobSave
+      x-screen: 'N6'
+      x-source: API-FIN-06
+      description: '렌더 성공 확인 후 done/N6·is_saved=true. 보관함 카드 = job 투영(테이블 아님). 🟢9월.'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveRequest' }
+      responses:
+        '200':
+          description: '저장됨 (보관함 카드)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LibraryCard' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /jobs/{jobId}/export/reupload-csv:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [N6 Save & Export]
+      summary: CSV 수정본 재업로드 → 재렌더 🟡9월(should)
+      operationId: exportReuploadCsv
+      x-screen: 'N6'
+      x-source: API-FIN-07
+      description: '🟡9월(should). content.csv 스키마 검증 → 반영 → 재렌더 task(202). 🟡should.'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '202':
+          description: '재렌더 수락'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptedTask' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /library:
+    get:
+      tags: [M1 Library]
+      summary: 보관함 카드 목록 🟢9월
+      operationId: libraryList
+      x-screen: 'M1'
+      x-source: API-LIB-01
+      description: 'job(is_saved=true) 투영 + deliverable 썸네일(presigned). 🟢9월.'
+      responses:
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '200':
+          description: '카드 목록'
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/LibraryCard' } }
+  /library/{jobId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    delete:
+      tags: [M1 Library]
+      summary: 카드 삭제 🔵12월
+      operationId: libraryDelete
+      x-screen: 'M1(12월)'
+      x-source: API-LIB-02
+      description: '🔵12월 · 상세 계약 미확정. TODO: 12월 확정.'
+      responses:
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204': { description: '🔵12월 미확정' }
+  /jobs/{jobId}/versions:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    post:
+      tags: [M1 Library]
+      summary: 다른 버전 만들기 🔵12월
+      operationId: jobVersionCreate
+      x-screen: 'M1(12월)'
+      x-source: API-LIB-03
+      description: '🔵12월 · 상세 계약 미확정. 자산 행 복사·parent 참조. TODO: 12월 확정.'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '201':
+          description: '🔵12월 미확정'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StubResponse' }
+
+  /admin/audit-logs:
+    get:
+      tags: [Admin]
+      summary: 감사 로그 조회 🔵12월
+      operationId: adminAuditLogs
+      x-screen: 'O4'
+      x-source: API-ADM-01
+      description: '🔵12월 · 역할 권한 필요(403). 기록은 9월부터 적재. TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/dashboard/metrics:
+    get:
+      tags: [Admin]
+      summary: 핵심 지표 대시보드 🔵12월
+      operationId: adminMetrics
+      x-screen: 'O1'
+      x-source: API-ADM-02
+      description: '🔵12월 · 역할 권한(403). TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/jobs:
+    get:
+      tags: [Admin]
+      summary: 전체 작업 운영 조회 🔵12월
+      operationId: adminJobs
+      x-screen: 'O2'
+      x-source: API-ADM-03
+      description: '🔵12월 · 역할 권한(403). TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/config/channel-specs:
+    get:
+      tags: [Admin]
+      summary: 규격 관리 콘솔(조회) 🔵12월
+      operationId: adminChannelSpecsGet
+      x-screen: 'O3'
+      x-source: API-ADM-04
+      description: '🔵12월 · 역할 권한(403). TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Admin]
+      summary: 규격 등록/수정 🔵12월
+      operationId: adminChannelSpecsPost
+      x-screen: 'O3'
+      x-source: API-ADM-05
+      description: '🔵12월 · 역할 권한(403). TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/config/dictionaries:
+    get:
+      tags: [Admin]
+      summary: 규제 사전·용어집 관리(조회) 🔵12월
+      operationId: adminDictionaries
+      x-screen: 'O3'
+      x-source: API-ADM-06
+      description: '🔵12월 · 역할 권한(403). TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/quality-signals:
+    get:
+      tags: [Admin]
+      summary: 사용자 수정 신호 조회/분석 🔵12월
+      operationId: adminQualitySignals
+      x-screen: 'O5'
+      x-source: API-ADM-07
+      description: '🔵12월 · 역할 권한(403). 수집은 9월부터. TODO: 12월 확정.'
+      responses:
+        '200': { description: '🔵12월 미확정', content: { application/json: { schema: { $ref: '#/components/schemas/StubResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }

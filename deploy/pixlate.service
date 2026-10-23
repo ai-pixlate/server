@@ -1,0 +1,13 @@
+[Unit]
+Description=Pixlate BE stack (ECR pull + run containers)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/pixlate/start-pixlate.sh
+
+[Install]
+WantedBy=multi-user.target

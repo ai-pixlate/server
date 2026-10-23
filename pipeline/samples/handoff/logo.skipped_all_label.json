@@ -1,0 +1,271 @@
+{
+  "case": "logo.skipped_all_label",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "logo",
+    "input_snapshot_id": "snap-logo-a-1",
+    "image_id": "1",
+    "section_key": "sec_1_01",
+    "blocks": [
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_1_01",
+        "block_order": 2,
+        "source_ko": "라벨 문구",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "라벨 문구",
+            "bbox": {
+              "x": 60,
+              "y": 120,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "라벨 문구",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    120
+                  ],
+                  [
+                    360,
+                    120
+                  ],
+                  [
+                    360,
+                    144
+                  ],
+                  [
+                    60,
+                    144
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 120,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 120,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      }
+    ],
+    "label_result": {
+      "schema_version": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "labels": [
+        {
+          "block_key": "blk_002",
+          "is_product_label": true,
+          "basis": "vlm"
+        }
+      ],
+      "checked": {
+        "input_fingerprint": "8743e1bea4a367abe44c4311620cf30cc4a92093e72de63cf667b0b80d509206",
+        "llm_called": true,
+        "sent_block_keys": [
+          "blk_002"
+        ],
+        "blank_block_keys": []
+      },
+      "error": null
+    },
+    "label_result_sha256": "ff78eb14ad55f78dbbd8da7ba9d8ac54b3d27c717bc26a9f26c7f6be9171faf4",
+    "brand": {
+      "brand_id": "7",
+      "name_ko": "가짜브랜드",
+      "name_en": "FakeBrand"
+    }
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "logo",
+    "input_snapshot_id": "snap-logo-a-1",
+    "input_manifest": {
+      "stage": "logo",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "image_id": "1",
+      "section_key": "sec_1_01",
+      "blocks": [
+        {
+          "block_key": "blk_002",
+          "section_key": "sec_1_01",
+          "block_order": 2,
+          "source_ko": "라벨 문구",
+          "source_lines": [
+            {
+              "line_key": "line_002",
+              "text": "라벨 문구",
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0002",
+                  "text": "라벨 문구",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      120
+                    ],
+                    [
+                      360,
+                      120
+                    ],
+                    [
+                      360,
+                      144
+                    ],
+                    [
+                      60,
+                      144
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 120,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        }
+      ],
+      "label_result_sha256": "ff78eb14ad55f78dbbd8da7ba9d8ac54b3d27c717bc26a9f26c7f6be9171faf4",
+      "brand": {
+        "brand_id": "7",
+        "name_ko": "가짜브랜드",
+        "name_en": "FakeBrand"
+      },
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ]
+    },
+    "input_manifest_sha256": "192f2bd416244aa6541fbfdcb8107200dbc7a4a5eb3febcf2192f97df72fd42f",
+    "outcome": "skipped",
+    "target_count": 0,
+    "skip_reason": "all_product_label",
+    "payload": {
+      "section_key": "sec_1_01",
+      "decisions": [
+        {
+          "block_key": "blk_002",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ],
+      "logo_result": {
+        "schema_version": "1",
+        "image_id": "1",
+        "section_key": "sec_1_01",
+        "status": "ok",
+        "decisions": [
+          {
+            "block_key": "blk_002",
+            "is_brand_logo": null,
+            "basis": "product_label"
+          }
+        ],
+        "error": null
+      },
+      "logo_result_sha256": "7194d8ba928789aabcb48b8714ce6bb35133bb1859e13e867997c94a185ebd69",
+      "logo_record": {
+        "stage": "logo",
+        "image_id": "1",
+        "section_key": "sec_1_01",
+        "status": "ok",
+        "error": null,
+        "normalize": [
+          "nfkc",
+          "lower",
+          "strip_space_punct"
+        ],
+        "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+        "unicode_version": "15.0.0",
+        "blocks_fingerprint": "8743e1bea4a367abe44c4311620cf30cc4a92093e72de63cf667b0b80d509206",
+        "label_fingerprint": "ff78eb14ad55f78dbbd8da7ba9d8ac54b3d27c717bc26a9f26c7f6be9171faf4",
+        "label_input_fingerprint": "8743e1bea4a367abe44c4311620cf30cc4a92093e72de63cf667b0b80d509206",
+        "brand": {
+          "image_group": "brand-7",
+          "product_name": null,
+          "name_ko": "가짜브랜드",
+          "name_en": "FakeBrand",
+          "name_ko_normalized": "가짜브랜드",
+          "name_en_normalized": "fakebrand"
+        },
+        "brand_entry_fingerprint": "73e241c368b3af189b1d72730d772f76a58affc10d3b31e72bcf44af9728067d",
+        "blocks": 1,
+        "counts": {
+          "product_label": 1,
+          "empty_text": 0,
+          "exact_match": 0,
+          "no_match": 0,
+          "compared": 0
+        },
+        "decisions": [
+          {
+            "block_key": "blk_002",
+            "block_order": 2,
+            "is_product_label": true,
+            "normalized": null,
+            "matched_names": [],
+            "is_brand_logo": null,
+            "basis": "product_label"
+          }
+        ]
+      },
+      "logo_record_sha256": "13da6c6925c85f2252e05a644e713d07502af17a50537cd1662e3ff88029cc97"
+    },
+    "artifacts": [],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)"
+    },
+    "diagnostics": {}
+  },
+  "be_validation_problems": []
+}

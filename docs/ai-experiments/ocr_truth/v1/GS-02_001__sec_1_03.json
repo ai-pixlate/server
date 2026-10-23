@@ -1,0 +1,2523 @@
+{
+  "truth_format": 1,
+  "id": "GS-02_001__sec_1_03",
+  "sample": "GS-02_001",
+  "section_key": "sec_1_03",
+  "kind": "이벤트 방법·날짜 표",
+  "spec": {
+    "path": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+    "commit": null
+  },
+  "image": {
+    "path": "pipeline/out/ocr_input/v1/GS-02_001/sections/sec_1_03.png",
+    "sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+    "width": 830,
+    "height": 2569
+  },
+  "review": {
+    "status": "draft",
+    "mode": "1인 검수",
+    "reviewer_count": 1,
+    "reviewed_at": null,
+    "frozen_at": null
+  },
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "이벤트 참여 방법",
+      "bbox": {
+        "x": 271,
+        "y": 103,
+        "w": 287,
+        "h": 41
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L002",
+      "text": "STEP ❶",
+      "bbox": {
+        "x": 121,
+        "y": 218,
+        "w": 72,
+        "h": 21
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L003",
+      "text": "셀리맥스 제품 구매 내역 캡쳐하기",
+      "bbox": {
+        "x": 257,
+        "y": 208,
+        "w": 399,
+        "h": 39
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L004",
+      "text": "온라인",
+      "bbox": {
+        "x": 273,
+        "y": 267,
+        "w": 54,
+        "h": 21
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L005",
+      "text": "올리브영 APP [마이페이지]",
+      "bbox": {
+        "x": 351,
+        "y": 262,
+        "w": 306,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "▶ 주문배송조회",
+      "bbox": {
+        "x": 257,
+        "y": 319,
+        "w": 180,
+        "h": 33
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L007",
+      "text": "전체보기 >",
+      "bbox": {
+        "x": 463,
+        "y": 324,
+        "w": 99,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L008",
+      "text": "클릭",
+      "bbox": {
+        "x": 583,
+        "y": 321,
+        "w": 49,
+        "h": 26
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L009",
+      "text": "▶",
+      "bbox": {
+        "x": 260,
+        "y": 378,
+        "w": 24,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L010",
+      "text": "상세보기 >",
+      "bbox": {
+        "x": 311,
+        "y": 383,
+        "w": 96,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L011",
+      "text": "클릭",
+      "bbox": {
+        "x": 433,
+        "y": 380,
+        "w": 48,
+        "h": 26
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L012",
+      "text": "▶ 구매내역에 주문번호가 보이는 화면",
+      "bbox": {
+        "x": 257,
+        "y": 432,
+        "w": 420,
+        "h": 30
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L013",
+      "text": "이미지 캡쳐",
+      "bbox": {
+        "x": 290,
+        "y": 468,
+        "w": 129,
+        "h": 30
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L014",
+      "text": "2025.08.21",
+      "bbox": {
+        "x": 296,
+        "y": 645,
+        "w": 79,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L015",
+      "text": "Y2508217381315",
+      "bbox": {
+        "x": 391,
+        "y": 645,
+        "w": 114,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L016",
+      "text": "올리브영 배송상품",
+      "bbox": {
+        "x": 296,
+        "y": 712,
+        "w": 107,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L017",
+      "text": "[UV 에이징/광노화] 셀리맥스 브라이트닝 모공",
+      "bbox": {
+        "x": 394,
+        "y": 766,
+        "w": 253,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L018",
+      "text": "잡티 선크림 50ml 기획 (+10ml)",
+      "bbox": {
+        "x": 393,
+        "y": 781,
+        "w": 181,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L019",
+      "text": "구매수량 : 1개",
+      "bbox": {
+        "x": 394,
+        "y": 807,
+        "w": 71,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L020",
+      "text": "15,900원",
+      "bbox": {
+        "x": 393,
+        "y": 827,
+        "w": 61,
+        "h": 16
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L021",
+      "text": "결제완료",
+      "bbox": {
+        "x": 296,
+        "y": 884,
+        "w": 50,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L022",
+      "text": "| 배송 예정일 2025.08.26",
+      "bbox": {
+        "x": 382,
+        "y": 884,
+        "w": 129,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L023",
+      "text": "오프라인",
+      "bbox": {
+        "x": 273,
+        "y": 1020,
+        "w": 72,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L024",
+      "text": "지류 영수증 또는 올리브영 APP",
+      "bbox": {
+        "x": 365,
+        "y": 1015,
+        "w": 349,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L025",
+      "text": "▶ [마이페이지] ▶ 마이월렛",
+      "bbox": {
+        "x": 257,
+        "y": 1074,
+        "w": 316,
+        "h": 28
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L026",
+      "text": "▶ 스마트영수증 ▶ 구매지점·구매일·품목",
+      "bbox": {
+        "x": 257,
+        "y": 1128,
+        "w": 478,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L027",
+      "text": "나오게 촬영 또는 캡쳐",
+      "bbox": {
+        "x": 258,
+        "y": 1169,
+        "w": 239,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L028",
+      "text": "* 클리어런스 상품은 교환/환불 불가",
+      "bbox": {
+        "x": 510,
+        "y": 1241,
+        "w": 176,
+        "h": 10
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L029",
+      "text": "CJ올리브영(주) 점",
+      "bbox": {
+        "x": 269,
+        "y": 1246,
+        "w": 98,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L030",
+      "text": "* 행사 종료 후 재결제 시",
+      "bbox": {
+        "x": 510,
+        "y": 1251,
+        "w": 127,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L031",
+      "text": "서울특별시 강남구",
+      "bbox": {
+        "x": 269,
+        "y": 1259,
+        "w": 86,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L032",
+      "text": "할인가/쿠폰 재적용 불가",
+      "bbox": {
+        "x": 520,
+        "y": 1264,
+        "w": 119,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L033",
+      "text": "8098101574",
+      "bbox": {
+        "x": 269,
+        "y": 1272,
+        "w": 52,
+        "h": 10
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L034",
+      "text": "2025-08-12 15:19:57",
+      "bbox": {
+        "x": 268,
+        "y": 1284,
+        "w": 99,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L035",
+      "text": "카드전표(고객용)",
+      "bbox": {
+        "x": 576,
+        "y": 1290,
+        "w": 83,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L036",
+      "text": "고객센터 : 1577-4887 www.oliveyoung.co.kr",
+      "bbox": {
+        "x": 269,
+        "y": 1297,
+        "w": 216,
+        "h": 16
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L037",
+      "text": "교환/환불은 결제일로부터 15일(8월 27일)내",
+      "bbox": {
+        "x": 271,
+        "y": 1323,
+        "w": 208,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L038",
+      "text": "상품명 단가 수량 금액",
+      "bbox": {
+        "x": 521,
+        "y": 1323,
+        "w": 194,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L039",
+      "text": "판매가능한 정상품(미개봉)에 한해 결제했던",
+      "bbox": {
+        "x": 270,
+        "y": 1336,
+        "w": 209,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L040",
+      "text": "수단과 구매영수증 지참 후 매장 방문시 가능",
+      "bbox": {
+        "x": 270,
+        "y": 1346,
+        "w": 216,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L041",
+      "text": "1) 셀리맥스 더 리얼 노니 에너지 매가행사",
+      "bbox": {
+        "x": 510,
+        "y": 1349,
+        "w": 205,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L042",
+      "text": "* 주류 교환/환불 불가",
+      "bbox": {
+        "x": 270,
+        "y": 1359,
+        "w": 108,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L043",
+      "text": "8809971482325 33,000 1 29,700",
+      "bbox": {
+        "x": 510,
+        "y": 1362,
+        "w": 205,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L044",
+      "text": "* 단 환불/결제수단 변경은 구매매장에서만",
+      "bbox": {
+        "x": 270,
+        "y": 1374,
+        "w": 204,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L045",
+      "text": "상품앞 표시품목 : 부가세 면세품목",
+      "bbox": {
+        "x": 510,
+        "y": 1385,
+        "w": 184,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L046",
+      "text": "가능",
+      "bbox": {
+        "x": 270,
+        "y": 1387,
+        "w": 20,
+        "h": 11
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L047",
+      "text": "*클리어런스 쿠폰 : 제휴, 중복할인 불가",
+      "bbox": {
+        "x": 510,
+        "y": 1398,
+        "w": 190,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L048",
+      "text": "* 부분교환 영수증/선물교환증에 의한 환불은",
+      "bbox": {
+        "x": 270,
+        "y": 1398,
+        "w": 209,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L049",
+      "text": "과세 합계 27,000",
+      "bbox": {
+        "x": 583,
+        "y": 1410,
+        "w": 132,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L050",
+      "text": "불가하며 부분교환 영수증/선물교환증을 지참",
+      "bbox": {
+        "x": 270,
+        "y": 1413,
+        "w": 214,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L051",
+      "text": "하여 매장 방문 시 해당금액 이상의 상품으로",
+      "bbox": {
+        "x": 270,
+        "y": 1426,
+        "w": 215,
+        "h": 10
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L052",
+      "text": "부가세 2,700",
+      "bbox": {
+        "x": 583,
+        "y": 1426,
+        "w": 132,
+        "h": 13
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L053",
+      "text": "STEP ❷",
+      "bbox": {
+        "x": 120,
+        "y": 1616,
+        "w": 73,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L054",
+      "text": "이벤트 참여 네이버 폼 제출하기",
+      "bbox": {
+        "x": 249,
+        "y": 1608,
+        "w": 373,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L055",
+      "text": "아래의 QR을 꾹 누르거나,",
+      "bbox": {
+        "x": 250,
+        "y": 1660,
+        "w": 282,
+        "h": 36
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L056",
+      "text": "셀리맥스 카카오 채널의 올영세일 구매인증",
+      "bbox": {
+        "x": 252,
+        "y": 1714,
+        "w": 466,
+        "h": 33
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L057",
+      "text": "메뉴를 누르고 구매 인증 폼을 제출해주세요.",
+      "bbox": {
+        "x": 250,
+        "y": 1760,
+        "w": 480,
+        "h": 33
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L058",
+      "text": "올영세일",
+      "bbox": {
+        "x": 676,
+        "y": 1873,
+        "w": 71,
+        "h": 20
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L059",
+      "text": "구매인증",
+      "bbox": {
+        "x": 682,
+        "y": 1904,
+        "w": 63,
+        "h": 18
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L060",
+      "text": "인스타그램",
+      "bbox": {
+        "x": 454,
+        "y": 1937,
+        "w": 49,
+        "h": 10
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L061",
+      "text": "공식홈페이지",
+      "bbox": {
+        "x": 548,
+        "y": 1937,
+        "w": 61,
+        "h": 10
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L062",
+      "text": "QR 코드",
+      "bbox": {
+        "x": 303,
+        "y": 2012,
+        "w": 56,
+        "h": 15
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L063",
+      "text": "공식몰이벤트",
+      "bbox": {
+        "x": 449,
+        "y": 2012,
+        "w": 59,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L064",
+      "text": "고객센터",
+      "bbox": {
+        "x": 559,
+        "y": 2012,
+        "w": 39,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L065",
+      "text": "채팅상담",
+      "bbox": {
+        "x": 657,
+        "y": 2012,
+        "w": 41,
+        "h": 12
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L066",
+      "text": "구매 기한",
+      "bbox": {
+        "x": 155,
+        "y": 2186,
+        "w": 90,
+        "h": 26
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L067",
+      "text": "26. 8. 30(일) - 26. 9. 5(토)",
+      "bbox": {
+        "x": 369,
+        "y": 2186,
+        "w": 315,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L068",
+      "text": "네이버 폼 제출 기한",
+      "bbox": {
+        "x": 110,
+        "y": 2256,
+        "w": 182,
+        "h": 25
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L069",
+      "text": "26. 8. 30(일) - 26. 9. 10(목) 23:59",
+      "bbox": {
+        "x": 369,
+        "y": 2253,
+        "w": 410,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L070",
+      "text": "경품 발송일",
+      "bbox": {
+        "x": 145,
+        "y": 2317,
+        "w": 110,
+        "h": 28
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L071",
+      "text": "9월 1일, 4, 11일 오후 5시",
+      "bbox": {
+        "x": 369,
+        "y": 2317,
+        "w": 281,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L072",
+      "text": "기프트카드 재발송 기한",
+      "bbox": {
+        "x": 89,
+        "y": 2387,
+        "w": 222,
+        "h": 23
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "line_id": "L073",
+      "text": "26. 9. 16(수) 17:00 까지",
+      "bbox": {
+        "x": 369,
+        "y": 2384,
+        "w": 278,
+        "h": 31
+      },
+      "tags": [],
+      "source": "gemini_draft",
+      "verified": false,
+      "note": ""
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T08:59:35+00:00",
+      "by": "tool",
+      "action": "init"
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L001",
+      "after": {
+        "line_id": "L001",
+        "text": "이벤트 참여 방법",
+        "bbox": {
+          "x": 271,
+          "y": 103,
+          "w": 287,
+          "h": 41
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L002",
+      "after": {
+        "line_id": "L002",
+        "text": "STEP ❶",
+        "bbox": {
+          "x": 121,
+          "y": 218,
+          "w": 72,
+          "h": 21
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L003",
+      "after": {
+        "line_id": "L003",
+        "text": "셀리맥스 제품 구매 내역 캡쳐하기",
+        "bbox": {
+          "x": 257,
+          "y": 208,
+          "w": 399,
+          "h": 39
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L004",
+      "after": {
+        "line_id": "L004",
+        "text": "온라인",
+        "bbox": {
+          "x": 273,
+          "y": 267,
+          "w": 54,
+          "h": 21
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L005",
+      "after": {
+        "line_id": "L005",
+        "text": "올리브영 APP [마이페이지]",
+        "bbox": {
+          "x": 351,
+          "y": 262,
+          "w": 306,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L006",
+      "after": {
+        "line_id": "L006",
+        "text": "▶ 주문배송조회",
+        "bbox": {
+          "x": 257,
+          "y": 319,
+          "w": 180,
+          "h": 33
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L007",
+      "after": {
+        "line_id": "L007",
+        "text": "전체보기 >",
+        "bbox": {
+          "x": 463,
+          "y": 324,
+          "w": 99,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L008",
+      "after": {
+        "line_id": "L008",
+        "text": "클릭",
+        "bbox": {
+          "x": 583,
+          "y": 321,
+          "w": 49,
+          "h": 26
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L009",
+      "after": {
+        "line_id": "L009",
+        "text": "▶",
+        "bbox": {
+          "x": 260,
+          "y": 378,
+          "w": 24,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L010",
+      "after": {
+        "line_id": "L010",
+        "text": "상세보기 >",
+        "bbox": {
+          "x": 311,
+          "y": 383,
+          "w": 96,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L011",
+      "after": {
+        "line_id": "L011",
+        "text": "클릭",
+        "bbox": {
+          "x": 433,
+          "y": 380,
+          "w": 48,
+          "h": 26
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L012",
+      "after": {
+        "line_id": "L012",
+        "text": "▶ 구매내역에 주문번호가 보이는 화면",
+        "bbox": {
+          "x": 257,
+          "y": 432,
+          "w": 420,
+          "h": 30
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L013",
+      "after": {
+        "line_id": "L013",
+        "text": "이미지 캡쳐",
+        "bbox": {
+          "x": 290,
+          "y": 468,
+          "w": 129,
+          "h": 30
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L014",
+      "after": {
+        "line_id": "L014",
+        "text": "2025.08.21",
+        "bbox": {
+          "x": 296,
+          "y": 645,
+          "w": 79,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L015",
+      "after": {
+        "line_id": "L015",
+        "text": "Y2508217381315",
+        "bbox": {
+          "x": 391,
+          "y": 645,
+          "w": 114,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L016",
+      "after": {
+        "line_id": "L016",
+        "text": "올리브영 배송상품",
+        "bbox": {
+          "x": 296,
+          "y": 712,
+          "w": 107,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L017",
+      "after": {
+        "line_id": "L017",
+        "text": "[UV 에이징/광노화] 셀리맥스 브라이트닝 모공",
+        "bbox": {
+          "x": 394,
+          "y": 766,
+          "w": 253,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L018",
+      "after": {
+        "line_id": "L018",
+        "text": "잡티 선크림 50ml 기획 (+10ml)",
+        "bbox": {
+          "x": 393,
+          "y": 781,
+          "w": 181,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L019",
+      "after": {
+        "line_id": "L019",
+        "text": "구매수량 : 1개",
+        "bbox": {
+          "x": 394,
+          "y": 807,
+          "w": 71,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L020",
+      "after": {
+        "line_id": "L020",
+        "text": "15,900원",
+        "bbox": {
+          "x": 393,
+          "y": 827,
+          "w": 61,
+          "h": 16
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L021",
+      "after": {
+        "line_id": "L021",
+        "text": "결제완료",
+        "bbox": {
+          "x": 296,
+          "y": 884,
+          "w": 50,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L022",
+      "after": {
+        "line_id": "L022",
+        "text": "| 배송 예정일 2025.08.26",
+        "bbox": {
+          "x": 382,
+          "y": 884,
+          "w": 129,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L023",
+      "after": {
+        "line_id": "L023",
+        "text": "오프라인",
+        "bbox": {
+          "x": 273,
+          "y": 1020,
+          "w": 72,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L024",
+      "after": {
+        "line_id": "L024",
+        "text": "지류 영수증 또는 올리브영 APP",
+        "bbox": {
+          "x": 365,
+          "y": 1015,
+          "w": 349,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L025",
+      "after": {
+        "line_id": "L025",
+        "text": "▶ [마이페이지] ▶ 마이월렛",
+        "bbox": {
+          "x": 257,
+          "y": 1074,
+          "w": 316,
+          "h": 28
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L026",
+      "after": {
+        "line_id": "L026",
+        "text": "▶ 스마트영수증 ▶ 구매지점·구매일·품목",
+        "bbox": {
+          "x": 257,
+          "y": 1128,
+          "w": 478,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L027",
+      "after": {
+        "line_id": "L027",
+        "text": "나오게 촬영 또는 캡쳐",
+        "bbox": {
+          "x": 258,
+          "y": 1169,
+          "w": 239,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L028",
+      "after": {
+        "line_id": "L028",
+        "text": "* 클리어런스 상품은 교환/환불 불가",
+        "bbox": {
+          "x": 510,
+          "y": 1241,
+          "w": 176,
+          "h": 10
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L029",
+      "after": {
+        "line_id": "L029",
+        "text": "CJ올리브영(주) 점",
+        "bbox": {
+          "x": 269,
+          "y": 1246,
+          "w": 98,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L030",
+      "after": {
+        "line_id": "L030",
+        "text": "* 행사 종료 후 재결제 시",
+        "bbox": {
+          "x": 510,
+          "y": 1251,
+          "w": 127,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L031",
+      "after": {
+        "line_id": "L031",
+        "text": "서울특별시 강남구",
+        "bbox": {
+          "x": 269,
+          "y": 1259,
+          "w": 86,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L032",
+      "after": {
+        "line_id": "L032",
+        "text": "할인가/쿠폰 재적용 불가",
+        "bbox": {
+          "x": 520,
+          "y": 1264,
+          "w": 119,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L033",
+      "after": {
+        "line_id": "L033",
+        "text": "8098101574",
+        "bbox": {
+          "x": 269,
+          "y": 1272,
+          "w": 52,
+          "h": 10
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L034",
+      "after": {
+        "line_id": "L034",
+        "text": "2025-08-12 15:19:57",
+        "bbox": {
+          "x": 268,
+          "y": 1284,
+          "w": 99,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L035",
+      "after": {
+        "line_id": "L035",
+        "text": "카드전표(고객용)",
+        "bbox": {
+          "x": 576,
+          "y": 1290,
+          "w": 83,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L036",
+      "after": {
+        "line_id": "L036",
+        "text": "고객센터 : 1577-4887 www.oliveyoung.co.kr",
+        "bbox": {
+          "x": 269,
+          "y": 1297,
+          "w": 216,
+          "h": 16
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L037",
+      "after": {
+        "line_id": "L037",
+        "text": "교환/환불은 결제일로부터 15일(8월 27일)내",
+        "bbox": {
+          "x": 271,
+          "y": 1323,
+          "w": 208,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L038",
+      "after": {
+        "line_id": "L038",
+        "text": "상품명 단가 수량 금액",
+        "bbox": {
+          "x": 521,
+          "y": 1323,
+          "w": 194,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L039",
+      "after": {
+        "line_id": "L039",
+        "text": "판매가능한 정상품(미개봉)에 한해 결제했던",
+        "bbox": {
+          "x": 270,
+          "y": 1336,
+          "w": 209,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L040",
+      "after": {
+        "line_id": "L040",
+        "text": "수단과 구매영수증 지참 후 매장 방문시 가능",
+        "bbox": {
+          "x": 270,
+          "y": 1346,
+          "w": 216,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L041",
+      "after": {
+        "line_id": "L041",
+        "text": "1) 셀리맥스 더 리얼 노니 에너지 매가행사",
+        "bbox": {
+          "x": 510,
+          "y": 1349,
+          "w": 205,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L042",
+      "after": {
+        "line_id": "L042",
+        "text": "* 주류 교환/환불 불가",
+        "bbox": {
+          "x": 270,
+          "y": 1359,
+          "w": 108,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L043",
+      "after": {
+        "line_id": "L043",
+        "text": "8809971482325 33,000 1 29,700",
+        "bbox": {
+          "x": 510,
+          "y": 1362,
+          "w": 205,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L044",
+      "after": {
+        "line_id": "L044",
+        "text": "* 단 환불/결제수단 변경은 구매매장에서만",
+        "bbox": {
+          "x": 270,
+          "y": 1374,
+          "w": 204,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L045",
+      "after": {
+        "line_id": "L045",
+        "text": "상품앞 표시품목 : 부가세 면세품목",
+        "bbox": {
+          "x": 510,
+          "y": 1385,
+          "w": 184,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L046",
+      "after": {
+        "line_id": "L046",
+        "text": "가능",
+        "bbox": {
+          "x": 270,
+          "y": 1387,
+          "w": 20,
+          "h": 11
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L047",
+      "after": {
+        "line_id": "L047",
+        "text": "*클리어런스 쿠폰 : 제휴, 중복할인 불가",
+        "bbox": {
+          "x": 510,
+          "y": 1398,
+          "w": 190,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L048",
+      "after": {
+        "line_id": "L048",
+        "text": "* 부분교환 영수증/선물교환증에 의한 환불은",
+        "bbox": {
+          "x": 270,
+          "y": 1398,
+          "w": 209,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L049",
+      "after": {
+        "line_id": "L049",
+        "text": "과세 합계 27,000",
+        "bbox": {
+          "x": 583,
+          "y": 1410,
+          "w": 132,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L050",
+      "after": {
+        "line_id": "L050",
+        "text": "불가하며 부분교환 영수증/선물교환증을 지참",
+        "bbox": {
+          "x": 270,
+          "y": 1413,
+          "w": 214,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L051",
+      "after": {
+        "line_id": "L051",
+        "text": "하여 매장 방문 시 해당금액 이상의 상품으로",
+        "bbox": {
+          "x": 270,
+          "y": 1426,
+          "w": 215,
+          "h": 10
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L052",
+      "after": {
+        "line_id": "L052",
+        "text": "부가세 2,700",
+        "bbox": {
+          "x": 583,
+          "y": 1426,
+          "w": 132,
+          "h": 13
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L053",
+      "after": {
+        "line_id": "L053",
+        "text": "STEP ❷",
+        "bbox": {
+          "x": 120,
+          "y": 1616,
+          "w": 73,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L054",
+      "after": {
+        "line_id": "L054",
+        "text": "이벤트 참여 네이버 폼 제출하기",
+        "bbox": {
+          "x": 249,
+          "y": 1608,
+          "w": 373,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L055",
+      "after": {
+        "line_id": "L055",
+        "text": "아래의 QR을 꾹 누르거나,",
+        "bbox": {
+          "x": 250,
+          "y": 1660,
+          "w": 282,
+          "h": 36
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L056",
+      "after": {
+        "line_id": "L056",
+        "text": "셀리맥스 카카오 채널의 올영세일 구매인증",
+        "bbox": {
+          "x": 252,
+          "y": 1714,
+          "w": 466,
+          "h": 33
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L057",
+      "after": {
+        "line_id": "L057",
+        "text": "메뉴를 누르고 구매 인증 폼을 제출해주세요.",
+        "bbox": {
+          "x": 250,
+          "y": 1760,
+          "w": 480,
+          "h": 33
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L058",
+      "after": {
+        "line_id": "L058",
+        "text": "올영세일",
+        "bbox": {
+          "x": 676,
+          "y": 1873,
+          "w": 71,
+          "h": 20
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L059",
+      "after": {
+        "line_id": "L059",
+        "text": "구매인증",
+        "bbox": {
+          "x": 682,
+          "y": 1904,
+          "w": 63,
+          "h": 18
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L060",
+      "after": {
+        "line_id": "L060",
+        "text": "인스타그램",
+        "bbox": {
+          "x": 454,
+          "y": 1937,
+          "w": 49,
+          "h": 10
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L061",
+      "after": {
+        "line_id": "L061",
+        "text": "공식홈페이지",
+        "bbox": {
+          "x": 548,
+          "y": 1937,
+          "w": 61,
+          "h": 10
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L062",
+      "after": {
+        "line_id": "L062",
+        "text": "QR 코드",
+        "bbox": {
+          "x": 303,
+          "y": 2012,
+          "w": 56,
+          "h": 15
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L063",
+      "after": {
+        "line_id": "L063",
+        "text": "공식몰이벤트",
+        "bbox": {
+          "x": 449,
+          "y": 2012,
+          "w": 59,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L064",
+      "after": {
+        "line_id": "L064",
+        "text": "고객센터",
+        "bbox": {
+          "x": 559,
+          "y": 2012,
+          "w": 39,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L065",
+      "after": {
+        "line_id": "L065",
+        "text": "채팅상담",
+        "bbox": {
+          "x": 657,
+          "y": 2012,
+          "w": 41,
+          "h": 12
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L066",
+      "after": {
+        "line_id": "L066",
+        "text": "구매 기한",
+        "bbox": {
+          "x": 155,
+          "y": 2186,
+          "w": 90,
+          "h": 26
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L067",
+      "after": {
+        "line_id": "L067",
+        "text": "26. 8. 30(일) - 26. 9. 5(토)",
+        "bbox": {
+          "x": 369,
+          "y": 2186,
+          "w": 315,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L068",
+      "after": {
+        "line_id": "L068",
+        "text": "네이버 폼 제출 기한",
+        "bbox": {
+          "x": 110,
+          "y": 2256,
+          "w": 182,
+          "h": 25
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L069",
+      "after": {
+        "line_id": "L069",
+        "text": "26. 8. 30(일) - 26. 9. 10(목) 23:59",
+        "bbox": {
+          "x": 369,
+          "y": 2253,
+          "w": 410,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L070",
+      "after": {
+        "line_id": "L070",
+        "text": "경품 발송일",
+        "bbox": {
+          "x": 145,
+          "y": 2317,
+          "w": 110,
+          "h": 28
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L071",
+      "after": {
+        "line_id": "L071",
+        "text": "9월 1일, 4, 11일 오후 5시",
+        "bbox": {
+          "x": 369,
+          "y": 2317,
+          "w": 281,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L072",
+      "after": {
+        "line_id": "L072",
+        "text": "기프트카드 재발송 기한",
+        "bbox": {
+          "x": 89,
+          "y": 2387,
+          "w": 222,
+          "h": 23
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-23T09:01:32+00:00",
+      "by": "gemini:gemini-3.8-flash",
+      "action": "add",
+      "line_id": "L073",
+      "after": {
+        "line_id": "L073",
+        "text": "26. 9. 16(수) 17:00 까지",
+        "bbox": {
+          "x": 369,
+          "y": 2384,
+          "w": 278,
+          "h": 31
+        },
+        "tags": [],
+        "source": "gemini_draft",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "at": "2026-09-25T07:30:09+00:00",
+      "by": "tool",
+      "action": "spec",
+      "before": "docs/ai-experiments/2026-09-23_02-ocr_scoring-spec-v2.md",
+      "after": "docs/ai-experiments/2026-09-25_02-ocr_scoring-spec-v3.md",
+      "reason": "채점 명세 v3(rotated 태그 추가)로 기준 변경, 검수 시작 전"
+    }
+  ]
+}

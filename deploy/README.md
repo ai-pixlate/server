@@ -1,0 +1,261 @@
+# EC2 배포 (백엔드)
+
+AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026-10-12 기준입니다.
+
+주소·계정 ID·비밀번호·버킷 이름은 이 레포에 두지 않습니다. 팀 공유 문서에서 확인합니다.
+
+## 구성
+
+```
+사용자 ─ ALB(pixlate-alb, HTTP:80) ─ 대상 그룹 Pixlate-tg(HTTP:8000, /health)
+                                        │
+                                   EC2 pixate-server (t3.micro, 탄력적 IP)
+                                   ├ pixlate-api          (8000)
+                                   ├ pixlate-redis        (6379, 비밀번호)
+                                   ├ pixlate-worker-cpu   (cpu 큐)
+                                   └ pixlate-recovery     (DB 기준 작업 복구)
+                                        │
+                     RDS pixlate-db (PostgreSQL 16) · S3 · ECR pixlate-api
+
+학교 GPU pod(KubeSphere) ─ gpu 워커(gpu 큐, LaMa) · ocr 워커(ocr 큐, 분석)
+                          ─→ EC2 Redis 6379 · RDS 5432 · S3   (gpu/README.md 4장)
+```
+
+- `ocr` 큐(분석: 섹션 분해·OCR·병합)는 학교 GPU pod가 소비합니다. PaddleOCR은 섹션 하나에 수 GiB~18GiB를 써서
+  t3.micro(총 909MiB)에서 돌릴 수 없습니다(측정값은 `gpu/README.md` 4장).
+- EC2에는 gpu·ocr 워커를 두지 않습니다. 예전 `pixlate-worker-ocr` 컨테이너가 남아 있으면 `start-pixlate.sh`가 멈춰 둡니다(삭제하지 않음).
+
+| 자원 | 이름 | 비고 |
+| --- | --- | --- |
+| EC2 | `pixate-server` | Ubuntu 24.04, t3.micro, 탄력적 IP. BE 레포는 `~/pixlate-api` |
+| 이미지 | ECR `pixlate-api:<SHA 태그>` | 배포는 **digest로 고정**한다. `latest`는 쓰지 않는다 |
+| DB | RDS `pixlate-db` | PostgreSQL 16, 기본 VPC, 퍼블릭 액세스 예(학교 GPU 접속용) |
+| 스토리지 | S3 | 버킷 이름은 `S3_BUCKET`. DB에는 키만 저장하고 조회 때 presigned URL |
+| 로드 밸런서 | ALB `pixlate-alb` → `Pixlate-tg` | HTTP만. HTTPS는 도메인·인증서 준비 후 |
+| AMI | `pixlate-be-ami-v2` | 2026-09-28 구성(옛 시작 스크립트). 새 스크립트 반영 후 다시 굽는다 |
+| IAM 역할 | `pixate-ec2-s3-role` | S3 + ECR(push 가능 확인). 키 없이 인증 |
+
+### 보안 그룹
+
+| 보안 그룹 | 인바운드 | 소스 |
+| --- | --- | --- |
+| `pixlate-alb-sg` (ALB) | 80 | 0.0.0.0/0 |
+| `launch-wizard-1` (EC2) | 6379 (Redis) | 학교 GPU 출구 IP /32 |
+| `pixlate-rds-sg` (RDS) | 5432 | EC2 보안 그룹, 학교 GPU 출구 IP /32 |
+
+- EC2의 8000(ALB → API)·22(인스턴스 연결) 규칙은 콘솔 설정을 기준으로 합니다.
+- 6379·5432는 `0.0.0.0/0`으로 열지 않습니다.
+- 학교 GPU 출구 IP는 클러스터 공용이라, Redis·RDS 비밀번호가 실제 방어선입니다.
+
+## 서버 파일
+
+| 레포 파일 | EC2 위치 | 역할 |
+| --- | --- | --- |
+| `deploy/start-pixlate.sh` | `/opt/pixlate/start-pixlate.sh` | 배포 모드에 따라 컨테이너를 멈추거나 digest 고정 이미지로 띄운다 |
+| `deploy/pixlate.service` | `/etc/systemd/system/pixlate.service` | 부팅 때 위 스크립트 실행 |
+| `deploy/bin/pixlate-mode` | `/opt/pixlate/bin/pixlate-mode` | 모드 기록과 적용을 한 번에 |
+| `deploy/bin/redact_run.py` | `/opt/pixlate/bin/redact_run.py` | 로그 정제 래퍼(아래) |
+| `deploy/bin/gemini_check.py` | `/opt/pixlate/bin/gemini_check.py` | Gemini 키 주입 확인 / 실제 요청 1회 |
+| `deploy/bin/ocr_measure.py` | (학교 GPU `/data/pixlate/bin/`) | OCR 1섹션 메모리·시간 실측 |
+| `deploy/bin/state_check.py` | `/opt/pixlate/bin/state_check.py` | 큐·unacked·DB 진행 중 시도 개수 재조회(읽기 전용) |
+| `deploy/pixlate.env.example` | `/etc/pixlate/pixlate.env` (root 600) | API·cpu 워커·복구 공용 환경변수. 실제 값은 서버에만 |
+| — | `/etc/pixlate/worker-gemini.env` (root:root 600) | `GEMINI_API_KEY` 한 줄. **cpu 워커에만** 연결(API·복구에는 없음) |
+| — | `/etc/pixlate/release.conf` | `RELEASE_SHA=<40자리>`, `API_DIGEST=sha256:<64자리>` (비밀 아님) |
+| — | `/etc/pixlate/deploy.mode` | `maintenance` · `validate` · `live` 한 단어 |
+| `deploy/fe/compose.yaml` | `/opt/pixlate/fe/compose.yaml` | FE 컨테이너(`pixlate-fe`) 하나만 선언(아래 FE 절) |
+| `deploy/fe/pixlate-fe.sh` | `/opt/pixlate/fe/pixlate-fe.sh` | BE 가 live 로 적용됐을 때만 FE 기동·종료 감시·TERM 정지 |
+| `deploy/fe/pixlate-fe.service` | `/etc/systemd/system/pixlate-fe.service` | BE 다음에 위 스크립트 실행. FE 재시작 주체 |
+| `deploy/fe/fe.env.example` | `/etc/pixlate/fe.env` | FE 이미지 digest·포트·메모리 상한(비밀 아님) |
+
+### 배포 모드
+
+| 모드 | API | cpu 워커·복구 | 재부팅 시 |
+| --- | --- | --- | --- |
+| `maintenance` | 정지 | 정지 | 아무것도 자동 시작하지 않는다(Redis만) |
+| `validate` | `127.0.0.1:8000`에만(ALB·외부 유입 없음) | 정지 | 자동 시작 안 함(서비스가 다시 띄움) |
+| `live` | `:8000` 외부 공개 | 실행(API → cpu → 복구 순) | Docker restart 정책 + 서비스 재실행 |
+
+- 모드 파일이 없거나 값이 잘못되면 `maintenance`로 동작합니다. `live`로 시작하는 일은 없습니다.
+- **정지 방식**: 대상(API·복구·cpu)의 자동 재시작을 먼저 모두 끄고, API(신규 유입 차단) → 복구 → cpu 순으로 **TERM만** 보낸 뒤
+  따로 기다립니다(`STOP_WAIT_S`, 기본 600초). 하나가 늦거나 Docker 명령이 실패해도 나머지에는 계속 요청하고, 실패는 모아서 보고합니다.
+  기다려도 끝나지 않으면 **SIGKILL·삭제·재생성을 하지 않고** 적용 상태를 `<모드>-incomplete`로 남긴 채 실패로 끝냅니다
+  (남은 작업이 끝난 뒤 같은 명령을 다시 실행). `validate`·`live` 전환도 교체할 컨테이너의 정지가 확인돼야 다시 만듭니다.
+- 컨테이너 상태는 Docker가 "그 컨테이너가 없다"(`No such container/object`)고 답할 때만 부재로 봅니다. 데몬·소켓 연결 오류는
+  조회 실패로 처리해 정지 완료를 기록하지 않습니다.
+- 적용 상태(`/etc/pixlate/deploy.mode.applied`)는 시작할 때 `<모드>-in-progress`로 바꾸고, 끝날 때 임시 파일 → 원자적 교체 →
+  다시 읽기로 기록합니다. 기록에 실패하면 성공을 돌려주지 않고 완료 로그도 남기지 않습니다(이전 완료 값이 최신처럼 남지 않음).
+- `pixlate-mode`는 요청한 모드(`requested`)와 실제 적용 결과(`applied`)를 나눠 보여 주고, 대상 컨테이너 상태와
+  큐·unacked·DB 진행 중 시도 재조회(`deploy/bin/state_check.py`) 결과를 함께 출력합니다. 둘이 다르면 완료가 아닙니다.
+  정지 중인 요청·작업이 후속 메시지를 만들 수 있으므로, 정지 뒤 재조회 값이 0이 아니면 그대로 확인합니다.
+- 모드는 `sudo /opt/pixlate/bin/pixlate-mode <모드>`로만 바꿉니다. 파일만 고치고 적용하지 않은 채 재부팅하면, Docker가 이전 모드의 컨테이너를 먼저 켤 수 있습니다.
+- **Redis**: 기존 `pixlate-redis` 컨테이너·볼륨을 지우거나 다시 만들지 않습니다. 멈춰 있으면 같은 컨테이너를 시작하고, 없으면 빈 Redis를 만들지 않고 앱 컨테이너를 멈춘 뒤 실패합니다.
+- 이미지 digest·env 파일 내용·래퍼·포트·명령이 바뀐 컨테이너만 다시 만듭니다. 같은 사양이면 재사용합니다.
+- `live`는 `worker-gemini.env`가 root:root 600·`GEMINI_API_KEY` 한 줄일 때만 진행하고, 공유 env 파일에 Gemini 키가 있으면 거부합니다.
+
+### 시험
+
+`bash deploy/tests/run.sh` — `docker:27-dind`(privileged) 컨테이너 안에 실제 Docker 엔진을 띄워 가짜 이미지·가짜 값으로
+모드 전환·Redis 보존·digest/env 교체(`modes.sh`)와 정지·기동 실패 경로(`stop.sh`: 늦은 종료, 조회 실패·paused,
+Docker 명령 실패, 옛 워커 정지 실패 시 live 차단, 모드 파일 저장 실패 시 재시작 금지)를 시험한다. 운영 서버에는 연결하지 않는다.
+
+`bash deploy/tests/worker_import.sh <앱 이미지>` — 가짜 이미지가 아닌 **실제 앱 이미지**로 cpu 워커 실행 방식을 시험한다.
+외부로 나가지 않는 내부 네트워크와 임시 Redis만 쓰고(운영 DB·Redis·모델 호출 없음), 시험 워커에서만 등록한
+탐침 태스크(`tests/probe/`, 기존 배포 이미지는 변경하지 않음)가 작업 실행 시점에 `pipeline`을 지연 import 한다.
+`celery` 실행 파일 방식은 실패(앱 로딩 때만 `/app`이 import 경로에 들어감), `python -m celery` 방식은 성공,
+유휴 워커의 TERM 전달·웜 종료 0, `start-pixlate.sh`가 후자를 쓰는지까지 확인한다.
+실행 중 작업을 마친 뒤의 종료는 가짜 워커 지연 종료 시험(`stop.sh`)이 본다.
+
+`bash deploy/tests/run.sh fe` — 같은 dind 안에서 `pixlate-fe.sh`·`compose.yaml` 을 가짜 FE(`tests/fake-fe`)·가짜 API로 시험한다
+(BE 적용 결과에 따른 기동 여부, digest·네트워크·API 연결 확인, 실행 중 종료 감지, TERM 정지·대기 초과, 조회 실패·paused, 데몬 재시작).
+`FE_TESTS="gate stop"` 처럼 묶음만 고를 수 있다. 시험용 대기값은 짧게 주입한다(정지 대기 3초, run 상한 30초 — 운영 값은 그대로).
+실패 줄에는 사유를 붙이고, 사유가 시간 초과뿐인 실패와 환경 준비 실패를 따로 센다(`RESULT pass= fail= timeout= env=`).
+
+`bash deploy/tests/fe_mutation.sh` — `fe/` 사본에 결함을 하나씩 넣고(요청 모드만 확인, Docker 재시작 정책, docker stop, 조회 실패를 없음으로,
+정지 요청 표시 무시, API 연결 확인 생략) 그 결함을 잡아야 하는 묶음만 돌려, 기대한 시험이 **결함 사유로** 실패하는지 판정한다.
+정상 코드는 먼저 전체 묶음을 한 번 돌린다. dind 하나에서 레지스트리·가짜 이미지를 한 번만 만들고 재사용한다. 시간 초과·환경 오류는 검출로 세지 않는다.
+
+`bash deploy/tests/fe_systemd.sh` — 격리 컨테이너(Ubuntu 24.04 + systemd + Docker) 안에서 레포의 `pixlate.service`·`pixlate-fe.service` 를
+**실제 systemd** 로 돌린다(BE 는 가짜 `tests/systemd/fake-start-pixlate.sh`). BE 시작·모드 전환·BE 적용 실패·FE 비정상 종료·
+`systemctl stop`·Docker 데몬 재시작·정지 대기 초과·재부팅(컨테이너 재시작) 뒤 동작을 본다.
+
+시험 실행기(`run.sh`·`fe_mutation.sh`·`fe_systemd.sh`)는 `tests/lib.sh` 를 쓴다 — 자원 이름에 실행 ID 를 붙이고(이전 시험이 남아 있어도
+서로 지우지 않음), 같은 PC 에서 한 번에 하나만 돈다(잠금, 다른 실행 중이면 종료 코드 2). 중단(TERM·INT)하면 이 실행의 하위 프로세스와
+이 실행이 만든 컨테이너·볼륨·이미지 태그·임시 파일만 지운다. 이름이 이미 있으면 지우지 않고 중단한다.
+
+### 로그 정제
+
+모든 앱 컨테이너는 `docker run --init … python /opt/pixlate/bin/redact_run.py -- <명령>`으로 실행합니다.
+래퍼가 표준 출력·오류를 한 줄씩 받아 연결 URL·AWS 호스트·서명·키 형태·`password=` 류·IPv4와
+환경변수에 실제로 들어 있는 비밀 값(DB·Redis URL, 비밀번호, JWT, Gemini 키, 버킷 이름)을 가린 뒤에만 내보냅니다.
+원문은 Docker 로그·journald·파일에 도달하지 않습니다. 정제에 실패한 줄과 64KiB를 넘는 줄은 버립니다.
+시그널(TERM·INT 등)은 그대로 자식에게 전달하고, 자식의 종료 코드(시그널 종료는 128+번호)를 그대로 돌려줍니다.
+
+### FE 컨테이너 (Compose)
+
+FE(`ai-pixlate/client` 이미지, `next start`)는 같은 EC2 에서 `deploy/fe/compose.yaml` 로 **FE 하나만** 관리합니다.
+API·cpu 워커·복구·Redis 는 계속 `start-pixlate.sh` 가 관리하고, 두 쪽이 같은 컨테이너를 다루지 않습니다.
+FE 이미지는 로컬·CI 에서 빌드해 ECR 에 올리고 EC2 는 digest 로 받아 실행만 합니다(EC2 에서 빌드하지 않음).
+
+- **요청 경로**: 브라우저 → ALB → FE(`:3000`) → Next rewrite → `pixlate-api:8000`(`pixlate-net`). FE 는 `/jobs/…`·`/auth/…` 같은
+  상대 경로만 부르고 `/v1/*` 를 직접 부르지 않으므로, ALB 의 `/v1/*` → API 규칙은 FE 흐름에 쓰이지 않습니다(직접 호출용).
+- **재시작 주체는 systemd 하나**: 컨테이너는 `restart: "no"`. `pixlate-fe.sh run` 이 기동 뒤 `docker wait` 로 종료를 감시하고,
+  실행 중 끝나면 서비스가 실패로 끝나 `Restart=on-failure` 가 아래 조건부터 다시 확인합니다. Docker 데몬 재시작·재부팅 때 Docker 가 FE 를 먼저 켜지 않습니다.
+- **기동 조건**: `deploy.mode`=live, `deploy.mode.applied`=live, `pixlate.service` active/success 가 모두 맞을 때만 띄웁니다.
+  `live-incomplete`·`-in-progress`·BE 실패면 네트워크·API 가 남아 있어도 띄우지 않고(떠 있으면 TERM 으로 정지) 재시도하지 않습니다.
+  띄운 뒤 healthy(페이지 응답)와 FE 컨테이너에서 `pixlate-api:8000` 연결을 확인합니다.
+- **BE 와 연동**: `After=`·`PartOf=pixlate.service`, `WantedBy=pixlate.service`. `pixlate-mode` 가 BE 를 재시작하면 FE 도 조건을 다시 확인합니다
+  (`pixlate-mode` 는 바꾸지 않았다). maintenance·validate 에서는 FE 가 꺼집니다.
+- **정지**: TERM 만 보내고 `STOP_WAIT_S`(기본 120초)까지 확인합니다. 끝나지 않으면 미완료로 보고하고 실패로 끝냅니다 —
+  `docker stop`·SIGKILL·삭제를 하지 않습니다. Docker 조회 실패는 '없음'으로 보지 않고 정지 미확인으로 보고합니다.
+  (Docker 데몬이 스스로 멈출 때는 `stop_grace_period` 120초 뒤 Docker 가 SIGKILL 할 수 있습니다. 재부팅 때는 systemd 가 FE 를 먼저 멈춥니다.)
+- **로그**: FE 는 `redact_run.py` 를 거치지 않습니다(FE 환경에 비밀 값이 없음). Docker 로그는 10MiB × 3 개로 제한합니다.
+- 설치(서버 반영 단계): 파일 배치 → `/etc/pixlate/fe.env` → `systemctl daemon-reload` → `systemctl enable pixlate-fe.service`.
+  ECR `pixlate-fe` 저장소, ALB 대상 그룹·리스너 규칙, 보안 그룹(3000) 은 별도 AWS 변경입니다.
+
+## 배포
+
+### 1. 이미지 (배포 SHA 하나로)
+
+운영 호스트(t3.micro)에서는 빌드하지 않습니다. 개발 PC에서 **배포 SHA의 추적 파일만**으로 빌드합니다.
+
+```bash
+git archive <배포 SHA> | tar -x -C <빈 폴더>
+docker build --no-cache --pull -t pixlate-api:<짧은 SHA> <빈 폴더>
+```
+
+개발 PC 계정에 ECR 권한이 없으면 `docker save` → EC2 `docker load` → EC2 역할로 push 합니다.
+
+```bash
+docker save pixlate-api:<짧은 SHA> -o images.tar          # 개발 PC. sha256sum 을 함께 기록
+# EC2: 체크섬 확인 → sudo docker load -i images.tar → ECR 로그인 → 새 태그로 push (latest 이동 금지)
+```
+
+push 후 ECR digest가 빌드한 이미지 ID와 같은지 확인하고, 그 digest를 `/etc/pixlate/release.conf`의 `API_DIGEST`에 적습니다.
+
+### 2. 전환
+
+```bash
+sudo /opt/pixlate/bin/pixlate-mode maintenance     # 유입·소비·복구 정지, Redis 유지
+# 학교 GPU 워커도 웜 종료 (gpu/README.md 4장: worker.sh <gpu|ocr> stop)
+# 큐(대기·unacked)와 DB 실행·시도 상태 확인 → 실행 중이면 진행하지 않는다
+# 백업(아래) → 마이그레이션(아래)
+sudo /opt/pixlate/bin/pixlate-mode validate        # API 를 내부에서만 확인
+sudo /opt/pixlate/bin/pixlate-mode live            # 정상 유입·소비 재개(별도 결정 후)
+```
+
+### 3. 백업
+
+RDS 서버와 같은 버전의 `pg_dump`를 digest로 고정한 `postgres:16.x` 이미지에서 실행합니다. DB URL은 컨테이너 안에서
+`PG*` 환경변수로 풀어 쓰고 명령 인자에 넣지 않습니다. 덤프는 `/var/lib/pixlate-backup/<시각>/`(디렉터리 700, 파일 600)에 두며 사용자 데이터가 들어 있습니다.
+
+- 확인: `pg_dump` 종료 코드 0, 크기·SHA-256 기록.
+- 복원 시험: 네트워크 없는 임시 `postgres` 컨테이너에 `pg_restore --exit-on-error` 후 테이블별 행 수를 원본과 비교하고 컨테이너를 지웁니다. 운영 DB·로컬 사용 DB에 시험 복원하지 않습니다.
+- RDS 스냅샷(선택, RDS 권한자): 콘솔 RDS → 데이터베이스 `pixlate-db` → 작업 → 스냅샷 생성(`pixlate-db-pre-<revision>-<날짜>`),
+  상태가 `사용 가능`이 될 때까지 기다립니다. 스냅샷 복원은 **새 DB 인스턴스**를 만들므로(기존 인스턴스를 덮어쓰지 않음),
+  복원 뒤 보안 그룹·퍼블릭 액세스를 원본과 같게 맞추고 아래처럼 `DATABASE_URL`을 바꿉니다.
+- 실제 복구: 같은 RDS의 새 DB(DB 역할에 createdb 권한 있음) 또는 스냅샷 복원 인스턴스에 복원한 뒤, `pixlate.env`와 학교 GPU `/data/server.env`의 `DATABASE_URL`을 바꾸고 컨테이너·워커를 다시 띄웁니다. Redis 메시지가 복원 시점과 맞는지 먼저 확인합니다.
+
+### 4. 마이그레이션
+
+```bash
+sudo docker run --rm --init --env-file /etc/pixlate/pixlate.env \
+  -v /opt/pixlate/bin/redact_run.py:/opt/pixlate/bin/redact_run.py:ro \
+  <레지스트리>/pixlate-api@<API_DIGEST> python /opt/pixlate/bin/redact_run.py -- alembic upgrade head
+```
+
+- 배포 SHA의 Alembic head가 하나인지 먼저 확인합니다. 실패하면 maintenance를 유지하고 실제 revision을 확인합니다.
+- 스키마가 올라간 뒤에는 옛 API·워커를 다시 켜지 않습니다.
+
+## 점검
+
+```bash
+# 컨테이너: live 이면 api·redis·worker-cpu·recovery Up, worker-ocr 은 Exited(옛 컨테이너)
+sudo docker ps -a --format "table {{.Names}}\t{{.Status}}"
+sudo /opt/pixlate/bin/pixlate-mode status
+
+# 워커: cpu(EC2)·ocr·gpu(학교 GPU) 3 nodes online
+sudo docker exec pixlate-worker-cpu celery -A app.celery_app inspect ping
+
+# 큐 대기 개수(값을 출력하지 않는 방법으로 비밀번호 전달)
+RP=$(sudo grep '^REDIS_PASSWORD=' /etc/pixlate/pixlate.env | cut -d= -f2-); sudo docker exec -e REDISCLI_AUTH="$RP" pixlate-redis redis-cli -n 0 LLEN ocr; unset RP
+```
+
+컨테이너가 안 뜨면 `sudo journalctl -u pixlate -n 50 --no-pager`로 스크립트 로그를 봅니다.
+
+- `docker inspect`의 Redis `Cmd`·`docker ps --no-trunc`에는 Redis 비밀번호가 평문으로 보입니다. 출력하거나 공유하지 않습니다.
+
+## 용어집 적재
+
+데이터팀 용어집 xlsx를 RDS `glossary`에 넣는 절차(마이그레이션 `0005` → 파일 검증 → 적재 → 확인)는
+[glossary-ingestion.md](glossary-ingestion.md)에 있습니다. DB 작업만 하므로 서비스 재시작은 필요 없습니다.
+
+규제사전·현지부적합 사전(`expression_dictionary`) 적재는 [dictionary-ingestion.md](dictionary-ingestion.md)를 봅니다(마이그레이션 `0006`).
+
+## AMI로 새 인스턴스 띄우기
+
+아래 세 가지는 AMI에 들어가지 않으므로 시작할 때 직접 지정합니다.
+
+1. IAM 역할 `pixate-ec2-s3-role`
+2. 보안 그룹 `launch-wizard-1` (RDS 접근)
+3. 인스턴스 메타데이터 **홉 제한 2** — 1이면 컨테이너가 IAM 역할을 못 써서 S3가 실패합니다
+
+부팅하면 `pixlate.service`가 모드 파일대로 동작합니다(모드 파일이 없으면 maintenance).
+
+**서버를 2대 이상 동시에 띄우지 않습니다.** 인스턴스마다 Redis가 따로 떠서, 학교 GPU 워커가 붙지 않은 쪽의 ocr·gpu 작업은 처리되지 않습니다. 여러 대로 늘리려면 Redis를 공용(ElastiCache 등)으로 먼저 옮깁니다.
+
+## 알아둘 점
+
+- `/etc/pixlate/*.env`는 root 600이므로 `docker run --env-file`에는 `sudo`가 필요합니다.
+- `less` 화면에서 나올 때는 영문 입력으로 `q`를 누릅니다. 페이지 없이 보려면 `export AWS_PAGER=""`.
+- AMI 설명에는 ASCII만 넣을 수 있습니다(한글이 있으면 생성 실패).
+- Redis db1(Celery 결과 저장소)에는 `POST /jobs` Idempotency-Key 응답 재전송 기록도 들어 있습니다(`pixlate:idem:*`, 24시간 만료,
+  값 = 처리 상태와 최초 응답 본문). 전용 저장소를 쓰려면 API 컨테이너에 `PIXLATE_IDEMPOTENCY_REDIS_URL` 을 줍니다.
+  Redis 를 비우거나 바꾸면 24시간 안의 같은 키 재요청이 새 작업을 만들 수 있습니다. 상태별 처리는 `app/idempotency.py` 머리말.
+
+## 남은 작업
+
+- Redis: 익명 볼륨·AOF 꺼짐(RDB만). 명명 볼륨·AOF 전환과 비밀번호 교체(명령 인자 평문 제거)를 함께 별도 작업으로
+- 비밀번호 교체 후 Secrets Manager로 이전 (지금은 서버 env 파일)
+- 학교 GPU 워커의 S3 자격 제공 방식 결정
+- HTTPS (도메인·ACM 인증서)
+- CI/CD

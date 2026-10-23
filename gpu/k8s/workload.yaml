@@ -1,0 +1,52 @@
+# KubeSphere: Projects(estsoft33) > Application Workloads > Workloads > Create > Edit YAML 에 붙여넣기
+# SSH_PUBLIC_KEY 는 본인 공개키로 바꾼다. 공개키 외의 비밀 값은 이 파일에 넣지 않는다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixlate-gpu
+  namespace: estsoft33
+  labels:
+    app: pixlate-gpu
+  annotations:
+    kubesphere.io/alias-name: pixlate-gpu
+spec:
+  replicas: 1
+  # PVC(ReadWriteOnce)와 GPU를 새 Pod가 먼저 잡을 수 없어 롤링 업데이트가 멈추므로 교체 방식으로 재배포
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: pixlate-gpu
+  template:
+    metadata:
+      labels:
+        app: pixlate-gpu
+    spec:
+      containers:
+        - name: pixlate-gpu
+          image: yeram109/pixlate-gpu:torch2.14-cu126
+          imagePullPolicy: Always
+          ports:
+            - name: tcp-0
+              containerPort: 22
+              protocol: TCP
+          env:
+            - name: SSH_PUBLIC_KEY
+              value: "<ssh-ed25519 AAAA... 본인 공개키>"
+          # 프로젝트 할당량(estsoft-quota) 때문에 CPU·메모리 requests/limits 를 모두 적어야 생성된다.
+          # 할당량: CPU 4코어, 메모리 30720Mi (프로젝트 내 모든 컨테이너 합계)
+          resources:
+            requests:
+              cpu: '1'
+              memory: 8192Mi
+            limits:
+              cpu: '4'
+              memory: 30720Mi
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pixlate-data

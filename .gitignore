@@ -1,0 +1,22 @@
+# OS / 편집기
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Node
+node_modules/
+
+# AI 파이프라인 — 실행 출력·실제 표본·모델 캐시
+pipeline/out/
+pipeline/samples/local/
+.paddleocr/
+.cache/

@@ -1,0 +1,567 @@
+{
+  "case": "logo.failed_brand_empty",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "logo",
+    "input_snapshot_id": "snap-logo-a-1",
+    "image_id": "1",
+    "section_key": "sec_1_01",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_1_01",
+        "block_order": 1,
+        "source_ko": "가짜브랜드",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "가짜브랜드",
+            "bbox": {
+              "x": 60,
+              "y": 40,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "가짜브랜드",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    40
+                  ],
+                  [
+                    360,
+                    40
+                  ],
+                  [
+                    360,
+                    64
+                  ],
+                  [
+                    60,
+                    64
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 40,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 40,
+          "w": 300,
+          "h": 24
+        },
+        "role": "title",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_1_01",
+        "block_order": 2,
+        "source_ko": "라벨 문구",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "라벨 문구",
+            "bbox": {
+              "x": 60,
+              "y": 120,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "라벨 문구",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    120
+                  ],
+                  [
+                    360,
+                    120
+                  ],
+                  [
+                    360,
+                    144
+                  ],
+                  [
+                    60,
+                    144
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 120,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 120,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_1_01",
+        "block_order": 3,
+        "source_ko": "가짜완화 크림",
+        "source_lines": [
+          {
+            "line_key": "line_003",
+            "text": "가짜완화 크림",
+            "bbox": {
+              "x": 60,
+              "y": 200,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "가짜완화 크림",
+                "score": 0.97,
+                "poly": [
+                  [
+                    60,
+                    200
+                  ],
+                  [
+                    360,
+                    200
+                  ],
+                  [
+                    360,
+                    224
+                  ],
+                  [
+                    60,
+                    224
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 200,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 200,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.97
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_1_01",
+        "block_order": 4,
+        "source_ko": "  ",
+        "source_lines": [
+          {
+            "line_key": "line_004",
+            "text": "  ",
+            "bbox": {
+              "x": 60,
+              "y": 280,
+              "w": 300,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "  ",
+                "score": 0.2,
+                "poly": [
+                  [
+                    60,
+                    280
+                  ],
+                  [
+                    360,
+                    280
+                  ],
+                  [
+                    360,
+                    304
+                  ],
+                  [
+                    60,
+                    304
+                  ]
+                ],
+                "bbox": {
+                  "x": 60,
+                  "y": 280,
+                  "w": 300,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 60,
+          "y": 280,
+          "w": 300,
+          "h": 24
+        },
+        "role": "body",
+        "ocr_confidence": 0.2
+      }
+    ],
+    "label_result": {
+      "schema_version": "1",
+      "section_key": "sec_1_01",
+      "status": "ok",
+      "labels": [
+        {
+          "block_key": "blk_001",
+          "is_product_label": false,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_002",
+          "is_product_label": true,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_003",
+          "is_product_label": false,
+          "basis": "vlm"
+        },
+        {
+          "block_key": "blk_004",
+          "is_product_label": false,
+          "basis": "blank_text"
+        }
+      ],
+      "checked": {
+        "input_fingerprint": "fd56c2fbc24de57a4ebbc6c276a41c3c45a3c2d855f245938f2196aa217db286",
+        "llm_called": true,
+        "sent_block_keys": [
+          "blk_001",
+          "blk_002",
+          "blk_003"
+        ],
+        "blank_block_keys": [
+          "blk_004"
+        ]
+      },
+      "error": null
+    },
+    "label_result_sha256": "778093f8d19b9ecb40be60d96bd720ca2b77ab177b2ee6dfbb9c09c39a7607f5",
+    "brand": {
+      "brand_id": "7",
+      "name_ko": "가짜브랜드",
+      "name_en": "  "
+    }
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "logo",
+    "input_snapshot_id": "snap-logo-a-1",
+    "input_manifest": {
+      "stage": "logo",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "image_id": "1",
+      "section_key": "sec_1_01",
+      "blocks": [
+        {
+          "block_key": "blk_001",
+          "section_key": "sec_1_01",
+          "block_order": 1,
+          "source_ko": "가짜브랜드",
+          "source_lines": [
+            {
+              "line_key": "line_001",
+              "text": "가짜브랜드",
+              "bbox": {
+                "x": 60,
+                "y": 40,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0001",
+                  "text": "가짜브랜드",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      40
+                    ],
+                    [
+                      360,
+                      40
+                    ],
+                    [
+                      360,
+                      64
+                    ],
+                    [
+                      60,
+                      64
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 40,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 40,
+            "w": 300,
+            "h": 24
+          },
+          "role": "title",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_002",
+          "section_key": "sec_1_01",
+          "block_order": 2,
+          "source_ko": "라벨 문구",
+          "source_lines": [
+            {
+              "line_key": "line_002",
+              "text": "라벨 문구",
+              "bbox": {
+                "x": 60,
+                "y": 120,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0002",
+                  "text": "라벨 문구",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      120
+                    ],
+                    [
+                      360,
+                      120
+                    ],
+                    [
+                      360,
+                      144
+                    ],
+                    [
+                      60,
+                      144
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 120,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 120,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_003",
+          "section_key": "sec_1_01",
+          "block_order": 3,
+          "source_ko": "가짜완화 크림",
+          "source_lines": [
+            {
+              "line_key": "line_003",
+              "text": "가짜완화 크림",
+              "bbox": {
+                "x": 60,
+                "y": 200,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0003",
+                  "text": "가짜완화 크림",
+                  "score": 0.97,
+                  "poly": [
+                    [
+                      60,
+                      200
+                    ],
+                    [
+                      360,
+                      200
+                    ],
+                    [
+                      360,
+                      224
+                    ],
+                    [
+                      60,
+                      224
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 200,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 200,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.97
+        },
+        {
+          "block_key": "blk_004",
+          "section_key": "sec_1_01",
+          "block_order": 4,
+          "source_ko": "  ",
+          "source_lines": [
+            {
+              "line_key": "line_004",
+              "text": "  ",
+              "bbox": {
+                "x": 60,
+                "y": 280,
+                "w": 300,
+                "h": 24
+              },
+              "regions": [
+                {
+                  "region_key": "reg_0004",
+                  "text": "  ",
+                  "score": 0.2,
+                  "poly": [
+                    [
+                      60,
+                      280
+                    ],
+                    [
+                      360,
+                      280
+                    ],
+                    [
+                      360,
+                      304
+                    ],
+                    [
+                      60,
+                      304
+                    ]
+                  ],
+                  "bbox": {
+                    "x": 60,
+                    "y": 280,
+                    "w": 300,
+                    "h": 24
+                  }
+                }
+              ]
+            }
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 280,
+            "w": 300,
+            "h": 24
+          },
+          "role": "body",
+          "ocr_confidence": 0.2
+        }
+      ],
+      "label_result_sha256": "778093f8d19b9ecb40be60d96bd720ca2b77ab177b2ee6dfbb9c09c39a7607f5",
+      "brand": {
+        "brand_id": "7",
+        "name_ko": "가짜브랜드",
+        "name_en": "  "
+      },
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ]
+    },
+    "input_manifest_sha256": "7ecfb4960bf9800ca58182ccbda9eb2d1cf77db2368f193fa631144e005f217e",
+    "outcome": "failed",
+    "target_count": 0,
+    "skip_reason": null,
+    "payload": null,
+    "artifacts": [],
+    "source_refs": [],
+    "failure": {
+      "kind": "input_invalid",
+      "retryable": false,
+      "message": "⑤ 입력 오류: 원본 1 그룹 brand-7: 정규화 후 빈 브랜드명 ['name_en'] — 비교할 수 없다",
+      "targets": []
+    },
+    "implementation": {
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)"
+    },
+    "diagnostics": {}
+  },
+  "be_validation_problems": []
+}

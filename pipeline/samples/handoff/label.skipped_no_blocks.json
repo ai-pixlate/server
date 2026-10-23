@@ -1,0 +1,99 @@
+{
+  "case": "label.skipped_no_blocks",
+  "request": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "label",
+    "input_snapshot_id": "snap-label-a-1",
+    "section": {
+      "section_key": "sec_1_01",
+      "source_image_id": 1,
+      "section_order": 1,
+      "top_offset": 0,
+      "height": 400,
+      "width": 600,
+      "image_path": "/srv/pixlate-work/downstream/sections/sec_1_01.png"
+    },
+    "section_image": {
+      "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
+      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+    },
+    "blocks": []
+  },
+  "report": {
+    "contract_version": "handoff@2026-10-08.1",
+    "execution_id": "exec-100",
+    "attempt_id": "a-1",
+    "stage": "label",
+    "input_snapshot_id": "snap-label-a-1",
+    "input_manifest": {
+      "stage": "label",
+      "contract_version": "handoff@2026-10-08.1",
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "section": {
+        "section_key": "sec_1_01",
+        "source_image_id": 1,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 400,
+        "width": 600
+      },
+      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "blocks": [],
+      "config": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60,
+        "long_side_px": 1024,
+        "bias": "label"
+      },
+      "prompt_sha256": "a31ffec48006fcaa8b99f731e04b83b0d41ba2be7220bc46f46aa55b1ae39227"
+    },
+    "input_manifest_sha256": "4979fba19b7c4bc681b2537e3fbca1221fb91bdcf5fff13fb28551e215e3425b",
+    "outcome": "skipped",
+    "target_count": 0,
+    "skip_reason": "no_blocks",
+    "payload": {
+      "section_key": "sec_1_01",
+      "decisions": [],
+      "label_result": {
+        "schema_version": "1",
+        "section_key": "sec_1_01",
+        "status": "ok",
+        "labels": [],
+        "checked": {
+          "input_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "llm_called": false,
+          "sent_block_keys": [],
+          "blank_block_keys": []
+        },
+        "error": null
+      },
+      "label_result_sha256": "7b05d2708790684729a2c8cbfd969d141ba0144c2f37dc3e0e9a27c592277755",
+      "llm_called": false
+    },
+    "artifacts": [],
+    "source_refs": [],
+    "failure": null,
+    "implementation": {
+      "adapter": "downstream-handoff@2026-10-08.1",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60,
+        "long_side_px": 1024,
+        "bias": "label"
+      }
+    },
+    "diagnostics": {
+      "status": "skipped",
+      "payload_sha256": null,
+      "prompt_sha256": null,
+      "image_sha256": null,
+      "usage": null,
+      "validation": null
+    }
+  },
+  "be_validation_problems": []
+}

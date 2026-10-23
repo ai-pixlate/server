@@ -325,10 +325,11 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 | 줄 · 문단 구성 | 같은 원본이라도 줄 묶음 · 블록 수 · 역할이 달라질 수 있다. 영역을 넘는 LLM 병합은 나뉘고 그 조각의 역할은 휴리스틱 판정이다 | 블록 수 · 역할 분포가 바뀌어도 하류 생성 조건 · 표시가 그대로 동작하는지 |
 | 재분석 | 켜기 전후 분석 결과는 같은 작업이라도 블록 · 키 · 텍스트가 다르다 | 한 작업 안에서 이전 분석 결과와 새 결과를 섞어 쓰는 경로(되살리기 · 재판정 · 재분석)가 없는지 |
 | 입력 지문 | ③-1 `blocks_fingerprint`(블록 키 · `source_ko`), ④ `input_fingerprint`(블록 전체), BE 분석 · 하류 매니페스트의 블록 해시(`app/flows/analysis.py` · `downstream.py` `stable_hash`)가 모두 새 값이 된다. 판정 구간(span)은 새 `source_ko` 기준으로 다시 산출되며 이전 구간을 옮겨 쓰지 않는다 | 지문 불일치 때 재사용 · 거절 동작이 의도대로인지(이전 결과를 새 블록에 붙이지 않는지) |
-| `input_manifest` · 캐시 | `xycut`이면 `merge.prompt_path` 뒤에 `pipeline/prompts/merge_assist_region.md`를 붙여 호출한다. 현재 인계 매니페스트의 `prompts.merge`는 기본 프롬프트 파일 해시만 담아 이 보충 프롬프트 내용이 지문에 들어가지 않는다 | 켜기 전에 보충 프롬프트를 지문에 넣을지와 방식(매니페스트 키는 BE 검증 대상) — AI 인계 코드 변경 사항이며 이번에는 하지 않았다 |
+| `input_manifest` · 캐시 | `xycut`이면 `merge.prompt_path` 뒤에 `pipeline/prompts/merge_assist_region.md`를 붙여 호출한다. 현재 인계 매니페스트의 `prompts.merge`는 기본 프롬프트 파일 해시만 담아 이 보충 프롬프트 내용이 지문에 들어가지 않는다 | **후속 연동 전 해결 과제**: 보충 프롬프트를 지문에 넣는 방식(매니페스트 키는 BE 검증 대상). AI 인계 코드 변경 사항이며 이번에는 하지 않았다(`open-questions.md` #86) |
+| 분석 출력 폴더 | 켜면 `out_dir/merge_post_debug/`에 섹션별 후처리 진단과 `block_keys.json`이 생긴다(LLM 사용 여부와 관계없이, `pipeline.md` 7.1절). `ocr_debug/`와 같은 개발 확인용이며 인계 형식 · artifact가 아니다 | BE 워커가 `out_dir`의 낯선 파일 · 폴더를 거절하거나 업로드 대상으로 집계하지 않는지 |
 | 개발용 고정 입력본 · 재생 | `blocks-input-v1` 등은 꺼진 상태의 ③ 출력이다. 켠 결과로 ③-1 · ④ · ⑤ 재생 기록을 돌리면 입력 지문 불일치로 거절된다(입력본 손상 아님) | — (AI 실측 범위) |
 
 ### 10.3 남은 것
 
-- AI: 기존 병합 · 역할 분류와의 연결 검증, 품질 · 파라미터 확인, 기본 활성화 승인(`open-questions.md` #86). 보류 기능(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거)은 미채택이며 이번 구현에 없다.
+- AI: 기존 병합 · 역할 분류와의 연결 검증, 품질 · 파라미터 확인, 기본 활성화 승인(`open-questions.md` #86). 같은 후보 영역의 교차 블록 병합 점검(고정 입력본 100섹션, gutter 두 칸 0건)은 `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` — 사람 검수 대기. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다. 보류 기능(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거)은 미채택이며 이번 구현에 없다.
 - BE: 위 10.2 항목 확인은 기본 활성화 결정 전에 따로 요청한다. 이번에는 BE 실행 테스트 · 연동 검증을 하지 않았다.

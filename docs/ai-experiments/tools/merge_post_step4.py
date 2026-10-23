@@ -1,10 +1,14 @@
-"""③ OCR 후처리 4단계 1차 실험 — 점검 세트 고정 · 변형 실행 · 집계(설계: 2026-10-23_03-merge_post-step4-design-v1.md).
+"""③ OCR 후처리 4단계 실험(1 · 2차) — 점검 세트 고정 · 변형 실행 · 집계(설계: 2026-10-23_03-merge_post-step4-design-v1.md).
 
 LLM 호출 없이 blocks-input-v1의 휴리스틱만 비교한다. 파이프라인 코드는 바꾸지 않고, 실험 도구 안에서만 함수를 바꿔 끼운다.
 변형은 하나씩 별도 프로세스로 실행한다(`variant` 하위 명령을 변형마다 따로 부른다 — `all`이 그렇게 한다).
 
-    python docs/ai-experiments/tools/merge_post_step4.py all --input pipeline/samples/local/blocks-input-v1 \
+    # 1차 — B3 채택 전 코드(예: 4ec58bb)에서만
+    python docs/ai-experiments/tools/merge_post_step4.py all --round round1 --input pipeline/samples/local/blocks-input-v1 \
         --label-run pipeline/out/label-run-v1_2026-09-29 --out RUN_DIR
+    # 2차 — B3 채택 뒤 코드에서, 1차 점검 세트를 다시 써서
+    python docs/ai-experiments/tools/merge_post_step4.py all --round round2 --checkset RUN1_DIR/checkset.json \
+        --input pipeline/samples/local/blocks-input-v1 --out RUN2_DIR
 
 하위 명령:
 - checkset: A0(기본 config + merge.xycut=true) 기준으로 점검 세트 S1 · S2 · S3 · S4를 뽑아 RUN_DIR/checkset.json에 고정한다.
@@ -16,6 +20,9 @@ LLM 호출 없이 blocks-input-v1의 휴리스틱만 비교한다. 파이프라�
 - all [--round round1|round2] [--checkset PATH]: checkset(또는 고정본 복사) → 그 차수의 변형(각각 새 프로세스) → report.
   2차(round2)는 B3 채택 뒤의 기준(B3)과 B3 + C_tol0.7을 1차에서 고정한 점검 세트로 비교한다.
 구조 지표(블록 수 · 걸친 영역 수 등)는 원인 분석용이며 품질 판정이 아니다. 어떤 결과도 정답이 아니다.
+S3 순서 지표는 기준과 원시 영역 목록이 똑같은 블록끼리만 비교한다. 역전 0은 칸 합침 · 읽기 순서 회귀가 없다는 뜻이 아니며,
+비교에서 빠진 기준 블록 수(S3_unmatched_base_blocks)를 함께 본다.
+차수(--round)는 반드시 지정한다. round1은 B3 채택 전 코드, round2는 채택 뒤 코드에서만 돈다(variant · all이 동작으로 검사).
 """
 from __future__ import annotations
 
@@ -63,6 +70,28 @@ ROUND2 = [
     ("B3_C_tol0.7", ["merge.line_center_tol=0.7"], None),
 ]
 ROUNDS = {"round1": ROUND1, "round2": ROUND2}
+# 차수마다 필요한 코드 기준: B3(가로줄 Line 나누기의 높이비 해제)가 파이프라인에 들어 있어야 하는가
+ROUND_NEEDS_B3 = {"round1": False, "round2": True}
+
+
+def b3_adopted() -> bool:
+    """현재 파이프라인 코드가 B3를 채택했는지 동작으로 판별한다: 높이비 2인 이웃 영역(gutter 없음)이 한 Line이면 채택."""
+    from pipeline.types import BBox, OcrRegion
+
+    def reg(key: str, x: int, h: int) -> OcrRegion:
+        return OcrRegion(region_key=key, text="가", score=0.9, poly=[(x, 0), (x + 40, 0), (x + 40, h), (x, h)],
+                         bbox=BBox(x=x, y=0, w=40, h=h))
+
+    m = cfgmod.load_config()["merge"]
+    return len(merge._split_row([reg("a", 0, 40), reg("b", 45, 20)], m, [])) == 1
+
+
+def check_round_code(round_name: str) -> None:
+    """차수에 맞지 않는 코드에서 실행하면 멈춘다(예: B3 채택 뒤 코드로 1차를 돌리면 A0 이름으로 B3 결과가 나온다)."""
+    need, have = ROUND_NEEDS_B3[round_name], b3_adopted()
+    if need != have:
+        where = "B3 채택 전 코드(예: 4ec58bb)" if not need else "B3 채택 뒤 코드(8353716 이후)"
+        raise SystemExit(f"{round_name}은 {where}에서만 실행한다 — 현재 코드는 B3 {'채택' if have else '미채택'} 상태다")
 
 
 def rkeys(b) -> list[str]:
@@ -110,6 +139,8 @@ def label_regions(label_run: Path | None, img: Path, sec_key: str, final) -> set
 
 def cmd_checkset(a) -> int:
     from merge_post_compare import components, inversions, kind_of
+
+    check_round_code("round1")  # 점검 세트는 1차 A0(B3 채택 전)를 기준으로 정의했다 — 2차는 고정본을 다시 쓴다
     from merge_post_gutter_check import check_section
 
     inp, out = Path(a.input), Path(a.out)
@@ -258,6 +289,9 @@ def proxy_text(sec, res, layout, regs: list[str], cfg) -> str | None:
 
 def cmd_variant(a) -> int:
     inp, out = Path(a.input), Path(a.out)
+    if a.name not in {n for n, _, _ in ROUNDS[a.round]}:
+        raise SystemExit(f"{a.name}은 {a.round}의 변형이 아니다")
+    check_round_code(a.round)  # 함수를 바꿔 끼우기 전에 본다
     patch(a.patch)
     cfg = base_cfg(a.set or [])
     checkset = json.loads((out / "checkset.json").read_text(encoding="utf-8"))
@@ -310,11 +344,16 @@ def cmd_variant(a) -> int:
 # ---------------------------------------------------------------------------
 # 집계
 # ---------------------------------------------------------------------------
-def order_inversions(base: list[dict], other: list[dict]) -> int:
-    """두 결과에 같은 영역 집합으로 있는 블록끼리 순서가 뒤바뀐 쌍 수."""
+def order_inversions(base: list[dict], other: list[dict]) -> tuple[int, int, int]:
+    """(역전 쌍 수, 비교한 블록 수, 비교에서 빠진 기준 블록 수).
+
+    두 결과에 원시 영역 목록(블록 안 순서 포함)이 똑같은 블록끼리만 순서를 비교한다. 블록이 합쳐지거나 나뉘었거나 블록 안
+    영역 순서가 달라진 블록은 비교에서 빠진다 — 역전 0은 "비교 가능한 동일 블록 사이에 순서 역전이 없다"는 뜻이지 칸 합침이나
+    읽기 순서 회귀가 없다는 뜻이 아니다. 빠진 블록 수를 함께 본다."""
     pos = {tuple(b["regions"]): i for i, b in enumerate(other)}
     seq = [pos[tuple(b["regions"])] for b in base if tuple(b["regions"]) in pos]
-    return sum(1 for i in range(len(seq)) for j in range(i + 1, len(seq)) if seq[i] > seq[j])
+    inv = sum(1 for i in range(len(seq)) for j in range(i + 1, len(seq)) if seq[i] > seq[j])
+    return inv, len(seq), len(base) - len(seq)
 
 
 def crop_case(inp: Path, case: dict, dest: Path, margin: int = 30) -> str | None:
@@ -366,8 +405,13 @@ def cmd_report(a) -> int:
             "S1_single_region": sum(1 for c in checkset["cases"] if c["set"] == "S1" and cs[c["id"]]["candidate_regions"] == 1),
             "S1_single_block": sum(1 for c in checkset["cases"] if c["set"] == "S1" and cs[c["id"]]["blocks"] == 1),
             "S2_single_block": sum(1 for c in checkset["cases"] if c["set"] == "S2" and cs[c["id"]]["blocks"] == 1),
-            "S3_sections_order_changed_vs_base": sum(1 for k in s3_all if inv_s3[k]),
-            "S3_reps_order_changed_vs_base": sorted(k for k in s3_reps if inv_s3[k]),
+            # 비교 가능한 동일 블록(영역 목록이 같은 블록) 사이의 순서 역전만 센다 — order_inversions 참고
+            "S3_sections_with_inversion_among_matched": sum(1 for k in s3_all if inv_s3[k][0]),
+            "S3_reps_with_inversion_among_matched": sorted(k for k in s3_reps if inv_s3[k][0]),
+            "S3_matched_blocks": sum(inv_s3[k][1] for k in s3_all),
+            "S3_unmatched_base_blocks": sum(inv_s3[k][2] for k in s3_all),
+            "S3_sections_with_unmatched": sum(1 for k in s3_all if inv_s3[k][2]),
+            "S3_reps_with_unmatched": sorted(k for k in s3_reps if inv_s3[k][2]),
             "S4_changed_vs_base": sum(1 for c in checkset["cases"] if c["set"] == "S4"
                                     and (cs[c["id"]]["texts"] != base["cases"][c["id"]]["texts"]
                                          or cs[c["id"]]["proxy_text"] != base["cases"][c["id"]]["proxy_text"])),
@@ -407,6 +451,9 @@ def cmd_report(a) -> int:
 
 
 def cmd_all(a) -> int:
+    check_round_code(a.round)
+    if a.round != "round1" and not a.checkset:
+        raise SystemExit(f"{a.round}은 1차에서 고정한 점검 세트를 --checkset으로 줘야 한다")
     common = ["--input", a.input, "--out", a.out]
     me = [sys.executable, str(Path(__file__).resolve())]
     if a.checkset:  # 고정한 점검 세트를 다시 쓴다(새로 뽑지 않음)
@@ -415,7 +462,7 @@ def cmd_all(a) -> int:
     else:
         subprocess.run([*me, "checkset", *common, *(["--label-run", a.label_run] if a.label_run else [])], check=True)
     for name, sets, p in ROUNDS[a.round]:
-        argv = [*me, "variant", *common, "--name", name, *[x for s in sets for x in ("--set", s)], *(["--patch", p] if p else [])]
+        argv = [*me, "variant", *common, "--round", a.round, "--name", name, *[x for s in sets for x in ("--set", s)], *(["--patch", p] if p else [])]
         subprocess.run(argv, check=True)  # 변형마다 새 프로세스 — 바꿔 끼운 함수가 다음 변형에 남지 않는다
     subprocess.run([*me, "report", *common, "--round", a.round], check=True)
     return 0
@@ -430,8 +477,9 @@ def main(argv: list[str] | None = None) -> int:
         sp.add_argument("--out", required=True)
         if c in ("checkset", "all"):
             sp.add_argument("--label-run")
-        if c in ("report", "all"):
-            sp.add_argument("--round", choices=sorted(ROUNDS), default="round1")
+        if c in ("variant", "report", "all"):
+            sp.add_argument("--round", choices=sorted(ROUNDS), required=True,
+                            help="round1 = B3 채택 전 코드 필요, round2 = 채택 뒤 코드 필요(variant · all이 검사한다)")
         if c == "all":
             sp.add_argument("--checkset", help="이미 고정한 checkset.json(주면 새로 뽑지 않는다)")
         if c == "variant":

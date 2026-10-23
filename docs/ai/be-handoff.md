@@ -1,6 +1,6 @@
 # be-handoff.md — BE 워커가 부르는 AI 함수의 입력·출력과 BE 처리(공동 확인용 예제)
 
-> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
+> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값) · 10절 추가 2026-10-23(OCR 후처리, BE 확인 미진행). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
 > 성격: BE 구현이 실제로 요구·검증하는 형식의 예제와 기대 결과다. 새 계약 결정이 아니며, 유형 코드·프롬프트·모델은 AI 소유다.
 > 모든 키는 BE가 준 임시 키(`sec_<id>`·`blk_<id>`)를 그대로 돌려준다. 모르는 키는 저장 실패다(D3). 파일은 절대 로컬 경로로만 주고받는다.
 
@@ -304,3 +304,31 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - Linux · CPU 배포 이미지에서 긴 원본(예: 1000×37,665)의 시간 · 최대 메모리 — 7.3과 같은 방식(새 CLI 프로세스 전체, `/usr/bin/time -v`)으로 `analyze` 또는 `ocr` CLI를 측정한다.
 - 기준값(`[ocr] tile_*`)은 잠정이다. 실측 표본은 골든 9장 · 이 PC GPU다.
 - **1.0.0 릴리즈 전 배포 환경 실측은 생략하기로 했다(사용자 결정 2026-10-13).** 위 Linux · CPU 시간 · 최대 메모리, 배포 환경의 짧은 · 긴 섹션 · 충돌 실패 경로, BE 재시도 실행은 미검증으로 남는다. 이 기능은 기존에 미지원(거부)이던 긴 입력의 일부를 처리하도록 개선한 것이며, 긴 이미지 지원 전체의 품질 · 배포 안정성이 검증된 것이 아니다. 표본 9장의 실패 비율은 운영 전체 실패율이 아니다.
+
+## 10. OCR 후처리 인계(2026-10-23) — AI 내부 구현 · BE 확인 미진행
+
+③ 병합 안의 OCR 후처리(여백 분리 · 세로 중심 줄 정렬 · 전각 변환, `open-questions.md` #86)를 AI 내부에 구현했다. 규칙 정본은 `pipeline.md` 7.1 · 7.2절, 코드는 `pipeline/stages/merge.py`, 테스트는 `tests/test_pipeline_merge_post.py`다. **이번 작업은 BE 연동 · 검토 · 확인 요청을 하지 않았고, BE 확인을 이 구현의 선행조건으로 두지 않는다.** 아래는 향후 확인을 위한 정리이며 합의 · 연동 검증 · 운영 적용 기록이 아니다. 새 API 필드 · DB 컬럼 · BE 코드 변경은 없다.
+
+### 10.1 지금(스위치 기본 꺼짐) BE에 보이는 변화
+
+- `merge.xycut` · `merge.fullwidth`는 기본 `false`다. 꺼져 있으면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`), `llm_assist` 입력 · 프롬프트 · 기록 형식은 바뀌지 않는다(AI 내부 테스트로 확인 — 기존 ③ 테스트 통과).
+- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음).
+
+### 10.2 스위치를 켰을 때의 영향 — 향후 확인 항목
+
+`AnalyzeResult` 버전 · 필드 · 좌표계는 그대로지만 아래 **값의 의미**가 바뀐다. 켜기 전에 확인할 항목이며 지금의 선행조건이 아니다.
+
+| 대상 | 바뀌는 것 | 확인할 것 |
+|---|---|---|
+| 화면 순서 | `block_order`가 섹션 안 (y, x) 순에서 후보 영역 → 가로줄 → x 읽기 순서로 바뀐다(다단 배치에서 왼쪽 칸이 먼저) | N3 · N5 목록과 편집 화면이 `block_order`를 그대로 쓰는지, 다른 정렬(bbox 등)을 섞는지 |
+| 원문 표시 · 수정 | `fullwidth`이면 `source_ko`와 `source_lines[].text`가 전각 보정 문장이다. 원시 OCR 텍스트는 `source_lines[].regions[].text`에 남는다 | 화면 원문 · `edit_signal.before_text` 등이 어느 값을 쓰는지. 상위 계약 `source_ko` 정의 반영은 `open-questions.md` 3절 F |
+| 줄 · 문단 구성 | 같은 원본이라도 줄 묶음 · 블록 수 · 역할이 달라질 수 있다. 영역을 넘는 LLM 병합은 나뉘고 그 조각의 역할은 휴리스틱 판정이다 | 블록 수 · 역할 분포가 바뀌어도 하류 생성 조건 · 표시가 그대로 동작하는지 |
+| 재분석 | 켜기 전후 분석 결과는 같은 작업이라도 블록 · 키 · 텍스트가 다르다 | 한 작업 안에서 이전 분석 결과와 새 결과를 섞어 쓰는 경로(되살리기 · 재판정 · 재분석)가 없는지 |
+| 입력 지문 | ③-1 `blocks_fingerprint`(블록 키 · `source_ko`), ④ `input_fingerprint`(블록 전체), BE 분석 · 하류 매니페스트의 블록 해시(`app/flows/analysis.py` · `downstream.py` `stable_hash`)가 모두 새 값이 된다. 판정 구간(span)은 새 `source_ko` 기준으로 다시 산출되며 이전 구간을 옮겨 쓰지 않는다 | 지문 불일치 때 재사용 · 거절 동작이 의도대로인지(이전 결과를 새 블록에 붙이지 않는지) |
+| `input_manifest` · 캐시 | `xycut`이면 `merge.prompt_path` 뒤에 `pipeline/prompts/merge_assist_region.md`를 붙여 호출한다. 현재 인계 매니페스트의 `prompts.merge`는 기본 프롬프트 파일 해시만 담아 이 보충 프롬프트 내용이 지문에 들어가지 않는다 | 켜기 전에 보충 프롬프트를 지문에 넣을지와 방식(매니페스트 키는 BE 검증 대상) — AI 인계 코드 변경 사항이며 이번에는 하지 않았다 |
+| 개발용 고정 입력본 · 재생 | `blocks-input-v1` 등은 꺼진 상태의 ③ 출력이다. 켠 결과로 ③-1 · ④ · ⑤ 재생 기록을 돌리면 입력 지문 불일치로 거절된다(입력본 손상 아님) | — (AI 실측 범위) |
+
+### 10.3 남은 것
+
+- AI: 기존 병합 · 역할 분류와의 연결 검증, 품질 · 파라미터 확인, 기본 활성화 승인(`open-questions.md` #86). 보류 기능(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거)은 미채택이며 이번 구현에 없다.
+- BE: 위 10.2 항목 확인은 기본 활성화 결정 전에 따로 요청한다. 이번에는 BE 실행 테스트 · 연동 검증을 하지 않았다.

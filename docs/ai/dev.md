@@ -86,7 +86,7 @@ docs/ai/                     정본 문서
 - `judge.dict_dir`은 실제 사전 JSON의 **로컬 위치**(git 제외, `pipeline/samples/local/dict/normalized`)를 가리킨다. 테스트는 `pipeline/data/dict/synthetic`(합성, 실제 값 아님)만 쓴다. 상대 경로는 레포 루트 기준. 개발용 경로이며 운영 사전은 BE 고정 묶음이다(3.2절).
 - 통째로 바꾸려면 `--config PATH`(실험용 사본). 사본은 커밋하지 않는다.
 
-**prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4).
+**prompts** — `pipeline/prompts/<단계>.md`. 파일명은 config의 `*.prompt_path`와 맞춘다. 원문은 여기에만 두고 문서에는 경로만 적는다(`README.md` 4.4). 예외: `merge_assist_region.md`는 설정 키 없이 `merge.xycut`을 켰을 때 `merge.prompt_path` 뒤에 붙는 보충 프롬프트이며 경로는 `pipeline/stages/merge.py`의 `REGION_PROMPT_PATH`가 가진다(`open-questions.md` #86).
 
 **실행 기록** — 모든 CLI 실행은 출력 디렉터리에 `run.json`(config 스냅샷 · 입력 경로 · 프롬프트 해시 · 시작/종료 시각 `started_at`/`ran_at` · 소요 시간 `duration_s` · 커밋 `git_commit` · 추적 파일 변경 여부 `git_dirty`)을 남긴다. git을 쓸 수 없으면 두 값은 `null`. 워커 연결 시 이 값이 `event_log.payload`로 간다[계약 9장].
 

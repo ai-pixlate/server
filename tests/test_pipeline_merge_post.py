@@ -1,0 +1,343 @@
+"""③ OCR 후처리 검증 — open-questions #86, pipeline.md 7.1 · 7.2절. 기대값은 규칙에서 손으로 계산했다.
+
+- `merge.xycut`: 여백(XY-cut) 후보 영역 → 세로 중심 가로줄 → 높이비 · gutter로 Line 조각 → 기존 블록 병합.
+  최소 여백 = xycut_gap_ratio(0.8) × 섹션 텍스트 높이 중앙값, 가로줄 허용치 = max(8, 0.5 × 영역 높이 중앙값).
+- `merge.fullwidth`: Line.text · source_ko의 U+FF01~FF5E · U+3000만 반각. 원시 영역은 그대로.
+기본 config 값은 test_pipeline_merge.py 머리 참고(높이 20 → 블록 세로 간격 [-6, 12]).
+"""
+import json
+import math
+import random
+from collections import Counter
+
+import pytest
+
+from pipeline import config as cfgmod
+from pipeline.stages import merge
+from pipeline.types import BBox, OcrRegion, OcrResult, Section
+from pipeline.vlm import LlmReply
+
+
+def R(key: str, x: int, y: int, w: int, h: int, text: str = "가", score: float = 0.9) -> OcrRegion:
+    return OcrRegion(
+        region_key=key, text=text, score=score,
+        poly=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)], bbox=BBox(x=x, y=y, w=w, h=h),
+    )
+
+
+def SEC(width: int = 1000, height: int = 2000) -> Section:
+    return Section(section_key="sec_1_01", source_image_id=1, section_order=1, top_offset=0, height=height,
+                   width=width, image_path="unused.png")
+
+
+def CFG(**over):
+    cfg = cfgmod.load_config()
+    cfg["merge"].update(over)
+    return cfg
+
+
+def OCR(regions) -> OcrResult:
+    return OcrResult(section_key="sec_1_01", regions=regions)
+
+
+def run(regions, width: int = 1000, **over):
+    return merge.run(SEC(width), OCR(regions), CFG(**over), use_llm=False)
+
+
+def texts(res):
+    return [b.source_ko for b in res.blocks]
+
+
+def keys(res):
+    return [[r.region_key for ln in b.source_lines for r in ln.regions] for b in res.blocks]
+
+
+# ---------------------------------------------------------------------------
+# 설정
+# ---------------------------------------------------------------------------
+def test_switches_are_off_by_default():
+    m = CFG()["merge"]
+    assert m["xycut"] is False and m["fullwidth"] is False
+    assert (m["xycut_gap_ratio"], m["line_center_tol"], m["line_center_tol_min_px"]) == (0.8, 0.5, 8)
+
+
+@pytest.mark.parametrize("over", [{"xycut": True}, {"fullwidth": True}, {"line_center_tol_min_px": 0},
+                                  {"xycut_gap_ratio": 0.01}, {"line_center_tol": 3}])
+def test_postprocess_config_boundaries_are_accepted(over):
+    merge.validate_config(CFG(**over))
+
+
+@pytest.mark.parametrize(
+    "over",
+    [
+        {"xycut": 1}, {"xycut": "true"}, {"xycut": None}, {"fullwidth": 0}, {"fullwidth": "false"},
+        {"xycut_gap_ratio": True}, {"xycut_gap_ratio": "0.8"}, {"xycut_gap_ratio": math.nan},
+        {"line_center_tol": math.inf}, {"line_center_tol_min_px": -math.inf}, {"line_center_tol_min_px": False},
+        {"xycut_gap_ratio": 0}, {"xycut_gap_ratio": -0.1}, {"line_center_tol": 0}, {"line_center_tol_min_px": -1},
+    ],
+)
+def test_postprocess_config_bad_values_are_rejected(over):
+    with pytest.raises(ValueError):
+        merge.validate_config(CFG(**over))
+
+
+@pytest.mark.parametrize("k", ["xycut", "fullwidth", "xycut_gap_ratio", "line_center_tol", "line_center_tol_min_px"])
+def test_postprocess_config_missing_key_is_rejected(k):
+    cfg = CFG()
+    del cfg["merge"][k]
+    with pytest.raises(ValueError, match=k):
+        merge.validate_config(cfg)
+
+
+# ---------------------------------------------------------------------------
+# 전각 변환
+# ---------------------------------------------------------------------------
+def test_to_halfwidth_converts_only_ff01_ff5e_and_ideographic_space():
+    assert merge.to_halfwidth("ＴＯＥ　ＢＲＯＮＺＥ １００％，ＳＰＦ５０＋") == "TOE BRONZE 100%,SPF50+"
+    assert merge.to_halfwidth("！～") == "!~"  # 범위 양 끝 U+FF01 · U+FF5E
+    keep = "①™ㄱㅏ￦｡ｱ가나"  # 원문자 · 상표 · 한글 자모 · U+FFE6 · 반각 가타카나(범위 밖)는 그대로
+    assert merge.to_halfwidth(keep) == keep
+
+
+def test_fullwidth_changes_line_text_and_source_ko_but_not_raw_regions():
+    regs = [R("reg_0001", 0, 0, 200, 20, "ＴＯＥ　ＢＲＯＮＺＥ"), R("reg_0002", 210, 0, 100, 20, "１００％")]
+    off = run(regs)
+    on = run(regs, fullwidth=True)
+    assert texts(off) == ["ＴＯＥ　ＢＲＯＮＺＥ １００％"]
+    assert texts(on) == ["TOE BRONZE 100%"]
+    assert on.blocks[0].source_lines[0].text == "TOE BRONZE 100%"
+    assert [r.model_dump() for r in on.blocks[0].source_lines[0].regions] == [r.model_dump() for r in regs]  # 원시 그대로
+    assert len(on.blocks[0].source_ko) == len(off.blocks[0].source_ko)  # 같은 조립 문자열이면 길이 유지
+
+
+def test_ideographic_space_only_region_stays_empty_text_block():
+    regs = [R("reg_0001", 0, 0, 100, 20, "가나"), R("reg_0002", 0, 200, 50, 20, "　　", 0.0)]
+    res = run(regs, fullwidth=True)
+    assert texts(res) == ["가나", ""]  # strip()으로 이미 빈 텍스트 — 변환과 무관하게 단독 블록
+
+
+def test_fullwidth_is_independent_of_xycut():
+    regs = [R("reg_0001", 0, 0, 100, 20, "Ａ"), R("reg_0002", 0, 300, 100, 20, "Ｂ")]
+    assert texts(run(regs, fullwidth=True, xycut=True)) == ["A", "B"]
+    assert texts(run(regs, fullwidth=False, xycut=True)) == ["Ａ", "Ｂ"]
+
+
+# ---------------------------------------------------------------------------
+# 여백 분리 · 분할 트리
+# ---------------------------------------------------------------------------
+def test_widest_gap_picks_widest_and_earliest_on_tie():
+    assert merge.widest_gap([(0, 10), (30, 40), (60, 70)]) == (20.0, 20.0)
+    assert merge.widest_gap([(0, 10), (5, 20), (50, 60)]) == (30.0, 35.0)  # 덮인 구간(reach)부터 잰다
+    assert merge.widest_gap([(0, 10), (5, 20)]) == (0.0, None)
+
+
+def test_cut_tree_keeps_branches_and_sends_cut_value_to_high_side():
+    # 루트: y 여백 280(100~380) > x 여백 200 → y = 240. 위쪽 A · B · C: x 여백 200 > y 여백 60 → x = 200.
+    # 왼쪽 A · B: y 여백 60 → y = 50. 잎 순서(왼쪽 · 위 먼저): A, B, C, D
+    A, B = R("a", 0, 0, 100, 20), R("b", 0, 80, 100, 20)
+    C, D = R("c", 300, 0, 100, 20), R("d", 300, 380, 100, 20)
+    tree, leaves = merge.build_cut_tree([A, B, C, D], 16)
+    assert [[r.region_key for r in leaf] for leaf in leaves] == [["a"], ["b"], ["c"], ["d"]]
+    assert (tree.axis, tree.value) == ("y", 240)
+    assert merge.locate(tree, 350, 60) == 2  # 위쪽 → x ≥ 200 → C. 왼쪽 가지의 y = 50 절단을 적용하지 않는다
+    assert merge.locate(tree, 50, 50) == 1 and merge.locate(tree, 50, 49) == 0  # 절단값과 같으면 아래(high)
+    assert merge.locate(tree, 200, 0) == 2 and merge.locate(tree, 0, 240) == 3
+
+
+def test_columns_are_read_left_region_first_even_if_right_starts_higher():
+    # 오른쪽 칸이 10px 위에서 시작. 기본은 블록 (y, x) 순이라 오른쪽이 먼저, xycut은 x 여백 100 ≥ 16으로 칸을 나눠 왼쪽 먼저
+    regs = [R("l1", 50, 10, 400, 20, "왼1"), R("l2", 50, 38, 400, 20, "왼2"),
+            R("r1", 550, 0, 400, 20, "오1"), R("r2", 550, 28, 400, 20, "오2")]
+    assert texts(run(regs)) == ["오1\n오2", "왼1\n왼2"]
+    assert texts(run(regs, xycut=True)) == ["왼1\n왼2", "오1\n오2"]
+
+
+def test_many_regions_do_not_hit_recursion_limit():
+    regs = [R(f"reg_{i:04d}", 0, i * 40, 100, 20) for i in range(1500)]  # 줄마다 y 여백 20 ≥ 16 → 잎 1500개
+    res = run(regs, xycut=True)
+    assert len(res.blocks) == 1500 and keys(res)[0] == ["reg_0000"] and keys(res)[-1] == ["reg_1499"]
+
+
+# ---------------------------------------------------------------------------
+# 세로 중심 가로줄 · Line 조각
+# ---------------------------------------------------------------------------
+def lip_stain_set():
+    # 같은 가로줄의 세 단어(위쪽 y 422 · 427 · 423, 가로 간격 284 · 277 > 14)와 그 아래 전폭 줄(x 여백을 막는다).
+    # 세로 여백 460 − 447 = 13 < 16이라 후보 영역은 하나
+    return [R("lip", 0, 422, 100, 20, "Lip"), R("stain", 384, 427, 100, 20, "Stain"), R("set", 761, 423, 100, 20, "Set"),
+            R("next", 0, 460, 900, 20, "아래 문장")]
+
+
+def test_same_row_words_with_wide_gaps_keep_left_to_right_order():
+    # 기본: 가로 간격 상한에 막혀 단어마다 블록, (y, x) 순이라 Lip · Set · Stain으로 뒤집힌다
+    assert texts(run(lip_stain_set())) == ["Lip", "Set", "Stain", "아래 문장"]
+    # xycut: 세로 중심 432 · 433 · 437은 기준 432와의 차 ≤ 10 → 한 가로줄, x순 · 높이비 1 · gutter 없음 → 한 Line
+    assert texts(run(lip_stain_set(), xycut=True)) == ["Lip Stain Set", "아래 문장"]
+
+
+def test_row_base_is_the_first_center_and_is_not_recomputed():
+    # 중심 10 · 19 · 28: 기준 10 → 19(차 9 ≤ 10)는 같은 줄, 28(차 18)은 새 줄. 이동 평균이면 28도 붙을 수 있다
+    regs = [R("a", 0, 0, 100, 20, "가"), R("b", 200, 9, 100, 20, "나"), R("c", 400, 18, 100, 20, "다")]
+    rows = merge.reading_lines(regs, CFG()["merge"])
+    assert [(base, [r.region_key for r in rs]) for base, rs in rows] == [(10.0, ["a", "b"]), (28.0, ["c"])]
+
+
+def test_height_ratio_splits_a_row_into_lines_kept_in_x_order():
+    # 같은 중심 20의 "98"(높이 40)과 "%"(높이 20): 높이비 2 > 1.5 → Line 둘. 세로 간격 10 − 40 = −30 < −6 → 블록 둘
+    regs = [R("num", 100, 0, 60, 40, "98"), R("pct", 165, 10, 20, 20, "%")]
+    res = run(regs, xycut=True)
+    assert texts(res) == ["98", "%"]
+
+
+def two_columns_inside_one_region():
+    # 폭 320, 높이 50 글자 → 최소 여백 40. 칸 사이 30px(≥ gutter 최소 20, < 40) — 같은 후보 영역 안의 gutter 두 칸
+    return [R("l1", 0, 0, 140, 50, "왼1"), R("r1", 170, 0, 130, 50, "오1"),
+            R("l2", 0, 60, 140, 50, "왼2"), R("r2", 170, 60, 130, 50, "오2")]
+
+
+def test_gutter_splits_a_row_and_columns_stay_separate_blocks():
+    res = run(two_columns_inside_one_region(), width=320, xycut=True)
+    assert texts(res) == ["왼1\n왼2", "오1\n오2"]
+
+
+# ---------------------------------------------------------------------------
+# 단독 블록 배치 · 보존
+# ---------------------------------------------------------------------------
+def test_standalone_block_goes_after_rows_whose_base_is_not_below_its_center():
+    # 텍스트 두 줄(y 0 · 100) 사이 여백 80 → y = 60 절단. 빈 영역 E(y 50, 중심 60)는 위 영역, k = 1 → 첫 줄 뒤.
+    # 크기 0 영역 Z(y 60)는 절단값과 같아 아래 영역, 중심 70 < 기준 110 → k = 0 → 둘째 줄 앞
+    regs = [R("t1", 0, 0, 100, 20, "첫"), R("t2", 0, 100, 100, 20, "둘"),
+            R("e", 300, 50, 40, 20, "", 0.0), R("z", 300, 60, 0, 20, "글", 0.5)]
+    res = run(regs, xycut=True)
+    assert keys(res) == [["t1"], ["e"], ["z"], ["t2"]]
+
+
+def test_standalone_does_not_enter_a_multi_line_paragraph():
+    # 두 줄 문단(y 0 · 28, 블록 하나) 사이 높이의 빈 영역은 문단 뒤로 간다 — 블록 시작 가로줄 기준 배치
+    regs = [R("p1", 0, 0, 400, 20, "문단 첫 줄"), R("p2", 0, 28, 400, 20, "문단 둘째 줄"), R("e", 500, 20, 40, 10, "", 0.0)]
+    res = run(regs, xycut=True)
+    assert keys(res) == [["p1", "p2"], ["e"]]
+
+
+def test_section_without_text_regions_keeps_current_order():
+    regs = [R("e1", 300, 50, 40, 20, "", 0.0), R("z1", 100, 50, 0, 20, "a", 0.5), R("e2", 0, 10, 40, 30, " ", 0.0)]
+    assert run(regs, xycut=True) == run(regs)  # (위쪽 y, x, region_key) — 기존 블록 순서와 같다
+
+
+def mixed_regions():
+    return lip_stain_set() + two_columns_inside_one_region() + [
+        R("e1", 950, 430, 30, 10, "", 0.0), R("z1", 0, 1500, 0, 30, "x", 0.2),
+        R("big", 0, 900, 600, 60, "큰 제목"), R("small", 0, 980, 300, 12, "작은 설명"),
+    ]
+
+
+def test_every_region_is_preserved_once_and_unchanged_with_xycut():
+    regs = mixed_regions()
+    res = run(regs, xycut=True, fullwidth=True)
+    out = [r for b in res.blocks for ln in b.source_lines for r in ln.regions]
+    assert Counter(r.region_key for r in out) == Counter(r.region_key for r in regs)
+    by_key = {r.region_key: r for r in regs}
+    assert all(r.model_dump() == by_key[r.region_key].model_dump() for r in out)
+    assert [b.block_order for b in res.blocks] == list(range(1, len(res.blocks) + 1))
+
+
+def test_xycut_result_does_not_depend_on_input_order():
+    regs = mixed_regions()
+    shuffled = regs[:]
+    random.Random(7).shuffle(shuffled)
+    assert run(shuffled, xycut=True) == run(regs, xycut=True)
+
+
+# ---------------------------------------------------------------------------
+# llm_assist 연결
+# ---------------------------------------------------------------------------
+class FakeLlm:
+    """payload 텍스트로 묶음을 정한다. plan: [(텍스트 목록, 역할)]."""
+
+    def __init__(self, plan):
+        self.config = {"model": "fake", "temperature": 0, "timeout_s": 60}
+        self.plan = plan
+        self.calls = []
+
+    def __call__(self, prompt, payload):
+        self.calls.append((prompt, payload))
+        by_text = {b["text"]: b["id"] for b in json.loads(payload)["blocks"]}
+        blocks = [{"members": [by_text[t] for t in texts_], "role": role} for texts_, role in self.plan]
+        return LlmReply(json.dumps({"blocks": blocks}, ensure_ascii=False), {"total_token_count": 1})
+
+
+def run_llm(regions, plan, width=1000, **over):
+    llm, recs = FakeLlm(plan), []
+    res = merge.run(SEC(width), OCR(regions), CFG(**over), llm=llm, recorder=recs.append)
+    return res, llm, recs[-1]
+
+
+def regions_in_two_regions():
+    # 높이 중앙값 20 → 최소 여백 16. 제목(높이 40) 아래 여백 160 → y 절단. 아래 영역은 본문 두 줄:
+    # 세로 간격 14는 블록 상한 12를 넘어 블록 둘이지만 최소 여백 16보다 작아 같은 후보 영역
+    return [R("t", 0, 0, 300, 40, "피부 진정"), R("b1", 0, 200, 400, 20, "첫째 줄"), R("b2", 0, 234, 400, 20, "둘째 줄")]
+
+
+def test_payload_and_prompt_carry_region_only_when_xycut_is_on():
+    _, llm, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄"], "body"), (["둘째 줄"], "body")],
+                          xycut=True)
+    prompt, payload = llm.calls[0]
+    assert [b["region"] for b in json.loads(payload)["blocks"]] == [1, 2, 2]
+    assert prompt.endswith((merge.REPO_ROOT / merge.REGION_PROMPT_PATH).read_text(encoding="utf-8"))
+    assert rec["postprocess"] == {"xycut": True, "fullwidth": False, "candidate_regions": 2}
+    assert rec["result"]["region_splits"] == [] and rec["result"]["interleaved"] == []
+    _, llm, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄"], "body"), (["둘째 줄"], "body")])
+    prompt, payload = llm.calls[0]
+    assert all("region" not in b for b in json.loads(payload)["blocks"])
+    assert prompt == (merge.REPO_ROOT / CFG()["merge"]["prompt_path"]).read_text(encoding="utf-8")
+    assert "postprocess" not in rec and set(rec["result"]) == {"groups", "block_map"}  # 끄면 기록 형식도 기존과 같다
+
+
+def test_same_region_merge_keeps_llm_role():
+    res, _, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄", "둘째 줄"], "caption")],
+                          xycut=True)
+    assert [(b.source_ko, b.role) for b in res.blocks] == [("피부 진정", "title"), ("첫째 줄\n둘째 줄", "caption")]
+    assert rec["result"]["region_splits"] == []
+
+
+def test_cross_region_group_is_split_and_pieces_get_heuristic_roles():
+    regs = regions_in_two_regions()
+    heur = merge.heuristic(SEC(), OCR(regs), CFG(xycut=True))
+    heur_roles = {b.source_ko: b.role for b in heur.blocks}
+    res, _, rec = run_llm(regs, [(["피부 진정", "첫째 줄"], "caption"), (["둘째 줄"], "body")], xycut=True)
+    assert texts(res) == ["피부 진정", "첫째 줄", "둘째 줄"]  # 묶음이 영역별로 나뉜다
+    assert res.blocks[0].role == heur_roles["피부 진정"] and res.blocks[1].role == heur_roles["첫째 줄"]
+    assert res.blocks[2].role == "body"  # 영역 안 정상 응답은 LLM 역할 그대로
+    (split,) = rec["result"]["region_splits"]
+    assert split["members"] == ["blk_001", "blk_002"] and split["llm_role"] == "caption"
+    assert split["parts"] == [{"region": 1, "members": ["blk_001"], "role": heur_roles["피부 진정"]},
+                              {"region": 2, "members": ["blk_002"], "role": heur_roles["첫째 줄"]}]
+
+
+def test_other_response_errors_still_fail_with_xycut():
+    regs = regions_in_two_regions()
+    with pytest.raises(merge.LlmResponseError, match="빠진 ID"):
+        run_llm(regs, [(["피부 진정", "첫째 줄"], "title")], xycut=True)
+
+
+def test_merged_group_lines_are_resorted_by_row_not_block_concatenation():
+    # 같은 영역의 gutter 두 칸을 LLM이 합치면 줄은 (가로줄 순번, x)로 다시 정렬돼 칸이 번갈아 섞인다 — 알려진 위험,
+    # 가로줄 범위가 교차하는 묶음으로 기록된다
+    res, _, rec = run_llm(two_columns_inside_one_region(), [(["왼1\n왼2", "오1\n오2"], "body")], width=320, xycut=True)
+    assert texts(res) == ["왼1\n오1\n왼2\n오2"]
+    assert rec["result"]["interleaved"] == [["blk_001", "blk_002"]]
+
+
+def test_merged_fragments_of_one_row_keep_x_order():
+    res, _, rec = run_llm([R("num", 100, 0, 60, 40, "98"), R("pct", 165, 10, 20, 20, "%")], [(["98", "%"], "title")],
+                          xycut=True)
+    assert [(b.source_ko, b.role) for b in res.blocks] == [("98\n%", "title")]  # 줄 복구는 하지 않는다(v1)
+    assert rec["result"]["interleaved"] == [["blk_001", "blk_002"]]  # 같은 가로줄 1을 공유
+
+
+def test_xycut_llm_invariants_hold():
+    regs = mixed_regions()
+    heur = merge.heuristic(SEC(), OCR(regs), CFG(xycut=True))
+    plan = [([b.source_ko], b.role) for b in heur.blocks if merge._sendable(b)]
+    res, _, _ = run_llm(regs, plan, xycut=True)
+    assert res == heur  # 합치지 않는 응답이면 휴리스틱 결과 그대로

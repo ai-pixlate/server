@@ -1,6 +1,6 @@
 """③ OCR 후처리 검증 — open-questions #86, pipeline.md 7.1 · 7.2절. 기대값은 규칙에서 손으로 계산했다.
 
-- `merge.xycut`: 여백(XY-cut) 후보 영역 → 세로 중심 가로줄 → 높이비 · gutter로 Line 조각 → 기존 블록 병합.
+- `merge.xycut`: 여백(XY-cut) 후보 영역 → 세로 중심 가로줄 → gutter로만 Line 조각(높이비 안 봄, 2026-10-23) → 기존 블록 병합.
   최소 여백 = xycut_gap_ratio(0.8) × 섹션 텍스트 높이 중앙값, 가로줄 허용치 = max(8, 0.5 × 영역 높이 중앙값).
 - `merge.fullwidth`: Line.text · source_ko의 U+FF01~FF5E · U+3000만 반각. 원시 영역은 그대로.
 기본 config 값은 test_pipeline_merge.py 머리 참고(높이 20 → 블록 세로 간격 [-6, 12]).
@@ -182,11 +182,28 @@ def test_row_base_is_the_first_center_and_is_not_recomputed():
     assert [(base, [r.region_key for r in rs]) for base, rs in rows] == [(10.0, ["a", "b"]), (28.0, ["c"])]
 
 
-def test_height_ratio_splits_a_row_into_lines_kept_in_x_order():
-    # 같은 중심 20의 "98"(높이 40)과 "%"(높이 20): 높이비 2 > 1.5 → Line 둘. 세로 간격 10 − 40 = −30 < −6 → 블록 둘
+def test_height_ratio_does_not_split_a_row():
+    # 같은 중심 20의 "98"(높이 40)과 "%"(높이 20): 높이비 2지만 xycut의 Line 나누기는 높이비를 보지 않는다(2026-10-23) → 한 Line
     regs = [R("num", 100, 0, 60, 40, "98"), R("pct", 165, 10, 20, 20, "%")]
+    assert texts(run(regs, xycut=True)) == ["98 %"]
+    assert texts(run(regs)) == ["98", "%"]  # 끄면 기존 줄 병합(높이비 1.5 상한) 그대로
+
+
+def test_superscript_marker_stays_at_the_end_of_its_row():
+    # 줄(높이 40, 중심 20) 끝 위쪽에 붙은 각주 기호(높이 15, 중심 7.5). 허용치 = max(8, 0.5 × 중앙값 27.5) = 13.75,
+    # 차 12.5 → 같은 가로줄. 높이비 2.7이지만 끊지 않는다 → 기호가 대응 줄 끝에 붙는다
+    regs = [R("body", 0, 0, 400, 40, "트리플 징크 콤플렉스"), R("mark", 405, 0, 20, 15, "**")]
+    assert texts(run(regs, xycut=True)) == ["트리플 징크 콤플렉스 **"]
+
+
+def test_small_overlapping_fragment_does_not_break_the_row():
+    # 큰 글자(높이 87 · 79 · 80) 사이에 낀 작은 중첩 영역(높이 45, #40 조각 후보 — 텍스트 그대로 보존).
+    # 중심 318.5 · 318.5 · 319.5 · 319 → 한 가로줄, gutter 없음 → 한 Line(조각 텍스트는 줄 안에 남는다)
+    regs = [R("r2", 151, 275, 141, 87, "이런"), R("r3", 297, 279, 279, 79, "분들에게"),
+            R("r5", 545, 297, 55, 45, "I", 0.28), R("r4", 573, 279, 271, 80, "추천해요")]
     res = run(regs, xycut=True)
-    assert texts(res) == ["98", "%"]
+    assert texts(res) == ["이런 분들에게 I 추천해요"]
+    assert [r.region_key for r in res.blocks[0].source_lines[0].regions] == ["r2", "r3", "r5", "r4"]
 
 
 def two_columns_inside_one_region():
@@ -328,11 +345,13 @@ def test_merged_group_lines_are_resorted_by_row_not_block_concatenation():
     assert rec["result"]["interleaved"] == [["blk_001", "blk_002"]]
 
 
-def test_merged_fragments_of_one_row_keep_x_order():
-    res, _, rec = run_llm([R("num", 100, 0, 60, 40, "98"), R("pct", 165, 10, 20, 20, "%")], [(["98", "%"], "title")],
-                          xycut=True)
-    assert [(b.source_ko, b.role) for b in res.blocks] == [("98\n%", "title")]  # 줄 복구는 하지 않는다(v1)
-    assert rec["result"]["interleaved"] == [["blk_001", "blk_002"]]  # 같은 가로줄 1을 공유
+def test_same_row_pieces_reach_llm_as_one_block():
+    # 높이비로 갈리던 같은 줄 조각은 이제 휴리스틱에서 한 Line · 한 블록이라 LLM 묶음이 필요 없다
+    res, llm, rec = run_llm([R("num", 100, 0, 60, 40, "98"), R("pct", 165, 10, 20, 20, "%")], [(["98 %"], "title")],
+                            xycut=True)
+    assert [b["text"] for b in json.loads(llm.calls[0][1])["blocks"]] == ["98 %"]
+    assert [(b.source_ko, b.role) for b in res.blocks] == [("98 %", "title")]
+    assert rec["result"]["interleaved"] == []
 
 
 def test_xycut_llm_invariants_hold():

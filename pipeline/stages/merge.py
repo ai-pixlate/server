@@ -354,18 +354,18 @@ def reading_lines(regions: list[OcrRegion], m: dict[str, Any]) -> list[tuple[flo
 
 
 def _split_row(regs: list[OcrRegion], m: dict[str, Any], gutters: list[tuple[int, int]]) -> list[list[OcrRegion]]:
-    """가로줄 하나(x순)를 Line 조각으로 나눈다. 이웃 영역의 높이비가 h_ratio를 넘거나 사이에 gutter가 있으면 끊는다."""
+    """가로줄 하나(x순)를 Line 조각으로 나눈다. 이웃 영역 사이에 gutter가 있을 때만 끊는다.
+
+    높이비(h_ratio)는 보지 않는다 — 위첨자 · 각주 기호와 작은 조각이 대응 줄에서 떨어지고, 큰 글자 사이에 낀 작은 영역이
+    줄을 끊었기 때문이다(4단계 1차 사람 검수, 사용자 결정 2026-10-23 — open-questions #86). h_ratio는 블록 병합과
+    xycut을 끈 기존 줄 병합에서는 그대로 쓴다."""
     pieces = [[regs[0]]]
     for b in regs[1:]:
         a = pieces[-1][-1]
-        base = min(a.bbox.h, b.bbox.h)
-        joins = max(a.bbox.h, b.bbox.h) / base <= m["h_ratio"]
-        if joins and m["gutter"] and any(a.bbox.x2 <= g0 and g1 <= b.bbox.x for g0, g1 in gutters):
-            joins = False
-        if joins:
-            pieces[-1].append(b)
-        else:
+        if m["gutter"] and any(a.bbox.x2 <= g0 and g1 <= b.bbox.x for g0, g1 in gutters):
             pieces.append([b])
+        else:
+            pieces[-1].append(b)
     return pieces
 
 

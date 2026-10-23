@@ -341,3 +341,94 @@ def test_xycut_llm_invariants_hold():
     plan = [([b.source_ko], b.role) for b in heur.blocks if merge._sendable(b)]
     res, _, _ = run_llm(regs, plan, xycut=True)
     assert res == heur  # 합치지 않는 응답이면 휴리스틱 결과 그대로
+
+
+# ---------------------------------------------------------------------------
+# 후처리 진단(merge_post_debug) — LLM 사용 여부와 관계없이
+# ---------------------------------------------------------------------------
+def run_diag(regions, width=1000, use_llm=False, llm=None, **over):
+    diags = []
+    res = merge.run(SEC(width), OCR(regions), CFG(**over), use_llm=use_llm, llm=llm, post_recorder=diags.append)
+    return res, diags
+
+
+def test_no_diagnostics_when_both_switches_are_off():
+    _, diags = run_diag(two_columns_inside_one_region(), width=320)
+    assert diags == []
+
+
+def test_no_llm_run_records_layout_diagnostics():
+    res, (d,) = run_diag(two_columns_inside_one_region(), width=320, xycut=True)
+    assert d["use_llm"] is False and d["section_key"] == "sec_1_01"
+    assert d["postprocess"] == {"xycut": True, "fullwidth": False, "candidate_regions": 1}
+    assert d["config"]["xycut_gap_ratio"] == 0.8 and d["config"]["gutter"] is True
+    assert d["cuts"] == [{"path": "", "region": 1}]  # 절단 없음 — 후보 영역 하나
+    assert d["regions"] == [{"region": 1, "rows": 2, "row_bases": [25.0, 85.0], "blocks": ["blk_001", "blk_002"]}]
+    assert [(b["block_key"], b["region"], b["rows"], b["sent_to_llm"]) for b in d["blocks"]] == [
+        ("blk_001", 1, [1, 2], True), ("blk_002", 1, [1, 2], True)]
+    assert d["interleaving_pairs"] == [["blk_001", "blk_002"]]  # LLM이 합치면 칸이 번갈아 섞일 후보
+    assert [b["text"] for b in d["blocks"]] == texts(res)
+
+
+def test_diagnostics_record_cuts_standalone_slots_and_fullwidth_lines():
+    regs = [R("t1", 0, 0, 100, 20, "첫"), R("t2", 0, 100, 100, 20, "ＡＢ"), R("e", 300, 50, 40, 20, "", 0.0)]
+    _, (d,) = run_diag(regs, xycut=True, fullwidth=True)
+    assert d["cuts"] == [{"path": "", "axis": "y", "value": 60.0}, {"path": "L", "region": 1}, {"path": "H", "region": 2}]
+    standalone = next(b for b in d["blocks"] if b["block_key"] == "blk_002")
+    assert (standalone["region"], standalone["rows"], standalone["after_rows"], standalone["sent_to_llm"]) == (1, None, 1, False)
+    assert d["fullwidth_changed_lines"] == ["line_003"] and d["postprocess"]["fullwidth_changed_lines"] == 1
+
+
+def test_fullwidth_only_diagnostics_have_no_layout():
+    _, (d,) = run_diag([R("a", 0, 0, 100, 20, "Ａ")], fullwidth=True)
+    assert d["postprocess"] == {"xycut": False, "fullwidth": True, "fullwidth_changed_lines": 1}
+    assert "cuts" not in d and "blocks" not in d
+
+
+def test_diagnostics_are_written_before_llm_and_survive_its_failure():
+    from pipeline.vlm import VlmError
+
+    class Failing:
+        config = {"model": "fake", "temperature": 0, "timeout_s": 60}
+
+        def __call__(self, prompt, payload):
+            raise VlmError("시간 초과")
+
+    diags = []
+    with pytest.raises(VlmError):
+        merge.run(SEC(), OCR(regions_in_two_regions()), CFG(xycut=True), llm=Failing(), post_recorder=diags.append)
+    assert len(diags) == 1 and diags[0]["use_llm"] is True
+
+
+def test_cli_merge_no_llm_writes_post_debug_only_when_switched_on(tmp_path):
+    from pathlib import Path
+
+    from pipeline import run as cli
+
+    exp = Path(__file__).resolve().parent.parent / "pipeline" / "samples" / "synthetic_01" / "expected"
+    base = ["merge", "--split", str(exp / "split.json"), "--ocr", str(exp / "ocr/sec_1_01.json"), "--no-llm"]
+    assert cli.main([*base, "--out", str(tmp_path / "off")]) == 0
+    assert not (tmp_path / "off" / "merge_post_debug").exists()
+    assert cli.main([*base, "--out", str(tmp_path / "on"), "--set", "merge.xycut=true"]) == 0
+    d = json.loads((tmp_path / "on" / "merge_post_debug" / "sec_1_01.json").read_text(encoding="utf-8"))
+    assert d["use_llm"] is False and d["postprocess"]["xycut"] is True
+
+
+@pytest.mark.parametrize("over, written", [({}, False), ({"fullwidth": True}, True)])
+def test_analyze_no_llm_writes_post_debug_and_block_keys(monkeypatch, tmp_path, over, written):
+    from pipeline import analyze as an
+    from pipeline.types import SourceImage, SplitResult
+
+    sec = SEC(height=500)
+    split = SplitResult(source_image_id=1, source_width=1000, source_height=500, sections=[sec])
+    monkeypatch.setattr(an.section_split, "run", lambda src, cfg, out: split)
+    monkeypatch.setattr(an.ocr, "run", lambda s, cfg, **_: OCR([R("reg_0001", 0, 0, 100, 20, "Ａ")]))
+    res = an.analyze([SourceImage(source_image_id=1, upload_order=1, path="unused.png")], CFG(**over), tmp_path,
+                     use_llm=False)
+    post = tmp_path / "merge_post_debug"
+    assert post.exists() is written
+    assert not (tmp_path / "merge_debug").exists()
+    if written:
+        assert json.loads((post / "sec_1_01.json").read_text(encoding="utf-8"))["fullwidth_changed_lines"] == ["line_001"]
+        assert json.loads((post / "block_keys.json").read_text(encoding="utf-8")) == [
+            {"section_key": "sec_1_01", "section_block_key": "blk_001", "run_block_key": res.blocks[0].block_key}]

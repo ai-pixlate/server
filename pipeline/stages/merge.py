@@ -377,13 +377,30 @@ class _Layout:
     block_rank: dict[str, tuple] = field(default_factory=dict)  # 블록 키 → 영역 안 정렬 키
     line_rank: dict[str, tuple[int, int, str]] = field(default_factory=dict)  # 줄 키 → (가로줄 순번, x, region_key)
     n_regions: int = 0
+    cuts: list[dict[str, Any]] = field(default_factory=list)  # 진단용 분할 트리(전위 순회, path = 루트부터 L/H)
+    row_bases: list[list[float]] = field(default_factory=list)  # 진단용 후보 영역별 가로줄 기준 y
+
+
+def _cut_list(tree: _Cut | int) -> list[dict[str, Any]]:
+    """분할 트리를 전위 순회 목록으로. path는 루트부터 low = L · high = H. 잎은 후보 영역 번호(1부터)."""
+    out: list[dict[str, Any]] = []
+    stack: list[tuple[_Cut | int | None, str]] = [(tree, "")]
+    while stack:
+        node, path = stack.pop()
+        if isinstance(node, _Cut):
+            out.append({"path": path, "axis": node.axis, "value": node.value})
+            stack.append((node.high, path + "H"))
+            stack.append((node.low, path + "L"))
+        else:
+            out.append({"path": path, "region": (node or 0) + 1})
+    return out
 
 
 def _xycut_groups(
     regions: list[OcrRegion], kinds: dict[str, str], text_regions: list[OcrRegion], m: dict[str, Any],
     gutters: list[tuple[int, int]],
-) -> list[tuple[int, tuple, list[_Line]]]:
-    """[(후보 영역 번호, 영역 안 정렬 키, 줄 묶음)]을 최종 블록 순서로.
+) -> tuple[list[tuple[int, tuple, list[_Line]]], _Cut | int, list[list[float]]]:
+    """([(후보 영역 번호, 영역 안 정렬 키, 줄 묶음)] 최종 블록 순서, 분할 트리, 영역별 가로줄 기준 y).
 
     텍스트 블록 키 = (시작 가로줄 순번, 0, 첫 영역 x, 첫 영역 region_key). 빈 텍스트 · 크기 0 단독 블록은 분할 트리를
     좌상단으로 따라가 후보 영역을 찾고, k = 기준 y ≤ 단독 영역 세로 중심인 가로줄 수로 키 (k, 1, 위쪽 y, x, region_key).
@@ -414,7 +431,7 @@ def _xycut_groups(
         k = sum(1 for b in bases[li] if b <= _center_y(r))
         items.append((li, (k, 1, r.bbox.y, r.bbox.x, r.region_key), [_Line([r])]))
     items.sort(key=lambda it: (it[0], it[1]))
-    return [(li + 1, key, g) for li, key, g in items]
+    return [(li + 1, key, g) for li, key, g in items], tree, bases
 
 
 # ---------------------------------------------------------------------------
@@ -463,8 +480,11 @@ def _section_stats(regions: list[OcrRegion], m: dict[str, Any]) -> tuple[float, 
     return height_stats([r.bbox.h for r in regions if region_kind(r) == "text"], m)
 
 
-def _heuristic(section: Section, ocr: OcrResult, cfg: dict[str, Any]) -> tuple[MergeResult, _Layout | None, dict[str, Any]]:
-    """(결과, xycut 배치 정보 또는 None, 후처리 기록). 후처리 기록은 LLM 호출 기록(merge_debug)에만 남는다."""
+def _heuristic(
+    section: Section, ocr: OcrResult, cfg: dict[str, Any]
+) -> tuple[MergeResult, _Layout | None, dict[str, Any], dict[str, Any] | None]:
+    """(결과, xycut 배치 정보 또는 None, 후처리 요약, 후처리 진단 또는 None).
+    요약은 LLM 호출 기록(merge_debug)에, 진단은 LLM 사용 여부와 관계없이 merge_post_debug에 남는다(두 스위치가 모두 꺼지면 None)."""
     m = cfg["merge"]
     if ocr.section_key != section.section_key:
         raise ValueError(f"OCR 결과({ocr.section_key})와 섹션({section.section_key})이 다르다")
@@ -480,9 +500,9 @@ def _heuristic(section: Section, ocr: OcrResult, cfg: dict[str, Any]) -> tuple[M
     layout: _Layout | None = None
     placed: list[tuple[int, tuple, list[_Line]]] | None = None
     if m["xycut"]:
-        placed = _xycut_groups(ocr.regions, kinds, text_regions, m, gutters)
+        placed, tree, bases = _xycut_groups(ocr.regions, kinds, text_regions, m, gutters)
         groups = [g for _, _, g in placed]
-        layout = _Layout(n_regions=max((li for li, _, _ in placed), default=1))
+        layout = _Layout(n_regions=len(bases), cuts=_cut_list(tree), row_bases=bases)
     else:
         groups = group_blocks(group_lines(text_regions, m, gutters), m)
         groups += [[_Line([r])] for r in ocr.regions if kinds[r.region_key] != "text"]  # 빈 텍스트 · 크기 0 단독 블록
@@ -491,7 +511,7 @@ def _heuristic(section: Section, ocr: OcrResult, cfg: dict[str, Any]) -> tuple[M
     stats = height_stats([r.bbox.h for r in text_regions], m)
     blocks: list[TextBlock] = []
     n_line = 0
-    changed = 0
+    changed: list[str] = []
     for i, g in enumerate(groups, start=1):
         lines: list[Line] = []
         for ln in g:
@@ -499,7 +519,8 @@ def _heuristic(section: Section, ocr: OcrResult, cfg: dict[str, Any]) -> tuple[M
             text = ln.text
             if m["fullwidth"]:
                 half = to_halfwidth(text)
-                changed += half != text
+                if half != text:
+                    changed.append(line_key(n_line))
                 text = half
             lines.append(Line(line_key=line_key(n_line), text=text, bbox=ln.bbox, regions=list(ln.regions)))
             if layout is not None and ln.rank is not None:
@@ -525,8 +546,51 @@ def _heuristic(section: Section, ocr: OcrResult, cfg: dict[str, Any]) -> tuple[M
     if layout is not None:
         post["candidate_regions"] = layout.n_regions
     if m["fullwidth"]:
-        post["fullwidth_changed_lines"] = changed
-    return MergeResult(section_key=section.section_key, blocks=blocks), layout, post
+        post["fullwidth_changed_lines"] = len(changed)
+    result = MergeResult(section_key=section.section_key, blocks=blocks)
+    diag = _post_diagnostics(section, result, layout, post, changed, m) if m["xycut"] or m["fullwidth"] else None
+    return result, layout, post, diag
+
+
+_DIAG_KEYS = ("xycut", "fullwidth", "xycut_gap_ratio", "line_center_tol", "line_center_tol_min_px", "h_ratio", "gutter")
+
+
+def _post_diagnostics(
+    section: Section, heur: MergeResult, layout: _Layout | None, post: dict[str, Any], changed: list[str], m: dict[str, Any],
+) -> dict[str, Any]:
+    """후처리 진단(개발 확인용, 계약 값 아님). 블록 키는 휴리스틱(LLM 전) 섹션 키다 — LLM을 쓰면 최종 키는 merge_debug의
+    block_map으로 잇는다. `interleaving_pairs`는 같은 후보 영역에서 가로줄 범위가 교차하는 LLM 전송 블록 쌍으로, LLM이 합치면
+    줄이 가로줄 순으로 다시 정렬돼 번갈아 섞일 수 있는 후보다(pipeline.md 7.2절)."""
+    diag: dict[str, Any] = {
+        "section_key": section.section_key,
+        "source_image_id": section.source_image_id,
+        "postprocess": dict(post),
+        "config": {k: m[k] for k in _DIAG_KEYS},
+        "fullwidth_changed_lines": changed,
+    }
+    if layout is None:
+        return diag
+    blocks = []
+    for b in heur.blocks:
+        rows = [layout.line_rank[ln.line_key][0] for ln in b.source_lines if ln.line_key in layout.line_rank]
+        blocks.append({"block_key": b.block_key, "region": layout.block_region[b.block_key], "sent_to_llm": _sendable(b),
+                       "rows": [min(rows), max(rows)] if rows else None, "after_rows": None if rows else layout.block_rank[b.block_key][0],
+                       "role": b.role, "text": b.source_ko})
+    pairs = []
+    sent = [x for x in blocks if x["sent_to_llm"]]
+    for i, a in enumerate(sent):
+        for b in sent[i + 1:]:
+            if a["region"] == b["region"] and a["rows"][0] <= b["rows"][1] and b["rows"][0] <= a["rows"][1]:
+                pairs.append([a["block_key"], b["block_key"]])
+    diag.update({
+        "cuts": layout.cuts,
+        "regions": [{"region": n, "rows": len(bases), "row_bases": bases,
+                     "blocks": [x["block_key"] for x in blocks if x["region"] == n]}
+                    for n, bases in enumerate(layout.row_bases, start=1)],
+        "blocks": blocks,
+        "interleaving_pairs": pairs,
+    })
+    return diag
 
 
 # ---------------------------------------------------------------------------
@@ -863,13 +927,19 @@ def json_recorder(debug_dir: Path) -> Recorder:
 
 def run(
     section: Section, ocr: OcrResult, cfg: dict[str, Any], *, use_llm: bool = True,
-    llm: MergeAssistant | None = None, recorder: Recorder | None = None,
+    llm: MergeAssistant | None = None, recorder: Recorder | None = None, post_recorder: Recorder | None = None,
 ) -> MergeResult:
-    """③ 실행. use_llm=False면 heuristic_v2만(프롬프트 · API 키 불필요). llm을 주지 않으면 기본 Gemini 호출자(API 키 필요)."""
+    """③ 실행. use_llm=False면 heuristic_v2만(프롬프트 · API 키 불필요). llm을 주지 않으면 기본 Gemini 호출자(API 키 필요).
+
+    post_recorder: 후처리 스위치(`merge.xycut` · `merge.fullwidth`) 중 하나라도 켜져 있으면 LLM 사용 여부와 관계없이 휴리스틱 직후
+    섹션마다 후처리 진단을 넘긴다(LLM 호출 전이라 LLM이 실패해도 남는다). 둘 다 꺼져 있으면 부르지 않는다."""
     validate_config(cfg)
+    prompt = validate_llm_config(cfg, need_api_key=llm is None) if use_llm else ""
+    heur, layout, post, diag = _heuristic(section, ocr, cfg)
+    if diag is not None and post_recorder is not None:
+        diag["use_llm"] = use_llm
+        post_recorder(diag)
     if not use_llm:
-        return heuristic(section, ocr, cfg)
-    prompt = validate_llm_config(cfg, need_api_key=llm is None)
-    heur, layout, post = _heuristic(section, ocr, cfg)
+        return heur
     return assist(section, heur, prompt, cfg, llm if llm is not None else default_assistant(cfg), recorder,
                   layout=layout, post=post)

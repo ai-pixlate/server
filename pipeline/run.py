@@ -232,7 +232,8 @@ def cmd_merge(args) -> int:
 
         llm = ReplayMergeAssistant.from_file(args.llm_replay, merge.llm_config(cfg))
     recorder = None if args.no_llm else merge.json_recorder(out / "merge_debug")
-    res = merge.run(sec, ocr_res, cfg, use_llm=not args.no_llm, llm=llm, recorder=recorder)
+    res = merge.run(sec, ocr_res, cfg, use_llm=not args.no_llm, llm=llm, recorder=recorder,
+                    post_recorder=merge.json_recorder(out / "merge_post_debug"))  # 후처리 스위치가 켜졌을 때만 쓴다
     if llm is not None:
         llm.finish()  # 기록이 호출을 기대했는데 쓰이지 않았으면 VlmReplayMismatch
     p = _write_json(out / "merge" / f"{sec.section_key}.json", res)

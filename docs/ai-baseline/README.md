@@ -13,7 +13,7 @@
 | [decisions.md](decisions.md) | 확정 결정 | 측정 목적·로컬 실행 환경과 1.0.0 baseline의 OCR 표본 실행 제한 해제 |
 | [protocols/v1/dataset.md](protocols/v1/dataset.md) | 평가 대상과 기대값 | 원본 34장, K01~K09와 좌표, 처리 기대값·기준 자료 |
 | [protocols/v1/evaluation.md](protocols/v1/evaluation.md) | 평가와 검수 | 10개 지표, A/B/C 기준, AI 평가·사람 검수 |
-| [protocols/v1/aggregation.md](protocols/v1/aggregation.md) | 집계와 비교 | 원본별 집계, 예외 상태·완료율·시간, 판정 혼동행렬과 결함 추적 |
+| [protocols/v1/aggregation.md](protocols/v1/aggregation.md) | 집계와 비교 | 원본별 집계, 예외 상태·원본 이미지 기술 처리 완료 비율·시간, 판정 혼동행렬과 결함 추적 |
 | [protocols/v1/execution.md](protocols/v1/execution.md) | 실행과 결과 관리 | 격리 BE 실행 경로·입력·사전 점검, 비용·도구·보관·완료 기준·보류 범위 |
 | [runs/README.md](runs/README.md) | 회차별 결과 | 실제 측정 결과의 보관 위치 |
 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 | 고도화 전후 비교 결과의 보관 위치 |

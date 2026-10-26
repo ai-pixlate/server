@@ -11,7 +11,7 @@
         "source_image_id": 1,
         "upload_order": 1,
         "path": "/srv/pixlate-work/uploads/source_1.png",
-        "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd"
+        "sha256": "b29df71e506a57b96da80af3fa36a5e782974775c925a693b2c800a671ef5906"
       }
     ],
     "out_dir": "/srv/pixlate-work/analyze/ok",
@@ -31,7 +31,7 @@
         {
           "source_image_id": 1,
           "upload_order": 1,
-          "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd"
+          "sha256": "b29df71e506a57b96da80af3fa36a5e782974775c925a693b2c800a671ef5906"
         }
       ],
       "use_llm": false,
@@ -96,7 +96,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "c38d93e09ebc47370efd76114ed4cce7978a0e10a23826be8e073f1cc7c2906a",
+    "input_manifest_sha256": "5c8a9c6d232a8c5c8ace52792b8700f71f4cd4c38df91e6748c01841df65529b",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,
@@ -370,8 +370,8 @@
         "kind": "section_image",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/analyze/ok/sections/sec_1_01.png",
-        "bytes": 1625,
-        "sha256": "6a7fbaf759e0bb3d666f282d3fa47ffe2e41cc0a04c286a0b34eb683c2e151d4",
+        "bytes": 720693,
+        "sha256": "fa754397488deaad1c98eb8061f0deebb5a8de9d17c4d963b88879adde4389ec",
         "format": "png",
         "width": 600,
         "height": 400
@@ -380,8 +380,8 @@
         "kind": "section_image",
         "part_key": "sec_1_02",
         "path": "/srv/pixlate-work/analyze/ok/sections/sec_1_02.png",
-        "bytes": 1625,
-        "sha256": "fb667118942dd59b8aca4434c08cc249671fd67c03b22e70fc75f295d3036e85",
+        "bytes": 720693,
+        "sha256": "0954122b981293870b211a9076ff092875fbb5ef8c2f731059d7985cb3496f2f",
         "format": "png",
         "width": 600,
         "height": 400

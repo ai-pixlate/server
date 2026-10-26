@@ -25,6 +25,7 @@ from pipeline.handoff.bundle import bundle_content_sha256, load_policy_rules
 from pipeline.handoff.canonical import sha256_file
 from pipeline.handoff.envelope import CONTRACT_VERSION, StageReport
 from pipeline.handoff.validate import validate_report
+from pipeline.pngio import save_png, uncompressed
 from pipeline.stages import logo as logo_stage
 from pipeline.types import BBox, Line, OcrRegion, Section, TextBlock
 from pipeline.vlm import LlmReply, VlmError
@@ -49,7 +50,7 @@ def source_image(path: Path, width: int = 600, height: int = 800) -> Path:
     for y in (60, 140, 460, 540):
         a[y:y + 24, 60:360] = (30, 30, 30)
     path.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(a).save(path)
+    save_png(Image.fromarray(a), path)
     return path
 
 
@@ -85,7 +86,7 @@ def section_with_image(root: Path, key: str = "sec_1_01", *, width: int = 600, h
         a[y:y + 24, 60:360] = (20, 20, 20)
     p = root / "sections" / f"{key}.png"
     p.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(a).save(p)
+    save_png(Image.fromarray(a), p)
     return Section(section_key=key, source_image_id=1, section_order=1, top_offset=0, height=height, width=width, image_path=str(p))
 
 
@@ -432,16 +433,17 @@ def generate(out_dir: Path, work_root: Path | None = None) -> dict[str, list[str
     saved_unicode = logo_stage.UNICODE_VERSION
     logo_stage.UNICODE_VERSION = EXAMPLE_UNICODE_VERSION  # 실행 Python과 무관하게 예제를 재현한다(합성 값의 정규화는 버전과 무관)
     try:
-        root = str(tmp.resolve())
-        results: dict[str, list[str]] = {}
-        out_dir.mkdir(parents=True, exist_ok=True)
-        for name, req, fn in cases(tmp.resolve()):
-            rep = fn(copy.deepcopy(req))
-            results[name] = validate_report(rep, req)
-            doc = {"case": name, "request": _publicize(req, root), "report": _publicize(rep.model_dump(mode="json"), root),
-                   "be_validation_problems": results[name]}
-            (out_dir / f"{name}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
-        return results
+        with uncompressed():  # 작업 폴더 PNG를 무압축으로 — 예제의 파일 sha256이 OS와 무관하게 같아진다(pipeline/pngio.py)
+            root = str(tmp.resolve())
+            results: dict[str, list[str]] = {}
+            out_dir.mkdir(parents=True, exist_ok=True)
+            for name, req, fn in cases(tmp.resolve()):
+                rep = fn(copy.deepcopy(req))
+                results[name] = validate_report(rep, req)
+                doc = {"case": name, "request": _publicize(req, root), "report": _publicize(rep.model_dump(mode="json"), root),
+                       "be_validation_problems": results[name]}
+                (out_dir / f"{name}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+            return results
     finally:
         logo_stage.UNICODE_VERSION = saved_unicode
         if work_root is None:

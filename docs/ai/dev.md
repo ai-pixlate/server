@@ -58,6 +58,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
                              review.py(D12 번역문 LLM 규제 판정 · 지문) · check_aggregate.py(규칙 · LLM 두 축 집계, 파생 전용)
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]. ① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 · 원자적 쓰기(⑤) — 3·5절
+  pngio.py                   PNG 저장 공통 함수 — 기본은 Pillow 기본 저장 그대로, 계약 예제 생성만 무압축(OS 간 파일 해시 재현)
   run.py                     단계별 실행 CLI — 4절
   inspect.py                 결과 오버레이 — 5절
   samples/                   샘플 입력·기대 결과 — 5절

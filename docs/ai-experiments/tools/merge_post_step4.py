@@ -21,6 +21,7 @@ LLM 호출 없이 blocks-input-v1의 휴리스틱만 비교한다. 파이프라�
   llm_assist 실행. 실제 호출은 사용자 사전 예산 승인 뒤 두 승인 인자와 GEMINI_API_KEY가 모두 있어야 시작한다
   (계획: 2026-10-23_03-merge_post-step4-round4-plan.md). llm-report: 그 결과를 1차 사람 판정(S1)과 대조한다.
   5차(round5)는 같은 두 변형을 --sections 목록 · 반복 실행(실행마다 다른 --out)으로 돌린다(계획: 2026-10-26_03-merge_post-step4-round5-plan.md).
+- 칸 묶음 경계(y 절단 LLM 병합 허용)를 채택한 코드(2026-10-26)에서는 round4 · round5와 yonly patch가 멈춘다(동작 확인).
 - llm-diff --a DIR --b DIR: llm-run 결과 폴더 두 개(변형끼리 · 반복끼리)의 입력 같음 여부 · 잎을 넘은 블록 · 구성 차이 · 역할 차이(호출 없음).
 - all [--round round1|round2] [--checkset PATH]: checkset(또는 고정본 복사) → 그 차수의 변형(각각 새 프로세스) → report.
   2차(round2)는 B3 채택 뒤의 기준(B3)과 B3 + C_tol0.7을 1차에서 고정한 점검 세트로 비교한다.
@@ -114,12 +115,42 @@ def b3_adopted() -> bool:
     return len(merge._split_row([reg("a", 0, 40), reg("b", 45, 20)], m, [])) == 1
 
 
+def yonly_adopted() -> bool:
+    """현재 파이프라인 코드가 칸 묶음 경계(y 절단 LLM 병합 허용, 2026-10-26 채택)를 쓰는지 동작으로 판별한다:
+    y 절단으로만 나뉜 두 후보 영역이 LLM 입력에서 같은 region 번호면 채택."""
+    from pipeline.types import BBox, OcrRegion, Section
+
+    def reg(key: str, y: int) -> OcrRegion:
+        return OcrRegion(region_key=key, text="가", score=0.9, poly=[(0, y), (100, y), (100, y + 20), (0, y + 20)],
+                         bbox=BBox(x=0, y=y, w=100, h=20))
+
+    sec = Section(section_key="probe", source_image_id=1, section_order=1, top_offset=0, height=400, width=200,
+                  image_path="unused.png")
+    heur, layout, _, _ = merge._heuristic(sec, OcrResult(section_key="probe", regions=[reg("a", 0), reg("b", 200)]),
+                                          base_cfg([]))
+    payload, _ = merge.build_payload(sec, heur, layout)
+    return len({b["region"] for b in payload["blocks"]}) == 1
+
+
+# 4 · 5차는 칸 묶음 경계 채택 전 코드에서만 돈다 — 채택 뒤에는 B3 변형이 칸 묶음 동작으로 돌아 이름과 어긋난다
+ROUND_NEEDS_PRE_YONLY = {"round4", "round5"}
+
+
+def require_b3_code() -> None:
+    """후보 영역(잎) 번호만 다시 계산하는 도구(llm-diff · 검수 페이지)용: B3 채택 뒤 코드면 된다(칸 묶음 채택과 무관)."""
+    if not b3_adopted():
+        raise SystemExit("B3 채택 뒤 코드(8353716 이후)에서만 실행한다")
+
+
 def check_round_code(round_name: str) -> None:
     """차수에 맞지 않는 코드에서 실행하면 멈춘다(예: B3 채택 뒤 코드로 1차를 돌리면 A0 이름으로 B3 결과가 나온다)."""
     need, have = ROUND_NEEDS_B3[round_name], b3_adopted()
     if need != have:
         where = "B3 채택 전 코드(예: 4ec58bb)" if not need else "B3 채택 뒤 코드(8353716 이후)"
         raise SystemExit(f"{round_name}은 {where}에서만 실행한다 — 현재 코드는 B3 {'채택' if have else '미채택'} 상태다")
+    if round_name in ROUND_NEEDS_PRE_YONLY and yonly_adopted():
+        raise SystemExit(f"{round_name}은 칸 묶음 경계 채택 전 코드에서만 실행한다 — 현재 코드는 채택 상태다"
+                         "(B3 변형이 칸 묶음 동작으로 돌아 이름과 어긋난다)")
 
 
 def rkeys(b) -> list[str]:
@@ -310,6 +341,8 @@ def patch(name: str | None) -> None:
         merge._choose_cut = choose_cut
         return
     elif name == "yonly":
+        if yonly_adopted():
+            raise SystemExit("yonly patch는 칸 묶음 경계 채택 전 코드에서만 쓴다 — 채택 뒤 코드에는 이미 들어 있다")
         orig = merge._heuristic
         big = 1_000_000
 
@@ -705,7 +738,7 @@ def cmd_llm_diff(a) -> int:
     - components: 블록 구성이 다른 묶음(원시 영역이 겹치는 블록끼리의 연결 성분)
     - roles: 구성이 같은 블록의 역할 · 텍스트 차이"""
     inp, da, db = Path(a.input), Path(a.a), Path(a.b)
-    check_round_code("round5")
+    require_b3_code()  # 잎 번호만 쓴다 — 칸 묶음 채택 뒤 코드에서도 같다
     cfg = base_cfg([])
     names = ([x.strip() for x in Path(a.sections).read_text(encoding="utf-8").splitlines() if x.strip()]
              if a.sections else [x["section"] for x in json.loads((da / "run.json").read_text(encoding="utf-8"))["plan"]])

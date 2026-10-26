@@ -246,7 +246,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     out = Path(a.out)
-    step4.check_round_code("round4")  # B3 채택 뒤 코드에서 잎 번호를 다시 계산한다
+    step4.require_b3_code()  # B3 채택 뒤 코드에서 잎 번호를 다시 계산한다(칸 묶음 채택과 무관)
     known = None
     if a.exclude_known:
         kd = Path(a.exclude_known) / "B3_yonly"

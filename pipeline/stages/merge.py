@@ -13,7 +13,8 @@
 
 - OCR 후처리(open-questions #86, pipeline.md 7.1 · 7.2절) — 두 스위치 모두 기본 꺼짐이며, 끄면 위 동작과 같다.
   `merge.xycut`: 텍스트 영역을 여백(XY-cut)으로 문단 후보 영역으로 나누고, 영역마다 세로 중심으로 가로줄을 묶어
-  줄 · 블록을 만든다. 블록 순서는 후보 영역 → 가로줄 순번 → x이며 LLM 묶음은 영역을 넘지 못한다.
+  줄 · 블록을 만든다. 블록 순서는 후보 영역 → 가로줄 순번 → x다. 휴리스틱 블록은 후보 영역을 넘지 않고, LLM 묶음은
+  칸 묶음(y 절단으로만 이어진 후보 영역의 묶음)을 넘지 못한다 — 나란한 칸(x 절단)은 계속 경계다.
   `merge.fullwidth`: `Line.text` · `source_ko`에서 전각 영문 · 숫자 · 기호(U+FF01~FF5E)와 전각 공백(U+3000)만 반각으로 바꾼다.
   원시 영역(`regions[].text` 등)은 어느 경우에도 바꾸지 않는다.
 """
@@ -333,6 +334,34 @@ def locate(tree: _Cut | int, x: float, y: float) -> int:
     return node
 
 
+def column_groups(tree: _Cut | int) -> list[int]:
+    """후보 영역(잎, 0부터) → 칸 묶음 번호(1부터). 깊이 우선 순서에서 이웃한 두 잎 사이 경로(공통 조상 포함)의 절단이
+    모두 y면 같은 칸 묶음으로 잇는다. 칸 묶음은 읽기 순서에서 연달아 있는 잎들이다 — 경로가 모두 y여도 사이에 다른 칸
+    묶음이 끼면(예: 위 제목과 아래 문단 사이의 다단 영역) 잇지 않는다.
+
+    이웃한 두 잎의 공통 조상 N = 뒤 잎이 처음 들어선 high 가지의 부모다. 경로가 모두 y ⇔ N이 y 절단이고, N부터 두 잎까지
+    x 절단이 없다(위쪽 x 절단 수가 N과 같다). 재귀 대신 명시적 스택을 쓴다."""
+    info: dict[int, tuple[int, tuple[_Cut, int] | None]] = {}  # 잎 → (위쪽 x 절단 수, (공통 조상, 그 위쪽 x 절단 수))
+    stack: list[tuple[_Cut | int | None, int, tuple[_Cut, int] | None]] = [(tree, 0, None)]
+    while stack:
+        node, nx, turn = stack.pop()
+        if isinstance(node, _Cut):
+            below = nx + (node.axis == "x")
+            stack.append((node.high, below, (node, nx)))
+            stack.append((node.low, below, turn))  # low(왼쪽 · 위)를 먼저 돈다 — 첫 잎은 들어온 turn을 이어받는다
+        else:
+            assert isinstance(node, int)
+            info[node] = (nx, turn)
+    groups: list[int] = []
+    prev_nx = 0
+    for leaf in sorted(info):
+        nx, turn = info[leaf]
+        joined = bool(groups) and turn is not None and turn[0].axis == "y" and nx == turn[1] == prev_nx
+        groups.append(groups[-1] if joined else len(set(groups)) + 1)
+        prev_nx = nx
+    return groups
+
+
 def _center_y(r: OcrRegion) -> float:
     return r.bbox.y + r.bbox.h / 2
 
@@ -371,9 +400,11 @@ def _split_row(regs: list[OcrRegion], m: dict[str, Any], gutters: list[tuple[int
 
 @dataclass
 class _Layout:
-    """xycut 배치 정보(섹션 블록 키 · 줄 키 기준). LLM 재조립이 영역 경계와 읽기 순서를 지키는 데 쓴다."""
+    """xycut 배치 정보(섹션 블록 키 · 줄 키 기준). LLM 재조립이 칸 묶음 경계와 읽기 순서를 지키는 데 쓴다."""
 
     block_region: dict[str, int] = field(default_factory=dict)  # 블록 키 → 후보 영역 번호(1부터)
+    block_group: dict[str, int] = field(default_factory=dict)  # 블록 키 → 칸 묶음 번호(1부터) — LLM 병합의 경계
+    leaf_group: list[int] = field(default_factory=list)  # 후보 영역(0부터) → 칸 묶음 번호, 진단용
     block_rank: dict[str, tuple] = field(default_factory=dict)  # 블록 키 → 영역 안 정렬 키
     line_rank: dict[str, tuple[int, int, str]] = field(default_factory=dict)  # 줄 키 → (가로줄 순번, x, region_key)
     n_regions: int = 0
@@ -502,7 +533,7 @@ def _heuristic(
     if m["xycut"]:
         placed, tree, bases = _xycut_groups(ocr.regions, kinds, text_regions, m, gutters)
         groups = [g for _, _, g in placed]
-        layout = _Layout(n_regions=len(bases), cuts=_cut_list(tree), row_bases=bases)
+        layout = _Layout(n_regions=len(bases), cuts=_cut_list(tree), row_bases=bases, leaf_group=column_groups(tree))
     else:
         groups = group_blocks(group_lines(text_regions, m, gutters), m)
         groups += [[_Line([r])] for r in ocr.regions if kinds[r.region_key] != "text"]  # 빈 텍스트 · 크기 0 단독 블록
@@ -541,6 +572,7 @@ def _heuristic(
         )
         if layout is not None and placed is not None:
             layout.block_region[block_key(i)] = placed[i - 1][0]
+            layout.block_group[block_key(i)] = layout.leaf_group[placed[i - 1][0] - 1]
             layout.block_rank[block_key(i)] = placed[i - 1][1]
     post: dict[str, Any] = {"xycut": m["xycut"], "fullwidth": m["fullwidth"]}
     if layout is not None:
@@ -573,7 +605,8 @@ def _post_diagnostics(
     blocks = []
     for b in heur.blocks:
         rows = [layout.line_rank[ln.line_key][0] for ln in b.source_lines if ln.line_key in layout.line_rank]
-        blocks.append({"block_key": b.block_key, "region": layout.block_region[b.block_key], "sent_to_llm": _sendable(b),
+        blocks.append({"block_key": b.block_key, "region": layout.block_region[b.block_key],
+                       "group": layout.block_group[b.block_key], "sent_to_llm": _sendable(b),
                        "rows": [min(rows), max(rows)] if rows else None, "after_rows": None if rows else layout.block_rank[b.block_key][0],
                        "role": b.role, "text": b.source_ko})
     pairs = []
@@ -584,7 +617,7 @@ def _post_diagnostics(
                 pairs.append([a["block_key"], b["block_key"]])
     diag.update({
         "cuts": layout.cuts,
-        "regions": [{"region": n, "rows": len(bases), "row_bases": bases,
+        "regions": [{"region": n, "group": layout.leaf_group[n - 1], "rows": len(bases), "row_bases": bases,
                      "blocks": [x["block_key"] for x in blocks if x["region"] == n]}
                     for n, bases in enumerate(layout.row_bases, start=1)],
         "blocks": blocks,
@@ -687,7 +720,7 @@ def build_payload(
     section: Section, heur: MergeResult, layout: _Layout | None = None
 ) -> tuple[dict[str, Any], dict[str, TextBlock]]:
     """LLM 입력(7.2절)과 임시 ID → 휴리스틱 블록 대응. ID는 보낼 블록의 블록 순서대로 b1, b2, …
-    xycut이면(layout) 블록마다 후보 영역 번호 `region`을 더한다."""
+    xycut이면(layout) 블록마다 `region`을 더한다 — 값은 칸 묶음 번호(LLM이 넘지 못하는 경계, #86)다."""
     send = [b for b in heur.blocks if _sendable(b)]
     ids = {f"b{i}": b for i, b in enumerate(send, start=1)}
     blocks = []
@@ -700,7 +733,7 @@ def build_payload(
             "font_h": font_h([r for ln in b.source_lines for r in ln.regions]),
         }
         if layout is not None:
-            item["region"] = layout.block_region[b.block_key]
+            item["region"] = layout.block_group[b.block_key]
         blocks.append(item)
     payload = {"section": {"width": section.width, "height": section.height}, "blocks": blocks}
     return payload, ids
@@ -756,9 +789,10 @@ def assemble(
     반환: (결과, 휴리스틱 블록 키 → 섹션 최종 블록 키, xycut 조립 기록).
 
     layout 없음(기본): 묶음의 멤버는 휴리스틱 블록 순서로 정렬해 줄을 그대로 잇고, 묶음은 bbox (y, x) 순.
-    layout 있음(xycut, #86): 후보 영역을 넘는 묶음은 영역별로 나누고 LLM 역할 대신 조각마다 classify를 다시 적용한다.
-    묶음 안의 모든 줄은 (가로줄 순번, x, region_key)로 다시 정렬하고(블록 단위로 잇지 않음), 묶음은 (후보 영역, 가장
-    앞선 멤버의 정렬 키) 순. 멤버들의 가로줄 범위가 교차하는 묶음은 기록에 남긴다."""
+    layout 있음(xycut, #86): 칸 묶음을 넘는 묶음은 칸 묶음별로 나누고 LLM 역할 대신 조각마다 classify를 다시 적용한다.
+    읽기 순서 키는 (후보 영역, 가로줄 순번, x, region_key)다 — 가로줄 순번은 후보 영역마다 1부터 다시 시작하므로 영역을
+    맨 앞에 둔다. 묶음 안의 모든 줄을 이 키로 다시 정렬하고(블록 단위로 잇지 않음), 묶음은 이 순서로 가장 앞선 멤버
+    자리에 둔다. 같은 후보 영역에서 멤버들의 가로줄 범위가 교차하는 묶음은 기록에 남긴다."""
     notes: dict[str, Any] = {}
     sent = {b.block_key for b in ids.values()}
     if layout is None:
@@ -778,28 +812,31 @@ def assemble(
         stats = _section_stats([r for b in heur.blocks for ln in b.source_lines for r in ln.regions], m)
         splits: list[dict[str, Any]] = []
         interleaved: list[list[str]] = []
-        # (멤버, LLM 역할 또는 None, 분리 기록의 조각 항목). None = 영역을 넘은 묶음의 조각
+        # (멤버, LLM 역할 또는 None, 분리 기록의 조각 항목). None = 칸 묶음을 넘은 묶음의 조각
         parts: list[tuple[list[TextBlock], str | None, dict[str, Any] | None]] = []
         for members, role in groups:
-            by_region: dict[int, list[TextBlock]] = {}
+            by_group: dict[int, list[TextBlock]] = {}
             for x in members:
-                by_region.setdefault(layout.block_region[ids[x].block_key], []).append(ids[x])
-            if len(by_region) == 1:
-                parts.append((next(iter(by_region.values())), role, None))
+                by_group.setdefault(layout.block_group[ids[x].block_key], []).append(ids[x])
+            if len(by_group) == 1:
+                parts.append((next(iter(by_group.values())), role, None))
                 continue
             split: dict[str, Any] = {"members": sorted(ids[x].block_key for x in members), "llm_role": role, "parts": []}
-            for region in sorted(by_region):
-                piece = {"region": region, "members": sorted(b.block_key for b in by_region[region]), "role": None}
+            for group in sorted(by_group):  # 기록 키 이름은 region 그대로 — 값은 칸 묶음 번호(페이로드 region과 같음)
+                piece = {"region": group, "members": sorted(b.block_key for b in by_group[group]), "role": None}
                 split["parts"].append(piece)
-                parts.append((by_region[region], None, piece))
+                parts.append((by_group[group], None, piece))
             splits.append(split)
         out = []
         for bs, role, piece in parts:
-            bs = sorted(bs, key=lambda b: layout.block_rank[b.block_key])
-            lines = sorted((ln for b in bs for ln in b.source_lines), key=lambda ln: layout.line_rank[ln.line_key])
+            bs = sorted(bs, key=lambda b: (layout.block_region[b.block_key], layout.block_rank[b.block_key]))
+            leaf = {ln.line_key: layout.block_region[b.block_key] for b in bs for ln in b.source_lines}
+            lines = sorted((ln for b in bs for ln in b.source_lines),
+                           key=lambda ln: (leaf[ln.line_key], *layout.line_rank[ln.line_key]))
             if len(bs) > 1:
-                spans = sorted((layout.line_rank[b.source_lines[0].line_key][0],
-                                layout.line_rank[b.source_lines[-1].line_key][0]) for b in bs)
+                spans = sorted(((layout.block_region[b.block_key], layout.line_rank[b.source_lines[0].line_key][0]),
+                                (layout.block_region[b.block_key], layout.line_rank[b.source_lines[-1].line_key][0]))
+                               for b in bs)
                 if any(nxt[0] <= cur[1] for cur, nxt in zip(spans, spans[1:])):
                     interleaved.append([b.block_key for b in bs])
             if role is None:  # LLM 역할을 쓰지 않고 휴리스틱 역할 판정을 조각에 다시 적용한다
@@ -909,7 +946,7 @@ def assist(
     rec["result"] = {
         "groups": [{"members": [ids[x].block_key for x in members], "role": role} for members, role in groups],
         "block_map": mapping,
-        **notes,  # xycut이면 region_splits(영역을 넘은 묶음의 분리 · 역할 대체) · interleaved(가로줄 범위 교차 묶음)
+        **notes,  # xycut이면 region_splits(칸 묶음을 넘은 묶음의 분리 · 역할 대체) · interleaved(가로줄 범위 교차 묶음)
     }
     _emit(recorder, rec)
     return result

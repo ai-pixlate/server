@@ -144,6 +144,42 @@ def test_cut_tree_keeps_branches_and_sends_cut_value_to_high_side():
     assert merge.locate(tree, 200, 0) == 2 and merge.locate(tree, 0, 240) == 3
 
 
+def test_column_groups_join_leaves_only_through_y_cuts():
+    # 위 트리(루트 y → 위쪽 x → 왼쪽 y): A · B 사이 경로는 왼쪽 y 절단뿐 → 같은 칸 묶음. A · C는 위쪽 x 절단,
+    # D와 나머지는 경로에 위쪽 x 절단이 끼어 각각 다른 묶음 → [1, 1, 2, 3]
+    A, B = R("a", 0, 0, 100, 20), R("b", 0, 80, 100, 20)
+    C, D = R("c", 300, 0, 100, 20), R("d", 300, 380, 100, 20)
+    assert merge.column_groups(merge.build_cut_tree([A, B, C, D], 16)[0]) == [1, 1, 2, 3]
+    # y 절단만: 잎 셋이 한 묶음. x 절단 아래 칸마다 y 절단: 칸마다 한 묶음
+    ys = [R(f"y{i}", 0, i * 100, 100, 20) for i in range(3)]
+    assert merge.column_groups(merge.build_cut_tree(ys, 16)[0]) == [1, 1, 1]
+    cols = [R("l1", 0, 0, 100, 20), R("l2", 0, 100, 100, 20), R("r1", 400, 0, 100, 20), R("r2", 400, 100, 100, 20)]
+    assert merge.column_groups(merge.build_cut_tree(cols, 16)[0]) == [1, 1, 2, 2]
+    assert merge.column_groups(0) == [1]  # 절단 없는 트리(잎 하나)
+
+
+def full_width_title_over_two_columns():
+    # 전폭 제목 아래 두 칸: 루트 y 절단(제목 | 아래), 아래는 x 절단(왼칸 | 오른칸) — 혼합 절단
+    return [R("t", 0, 0, 900, 20, "제목"), R("l", 0, 200, 300, 20, "왼칸"), R("r", 600, 200, 300, 20, "오른칸")]
+
+
+def test_column_group_needs_neighbouring_leaves_not_only_y_path():
+    # 제목(위) · 두 칸(가운데, x 절단) · 문단(아래): 루트 y(제목 | 나머지) → y(칸 | 문단). 제목과 문단 사이 경로는 y 절단뿐
+    # 이지만 읽기 순서에서 그 사이에 칸이 끼므로 잇지 않는다(실험 yonly와 같은 정의) → 모두 다른 칸 묶음
+    regs = [R("t", 0, 0, 900, 20, "제목"), R("l", 0, 200, 300, 20, "왼칸"), R("r", 600, 200, 300, 20, "오른칸"),
+            R("b", 0, 400, 900, 20, "문단")]
+    tree, leaves = merge.build_cut_tree(regs, 16)
+    assert [[r.region_key for r in leaf] for leaf in leaves] == [["t"], ["l"], ["r"], ["b"]]
+    assert merge.column_groups(tree) == [1, 2, 3, 4]
+
+
+def test_title_over_columns_is_not_one_column_group():
+    # 제목과 아래 칸 사이 경로(공통 조상 루트 y → 아래 x)에 x 절단이 끼므로 제목 · 왼칸 · 오른칸 모두 다른 칸 묶음
+    tree, leaves = merge.build_cut_tree(full_width_title_over_two_columns(), 16)
+    assert [[r.region_key for r in leaf] for leaf in leaves] == [["t"], ["l"], ["r"]]
+    assert merge.column_groups(tree) == [1, 2, 3]
+
+
 def test_columns_are_read_left_region_first_even_if_right_starts_higher():
     # 오른쪽 칸이 10px 위에서 시작. 기본은 블록 (y, x) 순이라 오른쪽이 먼저, xycut은 x 여백 100 ≥ 16으로 칸을 나눠 왼쪽 먼저
     regs = [R("l1", 50, 10, 400, 20, "왼1"), R("l2", 50, 38, 400, 20, "왼2"),
@@ -295,11 +331,18 @@ def regions_in_two_regions():
     return [R("t", 0, 0, 300, 40, "피부 진정"), R("b1", 0, 200, 400, 20, "첫째 줄"), R("b2", 0, 234, 400, 20, "둘째 줄")]
 
 
+def two_columns():
+    # x 여백 100 ≥ 16 → 칸 두 개(x 절단). 칸 안 세로 간격 8 → 칸마다 블록 하나
+    return [R("l1", 50, 10, 400, 20, "왼1"), R("l2", 50, 38, 400, 20, "왼2"),
+            R("r1", 550, 0, 400, 20, "오1"), R("r2", 550, 28, 400, 20, "오2")]
+
+
 def test_payload_and_prompt_carry_region_only_when_xycut_is_on():
     _, llm, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄"], "body"), (["둘째 줄"], "body")],
                           xycut=True)
     prompt, payload = llm.calls[0]
-    assert [b["region"] for b in json.loads(payload)["blocks"]] == [1, 2, 2]
+    # region은 칸 묶음 번호 — 후보 영역 둘(제목 | 본문)이 y 절단으로만 나뉘어 한 묶음(2026-10-26)
+    assert [b["region"] for b in json.loads(payload)["blocks"]] == [1, 1, 1]
     assert prompt.endswith((merge.REPO_ROOT / merge.REGION_PROMPT_PATH).read_text(encoding="utf-8"))
     assert rec["postprocess"] == {"xycut": True, "fullwidth": False, "candidate_regions": 2}
     assert rec["result"]["region_splits"] == [] and rec["result"]["interleaved"] == []
@@ -308,6 +351,8 @@ def test_payload_and_prompt_carry_region_only_when_xycut_is_on():
     assert all("region" not in b for b in json.loads(payload)["blocks"])
     assert prompt == (merge.REPO_ROOT / CFG()["merge"]["prompt_path"]).read_text(encoding="utf-8")
     assert "postprocess" not in rec and set(rec["result"]) == {"groups", "block_map"}  # 끄면 기록 형식도 기존과 같다
+    _, llm, _ = run_llm(two_columns(), [(["왼1\n왼2"], "body"), (["오1\n오2"], "body")], xycut=True)
+    assert [b["region"] for b in json.loads(llm.calls[0][1])["blocks"]] == [1, 2]  # 칸(x 절단)은 다른 번호
 
 
 def test_same_region_merge_keeps_llm_role():
@@ -317,18 +362,56 @@ def test_same_region_merge_keeps_llm_role():
     assert rec["result"]["region_splits"] == []
 
 
-def test_cross_region_group_is_split_and_pieces_get_heuristic_roles():
-    regs = regions_in_two_regions()
+def test_y_cut_regions_can_be_merged_and_keep_llm_role():
+    # 제목 | 본문 후보 영역은 y 절단으로만 나뉘어 같은 칸 묶음 → 묶음이 나뉘지 않고 LLM 역할 그대로(2026-10-26)
+    res, _, rec = run_llm(regions_in_two_regions(), [(["피부 진정", "첫째 줄"], "caption"), (["둘째 줄"], "body")],
+                          xycut=True)
+    assert [(b.source_ko, b.role) for b in res.blocks] == [("피부 진정\n첫째 줄", "caption"), ("둘째 줄", "body")]
+    assert rec["result"]["region_splits"] == [] and rec["result"]["interleaved"] == []
+
+
+def test_cross_column_group_is_split_and_pieces_get_heuristic_roles():
+    regs = two_columns()
     heur = merge.heuristic(SEC(), OCR(regs), CFG(xycut=True))
     heur_roles = {b.source_ko: b.role for b in heur.blocks}
-    res, _, rec = run_llm(regs, [(["피부 진정", "첫째 줄"], "caption"), (["둘째 줄"], "body")], xycut=True)
-    assert texts(res) == ["피부 진정", "첫째 줄", "둘째 줄"]  # 묶음이 영역별로 나뉜다
-    assert res.blocks[0].role == heur_roles["피부 진정"] and res.blocks[1].role == heur_roles["첫째 줄"]
-    assert res.blocks[2].role == "body"  # 영역 안 정상 응답은 LLM 역할 그대로
+    res, _, rec = run_llm(regs, [(["왼1\n왼2", "오1\n오2"], "caption")], xycut=True)
+    assert texts(res) == ["왼1\n왼2", "오1\n오2"]  # 칸(x 절단)을 넘는 묶음은 칸 묶음별로 나뉜다
+    assert [b.role for b in res.blocks] == [heur_roles["왼1\n왼2"], heur_roles["오1\n오2"]]
     (split,) = rec["result"]["region_splits"]
     assert split["members"] == ["blk_001", "blk_002"] and split["llm_role"] == "caption"
-    assert split["parts"] == [{"region": 1, "members": ["blk_001"], "role": heur_roles["피부 진정"]},
-                              {"region": 2, "members": ["blk_002"], "role": heur_roles["첫째 줄"]}]
+    assert split["parts"] == [{"region": 1, "members": ["blk_001"], "role": heur_roles["왼1\n왼2"]},
+                              {"region": 2, "members": ["blk_002"], "role": heur_roles["오1\n오2"]}]
+
+
+def test_title_over_columns_group_is_split():
+    # 혼합 절단: 전폭 제목과 아래 왼칸은 다른 칸 묶음 → 묶음이 나뉘고 조각은 휴리스틱 역할
+    regs = full_width_title_over_two_columns()
+    heur_roles = {b.source_ko: b.role for b in merge.heuristic(SEC(), OCR(regs), CFG(xycut=True)).blocks}
+    res, llm, rec = run_llm(regs, [(["제목", "왼칸"], "title"), (["오른칸"], "body")], xycut=True)
+    assert [b["region"] for b in json.loads(llm.calls[0][1])["blocks"]] == [1, 2, 3]
+    assert [(b.source_ko, b.role) for b in res.blocks] == [
+        ("제목", heur_roles["제목"]), ("왼칸", heur_roles["왼칸"]), ("오른칸", "body")]
+    (split,) = rec["result"]["region_splits"]
+    assert [p["region"] for p in split["parts"]] == [1, 2]
+
+
+def upper_rows_and_lower_rows():
+    # 위 후보 영역: 세로 간격 14(블록 상한 12 초과 · 최소 여백 16 미만) → 한 영역에 블록 셋(가로줄 1 · 2 · 3).
+    # 아래 영역(y 절단, 여백 212): 블록 둘(가로줄 1 · 2). 영역마다 가로줄 순번이 1부터 다시 시작한다
+    return [R("u1", 0, 0, 300, 20, "위1"), R("u2", 0, 34, 300, 20, "위2"), R("u3", 0, 68, 300, 20, "위3"),
+            R("d1", 0, 300, 300, 20, "아래1"), R("d2", 0, 334, 300, 20, "아래2")]
+
+
+def test_cross_region_group_uses_region_first_reading_order():
+    # 위 영역 가로줄 3의 블록 + 아래 영역 가로줄 1의 블록. 가로줄 순번만 보면 아래1이 앞선다 — 영역을 맨 앞에 둬야
+    # 묶음 안 줄은 위 영역이 먼저, 묶음은 위 영역 블록 자리(위2 뒤 · 아래2 앞)에 놓인다
+    plan = [(["위1"], "body"), (["위2"], "body"), (["위3", "아래1"], "body"), (["아래2"], "body")]
+    res, _, rec = run_llm(upper_rows_and_lower_rows(), plan, xycut=True)
+    assert texts(res) == ["위1", "위2", "위3\n아래1", "아래2"]
+    assert rec["result"]["region_splits"] == [] and rec["result"]["interleaved"] == []  # 다른 영역끼리는 교차가 아니다
+    plan = [(["위1"], "body"), (["위2", "아래2"], "body"), (["위3"], "body"), (["아래1"], "body")]
+    res, _, _ = run_llm(upper_rows_and_lower_rows(), plan, xycut=True)
+    assert texts(res) == ["위1", "위2\n아래2", "위3", "아래1"]  # 묶음 자리 = 가장 앞선 멤버(위2)
 
 
 def test_other_response_errors_still_fail_with_xycut():
@@ -382,7 +465,8 @@ def test_no_llm_run_records_layout_diagnostics():
     assert d["postprocess"] == {"xycut": True, "fullwidth": False, "candidate_regions": 1}
     assert d["config"]["xycut_gap_ratio"] == 0.8 and d["config"]["gutter"] is True
     assert d["cuts"] == [{"path": "", "region": 1}]  # 절단 없음 — 후보 영역 하나
-    assert d["regions"] == [{"region": 1, "rows": 2, "row_bases": [25.0, 85.0], "blocks": ["blk_001", "blk_002"]}]
+    assert d["regions"] == [{"region": 1, "group": 1, "rows": 2, "row_bases": [25.0, 85.0],
+                             "blocks": ["blk_001", "blk_002"]}]
     assert [(b["block_key"], b["region"], b["rows"], b["sent_to_llm"]) for b in d["blocks"]] == [
         ("blk_001", 1, [1, 2], True), ("blk_002", 1, [1, 2], True)]
     assert d["interleaving_pairs"] == [["blk_001", "blk_002"]]  # LLM이 합치면 칸이 번갈아 섞일 후보
@@ -396,6 +480,13 @@ def test_diagnostics_record_cuts_standalone_slots_and_fullwidth_lines():
     standalone = next(b for b in d["blocks"] if b["block_key"] == "blk_002")
     assert (standalone["region"], standalone["rows"], standalone["after_rows"], standalone["sent_to_llm"]) == (1, None, 1, False)
     assert d["fullwidth_changed_lines"] == ["line_003"] and d["postprocess"]["fullwidth_changed_lines"] == 1
+    assert [r["group"] for r in d["regions"]] == [1, 1] and {b["group"] for b in d["blocks"]} == {1}  # y 절단뿐 → 한 묶음
+
+
+def test_diagnostics_record_column_groups_for_mixed_cuts():
+    _, (d,) = run_diag(full_width_title_over_two_columns(), xycut=True)
+    assert [(r["region"], r["group"]) for r in d["regions"]] == [(1, 1), (2, 2), (3, 3)]
+    assert [(b["region"], b["group"]) for b in d["blocks"]] == [(1, 1), (2, 2), (3, 3)]
 
 
 def test_fullwidth_only_diagnostics_have_no_layout():

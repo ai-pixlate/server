@@ -132,8 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     inp, out = Path(a.input), Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    cfg_on = cfgmod.load_config()
-    cfg_on["merge"]["xycut"] = True
+    cfg_on = cfgmod.load_config(None, ["merge.xycut=true", "merge.fullwidth=false", "merge.num_o=false"])  # 기본값(2026-10-26: xycut · num_o 켬)과 무관하게 실험 당시 설정으로 고정
     merge.validate_config(cfg_on)
     sections: dict[str, dict] = {}
     all_cases: list[dict] = []

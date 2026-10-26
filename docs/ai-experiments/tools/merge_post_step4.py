@@ -166,8 +166,12 @@ def sections(inp: Path):
             yield img, sec, ocr_res, img / "merge" / ocr_path.name
 
 
+# 실험 설정은 기본값(2026-10-26: xycut · num_o 켬, fullwidth 끔)과 무관하게 명시한다 — 1~5차는 num_o 없이 돌렸다
+OFF_SETS = ["merge.xycut=false", "merge.fullwidth=false", "merge.num_o=false"]
+
+
 def base_cfg(sets: list[str]) -> dict:
-    cfg = cfgmod.load_config(None, ["merge.xycut=true", *sets])
+    cfg = cfgmod.load_config(None, ["merge.xycut=true", "merge.fullwidth=false", "merge.num_o=false", *sets])
     merge.validate_config(cfg)
     return cfg
 
@@ -204,7 +208,7 @@ def cmd_checkset(a) -> int:
 
     inp, out = Path(a.input), Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    cfg_off = cfgmod.load_config()
+    cfg_off = cfgmod.load_config(None, OFF_SETS)
     cfg_a0 = base_cfg([])
     label_run = Path(a.label_run) if a.label_run else None
     cases: list[dict] = []

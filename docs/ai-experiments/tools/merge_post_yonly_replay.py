@@ -9,7 +9,8 @@ LLM을 호출하지 않는다. 각 실행 폴더의 `merge_debug` 중 `ok` 기�
 2. 기록된 응답(`response_text`)을 돌려주는 가짜 호출자로 `merge.run`을 돌린다.
 3. 최종 블록의 구성(원시 영역 목록) · 순서 · 텍스트(`source_ko` · 줄 텍스트 · 줄 순서) · 역할을 기록된 `merge/` 결과와 비교한다.
    `region_splits` · `interleaved`는 참고로 대조한다. 새 진단 필드는 비교하지 않는다.
---run은 xycut 켬(기본 config + merge.xycut=true), --off-run은 기본 config(xycut 끔)로 재생한다 — 끈 경로가 그대로인지 본다.
+--run은 xycut 켬(merge.xycut=true · num_o=false · fullwidth=false), --off-run은 세 스위치를 모두 끈 설정으로 재생한다 —
+끈 경로가 그대로인지 본다(기본값이 2026-10-26부터 xycut · num_o 켬이라 설정을 명시한다).
 """
 from __future__ import annotations
 
@@ -88,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
     if not step4.yonly_adopted():
         raise SystemExit("칸 묶음 경계를 채택한 코드에서만 실행한다")
     inp = Path(a.input)
-    on, off = step4.base_cfg([]), cfgmod.load_config()
+    on, off = step4.base_cfg([]), cfgmod.load_config(None, step4.OFF_SETS)  # 기본값과 무관하게 실험 당시 설정
     merge.validate_config(off)
     results = [replay_dir(inp, Path(r), on, "xycut") for r in a.run]
     results += [replay_dir(inp, Path(r), off, "off") for r in a.off_run]

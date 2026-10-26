@@ -172,9 +172,8 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     inp, out = Path(a.input), Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    cfg_off = cfgmod.load_config()
-    cfg_on = cfgmod.load_config()
-    cfg_on["merge"]["xycut"] = True
+    cfg_off = cfgmod.load_config(None, ["merge.xycut=false", "merge.fullwidth=false", "merge.num_o=false"])  # 기본값(2026-10-26: xycut · num_o 켬)과 무관하게 실험 당시 설정으로 고정
+    cfg_on = cfgmod.load_config(None, ["merge.xycut=true", "merge.fullwidth=false", "merge.num_o=false"])
     merge.validate_config(cfg_off)
     merge.validate_config(cfg_on)
     kinds: Counter = Counter()

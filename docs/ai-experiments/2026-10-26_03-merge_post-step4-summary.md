@@ -25,7 +25,9 @@
   - 5단계의 문자 제거 실험(겹친 앞 글자 제거 등)과 관련은 있지만 같은 문제를 전부 해결하지는 않는다.
   - 지금은 높이비 해제로 조각이 줄 안에 남을 뿐(1차), 조각 글자 자체는 그대로다.
 
-## 3. OCR 후처리 작업의 남은 단계
+## 3. OCR 후처리 작업의 남은 단계(작성 당시)
+
+> 이후 경과(2026-10-26): 5단계는 `2026-10-26_03-merge_post-step5.md`(숫자 속 o/O 교정 채택 · 나머지 2종 보류), 6단계는 `2026-10-26_03-merge_post-step6-activation.md`(기본값 `xycut` · `num_o` 켬, `fullwidth` 끔)에서 마쳤다. 남은 것은 4절의 운영 적용 · 후속 연동이다.
 
 - **5단계**: 보류 기능 3종(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거)을 각각 따로 실험한다.
 - **6단계**: 기본 활성화(`merge.xycut` · `merge.fullwidth`) 결정. 전각 변환은 1절대로 "현재 효과 없음"으로 다룬다.
@@ -38,3 +40,15 @@ OCR 후처리 품질 작업의 범위가 아니며, 따로 진행한다.
 - BE 확인 · 연동, 캐시 · 재분석 영향 확인(`be-handoff.md` 10.2)
 - 기본 활성화 결정에 따른 상위 문서 반영(`open-questions.md` 3절 F)
 - PR 전에 최신 `develop` 반영과 회귀 확인
+
+## 5. OCR 후처리 기록 색인(1~6단계)
+
+| 단계 | 기록 |
+|---|---|
+| 1 · 2 조사 · 구현 | 승인 설계 Q1~Q8은 `docs/ai/pipeline.md` 7.1 · 7.2절과 `open-questions.md` #86에 반영 |
+| 3 연결 검증 | `2026-10-23_03-merge_post-onoff-compare.md`(켬/끔 비교) · `2026-10-23_03-merge_post-review-spec-v1.md`(검수 명세) · `2026-10-23_03-merge_post-gutter-check.md`(교차 블록 점검 · 사람 의견) |
+| 4 품질 · 파라미터 | `2026-10-23_03-merge_post-step4-design-v1.md`(설계) · `…-step4-round1.md`(높이비 해제) · `…-step4-round2.md` · `…-step4-round3.md`(A2 · y 절단 조사) · `…-step4-round4-plan.md` · `…-step4-round4.md`(y 병합 LLM 1차) · `2026-10-26_03-merge_post-step4-round5-plan.md` · `…-step4-round5.md`(확대 · 반복) · `2026-10-26_03-merge_post-yonly-adoption-design.md`(칸 묶음 채택 설계 · 구현 검증) · 이 문서(종합) |
+| 5 보류 기능 | `2026-10-26_03-merge_post-step5.md`(숫자 o/O 채택 · 경계 규칙 · 나머지 보류) |
+| 6 기본값 결정 | `2026-10-26_03-merge_post-step6-activation.md`(스위치별 결정 · 운영 적용 조건 · PR 준비 메모) |
+
+실험 도구는 `docs/ai-experiments/tools/merge_post_*.py`, 산출물은 `pipeline/out/merge-post-*`(git 제외)다.

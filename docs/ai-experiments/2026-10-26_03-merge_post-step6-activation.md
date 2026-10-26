@@ -61,7 +61,20 @@
   - 상위 문서 반영(`open-questions.md` 3절 F)
   - PR 전 최신 `develop` 반영과 회귀 확인
 
-## 4. 함께 정리한 것(미커밋)
+### 3.1 PR 준비 메모(2026-10-26 확인)
+
+- 기준: 이 브랜치는 `7ac9be9`에서 갈라졌고, 확인 시점 `origin/develop`은 25커밋 앞서 있다(주로 번역문 검사 · CI).
+  - ③ 코드(`merge.py` · `analyze.py`)는 develop에서 바뀌지 않았다.
+  - develop의 CI는 머지 시 dev 이미지를 게시한다 — 3절 운영 적용 조건을 PR 본문에 적는다.
+- 양쪽이 함께 바꾼 파일(충돌 · 재작업 후보):
+  - 문서: `docs/ai/README.md` · `be-handoff.md` · `dev.md` · `open-questions.md` · `pipeline.md` · `status.md`
+  - 설정 · 프롬프트: `pipeline/config/default.toml` · `pipeline/prompts/README.md`
+  - 코드: `pipeline/run.py`
+  - 인계 예제: `pipeline/samples/handoff/analyze.completed*.json`. develop에서 `pipeline/handoff/examples.py`가 바뀌었으므로 머지 뒤 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다. 충돌 난 JSON을 손으로 합치지 않는다.
+- 번호: `open-questions.md` #86과 `be-handoff.md` 10절은 develop에서 쓰이지 않았다(develop 최대 #85 · 9절). 머지 뒤 다시 확인한다.
+- 회귀 확인: 머지 뒤 `tests/test_pipeline_*.py` 전체를 돌린다. 기존 실패 `test_sample_generator_is_reproducible`(합성 샘플 OCR 좌표)는 이 작업과 무관하다. 인계 예제 재생성 테스트(`test_committed_examples_match_regeneration`)가 통과해야 한다.
+
+## 4. 함께 정리한 것(커밋 `eb07c1d` 실험 도구 · `f9aac32` 기본값 변경)
 
 | 대상 | 내용 |
 |---|---|

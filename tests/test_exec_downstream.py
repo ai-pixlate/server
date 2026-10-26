@@ -31,9 +31,12 @@ def dburl():
 @pytest.fixture
 def env(dburl, tmp_path, monkeypatch):
     from app import db as app_db
+    from app import s3
 
     store = MemoryStore()
     set_store(store)
+    # 화면 조회(프리뷰 등)의 presigned URL 도 대역으로 — 실제 서명은 AWS 자격이 있어야 해서 자격 없는 환경(CI)에서 실패한다
+    monkeypatch.setattr(s3, "presigned_get", lambda key, ttl=300, download_name=None: f"https://presigned.test/{key}" if key else None)
     q = QueueDispatcher()
     execution.set_dispatcher(q)
     monkeypatch.setenv("PIXLATE_GPU_WORK_DIR", str(tmp_path / "gpu"))

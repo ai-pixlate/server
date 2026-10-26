@@ -77,10 +77,12 @@ _BOOL_KEYS = ("gutter", "xycut", "fullwidth", "num_o")  # 정확히 bool 타입�
 FULLWIDTH = {c: c - 0xFEE0 for c in range(0xFF01, 0xFF5F)}
 FULLWIDTH[0x3000] = 0x20
 
-# 숫자 속 o/O → 0: 숫자로 시작하고 숫자 · o · O · 쉼표 · 점만 있는 덩어리(영문자 바로 뒤는 제외) 안의 o/O만 [`open-questions.md` #86].
-# 참고 구현 seed-builder PR #1(fc72ecd) reorder_ocr_v2.py의 NUM_WITH_O 그대로 — 예: SPF 5O → 50, 1oo% → 100%, (2o17) → (2017).
-# 1:1 치환이라 같은 조립 문자열의 길이는 바뀌지 않는다. SPF5O(영문자 바로 뒤) · 3o개(한글이 붙음)는 바꾸지 않는다.
-NUM_WITH_O = re.compile(r"(?<![A-Za-z])(\d[\doO]*(?:[.,][\doO]+)*)(?=%|\b)")
+# 숫자 속 o/O → 0: 숫자로 시작하고 숫자 · o · O · 쉼표 · 점만 있는 덩어리 안의 o/O만 [`open-questions.md` #86].
+# 참고 구현 seed-builder PR #1(fc72ecd) reorder_ocr_v2.py의 NUM_WITH_O에서 시작 조건만 좁혔다(2026-10-26 사용자 결정): 덩어리가
+# 영문자 · 숫자 · 점 · 쉼표 바로 뒤에서 시작하면 바꾸지 않는다. 참고 구현은 영문자만 막아, 영문에 붙은 숫자열의 다음 숫자부터
+# 다시 매칭했다(SPF50O → SPF500, B60O1 → B6001). 예: SPF 5O → 50, 1oo% → 100%, (2o17) → (2017), 13.O → 13.0.
+# 1:1 치환이라 같은 조립 문자열의 길이는 바뀌지 않는다. SPF5O · SPF50O · v1.2O(영문에 붙은 숫자열) · 3o개(한글이 붙음)는 바꾸지 않는다.
+NUM_WITH_O = re.compile(r"(?<![A-Za-z0-9.,])(\d[\doO]*(?:[.,][\doO]+)*)(?=%|\b)")
 
 
 def validate_config(cfg: dict[str, Any]) -> None:

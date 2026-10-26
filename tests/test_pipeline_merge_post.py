@@ -125,16 +125,20 @@ def test_fullwidth_is_independent_of_xycut():
 
 
 # ---------------------------------------------------------------------------
-# 숫자 속 o/O 교정(2026-10-26 채택, 참고 구현 NUM_WITH_O 그대로)
+# 숫자 속 o/O 교정(2026-10-26 채택 — 참고 구현 NUM_WITH_O에서 시작 조건만 좁힘)
 # ---------------------------------------------------------------------------
 @pytest.mark.parametrize("raw, want", [
     ("SPF 5O+", "SPF 50+"), ("1oo%", "100%"), ("13.O", "13.0"), ("1o,ooo", "10,000"), ("(2o17))", "(2017))"),
     ("MATRIXYL°300O*3%", "MATRIXYL°3000*3%"), ("*MATRIXTYL@300O:팔미토일", "*MATRIXTYL@3000:팔미토일"),
-    # 바꾸지 않는 것: 영문자 바로 뒤 숫자 · 한글이 붙은 숫자 · 정상 단위 · 숫자 없는 o
-    ("SPF5O", "SPF5O"), ("3o개", "3o개"), ("2oz", "2oz"), ("10 Oz", "10 Oz"), ("No.1", "No.1"), ("B6O1", "B6O1"),
-    ("goodal", "goodal"), ("o50U5S0N", "o50U5S0N"),
+    ("1,5O0", "1,500"), ("3.5O%", "3.50%"), ("SPF 50O", "SPF 500"),  # 덩어리 안의 . , 뒤 o/O는 교정
+    # 바꾸지 않는 것: 한글이 붙은 숫자 · 정상 단위 · 숫자 없는 o
+    ("3o개", "3o개"), ("2oz", "2oz"), ("10 Oz", "10 Oz"), ("No.1", "No.1"), ("goodal", "goodal"), ("o50U5S0N", "o50U5S0N"),
+    # 경계: 영문자 · 숫자 · 점 · 쉼표 바로 뒤에서 시작하는 덩어리는 바꾸지 않는다 — 참고 구현(영문자만 막음)은
+    # 영문에 붙은 숫자열의 다음 숫자부터 다시 매칭해 SPF50O → SPF500, B60O1 → B6001, AB12O → AB120으로 바꿨다
+    ("SPF5O", "SPF5O"), ("B6O1", "B6O1"), ("SPF50O", "SPF50O"), ("B60O1", "B60O1"), ("AB12O", "AB12O"),
+    ("v1.2O", "v1.2O"), ("No.1O", "No.1O"), ("x,2O", "x,2O"),
 ])
-def test_fix_num_o_follows_reference_rule(raw, want):
+def test_fix_num_o_rule_and_boundaries(raw, want):
     assert merge.fix_num_o(raw) == want
     assert len(merge.fix_num_o(raw)) == len(raw)  # 1:1 치환
 

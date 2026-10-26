@@ -331,5 +331,5 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 ### 10.3 남은 것
 
-- AI: 품질 · 파라미터 확인(결함 후보 — 큰 글자 문단의 후보 영역 과분할 · 작은 중첩 조각이 낀 줄의 분리. 과분할은 LLM 경로에서 칸 묶음 병합으로 대응, 2026-10-26), 기본 활성화 승인(`open-questions.md` #86). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로 마쳤다(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`). 같은 후보 영역의 교차 블록 병합 점검(고정 입력본 100섹션, gutter 두 칸 0건)은 `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` — 사람 검수 대기. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다. 보류 기능(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거)은 미채택이며 이번 구현에 없다.
+- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 남은 것은 보류 기능(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거) 실험과 기본 활성화 결정(`open-questions.md` #86)이다. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다.
 - BE: 위 10.2 항목 확인은 기본 활성화 결정 전에 따로 요청한다. 이번에는 BE 실행 테스트 · 연동 검증을 하지 않았다.

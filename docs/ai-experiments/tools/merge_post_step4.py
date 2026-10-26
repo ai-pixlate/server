@@ -6,7 +6,7 @@ LLM 호출 없이 blocks-input-v1의 휴리스틱만 비교한다. 파이프라�
     # 1차 — B3 채택 전 코드(예: 4ec58bb)에서만
     python docs/ai-experiments/tools/merge_post_step4.py all --round round1 --input pipeline/samples/local/blocks-input-v1 \
         --label-run pipeline/out/label-run-v1_2026-09-29 --out RUN_DIR
-    # 2차 — B3 채택 뒤 코드에서, 1차 점검 세트를 다시 써서
+    # 2차 · 3차 — B3 채택 뒤 코드에서, 1차 점검 세트를 다시 써서(3차 = A2 후보 v0, 실험 준비용)
     python docs/ai-experiments/tools/merge_post_step4.py all --round round2 --checkset RUN1_DIR/checkset.json \
         --input pipeline/samples/local/blocks-input-v1 --out RUN2_DIR
 
@@ -17,6 +17,11 @@ LLM 호출 없이 blocks-input-v1의 휴리스틱만 비교한다. 파이프라�
 - variant --name N [--set 표.키=값 ...] [--patch b3|gapcond]: 한 변형을 돌려 RUN_DIR/variants/N.json에 쓴다.
   b3 = 가로줄의 Line 나누기에서 높이비 조건만 끔, gapcond = 같은 곳에 기존 가로 간격 조건(line_gap_min · line_gap)을 더함.
 - report: 변형 결과를 A0와 비교해 RUN_DIR/summary.json · RUN_DIR/report.md · RUN_DIR/crops/를 만든다.
+- llm-run --round round4 --name B3|B3_yonly [--dry-run | --fake identity | --approved-budget-usd N --max-calls N]: 4차 18섹션
+  llm_assist 실행. 실제 호출은 사용자 사전 예산 승인 뒤 두 승인 인자와 GEMINI_API_KEY가 모두 있어야 시작한다
+  (계획: 2026-10-23_03-merge_post-step4-round4-plan.md). llm-report: 그 결과를 1차 사람 판정(S1)과 대조한다.
+  5차(round5)는 같은 두 변형을 --sections 목록 · 반복 실행(실행마다 다른 --out)으로 돌린다(계획: 2026-10-26_03-merge_post-step4-round5-plan.md).
+- llm-diff --a DIR --b DIR: llm-run 결과 폴더 두 개(변형끼리 · 반복끼리)의 입력 같음 여부 · 잎을 넘은 블록 · 구성 차이 · 역할 차이(호출 없음).
 - all [--round round1|round2] [--checkset PATH]: checkset(또는 고정본 복사) → 그 차수의 변형(각각 새 프로세스) → report.
   2차(round2)는 B3 채택 뒤의 기준(B3)과 B3 + C_tol0.7을 1차에서 고정한 점검 세트로 비교한다.
 구조 지표(블록 수 · 걸친 영역 수 등)는 원인 분석용이며 품질 판정이 아니다. 어떤 결과도 정답이 아니다.
@@ -69,9 +74,32 @@ ROUND2 = [
     ("B3", [], None),
     ("B3_C_tol0.7", ["merge.line_center_tol=0.7"], None),
 ]
-ROUNDS = {"round1": ROUND1, "round2": ROUND2}
+# 3차(2026-10-23, 실험 준비 · 로컬 검증): 과분할 대응 A2 후보 — y 절단을 여백 위아래 줄 높이 기준으로도 거른다(아래 a2 patch).
+# 후보 정의 v0이며 채택 규칙이 아니다. x 절단(칸 사이)은 그대로다.
+ROUND3 = [
+    ("B3", [], None),
+    ("A2_r0.6", [], "a2:0.6"),
+    ("A2_r0.8", [], "a2:0.8"),
+    ("A2_r1.0", [], "a2:1.0"),
+]
+# 4차(2026-10-23, LLM 실행 준비): y 절단으로만 나뉜 후보 영역끼리 LLM 병합 허용(yonly patch). 휴리스틱은 B3와 같고,
+# LLM에 보내는 region · 영역을 넘는 묶음 분리 · 조립 정렬만 바뀐다. 실험 전용이며 승인된 규칙(영역 경계 고정)의 변경 후보다.
+ROUND4 = [
+    ("B3", [], None),
+    ("B3_yonly", [], "yonly"),
+]
+# 5차(2026-10-26, 계획): 4차와 같은 두 변형을 다른 섹션(--sections) · 반복 실행으로 다시 돌린다.
+ROUND5 = ROUND4
+ROUNDS = {"round1": ROUND1, "round2": ROUND2, "round3": ROUND3, "round4": ROUND4, "round5": ROUND5}
 # 차수마다 필요한 코드 기준: B3(가로줄 Line 나누기의 높이비 해제)가 파이프라인에 들어 있어야 하는가
-ROUND_NEEDS_B3 = {"round1": False, "round2": True}
+ROUND_NEEDS_B3 = {"round1": False, "round2": True, "round3": True, "round4": True, "round5": True}
+# 4차 LLM 실행 대상 18섹션(3차 기록 4.5): 사람 판정 S1 섹션 5 · S3 대표 6 · B3 검수 섹션 9(중복 제거)
+LLM_SECTIONS = [
+    "GS-01_001/sec_1_01", "GS-01_002/sec_1_04", "GS-01_002/sec_1_06", "GS-01_002/sec_1_08", "GS-01_002/sec_1_12",
+    "GS-01_002/sec_1_19", "GS-02_008/sec_1_04", "GS-02_008/sec_1_06", "GS-02_009/sec_1_01", "GS-02_009/sec_1_03",
+    "GS-02_013/sec_1_02", "GS-02_014/sec_1_05", "GS-02_014/sec_1_11", "GS-03_008/sec_1_02", "GS-03_012/sec_1_01",
+    "GS-03_014/sec_1_01", "GS-03_018/sec_1_02", "GS-03_018/sec_1_08",
+]
 
 
 def b3_adopted() -> bool:
@@ -251,6 +279,71 @@ def patch(name: str | None) -> None:
                         cur = [b]
                 out.append(cur)
             return out
+    elif name.startswith("a2:"):
+        ratio = float(name.split(":", 1)[1])
+
+        def y_gaps(regions):
+            """y 방향 빈 구간마다 (폭, 가운데, 위쪽 경계를 만든 상자 높이, 아래쪽 첫 상자 높이)."""
+            boxes = sorted(regions, key=lambda r: (r.bbox.y, r.bbox.y2))
+            out, reach, top = [], boxes[0].bbox.y2, boxes[0]
+            for b in boxes[1:]:
+                if b.bbox.y > reach:
+                    out.append((float(b.bbox.y - reach), (reach + b.bbox.y) / 2, top.bbox.h, b.bbox.h))
+                if b.bbox.y2 > reach:
+                    reach, top = b.bbox.y2, b
+            return out
+
+        def choose_cut(regions, min_gap):
+            """A2 후보 v0: x 절단은 현행 그대로. y 절단은 최소 여백(섹션 기준) 이상이면서 여백 위아래 줄 높이 중 작은 값 ×
+            ratio 이상인 빈 구간 중 가장 넓은 것. 더 넓은 쪽을 먼저 자르는 규칙(같으면 x)은 현행과 같다."""
+            if len(regions) <= 1:
+                return None
+            gap_x, cut_x = merge.widest_gap([(r.bbox.x, r.bbox.x2) for r in regions])
+            ok = [(g, c) for g, c, hu, hl in y_gaps(regions) if g >= min_gap and g >= ratio * min(hu, hl)]
+            gap_y, cut_y = max(ok, key=lambda t: (t[0], -t[1])) if ok else (0.0, None)
+            if gap_x >= min_gap and gap_x >= gap_y and cut_x is not None:
+                return "x", cut_x
+            if cut_y is not None:
+                return "y", cut_y
+            return None
+
+        merge._choose_cut = choose_cut
+        return
+    elif name == "yonly":
+        orig = merge._heuristic
+        big = 1_000_000
+
+        def y_only(path_a: str, path_b: str, axis: dict[str, str]) -> bool:
+            """두 잎 사이의 분할 트리 경로(공통 조상 → 각 잎)의 절단이 모두 y인가."""
+            i = 0
+            while i < min(len(path_a), len(path_b)) and path_a[i] == path_b[i]:
+                i += 1
+            return all(axis[p[:k]] == "y" for p in (path_a, path_b) for k in range(i, len(p)))
+
+        def heuristic_yonly(section, ocr, cfg):
+            """B3 휴리스틱 그대로 두고 배치 정보만 바꾼다: 후보 영역(잎) → y 절단으로만 이어진 칸 묶음 번호.
+            칸 묶음은 순수 y 분할 부분 트리의 잎이라 깊이 우선 순서에서 연달아 나온다. 정렬 키 앞에 잎 번호를 넣어(× big)
+            위아래 잎의 가로줄 번호가 섞이지 않게 하고 블록 순서는 바꾸지 않는다."""
+            res, layout, post, diag = orig(section, ocr, cfg)
+            if layout is None:
+                return res, layout, post, diag
+            axis = {c["path"]: c["axis"] for c in layout.cuts if "axis" in c}
+            leaf_path = {c["region"]: c["path"] for c in layout.cuts if "region" in c}
+            cluster, cid, prev = {}, 0, None
+            for leaf in sorted(leaf_path):
+                if prev is None or not y_only(leaf_path[prev], leaf_path[leaf], axis):
+                    cid += 1
+                cluster[leaf], prev = cid, leaf
+            leaf_of_line = {ln.line_key: layout.block_region[b.block_key] for b in res.blocks for ln in b.source_lines}
+            layout.line_rank = {k: (leaf_of_line[k] * big + r[0],) + tuple(r[1:]) for k, r in layout.line_rank.items()}
+            layout.block_rank = {k: (layout.block_region[k] * big + r[0],) + tuple(r[1:]) for k, r in layout.block_rank.items()}
+            layout.block_region = {k: cluster[leaf] for k, leaf in layout.block_region.items()}
+            if diag is not None:
+                diag["yonly_clusters"] = {str(leaf): c for leaf, c in cluster.items()}
+            return res, layout, post, diag
+
+        merge._heuristic = heuristic_yonly
+        return
     else:
         raise SystemExit(f"모르는 patch {name}")
     merge._split_row = split_row
@@ -468,6 +561,215 @@ def cmd_all(a) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# 4차 LLM 실행(llm-run) · 판정 대조(llm-report)
+# ---------------------------------------------------------------------------
+class IdentityLlm:
+    """가짜 호출자(로컬 점검용): 보낸 블록을 하나씩 그대로 돌려준다. 역할은 body 고정. 실제 LLM 판단이 아니다."""
+
+    config = {"model": "fake-identity", "temperature": 0, "timeout_s": 60}
+
+    def __call__(self, prompt: str, payload: str):
+        from pipeline.vlm import LlmReply
+
+        ids = [b["id"] for b in json.loads(payload)["blocks"]]
+        return LlmReply(json.dumps({"blocks": [{"members": [i], "role": "body"} for i in ids]}), {"total_token_count": 0})
+
+
+def section_inputs(inp: Path, name: str):
+    img, key = name.split("/")
+    split = jsonio.load_split(inp / img / "split.json")
+    sec = next(s for s in split.sections if s.section_key == key)
+    return img, sec, jsonio.load_ocr(inp / img / "ocr" / f"{key}.json")
+
+
+def past_usage(inp: Path, name: str) -> dict:
+    """끈 상태 기존 LLM 기록(blocks-input-v1/merge_debug)의 사용량 · 보낸 입력 크기. 추정 근거로만 쓴다."""
+    img, key = name.split("/")
+    d = json.loads((inp / img / "merge_debug" / f"{key}.json").read_text(encoding="utf-8"))
+    u = d.get("usage") or {}
+    payload_chars = len(merge.payload_text(d["payload"])) if d.get("payload") else 0
+    total, pin, pout = u.get("total_token_count") or 0, u.get("prompt_token_count") or 0, u.get("candidates_token_count") or 0
+    return {"status": d["status"], "prompt_tokens": pin, "output_tokens": pout, "thinking_tokens": max(0, total - pin - pout),
+            "payload_chars": payload_chars}
+
+
+def cmd_llm_run(a) -> int:
+    """18섹션 llm_assist 실행. 모드: --dry-run(호출 없음 — 입력 크기 · 토큰 추정) · --fake identity(가짜 호출자 — 배선 점검) ·
+    실제 호출(--approved-budget-usd · --max-calls와 GEMINI_API_KEY가 모두 있어야 한다. 사용자 사전 예산 승인 뒤에만 쓴다)."""
+    inp, out = Path(a.input), Path(a.out) / a.name
+    if a.name not in {n for n, _, _ in ROUNDS[a.round]}:
+        raise SystemExit(f"{a.name}은 {a.round}의 변형이 아니다")
+    check_round_code(a.round)
+    sets, p = next((x[1], x[2]) for x in ROUNDS[a.round] if x[0] == a.name)
+    patch(p)
+    cfg = base_cfg(sets)
+    sections = ([x.strip() for x in Path(a.sections).read_text(encoding="utf-8").splitlines() if x.strip()]
+                if a.sections else LLM_SECTIONS)
+    real = not a.dry_run and a.fake is None
+    if real and (a.approved_budget_usd is None or a.max_calls is None):
+        raise SystemExit("실제 호출은 --approved-budget-usd와 --max-calls를 모두 줘야 한다(사용자 사전 예산 승인 뒤)")
+    prompt = merge.validate_llm_config(cfg, need_api_key=real)
+    if out.exists() and any(out.iterdir()):
+        raise SystemExit(f"출력 폴더가 비어 있지 않다(이전 결과를 덮지 않는다): {out}")
+    out.mkdir(parents=True, exist_ok=True)
+    plan = []
+    for name in sections:
+        img, sec, ocr_res = section_inputs(inp, name)
+        heur, layout, _, _ = merge._heuristic(sec, ocr_res, cfg)
+        payload, ids = merge.build_payload(sec, heur, layout)
+        plan.append({"section": name, "sendable_blocks": len(ids), "payload_chars": len(merge.payload_text(payload)),
+                     "regions_sent": sorted({b["region"] for b in payload["blocks"]}) if ids else [],
+                     "past": past_usage(inp, name)})
+    calls = sum(1 for x in plan if x["sendable_blocks"])
+    if real and calls > a.max_calls:
+        raise SystemExit(f"호출 예정 {calls}회가 승인 상한 {a.max_calls}회를 넘는다 — 실행하지 않는다")
+    # 입력 토큰 추정: 기존 기록의 (프롬프트 토큰 ÷ (기본 프롬프트 + 페이로드 글자 수)) 비율을 새 입력 글자 수에 곱한다
+    base_prompt = merge.resolve_prompt_path(cfg["merge"]["prompt_path"]).read_text(encoding="utf-8")
+    past_in = sum(x["past"]["prompt_tokens"] for x in plan)
+    past_chars = sum(len(base_prompt) + x["past"]["payload_chars"] for x in plan if x["past"]["status"] == "ok")
+    ratio = past_in / past_chars if past_chars else None
+    new_chars = sum(len(prompt) + x["payload_chars"] for x in plan if x["sendable_blocks"])
+    summary = {"round": a.round, "name": a.name, "mode": "dry-run" if a.dry_run else ("fake:" + a.fake if a.fake else "real"),
+               "provenance": provenance(inp, sets, p), "prompt_chars": len(prompt), "prompt_sha256": merge.sha256_text(prompt),
+               "sections": len(plan), "calls_planned": calls,
+               "estimate": {"input_tokens": round(ratio * new_chars) if ratio else None, "tokens_per_char_basis": ratio,
+                            "past_input_tokens": past_in,
+                            "past_output_tokens": sum(x["past"]["output_tokens"] for x in plan),
+                            "past_thinking_tokens": sum(x["past"]["thinking_tokens"] for x in plan),
+                            "note": "기존 끈 상태 기록 기준 추정 — 실제 사용량 · 비용 아님"},
+               "approval": {"approved_budget_usd": a.approved_budget_usd, "max_calls": a.max_calls}, "plan": plan, "results": []}
+    if not a.dry_run:
+        from pipeline.vlm import VlmError
+
+        llm = IdentityLlm() if a.fake == "identity" else merge.default_assistant(cfg)
+        for x in plan:
+            img, sec, ocr_res = section_inputs(inp, x["section"])
+            d = out / img
+            try:
+                res = merge.run(sec, ocr_res, cfg, use_llm=True, llm=llm, recorder=merge.json_recorder(d / "merge_debug"),
+                                post_recorder=merge.json_recorder(d / "merge_post_debug"))
+                (d / "merge").mkdir(parents=True, exist_ok=True)
+                (d / "merge" / f"{sec.section_key}.json").write_text(res.model_dump_json(indent=1), encoding="utf-8")
+                rec = json.loads((d / "merge_debug" / f"{sec.section_key}.json").read_text(encoding="utf-8"))
+                summary["results"].append({"section": x["section"], "status": rec["status"], "usage": rec.get("usage")})
+            except VlmError as e:  # 재시도하지 않는다 — 실패로 남긴다
+                summary["results"].append({"section": x["section"], "status": "failed", "error": str(e)})
+    (out / "run.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({k: summary[k] for k in ("name", "mode", "sections", "calls_planned", "prompt_chars", "estimate")},
+                     ensure_ascii=False, indent=1))
+    return 0
+
+
+def cmd_llm_report(a) -> int:
+    """llm-run 결과를 1차 사람 판정(S1)과 대조한다: 사례 영역이 최종 블록 몇 개에 걸쳤는지, 영역을 넘은 묶음 분리 · 교차 기록."""
+    import csv
+
+    out = Path(a.out)
+    ck = json.loads(Path(a.checkset).read_text(encoding="utf-8"))
+    tsv = {r["case_ids"]: r for r in csv.DictReader(open(a.review_tsv, encoding="utf-8"), delimiter="\t")}
+    rows = []
+    for name in sorted(p.name for p in out.iterdir() if p.is_dir()):
+        for c in ck["cases"]:
+            if c["set"] != "S1" or c["id"] not in tsv or tsv[c["id"]]["q1"] == "excluded":
+                continue
+            img, key = c["section"].split("/")
+            mp = out / name / img / "merge" / f"{key}.json"
+            if not mp.is_file():
+                continue
+            res = jsonio.load_merge(mp)
+            want = set(c["regions"])
+            touched = [b for b in res.blocks if want & set(rkeys(b))]
+            rows.append({"variant": name, "case": c["id"], "human_q1": tsv[c["id"]]["q1"], "final_blocks": len(touched),
+                         "texts": [b.source_ko for b in touched]})
+        notes = {"region_splits": 0, "interleaved": 0}
+        for f in (out / name).glob("*/merge_debug/*.json"):
+            r = json.loads(f.read_text(encoding="utf-8")).get("result") or {}
+            notes["region_splits"] += len(r.get("region_splits", []))
+            notes["interleaved"] += len(r.get("interleaved", []))
+        rows.append({"variant": name, "notes": notes})
+    (out / "llm_report.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
+    for r in rows:
+        if "notes" in r:
+            print(r)
+        else:
+            print(f"{r['variant']:10} {r['case'].split(':', 1)[1]:32} 사람 {r['human_q1']:13} 최종 블록 {r['final_blocks']}")
+    return 0
+
+
+def cmd_llm_diff(a) -> int:
+    """llm-run 결과 폴더 두 개(변형끼리 · 같은 변형의 반복끼리)를 섹션마다 비교한다. 호출 없음.
+    후보 영역(잎) 번호는 B3 휴리스틱(기본 config + merge.xycut=true)에서 다시 계산한다 — yonly patch를 걸지 않은 프로세스에서 돈다.
+    - payload: 두 실행의 LLM 입력이 같은가(같음 · region만 다름 · 그 밖도 다름) — 같은데 결과가 다르면 실행 변동이다
+    - cross_leaf: 잎을 넘어 합쳐진 최종 블록(양쪽 각각)
+    - components: 블록 구성이 다른 묶음(원시 영역이 겹치는 블록끼리의 연결 성분)
+    - roles: 구성이 같은 블록의 역할 · 텍스트 차이"""
+    inp, da, db = Path(a.input), Path(a.a), Path(a.b)
+    check_round_code("round5")
+    cfg = base_cfg([])
+    names = ([x.strip() for x in Path(a.sections).read_text(encoding="utf-8").splitlines() if x.strip()]
+             if a.sections else [x["section"] for x in json.loads((da / "run.json").read_text(encoding="utf-8"))["plan"]])
+    out = {"a": str(da), "b": str(db), "sections": [], "missing": []}
+    for name in names:
+        img, sec, ocr_res = section_inputs(inp, name)
+        key = sec.section_key
+        pa, pb = da / img / "merge" / f"{key}.json", db / img / "merge" / f"{key}.json"
+        if not (pa.is_file() and pb.is_file()):
+            out["missing"].append({"section": name, "a": pa.is_file(), "b": pb.is_file()})
+            continue
+        heur, layout, _, _ = merge._heuristic(sec, ocr_res, cfg)
+        leaf = {r: layout.block_region[b.block_key] for b in heur.blocks for r in rkeys(b)} if layout else {}
+        ra, rb = jsonio.load_merge(pa), jsonio.load_merge(pb)
+        dbg = [json.loads((d / img / "merge_debug" / f"{key}.json").read_text(encoding="utf-8")) for d in (da, db)]
+        if dbg[0]["payload_sha256"] == dbg[1]["payload_sha256"]:
+            payload = "same"
+        else:
+            strip = [[{k: v for k, v in x.items() if k != "region"} for x in d["payload"]["blocks"]] for d in dbg]
+            payload = "region_only" if strip[0] == strip[1] else "other"
+        sa = {frozenset(rkeys(b)): b for b in ra.blocks}
+        sb = {frozenset(rkeys(b)): b for b in rb.blocks}
+
+        def brief(b):
+            return {"order": b.block_order, "role": b.role, "leaves": sorted({leaf.get(r, 0) for r in rkeys(b)}),
+                    "regions": rkeys(b), "text": b.source_ko}
+
+        cross = {s: [brief(b) for b in r.blocks if len({leaf.get(x, 0) for x in rkeys(b)}) > 1] for s, r in (("a", ra), ("b", rb))}
+        roles = [{"a": brief(sa[k]), "b_role": sb[k].role, "text_same": sa[k].source_ko == sb[k].source_ko}
+                 for k in sa.keys() & sb.keys() if sa[k].role != sb[k].role or sa[k].source_ko != sb[k].source_ko]
+        rest_a = [b for k, b in sa.items() if k not in sb]
+        rest_b = [b for k, b in sb.items() if k not in sa]
+        comps, used_a, used_b = [], set(), set()
+        for start in rest_a:
+            if id(start) in used_a:
+                continue
+            ca, cb, regs, grow = [start], [], set(rkeys(start)), True
+            used_a.add(id(start))
+            while grow:
+                grow = False
+                for pool, acc, used in ((rest_b, cb, used_b), (rest_a, ca, used_a)):
+                    for b in pool:
+                        if id(b) not in used and regs & set(rkeys(b)):
+                            acc.append(b); used.add(id(b)); regs |= set(rkeys(b)); grow = True
+            comps.append({"a": [brief(b) for b in sorted(ca, key=lambda b: b.block_order)],
+                          "b": [brief(b) for b in sorted(cb, key=lambda b: b.block_order)]})
+        out["sections"].append({"section": name, "payload": payload, "blocks": [len(ra.blocks), len(rb.blocks)],
+                                "same_blocks": len(sa.keys() & sb.keys()), "cross_leaf": cross,
+                                "components": comps, "roles": roles})
+    secs = out["sections"]
+    out["summary"] = {
+        "sections": len(secs), "missing": len(out["missing"]),
+        "identical_sections": sum(1 for s in secs if not s["components"] and not s["roles"]),
+        "payload": dict(Counter(s["payload"] for s in secs)),
+        "cross_leaf_blocks": {k: sum(len(s["cross_leaf"][k]) for s in secs) for k in ("a", "b")},
+        "components": sum(len(s["components"]) for s in secs),
+        "role_or_text_diffs": sum(len(s["roles"]) for s in secs),
+        "note": "구조 비교이며 품질 판정이 아니다"}
+    Path(a.out_json).parent.mkdir(parents=True, exist_ok=True)
+    Path(a.out_json).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps(out["summary"], ensure_ascii=False, indent=1))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -485,9 +787,30 @@ def main(argv: list[str] | None = None) -> int:
         if c == "variant":
             sp.add_argument("--name", required=True)
             sp.add_argument("--set", action="append")
-            sp.add_argument("--patch", choices=["b3", "gapcond"])
+            sp.add_argument("--patch", help="b3 · gapcond · a2:<비율>")
+    sp = sub.add_parser("llm-run", help="4차 18섹션 llm_assist 실행(--dry-run · --fake identity · 승인 뒤 실제 호출)")
+    sp.add_argument("--input", required=True)
+    sp.add_argument("--out", required=True)
+    sp.add_argument("--round", choices=sorted(ROUNDS), required=True)
+    sp.add_argument("--name", required=True)
+    sp.add_argument("--sections", help="섹션 목록 파일(줄마다 원본/섹션). 없으면 LLM_SECTIONS 18개")
+    sp.add_argument("--dry-run", action="store_true", help="호출 없이 입력 크기 · 토큰 추정만")
+    sp.add_argument("--fake", choices=["identity"], help="가짜 호출자로 배선만 점검(비용 없음)")
+    sp.add_argument("--approved-budget-usd", type=float, help="실제 호출 시 필수 — 사용자가 승인한 금액 상한(기록용)")
+    sp.add_argument("--max-calls", type=int, help="실제 호출 시 필수 — 승인한 호출 수 상한")
+    sp = sub.add_parser("llm-report", help="llm-run 결과와 1차 사람 판정(S1) 대조")
+    sp.add_argument("--out", required=True, help="llm-run의 --out(변형별 하위 폴더를 모두 본다)")
+    sp.add_argument("--checkset", required=True)
+    sp.add_argument("--review-tsv", required=True)
+    sp = sub.add_parser("llm-diff", help="llm-run 결과 폴더 두 개 비교(변형끼리 · 반복끼리, 호출 없음)")
+    sp.add_argument("--input", required=True)
+    sp.add_argument("--a", required=True, help="llm-run 변형 결과 폴더(예: OUT/rep1/B3)")
+    sp.add_argument("--b", required=True)
+    sp.add_argument("--sections", help="섹션 목록 파일. 없으면 --a의 run.json 계획 섹션")
+    sp.add_argument("--out-json", required=True)
     a = ap.parse_args(argv)
-    return {"checkset": cmd_checkset, "variant": cmd_variant, "report": cmd_report, "all": cmd_all}[a.cmd](a)
+    return {"checkset": cmd_checkset, "variant": cmd_variant, "report": cmd_report, "all": cmd_all,
+            "llm-run": cmd_llm_run, "llm-report": cmd_llm_report, "llm-diff": cmd_llm_diff}[a.cmd](a)
 
 
 if __name__ == "__main__":

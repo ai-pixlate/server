@@ -3,6 +3,7 @@ name: CI develop
 # develop 대상 PR·push 의 시험과, develop push 때의 dev 이미지 게시(ECR pixlate-api:dev-<커밋 SHA>).
 # 배포는 하지 않는다(샌드박스 적용은 CI 2단계). 운영 이미지·태그·release.conf 는 건드리지 않는다.
 # - test   : 러너에서 전체 시험. 필수 시험(브로커 설정·복구)은 건너뜀 0 으로 따로 판정한다.
+#            의존성은 constraints.txt(운영 이미지 목록)로 고정하고, 설치 결과를 목록과 대조한다(이미지도 같다).
 # - image  : 이미지를 한 번 빌드해 그 안에서 필수 시험을 다시 돌리고, 설치 패키지 목록·이미지 ID 를 남긴다.
 #            PR 에서도 실행하며 AWS 자격이 없다.
 # - publish: develop push 때만. image 가 시험한 바로 그 이미지를 넘겨받아(재빌드 없음) ID 를 대조한 뒤 게시한다.
@@ -51,9 +52,20 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
-          python-version: "3.12"
-      - name: 의존성 설치
-        run: pip install -r requirements.txt -r pipeline/requirements.txt
+          python-version: "3.12.15"
+      - name: 의존성 설치 — 별도 가상환경, constraints.txt 고정
+        # 러너 기본 Python 의 패키지가 섞이지 않게 가상환경에 설치한다. constraints 는 pip 자체를 바꾸지 않으므로
+        # pip 는 운영 이미지와 같은 25.0.1 로 먼저 맞추고, 아래 대조에 포함한다. 이후 step 은 이 가상환경을 쓴다.
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install -q pip==25.0.1
+          "$RUNNER_TEMP/venv/bin/python" -m pip install -q -c constraints.txt -r requirements.txt -r pipeline/requirements.txt
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - name: 의존성 대조(추가·누락·버전 차이 = 실패)·pip check
+        run: |
+          python -m pip freeze --all > runner-freeze.txt
+          python .github/scripts/assert_freeze.py constraints.txt runner-freeze.txt
+          python -m pip check
       - name: 필수 시험(건너뜀 0)
         run: |
           python -m pytest $REQUIRED_TESTS -q -rs --junitxml=required.xml
@@ -87,6 +99,11 @@ jobs:
           docker build --platform linux/amd64
           --label org.opencontainers.image.revision=$GITHUB_SHA
           -t ci-local:$GITHUB_SHA .
+      - name: 의존성 대조 — 빌드한 이미지 안에서(추가·누락·버전 차이 = 실패)·pip check
+        run: |
+          docker run --rm ci-local:$GITHUB_SHA pip freeze --all > pip-freeze.txt
+          python3 .github/scripts/assert_freeze.py constraints.txt pip-freeze.txt
+          docker run --rm ci-local:$GITHUB_SHA pip check
       - name: 필수 시험 — 빌드한 이미지 안에서(건너뜀 0)
         run: >-
           docker run --rm --network host
@@ -95,7 +112,6 @@ jobs:
           sh -c 'python -m pytest $REQUIRED_TESTS -q -rs --junitxml=/tmp/required.xml && python /ci/assert_no_skip.py /tmp/required.xml'
       - name: 설치 패키지 목록·이미지 ID 기록
         run: |
-          docker run --rm ci-local:$GITHUB_SHA pip freeze --all > pip-freeze.txt
           docker image inspect -f '{{.Id}}' ci-local:$GITHUB_SHA > image-id.txt
           {
             echo "commit: $GITHUB_SHA"

@@ -8,7 +8,7 @@ block_key는 ③이 섹션 안에서 매긴 번호를 최종 순서(upload_order
 (section_key, 섹션 최종 블록 키) → 실행 최종 블록 키 대응(block_keys.json)을 남긴다(pipeline.md 7.2절).
 ② 분할 설정도 ① 전에 검증한다. 높이 > ocr.split_threshold_px 섹션(① 대체 섹션 포함)은 타일 OCR로 처리하고
 out_dir/ocr_debug/<section_key>.json에 타일 진단을 남긴다 — 실패(OCR_FAILED)해도 남긴다(pipeline.md 7.9절).
-③ 후처리 스위치(merge.xycut · merge.fullwidth) 중 하나라도 켜져 있으면 LLM 사용 여부와 관계없이 out_dir/merge_post_debug/에
+③ 후처리 스위치(merge.xycut · merge.fullwidth · merge.num_o) 중 하나라도 켜져 있으면 LLM 사용 여부와 관계없이 out_dir/merge_post_debug/에
 섹션별 후처리 진단과 같은 형식의 block_keys.json을 남긴다(pipeline.md 7.1절, open-questions #86). 둘 다 꺼져 있으면 쓰지 않는다.
 """
 from __future__ import annotations
@@ -101,7 +101,7 @@ def analyze(
         llm = llm if llm is not None else merge.default_assistant(cfg)
         recorder = merge.json_recorder(debug_dir)
     post_dir = out_dir / "merge_post_debug"
-    post_on = cfg["merge"]["xycut"] or cfg["merge"]["fullwidth"]
+    post_on = cfg["merge"]["xycut"] or cfg["merge"]["fullwidth"] or cfg["merge"]["num_o"]
     sections = []
     blocks = []
     warnings: list[AnalyzeWarning] = []

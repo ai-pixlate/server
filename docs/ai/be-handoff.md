@@ -312,7 +312,8 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 ### 10.1 지금(스위치 기본 꺼짐) BE에 보이는 변화
 
 - `merge.xycut` · `merge.fullwidth`는 기본 `false`다. 꺼져 있으면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`), `llm_assist` 입력 · 프롬프트 · 기록 형식은 바뀌지 않는다(AI 내부 테스트로 확인 — 기존 ③ 테스트 통과).
-- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음).
+- `merge.num_o`(숫자 속 o/O 교정, 2026-10-26 채택)도 기본 `false`이며 꺼져 있으면 위와 같이 바뀌지 않는다.
+- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`, 2026-10-26에 `num_o` 1개 더)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음).
 
 ### 10.2 스위치를 켰을 때의 영향 — 향후 확인 항목
 
@@ -321,7 +322,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 | 대상 | 바뀌는 것 | 확인할 것 |
 |---|---|---|
 | 화면 순서 | `block_order`가 섹션 안 (y, x) 순에서 후보 영역 → 가로줄 → x 읽기 순서로 바뀐다(다단 배치에서 왼쪽 칸이 먼저) | N3 · N5 목록과 편집 화면이 `block_order`를 그대로 쓰는지, 다른 정렬(bbox 등)을 섞는지 |
-| 원문 표시 · 수정 | `fullwidth`이면 `source_ko`와 `source_lines[].text`가 전각 보정 문장이다. 원시 OCR 텍스트는 `source_lines[].regions[].text`에 남는다 | 화면 원문 · `edit_signal.before_text` 등이 어느 값을 쓰는지. 상위 계약 `source_ko` 정의 반영은 `open-questions.md` 3절 F |
+| 원문 표시 · 수정 | `fullwidth` · `num_o`이면 `source_ko`와 `source_lines[].text`가 전각 · 숫자 속 o/O 보정 문장이다(예: `SPF 5O+` → `SPF 50+`, 1:1 치환). 원시 OCR 텍스트는 `source_lines[].regions[].text`에 남는다 | 화면 원문 · `edit_signal.before_text` 등이 어느 값을 쓰는지. 상위 계약 `source_ko` 정의 반영은 `open-questions.md` 3절 F |
 | 줄 · 문단 구성 | 같은 원본이라도 줄 묶음 · 블록 수 · 역할이 달라질 수 있다. 위아래 여백으로만 나뉜 후보 영역끼리는 LLM이 한 블록으로 합칠 수 있고(2026-10-26), 나란한 칸(x 절단)을 넘는 LLM 병합은 나뉘며 그 조각의 역할은 휴리스틱 판정이다. 출력 형식은 같다 | 블록 수 · 역할 분포가 바뀌어도 하류 생성 조건 · 표시가 그대로 동작하는지 |
 | 재분석 | 켜기 전후 분석 결과는 같은 작업이라도 블록 · 키 · 텍스트가 다르다 | 한 작업 안에서 이전 분석 결과와 새 결과를 섞어 쓰는 경로(되살리기 · 재판정 · 재분석)가 없는지 |
 | 입력 지문 | ③-1 `blocks_fingerprint`(블록 키 · `source_ko`), ④ `input_fingerprint`(블록 전체), BE 분석 · 하류 매니페스트의 블록 해시(`app/flows/analysis.py` · `downstream.py` `stable_hash`)가 모두 새 값이 된다. 판정 구간(span)은 새 `source_ko` 기준으로 다시 산출되며 이전 구간을 옮겨 쓰지 않는다 | 지문 불일치 때 재사용 · 거절 동작이 의도대로인지(이전 결과를 새 블록에 붙이지 않는지) |
@@ -331,5 +332,5 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 ### 10.3 남은 것
 
-- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 남은 것은 보류 기능(숫자 속 o/O 교정 · 겹친 앞 글자 제거 · 맨 앞 따옴표 제거) 실험과 기본 활성화 결정(`open-questions.md` #86)이다. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다.
+- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 보류 기능 실험(5단계)은 마쳤다 — 숫자 속 o/O 교정을 채택해 `merge.num_o`(기본 꺼짐)로 넣었고, 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 보류했다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step5.md`). 남은 것은 기본 활성화 결정(`open-questions.md` #86)이다. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다.
 - BE: 위 10.2 항목 확인은 기본 활성화 결정 전에 따로 요청한다. 이번에는 BE 실행 테스트 · 연동 검증을 하지 않았다.

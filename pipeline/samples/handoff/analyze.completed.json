@@ -86,6 +86,7 @@
           "price_max_chars": 40,
           "xycut": false,
           "fullwidth": false,
+          "num_o": false,
           "xycut_gap_ratio": 0.8,
           "line_center_tol": 0.5,
           "line_center_tol_min_px": 8,
@@ -101,7 +102,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "322c9db398f0ef38f884c073e3660ccfb3d316ceab4ae6794a1a85d8da1ec0a4",
+    "input_manifest_sha256": "1378ac69afe3ed87a8d0401094ca77e7d80846d4fee60c0a5c759964d9ea1dcd",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,

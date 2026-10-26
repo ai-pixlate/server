@@ -3,6 +3,7 @@
 - `merge.xycut`: 여백(XY-cut) 후보 영역 → 세로 중심 가로줄 → gutter로만 Line 조각(높이비 안 봄, 2026-10-23) → 기존 블록 병합.
   최소 여백 = xycut_gap_ratio(0.8) × 섹션 텍스트 높이 중앙값, 가로줄 허용치 = max(8, 0.5 × 영역 높이 중앙값).
 - `merge.fullwidth`: Line.text · source_ko의 U+FF01~FF5E · U+3000만 반각. 원시 영역은 그대로.
+- `merge.num_o`: Line.text · source_ko의 숫자 덩어리 안 영문 o/O → 0(전각 변환 뒤, 2026-10-26). 원시 영역은 그대로.
 기본 config 값은 test_pipeline_merge.py 머리 참고(높이 20 → 블록 세로 간격 [-6, 12]).
 """
 import json
@@ -57,11 +58,11 @@ def keys(res):
 # ---------------------------------------------------------------------------
 def test_switches_are_off_by_default():
     m = CFG()["merge"]
-    assert m["xycut"] is False and m["fullwidth"] is False
+    assert m["xycut"] is False and m["fullwidth"] is False and m["num_o"] is False
     assert (m["xycut_gap_ratio"], m["line_center_tol"], m["line_center_tol_min_px"]) == (0.8, 0.5, 8)
 
 
-@pytest.mark.parametrize("over", [{"xycut": True}, {"fullwidth": True}, {"line_center_tol_min_px": 0},
+@pytest.mark.parametrize("over", [{"xycut": True}, {"fullwidth": True}, {"num_o": True}, {"line_center_tol_min_px": 0},
                                   {"xycut_gap_ratio": 0.01}, {"line_center_tol": 3}])
 def test_postprocess_config_boundaries_are_accepted(over):
     merge.validate_config(CFG(**over))
@@ -70,7 +71,8 @@ def test_postprocess_config_boundaries_are_accepted(over):
 @pytest.mark.parametrize(
     "over",
     [
-        {"xycut": 1}, {"xycut": "true"}, {"xycut": None}, {"fullwidth": 0}, {"fullwidth": "false"},
+        {"xycut": 1}, {"xycut": "true"}, {"xycut": None}, {"fullwidth": 0}, {"fullwidth": "false"}, {"num_o": 1},
+        {"num_o": "true"},
         {"xycut_gap_ratio": True}, {"xycut_gap_ratio": "0.8"}, {"xycut_gap_ratio": math.nan},
         {"line_center_tol": math.inf}, {"line_center_tol_min_px": -math.inf}, {"line_center_tol_min_px": False},
         {"xycut_gap_ratio": 0}, {"xycut_gap_ratio": -0.1}, {"line_center_tol": 0}, {"line_center_tol_min_px": -1},
@@ -81,7 +83,7 @@ def test_postprocess_config_bad_values_are_rejected(over):
         merge.validate_config(CFG(**over))
 
 
-@pytest.mark.parametrize("k", ["xycut", "fullwidth", "xycut_gap_ratio", "line_center_tol", "line_center_tol_min_px"])
+@pytest.mark.parametrize("k", ["xycut", "fullwidth", "num_o", "xycut_gap_ratio", "line_center_tol", "line_center_tol_min_px"])
 def test_postprocess_config_missing_key_is_rejected(k):
     cfg = CFG()
     del cfg["merge"][k]
@@ -123,7 +125,36 @@ def test_fullwidth_is_independent_of_xycut():
 
 
 # ---------------------------------------------------------------------------
-# 여백 분리 · 분할 트리
+# 숫자 속 o/O 교정(2026-10-26 채택, 참고 구현 NUM_WITH_O 그대로)
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("raw, want", [
+    ("SPF 5O+", "SPF 50+"), ("1oo%", "100%"), ("13.O", "13.0"), ("1o,ooo", "10,000"), ("(2o17))", "(2017))"),
+    ("MATRIXYL°300O*3%", "MATRIXYL°3000*3%"), ("*MATRIXTYL@300O:팔미토일", "*MATRIXTYL@3000:팔미토일"),
+    # 바꾸지 않는 것: 영문자 바로 뒤 숫자 · 한글이 붙은 숫자 · 정상 단위 · 숫자 없는 o
+    ("SPF5O", "SPF5O"), ("3o개", "3o개"), ("2oz", "2oz"), ("10 Oz", "10 Oz"), ("No.1", "No.1"), ("B6O1", "B6O1"),
+    ("goodal", "goodal"), ("o50U5S0N", "o50U5S0N"),
+])
+def test_fix_num_o_follows_reference_rule(raw, want):
+    assert merge.fix_num_o(raw) == want
+    assert len(merge.fix_num_o(raw)) == len(raw)  # 1:1 치환
+
+
+def test_num_o_changes_line_text_and_source_ko_but_not_raw_regions():
+    regs = [R("reg_0001", 0, 0, 200, 20, "특허 성분MATRIXYL°300O*3%")]
+    off, on = run(regs), run(regs, num_o=True)
+    assert texts(off) == ["특허 성분MATRIXYL°300O*3%"] and texts(on) == ["특허 성분MATRIXYL°3000*3%"]
+    assert on.blocks[0].source_lines[0].regions[0].text == "특허 성분MATRIXYL°300O*3%"  # 원시 그대로
+    assert [b.role for b in on.blocks] == [b.role for b in off.blocks]
+
+
+def test_num_o_runs_after_fullwidth_and_is_independent():
+    regs = [R("reg_0001", 0, 0, 100, 20, "５Ｏ％")]
+    assert texts(run(regs, num_o=True)) == ["５Ｏ％"]  # 전각은 정규식 밖 — 전각 변환을 켜야 반각이 된 뒤 고친다
+    assert texts(run(regs, fullwidth=True)) == ["5O%"]
+    assert texts(run(regs, fullwidth=True, num_o=True)) == ["50%"]
+    assert texts(run(regs, num_o=True, xycut=True)) == ["５Ｏ％"]
+
+
 # ---------------------------------------------------------------------------
 def test_widest_gap_picks_widest_and_earliest_on_tie():
     assert merge.widest_gap([(0, 10), (30, 40), (60, 70)]) == (20.0, 20.0)
@@ -489,6 +520,15 @@ def test_diagnostics_record_column_groups_for_mixed_cuts():
     assert [(b["region"], b["group"]) for b in d["blocks"]] == [(1, 1), (2, 2), (3, 3)]
 
 
+def test_num_o_records_changed_lines_only_when_on():
+    regs = [R("a", 0, 0, 100, 20, "SPF 5O+"), R("b", 0, 300, 100, 20, "가나")]
+    _, (d,) = run_diag(regs, num_o=True)
+    assert d["postprocess"] == {"xycut": False, "fullwidth": False, "num_o": True, "num_o_changed_lines": 1}
+    assert d["num_o_changed_lines"] == ["line_001"] and d["config"]["num_o"] is True
+    _, (d,) = run_diag(regs, xycut=True)
+    assert "num_o" not in d["postprocess"] and "num_o_changed_lines" not in d and "num_o" not in d["config"]
+
+
 def test_fullwidth_only_diagnostics_have_no_layout():
     _, (d,) = run_diag([R("a", 0, 0, 100, 20, "Ａ")], fullwidth=True)
     assert d["postprocess"] == {"xycut": False, "fullwidth": True, "fullwidth_changed_lines": 1}
@@ -524,7 +564,7 @@ def test_cli_merge_no_llm_writes_post_debug_only_when_switched_on(tmp_path):
     assert d["use_llm"] is False and d["postprocess"]["xycut"] is True
 
 
-@pytest.mark.parametrize("over, written", [({}, False), ({"fullwidth": True}, True)])
+@pytest.mark.parametrize("over, written", [({}, False), ({"fullwidth": True}, True), ({"num_o": True}, True)])
 def test_analyze_no_llm_writes_post_debug_and_block_keys(monkeypatch, tmp_path, over, written):
     from pipeline import analyze as an
     from pipeline.types import SourceImage, SplitResult
@@ -539,6 +579,10 @@ def test_analyze_no_llm_writes_post_debug_and_block_keys(monkeypatch, tmp_path, 
     assert post.exists() is written
     assert not (tmp_path / "merge_debug").exists()
     if written:
-        assert json.loads((post / "sec_1_01.json").read_text(encoding="utf-8"))["fullwidth_changed_lines"] == ["line_001"]
+        d = json.loads((post / "sec_1_01.json").read_text(encoding="utf-8"))
+        if over.get("fullwidth"):
+            assert d["fullwidth_changed_lines"] == ["line_001"]
+        else:  # num_o만 켜면 전각 Ａ는 그대로 — 바뀐 줄 없음
+            assert d["num_o_changed_lines"] == [] and d["fullwidth_changed_lines"] == []
         assert json.loads((post / "block_keys.json").read_text(encoding="utf-8")) == [
             {"section_key": "sec_1_01", "section_block_key": "blk_001", "run_block_key": res.blocks[0].block_key}]

@@ -16,6 +16,7 @@
   줄 · 블록을 만든다. 블록 순서는 후보 영역 → 가로줄 순번 → x다. 휴리스틱 블록은 후보 영역을 넘지 않고, LLM 묶음은
   칸 묶음(y 절단으로만 이어진 후보 영역의 묶음)을 넘지 못한다 — 나란한 칸(x 절단)은 계속 경계다.
   `merge.fullwidth`: `Line.text` · `source_ko`에서 전각 영문 · 숫자 · 기호(U+FF01~FF5E)와 전각 공백(U+3000)만 반각으로 바꾼다.
+  `merge.num_o`: `Line.text` · `source_ko`에서 숫자 덩어리 안의 영문 o/O를 0으로 바꾼다(전각 변환 뒤, 2026-10-26 채택).
   원시 영역(`regions[].text` 등)은 어느 경우에도 바꾸지 않는다.
 """
 from __future__ import annotations
@@ -69,12 +70,17 @@ _NUM_KEYS = (
     "line_gap", "para_gap", "h_ratio", "overlap", "line_v_overlap", "line_gap_min", "para_gap_min",
     "left_align_tol", "title_pct", "caption_pct", "xycut_gap_ratio", "line_center_tol", "line_center_tol_min_px",
 ) + _INT_KEYS
-_BOOL_KEYS = ("gutter", "xycut", "fullwidth")  # 정확히 bool 타입만 받는다
+_BOOL_KEYS = ("gutter", "xycut", "fullwidth", "num_o")  # 정확히 bool 타입만 받는다
 
 # 전각 → 반각: 전각 영문 · 숫자 · 기호(U+FF01~FF5E)와 전각 공백(U+3000)만. NFKC는 쓰지 않는다(①·™·한글 자모는 그대로)
 # [`open-questions.md` #86]. 코드 포인트 1:1 치환이라 같은 조립 문자열의 길이는 바뀌지 않는다.
 FULLWIDTH = {c: c - 0xFEE0 for c in range(0xFF01, 0xFF5F)}
 FULLWIDTH[0x3000] = 0x20
+
+# 숫자 속 o/O → 0: 숫자로 시작하고 숫자 · o · O · 쉼표 · 점만 있는 덩어리(영문자 바로 뒤는 제외) 안의 o/O만 [`open-questions.md` #86].
+# 참고 구현 seed-builder PR #1(fc72ecd) reorder_ocr_v2.py의 NUM_WITH_O 그대로 — 예: SPF 5O → 50, 1oo% → 100%, (2o17) → (2017).
+# 1:1 치환이라 같은 조립 문자열의 길이는 바뀌지 않는다. SPF5O(영문자 바로 뒤) · 3o개(한글이 붙음)는 바꾸지 않는다.
+NUM_WITH_O = re.compile(r"(?<![A-Za-z])(\d[\doO]*(?:[.,][\doO]+)*)(?=%|\b)")
 
 
 def validate_config(cfg: dict[str, Any]) -> None:
@@ -168,6 +174,11 @@ class _Line:
 def to_halfwidth(text: str) -> str:
     """전각 영문 · 숫자 · 기호(U+FF01~FF5E) · 전각 공백(U+3000)만 반각으로. 그 밖의 문자는 그대로."""
     return text.translate(FULLWIDTH)
+
+
+def fix_num_o(text: str) -> str:
+    """숫자 덩어리(NUM_WITH_O) 안의 영문 o/O만 숫자 0으로. 그 밖의 문자는 그대로."""
+    return NUM_WITH_O.sub(lambda mt: mt.group(1).replace("o", "0").replace("O", "0"), text)
 
 
 # ---------------------------------------------------------------------------
@@ -543,6 +554,7 @@ def _heuristic(
     blocks: list[TextBlock] = []
     n_line = 0
     changed: list[str] = []
+    num_o_changed: list[str] = []
     for i, g in enumerate(groups, start=1):
         lines: list[Line] = []
         for ln in g:
@@ -553,6 +565,11 @@ def _heuristic(
                 if half != text:
                     changed.append(line_key(n_line))
                 text = half
+            if m["num_o"]:  # 전각 변환 뒤(참고 구현과 같은 순서)
+                fixed = fix_num_o(text)
+                if fixed != text:
+                    num_o_changed.append(line_key(n_line))
+                text = fixed
             lines.append(Line(line_key=line_key(n_line), text=text, bbox=ln.bbox, regions=list(ln.regions)))
             if layout is not None and ln.rank is not None:
                 layout.line_rank[lines[-1].line_key] = ln.rank
@@ -579,8 +596,12 @@ def _heuristic(
         post["candidate_regions"] = layout.n_regions
     if m["fullwidth"]:
         post["fullwidth_changed_lines"] = len(changed)
+    if m["num_o"]:  # 켰을 때만 기록 — 끄면 기존 기록 형식 그대로
+        post["num_o"] = True
+        post["num_o_changed_lines"] = len(num_o_changed)
     result = MergeResult(section_key=section.section_key, blocks=blocks)
-    diag = _post_diagnostics(section, result, layout, post, changed, m) if m["xycut"] or m["fullwidth"] else None
+    diag = (_post_diagnostics(section, result, layout, post, changed, m, num_o_changed)
+            if m["xycut"] or m["fullwidth"] or m["num_o"] else None)
     return result, layout, post, diag
 
 
@@ -589,6 +610,7 @@ _DIAG_KEYS = ("xycut", "fullwidth", "xycut_gap_ratio", "line_center_tol", "line_
 
 def _post_diagnostics(
     section: Section, heur: MergeResult, layout: _Layout | None, post: dict[str, Any], changed: list[str], m: dict[str, Any],
+    num_o_changed: list[str] | None = None,
 ) -> dict[str, Any]:
     """후처리 진단(개발 확인용, 계약 값 아님). 블록 키는 휴리스틱(LLM 전) 섹션 키다 — LLM을 쓰면 최종 키는 merge_debug의
     block_map으로 잇는다. `interleaving_pairs`는 같은 후보 영역에서 가로줄 범위가 교차하는 LLM 전송 블록 쌍으로, LLM이 합치면
@@ -600,6 +622,9 @@ def _post_diagnostics(
         "config": {k: m[k] for k in _DIAG_KEYS},
         "fullwidth_changed_lines": changed,
     }
+    if m["num_o"]:
+        diag["config"]["num_o"] = True
+        diag["num_o_changed_lines"] = num_o_changed or []
     if layout is None:
         return diag
     blocks = []
@@ -913,7 +938,7 @@ def assist(
         "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "duration_s": None,
     }
-    if post is not None and (post.get("xycut") or post.get("fullwidth")):
+    if post is not None and (post.get("xycut") or post.get("fullwidth") or post.get("num_o")):
         rec["postprocess"] = dict(post)  # 후처리를 켰을 때만 — 계약 값이 아니라 개발 확인용
 
     def done(status: str) -> None:
@@ -968,8 +993,8 @@ def run(
 ) -> MergeResult:
     """③ 실행. use_llm=False면 heuristic_v2만(프롬프트 · API 키 불필요). llm을 주지 않으면 기본 Gemini 호출자(API 키 필요).
 
-    post_recorder: 후처리 스위치(`merge.xycut` · `merge.fullwidth`) 중 하나라도 켜져 있으면 LLM 사용 여부와 관계없이 휴리스틱 직후
-    섹션마다 후처리 진단을 넘긴다(LLM 호출 전이라 LLM이 실패해도 남는다). 둘 다 꺼져 있으면 부르지 않는다."""
+    post_recorder: 후처리 스위치(`merge.xycut` · `merge.fullwidth` · `merge.num_o`) 중 하나라도 켜져 있으면 LLM 사용 여부와 관계없이
+    휴리스틱 직후 섹션마다 후처리 진단을 넘긴다(LLM 호출 전이라 LLM이 실패해도 남는다). 모두 꺼져 있으면 부르지 않는다."""
     validate_config(cfg)
     prompt = validate_llm_config(cfg, need_api_key=llm is None) if use_llm else ""
     heur, layout, post, diag = _heuristic(section, ocr, cfg)

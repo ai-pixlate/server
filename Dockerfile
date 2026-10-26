@@ -4,10 +4,11 @@ FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0
 
 WORKDIR /app
 
-COPY requirements.txt ./
+COPY requirements.txt constraints.txt ./
 COPY pipeline/requirements.txt ./pipeline/requirements.txt
 # BE + AI 파이프라인 기본 의존성(워커가 ④⑤⑦·③-1·analyze 를 실제로 호출한다). OCR(PaddleOCR)·GPU(LaMa)는 별도 이미지
-RUN pip install --no-cache-dir -r requirements.txt -r pipeline/requirements.txt
+# 버전은 constraints.txt(운영 이미지 pip freeze)로 고정한다 — 설치 결과 대조는 CI(ci-develop.yml)가 한다
+RUN pip install --no-cache-dir -c constraints.txt -r requirements.txt -r pipeline/requirements.txt
 
 COPY . .
 

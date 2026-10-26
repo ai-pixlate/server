@@ -158,9 +158,24 @@ FE 이미지는 로컬·CI 에서 빌드해 ECR 에 올리고 EC2 는 digest 로
 
 운영 호스트(t3.micro)에서는 빌드하지 않습니다. 개발 PC에서 **배포 SHA의 추적 파일만**으로 빌드합니다.
 
+빌드·목록 추출·의존성 대조·`pip check`는 한 서브셸에서 실행해, 어느 줄이든 실패하면 그 자리에서 멈추게 합니다.
+서브셸은 독립된 명령으로 실행합니다. `( … ) && …`, `( … ) || …`, `if ( … )`처럼 성공 여부를 조건으로 검사하는 형태로
+감싸지 않습니다(그러면 서브셸 안의 `set -e`가 꺼집니다). **블록 종료 코드가 0이고 "빌드·대조 통과"가 출력됐을 때만**
+아래 전달·게시로 넘어갑니다. 마지막 `echo`는 서브셸의 종료 코드를 화면에 보여 줄 뿐 실패 코드를 이어 전달하지 않습니다 —
+사람이 출력을 보고 판단하는 절차용이며, 자동화로 옮길 때는 실패 코드를 따로 전달해야 합니다.
+
 ```bash
-git archive <배포 SHA> | tar -x -C <빈 폴더>
-docker build --no-cache --pull -t pixlate-api:<짧은 SHA> <빈 폴더>
+(
+  set -euo pipefail
+  git archive <배포 SHA> | tar -x -C <빈 폴더>
+  docker build --no-cache --pull -t pixlate-api:<짧은 SHA> <빈 폴더>
+  # 의존성 대조 — constraints.txt 와 다르면(추가·누락·버전 차이) 배포하지 않는다
+  docker run --rm pixlate-api:<짧은 SHA> pip freeze --all > freeze.txt
+  python <빈 폴더>/.github/scripts/assert_freeze.py <빈 폴더>/constraints.txt freeze.txt
+  docker run --rm pixlate-api:<짧은 SHA> pip check
+  echo "빌드·대조 통과"
+)
+echo "블록 종료 코드: $?"   # 0 이 아니면 전달·게시하지 않는다
 ```
 
 개발 PC 계정에 ECR 권한이 없으면 `docker save` → EC2 `docker load` → EC2 역할로 push 합니다.
@@ -179,15 +194,18 @@ push 후 ECR digest가 빌드한 이미지 ID와 같은지 확인하고, 그 dig
 
 | job | 실행 | 하는 일 |
 | --- | --- | --- |
-| `test` | PR·push | 러너에서 전체 시험. 필수 시험(`test_celery_broker_options`·`test_exec_recovery`)은 건너뜀 0으로 따로 판정 |
-| `image` | PR·push | `linux/amd64` 빌드 → 그 이미지 안에서 필수 시험 → 설치 패키지 목록(`pip freeze --all`)·이미지 ID 기록(아티팩트 `image-record`, 90일) |
+| `test` | PR·push | 별도 가상환경(Python 3.12.15·pip 25.0.1)에 `constraints.txt`로 설치 → 의존성 대조·`pip check` → 전체 시험. 필수 시험(`test_celery_broker_options`·`test_exec_recovery`)은 건너뜀 0으로 따로 판정 |
+| `image` | PR·push | `linux/amd64` 빌드 → 그 이미지 안에서 의존성 대조·`pip check` → 필수 시험 → 설치 패키지 목록(`pip freeze --all`)·이미지 ID 기록(아티팩트 `image-record`, 90일) |
 | `publish` | develop push | `image`가 시험한 이미지를 넘겨받아 ID 대조 → `pixlate-api:dev-<커밋 SHA>` push → 커밋·태그·digest를 실행 요약에 기록 |
 
 - **배포는 하지 않습니다.** 샌드박스·운영 반영은 사람이 digest를 골라 `release.conf`에 적는 기존 절차를 따릅니다.
 - AWS 자격은 `publish`에만 있습니다(GitHub OIDC → IAM 역할, develop 브랜치만 신뢰, `pixlate-api` push 권한만). 역할 ARN은 저장소 **Secret** `AWS_ROLE_DEV_ARN`입니다.
 - 저장소가 public이라 Actions 로그도 공개됩니다. 계정 번호·레지스트리 주소를 출력하는 단계를 추가하지 않습니다.
 - `dev-` 이미지는 자동으로 지워지지 않습니다(수명 주기 정책 없음). 운영 태그·`release.conf`의 digest가 붙은 이미지는 남기고 정리합니다.
-- 의존성(`requirements.txt`)은 버전이 고정돼 있지 않아 빌드마다 설치 버전이 달라질 수 있습니다. 비교는 `image-record`의 패키지 목록으로 합니다.
+- 의존성 버전은 저장소 루트 `constraints.txt`(운영 이미지 `bfa3b70`의 `pip freeze --all`)로 고정합니다. `requirements.txt`·`pipeline/requirements.txt`에는 버전을 적지 않습니다.
+  - CI는 러너·이미지 각각 설치 결과를 `constraints.txt`와 대조합니다(`.github/scripts/assert_freeze.py`). 목록에 없는 패키지·버전 차이·누락 중 하나라도 있으면 실패하고, 시험·게시가 막힙니다.
+  - 버전을 올리거나 패키지를 추가할 때는 `constraints.txt`를 고치는 **별도 PR**로 합니다. 새 패키지는 `requirements`와 `constraints.txt`에 함께 넣어야 대조를 통과합니다.
+  - `pillow`는 렌더러 버전(`app/typeset.py`의 `RENDERER_VERSION`)에 들어갑니다. 바꾸면 전환 전에 만들어진 미리보기·최종 렌더 고정 입력이 전환 뒤 실행·재시도에서 `INPUT_CHANGED`가 됩니다. 처리 방법을 먼저 정합니다.
 
 ### 2. 전환
 

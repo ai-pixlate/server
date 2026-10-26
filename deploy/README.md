@@ -172,6 +172,23 @@ docker save pixlate-api:<짧은 SHA> -o images.tar          # 개발 PC. sha256s
 
 push 후 ECR digest가 빌드한 이미지 ID와 같은지 확인하고, 그 digest를 `/etc/pixlate/release.conf`의 `API_DIGEST`에 적습니다.
 
+### CI (develop) — dev 이미지
+
+`.github/workflows/ci-develop.yml`이 develop 대상 PR·push에서 시험하고, **develop push 때만** 이미지를 ECR에 올립니다.
+운영 이미지는 위 1번 절차 그대로이며 CI가 만들지 않습니다.
+
+| job | 실행 | 하는 일 |
+| --- | --- | --- |
+| `test` | PR·push | 러너에서 전체 시험. 필수 시험(`test_celery_broker_options`·`test_exec_recovery`)은 건너뜀 0으로 따로 판정 |
+| `image` | PR·push | `linux/amd64` 빌드 → 그 이미지 안에서 필수 시험 → 설치 패키지 목록(`pip freeze --all`)·이미지 ID 기록(아티팩트 `image-record`, 90일) |
+| `publish` | develop push | `image`가 시험한 이미지를 넘겨받아 ID 대조 → `pixlate-api:dev-<커밋 SHA>` push → 커밋·태그·digest를 실행 요약에 기록 |
+
+- **배포는 하지 않습니다.** 샌드박스·운영 반영은 사람이 digest를 골라 `release.conf`에 적는 기존 절차를 따릅니다.
+- AWS 자격은 `publish`에만 있습니다(GitHub OIDC → IAM 역할, develop 브랜치만 신뢰, `pixlate-api` push 권한만). 역할 ARN은 저장소 **Secret** `AWS_ROLE_DEV_ARN`입니다.
+- 저장소가 public이라 Actions 로그도 공개됩니다. 계정 번호·레지스트리 주소를 출력하는 단계를 추가하지 않습니다.
+- `dev-` 이미지는 자동으로 지워지지 않습니다(수명 주기 정책 없음). 운영 태그·`release.conf`의 digest가 붙은 이미지는 남기고 정리합니다.
+- 의존성(`requirements.txt`)은 버전이 고정돼 있지 않아 빌드마다 설치 버전이 달라질 수 있습니다. 비교는 `image-record`의 패키지 목록으로 합니다.
+
 ### 2. 전환
 
 ```bash
@@ -258,4 +275,4 @@ RP=$(sudo grep '^REDIS_PASSWORD=' /etc/pixlate/pixlate.env | cut -d= -f2-); sudo
 - 비밀번호 교체 후 Secrets Manager로 이전 (지금은 서버 env 파일)
 - 학교 GPU 워커의 S3 자격 제공 방식 결정
 - HTTPS (도메인·ACM 인증서)
-- CI/CD
+- CI/CD: develop 시험·dev 이미지 게시는 위 "CI (develop)". 샌드박스 자동 배포·운영 배포 워크플로는 남음

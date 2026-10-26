@@ -1,4 +1,6 @@
-FROM python:3.12-slim
+# 베이스는 digest 로 고정한다(같은 태그가 다른 이미지를 가리켜도 빌드가 바뀌지 않게). 운영 빌드가 쓴 값과 같다:
+# python 3.12.15-slim-trixie 다중 아키텍처 index(linux/amd64 포함). 올릴 때는 이 줄만 바꾼다.
+FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
 
 WORKDIR /app
 

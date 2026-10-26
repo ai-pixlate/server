@@ -17,7 +17,7 @@
     },
     "section_image": {
       "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
-      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
     },
     "blocks": [
       {
@@ -417,7 +417,7 @@
         "height": 400,
         "width": 600
       },
-      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "image_sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c",
       "blocks": [
         {
           "block_key": "blk_001",
@@ -660,7 +660,7 @@
       },
       "raster_rule": "poly: 정수 좌표 = 픽셀 경계, 픽셀 중심 (x+0.5, y+0.5)가 내부(nonzero) 또는 경계 위면 포함 · bbox: 열 x..x+w-1 · 행 y..y+h-1 · 커널: dx²+dy² ≤ r² · r = ceil(bbox.h × Fraction(str(dilate_ratio))) · 영역별 팽창 후 합집합 → 보호 차감"
     },
-    "input_manifest_sha256": "6c9634b03efb94814c81494596d3c2cb8cb5a2e9214d41b7dbfb661a908f5393",
+    "input_manifest_sha256": "185e154322e5db261589536c11167c20ffdddce32481988f1bb2f1341a4bbf20",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,
@@ -744,8 +744,8 @@
         "kind": "background",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/inpaint/ok/1/inpaint_bg/sec_1_01.png",
-        "bytes": 1699,
-        "sha256": "990ee0cd48b4b87fb69c63c252381b5d6564f6a05c5ef79ce32e3bf3bc20f28e",
+        "bytes": 720693,
+        "sha256": "71ce31beecbc8d90a1b255e70615d925935af1ed2ba39d7a6af420f4273b9cb7",
         "format": "png",
         "width": 600,
         "height": 400
@@ -754,8 +754,8 @@
         "kind": "delete_mask",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/inpaint/ok/1/inpaint_mask/sec_1_01.final.png",
-        "bytes": 426,
-        "sha256": "651abb37df4f29830b3a4ad64db99bc678badd0b06835a9d936ea3dc92d74532",
+        "bytes": 240539,
+        "sha256": "e906b9dadd153daae7767d4e619778b0abcf38f625122aa0fb845e483bdfa0e5",
         "format": "png",
         "width": 600,
         "height": 400
@@ -764,8 +764,8 @@
         "kind": "protect_mask",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/inpaint/ok/1/inpaint_mask/sec_1_01.protect.png",
-        "bytes": 490,
-        "sha256": "eed883bdf25bd508c88281bea72a09e9626151c8bd85591e5c2fae9ef6e0036e",
+        "bytes": 240539,
+        "sha256": "66cd8ddd25625a3635600c16505a57836f79b53d574c735788a4248d730ee159",
         "format": "png",
         "width": 600,
         "height": 400

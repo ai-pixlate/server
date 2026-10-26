@@ -17,7 +17,7 @@
     },
     "section_image": {
       "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
-      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
     },
     "blocks": [
       {
@@ -416,7 +416,7 @@
         "height": 400,
         "width": 600
       },
-      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "image_sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c",
       "blocks": [
         {
           "block_key": "blk_001",
@@ -656,7 +656,7 @@
         "align_tolerance": 0.12
       }
     },
-    "input_manifest_sha256": "f0b743fa8c40f41037ce2fccaf2d2da94b01d4d11c5406bb7862429f3d540ad7",
+    "input_manifest_sha256": "190d32bed7c635dbb78cd94d12dd70d74de32b22cf65b03d8019e17a1be725b5",
     "outcome": "completed",
     "target_count": 2,
     "skip_reason": null,

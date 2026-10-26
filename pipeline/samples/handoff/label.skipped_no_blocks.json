@@ -17,7 +17,7 @@
     },
     "section_image": {
       "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
-      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
     },
     "blocks": []
   },
@@ -39,7 +39,7 @@
         "height": 400,
         "width": 600
       },
-      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "image_sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c",
       "blocks": [],
       "config": {
         "model": "gemini-3.8-flash",
@@ -50,7 +50,7 @@
       },
       "prompt_sha256": "a31ffec48006fcaa8b99f731e04b83b0d41ba2be7220bc46f46aa55b1ae39227"
     },
-    "input_manifest_sha256": "4979fba19b7c4bc681b2537e3fbca1221fb91bdcf5fff13fb28551e215e3425b",
+    "input_manifest_sha256": "d7b396304cdb970a9dca80cf589f21dbf3ffdd161fef8b2d45eb44d4a8850b85",
     "outcome": "skipped",
     "target_count": 0,
     "skip_reason": "no_blocks",

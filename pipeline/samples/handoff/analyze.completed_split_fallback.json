@@ -11,7 +11,7 @@
         "source_image_id": 1,
         "upload_order": 1,
         "path": "/srv/pixlate-work/uploads/source_1.png",
-        "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd"
+        "sha256": "b29df71e506a57b96da80af3fa36a5e782974775c925a693b2c800a671ef5906"
       }
     ],
     "out_dir": "/srv/pixlate-work/analyze/fallback",
@@ -31,7 +31,7 @@
         {
           "source_image_id": 1,
           "upload_order": 1,
-          "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd"
+          "sha256": "b29df71e506a57b96da80af3fa36a5e782974775c925a693b2c800a671ef5906"
         }
       ],
       "use_llm": false,
@@ -96,7 +96,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "9a7062c793cd3aaf52d7eda50cde5c9695fbcff54fe31b4a7365630e57076b57",
+    "input_manifest_sha256": "9bfc4ec38c4f98a6cbc4325272168f4436b23936a59a50996d4b1f4bd81e98bd",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,
@@ -310,8 +310,8 @@
         "kind": "section_image",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/analyze/fallback/sections/sec_1_01.png",
-        "bytes": 3167,
-        "sha256": "6cad9a12d761e71f6727f41ce3918a9ce27d03b22f00db391640ab5546982ffd",
+        "bytes": 1441330,
+        "sha256": "b29df71e506a57b96da80af3fa36a5e782974775c925a693b2c800a671ef5906",
         "format": "png",
         "width": 600,
         "height": 800

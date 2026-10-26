@@ -395,7 +395,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 ### 10.1 기본값과 BE에 보이는 변화
 
 - **2026-10-26부터 기본값은 `merge.xycut` · `merge.num_o` `true`, `merge.fullwidth` `false`다**(6단계 결정, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 저장소 기본 설정(`pipeline/config/default.toml`)으로 돌리면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`)와 `llm_assist` 입력 · 프롬프트 · 기록이 10.2대로 바뀐다.
-- **운영 적용 조건(BE 확인 필요)**: 10.2 확인 · 보충 프롬프트의 인계 지문 반영 등 후속 연동이 끝나기 전에는 이 변경의 develop 머지 · 운영 배포를 보류하거나, 운영 설정(`PIXLATE_PIPELINE_CONFIG`로 지정하는 설정 사본)에서 `merge.xycut` · `merge.num_o`를 `false`로 둔다. develop에는 머지 시 dev 이미지를 게시하는 CI가 있다. 이번에 BE 확인 · 요청은 하지 않았다.
+- **운영 적용 조건(BE 확인 필요)**: develop 머지와 dev 이미지(`pixlate-api:dev-<커밋>`) 게시는 운영이 아니므로 허용한다(2026-10-26 결정) — dev 이미지는 기본값(xycut · num_o 켬)으로 돌고, 10.2 미확인 · 보충 프롬프트 지문 미반영 상태다. **운영 배포(main · release)는 10.2 확인 · 보충 프롬프트의 인계 지문 반영 등 후속 연동이 끝난 뒤로 미룬다.** 그 전에 운영 배포가 필요하면 운영 설정(`PIXLATE_PIPELINE_CONFIG`로 지정하는 설정 사본)에서 `merge.xycut` · `merge.num_o`를 `false`로 둔다. 이번에 BE 확인 · 요청은 하지 않았다.
 - 세 스위치를 모두 끄면 `analyze()` 결과와 `llm_assist` 입력 · 프롬프트 · 기록 형식은 기존과 같다(AI 내부 테스트로 확인 — 기존 ③ 경로 테스트는 세 스위치를 끈 설정으로 돈다).
 - 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`, 2026-10-26에 `num_o` 1개 더)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음). 2026-10-26 기본값 변경으로 예제의 `input_manifest.config.merge`가 `xycut: true` · `num_o: true`가 되어 다시 만들었다(예제 블록 내용은 그대로, 지문만 바뀜).
 

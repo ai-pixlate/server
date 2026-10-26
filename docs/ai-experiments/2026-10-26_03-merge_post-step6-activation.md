@@ -52,10 +52,14 @@
 - 기본값을 바꾸면 그 설정을 쓰는 실행은 바로 달라진다.
   - BE(`app/ai_adapters.py`)는 `PIXLATE_PIPELINE_CONFIG`가 없으면 저장소 `pipeline/config/default.toml`을 그대로 쓴다.
   - develop에는 머지 시 dev 이미지를 게시하는 CI가 있다(`5d676f4`).
-- 따라서 아래 후속 연동이 끝나기 전에는 다음 중 하나를 지킨다. 이번에 BE 작업 · 요청은 하지 않았다.
-  - **(가)** 이 변경의 develop 머지 · 운영 배포를 보류한다.
-  - **(나)** 운영 설정에서 두 스위치를 명시적으로 끈다. `PIXLATE_PIPELINE_CONFIG`로 지정한 설정 사본을 쓰며, 저장소 설정과의 어긋남을 관리해야 한다.
-- 후속 연동(완료 조건이 아니라 운영 적용 조건):
+- 처음에는 후속 연동 전 조건으로 두 가지를 두었다: (가) develop 머지 · 운영 배포 보류, (나) 운영 설정에서 두 스위치를 명시적으로 끄기.
+- **결정(2026-10-26 사용자)**: develop과 dev 이미지(`pixlate-api:dev-<커밋>`)는 운영이 아니라고 본다.
+  - develop 머지와 dev 이미지 게시는 허용한다. dev 이미지는 저장소 기본값(xycut · num_o 켬)으로 돈다.
+  - 그 환경에서는 보충 프롬프트 지문 미반영 · BE 10.2 미확인 상태라는 점을 알고 쓴다.
+  - **운영 배포(main · release)만 아래 후속 연동이 끝난 뒤로 미룬다.**
+  - 그 전에 운영 배포가 필요하면 운영 설정(`PIXLATE_PIPELINE_CONFIG`로 지정한 설정 사본)에서 `merge.xycut` · `merge.num_o`를 `false`로 둔다. 저장소 설정과의 어긋남은 따로 관리해야 한다.
+  - 이번에 BE 작업 · 요청은 하지 않았다.
+- 후속 연동(완료 조건이 아니라 운영 배포 조건):
   - 보충 프롬프트(`merge_assist_region.md`)를 인계 입력 지문에 포함
   - BE 확인 · 연동: `be-handoff.md` 10.2 항목과 캐시 · 재분석 영향
   - 상위 문서 반영(`open-questions.md` 3절 F)
@@ -65,7 +69,7 @@
 
 - 기준: 이 브랜치는 `7ac9be9`에서 갈라졌고, 확인 시점 `origin/develop`은 25커밋 앞서 있다(주로 번역문 검사 · CI).
   - ③ 코드(`merge.py` · `analyze.py`)는 develop에서 바뀌지 않았다.
-  - develop의 CI는 머지 시 dev 이미지를 게시한다 — 3절 운영 적용 조건을 PR 본문에 적는다.
+  - develop의 CI는 머지 시 dev 이미지를 게시한다. dev 이미지는 운영이 아니므로 허용하고, 운영 배포(main · release)만 미룬다(3절 결정). 이 조건을 PR 본문에 적는다.
 - 양쪽이 함께 바꾼 파일(충돌 · 재작업 후보):
   - 문서: `docs/ai/README.md` · `be-handoff.md` · `dev.md` · `open-questions.md` · `pipeline.md` · `status.md`
   - 설정 · 프롬프트: `pipeline/config/default.toml` · `pipeline/prompts/README.md`

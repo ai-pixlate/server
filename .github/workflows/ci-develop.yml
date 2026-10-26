@@ -1,0 +1,165 @@
+name: CI develop
+
+# develop 대상 PR·push 의 시험과, develop push 때의 dev 이미지 게시(ECR pixlate-api:dev-<커밋 SHA>).
+# 배포는 하지 않는다(샌드박스 적용은 CI 2단계). 운영 이미지·태그·release.conf 는 건드리지 않는다.
+# - test   : 러너에서 전체 시험. 필수 시험(브로커 설정·복구)은 건너뜀 0 으로 따로 판정한다.
+# - image  : 이미지를 한 번 빌드해 그 안에서 필수 시험을 다시 돌리고, 설치 패키지 목록·이미지 ID 를 남긴다.
+#            PR 에서도 실행하며 AWS 자격이 없다.
+# - publish: develop push 때만. image 가 시험한 바로 그 이미지를 넘겨받아(재빌드 없음) ID 를 대조한 뒤 게시한다.
+#            AWS 자격(OIDC)은 이 job 에만 있다. 역할 ARN 은 Secret 이라 로그에 남지 않는다.
+# 저장소가 public 이라 로그도 공개된다 — 계정 번호·레지스트리 주소를 출력하지 않는다.
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-develop-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # 러너 안 일회용 서비스 접속값 — 실제 비밀이 아니다. exec_db 가 이 계정으로 시험용 DB 를 만들고 지운다.
+  PIXLATE_TEST_DATABASE_URL: postgresql+psycopg://postgres:ci-only@localhost:5432/postgres
+  PIXLATE_TEST_REDIS_URL: redis://localhost:6379/15
+  REQUIRED_TESTS: tests/test_celery_broker_options.py tests/test_exec_recovery.py
+
+jobs:
+  test:
+    name: 시험(러너)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.15@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97
+        env:
+          POSTGRES_PASSWORD: ci-only
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: 의존성 설치
+        run: pip install -r requirements.txt -r pipeline/requirements.txt
+      - name: 필수 시험(건너뜀 0)
+        run: |
+          python -m pytest $REQUIRED_TESTS -q -rs --junitxml=required.xml
+          python .github/scripts/assert_no_skip.py required.xml
+      - name: 전체 시험(실패하면 게시도 막힌다)
+        run: python -m pytest tests -q -rs
+
+  image:
+    name: 이미지 빌드·시험
+    needs: test
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.15@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97
+        env:
+          POSTGRES_PASSWORD: ci-only
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 빌드(linux/amd64)
+        run: >-
+          docker build --platform linux/amd64
+          --label org.opencontainers.image.revision=$GITHUB_SHA
+          -t ci-local:$GITHUB_SHA .
+      - name: 필수 시험 — 빌드한 이미지 안에서(건너뜀 0)
+        run: >-
+          docker run --rm --network host
+          -e PIXLATE_TEST_DATABASE_URL -e PIXLATE_TEST_REDIS_URL -e REQUIRED_TESTS
+          -v "$PWD/.github/scripts:/ci:ro" ci-local:$GITHUB_SHA
+          sh -c 'python -m pytest $REQUIRED_TESTS -q -rs --junitxml=/tmp/required.xml && python /ci/assert_no_skip.py /tmp/required.xml'
+      - name: 설치 패키지 목록·이미지 ID 기록
+        run: |
+          docker run --rm ci-local:$GITHUB_SHA pip freeze --all > pip-freeze.txt
+          docker image inspect -f '{{.Id}}' ci-local:$GITHUB_SHA > image-id.txt
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "image id: $(cat image-id.txt)"
+            echo "pip-freeze sha256: $(sha256sum pip-freeze.txt | cut -c1-64)"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: image-record
+          path: |
+            pip-freeze.txt
+            image-id.txt
+          retention-days: 90
+      - name: 시험한 이미지 저장(게시 job 으로 넘김)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: docker save ci-local:$GITHUB_SHA | gzip -1 > image.tar.gz
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        with:
+          name: image
+          path: image.tar.gz
+          retention-days: 1
+
+  publish:
+    name: dev 이미지 게시
+    needs: image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: image
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: image-record
+      - name: 시험한 이미지인지 확인
+        run: |
+          gunzip -c image.tar.gz | docker load
+          loaded=$(docker image inspect -f '{{.Id}}' ci-local:$GITHUB_SHA)
+          [ "$loaded" = "$(cat image-id.txt)" ] || { echo "이미지 ID 가 image job 기록과 다르다 — 게시하지 않는다"; exit 1; }
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd  # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_DEV_ARN }}
+          aws-region: ap-northeast-2
+          mask-aws-account-id: true
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd  # v2.1.7
+      - name: 게시(dev-<커밋 SHA>)
+        env:
+          REG: ${{ steps.ecr.outputs.registry }}
+        run: |
+          docker tag ci-local:$GITHUB_SHA "$REG/pixlate-api:dev-$GITHUB_SHA"
+          docker push -q "$REG/pixlate-api:dev-$GITHUB_SHA" >/dev/null
+      - name: 커밋·태그·digest 대응 기록
+        run: |
+          d=$(aws ecr describe-images --repository-name pixlate-api --image-ids imageTag=dev-$GITHUB_SHA \
+                --query 'imageDetails[0].imageDigest' --output text)
+          [[ "$d" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "게시한 태그의 digest 를 조회하지 못했다"; exit 1; }
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "tag: dev-$GITHUB_SHA"
+            echo "digest: $d"
+            echo "image id: $(cat image-id.txt)"
+          } | tee -a "$GITHUB_STEP_SUMMARY"

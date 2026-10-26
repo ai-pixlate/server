@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import copy
+import io
 import json
 import math
 import threading
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from pipeline.handoff import analysis, downstream, examples as ex, judgment, translation
 from pipeline.handoff.bundle import BundleError, bundle_content_sha256, check_bundle
@@ -87,6 +89,19 @@ def test_committed_examples_match_regeneration(generated):
         assert a == b, name
 
 
+def test_example_pngs_are_uncompressed(generated):
+    """예제가 해시를 싣는 PNG는 모두 무압축 — 압축 출력은 OS마다 달라 커밋본을 재현하지 못한다(pipeline/pngio.py).
+    새 저장 지점이 save_png를 거치지 않으면 여기서 걸린다."""
+    _, _, work = generated
+    pngs = sorted(work.rglob("*.png"))
+    assert pngs
+    for p in pngs:
+        with Image.open(p) as im:
+            ref = io.BytesIO()
+            im.save(ref, format="PNG", compress_level=0)
+        assert p.read_bytes() == ref.getvalue(), p.relative_to(work).as_posix()
+
+
 def _doc(generated, name):
     out, _, work = generated
     return json.loads((out / f"{name}.json").read_text(encoding="utf-8"))
@@ -99,6 +114,10 @@ def _doc(generated, name):
     ("inpaint.completed", "completed"), ("inpaint.skipped_empty_mask", "skipped"), ("inpaint.failed_model", "failed"),
     ("style.skipped_no_targets", "skipped"), ("translate.failed_partial", "failed"), ("translate.completed_retry_target_only", "completed"),
     ("translate.skipped_no_targets", "skipped"),
+    ("translation_review.completed", "completed"), ("translation_review.completed_no_check_items", "completed"),
+    ("translation_review.skipped_no_targets", "skipped"), ("translation_review.failed_response_invalid", "failed"),
+    ("translation_review.failed_output_truncated", "failed"), ("translation_review.failed_input_too_large", "failed"),
+    ("translation_review.failed_chunk_call", "failed"),
 ])
 def test_example_outcomes(generated, name, outcome):
     assert _doc(generated, name)["report"]["outcome"] == outcome

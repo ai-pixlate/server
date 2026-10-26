@@ -265,7 +265,7 @@
     "section_images": {
       "sec_1_02": {
         "path": "/srv/pixlate-work/judge/sections/sec_1_02.png",
-        "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+        "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
       }
     },
     "bundle": {
@@ -626,7 +626,7 @@
       "sections": [
         {
           "section_key": "sec_1_02",
-          "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+          "image_sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c",
           "blocks": [
             {
               "block_key": "blk_003",
@@ -760,7 +760,7 @@
       },
       "prompt_sha256": "3921d1896945bde55740b09c7fc1efc12aded6fc32f63b82a499be692d377bb6"
     },
-    "input_manifest_sha256": "c66acc6c2dfc7401a4bda649d0e44c06acf0527680572dc65e231bccb201c275",
+    "input_manifest_sha256": "be85e155ffc3fba506bd2aca205812c8fb291befa9191ca0ae13e6875a885273",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,

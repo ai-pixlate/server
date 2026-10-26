@@ -639,8 +639,10 @@ def save_png_verified(path: Path, arr) -> None:
     import numpy as np
     from PIL import Image
 
+    from pipeline.pngio import save_png
+
     buf = io.BytesIO()
-    Image.fromarray(arr).save(buf, format="PNG")
+    save_png(Image.fromarray(arr), buf)
     jsonio.write_bytes_atomic(path, buf.getvalue())
     with Image.open(path) as im:
         back = np.array(im)

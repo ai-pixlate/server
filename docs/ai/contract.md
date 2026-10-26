@@ -1,7 +1,7 @@
 # contract.md — AI 파이프라인 입출력·계산 규칙 (요약본)
 
 > 근거: 개발계획 v3.6 · 스키마 계약 문서 v3.5(2026-09-17)
-> 성격: **기존 상위 계약의 요약 + 명시적으로 승인된 통합 추가 합의.** `[계약 n]`은 기존 원문 요약, `[통합 Dn]`은 `integration-decisions.md`의 D1~D11 추가 합의다. 원본 요약의 해석은 원문을 따르며, 추가 합의를 원문에 이미 반영된 것으로 취급하지 않는다. 추가 합의는 원칙 확정이며 DB/API 상세는 별도 소유 문서에서 정한다. 구현 상태는 `status.md`, 계약과 운영 코드가 어긋난 곳은 12장.
+> 성격: **기존 상위 계약의 요약 + 명시적으로 승인된 통합 추가 합의.** `[계약 n]`은 기존 원문 요약, `[통합 Dn]`은 `integration-decisions.md`의 D1~D12 추가 합의다. 원본 요약의 해석은 원문을 따르며, 추가 합의를 원문에 이미 반영된 것으로 취급하지 않는다. 추가 합의는 원칙 확정이며 DB/API 상세는 별도 소유 문서에서 정한다. 구현 상태는 `status.md`, 계약과 운영 코드가 어긋난 곳은 12장.
 > 소유 범위: 모델이 산출하는 값 · 함수의 경계 · JSON 내부 구조 · 좌표계 · 제외 조건 · 캐시와 재처리 규칙 [계약 0장]. 서비스 흐름은 `pipeline.md`, 컬럼 타입·제약·인덱스는 BE 정본 ERD, 함수 키↔DB 컬럼 매핑은 `db-map.md`.
 > 표기: `BE 확인 필요` — 원본에 "API가 소유"로 적힌 항목. `미정` — 원본에 없거나 "별도 정의"로 남은 항목. 어느 쪽도 값을 여기서 정하지 않는다.
 > 함수·API 키와 DB 컬럼 이름은 서로 다를 수 있다. 워커가 임시 식별자를 DB 식별자로 변환해 저장한다. JSON 내부 키는 별도 DB 컬럼을 뜻하지 않는다. [계약 0장]
@@ -19,7 +19,7 @@
 | 정책 적용 | ③-1' | 1.2 · 4.2 |
 | 제품 라벨 판정 · 브랜드 로고 제외 | ④ · ⑤ (섹션 확인 이후) | 1.3 · 2.2 · 2.3 |
 | 스타일 추출 · 인페인팅 · 번역 | ⑦ · ⑥ · ⑧ (처리 대상 확정 이후, 병렬 가능) | 1.3 · 5장 |
-| 재검증 | 검수 중 번역문 수정 시 | 5.1 · 7.2 |
+| 재검증 | 검수 중 번역문 수정 시 | 5.1 · 5.3 · 7.2 |
 
 함수 이름은 `analyze()` 외에는 원본 계약에 없다 — 나머지는 단계 이름으로 부른다.
 
@@ -288,7 +288,7 @@ is_product_label OR is_brand_logo
 
 **RG-021·RG-022 이번 범위**: 빈칸 템플릿을 사용하지 않고 원문 수치를 그대로 번역한다. N5 조건부 규제 경고에 사전 사유를 표시하며 시스템이 수치를 추정하거나 상품 검증 완료로 표시하지 않는다. 시험값 입력·템플릿 치환·수치 검증은 12월 검토 범위다. [통합 D9]
 
-영어 금지 표현 사전 재대조·강제 용어 검사는 유지한다(구현: `pipeline/stages/text_check.py`, 번역은 `stages/translate.py`). 별도의 번역문 LLM 규제 판정은 현행 구현 범위에 추가하지 않으며, AI가 PM의 제외 경위/12월 방식·일정 질문에 회신할 후속 작업이다. 일정 확약은 아니다. [통합 D9]
+영어 금지 표현 사전 재대조·강제 용어 검사(`text_check`)와 번역문 LLM 규제 판정(`translation_review`)은 번역과 분리된 독립 검사이며 자동 번역 직후와 번역문 수정 뒤 같은 경로로 실행한다. 검사 결과로 번역문을 바꾸지 않는다. 두 검사의 BE 연결 시점 · 순서는 정하지 않았다. 계약은 5.3. [통합 D12] [사용자 결정 2026-10-22] 번역은 `stages/translate.py`다. [통합 D9]
 
 ### 5.2 인페인팅
 
@@ -297,6 +297,42 @@ is_product_label OR is_brand_logo
 - 제외 섹션에는 인페인팅 작업을 생성하지 않는다.
 - `section.residual_ratio`는 MVP 필수 산출값 아님, `NULL` 허용. 잔존율 측정·마스크 재팽창 재처리는 MVP 이후.
 - 타임아웃 등 실행 실패 재시도는 별도 오류 처리 정책(8장).
+
+### 5.3 번역문 검사 — 규칙 검사와 LLM 규제 판정 — 통합 추가 합의
+
+> 구분: 이 절의 검사 구성 · 판정 · 위치 · 결과 · 실패 분류 · 검증 · 유효성 · 집계 규칙과 AI 함수 입출력은 **AI 내부 구현 기준**이다. 흐름 · 표시는 PM이 정한 제품 동작이다. BE 요청 · 응답 구성(대상 · 문맥 · 라벨 · 로고 값 공급), 봉투 Stage 추가, `compliance_flags` 확장(7.1), 활성 검사 지정 · 등록 · 결과 저장 · 실행 흐름 · 검사와 확정의 동시성 · API · 화면 연결은 **AI 측 제안 · BE 미합의 · 연동 전 검토 대상**이며 현재 운영 계약이 아니다(`be-handoff.md` 8.12). [통합 D12] [사용자 결정 2026-10-22]
+
+- **구성**: 규칙 검사 `text_check`(영어 금지 표현 재대조 · 강제 용어)와 번역문 LLM 규제 판정 `translation_review`는 독립된 검사다. 서로의 결과를 입력으로 받거나 지우지 않으며 번역문 · 사용자 수정문 · `section_verdict` · `content_findings`를 바꾸지 않는다. 섹션 단위 시도 · 블록별 결과이며 자동 번역 직후와 번역문 수정 뒤 같은 경로를 쓴다. [통합 D12]
+- **통합 시점 · 활성 검사**: AI는 두 검사를 모두 제공한다. 두 검사의 BE 연결 시점 · 순서는 정하지 않았다(과거 계획: 1차 통합 규칙 검사 · 12월 최종 통합 LLM 판정). [사용자 결정 2026-10-22] 이번 실행에서 돌릴 검사(활성 검사)는 BE가 명시하며 실행 상태 none에서 추정하지 않는다. 비활성 검사의 과거 결과는 현재 경고로 쓰지 않는다. [통합 D12]
+- **흐름 · 표시**: 자동 번역 직후 검사는 N4에서 끝난 뒤 N5로 넘어가고, 최종 실패면 실패 안내와 함께 N5로 진행한다. N5 수정 후 검사 중에는 확정을 거절한다. 종료 뒤 미해결 경고 · 검사 실패는 확인받고 진행한다. 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호이며 화면에 출처 · 불일치 안내를 두지 않는다(내부 구분은 유지). 검사 실패 블록은 「⚠ 검사하지 못했습니다」 · 확정 시 확인 대상이다. `condition_unverifiable`은 확인할 조건을 포함한 조건부 경고로 보이며 같은 블록 · 같은 사전 항목의 조건부 경고와 중복 표시하지 않는다. `insufficient_evidence` · `insufficient_context`의 표시는 미결(12월 계획)이다. [통합 D12]
+- **입력**: `targets[{block_key, revision, text, is_product_label, is_brand_logo}]`는 검사 대상(라벨 · 로고 false · false, 비공백 원문 · 번역문), `context[{block_key, revision, is_product_label, is_brand_logo}]`는 대상 밖 섹션 블록(번역문 없음, 라벨 · 로고는 2.4 완료 조합)이다. 섹션 블록 키는 두 목록의 합집합에 정확히 한 번 나온다. 라벨 · 로고 값은 BE 공급 계약 후보이며 누락을 false로 추정하지 않는다. 이웃 섹션은 넣지 않는다. [통합 D12]
+- **항목**: 검사 항목 = 적용 분류의 regulated · conditional 전체(문자열 매칭과 무관). 참고 항목 = 적용 분류의 allowed(판정 대상 아님 · 다른 항목의 위험이나 규칙 경고를 해제하지 않음 · risk 근거 불가). 적용 분류 밖 항목은 ID만 기록한다. [통합 D12]
+- **판단 조합**: (대상 × 검사 항목) 쌍마다 판정 1건. [통합 D12]
+
+| judgment | mention | 필수 | 금지 |
+|---|---|---|---|
+| `risk` | present | 위치 1개 이상 · 그 항목의 사전 기록(`dictionary_entry`) 또는 근거(`evidence`) 참조 1개 이상 | 미확인 조건 · allowed 참조 |
+| `no_risk` | absent | — | 위치 · 미확인 조건 |
+| `no_risk` | present | 위치 1개 이상 · 비해당을 설명하는 공급 근거 참조 1개 이상 | 미확인 조건 |
+| `undetermined` + `condition_unverifiable` | present | 위치 1개 이상 · 미확인 조건 1개 이상 | — |
+| `undetermined` + `insufficient_evidence` · `insufficient_context` | 모두 | present면 위치 1개 이상 · absent면 0개 | 미확인 조건 |
+
+- 미확인 상품 조건이 필요한 판단은 undetermined로만 낸다. 부정 · 인용 · 가정은 문맥 단서이며 결론 규칙이 아니다. 근거 참조 종류는 `dictionary_entry`(서비스 사전 기록 — 외부 조문이 아님) · `evidence`(그 항목의 근거 행) · `allowed_reference`(참고 항목)이며 판정마다 `basis_summary`(dictionary_only · external_evidence · both · allowed_reference_only · none)를 남긴다. 사전 기록만으로 낸 risk는 법규 위반 확정으로 표시하지 않는다. 근거 인용문은 공급 스냅샷의 원문을 보존하고 판단 이유는 간결한 한국어다. 구조 · 참조 무결성 검사와 URL · 조문 표기 보조 검사는 판단 내용의 정확성을 보장하지 않는다. [통합 D12]
+- **위치**: `{quote, anchor}`. anchor는 번역문에서 정확히 한 번, quote는 anchor 안에서 정확히 한 번 나와야 한다. 좌표는 정규화하지 않은 번역문의 Unicode 코드 포인트 `[start, end)`이고 대조는 정확한 문자열 일치(`text[start:end] == quote`)다. 특정하지 못하면 응답 실패이며 반복 위치를 항상 표현하지 못하는 초기 구현 한계다. [통합 D12]
+- **결과**: 모든 쌍에 유효한 응답이면 completed(개별 undetermined 포함 가능). 검사 항목 0개는 호출 없이 completed + `pair_count=0`이며 안전 확인이 아니다. 대상 0개는 skipped(`no_targets`). 분할 하나라도 호출 · 응답 검증에 실패하면 시도 전체 failed이고 부분 채택하지 않으며 성공 분할은 `non_adoptable_diagnostics`(진단 · 이력용)에만 둔다. [통합 D12]
+
+| 상황 | `failure.kind` · retryable | `input_manifest` | payload |
+|---|---|---|---|
+| 식별 · 요청 형식 · 설정 · 묶음 · 입력 불변식 오류 · 지문 불일치 | `input_invalid` · `config_invalid` · `bundle_invalid` · false | null | null |
+| 최소 분할 단위(섹션 문맥 + 대상 1 + 검사 항목 1 + 참고 항목 전체)의 입력 상한 초과 | `unsupported_input` · false | 있음 | `scope` · `size{measured, limit, unit:"code_points"}` · 빈 `chunks` |
+| 호출 실패 | `model_call_failed` · true | 있음 | `scope` · `chunks` · (선택) `non_adoptable_diagnostics` |
+| 응답 구조 · 근거 · 위치 검증 실패 | `response_invalid` · true | 있음 | 위와 같음 |
+| 출력 한도로 응답 잘림 | `response_invalid` · false(같은 설정 재시도 불가) | 있음 | 위와 같음 + 분할 `status=output_truncated` |
+
+- **호출 · 검증 · 집계 무결성**: API 키는 실제 모델 호출 직전에만 확인하므로 호출이 없는 처리(대상 0개 skipped · 검사 항목 0개 completed · 입력 상한 초과)는 키 없이 보고한다. 채택 전 검증기는 규칙 검사에서 원문 기준 적용 대상 강제 용어가 빠짐없이 검사됐는지 확인하고 같은 입력으로 다시 계산한 결과와 전체를 대조한다. LLM 판정에서는 각 판정의 `chunk_index`가 그 블록 · 항목을 포함한 검증된 분할을 가리키는지 확인한다. 결과 종류별 payload 허용 필드(공통 `section_key` · `scope` · `context_sha256` · `supplied_items` · `chunks` + completed `blocks` · `result_sha256` / skipped `blocks` / 입력 상한 초과 `size` / 호출 · 응답 실패 `non_adoptable_diagnostics`)와 블록 · 판정 · 위치 · 분할 필드를 고정해 실패 보고의 판정 · flag를 거절한다. 집계는 넘겨받은 결과의 `block_key`(LLM 실패는 `scope.target_keys`)를 집계 대상 블록과 대조한다 — 섹션 단위 지문은 블록끼리 공유하므로 지문만으로 블록을 가리지 못한다. [통합 D12]
+- **유효성**: 검사 결과의 유효성은 그 검사의 전체 입력 지문(대상 · revision · 문구, LLM은 섹션 문맥 · 라벨 · 로고 값 포함, 고정 묶음 · 모델 · 프롬프트 · 규칙 버전 · 분할 상한)으로 판단한다. BE가 등록 때 고정한 지문과 현재 입력으로 다시 계산한 지문이 다르면 stale이다. 고정 묶음을 최신 DB 사전으로 바꾸어 비교하지 않는다. [통합 D12]
+- **규칙 검사 범위**: `text_check`의 `complete`는 검사 범위 완결성(영어 패턴 없는 항목 0건 ∧ unverifiable 용어 0건)이다. 영어 패턴 부재와 #77 unverifiable은 불완전 상태로 유지하며 LLM 판정으로 완료 처리하지 않는다. [통합 D12]
+- **집계**: 검사 항목에 대해서만 rule(detected · not_detected · not_checked · unavailable) × llm(risk · no_risk · undetermined · unavailable) 두 축을 둔다. detected는 겹침 억제 이후 유효 검출이다. 검사별 `run_state`는 BE 작업 상태(none · pending · running · done · skipped · failed · cancelled)를 그대로 쓰고 freshness(current · stale · not_comparable) · scope(규칙 full · partial · unknown / LLM items · empty · unknown)를 둔다. 비활성 검사의 축 값은 `inactive`이고 상태는 null이다. `checks_settled`는 **활성 검사**가 모두 run_state ∈ {done, skipped, failed} ∧ current일 때만 참이다(현재 입력의 최종 실패 · 정상 생략은 종료, none · pending · running · cancelled · stale · 비교 불가는 미완료). 처리 종료 여부일 뿐 문제없음 · 확정 허용이 아니다. 집계값을 API 경고 코드 · 확정 정책으로 자동 승격하지 않는다. [통합 D12]
 
 ## 6. 조판·렌더와 레이아웃 조정 [계약 6장]
 
@@ -374,6 +410,15 @@ is_product_label OR is_brand_logo
 - 근거 ID는 실제 대응 데이터가 있을 때만 기록.
 - `detected_in`: `source` | `translation`. `detected_by`: `rule` | `llm`.
 - 사유·조문·대체표현을 `section_verdict`에서 조회할 수 있으면 중복 저장하지 않는다.
+- producer는 결과 소유 단위다: `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). [통합 D12]
+- `translation_llm_review` producer와 추가 필드(`judgment` · `undetermined_reason` · `location_key`), 위치 네 필드(`problem_text` · `start` · `end` · `location_key`)의 null 허용은 AI 측 제안 · BE 미합의 · 연동 전 검토 대상이다. 기존 producer · 필드의 의미는 바꾸지 않는다. [통합 D12] [사용자 결정 2026-10-22]
+- `translation_llm_review` 항목은 `detected_by: "llm"`이며 `judgment`(risk · undetermined) · `undetermined_reason` · `location_key`를 더 갖는다. no_risk는 항목을 만들지 않는다. 위치마다 1건이고 위치 없는 undetermined는 `problem_text` · `start` · `end` · `location_key` 네 필드가 모두 null인 1건이다(네 필드는 모두 있거나 모두 null). `location_key`는 한 보고의 블록 결과 안에서만 유일하므로 시도와 함께 식별한다. 근거 ID는 원본 `external_id`로 받으며 DB id 변환은 BE가 한다. [통합 D12]
+
+```json
+{"type": "regulatory", "producer": "translation_llm_review", "revision": 4, "external_id": "RG-001",
+ "judgment": "risk", "undetermined_reason": null, "problem_text": "검증 대상 표현", "start": 12, "end": 20,
+ "location_key": "loc_001", "detected_in": "translation", "detected_by": "llm"}
+```
 
 ### 7.2 재검증 규칙
 
@@ -381,6 +426,7 @@ is_product_label OR is_brand_logo
 - 오래된 revision의 신호는 현재 경고로 표시하지 않는다.
 - 입력 변경이 해당 검증에 영향을 주지 않으면 유효성 확인 후 현재 revision으로 승계 가능.
 - **검증이 필요한데 완료되지 않은 상태는 "문제 없음"으로 표시하지 않는다.**
+- 번역문 검사의 유효성은 검사별 전체 입력 지문으로 판단한다. LLM 규제 판정은 섹션 문맥을 포함하므로 같은 섹션의 다른 문장이 바뀌어도 이전 결과가 stale이 된다. 처리 종료(`checks_settled`)는 문제없음 · 확정 허용을 뜻하지 않는다(5.3). [통합 D12]
 
 ## 8. 실패 처리 [계약 8장]
 

@@ -212,10 +212,12 @@ def sha256_text(text: str) -> str:
 
 @dataclass
 class LlmReply:
-    """③ 호출 응답. text는 원응답 그대로(비어 있을 수 있다 — 검증에서 걸린다), usage는 토큰 사용량."""
+    """③ 호출 응답. text는 원응답 그대로(비어 있을 수 있다 — 검증에서 걸린다), usage는 토큰 사용량.
+    finish_reason은 공급자가 보고한 종료 사유(예 'MAX_TOKENS'). 알 수 없으면 None — 번역문 LLM 판정이 출력 잘림 판단에 쓴다."""
 
     text: str
     usage: dict[str, Any] | None = None
+    finish_reason: str | None = None
 
 
 class MergeAssistant(Protocol):
@@ -498,6 +500,81 @@ class GeminiTranslateAssistant(GeminiJudgeAssistant):
 
     response_schema = TRANSLATE_RESPONSE_SCHEMA
     stage_name = "⑧ 로컬라이징 번역"
+
+
+# ---------------------------------------------------------------------------
+# ⑧ 번역문 LLM 규제 판정 호출자 [사용자 결정 2026-10-12] — 번역기와 독립된 호출 · 프롬프트. 섹션 문맥 + 분할된 (대상 × 항목) 쌍마다 판정 1건.
+# 출력 상한(max_output_tokens)을 주고 공급자의 종료 사유를 돌려준다(잘림은 같은 설정 재시도로 풀리지 않는 응답 실패로 따로 분류).
+# ---------------------------------------------------------------------------
+TRANSLATION_REVIEW_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "results": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "target": {"type": "string"},
+                    "item": {"type": "string"},
+                    "judgment": {"type": "string", "enum": ["risk", "no_risk", "undetermined"]},
+                    "mention": {"type": "string", "enum": ["present", "absent"]},
+                    "undetermined_reason": {"type": "string", "nullable": True,
+                                            "enum": ["condition_unverifiable", "insufficient_context", "insufficient_evidence"]},
+                    "locations": {"type": "array", "items": {"type": "object",
+                                                             "properties": {"quote": {"type": "string"}, "anchor": {"type": "string"}},
+                                                             "required": ["quote", "anchor"]}},
+                    "basis": {"type": "array", "items": {"type": "string"}},
+                    "unverified_conditions": {"type": "array", "items": {"type": "string"}},
+                    "reason": {"type": "string"},
+                },
+                "required": ["target", "item", "judgment", "mention", "locations", "basis", "unverified_conditions", "reason"],
+            },
+        }
+    },
+    "required": ["results"],
+}
+
+
+def _finish_reason(resp: Any) -> str | None:
+    cands = getattr(resp, "candidates", None) or []
+    fr = getattr(cands[0], "finish_reason", None) if cands else None
+    if fr is None:
+        return None
+    return str(getattr(fr, "name", None) or fr)
+
+
+class GeminiTranslationReviewAssistant(GeminiJudgeAssistant):
+    """google-genai로 번역문 규제 판정 JSON을 받는 기본 호출자. 호출 규약 (prompt, payload, image=None) → LlmReply(finish_reason 포함)."""
+
+    response_schema = TRANSLATION_REVIEW_RESPONSE_SCHEMA
+    stage_name = "⑧ 번역문 LLM 규제 판정"
+
+    def __init__(self, model: str, temperature: float, timeout_s: float, max_output_tokens: int) -> None:
+        super().__init__(model, temperature, timeout_s)
+        self.config = {**self.config, "max_output_tokens": max_output_tokens}
+
+    def __call__(self, prompt: str, payload: str, image: Image.Image | None) -> LlmReply:
+        try:
+            client = self._client_or_raise()
+            from google.genai import types as gtypes  # noqa: PLC0415
+
+            config = gtypes.GenerateContentConfig(
+                temperature=self.config["temperature"],
+                max_output_tokens=self.config["max_output_tokens"],
+                response_mime_type="application/json",
+                response_schema=self.response_schema,
+                automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
+            )
+            resp = client.models.generate_content(model=self.config["model"], contents=[prompt, payload], config=config)
+            text = resp.text or ""
+            um = getattr(resp, "usage_metadata", None)
+            usage = um.model_dump(mode="json", exclude_none=True) if um is not None and hasattr(um, "model_dump") else None
+            finish = _finish_reason(resp)
+        except VlmError:
+            raise
+        except Exception as e:  # noqa: BLE001 — 호출 실패 세분은 #46 결정 전에는 하지 않는다(시간 초과 포함)
+            raise VlmError(f"LLM 호출 실패 model={self.config['model']}", e) from e
+        return LlmReply(text=text, usage=usage, finish_reason=finish)
 
 
 def sdk_info() -> dict[str, Any]:

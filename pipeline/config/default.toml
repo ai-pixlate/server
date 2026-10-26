@@ -53,10 +53,11 @@ caption_pct = 25
 title_max_lines = 2
 caption_max_chars = 25
 price_max_chars = 40
-# OCR 후처리 — 기능 채택 확정 · 값 잠정, 스위치 기본 꺼짐(open-questions #86, pipeline.md 7.1절). 끄면 위 규칙만 돈다
-xycut = false                  # 여백(XY-cut) 문단 후보 영역 분리 + 세로 중심 가로줄 정렬을 함께 켠다
-fullwidth = false              # Line.text · source_ko의 전각 영문·숫자·기호(U+FF01~FF5E) · 전각 공백(U+3000)만 반각으로. xycut과 독립
-num_o = false                  # Line.text · source_ko의 숫자 덩어리 안 영문 o/O → 0(전각 변환 뒤). xycut · fullwidth와 독립(2026-10-26 채택)
+# OCR 후처리 — 기능 채택 확정 · 값 잠정(open-questions #86, pipeline.md 7.1절). 기본값 xycut · num_o 켬, fullwidth 끔(2026-10-26 결정).
+# 운영 적용은 후속 연동 뒤 — 그 전에는 배포 보류 또는 운영 설정(PIXLATE_PIPELINE_CONFIG)에서 끈다. 모두 끄면 위 규칙만 돈다
+xycut = true                   # 여백(XY-cut) 문단 후보 영역 분리 + 세로 중심 가로줄 정렬을 함께 켠다
+fullwidth = false              # Line.text · source_ko의 전각 영문·숫자·기호(U+FF01~FF5E) · 전각 공백(U+3000)만 반각으로. xycut과 독립. 현재 인식 모델에서 효과 없어 끔(모델 변경 시 재평가)
+num_o = true                   # Line.text · source_ko의 숫자 덩어리 안 영문 o/O → 0(전각 변환 뒤). xycut · fullwidth와 독립(2026-10-26 채택)
 xycut_gap_ratio = 0.8          # 최소 여백 = 이 비율 × 섹션 전체 텍스트 영역 높이 중앙값
 line_center_tol = 0.5          # 같은 가로줄 허용치 = 이 비율 × 후보 영역 텍스트 높이 중앙값
 line_center_tol_min_px = 8     # 같은 가로줄 허용치의 하한(px)

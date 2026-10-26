@@ -309,15 +309,16 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 ③ 병합 안의 OCR 후처리(여백 분리 · 세로 중심 줄 정렬 · 전각 변환, `open-questions.md` #86)를 AI 내부에 구현했다. 규칙 정본은 `pipeline.md` 7.1 · 7.2절, 코드는 `pipeline/stages/merge.py`, 테스트는 `tests/test_pipeline_merge_post.py`다. **이번 작업은 BE 연동 · 검토 · 확인 요청을 하지 않았고, BE 확인을 이 구현의 선행조건으로 두지 않는다.** 아래는 향후 확인을 위한 정리이며 합의 · 연동 검증 · 운영 적용 기록이 아니다. 새 API 필드 · DB 컬럼 · BE 코드 변경은 없다.
 
-### 10.1 지금(스위치 기본 꺼짐) BE에 보이는 변화
+### 10.1 기본값과 BE에 보이는 변화
 
-- `merge.xycut` · `merge.fullwidth`는 기본 `false`다. 꺼져 있으면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`), `llm_assist` 입력 · 프롬프트 · 기록 형식은 바뀌지 않는다(AI 내부 테스트로 확인 — 기존 ③ 테스트 통과).
-- `merge.num_o`(숫자 속 o/O 교정, 2026-10-26 채택)도 기본 `false`이며 꺼져 있으면 위와 같이 바뀌지 않는다.
-- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`, 2026-10-26에 `num_o` 1개 더)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음).
+- **2026-10-26부터 기본값은 `merge.xycut` · `merge.num_o` `true`, `merge.fullwidth` `false`다**(6단계 결정, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 저장소 기본 설정(`pipeline/config/default.toml`)으로 돌리면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`)와 `llm_assist` 입력 · 프롬프트 · 기록이 10.2대로 바뀐다.
+- **운영 적용 조건(BE 확인 필요)**: 10.2 확인 · 보충 프롬프트의 인계 지문 반영 등 후속 연동이 끝나기 전에는 이 변경의 develop 머지 · 운영 배포를 보류하거나, 운영 설정(`PIXLATE_PIPELINE_CONFIG`로 지정하는 설정 사본)에서 `merge.xycut` · `merge.num_o`를 `false`로 둔다. develop에는 머지 시 dev 이미지를 게시하는 CI가 있다. 이번에 BE 확인 · 요청은 하지 않았다.
+- 세 스위치를 모두 끄면 `analyze()` 결과와 `llm_assist` 입력 · 프롬프트 · 기록 형식은 기존과 같다(AI 내부 테스트로 확인 — 기존 ③ 경로 테스트는 세 스위치를 끈 설정으로 돈다).
+- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`, 2026-10-26에 `num_o` 1개 더)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음). 2026-10-26 기본값 변경으로 예제의 `input_manifest.config.merge`가 `xycut: true` · `num_o: true`가 되어 다시 만들었다(예제 블록 내용은 그대로, 지문만 바뀜).
 
 ### 10.2 스위치를 켰을 때의 영향 — 향후 확인 항목
 
-`AnalyzeResult` 버전 · 필드 · 좌표계는 그대로지만 아래 **값의 의미**가 바뀐다. 켜기 전에 확인할 항목이며 지금의 선행조건이 아니다.
+`AnalyzeResult` 버전 · 필드 · 좌표계는 그대로지만 아래 **값의 의미**가 바뀐다. 운영 적용 전에 확인할 항목이다(BE 확인 필요, 10.1 운영 적용 조건).
 
 | 대상 | 바뀌는 것 | 확인할 것 |
 |---|---|---|
@@ -332,5 +333,5 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 ### 10.3 남은 것
 
-- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 보류 기능 실험(5단계)은 마쳤다 — 숫자 속 o/O 교정을 채택해 `merge.num_o`(기본 꺼짐)로 넣었고, 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 보류했다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step5.md`). 남은 것은 기본 활성화 결정(`open-questions.md` #86)이다. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다.
-- BE: 위 10.2 항목 확인은 기본 활성화 결정 전에 따로 요청한다. 이번에는 BE 실행 테스트 · 연동 검증을 하지 않았다.
+- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 보류 기능 실험(5단계)은 마쳤다 — 숫자 속 o/O 교정을 채택해 `merge.num_o`로 넣었고, 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 보류했다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step5.md`). 6단계에서 기본값을 `xycut` · `num_o` 켬, `fullwidth` 끔으로 바꿨다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 하류 실행 · 라벨 처리는 검증 완료가 아니다. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다.
+- BE: 위 10.2 항목 확인과 캐시 · 재분석 영향 확인은 운영 적용 전에 따로 요청한다(10.1 운영 적용 조건). 이번에는 BE 실행 테스트 · 연동 검증 · 확인 요청을 하지 않았다.

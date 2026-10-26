@@ -37,6 +37,10 @@ def CFG(**over):
     return cfg
 
 
+# 기존(꺼진) 경로를 검사할 때 명시한다 — 기본값은 xycut · num_o 켬, fullwidth 끔(2026-10-26)
+OFF = {"xycut": False, "fullwidth": False, "num_o": False}
+
+
 def OCR(regions) -> OcrResult:
     return OcrResult(section_key="sec_1_01", regions=regions)
 
@@ -56,9 +60,9 @@ def keys(res):
 # ---------------------------------------------------------------------------
 # 설정
 # ---------------------------------------------------------------------------
-def test_switches_are_off_by_default():
-    m = CFG()["merge"]
-    assert m["xycut"] is False and m["fullwidth"] is False and m["num_o"] is False
+def test_switch_defaults_turn_on_xycut_and_num_o_only():
+    m = CFG()["merge"]  # 2026-10-26 기본 활성화 결정: fullwidth는 현재 인식 모델에서 효과가 없어 끈다
+    assert m["xycut"] is True and m["num_o"] is True and m["fullwidth"] is False
     assert (m["xycut_gap_ratio"], m["line_center_tol"], m["line_center_tol_min_px"]) == (0.8, 0.5, 8)
 
 
@@ -145,7 +149,7 @@ def test_fix_num_o_rule_and_boundaries(raw, want):
 
 def test_num_o_changes_line_text_and_source_ko_but_not_raw_regions():
     regs = [R("reg_0001", 0, 0, 200, 20, "특허 성분MATRIXYL°300O*3%")]
-    off, on = run(regs), run(regs, num_o=True)
+    off, on = run(regs, num_o=False), run(regs, num_o=True)
     assert texts(off) == ["특허 성분MATRIXYL°300O*3%"] and texts(on) == ["특허 성분MATRIXYL°3000*3%"]
     assert on.blocks[0].source_lines[0].regions[0].text == "특허 성분MATRIXYL°300O*3%"  # 원시 그대로
     assert [b.role for b in on.blocks] == [b.role for b in off.blocks]
@@ -154,7 +158,7 @@ def test_num_o_changes_line_text_and_source_ko_but_not_raw_regions():
 def test_num_o_runs_after_fullwidth_and_is_independent():
     regs = [R("reg_0001", 0, 0, 100, 20, "５Ｏ％")]
     assert texts(run(regs, num_o=True)) == ["５Ｏ％"]  # 전각은 정규식 밖 — 전각 변환을 켜야 반각이 된 뒤 고친다
-    assert texts(run(regs, fullwidth=True)) == ["5O%"]
+    assert texts(run(regs, fullwidth=True, num_o=False)) == ["5O%"]
     assert texts(run(regs, fullwidth=True, num_o=True)) == ["50%"]
     assert texts(run(regs, num_o=True, xycut=True)) == ["５Ｏ％"]
 
@@ -219,7 +223,7 @@ def test_columns_are_read_left_region_first_even_if_right_starts_higher():
     # 오른쪽 칸이 10px 위에서 시작. 기본은 블록 (y, x) 순이라 오른쪽이 먼저, xycut은 x 여백 100 ≥ 16으로 칸을 나눠 왼쪽 먼저
     regs = [R("l1", 50, 10, 400, 20, "왼1"), R("l2", 50, 38, 400, 20, "왼2"),
             R("r1", 550, 0, 400, 20, "오1"), R("r2", 550, 28, 400, 20, "오2")]
-    assert texts(run(regs)) == ["오1\n오2", "왼1\n왼2"]
+    assert texts(run(regs, **OFF)) == ["오1\n오2", "왼1\n왼2"]
     assert texts(run(regs, xycut=True)) == ["왼1\n왼2", "오1\n오2"]
 
 
@@ -241,7 +245,7 @@ def lip_stain_set():
 
 def test_same_row_words_with_wide_gaps_keep_left_to_right_order():
     # 기본: 가로 간격 상한에 막혀 단어마다 블록, (y, x) 순이라 Lip · Set · Stain으로 뒤집힌다
-    assert texts(run(lip_stain_set())) == ["Lip", "Set", "Stain", "아래 문장"]
+    assert texts(run(lip_stain_set(), **OFF)) == ["Lip", "Set", "Stain", "아래 문장"]
     # xycut: 세로 중심 432 · 433 · 437은 기준 432와의 차 ≤ 10 → 한 가로줄, x순 · 높이비 1 · gutter 없음 → 한 Line
     assert texts(run(lip_stain_set(), xycut=True)) == ["Lip Stain Set", "아래 문장"]
 
@@ -257,7 +261,7 @@ def test_height_ratio_does_not_split_a_row():
     # 같은 중심 20의 "98"(높이 40)과 "%"(높이 20): 높이비 2지만 xycut의 Line 나누기는 높이비를 보지 않는다(2026-10-23) → 한 Line
     regs = [R("num", 100, 0, 60, 40, "98"), R("pct", 165, 10, 20, 20, "%")]
     assert texts(run(regs, xycut=True)) == ["98 %"]
-    assert texts(run(regs)) == ["98", "%"]  # 끄면 기존 줄 병합(높이비 1.5 상한) 그대로
+    assert texts(run(regs, **OFF)) == ["98", "%"]  # 끄면 기존 줄 병합(높이비 1.5 상한) 그대로
 
 
 def test_superscript_marker_stays_at_the_end_of_its_row():
@@ -374,14 +378,15 @@ def two_columns():
 
 def test_payload_and_prompt_carry_region_only_when_xycut_is_on():
     _, llm, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄"], "body"), (["둘째 줄"], "body")],
-                          xycut=True)
+                          xycut=True, num_o=False)
     prompt, payload = llm.calls[0]
     # region은 칸 묶음 번호 — 후보 영역 둘(제목 | 본문)이 y 절단으로만 나뉘어 한 묶음(2026-10-26)
     assert [b["region"] for b in json.loads(payload)["blocks"]] == [1, 1, 1]
     assert prompt.endswith((merge.REPO_ROOT / merge.REGION_PROMPT_PATH).read_text(encoding="utf-8"))
     assert rec["postprocess"] == {"xycut": True, "fullwidth": False, "candidate_regions": 2}
     assert rec["result"]["region_splits"] == [] and rec["result"]["interleaved"] == []
-    _, llm, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄"], "body"), (["둘째 줄"], "body")])
+    _, llm, rec = run_llm(regions_in_two_regions(), [(["피부 진정"], "title"), (["첫째 줄"], "body"), (["둘째 줄"], "body")],
+                          **OFF)
     prompt, payload = llm.calls[0]
     assert all("region" not in b for b in json.loads(payload)["blocks"])
     assert prompt == (merge.REPO_ROOT / CFG()["merge"]["prompt_path"]).read_text(encoding="utf-8")
@@ -395,6 +400,18 @@ def test_same_region_merge_keeps_llm_role():
                           xycut=True)
     assert [(b.source_ko, b.role) for b in res.blocks] == [("피부 진정", "title"), ("첫째 줄\n둘째 줄", "caption")]
     assert rec["result"]["region_splits"] == []
+
+
+def test_default_config_runs_xycut_and_num_o_llm_path():
+    # 기본 설정 그대로(2026-10-26 기본 활성화): 숫자 교정된 글자가 LLM 입력으로 가고, region · 보충 프롬프트가 붙는다
+    regs = [R("t", 0, 0, 300, 40, "SPF 5O+"), R("b1", 0, 200, 400, 20, "첫째 줄")]
+    res, llm, rec = run_llm(regs, [(["SPF 50+"], "title"), (["첫째 줄"], "body")])
+    prompt, payload = llm.calls[0]
+    assert [(b["text"], b["region"]) for b in json.loads(payload)["blocks"]] == [("SPF 50+", 1), ("첫째 줄", 1)]
+    assert prompt.endswith((merge.REPO_ROOT / merge.REGION_PROMPT_PATH).read_text(encoding="utf-8"))
+    assert rec["postprocess"]["xycut"] is True and rec["postprocess"]["num_o"] is True
+    assert texts(res) == ["SPF 50+", "첫째 줄"]
+    assert res.blocks[0].source_lines[0].regions[0].text == "SPF 5O+"  # 원시 그대로
 
 
 def test_y_cut_regions_can_be_merged_and_keep_llm_role():
@@ -490,12 +507,12 @@ def run_diag(regions, width=1000, use_llm=False, llm=None, **over):
 
 
 def test_no_diagnostics_when_both_switches_are_off():
-    _, diags = run_diag(two_columns_inside_one_region(), width=320)
+    _, diags = run_diag(two_columns_inside_one_region(), width=320, **OFF)
     assert diags == []
 
 
 def test_no_llm_run_records_layout_diagnostics():
-    res, (d,) = run_diag(two_columns_inside_one_region(), width=320, xycut=True)
+    res, (d,) = run_diag(two_columns_inside_one_region(), width=320, xycut=True, num_o=False)
     assert d["use_llm"] is False and d["section_key"] == "sec_1_01"
     assert d["postprocess"] == {"xycut": True, "fullwidth": False, "candidate_regions": 1}
     assert d["config"]["xycut_gap_ratio"] == 0.8 and d["config"]["gutter"] is True
@@ -526,15 +543,15 @@ def test_diagnostics_record_column_groups_for_mixed_cuts():
 
 def test_num_o_records_changed_lines_only_when_on():
     regs = [R("a", 0, 0, 100, 20, "SPF 5O+"), R("b", 0, 300, 100, 20, "가나")]
-    _, (d,) = run_diag(regs, num_o=True)
+    _, (d,) = run_diag(regs, num_o=True, xycut=False)
     assert d["postprocess"] == {"xycut": False, "fullwidth": False, "num_o": True, "num_o_changed_lines": 1}
     assert d["num_o_changed_lines"] == ["line_001"] and d["config"]["num_o"] is True
-    _, (d,) = run_diag(regs, xycut=True)
+    _, (d,) = run_diag(regs, xycut=True, num_o=False)
     assert "num_o" not in d["postprocess"] and "num_o_changed_lines" not in d and "num_o" not in d["config"]
 
 
 def test_fullwidth_only_diagnostics_have_no_layout():
-    _, (d,) = run_diag([R("a", 0, 0, 100, 20, "Ａ")], fullwidth=True)
+    _, (d,) = run_diag([R("a", 0, 0, 100, 20, "Ａ")], fullwidth=True, xycut=False, num_o=False)
     assert d["postprocess"] == {"xycut": False, "fullwidth": True, "fullwidth_changed_lines": 1}
     assert "cuts" not in d and "blocks" not in d
 
@@ -561,14 +578,17 @@ def test_cli_merge_no_llm_writes_post_debug_only_when_switched_on(tmp_path):
 
     exp = Path(__file__).resolve().parent.parent / "pipeline" / "samples" / "synthetic_01" / "expected"
     base = ["merge", "--split", str(exp / "split.json"), "--ocr", str(exp / "ocr/sec_1_01.json"), "--no-llm"]
-    assert cli.main([*base, "--out", str(tmp_path / "off")]) == 0
+    off = ["--set", "merge.xycut=false", "--set", "merge.num_o=false"]
+    assert cli.main([*base, "--out", str(tmp_path / "off"), *off]) == 0
     assert not (tmp_path / "off" / "merge_post_debug").exists()
-    assert cli.main([*base, "--out", str(tmp_path / "on"), "--set", "merge.xycut=true"]) == 0
-    d = json.loads((tmp_path / "on" / "merge_post_debug" / "sec_1_01.json").read_text(encoding="utf-8"))
-    assert d["use_llm"] is False and d["postprocess"]["xycut"] is True
+    assert cli.main([*base, "--out", str(tmp_path / "default")]) == 0  # 기본값(xycut · num_o 켬)이면 진단을 쓴다
+    d = json.loads((tmp_path / "default" / "merge_post_debug" / "sec_1_01.json").read_text(encoding="utf-8"))
+    assert d["use_llm"] is False and d["postprocess"]["xycut"] is True and d["postprocess"]["num_o"] is True
 
 
-@pytest.mark.parametrize("over, written", [({}, False), ({"fullwidth": True}, True), ({"num_o": True}, True)])
+@pytest.mark.parametrize("over, written", [
+    (OFF, False), ({**OFF, "fullwidth": True}, True), ({**OFF, "num_o": True}, True), ({}, True),  # {} = 기본값
+])
 def test_analyze_no_llm_writes_post_debug_and_block_keys(monkeypatch, tmp_path, over, written):
     from pipeline import analyze as an
     from pipeline.types import SourceImage, SplitResult

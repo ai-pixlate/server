@@ -100,7 +100,7 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `llm_assist` 모델 · 온도. `llm_split`은 분할 금지 고정(false만 허용) | — | [개발계획 6장] |
 | ③ | `merge.prompt_path` | `llm_assist` 프롬프트 위치. 상대 경로는 레포 루트 기준 | 초안 v1 | [`dev.md` 2절] [`open-questions.md` #41] |
 | ③ | `merge.llm_timeout_s` | `llm_assist` 호출 시간 제한(초). 운영 값은 #37 | 개발용 잠정 | [`open-questions.md` #37, #41] |
-| ③ | `merge.xycut` / `merge.fullwidth` / `merge.num_o` | OCR 후처리 스위치(bool). `xycut` = 여백 분리 + 세로 중심 가로줄 정렬, `fullwidth` = 전각 변환, `num_o` = 숫자 속 o/O 교정. 서로 독립이며 끄면 기존 규칙만 돈다(7.1절) | 기능 채택 확정 · 기본 꺼짐(활성화는 검증 후 승인) | [사용자 결정 2026-10-21] [사용자 결정 2026-10-22] [사용자 결정 2026-10-26] [`open-questions.md` #86] |
+| ③ | `merge.xycut` / `merge.fullwidth` / `merge.num_o` | OCR 후처리 스위치(bool). `xycut` = 여백 분리 + 세로 중심 가로줄 정렬, `fullwidth` = 전각 변환, `num_o` = 숫자 속 o/O 교정. 서로 독립이며 모두 끄면 기존 규칙만 돈다(7.1절) | 기능 채택 확정 · 기본값 `xycut` · `num_o` 켬, `fullwidth` 끔(2026-10-26 결정). 운영 적용은 후속 조건(`open-questions.md` #86) | [사용자 결정 2026-10-21] [사용자 결정 2026-10-22] [사용자 결정 2026-10-26] [`open-questions.md` #86] |
 | ③ | `merge.xycut_gap_ratio` | 최소 여백 = 이 비율 × 섹션 전체 텍스트 영역 높이 중앙값 | 잠정 | [사용자 결정 2026-10-22] [`open-questions.md` #86] |
 | ③ | `merge.line_center_tol` / `merge.line_center_tol_min_px` | 같은 가로줄 허용치 = max(`line_center_tol_min_px`, `line_center_tol` × 후보 영역 텍스트 높이 중앙값) | 잠정 | [사용자 결정 2026-10-22] [`open-questions.md` #86] |
 | ③-1 | `judge.llm_model` / `judge.llm_temperature` / `judge.llm_timeout_s` / `judge.prompt_path` | ③-1 판정 모델 · 온도 · 시간 제한 · 프롬프트 위치. 판정 방식 채택(#5)은 미정 | 실험 기준 | [개발계획 6장] [PoC 10-1장] [`open-questions.md` #60] |
@@ -188,7 +188,7 @@ PoC에서 확인한 접근법을 참고한 우리 잠정 설계이며, 값·규�
 - 설정 값은 병합 모듈의 검증 함수가 `merge.run`과 `analyze()` 시작 시 검사하고, 어기면 `ValueError`다. [`open-questions.md` #38]
 - 코드 `pipeline/stages/merge.py`, 손 계산 테스트 `tests/test_pipeline_merge.py`. 높이 정의 · 병합 조건식 · gutter · 정렬과 동률 · 역할 패턴 표 · 설정 검증 표 · 알려진 위험의 원문은 archive 7.1절.
 
-**OCR 후처리** — 여백 분리 · 세로 중심 줄 정렬 · 전각 변환 · 숫자 속 o/O 교정은 기능 채택 확정이고, 아래 상세 규칙과 값은 잠정이다. 세 스위치(`merge.xycut` · `merge.fullwidth` · `merge.num_o`)는 기본 꺼짐이며 끄면 위 규칙만 돈다. 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 5단계 실험에서 고정 입력본에 대상 오류가 없어 보류했다. [사용자 결정 2026-10-21] [사용자 결정 2026-10-22] [사용자 결정 2026-10-26] [`open-questions.md` #86]
+**OCR 후처리** — 여백 분리 · 세로 중심 줄 정렬 · 전각 변환 · 숫자 속 o/O 교정은 기능 채택 확정이고, 아래 상세 규칙과 값은 잠정이다. 기본값은 `merge.xycut` · `merge.num_o` 켬, `merge.fullwidth` 끔이다(2026-10-26 기본 활성화 결정 — `fullwidth`는 현재 인식 모델에서 효과가 없어 끄고, 인식 모델을 바꿀 때 다시 평가한다). 세 스위치를 모두 끄면 위 규칙만 돈다. 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 5단계 실험에서 고정 입력본에 대상 오류가 없어 보류했다. [사용자 결정 2026-10-21] [사용자 결정 2026-10-22] [사용자 결정 2026-10-26] [`open-questions.md` #86]
 
 - 위치는 ③ 휴리스틱 안이다. ② OCR · 타일 정리(7.9절)는 바꾸지 않고, 원시 영역의 키 · 텍스트 · score · poly · bbox도 바꾸지 않는다. [계약 2.5] [`open-questions.md` #86]
 - 여백 분리(`xycut`): 텍스트 영역(빈 텍스트 · 크기 0 제외)에서 x 방향 빈 여백(칸 사이)과 y 방향 빈 여백(줄 사이) 중 더 넓은 쪽(같으면 x 방향)이 최소 여백 이상이면 그 가운데에서 자르기를 반복해 **문단 후보 영역**을 만든다. 영역은 좌상단 좌표가 절단값보다 작으면 왼쪽 · 위, 같거나 크면 오른쪽 · 아래로 간다. 절단은 부모 · 자식 관계의 분할 트리로 보존하고, 후보 영역 순서는 왼쪽 · 위 자식을 먼저 도는 깊이 우선 순서다. 휴리스틱 블록은 후보 영역을 넘지 않는다. [사용자 결정 2026-10-22] [`open-questions.md` #86] LLM 병합의 상한은 **칸 묶음**이다 — 후보 영역 순서에서 이웃한 두 후보 영역 사이 분할 트리 경로(공통 조상 포함)의 절단이 모두 y(위아래 여백)면 같은 칸 묶음으로 잇는다. 칸 묶음은 읽기 순서에서 연달아 있는 후보 영역들이며, 경로가 모두 y여도 사이에 다른 칸 묶음이 끼면(예: 위 제목과 아래 문단 사이의 다단 영역) 잇지 않는다. 나란한 칸을 가르는 x 절단은 계속 경계다. 번호는 그 순서로 1부터 매긴다(7.2절). [사용자 결정 2026-10-26] [`open-questions.md` #86]

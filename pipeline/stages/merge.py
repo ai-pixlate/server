@@ -11,7 +11,7 @@
   원문은 archive 7.2절(open-questions #41).
   v1은 블록 병합만 한다 — 같은 줄 조각의 줄 복구는 하지 않는다. use_llm=False(CLI --no-llm)면 휴리스틱만 돈다.
 
-- OCR 후처리(open-questions #86, pipeline.md 7.1 · 7.2절) — 두 스위치 모두 기본 꺼짐이며, 끄면 위 동작과 같다.
+- OCR 후처리(open-questions #86, pipeline.md 7.1 · 7.2절) — 기본값은 xycut · num_o 켬, fullwidth 끔(2026-10-26). 모두 끄면 위 동작과 같다.
   `merge.xycut`: 텍스트 영역을 여백(XY-cut)으로 문단 후보 영역으로 나누고, 영역마다 세로 중심으로 가로줄을 묶어
   줄 · 블록을 만든다. 블록 순서는 후보 영역 → 가로줄 순번 → x다. 휴리스틱 블록은 후보 영역을 넘지 않고, LLM 묶음은
   칸 묶음(y 절단으로만 이어진 후보 영역의 묶음)을 넘지 못한다 — 나란한 칸(x 절단)은 계속 경계다.

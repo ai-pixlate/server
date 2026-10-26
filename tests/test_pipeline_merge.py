@@ -3,6 +3,7 @@
 좌표는 BBox{x,y,w,h}, x2 = x + w. 기본 config 값: line_gap 0.7 · para_gap 0.6 · h_ratio 1.5 · overlap 0.5 ·
 line_v_overlap 0.5 · line_gap_min -0.5 · para_gap_min -0.3 · left_align_tol 0.5 · gutter 최소 폭 max(20, W // 16).
 높이 20이면 base = 20 → 줄 가로 간격 [-10, 14] · 블록 세로 간격 [-6, 12] · 좌정렬 오차 10.
+OCR 후처리 스위치(xycut · num_o 기본 켬, 2026-10-26)는 CFG()에서 모두 끈다 — 이 파일은 기존 heuristic_v2 경로의 회귀 검증이다.
 """
 import itertools
 import json
@@ -36,6 +37,7 @@ def SEC(width: int = 1000, key: str = "sec_1_01", order: int = 1, top: int = 0, 
 
 def CFG(**over):
     cfg = cfgmod.load_config()
+    cfg["merge"].update(xycut=False, fullwidth=False, num_o=False)  # 기존 경로 고정 — 후처리 기본값(켬)과 무관하게 검증
     cfg["merge"].update(over)
     return cfg
 

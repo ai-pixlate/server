@@ -101,7 +101,9 @@ def analyze(
         llm = llm if llm is not None else merge.default_assistant(cfg)
         recorder = merge.json_recorder(debug_dir)
     post_dir = out_dir / "merge_post_debug"
-    post_on = cfg["merge"]["xycut"] or cfg["merge"]["fullwidth"] or cfg["merge"]["num_o"]
+    # 실제 실행은 위 검증으로 세 키가 있다. 검증을 바꿔 끼운 시험(빈 설정)에서도 돌도록 없는 키는 꺼짐으로 본다
+    m = cfg.get("merge", {})
+    post_on = bool(m.get("xycut") or m.get("fullwidth") or m.get("num_o"))
     sections = []
     blocks = []
     warnings: list[AnalyzeWarning] = []

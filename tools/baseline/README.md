@@ -1,142 +1,117 @@
-# baseline 준비·기록 도구
+# Baseline 비과금 준비·기록·집계 도구
 
-평가 기준은 [baseline 명세](../../docs/ai-baseline/README.md)가 소유한다. 이 폴더의 JSON 필드는 측정 도구의 로컬 파일 형식이며 서비스 API·DB 계약을 추가하지 않는다. 실제 제품 코드는 수정하지 않고 지정된 릴리즈 checkout에서 가져온다.
+정본은 [Baseline 명세](../../docs/ai-baseline/README.md)와 [회차 구조](../../docs/ai-baseline/runs/README.md)다. 현재 **비용·실행 승인 보류**다. CLI `execute`, BE 공개 진입점, worker는 제품 import 전에 사용자 승인·범위·상한을 대조하며, 현재 템플릿의 user_execution=null 상태에서는 거부한다. 실행 플래그만으로 우회할 수 없다. PM의 비용 합의는 완료됐지만 사용자의 구체적 실행 승인과 실제 수집 연결 검증을 대신하지 않는다.
 
-## 구성
+## 사용법
 
-| 파일 | 역할 |
-|---|---|
-| `run.py` | 준비·기록·집계 CLI. 기본 명령은 모델·DB를 호출하지 않음 |
-| `core.py` | 34장·9영역 확인, 평가 이력 검증, 품질·실행·정책 집계 |
-| `be.py` | 기존 BE 흐름 호출, 순차 작업 전달, 파일 저장소·증거 수집, SDK 사용량 기록 |
-| `review.py` | 필수·표본·확대 검수 대상과 원본 등급 전이표 |
-| `evaluation-prompt.md` | 확정 평가 기준에 따른 평가자 지시. K01~K09 기준 보정 후 회차에 동결 |
-
-## 모델 호출 없는 사용
-
-저장소 루트에서 실행한다. 출력 폴더와 파일은 새 경로를 지정하며 기존 결과를 덮어쓰지 않는다. 예시의 `.cache/`는 Git 제외된 로컬 준비 위치일 뿐, 실제 원본의 위치가 아니다.
+아래 명령은 모델·DB·네트워크를 호출하지 않는다. 출력은 새 경로를 지정한다. 준비 묶음은 실제 결과가 아니며 `.cache/`에서 검증한다.
 
 ```powershell
-python -m tools.baseline.run template .cache/baseline-config.json
-python -m tools.baseline.run doctor
-# 제공받은 실제 값으로 설정 파일을 채운 뒤:
-python -m tools.baseline.run prepare .cache/baseline-config.json .cache/baseline-preparation
-python -m tools.baseline.run packet .cache/baseline-preparation .cache/blind-packet.json
-python -m tools.baseline.run record .cache/baseline-preparation .cache/evaluation-event.json
-python -m tools.baseline.run summary .cache/baseline-preparation .cache/summary-01.json
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run template .cache/stage3-config.json
+# input_root, evaluation_run_id 등 실제 확인한 값만 입력한 뒤:
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run prepare .cache/stage3-config.json .cache/stage3-preparation
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run validate .cache/stage3-preparation
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run packet .cache/stage3-preparation .cache/stage3-packet.json
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run record .cache/stage3-preparation .cache/event.json --kind evaluations
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run capture .cache/stage3-preparation .cache/artifact-metadata.json .cache/existing-artifact.png
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run summary .cache/stage3-preparation .cache/stage3-summary
+.cache/bl-venv/Scripts/python.exe -B -m tools.baseline.run estimate .
 ```
 
-`template`은 실제 값이 없는 설정을 만든다. `prepare`는 지정된 `input_root` 아래 `GS-01/GS-01_001.jpg` 등의 34장만 검사한다. 임의 경로에서 표본을 찾지 않으며 없는 파일을 대체하지 않는다. 크기·면적·SHA-256·핵심 영역 좌표 범위를 확인하고 238행의 빈 원본별 평가표를 만든다. 평가 기준 자료·평가 프롬프트와 명세를 복사·해시로 보관한다. 자료 누락은 `preparation.json`에 기록하며 공식 결과가 아니다.
+`record --kind`는 `reference_units`, `execution`, `evaluations`, `defects`, `human_review`를 받는다. 배열 배치가 아니라 기록 한 건의 JSON을 입력한다. 평가↔결함의 상호 참조는 양쪽 기록 후 `validate`로 검사하며 미연결 상태로 집계하지 않는다. `capture`는 이미 존재하는 파일을 해시 경로로 복사하고 manifest 색인에 연결할 뿐 이미지를 생성하지 않는다. 같은 산출물 ID를 덮어쓸 수 없다.
 
-설정의 `products`는 상품별 실제 `product_name`, `regulatory_class`, `internal_category`, 브랜드 `name_ko`·`name_en`, 미국·영어를 받는다. 임의 상품명·분류·기대 처리를 채우지 않는다. `reference_file`은 사람이 확인할 원본별 정보·보호 대상·처리 기대값 자료이며, 제품에 넣는 규제사전·용어집 DB와 구분한다. `evaluation_model`에는 모델 ID·설정을, `viewing_conditions`에는 실제 표시·확대 조건을 기록한다. 확인자·보정 확인·예산 항목은 실제 담당자와 승인 조건으로 채운다. 확인 이름을 적는 것이 검수 자체를 수행하는 것은 아니다.
+`prepare`는 34장·K01~K09·manifest 해시를 확인하고 원본 사본·명세·지침을 동결한다. manifest, reference_units.jsonl, execution.jsonl, artifacts/, evaluations.jsonl, defects.jsonl, human_review.csv, metrics.csv, summary.md를 만든다. 실제 결과는 비어 있으며 미확정 필드는 null로 둔다. 모델·기준 자료·비용 승인을 자동 채우지 않는다. 평가 세션·산출물 색인은 회차 manifest에 실제 확인값과 보존 파일 해시를 기록한다.
 
-## 격리 BE 실행 조건
+`summary`는 원본 회차를 덮어쓰지 않는 새 디렉터리에 metrics.csv, summary.md, 검수 대상과 검증 결과를 저장한다. 검토 후 채택할 집계본은 별도 선택한다. 출력은 항상 잠정이며 공식 완료·실행 승인을 자동 부여하지 않는다. 기존 파일이 있으면 덮어쓰지 않고 실패한다.
 
-실제 모델 호출은 별도 승인 후 `execute <준비묶음> --execute-models`로만 시작한다. 이 명령은 도구 검증용이 아니며 지금 실행해서는 안 된다. 사용 예시에 실제 실행 명령은 포함하지 않았다.
+## 구조화 값의 도구 표현
 
-실행자는 [사전 예산 승인 규칙](../../docs/ai-baseline/protocols/v1/execution.md#ai-실행자의-사전-예산-승인)에 따라 예상 금액·실행 범위·승인 상한을 먼저 제시하고 사용자 승인을 기록한다. `budget` 설정이나 실행 플래그 자체는 승인이 아니다. 사전 점검·공식 생성·AI 평가·보정 중 승인받은 범위만 실행하며, 초과 예상 또는 범위 추가 시 중단하고 재승인받는다.
+외부 API·DB 스키마가 아니라 명세의 관찰값을 저장하기 위한 로컬 표현이다.
 
-- `product_root`: 해당 릴리즈 코드가 checkout된 절대 경로. `product_commit`: 축약하지 않은 전체 HEAD SHA. 실행 코드의 미커밋 변경을 거부한다. 현재 계획 브랜치를 1.0.0 제품으로 자동 간주하지 않는다.
-- 별도 PostgreSQL에 해당 릴리즈의 Alembic 마이그레이션과 확인된 참조 데이터를 준비한다. 운영 DB를 복제해 직접 쓰지 않는다. 접속 정보는 설정 JSON에 넣지 않고 `BASELINE_DATABASE_URL` 환경변수로 전달한다. 도구는 localhost의 `px_baseline_*` DB만 허용하며 job·seller·brand가 이미 있으면 중단한다. DB 생성·삭제·참조 데이터 적재는 자동 수행하지 않는다.
-- PostgreSQL/BE 의존성과 실제 모델 실행 의존성, Gemini 키, OCR 실행 장치, LaMa 가중치·GPU가 필요하다. 실제 사전·용어집은 담당자가 확인한 데이터로 준비한다. 빈 용어집이 맞는지도 별도로 확인한다.
-- 기본 제품 설정·정책·스타일 기본값은 선택한 릴리즈에서 로드한다. 기본 스타일 폰트를 포함한 파일 해시, DB 참조 자료, 제품 커밋과 도구 해시를 남긴다. 별도 프로세스에서 실행하여 다른 작업의 어댑터 설정을 공유하지 않는다.
-- 시험 도구의 가짜 모델을 가져오지 않는다. 순차 작업 전달은 기존 태스크 함수를 호출하며 재시도·제외·확정 판단은 BE에 남긴다. 원본별 N1 작업을 만들고, N3 기본 판단을 수용하고, N5 경고를 그대로 확인한다. 최종 렌더 결과는 저장소 파일로 보존한다. 보관함 UI의 저장·ZIP 내보내기는 실행하지 않는다.
-- 원본 하나에 대한 생성은 한 번만 수행한다. `started.json`이 있으면 같은 묶음 재실행을 거부한다. 중단 시에는 보존된 DB·파일·실행 이력을 확인해야 하며 자동 재개로 이전 결과를 덮어쓰지 않는다.
-- 예산은 `max_calls`, `max_amount`, `currency`, `reserve_per_call`, `basis`로 기록한다. SDK 요청 전에 호출당 보수적 예약 금액을 확보한다. 실패한 요청도 한도를 소비한다. `reserve_per_call`의 상한 근거와 SDK 내부 재시도 설정을 실제 실행 전에 확인해야 한다. 이 금액은 청구액이 아니며 실제 금액을 추정 없이 채우지 않는다. OCR·LaMa 장비 비용과 AI 평가 비용은 별도 정산한다.
+- `reference_units.applicability.H01`: boolean. false는 policy_expectation에서 expected_value.all_sections_excluded=true와 사람 확인 근거가 있는 경우만 허용한다.
+- `critical_fact`의 `applicability.H04`: machine_snapshot/service_final 각각의 boolean 적용 여부.
+- H04 `observed_value`: `accurate`, `readable` boolean. H02·H03은 `coverage_complete=true`일 때만 원본 단위 measured를 허용한다. 등급 입력은 사용하지 않는다.
+- `evidence_refs`, `basis_refs`, `verification_ref`, `correction_evidence_refs`: 회차 내부 path·sha256 객체(복수 필드는 배열). 모델 호출 없는 파일 해시 검증을 수행한다.
+- `user_edit`: 원본×N3/N5의 확인된 전체 최초·최종 대상 맵을 original_value/final_value에 기록한다. N3 값은 include/exclude, N5는 문구 문자열이다. target_id는 원본 키다. 같은 대상을 여러 번 저장해도 마지막 맵과 최초 맵의 차이로 센다. 변경 0건도 확인한 빈 맵 또는 동일한 맵을 명시해야 하며 기록 부재를 0건으로 보지 않는다. user_retry_count는 해당 단계의 누적 사용자 재시도 횟수다. 박스 수정 건수는 넣지 않는다.
+- 실행 시도는 logical_execution_id별 attempt_number, 마지막 is_final_attempt 하나를 기록한다. 중간 오류 시도와 최종 상태를 중복 OP02 분모로 세지 않는다.
+- 제품 사용량은 시도 행 또는 purpose=product_generation인 별도 usage 행 중 한 곳에만 기록한다. usage의 calls·prompt_token_count·candidates_token_count·thoughts_token_count는 확인된 정수만 쓴다. 중복 수집 방지는 수집 연결의 검토 항목이다.
+- 사람의 reviewed_value는 실제 검수한 평가 상태/관찰값 또는 결함 valid/severity/origin_stage 필드만 포함한다. 관찰값 일부 수정은 나머지 필드를 유지한다. 영역 검수를 원본 전체 확인으로 확대하지 않는다.
+- CSV의 배열·객체는 JSON 셀, null은 빈 셀이다. AI 최초 JSONL과 사람 CSV는 분리 보존한다.
 
-실제 DB 연결과 실제 모델 전체 연결 검증은 별개다. 단위 검증 통과만으로 공식 실행 가능 또는 34장 처리 성공으로 간주하지 않는다.
+## 구현과 검증 범위
 
-### 로컬 환경 준비
-
-Windows의 측정 전용 Python 환경에서 CPU OCR과 로컬 GPU LaMa를 사용한다. 로컬 PostgreSQL은 Docker 없이 독립 실행형으로 준비할 수 있다. localhost 전용 접속·별도 데이터 폴더·측정용 DB를 사용하며, 비밀번호는 Git 제외된 로컬 파일 또는 환경변수로만 관리한다. 학교 서버의 워커 환경·패키지 버전을 그대로 복제하지 않는다.
-
-제품 사본은 원격 `release/1.0.0`의 최신 커밋을 확인해 별도 경로에 고정한다. Python·PyTorch·Paddle·PostgreSQL·드라이버 버전, 모델 파일 해시와 설치 출처를 준비 기록에 보존한다. DB 스키마는 그 제품 사본의 마이그레이션으로 만든다. 사전·용어집은 사용자가 지정한 확인된 자료만 적재한다.
-
-모델 호출 없는 준비 검증은 패키지 의존성·import, CUDA 장치 인식, 모델 파일 해시, 전용 DB 연결·마이그레이션·스키마, 가짜 모델 기반 도구 테스트까지다. OCR/LaMa 엔진 생성·모델 로딩·추론과 Gemini API 요청은 이 검증에 포함하지 않는다. 실제 모델 전체 연결·입력 메모리 수용 여부는 별도 승인된 사전 실행에서 확인한다.
-
-## 결과 묶음
-
-| 파일 | 내용 |
+| 모듈 | 역할 |
 |---|---|
-| `config.json`, `inputs.json`, `frozen.json`, `protocol/` | 조건·입력 해시·고정 기준 자료 |
-| `regions.json`, `evaluation-sheet.csv`, `reference-sheet.csv` | K01~K09, 빈 원본×지표 평가표와 기준 자료 작성표 |
-| `runtime.json`, `references.json`, `bindings.jsonl` | 실제 제품·참조 데이터·원본과 DB 작업 대응 |
-| `execution.jsonl`, `stages.jsonl`, `usage.jsonl`, `warnings.jsonl` | 단계·작업 이력, 원시 출력, SDK 사용량, 확인한 경고 |
-| `evidence/<원본>.json` | 원본·섹션·블록·판정·시도·인계·산출물 DB 증거 |
-| `objects/`, `object-index.json` | SHA-256 파일과 객체 키 대응. 삭제 호출 후에도 증거 바이트 보존 |
-| `evaluations.jsonl`, `policy.jsonl`, `defects.jsonl` | AI·사람 판정과 정책 기대/실제·결함 추적 이력 |
+| protocol.py | 회차 준비·불변 산출물 복사·기록 검증, H01~H05, 원인 진단, OP02/OP03와 확인된 OP05 사용량, 전체·상품·원본 집계 |
+| preflight.py | 원본 해시·패키지 메타데이터·제품 checkout·모델 파일 확인. 모델 import·DB 연결 없음 |
+| estimate.py | 과거 저장 분할 JSON의 호출·섹션 수와 조건부 비용 산정용 호출량 |
+| be.py | 기존 수집 어댑터·모의 checkpoint hook, 사용량 정산 예산계. 실제 실행은 보류 |
+| core.py, review.py, audit.py | 과거 7지표 자료의 읽기·검증 호환 코드. 최신 공식 평가 집계에 사용하지 않음 |
 
-파일 저장소는 객체 키를 파일 경로로 해석하지 않으며 해시 파일로 보존한다. DB 증거에서 실행 권한 토큰·임시 인증 주소는 제외한다. 실행 실패 때도 증거를 남긴다. 결과 묶음의 별도 백업 확인은 책임자가 수행한다.
+H02·H03은 유효 root defect를 중복 제거해 등급을 계산한다. H04는 measured 분모와 평가 가능률을 구분하며 빈 기준 자료를 대상 없음으로 확정하지 않는다. H01은 검증된 기대 대상과 N6 실행 증거가 있어야 계산한다. H05의 미수집 수정 기록은 미확인이다. OP06은 발표에서 제외한다.
 
-## 평가 기록 형식
+OP01·OP04·OP06·OP07 운영 증거 집계와 OP05 단가 추정 비용을 연결했다. 실제 청구액·GPU 장치 시간·근거 미확인 fallback은 미측정이다. N3·N5 입력을 기다리고 실제 제품 수정 함수를 사용하는 연결은 아래를 따른다. 사용자 실행 승인을 자동 생성하지 않는다.
 
-`record`는 JSON 한 건을 검증한 뒤 JSONL에 추가한다. 실제 이미지 판단을 대신 수행하거나 등급을 자동 생성하지 않는다.
+## 예산계
 
-평가 필수 필드: `id`, `source_id`, `metric`(1~7), `role`(`primary`·`independent`·`human`), `reviewer`, `session`, `scope`, `grade`, `evidence`, `reason`.
+기본 호환 모드는 호출마다 reserve_per_call을 소비한다. 새 `settle_usage=true` 모드는 요청 전 예약한 뒤 입력·응답·사고 토큰이 모두 확인되면 단가 기반 추정액으로 정산한다. 입력/출력 단가, 모델, 통화, 근거, sdk_attempts=1, reservation_verified=true가 필요하다. 이 설정값 자체는 승인 또는 검증 증거가 아니다.
 
-- `scope`: 원본 전체는 `original`, 핵심 영역은 K01~K09, 결함 영역은 `D-`로 시작하는 안정적인 ID. 영역 사람 판정을 원본 전체 판정으로 올리지 않는다.
-- `grade`: A/B/C 또는 `판단 불가`·`해당 없음`·`산출물 없음`. A는 해당 범위를 충분히 확인한 `coverage_complete: true`가 필요하다.
-- B/C: `defect_ids`, `locations`, `observation`, `expected`, `defect_type`을 함께 기록한다. 좌표는 원본 픽셀, 끝 좌표 제외 규칙을 따른다.
-- 독립 재검토: `blind_review: true`와 1차와 다른 `session`을 기록한다. `packet`은 1차 판정을 포함하지 않는 자료 색인이다. 세션의 실제 독립성은 평가자가 지킨다.
-- 동일 대상·지표·범위·역할 재평가: 직전 `supersedes` ID와 `revision_reason`이 필요하다. 최초 판정을 삭제하지 않는다.
-- 사람 표본에서 오판 발견: `misgrade_detected: true`를 기록하면 같은 상품·지표 전체를 확대 검수 대상으로 표시한다.
+- 호출 전 누적 소비액+예약액이 max_amount를 넘거나 max_calls를 넘으면 API 함수를 호출하지 않는다.
+- 실패·사용량 누락은 예약액을 유지하며 0원 처리하지 않는다.
+- 예약/결과 기록 실패와 예약 상한 초과는 이후 호출도 차단한다.
+- 동시 진입을 직렬화한다. 예약·최종 이벤트는 같은 call ID로 연결되며 최종 집계에서 둘을 이중 청구로 합산하지 않는다.
+- 정산은 실제 청구서가 아니라 토큰×단가 추정이다. 세금·환전은 별도다.
+- 중단한 회차를 새로운 Meter로 자동 재개하지 않는다. 기존 started.json의 원본별 생성 1회 보호를 유지한다.
 
-`record --kind policy`는 `id`, `source_id`, `region_id`, `location`, `text`, `basis`, `evidence`, `reviewer`와 `expected_exclude`, `actual_exclude`, `expected_replace`, `actual_replace`를 받는다. 기대/실제 값은 true·false·null이며 실제 값이 null이면 `exception_reason`을 기록한다. 대체 지시 문구의 적합성은 별도 근거와 지표 7 판정에 기록한다. 동일 기준 영역을 수정할 때는 직전 ID와 수정 이유를 남긴다.
-
-`record --kind defects`는 `id`, `source_id`, `defect_id`, `location`, `metric`, `defect_type`, `observation`, `expected`, `evidence`, `reviewer`를 받는다. 후속 비교에는 `baseline_defect_id`, `change`(해결·완화·유지·악화·평가 불가·신규·기존 결함 뒤늦은 발견), 대응 근거를 기록한다. `recurrence: true`에는 `previous_resolved_run`이 필요하다. 분할·병합 관계와 애매한 대응의 사람 확인도 근거에 남긴다. 좌표 겹침으로 대응을 자동 확정하지 않는다.
-
-`summary`는 상품별·전체 품질 분포, 평가 가능 건수, 원본 이미지 기술 처리 완료 비율·중앙값·P90·최댓값, 정책 혼동행렬, 비용·사용량, 검수 대상 목록과 근거 연결 오류를 만든다. AI 불일치는 사람 판정 전까지 미판정으로 남긴다. 비용 미확인은 0으로 채우지 않는다. 출력은 항상 잠정 집계이며 실제 사람 검수·백업 완료를 자동 인증하지 않는다.
-
-집계 JSON의 `execution.completion_rate`는 기존 키를 유지하며, 계획된 원본 34장 중 기술 처리 완료 원본의 비율이다. O1 작업 완료율이 아니다. `execution.metric_definitions`에는 평가 범위·단위·분모·완료 조건과 지표 7의 해석 제한이 함께 기록된다. 비용은 시도 원본당 실행 비용과 기술 처리 완료 원본당 실행 비용으로 구분해 보고하며 O1 건당 원가로 부르지 않는다.
-
-`compare <이전묶음> <후속묶음> <새출력.json>`은 동일한 34장 해시·평가 조건·고정 기준 자료의 실제 파일 해시를 확인한 뒤 지표별 3×3 등급 전이와 예외 상태 전이, 결함 변화 집계·대응 누락, 후속 필수 검수 목록을 만든다. 기준을 바꾼 비교는 두 회차를 동일 기준으로 재평가한 뒤 수행한다.
-
-## 검증 가능한 기록 연결
-
-아래는 확정 평가 기준을 기록하는 도구의 로컬 형식이다. 서비스 API·모델 처리 규칙을 변경하지 않는다.
-
-- `evidence`는 문자열 대신 `{path, sha256, source_id}` 객체 배열이다. `path`는 회차 묶음 내부 상대 경로다. 객체 저장소의 이미지에는 `object_key`도 기록한다. 파일 존재·해시·원본 ID를 검사하고, 이미지 객체 키가 해당 원본의 DB 증거에 있는지 확인한다. DB 증거는 `bindings.jsonl`의 작업 ID와도 대조한다. 별도 작성한 비교 이미지·근거 문서는 묶음 내부에 보존하고 같은 형식으로 연결한다.
-- `phase`는 `formal`(기본) 또는 `calibration`이다. 보정 판정은 원시 이력에 보존하지만 공식 집계와 검수 대상 계산에서 제외한다.
-- 영역 사람 판정이 추가되면 원본 재판정에 `region_evaluation_ids`로 해당 판정 ID를 연결한다. 반영되지 않은 정정이나 같은 지표의 영역 결함보다 좋은 원본 등급은 `미판정`으로 보류한다. 일부 영역의 A를 원본 A나 전체 사람 검수 완료로 올리지 않는다.
-- 영역의 `판단 불가`·`산출물 없음`은 해당 ID를 참조했다고 해소되지 않는다. 같은 지표의 원본 A는 보류하며, 확인된 다른 결함만으로 명확한 B/C는 그 판정을 유지한다.
-- K01~K09는 지표별로 독립 재검토·사람 확인 여부를 표시한다. 대상이 없는 지표도 `해당 없음`과 근거를 기록한다. `summary ... --baseline <baseline묶음>`은 baseline B/C 문제 영역을 독립 재검토에, C 문제 영역을 필수 사람 검수에 포함한다. 원본 판정의 `defect_ids`도 대상에 반영한다.
-- 후속 검수와 baseline 결함 목록은 같은 범위의 사람 최종 판정을 우선한다. 사람이 철회한 AI 결함을 필수 검수나 결함 상세 누락으로 되살리지 않는다. 사람 정정 전 AI 불일치는 최종 채택 판정으로 간주하지 않는다.
-- 후속 결함 기록의 `match_reason`은 같은 원본·내용/대상·유형에 대한 대응 근거다. `baseline_defect_id`가 가리키는 결함이 없거나 지표가 다르면 비교 오류로 표시한다. 여러 후속 박스가 같은 baseline 결함에 대응해도 baseline 건수는 한 번만 센다. 분할 결과의 변화 상태가 다르면 자동으로 하나를 선택하지 않는다.
-
-결함 변화는 전체와 `by_metric`의 지표별 집계를 함께 제공한다. 재발을 확인하려면 `compare ... --resolved-run <이전후속회차>`로 해결을 확인한 회차를 명시적으로 제공한다(여러 회차는 옵션 반복). `previous_resolved_run`은 그 회차의 `run_id`와 일치해야 한다. 실제 묶음의 입력·평가 조건·동결 자료·증거 파일과 baseline 이후/현재 이전 실행 시점을 확인한 뒤, 같은 baseline 결함·지표의 최신 대응 기록이 모두 `해결`인 경우에만 재발을 센다. 존재하지 않는 회차명이나 확인되지 않은 해결 이력은 집계 오류로 남기며 재발 수에 더하지 않는다. 현재도 해결 또는 평가 불가인 결함을 재발로 계산하지 않는다.
-
-결함 정정 이력은 원본·결함 ID별 최신 기록으로 먼저 정리한 뒤 지표별로 나눈다. 지표를 변경한 이전 기록을 중복 집계하지 않는다. 후속 회차에도 최종 채택 판정을 적용해 철회된 신규·잔존 결함을 제외하며 `excluded_current`에 남긴다. 최종 B/C 판정의 상세 결함 기록이 없으면 오류로 표시한다. 해결 추적 기록은 후속 A라는 이유로 삭제하지 않으며, 후속 최종 B/C에 같은 결함이 남아 있으면 해결로 계산하지 않는다.
-
-### 정책 기준 자료
-
-`reference_file`은 확인된 기준 자료를 담은 JSON이며, `policy_regions` 배열을 포함한다. 각 영역은 `source_id`, `region_id`, `location`, `text`, `basis`, `expected_exclude`, `expected_replace`를 가진다. 기대값은 사람이 확인한 bool이며 실행 결과에서 만들지 않는다. 핵심 정보·보호 대상 등 나머지 기준 자료도 이 JSON에 함께 보존한다.
-
-`policy_coverage` 배열에는 34장 각각을 중복 없이 기록한다. 항목은 `source_id`, `status`(`complete` 또는 `not_applicable`), `reason`, `confirmed_by`다. `complete`인 원본에는 기준 영역이 하나 이상 있어야 하며, `not_applicable`에는 영역이 없어야 한다. 빈 영역 목록만으로 자료 준비 완료를 인정하지 않는다. 대상이 실제로 없는 원본도 확인 근거를 명시한다.
-
-집계 분모는 동결된 `policy_regions`다. 미기록·기준 불일치·목록 밖 영역을 표시하며, `판단 불가`와 `산출물 없음`은 분리한다. 실제 처리 값이 null인 기록에는 `exception_state`와 `exception_reason`이 필요하다. 기존 준비 묶음의 기준 파일을 덮어쓰지 않고 확인된 자료로 새 묶음을 만든다.
-
-### 비용 기록
-
-`record --kind cost`는 구분별 회차 총액을 `costs.jsonl`에 보존한다. 필드는 `id`, `category`(`generation`·`evaluation`·`infrastructure`·`calibration`), `kind`(`actual`·`estimate`·`unpriced`), `amount`, `currency`, `applied_at`, `basis`, `evidence`, `reviewer`다. 추정에는 `rate_source`, 미산정에는 null 금액과 `reason`을 기록한다. 회차 공통 증거의 `source_id`는 null로 둔다. 같은 구분의 총액 정정은 `supersedes`와 `revision_reason`으로 연결해 이중 합산하지 않는다.
-
-생성·인프라만 원본당 실행 비용에 합산한다. 어느 항목이 미산정이거나 통화가 다르면 합계를 만들지 않는다. 시도 원본 수와 기술 처리 완료 원본 수로 나눈 값을 각각 표시한다. AI 평가·보정 비용은 따로 남긴다. 실제 청구·단가·포함 범위의 타당성은 확인자가 검증한다. 모델 호출에는 BE 작업명과 인자가 연결되므로 DB 시도 기록과 대조해 재시도 사용량도 추적할 수 있다.
-
-### 실행 환경과 수집 오류
-
-설정의 `environment`에는 `hardware`, `resource_limits`, `concurrent_work`, `model_assets`를 기록한다. 없거나 제한이 없는 경우도 그 사실을 명시한다. `model_assets`는 사용하는 OCR·인페인트 모델 파일의 `{model, path, sha256}` 목록이며 실행 전에 실제 파일 해시를 대조한다. 실행 기록은 OS·CPU 정보, 실행 관련 환경변수, 라이브러리 버전과 초기화된 모델이 제공하는 장치·설정 정보를 함께 보존한다. 목록과 실제 로더 선택의 일치는 사전 연결 점검에서도 확인한다.
-
-수집 오류는 `RecordingStop`으로 중단한다. BE의 일반 예외 재시도·대체 처리로 넘기지 않으며 정상 반환값을 가공하지 않는다. 이 중단은 제품 품질 실패와 구분한다. 저장 매체 자체에 문제가 있으면 기록이 끝까지 남는다고 보장할 수 없으므로 해당 묶음을 완료로 취급하지 않는다.
-
-저장소 교체 직전의 저장소·작업 전달기·어댑터 객체를 보존하고, 사전 DB/사전 점검부터 실행 종료까지 정상·예외·중단 모두에서 복구한다. 복구를 위해 기존 모델을 재생성하거나 호출하지 않는다.
-
-공식 `execute`와 공개 함수 `run_prepared`는 새 Python 프로세스에서만 제품 실행을 수행한다. 부모 프로세스의 `sys.path`, 환경변수, 이미 로드된 BE·모델 객체는 변경하지 않는다. 자식은 Python 격리 모드(`-I`)로 도구·제품 경로를 명시적으로 연결하며, 제품 모듈이 이미 로드된 실행은 거부한다. DB 접속 전에 실제 SQLAlchemy 엔진 URL과 세션 팩토리의 연결 엔진을 지정된 격리 DB와 대조한다. 내부 `_run_prepared`는 전용 `worker.py` 진입점에서만 사용한다. 패키지는 해당 Python 환경에 설치돼 있어야 하며 부모의 `PYTHONPATH`에 의존하지 않는다.
-
-처리 시간은 BE 종료 직후 확정한다. 이후 DB 증거 수집은 `collection_seconds`로 분리하며 처리 시간 요약에 넣지 않는다. 생성 중 증거 수집 오버헤드는 실행기 버전과 함께 해석한다. 완료 건수는 최초 시도 완료·재시도 후 완료·재시도 정보 없음으로 나누며 분모는 여전히 34건이다.
-
-## 검증
+## 비과금 검증
 
 ```powershell
-python -m unittest discover -s tests -p "test_baseline*.py" -v
+.cache/bl-venv/Scripts/python.exe -B -m unittest discover -s tests -p "test_baseline*.py" -v
 ```
 
-합성 이미지와 가짜 요청 함수만 사용한다. 외부 모델·DB·GPU를 호출하지 않는다. Windows 샌드박스의 기본 임시 폴더 접근이 제한되면 쓰기 가능한 작업 폴더를 TEMP·TMP로 지정한다.
+합성 기록·가짜 호출자를 사용한다. 실제 모델·DB 전체 연결 통과를 의미하지 않는다. 환경 점검은 `doctor --input-root ... --product-root ... --expected-commit <SHA> --asset-manifest <환경기록.json>`으로 수행할 수 있다. DB 확인은 별도로 localhost 전용 DB에서 읽기 전용으로 수행하며 비밀번호·연결 문자열은 출력하지 않는다.
+
+
+## 상품별 실행·사람 검수 연결
+
+`generation_config`에 product_root, job_grouping=`case`, budget을 명시한다. case_inputs는 GS-01~03의 기존 상품 입력(name_ko, name_en, product_name, regulatory_class, internal_category, target_country=US, target_lang=en)을 사용한다. 순서는 GS-01→02→03이며 각 작업에 원본 2·14·18장을 업로드한다. 전체 회차의 Meter 하나로 예산을 공유한다. 원본별 추가 생성은 지원하지 않는다.
+
+`interaction.py`는 검수 요청을 artifacts/에 보존하고 터미널에서 응답 JSON 경로를 기다린다. N3/N5 각각, 다음 형태의 응답을 **사람이 실제 요청을 읽고 작성**한다. 아래는 형식 예시이며 실행 또는 실제 판단이 아니다.
+
+```json
+{"request_id":"요청 파일의 ID","actor":"실제 검수자","action":"edit","target_id":"요청에 있는 섹션 또는 블록 ID","value":"사람이 선택한 값"}
+```
+
+N3의 value는 include/exclude, N5는 번역 문자열이다. 한 번 편집하면 새 상태·새 요청 ID를 확인한다. 진행은 action=continue로 지정하며 N5에서는 acknowledgedWarnings 배열을 사람이 명시한다(없으면 빈 배열). 요청 파일에 원문·판정·번역·경고와 로컬 이미지 경로가 있다. 잘못된 입력·상태 충돌·EOF는 진행을 중단한다. 실행기는 경고 목록을 자동 승인하지 않는다.
+
+`product_review.py`는 릴리즈 SEC-03·CFM-02 함수를 호출하므로 기존 잠금·revision 검사·재렌더 규칙을 유지한다. 최초 machine_snapshot은 N5 수정 전에 보존하고, 최종 service_final은 N6 렌더 성공 후 보존한다. 섹션별 미리보기 이미지와 state_ref를 묶어 원본 단위 H02를 검수한다. 체크포인트 이미지는 객체 키가 덮어써져도 해시 사본으로 유지된다. N6 저장 성공 사건이 있어야 OP01 완료로 센다.
+
+## 운영 증거와 비용
+
+operation 행은 event·values와 기존 공통 필드를 사용한다. `operations.py`의 EVENTS가 도구 입력 필드를 검증한다.
+
+| event | values |
+|---|---|
+| job_created / job_saved / first_download | 실제 사건의 근거; 빈 객체 허용 |
+| stage_started / stage_finished / stage_stopped | 단계 N2/N4/N6. finished는 seconds 필수 |
+| human_wait | seconds(시스템 시간과 분리) |
+| first_n5_confirmed | original/final 전체 블록 문자열 맵, 작업당 최초 1건 |
+| regulation_checked | target_id, measured, findings(허용 제외 건수), auto_excluded, locale_unchecked |
+| spec_checked | target_id, passed |
+| resource | name, amount, unit |
+| fallback | kind, target_id, eligible, applied. 종류는 기존 네 fallback 이름 |
+
+확인된 규제·규격 결과는 DB 원문에서, 단계 시간은 실행기 경계에서, 수정·경고는 사람 응답과 제품 상태에서 수집한다. fallback 종류·적용 대상은 증거 대조 후 operation 기록으로 보완할 수 있으며 미확인 상태를 0건으로 만들지 않는다. P90은 방식 미정으로 숫자를 만들지 않는다. 인페인팅 호출 경과시간은 GPU 장치 사용시간과 구분한다.
+
+SDK usage는 최종 호출 이벤트당 한 행이며 cost는 `{amount, currency, basis}` 또는 null이다. 예약 이벤트를 다시 청구로 더하지 않는다. stage·model과 원시 기록을 보존한다. 원본으로 배분할 근거가 없는 상품 작업 공통 비용은 원본별 비용에 임의 분배하지 않는다.
+
+## 승인 기록과 재실행 방지
+
+cost_approval의 pm_cost_agreed=true는 이미 합의된 비용 부담이다. user_execution은 현재 null이다. 미래 사용자가 실제로 승인한 뒤에만 다음 정보를 옮긴다. 이 도구는 승인 명령을 제공하거나 합성 시험의 승인값을 실제 회차에 복사하지 않는다.
+
+- approved=true, approved_by, approved_at, evidence_ref(path·sha256)
+- product_commit, 전체 source_keys, job_grouping=case
+- official_generations_per_source=1, user_regeneration_allowed=false, human_intervention_scope
+- max_calls, max_amount, reserve_per_call, currency: 실제 budget과 일치해야 함
+
+`approval.py`는 위 기록과 실제 회차의 범위를 대조한다. 승인 후에도 명시적 실행 옵션이 필요하다. 최초 시작 파일과 상품별 claim은 배타 생성하며, 중단 후 새 Meter로 예산을 초기화하거나 같은 회차를 다시 처음부터 실행하지 않는다. 중단 회차 복구는 별도 검토 대상으로 남긴다.

@@ -7,6 +7,7 @@ from pathlib import Path
 from .core import prepare, template, read, write_new, record_evaluation, record_detail, policy_summary, rows, quality_summary, execution_summary, digest
 from .review import review_plan, transitions
 from .audit import policy_regions, evidence_issues, record_cost, cost_summary, defect_summary, load_resolved_runs
+from . import protocol
 
 
 def main(argv=None):
@@ -18,13 +19,25 @@ def main(argv=None):
     s.add_argument("config", type=Path)
     s.add_argument("output", type=Path)
     s = sub.add_parser("doctor", help="패키지 설치 여부만 확인. import·연결 없음")
+    s.add_argument('--input-root', type=Path)
+    s.add_argument('--product-root', type=Path)
+    s.add_argument('--expected-commit')
+    s.add_argument('--asset-manifest', type=Path)
+    s = sub.add_parser('estimate', help='과거 저장 기록만 읽는 호출량 시나리오')
+    s.add_argument('repository', type=Path)
+    s = sub.add_parser('capture', help='기존 산출물 불변 복사. 모델·렌더 호출 없음')
+    s.add_argument('run', type=Path)
+    s.add_argument('metadata', type=Path)
+    s.add_argument('file', type=Path)
+    s = sub.add_parser("validate", help="최신 회차의 파일·해시·참조·상태 검증")
+    s.add_argument("run", type=Path)
     s = sub.add_parser("execute", help="별도 실측 승인 후에만 사용")
     s.add_argument("run", type=Path)
     s.add_argument("--execute-models", action="store_true")
     s = sub.add_parser("record", help="별도 평가자가 작성한 판정 1건 추가")
     s.add_argument("run", type=Path)
     s.add_argument("event", type=Path)
-    s.add_argument("--kind", choices=("evaluation", "policy", "defects", "cost"), default="evaluation")
+    s.add_argument("--kind", choices=tuple(protocol.FIELDS), default="evaluations")
     s = sub.add_parser("summary", help="미판정·미검수 상태를 보존한 잠정 집계")
     s.add_argument("run", type=Path)
     s.add_argument("output", type=Path)
@@ -39,37 +52,42 @@ def main(argv=None):
     s.add_argument("--resolved-run", type=Path, action="append", default=[])
     a = p.parse_args(argv)
     if a.command == "template":
-        write_new(a.output, template())
+        write_new(a.output, protocol.template())
     elif a.command == "doctor":
+        if a.input_root:
+            from .preflight import inspect
+            print(json.dumps(inspect(a.input_root, a.product_root, a.expected_commit, a.asset_manifest), ensure_ascii=False, indent=2))
+            return 0
         print(json.dumps({m: importlib.util.find_spec(m) is not None for m in
               ("PIL", "sqlalchemy", "psycopg", "alembic", "celery", "fastapi", "boto3", "paddle", "torch")}, indent=2))
+    elif a.command == 'estimate':
+        from .estimate import historical
+        print(json.dumps(historical(a.repository), ensure_ascii=False, indent=2))
+    elif a.command == 'capture':
+        protocol.capture_artifact(a.run, read(a.metadata), a.file)
     elif a.command == "prepare":
-        missing = prepare(read(a.config), a.output)
+        missing = protocol.prepare(read(a.config), a.output)
         print(json.dumps({"missing": missing, "executed": False}, ensure_ascii=False, indent=2))
     elif a.command == "execute":
         from .be import run_prepared
-        run_prepared(a.run, a.execute_models)
+        run_prepared(a.run, execute=a.execute_models)
+    elif a.command == "validate":
+        issues = protocol.validate(a.run)
+        print(json.dumps({"issues": issues, "executed": False}, ensure_ascii=False, indent=2))
+        return 1 if issues else 0
     elif a.command == "record":
-        if a.kind == "evaluation":
-            record_evaluation(a.run, read(a.event))
-        elif a.kind == "cost":
-            record_cost(a.run, read(a.event))
-        else:
-            record_detail(a.run, a.kind, read(a.event))
+        protocol.record(a.run, a.kind, read(a.event))
     elif a.command == "summary":
-        history = rows(a.run / "evaluations.jsonl")
-        execution = rows(a.run / "execution.jsonl")
-        usage = rows(a.run / "usage.jsonl")
-        write_new(a.output, {"formal_complete": False, "quality": quality_summary(history),
-                  "execution": execution_summary(execution),
-                  "review": review_plan(history, read(a.run / "config.json").get("run_id"),
-                                        baseline=rows(a.baseline / "evaluations.jsonl") if a.baseline else ()),
-                  "policy": policy_summary(rows(a.run / "policy.jsonl"), policy_regions(a.run)),
-                  "evidence_issues": evidence_issues(a.run, history + rows(a.run / "policy.jsonl") + rows(a.run / "defects.jsonl")),
-                  "defects": rows(a.run / "defects.jsonl"),
-                  "usage": usage,
-                  "cost": cost_summary(rows(a.run / "costs.jsonl"), execution, usage)})
+        if (a.run / 'manifest.json').exists():
+            protocol.export(a.run, a.output)
+            return 0
+        raise ValueError('구형 7지표 묶음은 최신 공식 집계로 사용할 수 없습니다')
     elif a.command == "packet":
+        if (a.run / 'manifest.json').exists():
+            manifest = read(a.run / 'manifest.json')
+            write_new(a.output, {"instructions": "Codex 채팅 직접 검수. H01/H05 추정 금지. H02/H03 등급은 결함에서 계산.",
+                               "manifest": manifest, "reference_units": rows(a.run / 'reference_units.jsonl')})
+            return 0
         config = read(a.run / "config.json")
         frozen = read(a.run / "frozen.json")
         write_new(a.output, {"instructions": "원본·증거·확정 명세로 독립 판정. 1차 판정 파일은 열지 않는다.",

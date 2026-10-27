@@ -227,7 +227,8 @@ class ToolsTest(unittest.TestCase):
                 SimpleNamespace(start_analysis=analyze), SimpleNamespace(visible_sections=lambda *a: sections),
                 SimpleNamespace(proceed=proceed), SimpleNamespace(confirm=confirm,
                     unresolved_warnings=lambda *a: warnings, can_save=lambda *a: True),
-                lambda w: calls.append("warnings"))
+                lambda w: calls.append("warnings"), checkpoint=lambda *a: None,
+                human=lambda *a: {"acknowledgedWarnings": warnings, "original": {}, "final": {}})
         return status, calls
 
     def test_driver_forwards_exact_warnings_without_editing_translation(self):

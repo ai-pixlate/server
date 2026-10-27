@@ -67,15 +67,12 @@ class ConsistencyTest(unittest.TestCase):
         self.assertEqual(result["counts"]["유지"], 1)
         self.assertEqual(result["issues"], [])
 
-    def test_public_executor_only_launches_new_isolated_process(self):
+    def test_public_executor_pending_approval_never_launches(self):
         environment, paths = dict(os.environ), list(sys.path)
-        with patch.dict(sys.modules, {"app.db": ModuleType("app.db")}), patch.object(be.subprocess, "run") as launch:
-            be.run_prepared("fixture", True)
-            args, kwargs = launch.call_args
-            self.assertIn("-I", args[0])
-            self.assertIn("--execute-models", args[0])
-            self.assertTrue(Path(args[0][3]).is_absolute())
-            self.assertTrue(kwargs["check"])
+        with patch.object(be.subprocess, "run") as launch:
+            with self.assertRaises(ValueError):
+                be.run_prepared("fixture", True)
+            launch.assert_not_called()
         self.assertEqual(dict(os.environ), environment)
         self.assertEqual(sys.path, paths)
 

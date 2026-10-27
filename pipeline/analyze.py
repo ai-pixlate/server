@@ -7,7 +7,8 @@ block_key는 ③이 섹션 안에서 매긴 번호를 최종 순서(upload_order
 다시 매긴다(dev.md 3절, open-questions #38 H). use_llm이면 out_dir/merge_debug/에 섹션별 llm_assist 기록과
 (section_key, 섹션 최종 블록 키) → 실행 최종 블록 키 대응(block_keys.json)을 남긴다(pipeline.md 7.2절).
 ② 분할 설정도 ① 전에 검증한다. 높이 > ocr.split_threshold_px 섹션(① 대체 섹션 포함)은 타일 OCR로 처리하고
-out_dir/ocr_debug/<section_key>.json에 타일 진단을 남긴다 — 실패(OCR_FAILED)해도 남긴다(pipeline.md 7.9절).
+out_dir/ocr_debug/<section_key>.json에 타일 진단을 남긴다 — 실패(OCR_FAILED)해도 남긴다(pipeline.md 7.9절). 짧은 섹션은
+호출별 중복 제거 기록이 있을 때만 남긴다.
 """
 from __future__ import annotations
 
@@ -72,12 +73,13 @@ def split_or_whole(
 
 
 def _ocr_section(sec, cfg: dict[str, Any], engine: Any | None, debug_dir: Path):
-    """② 실행. 타일 섹션이면 성공 · 실패와 관계없이 진단을 debug_dir/<section_key>.json에 쓴다."""
+    """② 실행. 타일 섹션(또는 호출별 중복 제거 기록이 있는 짧은 섹션)이면 성공 · 실패와 관계없이 진단을
+    debug_dir/<section_key>.json에 쓴다."""
     diag: dict[str, Any] = {}
     try:
         return ocr.run(sec, cfg, diag=diag) if engine is None else ocr.run(sec, cfg, engine=engine, diag=diag)
     finally:
-        if diag.get("tiled"):
+        if diag:
             debug_dir.mkdir(parents=True, exist_ok=True)
             (debug_dir / f"{sec.section_key}.json").write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
 

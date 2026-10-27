@@ -34,6 +34,15 @@ tile_equiv_min_x_iou = 0.9       # 동등 판정: 양쪽 가로 덮음 구간(x 
 tile_edge_touch_px = 3           # 검출 bbox가 타일 내부 절단선에서 이 거리 안이면 접촉(잘림 의심)
 tile_box_jitter_px = 3           # 위치 비교(가로 덮음 IoU · 포함)에서 검출 박스 흔들림으로 보고 넓혀 주는 거리
 tile_supplement_margin_px = 150  # 보완 OCR crop: 의심 성분 위아래로 이만큼 밖(그 너머 같은 폭 안의 여백 우선)에서 자른다
+# 호출별 명백한 중복 제거(#40) · 겹친 검출 재인식(#32), 2026-10-27 구현(pipeline.md 7.9절). 아래 값은 실측 전 잠정 구현값이며 운영 기본값이 아니다
+dedup_min_poly_iou = 0.9           # 같은 엔진 호출 안 텍스트가 같은 두 검출의 실제 polygon IoU가 이 값 이상이면 중복 후보
+dedup_max_angle_diff_deg = 5.0     # 중복 후보 두 polygon의 윗변(첫 점 → 둘째 점) 방향 차 상한(도)
+overlap_rec_max_calls = 12         # 섹션당 국소 재인식(인식 모델만) 호출 상한. 같은 crop 재사용은 세지 않는다. 0이면 재인식 안 함
+overlap_rec_max_group = 4          # 재구성 묶음 한쪽(한 OCR 호출 · 한 줄)의 검출 수 상한
+overlap_rec_max_x_overlap = 0.5    # 부분 겹침: 이웃 검출의 가로 교집합 / 좁은 쪽 폭이 0 초과 · 이 값 이하(넘으면 포함에 가까워 후보 제외)
+overlap_rec_max_angle_deg = 10.0   # crop 최소 회전 사각형 윗변의 기울기 상한(도)
+overlap_rec_max_foreign = 0.1      # 묶음 밖 같은 호출 검출이 crop 사각형 안에 들어온 면적 / 그 검출 면적의 상한
+overlap_rec_max_fragment_digits = 1  # 이웃 접촉 부분 한쪽 끝에서 조각으로 보고 지울 수 있는 숫자 수 상한
 
 [merge]                        # ③ 줄·문단 병합 + 역할 분류
 line_gap = 0.7

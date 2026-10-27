@@ -7,8 +7,12 @@
 - score = 영역의 인식 신뢰도(rec_scores[i]) [contract.md 2.5, open-questions.md 5절 #34].
 - 좌표는 섹션 로컬 정수. 폴리곤 점은 섹션 범위 [0, W]×[0, H]로 자르고 bbox는 자른 폴리곤에서 만든다.
 - 영역 순서는 라이브러리 정렬(위→아래, 왼→오른쪽) 그대로, region_key는 그 순서로 부여한다.
+- 모든 엔진 호출(짧은 섹션 · 타일 · 보완)의 검출 목록 안에서 명백한 중복(같은 텍스트 · 거의 같은 실제 polygon)만 지운다
+  (`ocr_overlap.dedup`, open-questions #40 · pipeline.md 7.9절). 짧은 섹션은 지운 뒤 엔진 순서로 region_key를 다시 매긴다.
 - 높이 > `ocr.split_threshold_px` 섹션은 OCR 처리용 타일로 나눠 돌리고 섹션 로컬 좌표로 복원한 뒤 겹침 중복을 정리한다
-  (`ocr_tile.py`, 계약 3.2 · pipeline.md 7.9절). 보완 OCR 후에도 타일 경계 충돌이 남으면 OCR_FAILED. 이하 섹션은 한 번에 돈다.
+  (`ocr_tile.py`, 계약 3.2 · pipeline.md 7.9절). 타일 경계 충돌 성분의 겹친 검출은 인식 모델만으로 다시 읽어 채택 조건을 통과할
+  때만 바꾼다(`PaddleOcrEngine.recognize_crops`, 그 메서드가 없는 주입 엔진이면 건너뛴다). 보완 OCR 후에도 타일 경계 충돌이
+  남으면 OCR_FAILED. 이하 섹션은 한 번에 돈다.
 - 텍스트 0개는 오류가 아니다(regions=[]). 섹션 이미지를 열 수 없거나 크기가 Section의 width·height와 다르면 IMAGE_OPEN_FAILED,
   엔진 초기화·추론·출력 형식 오류는 OCR_FAILED(재시도 가능), 타일 경계 충돌 미해결은 OCR_FAILED · 재시도 불가 — 원인별 표는
   errors.py(#33 타일 범위 결정, 나머지 세분은 후속).
@@ -17,6 +21,7 @@
 """
 from __future__ import annotations
 
+import math
 import sys
 from collections.abc import Mapping
 from typing import Any, Callable
@@ -26,13 +31,14 @@ from PIL import Image
 from pydantic import ValidationError
 
 from pipeline.errors import AnalyzeError, image_open_failed
-from pipeline.stages import ocr_tile
+from pipeline.stages import ocr_overlap, ocr_tile
 from pipeline.types import BBox, OcrRegion, OcrResult, Section, region_key
 
 REC_SCORE_THRESH = 0.0  # pipeline.md 7절: 빈 텍스트·저신뢰만을 이유로 제거하지 않는다
 _REQUIRED_KEYS = ("rec_polys", "rec_texts", "rec_scores")
 
 # 엔진: BGR uint8 배열 → PaddleOCR 결과 dict(rec_polys · rec_texts · rec_scores ...). info는 run.json 기록용.
+# 선택: recognize_crops(crops) → [(text, score)] — 이미 방향 보정한 crop을 인식 모델만으로 읽는다(겹친 검출 재인식).
 Engine = Callable[[np.ndarray], dict[str, Any]]
 
 
@@ -94,6 +100,25 @@ class PaddleOcrEngine:
         r = res[0]
         return {k: r[k] for k in r.keys()}
 
+    def recognize_crops(self, crops: list[np.ndarray]) -> list[tuple[str, float]]:
+        """인식 모델만 부른다(겹친 검출 재인식, pipeline.md 7.9절). crops는 이미 방향 보정한 BGR uint8 배열이다.
+
+        PaddleX OCR 파이프라인이 검출 뒤 crop을 넘기는 그 인식 모델(`_OCRPipeline.text_rec_model`, `PaddleOCR.paddlex_pipeline`
+        에서 접근)을 그대로 쓴다 — 검출 · crop 생성 · 점수 필터(text_rec_score_thresh)는 거치지 않는다. 파이프라인과 같이 BGR
+        배열을 넘긴다(인식 predictor가 RGB로 바꾼다). 배치 패딩이 판독에 끼어들지 않도록 crop마다 한 번씩 부른다.
+        paddleocr 3.7.0 · paddlex 3.7.2 소스에서 확인한 내부 속성에 기대므로 버전을 바꾸면 다시 확인한다(라이브러리는 수정하지 않는다)."""
+        rec = self._ocr.paddlex_pipeline.text_rec_model
+        out: list[tuple[str, float]] = []
+        for crop in crops:
+            res = list(rec([crop]))
+            if len(res) != 1:
+                raise ValueError(f"인식 결과 수 {len(res)} ≠ 1")
+            text = res[0]["rec_text"]
+            if not isinstance(text, str):  # return_word_box를 켜면 튜플이 온다 — 이 어댑터는 켜지 않는다
+                raise ValueError(f"인식 결과 텍스트 형식 {type(text).__name__}")
+            out.append((text, float(res[0]["rec_score"])))
+        return out
+
 
 _ENGINES: dict[tuple, PaddleOcrEngine] = {}
 
@@ -153,19 +178,39 @@ def to_result(section: Section, raw: dict[str, Any], width: int, height: int) ->
 
 
 def validate_config(cfg: dict[str, Any]) -> ocr_tile.TileParams:
-    """② 임시 분할 설정을 검증한다(키 누락 · 범위 · 커서 정체 조건). 어기면 ValueError — 섹션을 돌리기 전에 부른다."""
+    """② 임시 분할 · 중복 제거 · 겹친 검출 재인식 설정을 검증한다(키 누락 · 범위 · 커서 정체 조건). 어기면 ValueError — 섹션을
+    돌리기 전에 부른다."""
     try:
+        ocr_overlap.params_of(cfg)
         return ocr_tile.params_of(cfg)
     except KeyError as e:
         raise ValueError(f"ocr 설정에 키 없음 {e}") from e
+
+
+def _dedup_section(section: Section, res: OcrResult, ov: ocr_overlap.OverlapParams, w: int, h: int,
+                   diag: dict[str, Any]) -> OcrResult:
+    """짧은 섹션의 호출별 명백한 중복 제거. 기록(제거 · 판정 보류)이 있을 때만 diag를 채운다(`tiled: false`)."""
+    kept, records = ocr_overlap.dedup(res.regions, ov)
+    if not records:
+        return res
+    regions = [res.regions[i].model_copy(update={"region_key": region_key(n)}) for n, i in enumerate(kept, 1)]
+    diag.update({"tiled": False, "section_key": section.section_key, "height": h, "width": w,
+                 "params": ov.as_dict(), "engine_calls": {"section": 1},
+                 "dedup": [{"origin": "section", "crop": 0, "crop_y0": 0, "coords": "section_local", "raw_count": len(res.regions),
+                            "removed": ocr_overlap.removed_count(records), "records": records}],
+                 "regions": [{"region_key": r.region_key, "raw_order": i} for r, i in zip(regions, kept)]})
+    return OcrResult(section_key=res.section_key, regions=regions)
 
 
 def run(section: Section, cfg: dict[str, Any], engine: Engine | None = None, diag: dict[str, Any] | None = None) -> OcrResult:
     """섹션 하나를 OCR한다. engine은 테스트·실험용 주입(기본은 build_engine(cfg)).
 
     높이 > split_threshold_px면 타일 OCR(ocr_tile.run_tiled). diag에 dict를 주면 타일 섹션의 진단(타일 · 성분 · 보완 ·
-    버린 검출 · 최종 대응)을 채운다 — 실패(OCR_FAILED)로 끝나도 그때까지의 내용이 남는다. 계약 값이 아니라 개발 확인용."""
+    버린 검출 · 호출별 중복 제거 · 겹친 검출 재인식 · 최종 대응)을 채운다 — 실패(OCR_FAILED)로 끝나도 그때까지의 내용이 남는다.
+    짧은 섹션은 중복 제거 기록이 있을 때만 채운다(`tiled: false`). 계약 값이 아니라 개발 확인용."""
     params = validate_config(cfg)
+    ov = ocr_overlap.params_of(cfg)
+    d = diag if diag is not None else {}
     image = load_section_image(section)
     h, w = image.shape[:2]
     if (w, h) != (section.width, section.height):
@@ -185,7 +230,7 @@ def run(section: Section, cfg: dict[str, Any], engine: Engine | None = None, dia
             raw = engine(image)
         except Exception as e:  # noqa: BLE001 — 추론 예외는 OCR_FAILED로 감싼다(retryable 분류는 #33)
             raise _ocr_failed(section, "추론 실패", e, reason="ocr_inference") from e
-        return to_result(section, raw, w, h)
+        return _dedup_section(section, to_result(section, raw, w, h), ov, w, h, d)
 
     def recognize(y0: int, y1: int) -> list[OcrRegion]:
         try:
@@ -194,5 +239,22 @@ def run(section: Section, cfg: dict[str, Any], engine: Engine | None = None, dia
             raise _ocr_failed(section, f"추론 실패(타일 y {y0}~{y1})", e, reason="ocr_inference") from e
         return to_result(section, raw, w, y1 - y0).regions
 
-    regions = ocr_tile.run_tiled(section, image, params, recognize, diag)
+    crop_api = getattr(engine, "recognize_crops", None)
+
+    def recognize_crop(crop: np.ndarray) -> tuple[str, float]:
+        try:
+            out = crop_api([crop])
+        except Exception as e:  # noqa: BLE001 — 국소 재인식 추론 예외도 다른 추론 실패와 같이 OCR_FAILED(재시도 가능)
+            raise _ocr_failed(section, "추론 실패(국소 재인식)", e, reason="ocr_inference") from e
+        try:
+            ((text, score),) = out
+            score = float(score)
+        except (TypeError, ValueError) as e:
+            raise _ocr_failed(section, "국소 재인식 결과 형식 오류", e, reason="ocr_output_invalid") from e
+        if not isinstance(text, str) or not (math.isfinite(score) and 0.0 <= score <= 1.0):
+            raise _ocr_failed(section, f"국소 재인식 결과 형식 오류(text={type(text).__name__}, score={score})",
+                              reason="ocr_output_invalid")
+        return text, score
+
+    regions = ocr_tile.run_tiled(section, image, params, ov, recognize, recognize_crop if callable(crop_api) else None, d)
     return OcrResult(section_key=section.section_key, regions=regions)

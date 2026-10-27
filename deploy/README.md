@@ -207,6 +207,21 @@ push 후 ECR digest가 빌드한 이미지 ID와 같은지 확인하고, 그 dig
   - 버전을 올리거나 패키지를 추가할 때는 `constraints.txt`를 고치는 **별도 PR**로 합니다. 새 패키지는 `requirements`와 `constraints.txt`에 함께 넣어야 대조를 통과합니다.
   - `pillow`는 렌더러 버전(`app/typeset.py`의 `RENDERER_VERSION`)에 들어갑니다. 바꾸면 전환 전에 만들어진 미리보기·최종 렌더 고정 입력이 전환 뒤 실행·재시도에서 `INPUT_CHANGED`가 됩니다. 처리 방법을 먼저 정합니다.
 
+### 전환 도구(준비 중 — 아직 기동 스크립트·배포 절차에 연결되지 않음)
+
+자동 배포(CI 2단계)를 위한 도구입니다. 신규 도구 `pixlate-transition`·`pixlate-postcheck`는 **아직 기동·배포 절차에 연결되지 않았고**,
+위·아래의 수동 절차가 그대로 기준입니다. 기존 `state_check.py`는 `pixlate-mode status`가 이미 호출하며, 인자 없는 호출의 출력·종료 코드는 그대로입니다.
+`start-pixlate.sh` 연결(전환 기록이 미완료면 단계 요청 없이는 공개하지 않음)과 배포 실행기는 다음 변경에서 붙입니다.
+
+| 도구 | 하는 일 |
+| --- | --- |
+| `bin/pixlate-transition` | 전환 기록(`/var/lib/pixlate/transition.json`, 영속)·단계 요청(1회용, 부팅 ID·만료 포함)·abort·recover·`--from-live` 진입·resolve. 기록을 만들기 전에 이전 `release.conf`를 보관하고 관리 컨테이너 재시작 정책을 모두 `no`로 바꿔 확인합니다. 종료 코드 0 성공 · 10 거부 · 11 실패(원상태 확인) · 12 상태 미확인 · 13 단계 실패 |
+| `bin/state_check.py` | 인자 없이 부르면 지금과 같은 출력(`pixlate-mode status`). `--gate` 유휴 관문(0 유휴·2 작업 있음·1 조회 실패), `--db-revision` `alembic_version` 직접 조회, `--snapshot [--with-s3]` 무실행 확인용 상태 지문, `--compare A B` 지문 비교 |
+| `bin/pixlate-postcheck` | 공개 후 동작 확인: `release.conf`·모드·세 컨테이너 digest·`/health`·celery ping·확인 구간 동안 재시작 없음. 새 작업·큐가 있어도 실패가 아닙니다 |
+
+- 상태 지문이 같다는 것은 **DB·큐(와 S3 목록) 무변화**만 뜻합니다. 이미 지워진 S3 접두사를 다시 지우는 호출이나 외부 호출은 보이지 않습니다.
+- 기록 잠금(`/run/lock/pixlate-transition.lock`)은 기록을 읽고 쓰는 동안만 잡습니다. 잡은 채로 `pixlate-mode`·`systemctl`을 부르지 않습니다.
+
 ### 2. 전환
 
 ```bash

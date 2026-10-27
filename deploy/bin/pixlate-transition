@@ -1,0 +1,662 @@
+#!/usr/bin/env python3
+"""/opt/pixlate/bin/pixlate-transition — 전환 기록(영속)·단계 요청·abort·recover 기록 갱신. 비밀 값 없음.
+
+배포·재복사·복구가 서비스를 바꾸는 동안 "미완료" 를 디스크에 남겨, 중간 실패·프로세스 종료·재부팅 때
+서비스가 저절로 공개되지 않게 한다(start-pixlate.sh 가 `consume` 으로 묻는다 — 연결은 PR B).
+표준 라이브러리만 쓴다(호스트 python3). Redis·DB 는 다루지 않는다(state_check.py·coord.py 의 일).
+
+기록 /var/lib/pixlate/transition.json (root 600, 임시 파일 → fsync → rename → 디렉터리 fsync)
+잠금 L2 /run/lock/pixlate-transition.lock — 각 명령이 기록을 읽고 쓰는 동안만 쥔다.
+     L2 를 쥔 채 pixlate-mode·systemctl 을 부르지 않는다(start-pixlate 의 consume 이 같은 잠금을 잡으므로 교착).
+     실행 전체 잠금(L1)은 배포 실행기의 몫이다(PR C).
+
+state: incomplete → live-confirmed → complete / aborted / abort-unknown / resolved
+종료 코드: 0 성공 · 2 사용법 · 10 거부(아무것도 바꾸지 않음) · 11 실패(원상태 확인) · 12 상태 미확인 · 13 단계 실패
+경로·명령은 환경 변수로 바꿀 수 있다(시험용): PIXLATE_STATE_DIR, PIXLATE_LOCK_DIR, PIXLATE_CONF_DIR,
+PIXLATE_BOOT_ID_FILE, DOCKER, PIXLATE_MODE, PIXLATE_HEALTH_CMD, PIXLATE_COORD_RESTORE, PIXLATE_REQUEST_TTL_S.
+"""
+from __future__ import annotations
+
+import argparse
+import fcntl
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import tempfile
+import time
+from contextlib import contextmanager
+from datetime import datetime, timezone
+
+STATE_DIR = os.environ.get("PIXLATE_STATE_DIR", "/var/lib/pixlate")
+LOCK_DIR = os.environ.get("PIXLATE_LOCK_DIR", "/run/lock")
+CONF_DIR = os.environ.get("PIXLATE_CONF_DIR", "/etc/pixlate")
+BOOT_ID_FILE = os.environ.get("PIXLATE_BOOT_ID_FILE", "/proc/sys/kernel/random/boot_id")
+DOCKER = os.environ.get("DOCKER", "docker")
+PIXLATE_MODE = os.environ.get("PIXLATE_MODE", "/opt/pixlate/bin/pixlate-mode")
+HEALTH_CMD = os.environ.get(  # 성공 = curl 종료 0 이고 HTTP 200(curl -f 는 3xx·204 도 통과, 200 뒤 시간 초과는 코드만 200)
+    "PIXLATE_HEALTH_CMD",
+    "code=$(curl -s -o /dev/null -w '%{http_code}' -m 5 http://127.0.0.1:8000/health) && test \"$code\" = 200")
+COORD_RESTORE = os.environ.get("PIXLATE_COORD_RESTORE", "")  # `<명령> <run_id> <이전 값>` — 조정 상태 원복(PR C)
+REQUEST_TTL_S = int(os.environ.get("PIXLATE_REQUEST_TTL_S", "600"))
+LOCK_WAIT_S = float(os.environ.get("PIXLATE_LOCK_WAIT_S", "30"))
+
+RECORD = os.path.join(STATE_DIR, "transition.json")
+PREP = os.path.join(STATE_DIR, "transition.prep.json")
+LOCK = os.path.join(LOCK_DIR, "pixlate-transition.lock")
+MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-recovery")
+SEQUENCES = {
+    "sandbox": ["precheck", "maintenance", "validate", "isolated", "live"],
+    "production": ["precheck", "maintenance", "validate", "live"],
+}
+TERMINAL = ("complete", "aborted", "resolved")
+OK, USAGE, REJECTED, FAILED, UNKNOWN, STEP_FAILED = 0, 2, 10, 11, 12, 13
+SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+
+class Stop(Exception):
+    """명령을 끝낸다. code 는 종료 코드, msg 는 사람용 한 줄. replaced = 기록 파일은 이미 새 내용으로 바뀌었다(영속화만 미확인)."""
+
+    def __init__(self, code: int, msg: str, replaced: bool = False):
+        super().__init__(msg)
+        self.code, self.msg, self.replaced = code, msg, replaced
+
+
+class ReplacedNotDurable(OSError):
+    """rename 은 됐지만 디렉터리 fsync 가 실패했다 — 새 내용이 보이지만 전원 차단 뒤 남는다고 확인하지 못했다."""
+
+
+def now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def boot_id() -> str:
+    with open(BOOT_ID_FILE, encoding="ascii") as f:
+        return f.read().strip()
+
+
+# ---- 파일 ----------------------------------------------------------------------------------------------------
+def fsync_dir(d: str) -> None:
+    dfd = os.open(d, os.O_RDONLY)
+    try:
+        os.fsync(dfd)
+    finally:
+        os.close(dfd)
+
+
+def atomic_write(path: str, data: dict) -> None:
+    """임시 파일 → fsync → rename → 디렉터리 fsync.
+    rename 전 실패(OSError) = 이전 파일이 그대로 남는다. rename 뒤 디렉터리 fsync 실패(ReplacedNotDurable) = 새 내용이 이미 보인다."""
+    d = os.path.dirname(path)
+    os.makedirs(d, mode=0o700, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=".tmp-", dir=d)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1, sort_keys=True)
+            f.write("\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.chmod(tmp, 0o600)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+    try:
+        fsync_dir(d)
+    except OSError as e:
+        raise ReplacedNotDurable(str(e)) from e
+
+
+def read_record() -> dict | None:
+    """없으면 None. 읽을 수 없거나 형식이 깨졌으면 Stop(UNKNOWN) — 없는 것으로 취급하지 않는다."""
+    try:
+        with open(RECORD, encoding="utf-8") as f:
+            rec = json.load(f)
+    except FileNotFoundError:
+        return None
+    except (OSError, ValueError) as e:
+        raise Stop(UNKNOWN, f"전환 기록을 읽을 수 없다({type(e).__name__}) — 없는 것으로 취급하지 않는다")
+    if not isinstance(rec, dict) or "state" not in rec or "run_id" not in rec:
+        raise Stop(UNKNOWN, "전환 기록 형식 이상")
+    return rec
+
+
+def write_record(rec: dict, event: str, **detail) -> None:
+    rec.setdefault("history", []).append({"at": now(), "event": event, **detail})
+    try:
+        atomic_write(RECORD, rec)
+    except ReplacedNotDurable:
+        raise Stop(UNKNOWN, "전환 기록은 새 내용으로 바뀌었으나 영속화(디렉터리 fsync)를 확인하지 못했다", replaced=True)
+    except OSError as e:
+        raise Stop(UNKNOWN, f"전환 기록 쓰기 실패({type(e).__name__}) — 이전 기록이 남아 있다")
+
+
+@contextmanager
+def l2():
+    """기록 잠금(L2). 짧게 쥔다. 기다리다 못 얻으면 거부(아무것도 바꾸지 않음)."""
+    os.makedirs(LOCK_DIR, exist_ok=True)
+    fd = os.open(LOCK, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        deadline = time.monotonic() + LOCK_WAIT_S
+        while True:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.monotonic() >= deadline:
+                    raise Stop(REJECTED, f"기록 잠금을 {LOCK_WAIT_S:g}초 안에 얻지 못했다")
+                time.sleep(0.05)
+        yield
+    finally:
+        os.close(fd)  # 닫으면 잠금도 풀린다
+
+
+def read_release() -> tuple[str, str]:
+    vals = {}
+    with open(os.path.join(CONF_DIR, "release.conf"), encoding="utf-8") as f:
+        for line in f:
+            if "=" in line:
+                k, v = line.split("=", 1)
+                vals[k.strip()] = v.strip()
+    return vals.get("RELEASE_SHA", ""), vals.get("API_DIGEST", "")
+
+
+def read_word(name: str) -> str:
+    try:
+        with open(os.path.join(CONF_DIR, name), encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return ""
+
+
+# ---- Docker ----------------------------------------------------------------------------------------------------
+def docker(*args: str) -> tuple[int, str]:
+    p = subprocess.run([*shlex.split(DOCKER), *args], capture_output=True, text=True)
+    return p.returncode, (p.stdout + p.stderr).strip()
+
+
+def read_policies() -> dict[str, str]:
+    """관리 컨테이너 재시작 정책. 없는 컨테이너는 'absent'. 조회 실패는 Stop(UNKNOWN) — 없음으로 취급하지 않는다."""
+    out = {}
+    for c in MANAGED:
+        rc, txt = docker("container", "inspect", "-f", "{{.HostConfig.RestartPolicy.Name}}", c)
+        if rc == 0:
+            out[c] = txt.splitlines()[-1].strip() if txt else ""
+        elif re.search(r"No such (container|object)", txt):
+            out[c] = "absent"
+        else:
+            raise Stop(UNKNOWN, f"{c} 재시작 정책 조회 실패")
+    return out
+
+
+def set_policies(target: dict[str, str]) -> list[str]:
+    """정책을 바꾸고 다시 읽어 확인한다. 판정은 다시 읽은 실제 값으로 한다(명령이 실패해도 이미 그 값이면 확인된 것).
+    맞지 않는 컨테이너 목록을 돌려준다(빈 목록 = 모두 확인). 다시 읽기 자체가 실패하면 전부 미확인."""
+    for c, pol in target.items():
+        if pol != "absent":
+            docker("update", f"--restart={pol or 'no'}", c)
+    try:
+        now_p = read_policies()
+    except Stop:
+        return list(target)
+    return [c for c, pol in target.items() if now_p.get(c) != ("absent" if pol == "absent" else (pol or "no"))]
+
+
+def all_no(policies: dict[str, str]) -> dict[str, str]:
+    return {c: ("absent" if p == "absent" else "no") for c, p in policies.items()}
+
+
+def container_digest_running(c: str, digest: str) -> bool:
+    rc, txt = docker("container", "inspect", "-f", "{{.State.Status}} {{.Config.Image}}", c)
+    if rc != 0:
+        return False
+    parts = txt.split()
+    return len(parts) == 2 and parts[0] == "running" and parts[1].endswith("@" + digest)
+
+
+# ---- 판정 도우미 -----------------------------------------------------------------------------------------------------
+def need(rec: dict | None, run_id: str, states: tuple[str, ...]) -> dict:
+    if rec is None:
+        raise Stop(REJECTED, "전환 기록 없음")
+    if rec["run_id"] != run_id:
+        raise Stop(REJECTED, f"다른 실행의 기록이다(기록 run_id={rec['run_id']})")
+    if rec["state"] not in states:
+        raise Stop(REJECTED, f"기록 상태 {rec['state']} 에서는 할 수 없다(허용: {', '.join(states)})")
+    return rec
+
+
+def next_step(rec: dict) -> str | None:
+    seq = rec["sequence"]
+    i = seq.index(rec["step"]) if rec["step"] in seq else -1
+    return seq[i + 1] if 0 <= i < len(seq) - 1 else None
+
+
+def emit(cmd: str, result: str, msg: str = "") -> None:
+    print(f"TRANSITION {cmd} result={result}" + (f" — {msg}" if msg else ""))
+
+
+# ---- 명령 ----------------------------------------------------------------------------------------------------
+def cmd_begin(a) -> int:
+    if not SHA_RE.match(a.sha) or not DIGEST_RE.match(a.digest):
+        raise Stop(REJECTED, "후보 SHA(40자리)·digest(sha256:64자리) 형식")
+    with l2():
+        rec = read_record()
+        if rec is not None and rec["state"] not in TERMINAL:
+            raise Stop(REJECTED, f"끝나지 않은 기록이 있다(run_id={rec['run_id']}, state={rec['state']})")
+        # ⓪ 이전 release 영속 보관 — 기록을 만들기 전에. 실패하면 아무것도 바꾸지 않는다
+        prev_sha, prev_digest = read_release()
+        if not SHA_RE.match(prev_sha) or not DIGEST_RE.match(prev_digest):
+            raise Stop(REJECTED, "현재 release.conf 형식 이상 — 되돌릴 기준이 없어 시작하지 않는다")
+        backup = os.path.join(STATE_DIR, f"release.conf.{a.run_id}")
+        content = f"RELEASE_SHA={prev_sha}\nAPI_DIGEST={prev_digest}\n"
+        os.makedirs(STATE_DIR, mode=0o700, exist_ok=True)
+        try:
+            fd, tmp = tempfile.mkstemp(prefix=".tmp-", dir=STATE_DIR)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(content)
+                f.flush()
+                os.fsync(f.fileno())
+            os.chmod(tmp, 0o600)
+            os.replace(tmp, backup)
+            with open(backup, encoding="utf-8") as f:
+                if f.read() != content:
+                    raise OSError("다시 읽은 내용이 다르다")
+        except OSError as e:
+            raise Stop(REJECTED, f"이전 release 보관 실패({e}) — 시작하지 않았다")
+        applied = read_word("deploy.mode.applied")
+        try:
+            policies = read_policies()
+        except Stop as e:  # 아직 바꾼 것이 없으므로 상태 미확인이 아니라 거부
+            raise Stop(REJECTED, e.msg + " — 시작하지 않았다")
+        prep = {"run_id": a.run_id, "prev_policies": policies, "release_backup": backup, "at": now()}
+        try:
+            atomic_write(PREP, prep)
+        except OSError:
+            raise Stop(REJECTED, "준비 파일 쓰기 실패 — 시작하지 않았다")
+        # ① 모두 restart=no 로 바꾸고 확인
+        bad = set_policies(all_no(policies))
+        if bad:
+            back = set_policies(policies)
+            if back:
+                raise Stop(UNKNOWN, f"restart=no 변경 실패({', '.join(bad)}), 원복 확인 실패({', '.join(back)}) — 준비 파일 {PREP} 참고")
+            os.unlink(PREP)
+            raise Stop(FAILED, f"restart=no 변경 실패({', '.join(bad)}) — 원래 정책으로 되돌리고 확인했다")
+        # ② 기록 생성
+        rec = {
+            "version": 1, "run_id": a.run_id, "kind": a.kind, "sequence": SEQUENCES[a.sequence],
+            "candidate": {"sha": a.sha, "digest": a.digest},
+            "target": {"sha": a.sha, "digest": a.digest, "source": "candidate"},
+            "release_backup": backup,
+            "prev": {"sha": prev_sha, "digest": prev_digest, "applied_mode": applied, "restart_policies": policies},
+            "coord_prev": a.coord_prev, "begin_boot_id": boot_id(), "stop_started": False, "migrated": None,
+            "step": "precheck", "state": "incomplete", "request": None,
+            "recover_entry": None, "recover_prev_policies": None, "started_at": now(),
+        }
+        try:
+            write_record(rec, "begin", kind=a.kind, sha=a.sha)
+        except Stop as e:
+            if e.replaced:
+                # 미완료 기록이 이미 보인다 — 정책을 되돌리면 "미완료 기록 + unless-stopped" 가 되어 부팅 차단 전제가 깨진다.
+                # restart=no 와 준비 파일(복구 근거)을 그대로 두고 상태 미확인으로 끝낸다.
+                raise Stop(UNKNOWN, f"{e.msg} — restart=no 와 준비 파일 {PREP} 을 그대로 두었다(정책을 되돌리지 않음)")
+            back = set_policies(policies)
+            if back:
+                raise Stop(UNKNOWN, f"기록 생성 실패, 정책 원복 확인 실패({', '.join(back)})")
+            os.unlink(PREP)
+            raise Stop(FAILED, "기록 생성 실패 — 원래 정책으로 되돌리고 확인했다")
+        os.unlink(PREP)
+    emit("begin", "ok", f"run_id={a.run_id} 이전 release 보관 {backup}")
+    return OK
+
+
+def cmd_mark_stop(a) -> int:
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        if not rec["stop_started"]:
+            rec["stop_started"] = True
+            write_record(rec, "mark-stop")
+    emit("mark-stop", "ok")
+    return OK
+
+
+def cmd_step(a) -> int:
+    to = a.to
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        if to == "maintenance":
+            if not rec["stop_started"]:
+                raise Stop(REJECTED, "mark-stop 전에는 maintenance 로 가지 않는다(정지 시작을 먼저 영속 기록)")
+        else:
+            if to not in rec["sequence"] or next_step(rec) != to:
+                raise Stop(REJECTED, f"순서 위반: 현재 {rec['step']} 다음은 {next_step(rec)}")
+            if rec["step"] == "precheck":
+                raise Stop(REJECTED, "maintenance 를 거치지 않았다")
+            sha, digest = read_release()
+            t = rec["target"]
+            if (sha, digest) != (t["sha"], t["digest"]):
+                raise Stop(REJECTED, "release.conf 가 기록의 대상과 다르다 — 단계 요청을 쓰지 않았다")
+            rec["request"] = {"step": to, "sha": t["sha"], "digest": t["digest"], "boot_id": boot_id(),
+                              "expires_at": int(time.time()) + REQUEST_TTL_S, "consumed": False}
+            write_record(rec, "request", step=to)
+    # L2 를 놓은 뒤 적용한다(start-pixlate 의 consume 이 L2 를 잡는다)
+    p = subprocess.run([*shlex.split(PIXLATE_MODE), to], capture_output=True, text=True)
+    applied = read_word("deploy.mode.applied")
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        consumed = to == "maintenance" or bool(rec.get("request") and rec["request"]["step"] == to and rec["request"]["consumed"])
+        if p.returncode != 0 or applied != to or not consumed:
+            write_record(rec, "step-failed", step=to, rc=p.returncode, applied=applied, consumed=consumed)
+            raise Stop(STEP_FAILED, f"{to} 적용 실패(pixlate-mode 종료 {p.returncode}, applied={applied or '없음'}, 요청 사용={consumed})")
+        rec["step"] = to
+        if to == "maintenance":
+            rec["request"] = None
+        write_record(rec, "step", step=to)
+    emit("step", "ok", f"step={to}")
+    return OK
+
+
+def cmd_consume(a) -> int:
+    """start-pixlate.sh 가 부른다. 0 = 이 모드로 진행, 1 = maintenance 로 바꿔 진행. 출력 한 줄: allow <종류> | deny <이유>."""
+    mode, sha, digest = a.mode, a.sha, a.digest
+    try:
+        with l2():
+            rec = read_record()
+            if mode == "maintenance":
+                print("allow maintenance")
+                return 0
+            if rec is None or rec["state"] in TERMINAL:
+                print("allow normal")
+                return 0
+            st = rec["state"]
+            t = rec["target"]
+            if st == "live-confirmed":
+                if mode == "live" and (sha, digest) == (t["sha"], t["digest"]) and not rec.get("recover_entry"):
+                    print("allow live-confirmed")
+                    return 0
+                print("deny live-confirmed 상태에서 허용되지 않는 요청(모드·release·복구 진입 표시)")
+                return 1
+            if st != "incomplete":
+                print(f"deny 기록 상태 {st}")
+                return 1
+            r = rec.get("request")
+            why = None
+            if not r:
+                why = "단계 요청 없음"
+            elif r["step"] != mode:
+                why = f"요청 단계 {r['step']} ≠ 모드 {mode}"
+            elif (sha, digest) != (r["sha"], r["digest"]) or (sha, digest) != (t["sha"], t["digest"]):
+                why = "release.conf 가 요청·대상과 다르다"
+            elif r["boot_id"] != boot_id():
+                why = "부팅 ID 가 다르다(요청 뒤 재부팅)"
+            elif time.time() >= r["expires_at"]:
+                why = "요청 만료"
+            elif r["consumed"]:
+                why = "이미 사용한 요청"
+            elif next_step(rec) != mode:
+                why = f"순서 위반(현재 {rec['step']})"
+            if why:
+                print(f"deny {why}")
+                return 1
+            r["consumed"] = True
+            write_record(rec, "consume", step=mode)
+            print("allow request")
+            return 0
+    except Stop as e:
+        print(f"deny {e.msg}")
+        return 1
+    except Exception as e:  # noqa: BLE001 — 판정이 불가능하면 공개하지 않는다
+        print(f"deny 판정 오류({type(e).__name__})")
+        return 1
+
+
+def cmd_confirm_live(a) -> int:
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        if rec["step"] != "live":
+            raise Stop(REJECTED, f"step={rec['step']} — live 적용 뒤에만")
+        entry = rec.get("recover_entry")
+        rec["state"] = "live-confirmed"
+        rec["request"] = None
+        rec["recover_entry"] = None  # 같은 쓰기에서 해제 — 정상 복구 뒤 재부팅은 live 로 기동
+        write_record(rec, "confirm-live", **({"recover_entry_cleared": entry} if entry else {}))
+    emit("confirm-live", "ok")
+    return OK
+
+
+def cmd_complete(a) -> int:
+    with l2():
+        rec = need(read_record(), a.run_id, ("live-confirmed",))
+        rec["state"] = "complete"
+        write_record(rec, "complete")
+    emit("complete", "ok")
+    return OK
+
+
+def cmd_abort(a) -> int:
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        if rec["stop_started"]:
+            raise Stop(REJECTED, "정지를 시작한 뒤에는 abort 하지 않는다 — recover 로")
+        if rec["begin_boot_id"] != boot_id():
+            raise Stop(REJECTED, "begin 뒤 재부팅됐다(서비스가 멈춘 상태) — recover 로")
+        problems = []
+        bad = set_policies(rec["prev"]["restart_policies"])
+        if bad:
+            problems.append(f"정책 원복 확인 실패({', '.join(bad)})")
+        if read_word("deploy.mode.applied") != rec["prev"]["applied_mode"]:
+            problems.append("적용 모드가 시작 전과 다르다")
+        if rec["prev"]["applied_mode"] == "live":
+            for c in MANAGED:
+                if rec["prev"]["restart_policies"].get(c) != "absent" and not container_digest_running(c, rec["prev"]["digest"]):
+                    problems.append(f"{c} 가 이전 digest 로 실행 중이 아니다")
+            if subprocess.run(HEALTH_CMD, shell=True, capture_output=True).returncode != 0:
+                problems.append("/health 실패")
+        if rec.get("coord_prev"):
+            if not COORD_RESTORE:
+                problems.append("조정 상태 원복 명령이 없다")
+            elif subprocess.run([*shlex.split(COORD_RESTORE), rec["run_id"], rec["coord_prev"]],
+                                capture_output=True).returncode != 0:
+                problems.append("조정 상태 원복 실패")
+        rec["state"] = "abort-unknown" if problems else "aborted"
+        write_record(rec, "abort", problems=problems)
+    if problems:
+        raise Stop(UNKNOWN, "abort 확인 실패 — " + "; ".join(problems))
+    emit("abort", "ok", "원상태 확인")
+    return OK
+
+
+def cmd_recover_start(a) -> int:
+    """recover R1 의 기록 부분. 서비스·스키마는 실행기가 다룬다. live-confirmed 는 from-live-* 로."""
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete", "abort-unknown"))
+        b = rec.get("release_backup")
+        try:
+            with open(b, encoding="utf-8") as f:
+                txt = f.read()
+        except (OSError, TypeError):
+            raise Stop(REJECTED, "이전 release 보관 파일이 없다")
+        if not re.search(r"^RELEASE_SHA=[0-9a-f]{40}$", txt, re.M) or not re.search(r"^API_DIGEST=sha256:[0-9a-f]{64}$", txt, re.M):
+            raise Stop(REJECTED, "이전 release 보관 파일 형식 이상")
+        was = rec["state"]
+        rec["state"] = "incomplete"
+        rec["stop_started"] = True
+        rec["request"] = None
+        write_record(rec, "recover-start", by=a.by, to=a.to, prev_state=was)
+    emit("recover-start", "ok", f"이전 상태 {was}")
+    return OK
+
+
+def cmd_recover_target(a) -> int:
+    """recover R4 의 기록 부분 — maintenance 정지 확인(step=maintenance) 뒤에만. release.conf 교체는 실행기가 먼저 한다."""
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        if rec["step"] != "maintenance":
+            raise Stop(REJECTED, "maintenance 정지 확인 뒤에만 대상을 바꾼다")
+        if a.to == "previous":
+            t = {"sha": rec["prev"]["sha"], "digest": rec["prev"]["digest"], "source": "previous"}
+        else:
+            t = {**rec["candidate"], "source": "candidate"}
+        if read_release() != (t["sha"], t["digest"]):
+            raise Stop(REJECTED, "release.conf 가 복구 대상과 다르다 — 먼저 교체·확인한다")
+        rec["target"] = t
+        rec["request"] = None
+        write_record(rec, "recover-target", to=a.to, sha=t["sha"])
+    emit("recover-target", "ok", f"대상 {a.to}")
+    return OK
+
+
+def cmd_note_migration(a) -> int:
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete",))
+        rec["migrated"] = {"from_rev": a.from_rev, "to_rev": a.to_rev}
+        write_record(rec, "migration", from_rev=a.from_rev, to_rev=a.to_rev)
+    emit("note-migration", "ok")
+    return OK
+
+
+def cmd_from_live_save(a) -> int:
+    """--from-live E2: 이전 재시작 정책 영속 보관. state 는 live-confirmed 그대로(부팅 동작 불변)."""
+    with l2():
+        rec = need(read_record(), a.run_id, ("live-confirmed",))
+        pol = read_policies()
+        rec["recover_prev_policies"] = pol
+        write_record(rec, "from-live-save", by=a.by)
+    emit("from-live-save", "ok")
+    return OK
+
+
+def cmd_from_live_enter(a) -> int:
+    """--from-live E3·E4: 모두 restart=no 확인 → recover_entry·incomplete·stop_started 를 한 번에 기록."""
+    with l2():
+        rec = need(read_record(), a.run_id, ("live-confirmed",))
+        prev = rec.get("recover_prev_policies")
+        if not prev:
+            raise Stop(REJECTED, "from-live-save 를 먼저(이전 정책 보관)")
+        bad = set_policies(all_no(prev))
+        if bad:
+            raise Stop(UNKNOWN, f"restart=no 변경·확인 실패({', '.join(bad)}) — 부팅 공개 차단이 확보되지 않았다")
+        rec["recover_entry"] = {"by": a.by, "to": a.to, "started_at": now()}
+        rec["state"] = "incomplete"
+        rec["stop_started"] = True
+        rec["request"] = None
+        write_record(rec, "from-live-enter", by=a.by, to=a.to)
+    emit("from-live-enter", "ok")
+    return OK
+
+
+def stopped_problems() -> list[str]:
+    """resolve 전제 — 공개 없이 기록만 닫는다: 요청·적용 모드 모두 maintenance, 관리 컨테이너가 모두 정지(exited·created) 또는 없음.
+    조회가 안 되면 정지로 보지 않는다."""
+    problems = []
+    mode, applied = read_word("deploy.mode"), read_word("deploy.mode.applied")
+    if mode != "maintenance" or applied != "maintenance":
+        problems.append(f"모드가 maintenance 가 아니다(요청 {mode or '없음'} · 적용 {applied or '없음'})")
+    for c in MANAGED:
+        rc, txt = docker("container", "inspect", "-f", "{{.State.Status}} {{.Config.Image}}", c)
+        if rc != 0:
+            if not re.search(r"No such (container|object)", txt):
+                problems.append(f"{c} 상태 조회 실패")
+            continue
+        st = txt.split()[0] if txt else ""
+        if st not in ("exited", "created"):
+            problems.append(f"{c} 가 정지 상태가 아니다({st or '?'})")
+    return problems
+
+
+def cmd_resolve(a) -> int:
+    with l2():
+        rec = need(read_record(), a.run_id, ("incomplete", "abort-unknown", "live-confirmed"))
+        problems = stopped_problems()
+        if problems:
+            raise Stop(REJECTED, "공개·실행 중이거나 정지를 확인할 수 없어 기록을 닫지 않는다 — " + "; ".join(problems)
+                       + " (공개는 recover 경로로)")
+        was = rec["state"]
+        rec["state"] = "resolved"
+        rec["request"] = None
+        write_record(rec, "resolve", by=a.by, reason=a.reason, prev_state=was)
+    emit("resolve", "ok")
+    return OK
+
+
+def cmd_show(a) -> int:
+    rec = read_record()
+    if rec is None:
+        print("기록 없음")
+        return OK
+    if a.field:
+        v = rec.get(a.field)
+        print(json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else ("" if v is None else v))
+        return OK
+    keys = ("run_id", "kind", "state", "step", "stop_started", "target", "candidate", "migrated", "recover_entry", "started_at")
+    print(json.dumps({k: rec.get(k) for k in keys}, ensure_ascii=False))
+    return OK
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="pixlate-transition")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("begin")
+    s.add_argument("--run-id", required=True)
+    s.add_argument("--kind", required=True, choices=["deploy", "refresh", "refresh-source"])
+    s.add_argument("--sequence", required=True, choices=sorted(SEQUENCES))
+    s.add_argument("--sha", required=True)
+    s.add_argument("--digest", required=True)
+    s.add_argument("--coord-prev", default=None)
+    for name in ("mark-stop", "confirm-live", "complete", "abort"):
+        sub.add_parser(name).add_argument("--run-id", required=True)
+    s = sub.add_parser("step")
+    s.add_argument("--run-id", required=True)
+    s.add_argument("--to", required=True, choices=["maintenance", "validate", "isolated", "live"])
+    s = sub.add_parser("consume")
+    s.add_argument("--mode", required=True)
+    s.add_argument("--sha", default="")
+    s.add_argument("--digest", default="")
+    for name in ("recover-start", "from-live-enter"):
+        s = sub.add_parser(name)
+        s.add_argument("--run-id", required=True)
+        s.add_argument("--to", required=True, choices=["previous", "candidate"])
+        s.add_argument("--by", required=True)
+    s = sub.add_parser("recover-target")
+    s.add_argument("--run-id", required=True)
+    s.add_argument("--to", required=True, choices=["previous", "candidate"])
+    s = sub.add_parser("note-migration")
+    s.add_argument("--run-id", required=True)
+    s.add_argument("--from-rev", required=True)
+    s.add_argument("--to-rev", required=True)
+    s = sub.add_parser("from-live-save")
+    s.add_argument("--run-id", required=True)
+    s.add_argument("--by", required=True)
+    s = sub.add_parser("resolve")
+    s.add_argument("--run-id", required=True)
+    s.add_argument("--by", required=True)
+    s.add_argument("--reason", required=True)
+    s = sub.add_parser("show")
+    s.add_argument("--field", default=None)
+    a = ap.parse_args(argv)
+    fn = {
+        "begin": cmd_begin, "mark-stop": cmd_mark_stop, "step": cmd_step, "consume": cmd_consume,
+        "confirm-live": cmd_confirm_live, "complete": cmd_complete, "abort": cmd_abort,
+        "recover-start": cmd_recover_start, "recover-target": cmd_recover_target, "note-migration": cmd_note_migration,
+        "from-live-save": cmd_from_live_save, "from-live-enter": cmd_from_live_enter, "resolve": cmd_resolve, "show": cmd_show,
+    }[a.cmd]
+    if a.cmd == "consume":
+        return fn(a)
+    try:
+        return fn(a)
+    except Stop as e:
+        name = {REJECTED: "rejected", FAILED: "failed-unchanged", UNKNOWN: "unknown", STEP_FAILED: "step-failed"}.get(e.code, "error")
+        emit(a.cmd, name, e.msg)
+        return e.code
+    except Exception as e:  # noqa: BLE001 — 예상 밖 오류는 상태를 단정하지 않는다
+        emit(a.cmd, "unknown", f"예상 밖 오류({type(e).__name__})")
+        return UNKNOWN
+
+
+if __name__ == "__main__":
+    sys.exit(main())

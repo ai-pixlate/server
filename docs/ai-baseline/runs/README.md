@@ -46,7 +46,7 @@ docs/ai-baseline/runs/<run_id>/
 | `evaluation_sessions` | 아래 평가 세션 목록 |
 | `artifacts` | 아래 산출물 색인 목록 |
 | `files` | 파일별 상대 경로·해시. manifest 자신의 해시는 넣지 않음 |
-| `cost_approval` | PM 승인자·부담 주체·범위·한도·통화·시각·승인 근거 참조. 미확인 값은 사유와 함께 null |
+| `cost_approval` | PM 비용 승인·부담 합의와 사용자의 실제 실행 범위·한도 승인을 구분해 기록. 부담 주체·실행 승인자·범위·한도·통화·시각·승인 근거 참조. 미확인 값은 사유와 함께 null |
 | `comparison` | 별도 비교 회차라면 비교 대상 회차·동일 원본 목록·PM 제공 생성 정보, 아니면 null |
 
 평가 세션 항목: `session_id`, `channel`(Codex 채팅), `started_at`, `model_name`, `model_settings`, `model_evidence_ref`, `instruction_path`, `instruction_sha256`, `conversation_ref`, `transcript_path`, `transcript_sha256`, `unavailable_reason`. 표시 모델·설정은 실제 확인한 값만 기록하고 `GPT-6 Astra (light)`를 자동 대입하지 않는다. 세션·설정이 달라지면 별도 항목을 만든다. 채팅 링크만 남기지 않고 평가 지침 전문과 응답의 보존본도 `artifacts/`에 연결한다.

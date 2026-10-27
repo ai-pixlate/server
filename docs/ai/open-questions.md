@@ -125,8 +125,8 @@
 | 29 | ① 그라데이션 띠 안의 제목 분리 — 표본 1건(GS-02_014)이라 구현 보류. 필요 자료: 보정 목적지 여백 높이 분포, 그라데이션 띠 안 큰 글자 사례 | `pipeline/stages/section_split.py` · `pipeline.md` 3절 | AI | 미정 | [`pipeline.md` 3절] |
 | 30 | ① 확정 창의 이웃 절단이 1px 이동에 뒤집힘 — 현재 표본에서 피해가 확인되지 않아 보류 | `pipeline/stages/section_split.py` | AI | 미정 | [`pipeline.md` 3절] |
 | 31 | ② 타일 구간 규칙 — 절차 결정(2026-10-13, `pipeline.md` 7.9절). 남은 것: 잠정 기준값(`tile_blank_row_std` · 여백 행 선택 거리)의 확정 | `pipeline/stages/ocr_tile.py` · `pipeline.md` 3절 · 7.9절 · `pipeline/config/default.toml` `[ocr]` | AI | 미정 | [계약 3.2] [`pipeline.md` 단계표 ②] |
-| 32 | ② 타일 겹침 중복 정리 — 절차 결정(2026-10-13, `pipeline.md` 7.9절). 남은 것: 잠정 기준값 확정, 판독 · 숫자 충돌 실패의 빈도(골든 9장 중 5장)와 대응(#33), crop 맥락 누락(한계) | `pipeline/stages/ocr_tile.py` · `pipeline.md` 3절 · 7.9절 · `pipeline/config/default.toml` `[ocr]` | AI | 미정 | [계약 3.2] [`pipeline.md` 단계표 ②] |
-| 40 | ② 한 섹션 안에서 겹친 OCR 검출의 정리 — 같은 글자를 겹쳐 검출한 영역이 남아 문구 중복 · 블록 분리를 만든다(타일 분할 없는 경우, #32 범위 밖). 영역 보존 원칙과 충돌할 수 있다. 정할 것: 정리 여부와 위치 · 겹침 판정 기준 · 버린 영역의 보존 방식. 빈도 미측정 | ② · ③ · `contract.md` 2.5 | AI | 미정 | [계약 2.5, 3.2] [`pipeline.md` 7절] |
+| 32 | ② 타일 겹침 중복 정리 — 절차 결정(2026-10-13, `pipeline.md` 7.9절). 충돌 성분의 겹친 검출 재인식 · 제한적 교체 절차 결정(2026-10-27, 실패 정책 유지). 남은 것: 잠정 기준값 확정(`tile_*` · `overlap_rec_*`), 판독 · 숫자 충돌 실패의 빈도(골든 9장 중 5장)와 대응(#33), 재인식의 자동 후보 선정 · 전체 파이프라인 효과 검증(실측 전), crop 맥락 누락(한계) | `pipeline/stages/ocr_tile.py` · `ocr_overlap.py` · `pipeline.md` 3절 · 7.9절 · `pipeline/config/default.toml` `[ocr]` | AI | 미정 | [계약 3.2] [`pipeline.md` 단계표 ②] [사용자 결정 2026-10-27] |
+| 40 | ② OCR 호출 하나 안의 겹친 검출 정리 — 정리 여부 · 위치 · 판정 기준 · 버린 영역 보존 방식 결정(2026-10-27, `pipeline.md` 7.9절 "호출별 명백한 중복 제거": 같은 텍스트 · 거의 같은 실제 polygon인 명백한 중복만 제거, 진단에 보존). 남은 것: 잠정 기준값(`dedup_*`) 확정, 빈도 측정, 명백한 중복이 아닌 겹침(일부 문구 포함 · 텍스트가 다른 겹침)의 처리 | ② · ③ · `contract.md` 2.5 | AI | 미정 | [계약 2.5, 3.2] [`pipeline.md` 7절] [사용자 결정 2026-10-27] |
 | 23 | BE 정본 ERD의 경로·버전, `db-map.md` 참조 색인의 테이블·컬럼명 일치 여부 | `db-map.md` 전체 | BE | BE 확인 필요 | [`db-map.md` 3절] |
 
 ### 2.7 전달 자료의 불일치·한계 — 구현자가 임의로 보완하지 않는 것

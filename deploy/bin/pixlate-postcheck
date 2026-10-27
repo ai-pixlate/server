@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# /opt/pixlate/bin/pixlate-postcheck --sha <40자리> --digest <sha256:…> [--run-id <id> [--resume]]
+# 공개 후 동작 확인(live 적용 직후, 그리고 finalize 재개 때 다시). 비밀 값 없음. set -x 금지.
+#
+# 실패 조건(하나라도 있으면 종료 1):
+#   release.conf 가 기대 SHA·digest 와 다름 / deploy.mode·deploy.mode.applied 가 live 가 아님
+#   api·cpu·복구가 기대 digest 로 running 이 아님 / OOMKilled / 확인 구간(SETTLE_S) 동안 재시작(RestartCount·StartedAt 변화)
+#   /health 응답이 HTTP 200 이 아님(3xx·204 등도 실패) / celery ping 에 cpu@<컨테이너 호스트> 응답 없음
+#   --run-id: 전환 기록의 run_id 가 다름, 또는 step≠live(직후 확인) / state≠live-confirmed(--resume)
+# 새 작업·큐·활성 시도의 존재는 실패가 아니다(정상 사용). 유휴 관문을 적용하지 않는다.
+# 출력: 항목마다 `CHECK <항목> ok|fail <설명>`, 마지막 줄 `POSTCHECK ok|fail`.
+set -uo pipefail
+CONF_DIR=${CONF_DIR:-/etc/pixlate}
+DOCKER=${DOCKER:-docker}
+CURL=${CURL:-curl}
+TRANSITION=${TRANSITION:-/opt/pixlate/bin/pixlate-transition}
+HEALTH_URL=${HEALTH_URL:-http://127.0.0.1:8000/health}
+SETTLE_S=${SETTLE_S:-10}
+PING_TIMEOUT_S=${PING_TIMEOUT_S:-10}
+MANAGED=(pixlate-api pixlate-worker-cpu pixlate-recovery)
+
+sha="" digest="" run_id="" resume=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --sha) sha=${2:-}; shift 2 ;;
+    --digest) digest=${2:-}; shift 2 ;;
+    --run-id) run_id=${2:-}; shift 2 ;;
+    --resume) resume=1; shift ;;
+    *) echo "usage: $0 --sha <sha> --digest <digest> [--run-id <id> [--resume]]" >&2; exit 2 ;;
+  esac
+done
+[[ "$sha" =~ ^[0-9a-f]{40}$ ]] && [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "usage: --sha 40자리 · --digest sha256:64자리" >&2; exit 2; }
+
+FAILS=0
+check() { local name=$1 ok=$2 msg=$3; if [ "$ok" = 1 ]; then echo "CHECK $name ok $msg"; else echo "CHECK $name fail $msg"; FAILS=$((FAILS+1)); fi; }
+conf() { grep -E "^$1=" "$CONF_DIR/release.conf" 2>/dev/null | head -1 | cut -d= -f2- | tr -d ' \r'; }
+word() { tr -d ' \r\n' < "$CONF_DIR/$1" 2>/dev/null; }
+inspect() { $DOCKER container inspect -f '{{.State.Status}}|{{.Config.Image}}|{{.RestartCount}}|{{.State.OOMKilled}}|{{.State.StartedAt}}' "$1" 2>/dev/null; }
+
+[ "$(conf RELEASE_SHA)" = "$sha" ] && [ "$(conf API_DIGEST)" = "$digest" ]; check release $(( $? == 0 )) "release.conf = 기대값"
+[ "$(word deploy.mode)" = live ] && [ "$(word deploy.mode.applied)" = live ]; check mode $(( $? == 0 )) "요청 $(word deploy.mode) · 적용 $(word deploy.mode.applied)"
+
+declare -A first
+for c in "${MANAGED[@]}"; do
+  s=$(inspect "$c"); first[$c]=$s
+  IFS='|' read -r st img _rc oom _at <<< "$s"
+  ok=0; [ "$st" = running ] && [[ "$img" == *"@$digest" ]] && [ "$oom" = false ] && ok=1
+  check "container:$c" $ok "상태 ${st:-조회 실패} · digest $([[ "$img" == *"@$digest" ]] && echo 일치 || echo 불일치) · OOM ${oom:-?}"
+done
+
+# curl 종료 코드 0 과 HTTP 200 을 둘 다 요구한다(curl -f 는 3xx·204 도 성공으로 보고,
+# 200 헤더를 받은 뒤 전송이 끊기거나 시간 초과(종료 28 등)되면 코드는 200 이어도 curl 은 실패한다)
+code=$("$CURL" -s -o /dev/null -w '%{http_code}' -m 5 "$HEALTH_URL" 2>/dev/null); crc=$?
+[ "$crc" -eq 0 ] && [ "$code" = 200 ]; check health $(( $? == 0 )) "$HEALTH_URL → HTTP ${code:-응답 없음}, curl 종료 $crc"
+
+host=$($DOCKER exec pixlate-worker-cpu hostname 2>/dev/null | tr -d '\r\n')
+out=$($DOCKER exec pixlate-worker-cpu python -m celery -A app.celery_app:celery_app inspect ping -d "cpu@$host" --timeout "$PING_TIMEOUT_S" 2>&1); rc=$?
+ok=0; [ -n "$host" ] && [ $rc -eq 0 ] && grep -q pong <<< "$out" && ok=1
+check ping $ok "cpu@<컨테이너 호스트> 응답 $([ $ok = 1 ] && echo 있음 || echo 없음)"
+
+if [ -n "$run_id" ]; then
+  rid=$("$TRANSITION" show --field run_id 2>/dev/null); stt=$("$TRANSITION" show --field state 2>/dev/null); stp=$("$TRANSITION" show --field step 2>/dev/null)
+  if [ "$resume" = 1 ]; then
+    [ "$rid" = "$run_id" ] && [ "$stt" = live-confirmed ]; check record $(( $? == 0 )) "run_id 일치·state=$stt(기대 live-confirmed)"
+  else
+    [ "$rid" = "$run_id" ] && [ "$stt" = incomplete ] && [ "$stp" = live ]; check record $(( $? == 0 )) "run_id 일치·state=$stt·step=$stp(기대 incomplete·live)"
+  fi
+fi
+
+# 재시작 반복 확인 — 확인 구간 동안 RestartCount·StartedAt 이 그대로이고 계속 running
+sleep "$SETTLE_S"
+for c in "${MANAGED[@]}"; do
+  s=$(inspect "$c")
+  IFS='|' read -r st _img rc0 _oom at0 <<< "${first[$c]}"
+  IFS='|' read -r st1 _img1 rc1 _oom1 at1 <<< "$s"
+  ok=0; [ "$st1" = running ] && [ -n "$rc0" ] && [ "$rc0" = "$rc1" ] && [ "$at0" = "$at1" ] && ok=1
+  check "stable:$c" $ok "${SETTLE_S}초 동안 재시작 $([ $ok = 1 ] && echo 없음 || echo "있음 또는 조회 실패")"
+done
+
+if [ "$FAILS" -eq 0 ]; then echo "POSTCHECK ok"; exit 0; fi
+echo "POSTCHECK fail ($FAILS)"; exit 1

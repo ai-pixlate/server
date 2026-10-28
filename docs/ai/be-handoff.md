@@ -388,6 +388,16 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - 기준값(`[ocr] tile_*`)은 잠정이다. 실측 표본은 골든 9장 · 이 PC GPU다.
 - **1.0.0 릴리즈 전 배포 환경 실측은 생략하기로 했다(사용자 결정 2026-10-13).** 위 Linux · CPU 시간 · 최대 메모리, 배포 환경의 짧은 · 긴 섹션 · 충돌 실패 경로, BE 재시도 실행은 미검증으로 남는다. 이 기능은 기존에 미지원(거부)이던 긴 입력의 일부를 처리하도록 개선한 것이며, 긴 이미지 지원 전체의 품질 · 배포 안정성이 검증된 것이 아니다. 표본 9장의 실패 비율은 운영 전체 실패율이 아니다.
 
+### 9.4 호출별 중복 제거 · 겹친 검출 재인식(2026-10-27, 구현 중 · 일부 실측)
+
+규칙은 `pipeline.md` 7.9절. 구현 · 검증 상태는 `status.md` ② 행이며 이 절은 BE에 보이는 변화만 적는다.
+
+- `AnalyzeResult` 형식 · 버전 · 좌표계, 오류 코드 · `retryable`(타일 경계 충돌 미해결 `OCR_FAILED` · `retryable=false` 포함), API · DB는 바뀌지 않는다. 새 필드 · 컬럼 · 오류 코드는 없다.
+- **영역 구성이 바뀔 수 있다** — 모든 섹션(짧은 섹션 포함)에서 엔진 호출 하나가 같은 텍스트를 거의 같은 polygon으로 두 번 낸 명백한 중복은 하나만 남는다. 긴 섹션의 타일 충돌 위치에서는 채택 조건을 통과한 겹친 검출 묶음이 재인식 검출 하나로 바뀐다(영역 수 · text · score · poly가 이전과 다르다). 같은 원본이라도 이전 분석과 `source_lines` · 블록 구성이 다를 수 있다.
+- **입력 지문** — `analyze` 입력 지문(`input_manifest`)의 `config.ocr`에 `dedup_*` 2키 · `overlap_rec_*` 6키가 더해져 같은 원본이라도 `input_manifest_sha256`이 이전과 다르다(9.1의 `tile_*` 추가 때와 같은 성질). 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 공식 생성 경로(`python -m pipeline.handoff.examples`)로 다시 만들었다 — 차이는 `input_manifest.config.ocr`의 새 8키와 `input_manifest_sha256`뿐이고 payload는 같다(2026-10-27 확인).
+- OCR 워커는 인식 모델을 추가로 부를 수 있다(섹션당 `ocr.overlap_rec_max_calls` 상한, 타일 충돌이 있을 때만). 시간 · 메모리 영향은 측정하지 않았다.
+- BE 쪽 코드 변경은 필요 없을 것으로 보나, 배포 전 같은 설정으로 API 서버 · OCR 워커를 함께 배포해야 하는 점(9.1)은 그대로다. 운영 적용 여부 · 시점은 정하지 않았다.
+
 ## 10. OCR 후처리 인계(2026-10-23) — AI 내부 구현 · BE 확인 미진행
 
 ③ 병합 안의 OCR 후처리(여백 분리 · 세로 중심 줄 정렬 · 전각 변환, `open-questions.md` #86)를 AI 내부에 구현했다. 규칙 정본은 `pipeline.md` 7.1 · 7.2절, 코드는 `pipeline/stages/merge.py`, 테스트는 `tests/test_pipeline_merge_post.py`다. **이번 작업은 BE 연동 · 검토 · 확인 요청을 하지 않았고, BE 확인을 이 구현의 선행조건으로 두지 않는다.** 아래는 향후 확인을 위한 정리이며 합의 · 연동 검증 · 운영 적용 기록이 아니다. 새 API 필드 · DB 컬럼 · BE 코드 변경은 없다.

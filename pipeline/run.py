@@ -37,7 +37,8 @@ split·ocr·merge 파일 읽기는 pipeline.jsonio를 거친다(버전 확인). 
 analyze.json(워커 인계 형식)은 버전 1 · 경로 변환 없이 그대로 쓴다(dev.md 3절).
 종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현 단계 · 4 VLM · LLM 호출 실패(AnalyzeError로 바꾸지 않음. analyze의 ① 실패는 원본 전체 섹션 대체, #25).
 ocr은 섹션 오류를 기록하고 계속하며 run.json에 status(ok · partial · failed)와 섹션별 결과를 남긴다(dev.md 4절).
-타일로 나눈 섹션(높이 > ocr.split_threshold_px)은 성공 · 실패와 관계없이 DIR/ocr_debug/<KEY>.json에 타일 진단을 남긴다.
+타일로 나눈 섹션(높이 > ocr.split_threshold_px)은 성공 · 실패와 관계없이 DIR/ocr_debug/<KEY>.json에 타일 진단을 남긴다
+(짧은 섹션은 호출별 중복 제거 기록이 있을 때만).
 """
 from __future__ import annotations
 
@@ -205,16 +206,26 @@ def cmd_ocr(args) -> int:
 
 
 def _tile_summary(out: Path, key: str, diag: dict[str, Any]) -> dict[str, Any]:
-    """타일 섹션이면 ocr_debug/<key>.json을 쓰고 run.json용 요약을 돌려준다. 타일이 아니면 빈 dict."""
-    if not diag.get("tiled"):
+    """진단이 있으면(타일 섹션 · 호출별 중복 제거 기록이 있는 짧은 섹션) ocr_debug/<key>.json을 쓰고 run.json용 요약을
+    돌려준다. 없으면 빈 dict. engine_calls는 전체 검출 OCR(타일 + 보완)이고 국소 재인식은 overlap_rec_calls로 따로 센다."""
+    if not diag:
         return {}
     path = out / "ocr_debug" / f"{key}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
+    dedup = (sum(r.get("removed", 0) for r in diag.get("dedup", []))
+             + sum(s.get("dedup", {}).get("removed", 0) for s in diag.get("supplements", [])))
+    if not diag.get("tiled"):
+        return {"dedup_removed": dedup, "ocr_debug": str(path)}
     calls = diag.get("engine_calls", {})
+    rr = diag.get("overlap_rec", {})
     return {"tiles": len(diag.get("tiles", [])), "engine_calls": calls.get("tiles", 0) + calls.get("supplements", 0),
             "supplements": calls.get("supplements", 0), "dropped": len(diag.get("dropped", [])),
-            "tile_warnings": len(diag.get("warnings", [])), "ocr_debug": str(path)}
+            "tile_warnings": len(diag.get("warnings", [])), "dedup_removed": dedup,
+            "overlap_rec_calls": calls.get("overlap_rec", 0),
+            "overlap_rec_replaced": sum(1 for u in rr.get("units", []) for sd in u.get("sides", [])
+                                        if sd.get("decision") == "replaced"),
+            "overlap_rec_limit_reached": rr.get("limit_reached", False), "ocr_debug": str(path)}
 
 
 def cmd_merge(args) -> int:

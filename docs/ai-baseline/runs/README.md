@@ -23,6 +23,8 @@ docs/ai-baseline/runs/<run_id>/
 
 ## 이번 회차의 범위 기록
 
+도구의 로컬 manifest에는 `measurement_scope`를 보존한다. 이번 회차의 값은 `{"measured_quality_metrics":["H01","H02","H03","H04"],"human_intervention":"confirmation_only"}`다. 제품 API/DB 상태가 아닌 측정 범위 기록이다. 기존 범위 미지정 회차는 과거 집계를 읽는 용도로 유지하지만 새 공식 실행에는 이 범위와 사용자 승인 기록의 `human_intervention_scope=confirmation_only` 일치를 요구한다. 범위 오류·무수정 회차의 변경 기록은 정상 집계/진행을 거부한다.
+
 [자동 파이프라인 평가 범위](../plan.md#이번-회차-측정-범위--pm-승인-완료)는 **PM 승인이 완료됐다(2026-10-28 사용자 확인)**. H01~H04의 기존 지표 정의와 평가 상태 enum은 변경하지 않는다. H05는 정의를 남기고 `미측정(별도 서비스 평가 예정)`으로 표시한다. 이는 실험 범위 제외 사유이며 not_applicable·undetermined·evaluation_failed로 재분류하지 않는다.
 
 향후 metrics.csv에서는 H05의 수치·분자·분모를 null(빈 셀)로 두고 기존 `display_reason`에 위 사유를 남기는 방식으로 도구를 보완한다. 범위 제외를 품질 평가 상태 건수나 0건 수정 분포에 넣지 않는다. 요약에도 H05 미측정과 사용자 수정 효과의 후속 이관을 명시한다. 현재 도구가 이 출력을 지원한다고 가정하지 않는다.
@@ -159,6 +161,10 @@ PM이 생성한 4장을 별도 비교 회차로 기록한다. manifest의 `compa
 
 
 ## 수집 도구의 운영 증거 표현
+
+Windows 격리 실행은 Torch를 Paddle보다 먼저 import하며 `native-runtime.json`에 초기화 순서·버전·경과시간을 기록한다. 이는 DLL 충돌을 피하기 위한 실행 환경 준비이며 모델 로딩/추론·제품 파이프라인 변경이 아니다. 이미 Paddle만 로딩된 프로세스에서는 새 프로세스를 요구한다. 초기화는 공식 실행 승인 검사 뒤에서만 수행한다.
+
+`environment.dependency_lock`에는 회차 내부로 보존한 Windows 패키지 lock의 `path`와 `sha256`을 기록한다. 새 실행은 해시 및 전체 설치 버전·Windows x64·Python 3.12.10 일치를 먼저 검증한다. wheel 목록은 [해시 고정 설치 목록](../../../tools/baseline/requirements-windows-py312.lock.txt)을 사용한다. 패키지 lock이 모델/폰트/평가셋/사전 해시 확인이나 실행 승인을 대신하지 않는다.
 
 기존 실행 기록의 공통 최소 필드를 재사용하는 `record_kind=operation`은 제품 enum이 아닌 수집기 기록 구분이다. 추가 필드는 `event`, `values`이며 실제 근거 파일 참조가 필요하다. 지원 사건은 작업 생성·저장·첫 다운로드, N2/N4/N6 시작·완료·중단, 사람 대기시간, 최초 N5 확정, 규제 판정·규격 검사, 자원 사용량, 종류별 fallback이다. 세부 필드와 입력 방법은 [도구 안내](../../../tools/baseline/README.md)를 따른다. 없는 사건을 성공이나 0으로 만들어 넣지 않는다.
 

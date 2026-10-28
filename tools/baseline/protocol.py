@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .core import IDS, REGIONS, append, digest, inspect_inputs, now, read, rows, write_new
+from .scope import automatic_scope, automatic_only, H05_REASON
 
 STATES = ('measured', 'not_applicable', 'undetermined', 'no_output', 'evaluation_failed')
 CHECKPOINTS = ('machine_snapshot', 'service_final')
@@ -46,6 +47,7 @@ def source_key(sid):
 
 def template():
     return {'evaluation_run_id': None, 'product_version': '1.0.1', 'product_commit': None,
+            'measurement_scope': automatic_scope(),
             'protocol_version': 'v1', 'protocol_commit': None, 'input_root': None,
             'environment': None, 'generation_config': None, 'case_inputs': None,
             'reference_version': None, 'reference_freeze': None, 'evaluation_sessions': [],
@@ -186,6 +188,19 @@ def capture_artifact(root, metadata, source):
 
 
 def check_row(root, m, kind, row):
+    automatic = automatic_only(m)
+    if automatic and kind == 'execution':
+        if row.get('record_kind') == 'user_edit' and (
+                row.get('original_value') != row.get('final_value') or
+                row.get('change_count') != 0 or row.get('user_retry_count') != 0 or
+                (row.get('stage') == 'N3' and row.get('n3_intervention') != 'confirmation_only')):
+            raise ValueError('무수정 회차의 변경·재생성 기록')
+        values = row.get('values')
+        if row.get('event') == 'first_n5_confirmed' and (
+                not isinstance(values, dict) or values.get('original') != values.get('final')):
+            raise ValueError('무수정 회차의 N5 변경 기록')
+    if automatic and kind == 'defects' and row.get('resolution_status') == 'corrected_by_user':
+        raise ValueError('사용자 수정 회복은 이번 회차 측정 범위 밖')
     if kind not in FIELDS:
         raise ValueError('지원하지 않는 기록')
     required(row, FIELDS[kind])
@@ -342,6 +357,7 @@ def validate(root):
     m, d = load(root)
     issues = []
     try:
+        automatic_only(m)
         local_file(root, m['dataset_manifest_path'], m['dataset_manifest_sha256'])
         for f in [*m['files'], *m['artifacts']]:
             local_file(root, f['path'], f['sha256'])
@@ -498,6 +514,7 @@ def aggregate(root):
 
 
 def aggregate_data(m, data):
+    automatic = automatic_only(m)
     latest, defects = adopted(data)
     result, review = [], []
     sources = m['source_keys']
@@ -579,34 +596,41 @@ def aggregate_data(m, data):
         if not any(r['unit_type'] == 'critical_fact' for r in data['reference_units']):
             for r in result[-2:]:
                 r.update(value=None, display_reason='핵심 사실 기준 자료 미확인', applicable_count=None, measured_count=None)
-    edits = {}
-    for e in data['execution']:
-        if e['record_kind'] == 'user_edit':
-            edits[e['source_key'], e['stage']] = e
-    statuses, buckets, totals, modified = [], Counter(), Counter(), 0
-    for s in sources:
-        n3, n5 = edits.get((s, 'N3')), edits.get((s, 'N5'))
-        if not n3 or not n5:
-            statuses.append('undetermined')
-            continue
-        statuses.append('measured')
-        c3, c5 = n3['change_count'], n5['change_count']
-        n = c3 + c5
-        buckets['0' if n == 0 else '1' if n == 1 else '2~3' if n < 4 else '4+'] += 1
-        modified += n > 0
-        totals.update(N3=c3, N5=c5, user_retry=n3['user_retry_count'] + n5['user_retry_count'])
-    for bucket in ('0', '1', '2~3', '4+'):
-        result.append(metric(m, 'H05', None, bucket, statuses, buckets[bucket]))
-    for k in ('N3', 'N5', 'user_retry'):
-        r = metric(m, 'H05', None, k, statuses, totals[k], 1, 'count')
-        if not statuses.count('measured'):
-            r.update(value=None, display_reason='수정 기록 미확인')
-        result.append(r)
-    for k in ('N3', 'N5'):
-        r = metric(m, 'H05', None, k + '_수정발생이미지당평균', statuses, totals[k], modified, 'mean')
-        if modified == 0 and statuses.count('measured'):
-            r['display_reason'] = '해당 대상 없음'
-        result.append(r)
+    if automatic:
+        row = {k: None for k in METRIC_FIELDS}
+        row.update(evaluation_run_id=m['evaluation_run_id'], metric_id='H05', scope='all',
+                   breakdown='측정 범위 제외', display_reason=H05_REASON, evidence_refs=[],
+                   aggregation_basis=[], include_in_presentation=False)
+        result.append(row)
+    else:
+        edits = {}
+        for e in data['execution']:
+            if e['record_kind'] == 'user_edit':
+                edits[e['source_key'], e['stage']] = e
+        statuses, buckets, totals, modified = [], Counter(), Counter(), 0
+        for s in sources:
+            n3, n5 = edits.get((s, 'N3')), edits.get((s, 'N5'))
+            if not n3 or not n5:
+                statuses.append('undetermined')
+                continue
+            statuses.append('measured')
+            c3, c5 = n3['change_count'], n5['change_count']
+            n = c3 + c5
+            buckets['0' if n == 0 else '1' if n == 1 else '2~3' if n < 4 else '4+'] += 1
+            modified += n > 0
+            totals.update(N3=c3, N5=c5, user_retry=n3['user_retry_count'] + n5['user_retry_count'])
+        for bucket in ('0', '1', '2~3', '4+'):
+            result.append(metric(m, 'H05', None, bucket, statuses, buckets[bucket]))
+        for k in ('N3', 'N5', 'user_retry'):
+            r = metric(m, 'H05', None, k, statuses, totals[k], 1, 'count')
+            if not statuses.count('measured'):
+                r.update(value=None, display_reason='수정 기록 미확인')
+            result.append(r)
+        for k in ('N3', 'N5'):
+            r = metric(m, 'H05', None, k + '_수정발생이미지당평균', statuses, totals[k], modified, 'mean')
+            if modified == 0 and statuses.count('measured'):
+                r['display_reason'] = '해당 대상 없음'
+            result.append(r)
     for cp in CHECKPOINTS:
         for origin in ORIGINS:
             for severity in SEVERITIES:

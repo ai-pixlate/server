@@ -1,6 +1,7 @@
 """실행 전에 사용자 승인 기록과 실제 범위·예산을 대조한다. 승인을 생성하지 않는다."""
 from .core import read
 from .protocol import local_file, timestamp
+from .scope import automatic_only
 
 TARGET='bfa3b700144467f4adf7d6802b7b2e93791fe6de'
 
@@ -28,5 +29,6 @@ def require_approval(root):
         raise ValueError('상품별 3작업·원본별 1회·추가 재생성 제외 범위 확인 필요')
     for k in ('max_calls','max_amount','reserve_per_call','currency'):
         if k not in b or user.get(k)!=b[k]: raise ValueError('승인 예산과 실행 설정 불일치: '+k)
-    if not user.get('human_intervention_scope'):raise ValueError('N3·N5 개입 범위 승인 필요')
+    if not automatic_only(m) or user.get('human_intervention_scope') != 'confirmation_only':
+        raise ValueError('H01~H04·N3/N5 무수정 확인 범위 승인 필요')
     return m

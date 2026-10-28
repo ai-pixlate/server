@@ -21,6 +21,7 @@ class ProtocolTest(unittest.TestCase):
         self.ev = [{'path': 'artifacts/evidence.txt', 'sha256': digest(self.root / 'artifacts/evidence.txt')}]
         self.sources = ['GS-01-IMG-001', 'GS-01-IMG-002']
         self.m = {**p.template(), 'evaluation_run_id': 'mock', 'source_keys': self.sources, 'dataset_id': 'gs-v1',
+                  'measurement_scope': None,  # 과거 H05/수정 허용 회차의 회귀 검증
                   'reference_version': 'r1', 'artifacts': [], 'files': [],
                   'dataset_manifest_path': self.ev[0]['path'], 'dataset_manifest_sha256': self.ev[0]['sha256'],
                   'evaluation_sessions': [{'session_id': 'chat1', 'channel': 'Codex 채팅', 'started_at': now(),

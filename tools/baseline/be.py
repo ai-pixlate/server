@@ -22,6 +22,18 @@ class RecordingStop(BaseException):
     """수집기 오류를 제품의 Exception 재시도/대체 처리에 전달하지 않는다."""
 
 
+def initialize_native_runtime():
+    """Windows Paddle→Torch DLL 충돌 방지. 승인 뒤 호출, 가중치/추론 없음."""
+    started = time.monotonic()
+    if sys.platform != 'win32':
+        return {'import_order': [], 'seconds': 0}
+    if 'paddle' in sys.modules and 'torch' not in sys.modules:
+        raise ValueError('Paddle보다 Torch가 먼저 필요합니다. 새 격리 프로세스를 사용하세요')
+    import torch
+    return {'import_order': ['torch', 'paddle (이후 OCR 초기화 시)'],
+            'torch': torch.__version__, 'seconds': time.monotonic() - started}
+
+
 def recorded(fn, *args, **kwargs):
     try:
         return fn(*args, **kwargs)
@@ -376,6 +388,12 @@ def _run_prepared(out, execute=False):
     if protocol.validate(out) or protocol.readiness(manifest):
         raise ValueError('동결된 최신 회차 명세·승인·입력 검증 필요')
     generation = manifest['generation_config']
+    from .preflight import verify_dependency_lock
+    lock = (manifest.get('environment') or {}).get('dependency_lock')
+    if not lock:
+        raise ValueError('격리 환경 dependency_lock 경로·해시 필요')
+    protocol.local_file(out, lock['path'], lock['sha256'])
+    verify_dependency_lock(out / lock['path'])
     config = {'product_root': generation['product_root'], 'product_commit': manifest['product_commit'],
               'protocol': 'v1', 'products': manifest['case_inputs'], 'budget': generation['budget'],
               'environment': manifest['environment']}
@@ -397,6 +415,7 @@ def _run_prepared(out, execute=False):
         assets.append(asset)
     # 동일 묶음 재실행을 금지한다. 중단 복구는 기존 기록을 검토한 별도 작업이다.
     write_new(out / "started.json", {"at": now(), "product_commit": config["product_commit"]})
+    write_new(out / 'native-runtime.json', initialize_native_runtime())
     sys.path.insert(0, str(root))
     os.environ["DATABASE_URL"] = url
     os.environ["AWS_EC2_METADATA_DISABLED"] = "true"

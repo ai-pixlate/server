@@ -2,10 +2,33 @@
 import importlib.metadata
 import json
 import platform
+import re
 import subprocess
 from pathlib import Path
 
 from .core import digest, inspect_inputs, read
+
+
+def verify_dependency_lock(path):
+    """해시 고정 설치 목록과 현재 메타데이터 비교. 설치/네트워크/모델 로딩 없음."""
+    normalize = lambda s: re.sub(r'[-_.]+', '-', s).lower()
+    expected = {}
+    for line in Path(path).read_text(encoding='utf-8').splitlines():
+        if not line.strip() or line.startswith('#'):
+            continue
+        match = re.fullmatch(r'([A-Za-z0-9_.-]+)==([^\s]+) --hash=sha256:[0-9a-f]{64}', line)
+        if not match or normalize(match[1]) in expected:
+            raise ValueError('패키지 해시 lock 형식/중복 오류')
+        expected[normalize(match[1])] = match[2]
+    if not expected:
+        raise ValueError('빈 패키지 lock')
+    actual = {normalize(d.metadata['Name']): d.version for d in importlib.metadata.distributions() if d.metadata['Name']}
+    issues = [name for name in sorted(expected.keys() | actual.keys()) if expected.get(name) != actual.get(name)]
+    if platform.system() != 'Windows' or platform.machine().upper() not in ('AMD64', 'X86_64') or platform.python_version() != '3.12.10':
+        issues.append('Windows x64 / CPython 3.12.10 필요')
+    if issues:
+        raise ValueError('격리 환경 lock 불일치: ' + ', '.join(issues))
+    return {'package_count': len(expected), 'sha256': digest(path), 'matched': True}
 
 
 def inspect(input_root, product_root=None, expected_commit=None, asset_manifest=None):

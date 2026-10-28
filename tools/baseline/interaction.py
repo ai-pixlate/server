@@ -6,6 +6,7 @@ from pathlib import Path
 
 from . import protocol as p
 from .core import now, read, write_new, digest
+from .scope import automatic_only
 
 
 class HumanRequired(BaseException):
@@ -72,13 +73,18 @@ class HumanSession:
         self.c,self.adapter,self.response,self.clock=collector,adapter,response,clock
 
     def review(self,stage):
+        automatic = automatic_only(self.c.manifest)
         initial=copy.deepcopy(self.adapter.snapshot(stage))
         original=copy.deepcopy(initial['values'])
         entered=self.clock()
         while True:
             state=self.adapter.snapshot(stage)
+            if automatic and state['values'] != original:
+                raise HumanRequired('무수정 회차의 최초 값 변경 감지')
             request={'request_id':uuid.uuid4().hex,'job_id':self.c.job_id,'stage':stage,
                      'state':state,'instructions':'직접 검수 후 edit 또는 continue. 경고 확인 목록은 직접 지정. 재생성은 지원하지 않음.'}
+            if automatic:
+                request['instructions'] = '무수정 회차: 최초 값을 변경하지 않고 continue로 직접 확인. 경고 확인 목록은 사람이 지정. edit·재생성 금지.'
             evidence=self.c.evidence(request)
             answer=self.response(self.c.root/evidence['path'])
             if not isinstance(answer,dict) or answer.get('request_id')!=request['request_id'] or not answer.get('actor'):
@@ -88,6 +94,8 @@ class HumanSession:
             if self.adapter.snapshot(stage)!=state: raise HumanRequired('검수 중 제품 상태 변경; 오래된 응답 사용 금지')
             reply_ref=self.c.evidence(answer)
             if action=='edit':
+                if automatic:
+                    raise HumanRequired('무수정 회차에서는 편집할 수 없음')
                 self.adapter.apply(stage,answer,state)
                 self.c.evidence({'request':evidence,'response':reply_ref,'after':self.adapter.snapshot(stage)})
                 continue

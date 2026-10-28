@@ -2,6 +2,7 @@
 import math
 import statistics
 import unicodedata
+from .scope import automatic_only, OP06_NOTE
 
 EVENTS = {
  'job_created': (), 'job_saved': (), 'first_download': (),
@@ -78,6 +79,10 @@ def aggregate(m, execution, metric):
     target = completed & approvals.keys()
     unchanged = sum(all(normalized(v['original'][k]) == normalized(v['final'][k]) for k in v['original']) for j,v in approvals.items() if j in target)
     emit('OP06', '무수정 승인률', unchanged, len(target), len(target), unknown=bool(completed-approvals.keys()) or not jobs)
+    if automatic_only(m):
+        prior = result[-1]['display_reason']
+        result[-1]['display_reason'] = (prior + '; ' if prior else '') + OP06_NOTE
+        result[-1]['include_in_presentation'] = False
     regs = select('regulation_checked'); specs=select('spec_checked')
     for group in (regs, specs):
         if len({(r['job_id'],r['values']['target_id']) for r in group}) != len(group): raise ValueError('운영 대상 중복')

@@ -1,8 +1,14 @@
 # Baseline 비과금 준비·기록·집계 도구
 
-정본은 [Baseline 명세](../../docs/ai-baseline/README.md)와 [회차 구조](../../docs/ai-baseline/runs/README.md)다. 현재 **비용·실행 승인 보류**다. CLI `execute`, BE 공개 진입점, worker는 제품 import 전에 사용자 승인·범위·상한을 대조하며, 현재 템플릿의 user_execution=null 상태에서는 거부한다. 실행 플래그만으로 우회할 수 없다. PM의 비용 합의는 완료됐지만 사용자의 구체적 실행 승인과 실제 수집 연결 검증을 대신하지 않는다.
+정본은 [Baseline 명세](../../docs/ai-baseline/README.md)와 [회차 구조](../../docs/ai-baseline/runs/README.md)다. 현재 **공식 Baseline 비용·실행 승인 보류**다. CLI `execute`, BE 공개 진입점, worker는 제품 import 전에 사용자 승인·범위·상한을 대조하며, 현재 템플릿의 user_execution=null 상태에서는 거부한다. 실행 플래그만으로 우회할 수 없다. PM의 비용 합의는 완료됐지만 사용자의 구체적 실행 승인과 실제 수집 연결 검증을 대신하지 않는다.
 
 ## 사용법
+
+2026-10-28 오프라인 재현 환경은 `.cache/bl-venv-locked-20261028/Scripts/python.exe`다. 아래 기존 명령의 Python 경로를 이 환경으로 바꾸어 사용한다. [Windows 해시 lock](requirements-windows-py312.lock.txt)과 [환경 차이·점검표](../../docs/ai-baseline/protocols/v1/execution.md#실행-환경-최종-점검--2026-10-28)를 함께 보존한다. 기존 venv는 변경하지 않았다.
+
+새 템플릿은 H01~H04/`confirmation_only` 범위를 기록한다. N3·N5에서 사람이 `continue`와 필요한 경고 확인 목록을 입력해야 하며 `edit`는 차단한다. H05 값·분자·분모는 null, 사유는 `미측정(별도 서비스 평가 예정)`이다. OP06 내부 계산은 유지하되 발표 제외 및 실제 사용자 승인 성과가 아니라는 설명을 기록한다. 과거 수정 가능 회차 읽기는 유지하지만 범위 미지정 또는 무수정 확인 승인이 없는 새 실행은 거부한다.
+
+공식 회차의 `environment.dependency_lock`은 회차 내 lock 사본의 경로·SHA-256이다. 실행 전 전체 설치 버전·Python·OS를 확인한다. 예산 검토 후보를 템플릿의 사용자 승인으로 자동 복사하지 않는다.
 
 아래 명령은 모델·DB·네트워크를 호출하지 않는다. 출력은 새 경로를 지정한다. 준비 묶음은 실제 결과가 아니며 `.cache/`에서 검증한다.
 
@@ -79,10 +85,10 @@ OP01·OP04·OP06·OP07 운영 증거 집계와 OP05 단가 추정 비용을 연�
 `interaction.py`는 검수 요청을 artifacts/에 보존하고 터미널에서 응답 JSON 경로를 기다린다. N3/N5 각각, 다음 형태의 응답을 **사람이 실제 요청을 읽고 작성**한다. 아래는 형식 예시이며 실행 또는 실제 판단이 아니다.
 
 ```json
-{"request_id":"요청 파일의 ID","actor":"실제 검수자","action":"edit","target_id":"요청에 있는 섹션 또는 블록 ID","value":"사람이 선택한 값"}
+{"request_id":"요청 파일의 ID","actor":"실제 확인자","action":"continue","acknowledgedWarnings":[]}
 ```
 
-N3의 value는 include/exclude, N5는 번역 문자열이다. 한 번 편집하면 새 상태·새 요청 ID를 확인한다. 진행은 action=continue로 지정하며 N5에서는 acknowledgedWarnings 배열을 사람이 명시한다(없으면 빈 배열). 요청 파일에 원문·판정·번역·경고와 로컬 이미지 경로가 있다. 잘못된 입력·상태 충돌·EOF는 진행을 중단한다. 실행기는 경고 목록을 자동 승인하지 않는다.
+이번 회차에는 편집 없이 action=continue로 확인한다. N5에서는 acknowledgedWarnings 배열을 사람이 명시한다(필요한 경고를 확인한 항목 목록, 없으면 빈 배열). 과거 편집 회차용 edit 지원은 보존하지만 이번 회차에는 사용하지 않는다. 요청 파일에 원문·판정·번역·경고와 로컬 이미지 경로가 있다. 잘못된 입력·상태 충돌·EOF는 진행을 중단한다. 실행기는 경고 목록을 자동 승인하지 않는다.
 
 `product_review.py`는 릴리즈 SEC-03·CFM-02 함수를 호출하므로 기존 잠금·revision 검사·재렌더 규칙을 유지한다. 최초 machine_snapshot은 N5 수정 전에 보존하고, 최종 service_final은 N6 렌더 성공 후 보존한다. 섹션별 미리보기 이미지와 state_ref를 묶어 원본 단위 H02를 검수한다. 체크포인트 이미지는 객체 키가 덮어써져도 해시 사본으로 유지된다. N6 저장 성공 사건이 있어야 OP01 완료로 센다.
 
@@ -115,3 +121,8 @@ cost_approval의 pm_cost_agreed=true는 이미 합의된 비용 부담이다. us
 - max_calls, max_amount, reserve_per_call, currency: 실제 budget과 일치해야 함
 
 `approval.py`는 위 기록과 실제 회차의 범위를 대조한다. 승인 후에도 명시적 실행 옵션이 필요하다. 최초 시작 파일과 상품별 claim은 배타 생성하며, 중단 후 새 Meter로 예산을 초기화하거나 같은 회차를 다시 처음부터 실행하지 않는다. 중단 회차 복구는 별도 검토 대상으로 남긴다.
+
+
+## 소규모 연결 점검 후 환경
+
+2026-10-28 별도 승인 점검에서 Pillow 12.3.0·google-genai 2.29.0 등 10개 의존성을 운영 기록과 맞췄다. lock·설치 파일 위치·남은 차이는 [최신 실행 환경](../../docs/ai-baseline/protocols/v1/execution.md#승인된-소규모-연결-점검--2026-10-28)을 따른다. Windows 공식 실행 진입점은 승인 뒤 Torch를 먼저 import해 Paddle/Torch DLL 충돌을 피하고 초기화 증거를 남긴다. 이 변경으로 공식 승인 검사를 생략하지 않는다. 연결 점검 전용 스크립트·합성 입력·$2 원장은 로컬 폴더에 격리했으며 공식 execute 승인으로 복사하지 않는다.

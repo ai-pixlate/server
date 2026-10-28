@@ -474,9 +474,10 @@ def explain_change(pieces: list[str], contacts: list[bool], reread: str, max_dig
     """재인식 판독 reread가 원래 묶음(검출 원문을 x 순서로, pieces)과 어떻게 다른지 설명한다.
 
     - `unchanged`: 비교 키(공백을 지운 텍스트 · 순서 있는 숫자 토큰)가 같다.
-    - `fragment_digits`: polygon이 실제로 겹친 이웃 경계(contacts[j] — pieces[j]와 pieces[j+1] 사이)마다 왼쪽 검출 끝 · 오른쪽
-      검출 앞에서 숫자를 max_digits개 이하 지운 결과가 reread와 같다. 삭제 수가 적은 조합을 먼저 본다. 검출 하나가 통째로
-      비면 설명으로 보지 않는다. 그 밖의 글자 변경 · 새 글자 · 숫자 붙음은 설명하지 않는다.
+    - `fragment_digits`: polygon이 실제로 겹친 이웃 경계(contacts[j] — pieces[j]와 pieces[j+1] 사이)마다 **한쪽 끝**(왼쪽
+      검출 끝 또는 오른쪽 검출 앞, 같은 경계의 양쪽을 함께 지우지 않는다)에서 숫자를 max_digits개 이하 지운 결과가 reread와
+      같다. 삭제 수가 적은 조합을 먼저 본다. 검출 하나가 통째로 비면 설명으로 보지 않는다. 그 밖의 글자 변경 · 새 글자 · 숫자
+      붙음은 설명하지 않는다.
     - `unexplained`: 그 밖 — `diff`에 거절 사유 분류(describe_diff)."""
     target = comparable([reread])
     if comparable(pieces) == target:
@@ -488,7 +489,8 @@ def explain_change(pieces: list[str], contacts: list[bool], reread: str, max_dig
             continue
         left = min(_edge_digits(pieces[j], end=True), max_digits)
         right = min(_edge_digits(pieces[j + 1], end=False), max_digits)
-        options.append([(x, y) for x in range(left + 1) for y in range(right + 1)])
+        # 경계 하나에서는 한쪽 끝만 지운다 — (x, 0) 또는 (0, y). 양쪽 동시 삭제는 pipeline.md 7.9절 채택 조건 밖이다
+        options.append([(0, 0)] + [(x, 0) for x in range(1, left + 1)] + [(0, y) for y in range(1, right + 1)])
     if math.prod(len(o) for o in options) > _MAX_COMBOS:
         return {"result": "unexplained", "diff": {**describe_diff(pieces, reread), "reason": "too_many_combinations"}}
     combos = sorted(itertools.product(*options), key=lambda cb: sum(x + y for x, y in cb))

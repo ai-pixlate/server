@@ -186,6 +186,26 @@ def test_no_contact_means_no_explanation():
     assert ex["result"] == "unexplained"
 
 
+@pytest.mark.parametrize("max_digits", [1, 2])
+def test_deleting_both_ends_of_one_contact_is_not_explained(max_digits):
+    # 같은 경계의 왼쪽 끝 9와 오른쪽 앞 9를 함께 지워야만 '1%'가 된다 — 한쪽 끝 삭제 범위(pipeline.md 7.9절) 밖
+    ex = ocr_overlap.explain_change(["19", "9%"], [True], "1%", max_digits)
+    assert ex["result"] == "unexplained"
+
+
+def test_deleting_one_end_of_one_contact_is_still_explained():
+    ex = ocr_overlap.explain_change(["19", "9%"], [True], "19%", 1)
+    assert ex["result"] == "fragment_digits" and len(ex["removed"]) == 1
+
+
+def test_one_end_per_contact_across_two_contacts_is_explained():
+    # 경계마다 한쪽 끝씩(경계 0: 왼쪽 끝 7, 경계 1: 오른쪽 앞 1) — 경계별 제한 안이다
+    ex = ocr_overlap.explain_change(["**7", "징크옥사이드", "1함유"], [True, True], "** 징크옥사이드 함유", 1)
+    assert ex["result"] == "fragment_digits"
+    assert ex["removed"] == [{"junction": 0, "where": "end_of_left", "chars": "7"},
+                             {"junction": 1, "where": "start_of_right", "chars": "1"}]
+
+
 def test_whole_detection_vanishing_is_not_explained():
     ex = ocr_overlap.explain_change(["보습", "1", "크림"], [True, True], "보습크림", 1)
     assert ex["result"] == "unexplained"

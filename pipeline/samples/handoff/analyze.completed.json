@@ -92,6 +92,12 @@
           "title_max_lines": 2,
           "caption_max_chars": 25,
           "price_max_chars": 40,
+          "xycut": true,
+          "fullwidth": false,
+          "num_o": true,
+          "xycut_gap_ratio": 0.8,
+          "line_center_tol": 0.5,
+          "line_center_tol_min_px": 8,
           "llm_model": "gemini-3.8-flash",
           "llm_temperature": 0,
           "llm_split": false,
@@ -104,7 +110,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "063a69bc73c1906bca741506e6c3cc59756019be7fdb290b7d26bcf467f31c49",
+    "input_manifest_sha256": "9921e790e52cd2bdaf8c00295852bd8f6c560deccafa0bd4bfea621045e0169e",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,

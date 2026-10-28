@@ -5,6 +5,8 @@
 - P1 · P2 본문 두 줄(세로 간격 30 > 12)  → 휴리스틱 블록 2개(과분할)
 - F1 · F2 같은 줄 조각(가로 간격 30 > 21) → 휴리스틱 블록 2개(같은 줄 과분할)
 - E  빈 텍스트(score 0.0) · Z 크기 0      → 단독 블록, LLM에 보내지 않음
+OCR 후처리 스위치(xycut · num_o 기본 켬, 2026-10-26)는 CFG()에서 모두 끈다 — 이 파일은 기존 llm_assist v1 경로의 회귀 검증이다.
+켠 경로(region · 보충 프롬프트 · 칸 묶음 분리)는 test_pipeline_merge_post.py에서 본다.
 """
 import json
 import math
@@ -39,6 +41,7 @@ def SEC(key="sec_1_01", order=1, top=0, height=1000, width=1000):
 
 def CFG(**over):
     cfg = cfgmod.load_config()
+    cfg["merge"].update(xycut=False, fullwidth=False, num_o=False)  # 기존 경로 고정 — 후처리 기본값(켬)과 무관하게 검증
     cfg["merge"].update(over)
     return cfg
 
@@ -412,7 +415,8 @@ def test_cli_merge_replay_writes_result_and_record(tmp_path):
     expected = merge.run(sec, ocr, cfg, llm=EachAlone(), recorder=merge.json_recorder(first_dir))
     out = tmp_path / "replay"
     rc = cli.main(["merge", "--split", str(SAMPLE_EXP / "split.json"), "--ocr", str(SAMPLE_EXP / "ocr/sec_1_01.json"),
-                   "--out", str(out), "--llm-replay", str(first_dir / "sec_1_01.json")])
+                   "--out", str(out), "--llm-replay", str(first_dir / "sec_1_01.json"),
+                   "--set", "merge.xycut=false", "--set", "merge.num_o=false"])  # CFG()와 같은 기존 경로로 재생
     assert rc == 0
     assert jsonio.load_merge(out / "merge" / "sec_1_01.json") == expected
     assert json.loads((out / "merge_debug" / "sec_1_01.json").read_text(encoding="utf-8"))["status"] == "ok"

@@ -1,5 +1,6 @@
 # Baseline 비과금 준비·기록·집계 도구
 
+> 최신 승인 상태: 사용자 API 비용 상한 **$20 승인**. PM 기준 자료 미동결·공식 실행 미시작. 아래의 비용 승인 보류/$50 문구는 과거 이력이며 [현재 승인 범위](../../docs/ai-baseline/cost-estimate.md#pr-제출-시-승인-상태)를 우선한다. 이번 작업은 PR 생성까지만 수행한다.
 정본은 [Baseline 명세](../../docs/ai-baseline/README.md)와 [회차 구조](../../docs/ai-baseline/runs/README.md)다. 현재 **공식 Baseline 비용·실행 승인 보류**다. CLI `execute`, BE 공개 진입점, worker는 제품 import 전에 사용자 승인·범위·상한을 대조하며, 현재 템플릿의 user_execution=null 상태에서는 거부한다. 실행 플래그만으로 우회할 수 없다. PM의 비용 합의는 완료됐지만 사용자의 구체적 실행 승인과 실제 수집 연결 검증을 대신하지 않는다.
 
 ## 사용법

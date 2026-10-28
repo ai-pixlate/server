@@ -201,13 +201,17 @@ class Det:
     def touching(self) -> bool:
         return self.touch_top or self.touch_bottom
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self, with_poly: bool = False) -> dict[str, Any]:
+        """진단용. poly(섹션 로컬 정수, 엔진 · 재인식이 낸 값 그대로)는 재인식 검출과 with_poly일 때만 싣는다 — 모든 검출에
+        싣지 않아 진단 크기를 줄이고, 판정을 재현할 때 필요한 자리(교체 전 원래 검출 · 중복 제거 대표)에서만 요청한다."""
         b = self.bbox
         out = {"id": self.id, "origin": self.origin, "crop": self.crop, "order": self.order, "text": self.text,
                "score": self.score, "bbox": [b.x, b.y, b.w, b.h], "touch_top": self.touch_top,
                "touch_bottom": self.touch_bottom}
         if self.rerec_of:
-            out.update({"rerec_of": list(self.rerec_of), "poly": [list(q) for q in self.poly]})
+            out["rerec_of"] = list(self.rerec_of)
+        if self.rerec_of or with_poly:
+            out["poly"] = [list(q) for q in self.poly]
         return out
 
 
@@ -247,21 +251,27 @@ class _Ids:
 def _dedup_call(regions: list[OcrRegion], ov: OverlapParams, origin: str, crop: int, y0: int
                 ) -> tuple[list[OcrRegion], list[int], dict[str, Any]]:
     """엔진 호출 하나의 명백한 중복 제거(#40). 반환: (남긴 영역, 그 엔진 순서, 진단 기록).
-    기록의 poly · bbox는 crop 로컬 좌표다(섹션 로컬 y = crop 로컬 y + crop_y0)."""
+    판정은 crop 로컬 영역으로 하고(y 평행 이동이라 IoU · 방향이 같다), 기록의 poly · bbox는 섹션 로컬로 옮겨 적는다."""
     kept, records = ocr_overlap.dedup(regions, ov)
-    return [regions[i] for i in kept], kept, {"origin": origin, "crop": crop, "crop_y0": y0, "coords": "crop_local",
+    for r in records:
+        r["poly"] = [[x, y + y0] for x, y in r["poly"]]
+        r["bbox"] = [r["bbox"][0], r["bbox"][1] + y0, r["bbox"][2], r["bbox"][3]]
+    return [regions[i] for i in kept], kept, {"origin": origin, "crop": crop, "crop_y0": y0, "coords": "section_local",
                                               "raw_count": len(regions), "removed": ocr_overlap.removed_count(records),
                                               "records": records}
 
 
 def _link_dedup(rec: dict[str, Any], dets: list[Det]) -> None:
-    """중복 제거 기록의 엔진 순서를 복원한 검출 id로 잇는다(대표 · 판정 보류해 남긴 검출)."""
-    by_order = {d.order: d.id for d in dets}
+    """중복 제거 기록의 엔진 순서를 복원한 검출 id로 잇는다(대표 · 판정 보류해 남긴 검출). 대표의 원시 값(text · score · 섹션
+    로컬 poly)도 함께 적는다 — 대표가 뒤의 타일 대응 · 보완 판정에서 버려지면 최종 영역에 남지 않아 판정을 재현할 수 없다."""
+    by_order = {d.order: d for d in dets}
     for r in rec["records"]:
-        if "representative" in r:
-            r["representative_det"] = by_order.get(r["representative"])
+        rep = by_order.get(r["representative"]) if "representative" in r else None
+        if rep is not None:
+            r["representative_det"] = rep.id
+            r["representative_raw"] = {"text": rep.text, "score": rep.score, "poly": [list(q) for q in rep.poly]}
         if r["action"] == "kept":
-            r["det"] = by_order.get(r["order"])
+            r["det"] = by_order[r["order"]].id if r["order"] in by_order else None
 
 
 # ---- 3·4. 대응 · 분류 ----------------------------------------------------------------------
@@ -720,7 +730,7 @@ class OverlapRec:
                 s.rec.update({"decision": "kept",
                               "reason": "unchanged" if ex["result"] == "unchanged" else ex["diff"]["reason"]})
                 continue
-            s.rec["original"] = [d.as_dict() for d in s.dets]
+            s.rec["original"] = [d.as_dict(with_poly=True) for d in s.dets]  # 교체 전 원시 값(poly 포함, 섹션 로컬)
             new = self._new_det(s)
             s.rec.update({"decision": "replaced", "new_det": new.id})
             out.append((s, new))

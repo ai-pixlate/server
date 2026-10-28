@@ -65,7 +65,15 @@
           "tile_equiv_min_x_iou": 0.9,
           "tile_edge_touch_px": 3,
           "tile_box_jitter_px": 3,
-          "tile_supplement_margin_px": 150
+          "tile_supplement_margin_px": 150,
+          "dedup_min_poly_iou": 0.9,
+          "dedup_max_angle_diff_deg": 5.0,
+          "overlap_rec_max_calls": 12,
+          "overlap_rec_max_group": 4,
+          "overlap_rec_max_x_overlap": 0.5,
+          "overlap_rec_max_angle_deg": 10.0,
+          "overlap_rec_max_foreign": 0.1,
+          "overlap_rec_max_fragment_digits": 1
         },
         "merge": {
           "line_gap": 0.7,
@@ -96,7 +104,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "9bfc4ec38c4f98a6cbc4325272168f4436b23936a59a50996d4b1f4bd81e98bd",
+    "input_manifest_sha256": "b1b108516e8840e3a56de9fcf16009b7784ac6bf73899be3ed1beb4638040b05",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,

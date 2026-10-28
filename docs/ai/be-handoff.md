@@ -1,6 +1,6 @@
 # be-handoff.md — BE 워커가 부르는 AI 함수의 입력·출력과 BE 처리(공동 확인용 예제)
 
-> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값) · 8절 추가 2026-10-12(D12 번역문 검사 연결). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
+> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값) · 8절 추가 2026-10-12(D12 번역문 검사 연결) · 10절 추가 2026-10-23(OCR 후처리, BE 확인 미진행). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
 > 성격: BE 구현이 실제로 요구·검증하는 형식의 예제와 기대 결과다. 새 계약 결정이 아니며, 유형 코드·프롬프트·모델은 AI 소유다.
 > 모든 키는 BE가 준 임시 키(`sec_<id>`·`blk_<id>`)를 그대로 돌려준다. 모르는 키는 저장 실패다(D3). 파일은 절대 로컬 경로로만 주고받는다.
 
@@ -387,3 +387,34 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - Linux · CPU 배포 이미지에서 긴 원본(예: 1000×37,665)의 시간 · 최대 메모리 — 7.3과 같은 방식(새 CLI 프로세스 전체, `/usr/bin/time -v`)으로 `analyze` 또는 `ocr` CLI를 측정한다.
 - 기준값(`[ocr] tile_*`)은 잠정이다. 실측 표본은 골든 9장 · 이 PC GPU다.
 - **1.0.0 릴리즈 전 배포 환경 실측은 생략하기로 했다(사용자 결정 2026-10-13).** 위 Linux · CPU 시간 · 최대 메모리, 배포 환경의 짧은 · 긴 섹션 · 충돌 실패 경로, BE 재시도 실행은 미검증으로 남는다. 이 기능은 기존에 미지원(거부)이던 긴 입력의 일부를 처리하도록 개선한 것이며, 긴 이미지 지원 전체의 품질 · 배포 안정성이 검증된 것이 아니다. 표본 9장의 실패 비율은 운영 전체 실패율이 아니다.
+
+## 10. OCR 후처리 인계(2026-10-23) — AI 내부 구현 · BE 확인 미진행
+
+③ 병합 안의 OCR 후처리(여백 분리 · 세로 중심 줄 정렬 · 전각 변환, `open-questions.md` #86)를 AI 내부에 구현했다. 규칙 정본은 `pipeline.md` 7.1 · 7.2절, 코드는 `pipeline/stages/merge.py`, 테스트는 `tests/test_pipeline_merge_post.py`다. **이번 작업은 BE 연동 · 검토 · 확인 요청을 하지 않았고, BE 확인을 이 구현의 선행조건으로 두지 않는다.** 아래는 향후 확인을 위한 정리이며 합의 · 연동 검증 · 운영 적용 기록이 아니다. 새 API 필드 · DB 컬럼 · BE 코드 변경은 없다.
+
+### 10.1 기본값과 BE에 보이는 변화
+
+- **2026-10-26부터 기본값은 `merge.xycut` · `merge.num_o` `true`, `merge.fullwidth` `false`다**(6단계 결정, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 저장소 기본 설정(`pipeline/config/default.toml`)으로 돌리면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`)와 `llm_assist` 입력 · 프롬프트 · 기록이 10.2대로 바뀐다.
+- **운영 적용 조건(BE 확인 필요)**: develop 머지와 dev 이미지(`pixlate-api:dev-<커밋>`) 게시는 운영이 아니므로 허용한다(2026-10-26 결정) — dev 이미지는 기본값(xycut · num_o 켬)으로 돌고, 10.2 미확인 · 보충 프롬프트 지문 미반영 상태다. **운영 배포(main · release)는 10.2 확인 · 보충 프롬프트의 인계 지문 반영 등 후속 연동이 끝난 뒤로 미룬다.** 그 전에 운영 배포가 필요하면 운영 설정(`PIXLATE_PIPELINE_CONFIG`로 지정하는 설정 사본)에서 `merge.xycut` · `merge.num_o`를 `false`로 둔다. 이번에 BE 확인 · 요청은 하지 않았다.
+- 세 스위치를 모두 끄면 `analyze()` 결과와 `llm_assist` 입력 · 프롬프트 · 기록 형식은 기존과 같다(AI 내부 테스트로 확인 — 기존 ③ 경로 테스트는 세 스위치를 끈 설정으로 돈다).
+- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`, 2026-10-26에 `num_o` 1개 더)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음). 2026-10-26 기본값 변경으로 예제의 `input_manifest.config.merge`가 `xycut: true` · `num_o: true`가 되어 다시 만들었다(예제 블록 내용은 그대로, 지문만 바뀜).
+
+### 10.2 스위치를 켰을 때의 영향 — 향후 확인 항목
+
+`AnalyzeResult` 버전 · 필드 · 좌표계는 그대로지만 아래 **값의 의미**가 바뀐다. 운영 적용 전에 확인할 항목이다(BE 확인 필요, 10.1 운영 적용 조건).
+
+| 대상 | 바뀌는 것 | 확인할 것 |
+|---|---|---|
+| 화면 순서 | `block_order`가 섹션 안 (y, x) 순에서 후보 영역 → 가로줄 → x 읽기 순서로 바뀐다(다단 배치에서 왼쪽 칸이 먼저) | N3 · N5 목록과 편집 화면이 `block_order`를 그대로 쓰는지, 다른 정렬(bbox 등)을 섞는지 |
+| 원문 표시 · 수정 | `fullwidth` · `num_o`이면 `source_ko`와 `source_lines[].text`가 전각 · 숫자 속 o/O 보정 문장이다(예: `SPF 5O+` → `SPF 50+`, 1:1 치환). 원시 OCR 텍스트는 `source_lines[].regions[].text`에 남는다 | 화면 원문 · `edit_signal.before_text` 등이 어느 값을 쓰는지. 상위 계약 `source_ko` 정의 반영은 `open-questions.md` 3절 F |
+| 줄 · 문단 구성 | 같은 원본이라도 줄 묶음 · 블록 수 · 역할이 달라질 수 있다. 위아래 여백으로만 나뉜 후보 영역끼리는 LLM이 한 블록으로 합칠 수 있고(2026-10-26), 나란한 칸(x 절단)을 넘는 LLM 병합은 나뉘며 그 조각의 역할은 휴리스틱 판정이다. 출력 형식은 같다 | 블록 수 · 역할 분포가 바뀌어도 하류 생성 조건 · 표시가 그대로 동작하는지 |
+| 재분석 | 켜기 전후 분석 결과는 같은 작업이라도 블록 · 키 · 텍스트가 다르다 | 한 작업 안에서 이전 분석 결과와 새 결과를 섞어 쓰는 경로(되살리기 · 재판정 · 재분석)가 없는지 |
+| 입력 지문 | ③-1 `blocks_fingerprint`(블록 키 · `source_ko`), ④ `input_fingerprint`(블록 전체), BE 분석 · 하류 매니페스트의 블록 해시(`app/flows/analysis.py` · `downstream.py` `stable_hash`)가 모두 새 값이 된다. 판정 구간(span)은 새 `source_ko` 기준으로 다시 산출되며 이전 구간을 옮겨 쓰지 않는다 | 지문 불일치 때 재사용 · 거절 동작이 의도대로인지(이전 결과를 새 블록에 붙이지 않는지) |
+| `input_manifest` · 캐시 | `xycut`이면 `merge.prompt_path` 뒤에 `pipeline/prompts/merge_assist_region.md`를 붙여 호출한다(`pipeline/stages/merge.py` `validate_llm_config` · `REGION_PROMPT_PATH`). 현재 인계 매니페스트의 `prompts.merge`(`pipeline/handoff/analysis.py`, `_prompt_sha(cfg["merge"]["prompt_path"])`)는 기본 프롬프트 파일 해시만 담아 이 보충 프롬프트 내용이 지문에 들어가지 않는다. **2026-10-26부터 `xycut` 기본값이 켜져 기본 실행에도 해당한다** — 보충 프롬프트만 바뀌면 같은 지문으로 이전 분석이 재사용될 수 있다 | **운영 적용 전 해결 과제**: 보충 프롬프트를 지문에 넣는 방식(예: 실제 호출에 쓰는 이어 붙인 프롬프트의 해시를 담기 — 매니페스트 키 · 값의 모양은 BE 검증 대상이라 BE와 정한다). AI 인계 코드 변경 사항이며 이번에는 하지 않았다. 바꾸면 `pipeline/samples/handoff/analyze.completed*.json`을 다시 만든다(`open-questions.md` #86) |
+| 분석 출력 폴더 | 켜면 `out_dir/merge_post_debug/`에 섹션별 후처리 진단과 `block_keys.json`이 생긴다(LLM 사용 여부와 관계없이, `pipeline.md` 7.1절). `ocr_debug/`와 같은 개발 확인용이며 인계 형식 · artifact가 아니다 | BE 워커가 `out_dir`의 낯선 파일 · 폴더를 거절하거나 업로드 대상으로 집계하지 않는지 |
+| 개발용 고정 입력본 · 재생 | `blocks-input-v1` 등은 꺼진 상태의 ③ 출력이다. 켠 결과로 ③-1 · ④ · ⑤ 재생 기록을 돌리면 입력 지문 불일치로 거절된다(입력본 손상 아님) | — (AI 실측 범위) |
+
+### 10.3 남은 것
+
+- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 보류 기능 실험(5단계)은 마쳤다 — 숫자 속 o/O 교정을 채택해 `merge.num_o`로 넣었고, 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 보류했다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step5.md`). 6단계에서 기본값을 `xycut` · `num_o` 켬, `fullwidth` 끔으로 바꿨다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 하류 실행 · 라벨 처리는 검증 완료가 아니다. 보충 프롬프트의 인계 지문 반영은 후속 연동 전 해결 과제로 남는다.
+- BE: 위 10.2 항목 확인과 캐시 · 재분석 영향 확인은 운영 적용 전에 따로 요청한다(10.1 운영 적용 조건). 이번에는 BE 실행 테스트 · 연동 검증 · 확인 요청을 하지 않았다.

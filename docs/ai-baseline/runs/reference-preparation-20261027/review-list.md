@@ -2,7 +2,7 @@
 
 [PM 검수 시작 안내](pm-review.md)를 먼저 읽는다. 아래 회신란은 모두 미회신 상태다. 기준 단위 324개 모두 검수 대상이며 원본 경로·단위 유형·해시는 참고 정보다. 각 항목의 기대값·좌표·불확실성·적용 여부·중요도는 확인 대상이다. 원본은 각 절의 링크, 정책 근거는 각 항목의 링크에서 대조한다. 원본당 제한 시간은 없다.
 
-회신란에는 `승인 / 수정 필요 / 판단 보류` 중 하나와 PM 이름·회신일을 기입한다. 수정 필요는 수정값·좌표·근거, 판단 보류는 필요한 정보·이유를 적는다. 빈칸·무응답은 승인이 아니다. 한 번의 묶음 회신도 가능하나 승인한 ID 목록과 예외 ID를 명시해야 하며 원본 전체를 자동 승인 처리하지 않는다.
+PM은 GitHub Draft PR 코멘트에 항목 ID와 `승인 / 수정 필요 / 판단 보류`, 이름·회신일을 남긴다. 아래 빈 회신란은 반영 담당자가 실제 코멘트 URL을 근거로 갱신한다. clone이나 직접 파일 편집은 필요 없다. 수정 필요는 수정값·좌표·근거, 판단 보류는 필요한 정보·이유를 적는다. 빈칸·무응답은 승인이 아니다. 한 번의 묶음 회신도 가능하나 승인한 ID 목록과 예외 ID를 명시해야 하며 원본 전체를 자동 승인 처리하지 않는다.
 
 PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동결 0장. `확인 필요`는 모든 행에 적용한다. 아래의 별도 불확실성은 단순 PM 미검토와 구분한다.
 
@@ -47,7 +47,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-01_001
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-01/GS-01_001.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-01/GS-01_001.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-01/GS-01_001.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -99,7 +99,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-01_002
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-01/GS-01_002.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-01/GS-01_002.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-01/GS-01_002.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -316,7 +316,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_001
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_001.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_001.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_001.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -358,7 +358,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_002
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_002.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_002.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_002.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -400,7 +400,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_003
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_003.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_003.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_003.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -427,7 +427,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_004
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_004.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_004.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_004.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -459,7 +459,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_005
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_005.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_005.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_005.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -486,7 +486,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_006
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_006.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_006.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_006.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -518,7 +518,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_007
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_007.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_007.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_007.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -610,7 +610,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_008
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_008.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_008.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_008.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -682,7 +682,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_009
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_009.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_009.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_009.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -794,7 +794,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_010
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_010.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_010.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_010.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -831,7 +831,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_011
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_011.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_011.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_011.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -873,7 +873,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_012
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_012.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_012.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_012.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -915,7 +915,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_013
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_013.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_013.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_013.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -957,7 +957,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-02_014
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-02/GS-02_014.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_014.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-02/GS-02_014.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1114,7 +1114,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_001
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_001.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_001.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_001.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1146,7 +1146,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_002
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_002.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_002.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_002.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1238,7 +1238,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_003
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_003.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_003.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_003.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1255,7 +1255,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_004
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_004.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_004.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_004.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1307,7 +1307,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_005
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_005.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_005.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_005.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1344,7 +1344,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_006
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_006.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_006.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_006.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1376,7 +1376,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_007
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_007.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_007.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_007.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1393,7 +1393,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_008
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_008.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_008.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_008.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1430,7 +1430,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_009
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_009.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_009.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_009.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1452,7 +1452,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_010
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_010.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_010.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_010.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1509,7 +1509,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_011
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_011.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_011.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_011.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1536,7 +1536,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_012
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_012.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_012.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_012.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1578,7 +1578,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_013
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_013.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_013.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_013.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1620,7 +1620,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_014
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_014.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_014.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_014.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1667,7 +1667,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_015
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_015.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_015.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_015.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1704,7 +1704,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_016
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_016.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_016.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_016.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1726,7 +1726,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_017
 
-**기본 확인(생략 불가)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_017.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**기본 확인(생략 불가)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_017.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_017.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 
@@ -1753,7 +1753,7 @@ PM 검토 전 초안. 원본 전체 34장 확인·초안 작성, PM 확인/동�
 
 ## GS-03_018
 
-**우선 검토(불확실성·전사 보완)** · [원본 이미지](../../../../pipeline/samples/evaluation/gs-v1/GS-03/GS-03_018.jpg) · [해시·크기 색인](artifacts/draft-index.json)
+**우선 검토(불확실성·전사 보완)** · [원본 이미지](https://github.com/ai-pixlate/server/blob/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_018.jpg) · [원본 크기](https://raw.githubusercontent.com/ai-pixlate/server/dc038bdfa937b3d9762e2af0a8a97929e62f5ff9/pipeline/samples/evaluation/gs-v1/GS-03/GS-03_018.jpg) · [해시·크기 색인](artifacts/draft-index.json)
 
 좌표는 원본 픽셀 `[x_min,y_min,x_max,y_max]`이며 원본을 확대해 해당 범위를 대조한다. 이미지 열기만으로 검수 완료가 되지 않는다.
 

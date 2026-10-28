@@ -385,8 +385,8 @@ def _run_prepared(out, execute=False):
     from .interaction import Collector, HumanSession
     from .product_review import ProductReview
     manifest, data = protocol.load(out)
-    if protocol.validate(out) or protocol.readiness(manifest):
-        raise ValueError('동결된 최신 회차 명세·승인·입력 검증 필요')
+    if protocol.validate(out) or protocol.readiness(manifest, purpose='generation'):
+        raise ValueError('생성 회차 명세·승인·입력 검증 필요(기준 자료 동결은 채점 전 필수)')
     generation = manifest['generation_config']
     from .preflight import verify_dependency_lock
     lock = (manifest.get('environment') or {}).get('dependency_lock')

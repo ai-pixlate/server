@@ -130,10 +130,29 @@ def prepare(config, output):
     return readiness(manifest)
 
 
-def readiness(m):
+def readiness(m, purpose='evaluation'):
+    if purpose not in ('generation', 'evaluation'):
+        raise ValueError('준비 단계 오류')
     pending = [] if ((m.get('cost_approval') or {}).get('user_execution') or {}).get('approved') is True else ['사용자 비용·실행 승인 보류']
-    return pending + [k + ': 확인 필요' for k in ('product_commit', 'protocol_commit', 'environment', 'generation_config',
-            'case_inputs', 'reference_version', 'reference_freeze', 'evaluation_sessions', 'cost_approval') if not m.get(k)]
+    fields = ['product_commit', 'protocol_commit', 'environment', 'generation_config', 'case_inputs', 'cost_approval']
+    if purpose == 'evaluation':
+        fields += ['reference_version', 'reference_freeze', 'evaluation_sessions']
+    return pending + [k + ': 확인 필요' for k in fields if not m.get(k)]
+
+
+def require_frozen_reference(root, m):
+    """채점 전 별도 동결본과 PM 확인 증거의 해시를 검증한다."""
+    freeze = m.get('reference_freeze') or {}
+    if not m.get('reference_version') or not freeze.get('verified_by'):
+        raise ValueError('PM 기준 자료 동결 필요')
+    timestamp(freeze.get('verified_at'))
+    for key in ('evidence_ref', 'reference_file'):
+        ref = freeze.get(key) or {}
+        if not isinstance(ref, dict) or not isinstance(ref.get('path'), str) or not isinstance(ref.get('sha256'), str):
+            raise ValueError('PM 동결 파일·근거 경로와 해시 필요')
+        local_file(root, ref.get('path'), ref.get('sha256'))
+    if freeze['reference_file']['path'] != 'reference_units.jsonl':
+        raise ValueError('동결본은 회차 reference_units.jsonl에 연결해야 합니다')
 
 
 def required(row, fields):
@@ -189,6 +208,8 @@ def capture_artifact(root, metadata, source):
 
 def check_row(root, m, kind, row):
     automatic = automatic_only(m)
+    if automatic and kind in ('evaluations', 'defects', 'human_review'):
+        require_frozen_reference(root, m)
     if automatic and kind == 'execution':
         if row.get('record_kind') == 'user_edit' and (
                 row.get('original_value') != row.get('final_value') or
@@ -500,6 +521,8 @@ def aggregate(root):
     if issues:
         raise ValueError('; '.join(issues))
     m, data = load(root)
+    if automatic_only(m):
+        require_frozen_reference(root, m)
     result = aggregate_data(m, data)
     # 전체·상품·원본 결과를 같은 계산기로 만든다. 공통 사용량은 원본에 중복 배분하지 않는다.
     for group in [sorted(s for s in m['source_keys'] if s.startswith(c)) for c in ('GS-01', 'GS-02', 'GS-03')] + [[s] for s in m['source_keys']]:

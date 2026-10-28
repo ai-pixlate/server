@@ -10,7 +10,7 @@ import test_baseline_protocol as fixtures
 from tools.baseline import protocol as p, be, preflight
 from tools.baseline.scope import automatic_scope, H05_REASON, OP06_NOTE
 from tools.baseline.interaction import Collector, HumanSession, HumanRequired
-from tools.baseline.core import read
+from tools.baseline.core import read, digest, now
 
 
 class ScopeTest(unittest.TestCase):
@@ -20,6 +20,9 @@ class ScopeTest(unittest.TestCase):
         self.root = self.fixture.root
         m = read(self.root / 'manifest.json')
         m['measurement_scope'] = automatic_scope()
+        m['reference_freeze'] = {'verified_by': 'synthetic-PM', 'verified_at': now(),
+            'evidence_ref': self.fixture.ev[0],
+            'reference_file': {'path': 'reference_units.jsonl', 'sha256': digest(self.root / 'reference_units.jsonl')}}
         (self.root / 'manifest.json').write_text(json.dumps(m), encoding='utf-8')
         self.c = Collector(self.root, 1, self.fixture.sources)
         self.state = {'values': {'1': 'include', '2': 'exclude'},
@@ -31,7 +34,7 @@ class ScopeTest(unittest.TestCase):
         self.fixture.tearDown()
 
     def response(self, path, **kwargs):
-        return {'request_id': read(path)['request_id'], 'actor': 'synthetic-human', **kwargs}
+        return {'request_id': read(path)['request_id'], 'actor': '예람', **kwargs}
 
     def test_no_edit_confirmation_records_evidence_but_not_h05_zero(self):
         human = HumanSession(self.c, self.adapter, lambda path: self.response(path, action='continue', acknowledgedWarnings=[]))
@@ -86,6 +89,65 @@ class ScopeTest(unittest.TestCase):
         (self.root / 'manifest.json').write_text(json.dumps(m), encoding='utf-8')
         with self.assertRaisesRegex(ValueError, '측정 범위'):
             p.aggregate(self.root)
+
+    def test_generation_does_not_require_freeze_but_scoring_does(self):
+        m = read(self.root / 'manifest.json')
+        m.update(product_commit='synthetic', protocol_commit='synthetic', environment={'mock': True},
+                 generation_config={'mock': True}, case_inputs={'mock': True},
+                 cost_approval={'user_execution': {'approved': True}},
+                 reference_version=None, reference_freeze=None, evaluation_sessions=[])
+        (self.root / 'manifest.json').write_text(json.dumps(m), encoding='utf-8')
+        self.assertEqual(p.readiness(m, purpose='generation'), [])
+        self.assertEqual(p.validate(self.root), [])
+        self.assertIn('reference_freeze: 확인 필요', p.readiness(m))
+        with self.assertRaisesRegex(ValueError, '동결'):
+            p.record(self.root, 'evaluations', self.fixture.evaluation())
+        with self.assertRaisesRegex(ValueError, '동결'):
+            p.aggregate(self.root)
+
+    def test_frozen_reference_hash_drift_blocks_scoring(self):
+        with (self.root / 'reference_units.jsonl').open('a') as f:
+            f.write('\n')
+        with self.assertRaises(ValueError):
+            p.record(self.root, 'evaluations', self.fixture.evaluation())
+
+    def test_wrong_confirmation_actor_cannot_continue(self):
+        with self.assertRaisesRegex(HumanRequired, '예람'):
+            HumanSession(self.c, self.adapter, lambda path: self.response(path, actor='other', action='continue')).review('N3')
+        self.adapter.apply.assert_not_called()
+
+    def test_latest_budget_and_actor_are_required_without_auto_approval(self):
+        from tools.baseline.approval import require_approval, TARGET
+        from tools.baseline.scope import APPROVED_BUDGET
+        from tools.baseline.core import IDS
+        m = read(self.root / 'manifest.json')
+        sources = [p.source_key(s) for s in IDS]
+        user = dict(approved=True, approved_by='synthetic-user', approved_at=now(),
+            evidence_ref=self.fixture.ev[0], source_keys=sources, product_commit=TARGET,
+            job_grouping='case', official_generations_per_source=1, user_regeneration_allowed=False,
+            human_intervention_scope='confirmation_only', human_confirmation_actor='예람', **APPROVED_BUDGET)
+        m.update(product_commit=TARGET, source_keys=sources, reference_freeze=None,
+            generation_config={'job_grouping': 'case', 'budget': dict(APPROVED_BUDGET)},
+            cost_approval={'pm_cost_agreed': True, 'user_execution': user})
+        def save():
+            (self.root / 'manifest.json').write_text(json.dumps(m), encoding='utf-8')
+        save()
+        require_approval(self.root)
+        for key, bad in [('max_amount',20),('max_amount',51),('max_calls',1368),('reserve_per_call',0.5)]:
+            with self.subTest(key=key, value=bad):
+                m['generation_config']['budget'][key] = user[key] = bad
+                save()
+                with self.assertRaisesRegex(ValueError, '최신 승인 예산'):
+                    require_approval(self.root)
+                m['generation_config']['budget'][key] = user[key] = APPROVED_BUDGET[key]
+        user['human_confirmation_actor'] = 'other'
+        save()
+        with self.assertRaisesRegex(ValueError, '예람'):
+            require_approval(self.root)
+        user['approved'] = False
+        save()
+        with self.assertRaisesRegex(ValueError, '승인 보류'):
+            require_approval(self.root)
 
 
 class EnvironmentLockTest(unittest.TestCase):

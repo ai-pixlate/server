@@ -1,7 +1,7 @@
 # Baseline 비과금 준비·기록·집계 도구
 
-> 최신 승인 상태: 사용자 API 비용 상한 **$20 승인**. PM 기준 자료 미동결·공식 실행 미시작. 아래의 비용 승인 보류/$50 문구는 과거 이력이며 [현재 승인 범위](../../docs/ai-baseline/cost-estimate.md#pr-제출-시-승인-상태)를 우선한다. 이번 작업은 PR 생성까지만 수행한다.
-정본은 [Baseline 명세](../../docs/ai-baseline/README.md)와 [회차 구조](../../docs/ai-baseline/runs/README.md)다. 현재 **공식 Baseline 비용·실행 승인 보류**다. CLI `execute`, BE 공개 진입점, worker는 제품 import 전에 사용자 승인·범위·상한을 대조하며, 현재 템플릿의 user_execution=null 상태에서는 거부한다. 실행 플래그만으로 우회할 수 없다. PM의 비용 합의는 완료됐지만 사용자의 구체적 실행 승인과 실제 수집 연결 검증을 대신하지 않는다.
+> 최신 승인 상태: **$50·최대 1,367회·호출당 예약 $1.04 승인**. 동결 전 생성 허용·동결 후 H01~H04 채점. N3·N5 확인은 예람. 과거 승인 보류 문구보다 [현재 승인 범위](../../docs/ai-baseline/cost-estimate.md#pr-제출-시-승인-상태)를 우선한다. 이번 작업은 리뷰 반영까지만 수행하며 생성·채점은 실행하지 않는다.
+정본은 [Baseline 명세](../../docs/ai-baseline/README.md)와 [회차 구조](../../docs/ai-baseline/runs/README.md)다. 현재 승인 상한은 $50·1,367회·$1.04이며 이번 작업에서 실제 실행하지 않는다. CLI `execute`, BE 공개 진입점, worker는 제품 import 전에 사용자 승인·범위·상한을 대조하며, 현재 템플릿의 user_execution=null 상태에서는 거부한다. 실행 플래그만으로 우회할 수 없다. PM의 비용 합의는 완료됐지만 사용자의 구체적 실행 승인과 실제 수집 연결 검증을 대신하지 않는다.
 
 ## 사용법
 
@@ -114,7 +114,7 @@ SDK usage는 최종 호출 이벤트당 한 행이며 cost는 `{amount, currency
 
 ## 승인 기록과 재실행 방지
 
-cost_approval의 pm_cost_agreed=true는 이미 합의된 비용 부담이다. user_execution은 현재 null이다. 미래 사용자가 실제로 승인한 뒤에만 다음 정보를 옮긴다. 이 도구는 승인 명령을 제공하거나 합성 시험의 승인값을 실제 회차에 복사하지 않는다.
+cost_approval의 pm_cost_agreed=true는 이미 합의된 비용 부담이다. user_execution은 현재 null이다. 실제 회차 준비 시 최신 승인 근거와 다음 정보를 연결한다. 이 도구는 승인 명령을 제공하거나 합성 시험의 승인값을 실제 회차에 복사하지 않는다.
 
 - approved=true, approved_by, approved_at, evidence_ref(path·sha256)
 - product_commit, 전체 source_keys, job_grouping=case
@@ -127,3 +127,8 @@ cost_approval의 pm_cost_agreed=true는 이미 합의된 비용 부담이다. us
 ## 소규모 연결 점검 후 환경
 
 2026-10-28 별도 승인 점검에서 Pillow 12.3.0·google-genai 2.29.0 등 10개 의존성을 운영 기록과 맞췄다. lock·설치 파일 위치·남은 차이는 [최신 실행 환경](../../docs/ai-baseline/protocols/v1/execution.md#승인된-소규모-연결-점검--2026-10-28)을 따른다. Windows 공식 실행 진입점은 승인 뒤 Torch를 먼저 import해 Paddle/Torch DLL 충돌을 피하고 초기화 증거를 남긴다. 이 변경으로 공식 승인 검사를 생략하지 않는다. 연결 점검 전용 스크립트·합성 입력·$2 원장은 로컬 폴더에 격리했으며 공식 execute 승인으로 복사하지 않는다.
+
+
+## 생성·채점 검증 구분
+
+생성은 기준 자료 동결 전에도 가능하지만 회차 승인 근거·범위·환경·예산 검사는 유지한다. `readiness(..., purpose='generation')`은 기준 버전/동결/평가 세션을 요구하지 않는다. 채점 기록과 품질 집계는 PM 동결본 및 증거 해시를 확인한 뒤에만 가능하다. [필드와 동결 절차](../../docs/ai-baseline/runs/README.md#생성과-채점의-분리)를 따른다. N3·N5 승인 범위의 `human_confirmation_actor`와 사람이 작성하는 응답 `actor`는 `예람`이며 수정 없이 필수 확인만 수행한다. 비용 설정은 승인 근거와 $50·1,367회·$1.04·USD로 대조한다. 별도 실행 회차의 user_execution 승인 근거를 자동 생성하지 않는다.

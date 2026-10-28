@@ -2,6 +2,8 @@
 QUALITY_METRICS = ['H01', 'H02', 'H03', 'H04']
 H05_REASON = '미측정(별도 서비스 평가 예정)'
 OP06_NOTE = '무수정 실험 조건의 내부 관찰값; 실제 사용자 승인 성과로 해석·발표하지 않음'
+APPROVED_BUDGET = {'max_calls': 1367, 'max_amount': 50, 'reserve_per_call': 1.04, 'currency': 'USD'}
+CONFIRMATION_ACTOR = '예람'
 
 
 def automatic_scope():

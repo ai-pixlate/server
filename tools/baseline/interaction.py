@@ -89,6 +89,10 @@ class HumanSession:
             answer=self.response(self.c.root/evidence['path'])
             if not isinstance(answer,dict) or answer.get('request_id')!=request['request_id'] or not answer.get('actor'):
                 raise HumanRequired('요청 ID 또는 검수자 불일치')
+            if automatic:
+                from .scope import CONFIRMATION_ACTOR
+                if answer['actor'] != CONFIRMATION_ACTOR:
+                    raise HumanRequired('N3/N5 확인 담당자는 예람')
             action=answer.get('action')
             if action not in ('edit','continue'): raise HumanRequired('지원하지 않는 사람 행동')
             if self.adapter.snapshot(stage)!=state: raise HumanRequired('검수 중 제품 상태 변경; 오래된 응답 사용 금지')

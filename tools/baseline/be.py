@@ -22,6 +22,18 @@ class RecordingStop(BaseException):
     """수집기 오류를 제품의 Exception 재시도/대체 처리에 전달하지 않는다."""
 
 
+def initialize_native_runtime():
+    """Windows Paddle→Torch DLL 충돌 방지. 승인 뒤 호출, 가중치/추론 없음."""
+    started = time.monotonic()
+    if sys.platform != 'win32':
+        return {'import_order': [], 'seconds': 0}
+    if 'paddle' in sys.modules and 'torch' not in sys.modules:
+        raise ValueError('Paddle보다 Torch가 먼저 필요합니다. 새 격리 프로세스를 사용하세요')
+    import torch
+    return {'import_order': ['torch', 'paddle (이후 OCR 초기화 시)'],
+            'torch': torch.__version__, 'seconds': time.monotonic() - started}
+
+
 def recorded(fn, *args, **kwargs):
     try:
         return fn(*args, **kwargs)
@@ -134,6 +146,9 @@ class Meter:
     """SDK 요청별 사용량 기록과 보수적 예약 예산. 단가 상한의 타당성은 실행 전 확인한다."""
     def __init__(self, budget, record):
         self.budget, self.record, self.calls = budget, record, 0
+        self.charged = 0.0
+        self.stopped = False
+        self.lock = threading.RLock()
         for k in ("max_calls", "max_amount", "reserve_per_call"):
             if type(budget.get(k)) not in (int, float) or not math.isfinite(budget[k]) or budget[k] <= 0:
                 raise ValueError(f"budget.{k}: 양수 필요")
@@ -141,31 +156,75 @@ class Meter:
             raise ValueError("budget.max_calls: 양의 정수 필요")
         if not budget.get("currency") or not budget.get("basis"):
             raise ValueError("예산 통화와 호출당 예약 상한 근거 필요")
+        if budget.get('settle_usage'):
+            if budget.get('sdk_attempts') != 1 or not budget.get('reservation_verified'):
+                raise ValueError('사용량 정산 전 SDK 1시도·예약 상한 검증 필요')
+            for k in ('input_per_million', 'output_per_million'):
+                if type(budget.get(k)) not in (int, float) or not math.isfinite(budget[k]) or budget[k] < 0:
+                    raise ValueError('정산 단가 필요: ' + k)
+            if not budget.get('model'):
+                raise ValueError('정산 모델 필요')
 
     def call(self, fn, *args, **kwargs):
-        if self.calls + 1 > self.budget["max_calls"] or (self.calls + 1) * self.budget["reserve_per_call"] > self.budget["max_amount"]:
+        with self.lock:
+            return self._call(fn, *args, **kwargs)
+
+    def _call(self, fn, *args, **kwargs):
+        reserve = self.budget['reserve_per_call']
+        if self.stopped or self.calls + 1 > self.budget["max_calls"] or self.charged + reserve > self.budget["max_amount"]:
             raise BudgetStop("추가 요청의 예산을 확보할 수 없어 중단")
+        settle = self.budget.get('settle_usage', False)
+        if settle and kwargs.get('model') != self.budget['model']:
+            raise BudgetStop('승인된 예산 모델 밖 요청')
         self.calls += 1
+        self.charged += reserve
         record = {"event": "model_call", "call": self.calls, "model": kwargs.get("model"), "at": now(),
                   "usage": None, "cost": None, "cost_reason": "실제 청구액/단가 정산 전", "status": "failed"}
+        if settle:
+            # 예약 기록 실패 시 요청을 보내지 않는다. 중단·미사용량은 예약액 유지.
+            try:
+                self.record({**record, 'status': 'reserved', 'reserved_amount': reserve})
+            except BaseException:
+                self.stopped = True
+                raise RecordingStop('예산 예약 기록 실패')
         try:
             response = fn(*args, **kwargs)
             um = recorded(getattr, response, "usage_metadata", None)
             record.update(status="done", usage=recorded(um.model_dump, mode="json") if hasattr(um, "model_dump") else None)
+            usage = record['usage']
+            if settle and isinstance(usage, dict):
+                keys = ('prompt_token_count', 'candidates_token_count', 'thoughts_token_count')
+                if all(type(usage.get(k)) is int and usage[k] >= 0 for k in keys):
+                    amount = (usage[keys[0]] * self.budget['input_per_million'] +
+                              (usage[keys[1]] + usage[keys[2]]) * self.budget['output_per_million']) / 1_000_000
+                    record.update(cost=amount, cost_reason='단가 기반 추정', currency=self.budget['currency'])
+                    self.charged += amount - reserve
+                    if amount > reserve:
+                        self.stopped = True
+                        record['status'] = 'reservation_exceeded'
+                        raise BudgetStop('실제 사용량이 검증된 예약 상한을 초과했습니다')
             return response
         finally:
-            recorded(self.record, record)
+            record['budget_consumed'] = self.charged
+            try:
+                recorded(self.record, record)
+            except BaseException:
+                self.stopped = True
+                raise
 
 
 @contextmanager
-def observe(out, current, budget):
+def observe(out, current, budget, usage_sink=None, stage_sink=None):
     """함수의 입력·출력과 오류를 변경하지 않는 기록 래퍼."""
     import functools
     import importlib
     from google.genai.models import Models
     original = Models.generate_content
-    meter = Meter(budget, lambda e: append(out / "usage.jsonl", {"source_id": current[0],
-                   "task_context": current[1] if len(current) > 1 else None, **e}))
+    def usage_record(e):
+        event = {"source_id": current[0], "task_context": current[1] if len(current) > 1 else None, **e}
+        append(out / "usage.jsonl", event)
+        if usage_sink: usage_sink(event)
+    meter = Meter(budget, usage_record)
     patches = []
     for name in ("section_split", "ocr", "merge", "judge", "policy", "label", "logo", "style", "translate", "text_check"):
         module = importlib.import_module("pipeline.stages." + name)
@@ -202,6 +261,7 @@ def observe(out, current, budget):
                 finally:
                     event["seconds"] = time.monotonic() - started
                     append(out / "stages.jsonl", recorded(safe_record, event))
+                    if stage_sink: recorded(stage_sink, safe_record(event))
             return wrapped
         patches.append((module, attr, old, wrap(old, name)))
     # 캐시된 엔진 조회가 아니라 실제 생성자 구간을 별도로 기록한다.
@@ -209,6 +269,9 @@ def observe(out, current, budget):
         cls = getattr(importlib.import_module("pipeline.stages." + module_name), class_name)
         old = cls.__init__
         patches.append((cls, "__init__", old, wrap(old, module_name + "_initialization")))
+    cls = getattr(importlib.import_module('pipeline.stages.inpaint_proc'), 'SubprocessInpaintModel')
+    old = cls.inpaint
+    patches.append((cls, 'inpaint', old, wrap(old, 'inpaint_inference')))
     try:
         Models.generate_content = lambda self, *a, **kw: meter.call(original, self, *a, **kw)
         for module, attr, old, wrapped in patches:
@@ -220,33 +283,56 @@ def observe(out, current, budget):
             setattr(module, attr, old)
 
 
-def drive_job(jid, seller, session_factory, query, dispatch, analysis, common, downstream, final, record):
-    """단계 이동은 기존 BE의 상태·확정 함수를 사용한다. 결과 보존은 호출자가 담당한다."""
-    with session_factory() as session:
-        analysis.start_analysis(session, jid, seller)
-    dispatch.drain()
+def drive_job(jid, seller, session_factory, query, dispatch, analysis, common, downstream, final, record,
+              checkpoint=None, human=None, operation=None):
+    """사람 확인 전 N3/N5를 진행하지 않는다. 제품의 기존 전이 함수를 호출한다."""
+    if human is None or checkpoint is None:
+        from .interaction import HumanRequired
+        raise HumanRequired('N3/N5 사람 검수와 체크포인트 수집 연결 필요')
+    op = operation or (lambda *a: None)
+    def timed(stage, action):
+        op('stage_started', stage, {})
+        started = time.monotonic()
+        try:
+            action()
+            dispatch.drain()
+        except BaseException:
+            op('stage_stopped', stage, {})
+            raise
+        job = query("SELECT * FROM job WHERE id=:j", j=jid)[0]
+        if stage == 'N6':
+            with session_factory() as session: done = final.can_save(session, jid)
+        else:
+            done = job['current_step'] == {'N2': 'N3', 'N4': 'N5'}[stage] and job['status'] == 'review'
+        op('stage_finished' if done else 'stage_stopped', stage, {'seconds': time.monotonic() - started})
+        return done
+    def analyze():
+        with session_factory() as session: analysis.start_analysis(session, jid, seller)
+    if not timed('N2', analyze): return 'failed'
+    job = query("SELECT * FROM job WHERE id=:j", j=jid)[0]
+    if job['current_step'] != 'N3' or job['status'] != 'review': return 'failed'
+    human('N3', jid)
     with session_factory() as session:
         secs = common.visible_sections(session, jid)
-        job = query("SELECT * FROM job WHERE id=:j", j=jid)[0]
-        if job["current_step"] != "N3" or job["status"] != "review":
-            return "failed"
-        if secs and not any(s["bucket"] == "include" for s in secs):
-            return "all_excluded"
-        if not secs:
-            return "failed"
-        downstream.proceed(session, jid, seller)
-    dispatch.drain()
+    if not secs: return 'failed'
+    if not any(s['bucket'] == 'include' for s in secs): return 'all_excluded'
+    def proceed():
+        with session_factory() as session: downstream.proceed(session, jid, seller)
+    if not timed('N4', proceed): return 'failed'
     job = query("SELECT * FROM job WHERE id=:j", j=jid)[0]
-    if job["current_step"] == "N5" and job["status"] == "review":
+    if job['current_step'] != 'N5' or job['status'] != 'review': return 'failed'
+    checkpoint('machine_snapshot', jid)
+    response = human('N5', jid)
+    def confirm():
         with session_factory() as session:
-            warnings = final.unresolved_warnings(session, jid)
-            record(warnings)
-            final.confirm(session, jid, seller, warnings)
-        dispatch.drain()
-        with session_factory() as session:
-            if final.can_save(session, jid):
-                return "completed"
-    return "failed"
+            record(final.unresolved_warnings(session, jid))
+            final.confirm(session, jid, seller, response['acknowledgedWarnings'])
+        op('first_n5_confirmed', 'N5', {'original': response['original'], 'final': response['final']})
+    if not timed('N6', confirm): return 'failed'
+    with session_factory() as session:
+        if not final.can_save(session, jid): return 'failed'
+    checkpoint('service_final', jid)
+    return 'completed'
 
 
 def collect_terminal(started, collect):
@@ -273,6 +359,8 @@ def run_prepared(out, execute=False):
     """제품 모듈과 환경은 별도 프로세스에만 로드한다."""
     if not execute:
         raise ValueError("실제 모델 호출은 별도 승인 후 --execute-models가 필요합니다")
+    from .approval import require_approval
+    require_approval(out)
     worker = Path(__file__).with_name("worker.py").resolve()
     return subprocess.run([sys.executable, "-I", "-B", str(worker), str(Path(out).resolve()), "--execute-models"],
                           cwd=worker.parents[2], check=True)
@@ -288,26 +376,33 @@ def _run_prepared(out, execute=False):
     """새 격리 DB의 참조 데이터를 사용. 실제 모델 실행은 명시적 옵션 뒤에서만 가능."""
     if not execute:
         raise ValueError("실제 모델 호출은 별도 승인 후 --execute-models가 필요합니다")
+    from .approval import require_approval
+    require_approval(out)
     if any(k == "app" or k.startswith("app.") or k == "pipeline" or k.startswith("pipeline.") for k in sys.modules):
         raise ValueError("제품 모듈이 이미 로드됐습니다. 새 측정 프로세스가 필요합니다")
     out = Path(out).resolve()
-    config = read(out / "config.json")
-    prep = read(out / "preparation.json")
-    if prep["missing"]:
-        raise ValueError("준비 자료가 부족합니다. 채운 설정으로 새 준비 묶음을 만드세요")
-    if digest(out / "config.json") != prep["config_sha256"] or digest(out / "inputs.json") != prep["inputs_sha256"]:
-        raise ValueError("준비 이후 설정·입력 목록이 변경됐습니다")
+    from . import protocol
+    from .interaction import Collector, HumanSession
+    from .product_review import ProductReview
+    manifest, data = protocol.load(out)
+    if protocol.validate(out) or protocol.readiness(manifest, purpose='generation'):
+        raise ValueError('생성 회차 명세·승인·입력 검증 필요(기준 자료 동결은 채점 전 필수)')
+    generation = manifest['generation_config']
+    from .preflight import verify_dependency_lock
+    lock = (manifest.get('environment') or {}).get('dependency_lock')
+    if not lock:
+        raise ValueError('격리 환경 dependency_lock 경로·해시 필요')
+    protocol.local_file(out, lock['path'], lock['sha256'])
+    verify_dependency_lock(out / lock['path'])
+    config = {'product_root': generation['product_root'], 'product_commit': manifest['product_commit'],
+              'protocol': 'v1', 'products': manifest['case_inputs'], 'budget': generation['budget'],
+              'environment': manifest['environment']}
     root, url = check_runtime(config)
-    inputs = read(out / "inputs.json")
-    frozen = read(out / "frozen.json")
-    if any(digest(out / v["file"]) != v["sha256"] for v in frozen.values()):
-        raise ValueError("동결된 평가 자료가 변경됐습니다")
-    if [i["source_id"] for i in inputs] != list(IDS) or any(digest(i["path"]) != i["sha256"] for i in inputs):
-        raise ValueError("34장 입력 목록 또는 해시가 바뀌었습니다")
-    Meter(config["budget"], lambda e: None)  # DB 변경 전에 예산 형식 검증
-    from .audit import policy_regions
-    if policy_regions(out) is None:
-        raise ValueError("구조화된 정책 기준 영역 필요")
+    inputs = [dict(source_id=a['artifact_id'], path=str(out/a['path']), sha256=a['sha256'],
+                   width=a['width'], height=a['height']) for a in manifest['artifacts'] if a['kind']=='original']
+    if [i['source_id'] for i in inputs] != list(IDS) or any(digest(i['path']) != i['sha256'] for i in inputs):
+        raise ValueError('34장 입력 목록 또는 해시 불일치')
+    Meter(config['budget'], lambda e: None)
     environment = config.get("environment", {})
     if any(not environment.get(k) for k in ("hardware", "resource_limits", "concurrent_work", "model_assets")):
         raise ValueError("장비·자원 제한·동시 작업·모델 파일 목록 필요")
@@ -320,6 +415,7 @@ def _run_prepared(out, execute=False):
         assets.append(asset)
     # 동일 묶음 재실행을 금지한다. 중단 복구는 기존 기록을 검토한 별도 작업이다.
     write_new(out / "started.json", {"at": now(), "product_commit": config["product_commit"]})
+    write_new(out / 'native-runtime.json', initialize_native_runtime())
     sys.path.insert(0, str(root))
     os.environ["DATABASE_URL"] = url
     os.environ["AWS_EC2_METADATA_DISABLED"] = "true"
@@ -366,7 +462,7 @@ def _run_prepared(out, execute=False):
         def record_dispatch(e):
             if e["event"] == "task_started":
                 current[1] = {"task": e["task"], "args": e["args"]}
-            append(out / "execution.jsonl", {"source_id": current[0], **e})
+            append(out / "dispatch.jsonl", {"source_id": current[0], **e})
             if e["event"] == "task_finished":
                 current[1] = None
         dispatch = SequentialDispatcher(resolve, record_dispatch)
@@ -389,39 +485,81 @@ def _run_prepared(out, execute=False):
             data["job"] = query("SELECT * FROM job WHERE id=:j", j=jid)
             write_new(out / "evidence" / (sid + ".json"), safe_record(data))
             return data
+        active = [None]
+        def usage_sink(e):
+            collector = active[0]
+            if e['status'] == 'reserved' or collector is None: return
+            evidence = collector.evidence(safe_record(e))
+            usage = dict(e.get('usage') or {}, calls=1)
+            cost = {'amount': e['cost'], 'currency': e.get('currency'), 'basis': '토큰 단가 추정; 실제 청구 아님'} if e.get('cost') is not None else None
+            collector.event('usage', (e.get('task_context') or {}).get('task'), evidence,
+                            session_id=None,purpose='product_generation',model=e.get('model'),usage=usage,cost=cost,
+                            unavailable_reason=None if cost else '실패 또는 사용량 미확인; 예약 유지',call_id=e['call'])
+        def stage_sink(e):
+            collector=active[0]
+            if collector:
+                evidence=collector.evidence(e)
+                collector.operation('resource',e['stage'],{'name':e['stage']+'_wall_time','amount':e['seconds'],'unit':'seconds'},evidence)
+                if e['stage']=='inpaint_inference':
+                    collector.operation('resource',e['stage'],{'name':'inpaint_inference_attempts','amount':1,'unit':'count'},evidence)
         try:
-            with observe(out, current, config["budget"]):
-                for item in inputs:
-                    sid = current[0] = item["source_id"]
-                    product = config["products"][sid[:5]]
-                    key = "source/" + sid + ".jpg"
-                    store.put(key, Path(item["path"]).read_bytes(), "image/jpeg")
+            with observe(out, current, config['budget'], usage_sink, stage_sink):
+                for case in ('GS-01','GS-02','GS-03'):
+                    items = [i for i in inputs if i['source_id'].startswith(case)]
+                    current[0] = case
+                    product = config['products'][case]
+                    sources = [protocol.source_key(i['source_id']) for i in items]
+                    # claim은 업무 DB 변경보다 먼저 생성한다. 중단 회차 자동 재개 금지.
+                    collector = Collector(out, case, sources)
+                    collector.claim()
                     with db.engine.begin() as conn:
-                        seller = insert(conn, "seller", {"cognito_sub": "baseline:" + sid, "email": sid + "@baseline.invalid"})
-                        brand = insert(conn, "brand", {"seller_id": seller, "name_ko": product["name_ko"], "name_en": product["name_en"]})
-                        jid = insert(conn, "job", {"seller_id": seller, "brand_id": brand,
-                                     **{k: product[k] for k in ("product_name", "regulatory_class", "internal_category", "target_country", "target_lang")}})
-                        source = insert(conn, "source_image", {"job_id": jid, "upload_order": 1, "file_url": key,
-                                       "width": item["width"], "height": item["height"], "sha256": item["sha256"]})
-                    append(out / "bindings.jsonl", {"source_id": sid, "job_id": jid, "db_source_id": source})
-                    started = time.monotonic()
-                    status = "failed"
+                        seller = insert(conn, 'seller', {'cognito_sub':'baseline:'+case,'email':case+'@baseline.invalid'})
+                        brand = insert(conn, 'brand', {'seller_id':seller,'name_ko':product['name_ko'],'name_en':product['name_en']})
+                        jid = insert(conn, 'job', {'seller_id':seller,'brand_id':brand,
+                                     **{k:product[k] for k in ('product_name','regulatory_class','internal_category','target_country','target_lang')}})
+                        bindings = {}
+                        for order,item in enumerate(items,1):
+                            key='source/'+item['source_id']+'.jpg'
+                            store.put(key,Path(item['path']).read_bytes(),'image/jpeg')
+                            source = insert(conn,'source_image',{'job_id':jid,'upload_order':order,'file_url':key,
+                                            'width':item['width'],'height':item['height'],'sha256':item['sha256']})
+                            bindings[source]=protocol.source_key(item['source_id'])
+                    collector.job_id=jid
+                    active[0]=collector
+                    collector.operation('job_created','N1',{'bindings':bindings})
+                    adapter=ProductReview(jid,seller,db.SessionLocal,query,dispatch,store,bindings)
+                    human_session=HumanSession(collector,adapter)
+                    checkpoint_ids={}
+                    def checkpoint(cp, job):
+                        state=adapter.snapshot('N5')
+                        checkpoint_ids[cp]=collector.checkpoint(cp,state,adapter.files(cp,state))
+                    def human(stage, job):
+                        if stage=='N3':
+                            state=adapter.snapshot(stage)
+                            adapter.regulatory_evidence(collector,state)
+                            collector.operation('resource','N2',{'name':'n2_sections','amount':len(state['sections']),'unit':'count'})
+                        return human_session.review(stage)
+                    status='interrupted'
                     try:
-                        status = drive_job(jid, seller, db.SessionLocal, query, dispatch, analysis, common, downstream, final,
-                                           lambda w: append(out / "warnings.jsonl", {"source_id": sid, "warnings": w}))
-                    except (BudgetStop, RecordingStop):
-                        status = "interrupted"
-                        raise
+                        status=drive_job(jid,seller,db.SessionLocal,query,dispatch,analysis,common,downstream,final,
+                            lambda w: collector.evidence({'warnings':w}),checkpoint,human,collector.operation)
+                        if status=='completed':
+                            adapter.spec_evidence(collector)
+                            saved=adapter.save()
+                            collector.operation('job_saved','N6',saved)
                     finally:
-                        evidence, processing_seconds, collection_seconds = collect_terminal(started, lambda: snapshot(sid, jid))
-                        failed = [t for t in evidence["job_async_task"] if t.get("is_current") and t["status"] == "failed"]
-                        pending = [t for t in evidence["job_async_task"] if t.get("is_current") and t["status"] in ("pending", "running") and t.get("parent_task_id")]
-                        if status in ("completed", "all_excluded") and (failed or pending):
-                            status = "partial_failure"
-                        append(out / "execution.jsonl", {"event": "finished", "source_id": sid, "status": status,
-                             "seconds": processing_seconds, "collection_seconds": collection_seconds,
-                             "first_execution": sid == IDS[0],
-                             "retry_count": sum(t.get("retry_count", 0) for t in evidence["job_async_task"] if t.get("is_current")),
-                             "failed_attempts": [t["id"] for t in failed]})
+                        terminal=safe_record(snapshot(case,jid))
+                        evidence=collector.evidence(terminal)
+                        from .collection import terminal_attempts
+                        terminal_attempts(collector,terminal,bindings,evidence)
+                        current_manifest=read(out/'manifest.json')
+                        for source in sources:
+                            arts=[a['artifact_id'] for a in current_manifest['artifacts'] if a['checkpoint']=='service_final' and source in a['source_keys']]
+                            collector.event('attempt','N6',evidence,source_keys=[source],checkpoint='service_final',
+                                logical_execution_id=f'{jid}:delivery:{source}',target_id=source,attempt_number=1,
+                                execution_status='success' if arts else 'no_output',error_codes=[],fallback_type=None,
+                                is_final_attempt=True,applied_to_result=bool(arts),artifact_ids=arts,usage=None,cost=None,
+                                result_only=True,unavailable_reason='H01 산출물 보존 요약; 재시도는 원시 시도 기록 참조')
+                        collector.evidence({'status':status,'checkpoint_ids':checkpoint_ids})
         finally:
             write_new(out / "object-index.json", store.index)

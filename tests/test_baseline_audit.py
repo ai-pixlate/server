@@ -96,11 +96,12 @@ class AuditTest(unittest.TestCase):
         modules = {}
         for name in ("section_split", "ocr", "merge", "judge", "policy", "label", "logo", "style", "translate", "text_check", "inpaint_proc"):
             modules["pipeline.stages." + name] = SimpleNamespace(run=original, translate_section=original, check_block=original,
-                                                               PaddleOcrEngine=Engine, SubprocessInpaintModel=type("Other", (), {"__init__": lambda self: None}))
+                                                               PaddleOcrEngine=Engine, SubprocessInpaintModel=type("Other", (), {"__init__": lambda self: None, "inpaint": original}))
         budget = {"max_calls": 2, "max_amount": 2, "reserve_per_call": 1, "currency": "test", "basis": "test"}
         with patch.dict("sys.modules", {"google.genai.models": models}), patch("importlib.import_module", side_effect=lambda name: modules[name]):
             with be.observe(self.root, ["GS-01_002"], budget):
                 self.assertIs(modules["pipeline.stages.ocr"].run(), result)
+                self.assertIs(modules["pipeline.stages.inpaint_proc"].SubprocessInpaintModel().inpaint(), result)
             self.assertIs(modules["pipeline.stages.ocr"].run, original)
             with patch.object(be, "_append", side_effect=OSError("fixture")):
                 with self.assertRaises(be.RecordingStop):

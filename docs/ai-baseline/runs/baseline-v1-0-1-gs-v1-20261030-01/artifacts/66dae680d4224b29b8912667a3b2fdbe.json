@@ -1,0 +1,240 @@
+{
+  "source_id": "GS-02",
+  "stage": "style",
+  "at": "2026-10-30T01:53:17.569704+00:00",
+  "result": {
+    "schema_version": "1",
+    "image_id": "src_15",
+    "section_key": "sec_60",
+    "config": {
+      "method": "otsu_border",
+      "em_ratio": 0.9,
+      "align_tolerance": 0.12
+    },
+    "input_fingerprints": {
+      "blocks": "30d21bacd8b4e7c367f1e2d8fc797eaade367f6c5ab7bc7709e0c84d8cf17f35",
+      "label": "476415dba199bc6b68bd79067976ed88a33752dc7f12ea85df73904061806ded",
+      "logo": "e20bf7ee4bcc2fc4b0da9acd81dc56f40a36635b190af755e6b2542c5147ffa5",
+      "logo_record": "e6aa4a1025ecd53dc7d6a867929f1ae4005dc620f781e01c5c778d44e8c7a1af"
+    },
+    "blocks": [
+      {
+        "block_key": "blk_692",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#F6F6F5",
+        "bg_color": "#070705",
+        "est_font_px": 36.0,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 59.4,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0001",
+            "line_key": "line_001",
+            "score": 0.9854753613471985,
+            "status": "measured",
+            "font_color": "#F6F6F5",
+            "bg_color": "#070705",
+            "est_font_px": 36.0,
+            "color_error": null,
+            "otsu": {
+              "threshold": 117,
+              "dark_px": 14693,
+              "light_px": 5107,
+              "border_px": 1066,
+              "border_dark": 1063,
+              "border_light": 3
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_693",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#FEFEFE",
+        "bg_color": "#020305",
+        "est_font_px": 60.3,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 74.16,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0002",
+            "line_key": "line_002",
+            "score": 0.9808208346366882,
+            "status": "measured",
+            "font_color": "#FEFEFE",
+            "bg_color": "#020305",
+            "est_font_px": 60.3,
+            "color_error": null,
+            "otsu": {
+              "threshold": 123,
+              "dark_px": 28978,
+              "light_px": 12428,
+              "border_px": 1366,
+              "border_dark": 1366,
+              "border_light": 0
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_694",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_695",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_696",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_697",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_698",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      }
+    ]
+  },
+  "seconds": 0.03100000019185245
+}

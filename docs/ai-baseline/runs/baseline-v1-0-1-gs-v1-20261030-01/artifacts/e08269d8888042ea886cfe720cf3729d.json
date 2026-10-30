@@ -1,0 +1,1014 @@
+{
+  "source_id": "GS-01",
+  "stage": "style",
+  "at": "2026-10-30T01:02:28.810785+00:00",
+  "result": {
+    "schema_version": "1",
+    "image_id": "src_2",
+    "section_key": "sec_19",
+    "config": {
+      "method": "otsu_border",
+      "em_ratio": 0.9,
+      "align_tolerance": 0.12
+    },
+    "input_fingerprints": {
+      "blocks": "434604516eca5886ae215b5d3ab71299b02ff1f10902b69ecb8e92fc05068753",
+      "label": "cd1fdfcde0f3588ca4fda5700a1b38f8817be0ac3d82c3734f9f9e5bb45f35f1",
+      "logo": "835a2c28c0a35b721ea4bc97f5c3bfefb788c97cf37e8da83a321756bae3df97",
+      "logo_record": "20eb502706937a499f0da204e1252f0094df44a8406a074dab46d35ec03e6d96"
+    },
+    "blocks": [
+      {
+        "block_key": "blk_209",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#383839",
+        "bg_color": "#F6FBFD",
+        "est_font_px": 49.5,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 51.24,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 3,
+          "measured": 3,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0001",
+            "line_key": "line_001",
+            "score": 0.9998339414596558,
+            "status": "measured",
+            "font_color": "#373839",
+            "bg_color": "#F6FBFD",
+            "est_font_px": 50.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 153,
+              "dark_px": 3344,
+              "light_px": 8640,
+              "border_px": 536,
+              "border_dark": 0,
+              "border_light": 536
+            }
+          },
+          {
+            "region_key": "reg_0002",
+            "line_key": "line_001",
+            "score": 0.9999706149101257,
+            "status": "measured",
+            "font_color": "#383839",
+            "bg_color": "#F8FCFE",
+            "est_font_px": 49.5,
+            "color_error": null,
+            "otsu": {
+              "threshold": 154,
+              "dark_px": 1262,
+              "light_px": 3853,
+              "border_px": 292,
+              "border_dark": 0,
+              "border_light": 292
+            }
+          },
+          {
+            "region_key": "reg_0003",
+            "line_key": "line_001",
+            "score": 0.9988754987716675,
+            "status": "measured",
+            "font_color": "#383938",
+            "bg_color": "#F6FAF8",
+            "est_font_px": 43.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 153,
+              "dark_px": 1541,
+              "light_px": 3883,
+              "border_px": 318,
+              "border_dark": 0,
+              "border_light": 318
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_210",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#32AAFE",
+        "bg_color": "#EEF8F6",
+        "est_font_px": 116.1,
+        "align": "center",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 1.0,
+          "std_center": 0.0,
+          "std_right": 1.0,
+          "tolerance_px": 63.72,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 4,
+          "measured": 4,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0004",
+            "line_key": "line_002",
+            "score": 0.9998612403869629,
+            "status": "measured",
+            "font_color": "#32AAFE",
+            "bg_color": "#EEF8FA",
+            "est_font_px": 115.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 194,
+              "dark_px": 12745,
+              "light_px": 26935,
+              "border_px": 872,
+              "border_dark": 0,
+              "border_light": 872
+            }
+          },
+          {
+            "region_key": "reg_0005",
+            "line_key": "line_002",
+            "score": 0.999760627746582,
+            "status": "measured",
+            "font_color": "#32AAFE",
+            "bg_color": "#EEF8F6",
+            "est_font_px": 117.0,
+            "color_error": null,
+            "otsu": {
+              "threshold": 193,
+              "dark_px": 9222,
+              "light_px": 18338,
+              "border_px": 680,
+              "border_dark": 0,
+              "border_light": 680
+            }
+          },
+          {
+            "region_key": "reg_0006",
+            "line_key": "line_003",
+            "score": 0.9999062418937683,
+            "status": "measured",
+            "font_color": "#32AAFF",
+            "bg_color": "#D9F0F7",
+            "est_font_px": 115.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 189,
+              "dark_px": 13101,
+              "light_px": 26195,
+              "border_px": 866,
+              "border_dark": 0,
+              "border_light": 866
+            }
+          },
+          {
+            "region_key": "reg_0007",
+            "line_key": "line_003",
+            "score": 0.9999839067459106,
+            "status": "measured",
+            "font_color": "#32AAFF",
+            "bg_color": "#DDEEEA",
+            "est_font_px": 117.9,
+            "color_error": null,
+            "otsu": {
+              "threshold": 186,
+              "dark_px": 8484,
+              "light_px": 19157,
+              "border_px": 680,
+              "border_dark": 0,
+              "border_light": 680
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_211",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#323837",
+        "bg_color": "#CFE8E4",
+        "est_font_px": 38.7,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 54.96,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 3,
+          "measured": 3,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0008",
+            "line_key": "line_004",
+            "score": 0.9747568964958191,
+            "status": "measured",
+            "font_color": "#303739",
+            "bg_color": "#C9E8ED",
+            "est_font_px": 50.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 143,
+              "dark_px": 1975,
+              "light_px": 15049,
+              "border_px": 716,
+              "border_dark": 0,
+              "border_light": 716
+            }
+          },
+          {
+            "region_key": "reg_0009",
+            "line_key": "line_004",
+            "score": 0.9993602633476257,
+            "status": "measured",
+            "font_color": "#323837",
+            "bg_color": "#CFE8E4",
+            "est_font_px": 38.7,
+            "color_error": null,
+            "otsu": {
+              "threshold": 145,
+              "dark_px": 451,
+              "light_px": 2559,
+              "border_px": 222,
+              "border_dark": 0,
+              "border_light": 222
+            }
+          },
+          {
+            "region_key": "reg_0010",
+            "line_key": "line_004",
+            "score": 0.9995826482772827,
+            "status": "measured",
+            "font_color": "#323835",
+            "bg_color": "#D3E8E1",
+            "est_font_px": 35.1,
+            "color_error": null,
+            "otsu": {
+              "threshold": 142,
+              "dark_px": 454,
+              "light_px": 2861,
+              "border_px": 244,
+              "border_dark": 0,
+              "border_light": 244
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_212",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_213",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_214",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_215",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_216",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_217",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_218",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_219",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_220",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_221",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_222",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 3,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_223",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_224",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 3,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_225",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_226",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_227",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_228",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_229",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_230",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_231",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_232",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 3,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_233",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_234",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_235",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_236",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_237",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_238",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_239",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_240",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_241",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      }
+    ]
+  },
+  "seconds": 0.0470000000204891
+}

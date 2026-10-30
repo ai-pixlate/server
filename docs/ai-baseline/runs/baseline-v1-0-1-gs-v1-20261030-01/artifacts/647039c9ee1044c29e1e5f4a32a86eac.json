@@ -1,0 +1,115 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:50:39.038900+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_424",
+        "outcome": "completed",
+        "translation": "Experience the Powerful\nFirming Effect Firsthand",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_425",
+        "outcome": "completed",
+        "translation": "#Wrinkle & Pore Improvement #Real Customer Reviews",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_426",
+        "outcome": "completed",
+        "translation": "Deeply etched neck wrinkles that felt impossible to fix\nhave visibly softened day by day.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_427",
+        "outcome": "completed",
+        "translation": "\"The fine lines seem to have almost completely disappeared... This photo is 100% unedited. I was especially stressed about my neck wrinkles more than my face. Honestly, I never imagined or expected such astonishing results. As someone who has used Retinol products for a long time, the quality of celimax's retinal product at this price point is honestly unreal. I can confidently recommend it to anyone. I don't think I'll have to worry about wrinkles and pores anymore!\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_428",
+        "outcome": "completed",
+        "translation": "Han Gi* - Used for 20 days / Extremely dry skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_429",
+        "outcome": "completed",
+        "translation": "Even if wrinkles haven't vanished completely,\nthey're much less noticeable than before, and I'm very satisfied.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_430",
+        "outcome": "completed",
+        "translation": "\"I never paid attention to under-eye wrinkles when I was younger, but as I got older, the fine lines under my eyes suddenly became so obvious and stressful. I tried focusing on moisturizing, but it didn't really help, leaving me frustrated. Deciding to give it a shot, I used the Retinol Shot and Retinal Shot alternately and consistently for 7 days! Even if the wrinkles haven't vanished completely, they are definitely much less noticeable, and I'm really satisfied.\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_431",
+        "outcome": "completed",
+        "translation": "Jeong Su* - Used for 1 week / Dry skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_432",
+        "outcome": "completed",
+        "translation": "The mild tingling sensation feels just like an esthetic clinic treatment.\nEven after a single use, my pores and wrinkles look improved.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_433",
+        "outcome": "completed",
+        "translation": "\"Entering my mid-30s, I could feel my pores sagging day by day despite having dry skin... and fine wrinkles started appearing on my forehead too. Right upon application, it gave a gentle micro-tingling sensation like tiny needles, which made the experience really unique and enjoyable. It felt like being at a skincare spa haha. Even after applying it just once, my prominent pores and wrinkles visibly smoothed out, even if temporarily~~\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_434",
+        "outcome": "completed",
+        "translation": "Jeong Ji* - Used for 1 week / First purchase / Dry skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_435",
+        "outcome": "completed",
+        "translation": "*Excerpts from official celimax mall reviews",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "b1f657871a81dabac5b26f5f3dba422a32e5b98f8f9dac98c900a428a59dc489",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "702071a42c6b12327e54f85eb75d395ec6a72f018a848cc7bc2f4948f8262841",
+      "usage": {
+        "candidates_token_count": 710,
+        "prompt_token_count": 1564,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1564
+          }
+        ],
+        "total_token_count": 2274
+      }
+    }
+  ],
+  "seconds": 7.969000000040978
+}

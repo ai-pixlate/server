@@ -1,0 +1,249 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:08.610066+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_7",
+      "section_key": "sec_33",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_438",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_439",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_440",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_441",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_442",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_443",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_444",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_445",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_446",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_447",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_448",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_449",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_450",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_451",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_7",
+      "section_key": "sec_33",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "7c7d7db4a459755a88569e8e7d698a9c62b92c07296124fbb95185ed81e10d8d",
+      "label_fingerprint": "eb5e5912ea48df0857be51af530d8a607812264afbf8dda3dc04c0bb66597760",
+      "label_input_fingerprint": "7c7d7db4a459755a88569e8e7d698a9c62b92c07296124fbb95185ed81e10d8d",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 14,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 1,
+        "exact_match": 0,
+        "no_match": 13,
+        "compared": 14
+      },
+      "decisions": [
+        {
+          "block_key": "blk_438",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "aotace",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_439",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "스피큘미함유제품대비흡수개선율",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_440",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "000개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_441",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "20",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_442",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "30",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_443",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_444",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "xum",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_445",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "a0",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_446",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "6",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_447",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "2am",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_448",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "10",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_449",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "ylr",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_450",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "picte",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_451",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "15",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

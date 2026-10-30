@@ -1,0 +1,305 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:50.703810+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_18",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_191",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_192",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_193",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_194",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_195",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_196",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_197",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_198",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_199",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_200",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_201",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_202",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_203",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_204",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_205",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_206",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_207",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_208",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_18",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "0a43fe974e41594a4f50e949449cefab323381862fa352b6c5ff55d6c69a362a",
+      "label_fingerprint": "b51b2dc4995c9a3388743bd756cf720e246bd4057ef3f020f5c519ed49d35fb0",
+      "label_input_fingerprint": "0a43fe974e41594a4f50e949449cefab323381862fa352b6c5ff55d6c69a362a",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 18,
+      "counts": {
+        "product_label": 14,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 4
+      },
+      "decisions": [
+        {
+          "block_key": "blk_191",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "무기자차선크림이렇게사용해보세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_192",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "얼굴은물론바디선케어까지스킨케어마지막단계에서얼굴과자외선에노출되기쉬운바디부위에골고루펴발라주세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_193",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "남녀모두데일리선크림끈적임걱정없는촉촉한마무리감으로남녀모두편안한사용감으로데일리선케어하세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_194",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "밀림걱정없는촉촉한제형으로메이크업부스터역할가볍고촉촉하게밀림걱정없이마무리되는제형이메이크업부스터역할까지해줄거에요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_195",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_196",
+          "block_order": 6,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_197",
+          "block_order": 7,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_198",
+          "block_order": 8,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_199",
+          "block_order": 9,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_200",
+          "block_order": 10,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_201",
+          "block_order": 11,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_202",
+          "block_order": 12,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_203",
+          "block_order": 13,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_204",
+          "block_order": 14,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_205",
+          "block_order": 15,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_206",
+          "block_order": 16,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_207",
+          "block_order": 17,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_208",
+          "block_order": 18,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

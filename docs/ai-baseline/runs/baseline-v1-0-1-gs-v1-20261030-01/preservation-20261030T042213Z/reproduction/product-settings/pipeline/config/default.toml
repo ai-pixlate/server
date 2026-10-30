@@ -1,0 +1,107 @@
+# AI 파이프라인 실행 파라미터 기본값 — 값의 정본 (docs/ai/README.md 4.1).
+# 키 이름과 기본값은 docs/ai/pipeline.md 3절과 같아야 한다. 사용자가 "확정"이라고 말할 때만 둘을 함께 바꾼다.
+# 실험 중 값 변경은 이 파일이 아니라 실행 인자 `--set 표.키=값`으로만 한다.
+# 여기 없는 키는 미정이며 코드에서 정하지 않는다(open-questions.md).
+
+[section]                      # ① 섹션 분해 — color_snap_vlm2. color_delta·bg_row_ratio·snap_radius_px는 확정(2026-09-22, 34장 실측 기준 MVP 기본값), 나머지는 open-questions #26 잠정
+granularity = "subheading"
+color_window_px = 8            # 행 색 평활 창. 앞 창과 뒤 창의 평균색을 비교
+color_delta = 12               # 확정. 창 평균색 RGB 거리가 이 값 이상이면 배경색 전환. 흰색↔연회색 거리 12~26 대역이라 20·24는 정상 경계를 잃음
+min_section_px = 200           # 최소 섹션 높이. 더 짧은 구간을 만드는 뒤 경계는 버림
+long_section_px = 1500         # 색 전환만으로 자른 구간이 이보다 길면 VLM 경계 선택
+blank_row_std = 6.0            # 행 색 표준편차가 이 값 이하이면 균일 행(여백)
+bg_row_ratio = 0.25            # 확정. 전환 후보 양쪽 구간의 균일 행 비율이 둘 다 이 값 이상이어야 배경 전환(사진·표 띠 배제). 0.35는 정상 경계도 잃음
+snap_radius_px = 40            # 확정. VLM 경계에서 이 반경 안의 여백 구간을 찾아 그 중앙으로 보정(이동 거리는 여백 폭이 정함). 없으면 폐기. 80과 결과 동일
+vlm_model = "gemini-3.8-flash" # #21 확정(2026-09-21)
+vlm_temperature = 0
+vlm_seed = -1                  # 실험용. 음수 = 보내지 않음(기본). 고정해도 동일 응답 보장은 없음
+vlm_width_px = 768             # VLM 입력은 폭 기준으로 줄인다(비율 유지). 왼쪽에 y 눈금 띠를 붙여 전달
+vlm_window_px = 4000           # 구간 높이(원본 px)가 이 값을 넘으면 창으로 나눠 여러 번 호출
+vlm_window_overlap_px = 300    # 창 겹침
+prompt_path = "pipeline/prompts/section_boundary.md"
+
+[ocr]                          # ② 텍스트 추출
+det_model = "PP-OCRv5_server_det"
+rec_model = "korean_PP-OCRv5_mobile_rec"
+preprocess = "none"
+split_threshold_px = 4000
+tile_px = 2000
+tile_overlap_px = 300
+# 임시 분할 세부 기준(open-questions #31 · #32, 2026-10-13 구현). 아래 값은 실측은 수행했으나 운영 기준값은 미확정인 잠정값이다
+tile_blank_row_std = 6.0         # 행 색 표준편차가 이 값 이하이면 균일 행(여백). ① section.blank_row_std와 같은 값에서 시작, 키는 분리
+tile_match_min_v_overlap = 0.5   # 이웃 타일 검출의 위치 대응: 세로 교집합 / 작은 쪽 높이가 이 값 이상(+ 가로 교집합 > 0)
+tile_equiv_min_x_iou = 0.9       # 동등 판정: 양쪽 가로 덮음 구간(x 합집합)의 IoU가 이 값 이상 + 정규화 텍스트 일치
+tile_edge_touch_px = 3           # 검출 bbox가 타일 내부 절단선에서 이 거리 안이면 접촉(잘림 의심)
+tile_box_jitter_px = 3           # 위치 비교(가로 덮음 IoU · 포함)에서 검출 박스 흔들림으로 보고 넓혀 주는 거리
+tile_supplement_margin_px = 150  # 보완 OCR crop: 의심 성분 위아래로 이만큼 밖(그 너머 같은 폭 안의 여백 우선)에서 자른다
+
+[merge]                        # ③ 줄·문단 병합 + 역할 분류
+line_gap = 0.7
+para_gap = 0.6
+h_ratio = 1.5
+overlap = 0.5
+gutter = true                  # pipeline.md 표기 `on`
+# 아래 11개는 PoC 코드의 고정 상수를 config 키로 둔 것 — 잠정(open-questions #38). 계산식은 pipeline.md 7.1절
+line_v_overlap = 0.5           # 줄 병합 세로 겹침 하한(겹친 길이 ÷ 작은 높이). overlap과 별개
+line_gap_min = -0.5            # 줄 가로 간격 하한(base 비율)
+para_gap_min = -0.3            # 블록 세로 간격 하한(base 비율)
+left_align_tol = 0.5           # 블록 좌정렬 왼쪽 끝 허용 오차(base 비율)
+gutter_min_px = 20             # gutter 최소 폭 = max(gutter_min_px, 섹션 폭 // gutter_width_div)
+gutter_width_div = 16
+title_pct = 75                 # 역할 판정 높이 백분위(선형 보간)
+caption_pct = 25
+title_max_lines = 2
+caption_max_chars = 25
+price_max_chars = 40
+llm_model = "gemini-3.8-flash"
+llm_temperature = 0
+llm_split = false              # 분할 금지 고정
+prompt_path = "pipeline/prompts/merge_assist.md"   # llm_assist 프롬프트(초안 v1). 상대 경로는 레포 루트 기준(pipeline.md 7.2절)
+llm_timeout_s = 60             # llm_assist 호출 시간 제한(초). 개발용 잠정값 — 운영 값은 open-questions #37
+
+[judge]                        # ③-1 AI 섹션 판정 — 설계 v1 잠정값(open-questions #60, docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md 5절). 판정 방식 채택은 실측 후(#5). 값은 전부 실험 기준
+llm_model = "gemini-3.8-flash"
+llm_temperature = 0
+llm_timeout_s = 60             # 개발용 잠정값(③과 같은 계열)
+prompt_path = "pipeline/prompts/judge_context.md"   # 초안은 ③-1b 구현 시 작성(설계 6절). 레포 루트 기준
+call_scope = "all"             # D3-2: all = 전 섹션 호출(LLM 항목은 LC 8개) / matched = 매칭 섹션만. 실측 기본 all
+image_width_px = 768           # D4: 섹션 이미지를 폭 기준으로 축소(①과 같은 근거)
+context_sections = 1           # D5: 같은 원본 안 앞뒤 섹션 텍스트 수(참고용, 근거 지정 불가). 0이면 없음
+match_mode = "substring"       # D1: 공백 제거 부분 문자열(실험 기준). 비교 실험용 대안 eojeol_prefix
+dict_dir = "pipeline/samples/local/dict/normalized"   # 실제 사전 JSON(git 제외, 로컬 배치). 테스트는 --set judge.dict_dir=pipeline/data/dict/synthetic
+
+[policy]                       # ③-1' 정책 적용 — 규칙 데이터는 judge.dict_dir의 policy_rules.json(설명서 §3 · §4 기반 잠정, D10)
+problem_text_max_chars = 300   # 현지부적합 problem_text 길이 상한(설계 3.3절)
+
+[label]                        # ④ 제품 라벨 판정 — model · long_side_px · bias는 정본(개발계획 6장). 아래 3개는 단독 개발 기준값(open-questions #66, 운영값 아님 #65)
+model = "gemini-3.8-flash"
+long_side_px = 1024            # 섹션 이미지 긴 변 기준 축소
+bias = "label"                 # 애매하면 라벨. 정의된 값은 "label"뿐
+temperature = 0                # 개발 기준(#66)
+timeout_s = 60                 # 호출 시간 제한(초). 개발 기준 — 운영값은 #65. 애플리케이션 재시도 없음
+prompt_path = "pipeline/prompts/label.md"   # 초안 v1. 상대 경로는 레포 루트 기준
+
+[logo]                         # ⑤ 브랜드 로고 제외 — 정규화 순서는 정본(계약 2.3). 구현 범위(str.lower · 공백 · P* 제거, S* 유지)와 이 목록 외 값 거부는 open-questions #68
+normalize = ["nfkc", "lower", "strip_space_punct"]
+
+[inpaint]                      # ⑥ 인페인팅
+model = "lama"
+score_min = 0.5
+require_text = true
+dilate_ratio = 0.15
+dilate_retry = false
+init_timeout_s = 60            # 모델 자식 프로세스 시작~준비 완료. 100섹션 실측용 잠정값(운영값 아님, #75)
+infer_timeout_s = 30           # 섹션 1회 요청~결과 수신(전처리 · GPU 추론 · 후처리 포함). 실측용 잠정값(#75)
+kill_grace_s = 5               # 시간 초과 후 종료 요청 → 이 시간 뒤 강제 종료. 실측용 잠정값(#75)
+
+[style]                        # ⑦ 스타일 추출
+method = "otsu_border"
+em_ratio = 0.9                 # 잠정값(사용자 결정 2026-10-15, open-questions #85). 개발계획 6장 1.35는 OCR bbox가 em보다 커서 약 1.5배 과대
+align_tolerance = 0.12
+
+[translate]                    # ⑧ 로컬라이징 번역
+model = "gemini-3.8-flash"
+glossary = "rag"               # 용어는 BE가 검색해 실행 입력으로 공급한다(contract 5.1). AI가 검색하지 않는다
+prompt_path = "pipeline/prompts/translate.md"   # 초안 v1(실측 전). 확정은 #11 기술검증 후. 상대 경로는 레포 루트 기준
+temperature = 0                # 개발용 잠정값(③-1 · ④와 같은 계열)
+timeout_s = 60                 # 섹션 1회 호출 시간 제한(초). 개발용 잠정값 — 운영값 아님(BE 실행 정책에서 정한다)

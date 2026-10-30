@@ -1,0 +1,126 @@
+{
+  "source_id": "GS-03",
+  "stage": "merge",
+  "at": "2026-10-30T02:23:02.747805+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_23_01",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_23_01",
+        "block_order": 1,
+        "source_ko": "-",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "-",
+            "bbox": {
+              "x": 296,
+              "y": 141,
+              "w": 418,
+              "h": 396
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "-",
+                "score": 0.2805890142917633,
+                "poly": [
+                  [
+                    333,
+                    141
+                  ],
+                  [
+                    714,
+                    181
+                  ],
+                  [
+                    677,
+                    537
+                  ],
+                  [
+                    296,
+                    497
+                  ]
+                ],
+                "bbox": {
+                  "x": 296,
+                  "y": 141,
+                  "w": 418,
+                  "h": 396
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 296,
+          "y": 141,
+          "w": 418,
+          "h": 396
+        },
+        "role": "title",
+        "ocr_confidence": 0.2805890142917633
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_23_01",
+        "block_order": 2,
+        "source_ko": "",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "",
+            "bbox": {
+              "x": 723,
+              "y": 214,
+              "w": 251,
+              "h": 271
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "",
+                "score": 0.0,
+                "poly": [
+                  [
+                    780,
+                    214
+                  ],
+                  [
+                    974,
+                    264
+                  ],
+                  [
+                    917,
+                    485
+                  ],
+                  [
+                    723,
+                    435
+                  ]
+                ],
+                "bbox": {
+                  "x": 723,
+                  "y": 214,
+                  "w": 251,
+                  "h": 271
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 723,
+          "y": 214,
+          "w": 251,
+          "h": 271
+        },
+        "role": "body",
+        "ocr_confidence": 0.0
+      }
+    ]
+  },
+  "seconds": 5.141000000061467
+}

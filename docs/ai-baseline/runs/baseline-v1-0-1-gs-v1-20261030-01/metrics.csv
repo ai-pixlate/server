@@ -1,0 +1,1 @@
+evaluation_run_id,metric_id,scope,case_id,source_key,checkpoint,breakdown,numerator,denominator,value,unit,applicable_count,measured_count,not_applicable_count,undetermined_count,no_output_count,evaluation_failed_count,ai_only_count,human_checked_count,display_reason,evidence_refs,aggregation_basis,include_in_presentation

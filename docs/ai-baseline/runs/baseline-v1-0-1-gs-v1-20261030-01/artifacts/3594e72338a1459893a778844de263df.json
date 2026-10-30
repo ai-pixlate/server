@@ -1,0 +1,473 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:46.458882+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_5",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_58",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_59",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_60",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_61",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_62",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_63",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_64",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_65",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_66",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_67",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_68",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_69",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_70",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_71",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_72",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_73",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_74",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_75",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_76",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_77",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_78",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_79",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_80",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_81",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_82",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_83",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_84",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_85",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_86",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_87",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_5",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "d4d9b50926eef24d50e27587f9669e033bf83e21e98bb1b3f1b15a028c1b5ff4",
+      "label_fingerprint": "9c272c3ab470007f7b8bfc726f2a096450a028c0454ca77d847954de21c43b56",
+      "label_input_fingerprint": "d4d9b50926eef24d50e27587f9669e033bf83e21e98bb1b3f1b15a028c1b5ff4",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 30,
+      "counts": {
+        "product_label": 10,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 20,
+        "compared": 20
+      },
+      "decisions": [
+        {
+          "block_key": "blk_58",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "파우더룸유저200명이꼼꼼히평가한설문결과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_59",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "survey룸메200명이인정한",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_60",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "survey룸메200명이인정한",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_61",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "survey룸에200명이인정한",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_62",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "순한사용감",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_63",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "민감성피부추천",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_64",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "산뜻한마무리",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_65",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "95",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_66",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "98",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_67",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "96",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_68",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "powderroom진정",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_69",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "powderroom진정",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_70",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "powderroom",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_71",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "사용후순한사용감",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_72",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "98",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_73",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "사용후민감성피부추천",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_74",
+          "block_order": 17,
+          "is_product_label": false,
+          "normalized": "96",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_75",
+          "block_order": 18,
+          "is_product_label": false,
+          "normalized": "사용후산뜻한마무리",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_76",
+          "block_order": 19,
+          "is_product_label": false,
+          "normalized": "95",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_77",
+          "block_order": 20,
+          "is_product_label": false,
+          "normalized": "설문기관파우더룸서베이체험단|설문인원200명|개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_78",
+          "block_order": 21,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_79",
+          "block_order": 22,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_80",
+          "block_order": 23,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_81",
+          "block_order": 24,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_82",
+          "block_order": 25,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_83",
+          "block_order": 26,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_84",
+          "block_order": 27,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_85",
+          "block_order": 28,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_86",
+          "block_order": 29,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_87",
+          "block_order": 30,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

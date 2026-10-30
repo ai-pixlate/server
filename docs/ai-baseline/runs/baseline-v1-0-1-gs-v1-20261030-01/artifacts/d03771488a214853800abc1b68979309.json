@@ -1,0 +1,95 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:49.589095+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_15",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_176",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_177",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_178",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_15",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "c13b2cf9776b15e7585403eac62a12efe25c0b06dd5c8326bb50f96115ef4a09",
+      "label_fingerprint": "b60ca89ea7c378c90fa3206ee05e4d6f72575bd07b710099a5e150f35d71af21",
+      "label_input_fingerprint": "c13b2cf9776b15e7585403eac62a12efe25c0b06dd5c8326bb50f96115ef4a09",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 3,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 3,
+        "compared": 3
+      },
+      "decisions": [
+        {
+          "block_key": "blk_176",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "백탁없이산뜻밀착",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_177",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "겨뭉침없이고르게펴발려피부에산뜻함을선사합니다부드럽게터치되며",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_178",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "원료적특성에한함",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

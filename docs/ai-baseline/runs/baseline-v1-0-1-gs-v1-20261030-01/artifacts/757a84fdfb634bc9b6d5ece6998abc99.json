@@ -1,0 +1,221 @@
+{
+  "source_id": "GS-01",
+  "stage": "section_split",
+  "at": "2026-10-30T00:27:52.263476+00:00",
+  "result": {
+    "schema_version": "2",
+    "source_image_id": 2,
+    "source_width": 1000,
+    "source_height": 37665,
+    "sections": [
+      {
+        "section_key": "sec_2_01",
+        "source_image_id": 2,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 1976,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_01.png"
+      },
+      {
+        "section_key": "sec_2_02",
+        "source_image_id": 2,
+        "section_order": 2,
+        "top_offset": 1976,
+        "height": 953,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_02.png"
+      },
+      {
+        "section_key": "sec_2_03",
+        "source_image_id": 2,
+        "section_order": 3,
+        "top_offset": 2929,
+        "height": 259,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_03.png"
+      },
+      {
+        "section_key": "sec_2_04",
+        "source_image_id": 2,
+        "section_order": 4,
+        "top_offset": 3188,
+        "height": 2620,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_04.png"
+      },
+      {
+        "section_key": "sec_2_05",
+        "source_image_id": 2,
+        "section_order": 5,
+        "top_offset": 5808,
+        "height": 966,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_05.png"
+      },
+      {
+        "section_key": "sec_2_06",
+        "source_image_id": 2,
+        "section_order": 6,
+        "top_offset": 6774,
+        "height": 3420,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_06.png"
+      },
+      {
+        "section_key": "sec_2_07",
+        "source_image_id": 2,
+        "section_order": 7,
+        "top_offset": 10194,
+        "height": 477,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_07.png"
+      },
+      {
+        "section_key": "sec_2_08",
+        "source_image_id": 2,
+        "section_order": 8,
+        "top_offset": 10671,
+        "height": 2291,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_08.png"
+      },
+      {
+        "section_key": "sec_2_09",
+        "source_image_id": 2,
+        "section_order": 9,
+        "top_offset": 12962,
+        "height": 1023,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_09.png"
+      },
+      {
+        "section_key": "sec_2_10",
+        "source_image_id": 2,
+        "section_order": 10,
+        "top_offset": 13985,
+        "height": 1456,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_10.png"
+      },
+      {
+        "section_key": "sec_2_11",
+        "source_image_id": 2,
+        "section_order": 11,
+        "top_offset": 15441,
+        "height": 2020,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_11.png"
+      },
+      {
+        "section_key": "sec_2_12",
+        "source_image_id": 2,
+        "section_order": 12,
+        "top_offset": 17461,
+        "height": 1889,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_12.png"
+      },
+      {
+        "section_key": "sec_2_13",
+        "source_image_id": 2,
+        "section_order": 13,
+        "top_offset": 19350,
+        "height": 1147,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_13.png"
+      },
+      {
+        "section_key": "sec_2_14",
+        "source_image_id": 2,
+        "section_order": 14,
+        "top_offset": 20497,
+        "height": 1806,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_14.png"
+      },
+      {
+        "section_key": "sec_2_15",
+        "source_image_id": 2,
+        "section_order": 15,
+        "top_offset": 22303,
+        "height": 2157,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_15.png"
+      },
+      {
+        "section_key": "sec_2_16",
+        "source_image_id": 2,
+        "section_order": 16,
+        "top_offset": 24460,
+        "height": 848,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_16.png"
+      },
+      {
+        "section_key": "sec_2_17",
+        "source_image_id": 2,
+        "section_order": 17,
+        "top_offset": 25308,
+        "height": 2067,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_17.png"
+      },
+      {
+        "section_key": "sec_2_18",
+        "source_image_id": 2,
+        "section_order": 18,
+        "top_offset": 27375,
+        "height": 1799,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_18.png"
+      },
+      {
+        "section_key": "sec_2_19",
+        "source_image_id": 2,
+        "section_order": 19,
+        "top_offset": 29174,
+        "height": 883,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_19.png"
+      },
+      {
+        "section_key": "sec_2_20",
+        "source_image_id": 2,
+        "section_order": 20,
+        "top_offset": 30057,
+        "height": 1812,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_20.png"
+      },
+      {
+        "section_key": "sec_2_21",
+        "source_image_id": 2,
+        "section_order": 21,
+        "top_offset": 31869,
+        "height": 1815,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_21.png"
+      },
+      {
+        "section_key": "sec_2_22",
+        "source_image_id": 2,
+        "section_order": 22,
+        "top_offset": 33684,
+        "height": 2681,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_22.png"
+      },
+      {
+        "section_key": "sec_2_23",
+        "source_image_id": 2,
+        "section_order": 23,
+        "top_offset": 36365,
+        "height": 1300,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_23.png"
+      }
+    ]
+  },
+  "seconds": 170.7029999999795
+}

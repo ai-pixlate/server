@@ -1,0 +1,277 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:51.168798+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_20",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_242",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_243",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_244",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_245",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_246",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_247",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_248",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_249",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_250",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_251",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_252",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_253",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_254",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_255",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_256",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_257",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_20",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "7e7376294f8524f572e2b72ffe8c1251f38f8570afd3e16e68bf62c8efdb4a60",
+      "label_fingerprint": "618ff395bda916aa62c71b619aa740bcf2da9a811ac049c96691881bc303da10",
+      "label_input_fingerprint": "7e7376294f8524f572e2b72ffe8c1251f38f8570afd3e16e68bf62c8efdb4a60",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 16,
+      "counts": {
+        "product_label": 7,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 9,
+        "compared": 9
+      },
+      "decisions": [
+        {
+          "block_key": "blk_242",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "진정데일리선케어",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_243",
+          "block_order": 2,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_244",
+          "block_order": 3,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_245",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_246",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_247",
+          "block_order": 6,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_248",
+          "block_order": 7,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_249",
+          "block_order": 8,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_250",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "어성초진정히알루론선세럼",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_251",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "어성초수분자차",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_252",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "어성초무기자차",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_253",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "저자극",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_254",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "워터풀촉촉수분수분크림바른듯",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_255",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "산뜻밀착집중진정",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_256",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "탄력up",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_257",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "자외선노화케어수분캡슐톡톡",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

@@ -1,0 +1,18 @@
+{
+  "source_id": "GS-03",
+  "task_context": {
+    "task": "app.tasks.run_analyze",
+    "args": [
+      489
+    ]
+  },
+  "event": "model_call",
+  "call": 393,
+  "model": "gemini-3.8-flash",
+  "at": "2026-10-30T02:35:32.338902+00:00",
+  "usage": null,
+  "cost": null,
+  "cost_reason": "실제 청구액/단가 정산 전",
+  "status": "failed",
+  "budget_consumed": 23.955748499999874
+}

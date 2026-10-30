@@ -1,0 +1,117 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:47:03.127281+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_61",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_699",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_700",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_701",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_702",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_703",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_704",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_705",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_706",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_707",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_708",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_709",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_710",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_711",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_712",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_713",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_714",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "4bed168c9c469a673f9a9c6ca98356722eb15df03bf7d79e65e3f89fc822e84e",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_699",
+        "blk_700",
+        "blk_701",
+        "blk_702",
+        "blk_703",
+        "blk_704",
+        "blk_705",
+        "blk_706",
+        "blk_707",
+        "blk_708",
+        "blk_709",
+        "blk_710",
+        "blk_711",
+        "blk_712",
+        "blk_713",
+        "blk_714"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 8.125
+}

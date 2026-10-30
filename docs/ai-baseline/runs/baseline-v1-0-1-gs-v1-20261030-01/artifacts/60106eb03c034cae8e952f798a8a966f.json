@@ -1,0 +1,263 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:22.316315+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_69",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_779",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_780",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_781",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_782",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_783",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_784",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_785",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_786",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_787",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_788",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_789",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_790",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_791",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_792",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_793",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_69",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "48a226e0c7596b3fb7948e29e0bd99102b0550323c2c59d8497aed7d67d55be1",
+      "label_fingerprint": "ce68ffc98ce12bcdddc8307fa647796e14122e41524c150ccc50b1453004eca6",
+      "label_input_fingerprint": "48a226e0c7596b3fb7948e29e0bd99102b0550323c2c59d8497aed7d67d55be1",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 15,
+      "counts": {
+        "product_label": 4,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 11,
+        "compared": 11
+      },
+      "decisions": [
+        {
+          "block_key": "blk_779",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "간편하게관리",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_780",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "순수레티놀에이샷니들샤늘어진모공주름개선효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_781",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "불규칙적으로늘어진다양한모공의형태를의미",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_782",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_783",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_784",
+          "block_order": 6,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_785",
+          "block_order": 7,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_786",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "이런분에게추천드려요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_787",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "√탄력을잃어늘어진모공이고민이신분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_788",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "√점점깊어지는잔주름이신경쓰이는분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_789",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "√거친피부결을매끈하게관리하고싶은분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_790",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "주요성분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_791",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "순수레티놀에이샷니들샷펩타이드콤플렉스",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_792",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "checkpoint",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_793",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "√주름모공리프팅개선테스트완료√피부치밀도피부층별보습15층개선테스트완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

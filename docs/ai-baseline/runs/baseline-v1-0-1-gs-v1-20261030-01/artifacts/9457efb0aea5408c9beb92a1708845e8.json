@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:55:53.470111+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_512",
+        "outcome": "completed",
+        "translation": "Sederma France's\nPatented Low-Molecular Peptide\nMatrixyl 3000",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "a8b8a3847ee3e34998c0a87b8022c1bc2b02f2c1582c04714df5b41a46482003",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "323f56615cffc73a7fe355c5605eede13cd6c43a33828511e85f5335e30489ab",
+      "usage": {
+        "candidates_token_count": 57,
+        "prompt_token_count": 655,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 655
+          }
+        ],
+        "thoughts_token_count": 702,
+        "total_token_count": 1414
+      }
+    }
+  ],
+  "seconds": 7.656999999890104
+}

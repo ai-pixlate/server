@@ -1,0 +1,137 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:15.391718+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_63",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_719",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_720",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_721",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_722",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_723",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_724",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_63",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "70744f95ac61de1b3957ca758892e51139177ea68a7df3446411e0d42b60f6ac",
+      "label_fingerprint": "0af56ba866c711fad144fbbefa20159b51b0f1a08e01e1423493d4264cb454c2",
+      "label_input_fingerprint": "70744f95ac61de1b3957ca758892e51139177ea68a7df3446411e0d42b60f6ac",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 6,
+      "counts": {
+        "product_label": 4,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 2,
+        "compared": 2
+      },
+      "decisions": [
+        {
+          "block_key": "blk_719",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "howtouse",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_720",
+          "block_order": 2,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_721",
+          "block_order": 3,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_722",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_723",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_724",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "저녁스킨케어마무리단계에서적당량을덜어얼굴고민부위에얇게펴발라흡수시킨후마무리해주세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

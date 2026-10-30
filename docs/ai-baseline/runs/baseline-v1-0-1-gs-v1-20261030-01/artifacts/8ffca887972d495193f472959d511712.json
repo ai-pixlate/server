@@ -1,0 +1,193 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:16.186909+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_9",
+      "section_key": "sec_39",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_478",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_479",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_480",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_481",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_482",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_483",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_484",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_485",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_486",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_487",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_9",
+      "section_key": "sec_39",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "99cb0804b1192c26a9dbe35b941f4146bdb37a4649e4f793189c1aa0f43ffb2e",
+      "label_fingerprint": "a0944e6edc2022c321411bd56c72dbdbca0d9ec94ce84913fbd9f6aecb3ef301",
+      "label_input_fingerprint": "99cb0804b1192c26a9dbe35b941f4146bdb37a4649e4f793189c1aa0f43ffb2e",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 10,
+      "counts": {
+        "product_label": 6,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 4
+      },
+      "decisions": [
+        {
+          "block_key": "blk_478",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "모공속탄력각질층착색",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_479",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "800만의피부고민솔루션",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_480",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷부스터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_481",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_482",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_483",
+          "block_order": 6,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_484",
+          "block_order": 7,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_485",
+          "block_order": 8,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_486",
+          "block_order": 9,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_487",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "20260325레티날샷부스터누적출고량기준",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

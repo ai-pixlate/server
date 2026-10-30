@@ -1,0 +1,130 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:00:08.026186+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_95",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 문맥과 의미를 판독할 수 없는 단일 문자입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_96",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 문맥과 의미를 판독할 수 없는 단일 문자입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_102",
+        "outcome": "completed",
+        "translation": "Gentle on the skin, powered only by zinc",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_103",
+        "outcome": "completed",
+        "translation": "Hypoallergenic mineral sunscreen\nfor sensitive skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_104",
+        "outcome": "completed",
+        "translation": "POINT",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_105",
+        "outcome": "completed",
+        "translation": "Heartleaf Extract* + Triple Zinc Complex**\nDefinite soothing effect!",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_106",
+        "outcome": "completed",
+        "translation": "01",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_107",
+        "outcome": "completed",
+        "translation": "With 10 types of hyaluronic cooling ingredients***\nNo worries about dryness! Fresh, seamless fit",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_108",
+        "outcome": "completed",
+        "translation": "02",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_109",
+        "outcome": "completed",
+        "translation": "Certified Vegan*** and hypoallergenic tested\nGentle sun care even for sensitive skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_110",
+        "outcome": "completed",
+        "translation": "03",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_111",
+        "outcome": "completed",
+        "translation": "Reef Safe sun care for thoughtful you,\ncaring not only for your skin but also for the marine environment*****",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_112",
+        "outcome": "completed",
+        "translation": "04",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_113",
+        "outcome": "completed",
+        "translation": "*Heartleaf extract (Houttuynia Cordata Extract) | Limited to raw material characteristics **Zinc Oxide (CI 77947), Zinc Lactate, Zinc Gluconate\n***Completed clinical study on 10 types of hyaluronic acid cooling and skin cooling\nKorea Institute of Dermatological Sciences, 21 subjects, 2022.12.29~2023.02.03 / Temporary, individual results may vary\n****Belgium Biorius Certified Vegan\n*****Completed test for non-detection of Oxybenzone (Benzophenone-3) and Octinoxate (Ethylhexyl Methoxycinnamate)",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "f24f5bcacaa0ad32faea5b434a76184b4d00040bd02cd4e28d12cb898cc7f24c",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "3cb90177697f1194919465965130ab9ef46df937984d9c5e5f7f1898c2b111bf",
+      "usage": {
+        "candidates_token_count": 609,
+        "prompt_token_count": 2006,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 2006
+          }
+        ],
+        "thoughts_token_count": 2631,
+        "total_token_count": 5246
+      }
+    }
+  ],
+  "seconds": 23.891000000061467
+}

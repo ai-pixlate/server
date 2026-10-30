@@ -1,0 +1,221 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:48.033898+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_10",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_129",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_130",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_131",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_132",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_133",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_134",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_135",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_136",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_137",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_138",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_139",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_140",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_10",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "2c8b04064da9564b78518503748e781a41fd9baad2279f61266e413d66373d50",
+      "label_fingerprint": "43e20ad4ef60825ab09439e35d11d5c541ed38f36129cbd39fc961930ff72895",
+      "label_input_fingerprint": "2c8b04064da9564b78518503748e781a41fd9baad2279f61266e413d66373d50",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 12,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 12,
+        "compared": 12
+      },
+      "decisions": [
+        {
+          "block_key": "blk_129",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "test",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_130",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "외부기자극에의해약해진피부진정개선에도움",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_131",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "제품사용전자외선조사후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_132",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "1770",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_133",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "제품사용7일후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_134",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "1592",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_135",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "1488",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_136",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "140",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_137",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "200avalue",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_138",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "110",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_139",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "170",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_140",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "구달맑은어성초진정무기자차선크림의외부자극에의한피부진정에대한인체적용시험한국피부과학연구원|성인여성21명|20221229~20230203|개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

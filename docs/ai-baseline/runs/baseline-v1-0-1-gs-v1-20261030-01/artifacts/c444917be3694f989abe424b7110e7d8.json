@@ -1,0 +1,95 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:46.013067+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_3",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_51",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_52",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_53",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_3",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "636ac0eeb9fea6d6e95e9c47fd2654d4fa62e2c6eb4c9b0d6986fac5068e08e5",
+      "label_fingerprint": "3462b73aefb1ca9b30bb52b37a7ec0441bde35f9ffb9815fa73f520ae1c68b83",
+      "label_input_fingerprint": "636ac0eeb9fea6d6e95e9c47fd2654d4fa62e2c6eb4c9b0d6986fac5068e08e5",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 3,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 3,
+        "compared": 3
+      },
+      "decisions": [
+        {
+          "block_key": "blk_51",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "매일매일순하게사용가능한산뜻한선크림이필요해요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_52",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "구달맑은어성초진정무기자차선크림",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_53",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "부드럽게터치되며뭉침없이고르게펴발려메이크업을해도밀리지운않는선크림",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

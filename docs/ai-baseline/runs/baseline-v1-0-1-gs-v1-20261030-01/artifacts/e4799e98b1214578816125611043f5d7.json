@@ -1,0 +1,60 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:55:39.511835+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_478",
+        "outcome": "completed",
+        "translation": "[Pores · Deep Elasticity · Stratum Corneum Pigmentation]",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_479",
+        "outcome": "completed",
+        "translation": "The Solution for 8 Million Skin Concerns",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_480",
+        "outcome": "completed",
+        "translation": "celimax Retinal Shot Booster",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_487",
+        "outcome": "completed",
+        "translation": "*Based on cumulative shipments of Retinal Shot Booster through 2026.03.25",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "1edffbd5e8c8567c3e9b07a1e4c1e2c00d94232c64cfdf2bc19b91ae2c3df8bb",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "34219996328863397064ea974185a7eaa0407be2dc9266a79ecc3dab5d722fed",
+      "usage": {
+        "candidates_token_count": 148,
+        "prompt_token_count": 945,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 945
+          }
+        ],
+        "thoughts_token_count": 1397,
+        "total_token_count": 2490
+      }
+    }
+  ],
+  "seconds": 12.827999999979511
+}

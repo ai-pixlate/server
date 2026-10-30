@@ -1,0 +1,137 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:50.244087+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_17",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_185",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_186",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_187",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_188",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_189",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_190",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_17",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "759a8abb35c3d7ac3af7dbd724b4db25c6bfd6b925328519c2a4179e03c5e885",
+      "label_fingerprint": "6cdd7e1b7b11d7c6331307c61bc193d7aa6c73c7d422118a65fc832d066ef479",
+      "label_input_fingerprint": "759a8abb35c3d7ac3af7dbd724b4db25c6bfd6b925328519c2a4179e03c5e885",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 6,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 6,
+        "compared": 6
+      },
+      "decisions": [
+        {
+          "block_key": "blk_185",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "recommend",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_186",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "이런분들에게추천합니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_187",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "자외선차단지수검증완료된선크림을찾으시는분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_188",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "민감피부가사용가능한저자극순한선크림을찾으시는분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_189",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "건조한무기자차가부담되어촉촉한무기자차를찾으시는분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_190",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "환경을생각한순한진정선크림을찾으시는분",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

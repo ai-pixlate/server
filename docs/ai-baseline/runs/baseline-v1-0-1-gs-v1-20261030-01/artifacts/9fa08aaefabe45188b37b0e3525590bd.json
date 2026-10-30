@@ -1,0 +1,277 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:15.084024+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_15",
+      "section_key": "sec_61",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_699",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_700",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_701",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_702",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_703",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_704",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_705",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_706",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_707",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_708",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_709",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_710",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_711",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_712",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_713",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_714",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_15",
+      "section_key": "sec_61",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "4bed168c9c469a673f9a9c6ca98356722eb15df03bf7d79e65e3f89fc822e84e",
+      "label_fingerprint": "24ef049c19f302ed5b229c47548331df4dbfa2def811bec63f5efb08fe6f97b8",
+      "label_input_fingerprint": "4bed168c9c469a673f9a9c6ca98356722eb15df03bf7d79e65e3f89fc822e84e",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 16,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 16,
+        "compared": 16
+      },
+      "decisions": [
+        {
+          "block_key": "blk_699",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "효과는압도적으로자극은최소한으로",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_700",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "피부자극테스트",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_701",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "민제적정시안",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_702",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "skinme",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_703",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "certificate",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_704",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "셀리맥스더비타a레티날샷타이트닝부스터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_705",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "인체피부일차자극시험",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_706",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "skinprimaryirritationtestinhumans",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_707",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "평균피부반응도000",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_708",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "벨리맥스더비타a레티널상타이트닝부스터의24시간접포테스트결과평균피무반용도는000으로저무자국으로판정되었다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_709",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "위결과에따라주앱솔브랩에서의뢰한셀리맥스더비타a레티날샷타이트닝부스터는인체피부일차자극측면에서저자극성제품판단된다으로",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_710",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "결론",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_711",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "인체피부일차자극시험20250707~20250709성인남녀31명주스킨메드임상시험센터개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_712",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "+민감성피부도부담없이사용해보세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_713",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "더비타a레티날샷타이트닝부스터의민감성피부에대한24시간첩포테스트결과평균피부반응도는000으로저무자극으로판정되었습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_714",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "민감성피부에대한인체피부일차자극시험20250709~20250711성인남녀31명주스킨메드임상시험센터개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

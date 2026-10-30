@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:15.672608+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_8",
+      "section_key": "sec_36",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_463",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_464",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_8",
+      "section_key": "sec_36",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "1b7b1422c4b4f74a3f410e0d6b93020bb239edbc0c727cca856b8275d20feb56",
+      "label_fingerprint": "4c95d9ba128ba8a21f53f13164170131a26e6456b1a9da179d08132653a4c6c2",
+      "label_input_fingerprint": "1b7b1422c4b4f74a3f410e0d6b93020bb239edbc0c727cca856b8275d20feb56",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 2,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 2,
+        "compared": 2
+      },
+      "decisions": [
+        {
+          "block_key": "blk_463",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "특수관리원리를적용한892흡수기술",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_464",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "불필요한자극없이더깊숙하게레티날탄력관리효과를더효율적으로경험합니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

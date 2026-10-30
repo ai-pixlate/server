@@ -1,0 +1,221 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:22.820369+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_70",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_794",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_795",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_796",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_797",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_798",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_799",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_800",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_801",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_802",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_803",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_804",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_805",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_70",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "7091e4d523d61c1fdce799c04e0ee0f115de3fb65b3bd46e228facbd935feffa",
+      "label_fingerprint": "c26826bac54580202937593b5b84de504d6851b0355f95c6e2220c548112dbae",
+      "label_input_fingerprint": "7091e4d523d61c1fdce799c04e0ee0f115de3fb65b3bd46e228facbd935feffa",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 12,
+      "counts": {
+        "product_label": 1,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 11,
+        "compared": 11
+      },
+      "decisions": [
+        {
+          "block_key": "blk_794",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷타이트닝부스터qa",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_795",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "q아침저녁모두사용해도되나요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_796",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "a레티날성분은빛과열에약하므로저녁사용을권장드립니다다만아침에사용을할경우엔자외선차단제를꼭발라주시는것이좋습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_797",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_798",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "q첫사용시자극이없으면더많이사용해도되나요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_799",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "a첫사용시자극이없더라도레티날에의한피부적응반응이뒤늦게나타날수있습니다반응이나타나지않더라도사용량이나빈도를늘리지말고초기2주까지는올바른사용법에맞춰사용하시길권장드립니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_800",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "q레티날적응반응은어떤증상으로나타나나요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_801",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "a레티날을처음사용한다면2주까지피부적응과정을가져야합니다적응기간동안일시적으로붉어짐각질탈락간지러움화끈거림따가움등의피부반응이나타날수있습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_802",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "q임산부도사용가능한가요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_803",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "a임산부수유부는호르몬변화로인하여피부가예민해지는시기로인해사용을권장하지않습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_804",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "q같이쓰면안되는성분이있나요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_805",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "a고함량의비타민c혹은스크럽제및각질제거성분이포함된제품과동시사용은권장하지않습니다함께사용할경우사용주기를알맞게조절하여격일사용하실것을권장드립니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

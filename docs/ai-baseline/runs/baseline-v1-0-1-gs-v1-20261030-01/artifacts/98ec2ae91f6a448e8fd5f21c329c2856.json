@@ -1,0 +1,89 @@
+{
+  "source_id": "GS-02",
+  "stage": "style",
+  "at": "2026-10-30T02:00:06.311215+00:00",
+  "result": {
+    "schema_version": "1",
+    "image_id": "src_16",
+    "section_key": "sec_71",
+    "config": {
+      "method": "otsu_border",
+      "em_ratio": 0.9,
+      "align_tolerance": 0.12
+    },
+    "input_fingerprints": {
+      "blocks": "2f577a5e734562524c6f463a1f4240fb571fab176aed1102be2d25bc7e55f33c",
+      "label": "2694fae8bfb60873aa73ed92132e0d05bbcbb0931c271a1cb23682f5c2f16c52",
+      "logo": "ba65bf5348c3bf522126860e13f0c4ec88e1e041fe241305412d56de10fb30dd",
+      "logo_record": "2428fa5fbb1fe872feae4301bcdfde912a87c249598540cb5895ec48f80e7111"
+    },
+    "blocks": [
+      {
+        "block_key": "blk_806",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#121212",
+        "bg_color": "#F9FAFC",
+        "est_font_px": 65.7,
+        "align": "left",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 1.5,
+          "std_center": 55.5,
+          "std_right": 109.5,
+          "tolerance_px": 75.24,
+          "candidates": [
+            "left",
+            "center"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 2,
+          "measured": 2,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0001",
+            "line_key": "line_001",
+            "score": 0.9395695924758911,
+            "status": "measured",
+            "font_color": "#121212",
+            "bg_color": "#F9FAFC",
+            "est_font_px": 63.0,
+            "color_error": null,
+            "otsu": {
+              "threshold": 139,
+              "dark_px": 10302,
+              "light_px": 33378,
+              "border_px": 1384,
+              "border_dark": 0,
+              "border_light": 1384
+            }
+          },
+          {
+            "region_key": "reg_0002",
+            "line_key": "line_002",
+            "score": 0.9917052388191223,
+            "status": "measured",
+            "font_color": "#111113",
+            "bg_color": "#F9FAFC",
+            "est_font_px": 68.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 138,
+              "dark_px": 7236,
+              "light_px": 23772,
+              "border_px": 964,
+              "border_dark": 0,
+              "border_light": 964
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "seconds": 0.01600000006146729
+}

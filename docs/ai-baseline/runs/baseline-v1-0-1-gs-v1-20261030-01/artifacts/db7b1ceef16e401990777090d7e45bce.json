@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:03:06.652140+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_285",
+        "outcome": "completed",
+        "translation": "Sustainable Packaging",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_286",
+        "outcome": "completed",
+        "translation": "Small Steps for Nature",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_287",
+        "outcome": "completed",
+        "translation": "goodal uses sustainable packaging that cares for both nature and people.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_305",
+        "outcome": "completed",
+        "translation": "MIX\nPackaging\nFSC FSC° C149190",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_306",
+        "outcome": "completed",
+        "translation": "PRINTED WITH\nSOYINK\nTM",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_307",
+        "outcome": "completed",
+        "translation": "Uses paper printed with soy ink",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_308",
+        "outcome": "completed",
+        "translation": "Supporting global forest conservation by using FSC-certified paper boxes",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "d5c1615714b91799f81f51be7dc06e60e74797df6298ea75a0a46a0c83ed487c",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "156b56c4c23526f6aa41567ce46c5647e208fff95ee683fab51f5f46477de7ca",
+      "usage": {
+        "candidates_token_count": 229,
+        "prompt_token_count": 1438,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1438
+          }
+        ],
+        "thoughts_token_count": 626,
+        "total_token_count": 2293
+      }
+    }
+  ],
+  "seconds": 8.484000000171363
+}

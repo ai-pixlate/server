@@ -1,0 +1,74 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:01:57.733663+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_179",
+        "outcome": "completed",
+        "translation": "POINT 03",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_180",
+        "outcome": "completed",
+        "translation": "Coral Reef-Friendly\n#Reef Safe\nSunscreen",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_181",
+        "outcome": "completed",
+        "translation": "To support healthy marine ecosystems, we have excluded UV-filtering ingredients* (Oxybenzone, Octinoxate) that harm coral reefs.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_182",
+        "outcome": "completed",
+        "translation": "*Tested and confirmed free of Oxybenzone (Benzophenone-3) and Octinoxate (Ethylhexyl Methoxycinnamate)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_183",
+        "outcome": "completed",
+        "translation": "Reef Safe",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_184",
+        "outcome": "completed",
+        "translation": "For the thoughtful you, caring not only\nfor your skin, but for the ocean environment as well",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "84bbb76a6ded2cacb9d610e439e3cb7cb7653db0f86b1740a3ca5b7fb6de6ef4",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "56dac6b99ce9b01a2057bd3b22108c6258bd15d3971dd3e60fb09a92f6434d61",
+      "usage": {
+        "candidates_token_count": 239,
+        "prompt_token_count": 1042,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1042
+          }
+        ],
+        "thoughts_token_count": 597,
+        "total_token_count": 1878
+      }
+    }
+  ],
+  "seconds": 7.172000000020489
+}

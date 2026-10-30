@@ -1,0 +1,122 @@
+{
+  "source_id": "GS-02",
+  "stage": "section_split",
+  "at": "2026-10-30T01:24:41.051016+00:00",
+  "result": {
+    "schema_version": "2",
+    "source_image_id": 16,
+    "source_width": 830,
+    "source_height": 16414,
+    "sections": [
+      {
+        "section_key": "sec_16_01",
+        "source_image_id": 16,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 370,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_01.png"
+      },
+      {
+        "section_key": "sec_16_02",
+        "source_image_id": 16,
+        "section_order": 2,
+        "top_offset": 370,
+        "height": 1424,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_02.png"
+      },
+      {
+        "section_key": "sec_16_03",
+        "source_image_id": 16,
+        "section_order": 3,
+        "top_offset": 1794,
+        "height": 1097,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_03.png"
+      },
+      {
+        "section_key": "sec_16_04",
+        "source_image_id": 16,
+        "section_order": 4,
+        "top_offset": 2891,
+        "height": 1442,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_04.png"
+      },
+      {
+        "section_key": "sec_16_05",
+        "source_image_id": 16,
+        "section_order": 5,
+        "top_offset": 4333,
+        "height": 1796,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_05.png"
+      },
+      {
+        "section_key": "sec_16_06",
+        "source_image_id": 16,
+        "section_order": 6,
+        "top_offset": 6129,
+        "height": 2705,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_06.png"
+      },
+      {
+        "section_key": "sec_16_07",
+        "source_image_id": 16,
+        "section_order": 7,
+        "top_offset": 8834,
+        "height": 366,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_07.png"
+      },
+      {
+        "section_key": "sec_16_08",
+        "source_image_id": 16,
+        "section_order": 8,
+        "top_offset": 9200,
+        "height": 1538,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_08.png"
+      },
+      {
+        "section_key": "sec_16_09",
+        "source_image_id": 16,
+        "section_order": 9,
+        "top_offset": 10738,
+        "height": 3272,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_09.png"
+      },
+      {
+        "section_key": "sec_16_10",
+        "source_image_id": 16,
+        "section_order": 10,
+        "top_offset": 14010,
+        "height": 433,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_10.png"
+      },
+      {
+        "section_key": "sec_16_11",
+        "source_image_id": 16,
+        "section_order": 11,
+        "top_offset": 14443,
+        "height": 742,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_11.png"
+      },
+      {
+        "section_key": "sec_16_12",
+        "source_image_id": 16,
+        "section_order": 12,
+        "top_offset": 15185,
+        "height": 1229,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_12.png"
+      }
+    ]
+  },
+  "seconds": 86.7180000001099
+}

@@ -1,0 +1,221 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:13.089661+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_9",
+      "section_key": "sec_38",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_466",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_467",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_468",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_469",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_470",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_471",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_472",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_473",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_474",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_475",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_476",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_477",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_9",
+      "section_key": "sec_38",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "4fb99625315a9c523f71f0751c0ff784c06c08e897889c939572c2b219de9d15",
+      "label_fingerprint": "5b2eef76baadd9948f240ad17abcac315a02ca96c85f993ada31fdc9d1999f30",
+      "label_input_fingerprint": "4fb99625315a9c523f71f0751c0ff784c06c08e897889c939572c2b219de9d15",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 12,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 12,
+        "compared": 12
+      },
+      "decisions": [
+        {
+          "block_key": "blk_466",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "압도적인흡수력차원이다른효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_467",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "깊고확실하게흡수되어특수관리이상의효과를볼수있어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_468",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "이마주름2854",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_469",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "각질층착색7963",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_470",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "눈가주름1431",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_471",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "모공깊이780",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_472",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "가로모공1313",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_473",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "볼리프팅+332",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_474",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "팔자주름1849",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_475",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "입꼬리리프팅+321",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_476",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "피부3단깊이탄력+754",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_477",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "즉각적일시적피부모공개선효과에대한인체적용시험20240527~20240528성인남녀22명주스킨메드임상시험센터피부3단깊이탄력개선효과에대한인체적용시험20240527~20240613성인남녀21명주스킨메드임상시험센터피부각질층개선턴오버개선개선효과에대한인체적용시험20240527~20240605성인남녀22명주스킨메드임상시험센터깊게패인피부주름개선효과에대한인체적용시험20240527~20240613성인남녀21명주스킨메드임상시험센터피부리프팅눈꼬리볼입꼬리턱리프팅개선효과에대한인체적용시험20240527~20240613성인남녀21명킨메드임상시험센터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

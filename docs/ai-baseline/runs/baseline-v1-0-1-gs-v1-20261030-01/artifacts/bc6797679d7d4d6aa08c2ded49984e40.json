@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:09.373606+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_9",
+      "section_key": "sec_37",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_465",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_9",
+      "section_key": "sec_37",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "1711a150e365ce14354462ae9c8546ca4335c51894d8f1f81706e7c838d5e83e",
+      "label_fingerprint": "203a82105db90fae64ef967fb671058af827d7d3e8eb29452bed5f4ef7b7ad99",
+      "label_input_fingerprint": "1711a150e365ce14354462ae9c8546ca4335c51894d8f1f81706e7c838d5e83e",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 1,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 1,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_465",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "셀리맥스더비타a레티날샷타이트닝부스테의1회사용후흡수율증대시험스피클미함유제품사용vs스피쿨함유제품사용인체적용시험2025081820250822성인남녀20명주휴먼피부임상시험센터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

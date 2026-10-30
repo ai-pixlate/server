@@ -1,0 +1,291 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:19.386198+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_10",
+      "section_key": "sec_44",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_590",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_591",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_592",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_593",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_594",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_595",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_596",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_597",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_598",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_599",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_600",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_601",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_602",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_603",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_604",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_605",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_606",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_10",
+      "section_key": "sec_44",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "3184a7d89cb502b714284c1267d56af8c4cbcd923201e9bb3ca5cb0a50b0594b",
+      "label_fingerprint": "0bd99d76f1704097727222150079beed59c22abe2853c344dd131618f58689cc",
+      "label_input_fingerprint": "3184a7d89cb502b714284c1267d56af8c4cbcd923201e9bb3ca5cb0a50b0594b",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 17,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 4,
+        "exact_match": 0,
+        "no_match": 13,
+        "compared": 17
+      },
+      "decisions": [
+        {
+          "block_key": "blk_590",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷더특별한이유2",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_591",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "모공보다6배앞은마이크로에이샷®20250shot",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_592",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "고순도분리정제로균일화된에이샷으로빈틈없이촘촘하게",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_593",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "wd534mm",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_594",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "wd562mm",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_595",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "wd528mm",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_596",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "특허출원제102270816호",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_597",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "특허증",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_598",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "4",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_599",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "12",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_600",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "마이크로스피쿨이함유된천연화장료제조방법",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_601",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_602",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "wev",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_603",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_604",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_605",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_606",
+          "block_order": 17,
+          "is_product_label": false,
+          "normalized": "원료적특성에한함",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

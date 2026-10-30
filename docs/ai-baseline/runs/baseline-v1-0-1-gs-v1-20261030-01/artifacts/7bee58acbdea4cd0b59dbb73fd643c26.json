@@ -1,0 +1,241 @@
+{
+  "checkpoint": "machine_snapshot",
+  "artifact_ids": [
+    "94db76bc06f44a14abca7ca98a258981",
+    "950104933986417087b909ef12e46e33",
+    "1f48e7de932a4b5f8df48608009bd622",
+    "62d2b002321a4410baa7ad2feea745b3",
+    "90b0a6bb12a84bd6935b75e90b1b0825",
+    "f11eb33743fd40bab75f4f9dd8831cdf",
+    "97e5a9bfb40646da8144baf0246df33f",
+    "1f2105234ca543cca7e7cb52a639a301",
+    "cc381065f283455fae7a13704f2e29a2",
+    "5c572db520204eb28dca6d6baa88d9a7",
+    "b8e471b0a79142f88a01f740776c1799",
+    "2156dfebf6784a1d96f37d13f0f1015d",
+    "348c417a60f24804a3c762010ac859dc",
+    "054d90500f8b4418ad6abe83fab1ccaa",
+    "a927664c43014e01a8a9e02d96e8bf5f",
+    "0c1fcc56151249ec82585c4c05fb1217",
+    "be7a4fa586414a9889725ffa2bb5498e",
+    "dd3c3a16e08d4d6ebdf49e63b4be0122",
+    "83bc814b5083409f8eac3dc32f3e1de4",
+    "fa4c89c3b6634b93899551c849058ba0",
+    "5203dd0598704883bf4e149bb8b7c2b3",
+    "87662d307fad4cb3ba884140d326893d",
+    "59148da44d044a36899f1b9ca6e0aa71"
+  ],
+  "state_ref": {
+    "path": "artifacts/15e293d2a1004682933095e92396a09f.json",
+    "sha256": "9fe82c0271ef695d2aa025b82caf34a568929faf3c2d6a795e912c0c75b1fc49"
+  },
+  "files": [
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 2,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\884c61a85ada4370322f10e8635bc464a03a7ff2bc9e98a69eefcc608dc0bc32",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1976,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 3,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\2f297b4e0abb48746e237f7d333cc11c14339d9abf50f19e36828a9f422d7988",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 953,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 4,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\d99a6098336d0ec49eb0e69c0d53dd89b98246fa8f7c9b5d78db8e0aaac2d9dd",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 259,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 5,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\1fa69803dce59e76a96e7a10538ae404eafd9b40555aa208abc1b63243d629f1",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 2620,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 6,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\5209ccbca6e3d729615d04a681dd3ea1eb2c95dd3405adea3e4235acb7472680",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 966,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 7,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\fcd5de9fe1c33e86ff2ff0c35fc46e8d660a10b978f30aa7c94fd881bdc10e52",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 3420,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 8,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\5285383e3f406e9b6ce92daacdae6ee268e49f5c51d582ece406bb28cbdf7e44",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 477,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 9,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\41920656d0b96344b0fb9eb5ac4416d8ab2bc313ebeee7e57bcda5b32a28b063",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 2291,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 10,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\f7b5bf3954f9e70cd1ab78f669dc998cf532ad50de602625fad456debd1e7bfe",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1023,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 11,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\58be1931df5b6fa3c3f1ae6745944b5fd58b3948a1bd3ce30c27dae4aa85d5a0",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1456,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 12,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\e7c1cfb1ece11ff4de5d08edb1dd6a59145d6e192c223a0c8edcdf1ac1d25480",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 2020,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 13,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\1d5dbcde56be6c05fe7738b6b7bb0a1e5108f73dfe2b605e7801a2f9d82571a0",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1889,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 14,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\8a2d427bef60d35c960ab26b6ee58d1615f68b609eb4b88518df7ec02ca6726b",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1147,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 15,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\31031b8a9e2d763285b1e4641b526f48725e1ba8544831366775d67fd8bed265",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1806,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 16,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\187b6e29cbf78e981d2a97c098d4c13dcf78d78f8a8a099c62a4a037f26adb7f",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 2157,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 17,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\b44b5644422fc772312411b3711ff7d4aa589298487a5e04ea246ad0ff5a4387",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 848,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 18,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\0968cb27f6e4f17a8a3b80cce8f9a65653c1a38b046b4af49f87e602254da9eb",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 2067,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 19,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\5329e62278da287879073a6083da534fb04e6668d66b42e870986d1131535eca",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1799,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 20,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\04b504be554ff761b0d4268e56766007f7d984848725751acbbb52c30b50454e",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 883,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 21,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\c13fc1156bf33d275acfd710e284b48fc2d441e46787eaac8871bd73fc1bdf9f",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1812,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 22,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\238cf9b4a6de5bc70883159db3e604624344cc710fd3b34e278e2f142f409a26",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1815,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 23,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\90b7e9f09b022016628e0f3f74ed8b4d03eb34602da7476d15ca6dfa2a5b8af0",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 2681,
+      "media_type": "image/png"
+    },
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 24,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+      "kind": "preview_section",
+      "width": 1000,
+      "height": 1300,
+      "media_type": "image/png"
+    }
+  ]
+}

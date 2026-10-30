@@ -1,0 +1,36 @@
+{
+  "source_id": "GS-02",
+  "task_context": {
+    "task": "app.tasks.run_analyze",
+    "args": [
+      169
+    ]
+  },
+  "event": "model_call",
+  "call": 118,
+  "model": "gemini-3.8-flash",
+  "at": "2026-10-30T01:11:14.562724+00:00",
+  "usage": {
+    "cache_tokens_details": null,
+    "cached_content_token_count": null,
+    "candidates_token_count": 321,
+    "candidates_tokens_details": null,
+    "prompt_token_count": 1448,
+    "prompt_tokens_details": [
+      {
+        "modality": "TEXT",
+        "token_count": 1448
+      }
+    ],
+    "thoughts_token_count": 1478,
+    "tool_use_prompt_token_count": null,
+    "tool_use_prompt_tokens_details": null,
+    "total_token_count": 3247,
+    "traffic_type": null
+  },
+  "cost": 0.00783225,
+  "cost_reason": "단가 기반 추정",
+  "status": "done",
+  "currency": "USD",
+  "budget_consumed": 8.030462750000005
+}

@@ -1,0 +1,88 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:51:59.368407+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_488",
+        "outcome": "completed",
+        "translation": "0.00003mm Nano Liposome Retinal\n0.015mm (15μm) Micro A-Shot®",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_500",
+        "outcome": "completed",
+        "translation": "Delivering ultra-fine ingredients\ndeep beneath the surface with certainty—",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_501",
+        "outcome": "completed",
+        "translation": "Stratum Corneum\nPigmentation Improvement",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_502",
+        "outcome": "completed",
+        "translation": "Inner Elasticity\nat 3 Skin Depths",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_503",
+        "outcome": "completed",
+        "translation": "4-Type\nPore Care",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_504",
+        "outcome": "completed",
+        "translation": "Improvement test after 1 use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_505",
+        "outcome": "completed",
+        "translation": "Improvement test after 2 weeks of use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_506",
+        "outcome": "completed",
+        "translation": "Improvement test after 1 week of use",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "5385a4fa22fbf0598cac1c04636e746dc2aa194b1e8c3aa32d702519011d8b0d",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "81f2041f28ccc04fca0d580a20eb96a529a3f2efaf6622f9e188ad5d8378211d",
+      "usage": {
+        "candidates_token_count": 286,
+        "prompt_token_count": 1253,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1253
+          }
+        ],
+        "thoughts_token_count": 830,
+        "total_token_count": 2369
+      }
+    }
+  ],
+  "seconds": 10.0
+}

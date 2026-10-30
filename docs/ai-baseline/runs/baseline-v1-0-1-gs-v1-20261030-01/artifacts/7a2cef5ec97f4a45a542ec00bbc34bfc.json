@@ -1,0 +1,171 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T00:59:47.280653+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_58",
+        "outcome": "completed",
+        "translation": "Survey results meticulously evaluated by 200 Powder Room users",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_59",
+        "outcome": "completed",
+        "translation": "SURVEY\nApproved by 200 Roommates",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_60",
+        "outcome": "completed",
+        "translation": "SURVEY\nApproved by 200 Roommates",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_61",
+        "outcome": "completed",
+        "translation": "SURVEY\nApproved by 200 Roommates",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_62",
+        "outcome": "completed",
+        "translation": "Gentle feel",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_63",
+        "outcome": "completed",
+        "translation": "Recommended for sensitive skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_64",
+        "outcome": "completed",
+        "translation": "Refreshing, breathable finish",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_65",
+        "outcome": "completed",
+        "translation": "95\n%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_66",
+        "outcome": "completed",
+        "translation": "98\n%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_67",
+        "outcome": "completed",
+        "translation": "96\n%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_68",
+        "outcome": "completed",
+        "translation": "POWDER\nROOM\nSoothes skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_69",
+        "outcome": "completed",
+        "translation": "POWDER\nROOM\nSoothes skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_70",
+        "outcome": "completed",
+        "translation": "POWDER\nROOM",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_71",
+        "outcome": "completed",
+        "translation": "Gentle feel\nafter use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_72",
+        "outcome": "completed",
+        "translation": "98%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_73",
+        "outcome": "completed",
+        "translation": "Recommended for sensitive skin\nafter use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_74",
+        "outcome": "completed",
+        "translation": "96%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_75",
+        "outcome": "completed",
+        "translation": "Refreshing, breathable finish\nafter use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_76",
+        "outcome": "completed",
+        "translation": "95%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_77",
+        "outcome": "completed",
+        "translation": "Survey Institution: Powder Room Survey Panel | Participants: 200 people | Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "6edd0a07243d109da85857f39245ddd891368755fbb4d940d9b49c5c20b7ab9c",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "0db1d5f73ae75cfbe544175d8873ea2ab0ee14536fa995185e7a686b467310a9",
+      "usage": {
+        "candidates_token_count": 613,
+        "prompt_token_count": 1710,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1710
+          }
+        ],
+        "total_token_count": 2323
+      }
+    }
+  ],
+  "seconds": 5.937000000150874
+}

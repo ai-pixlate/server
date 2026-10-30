@@ -1,0 +1,126 @@
+{
+  "source_id": "GS-03",
+  "stage": "merge",
+  "at": "2026-10-30T02:33:42.180924+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_19_01",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_19_01",
+        "block_order": 1,
+        "source_ko": "",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "",
+            "bbox": {
+              "x": 335,
+              "y": 0,
+              "w": 642,
+              "h": 329
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "",
+                "score": 0.0,
+                "poly": [
+                  [
+                    382,
+                    0
+                  ],
+                  [
+                    977,
+                    30
+                  ],
+                  [
+                    930,
+                    329
+                  ],
+                  [
+                    335,
+                    239
+                  ]
+                ],
+                "bbox": {
+                  "x": 335,
+                  "y": 0,
+                  "w": 642,
+                  "h": 329
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 335,
+          "y": 0,
+          "w": 642,
+          "h": 329
+        },
+        "role": "body",
+        "ocr_confidence": 0.0
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_19_01",
+        "block_order": 2,
+        "source_ko": "",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "",
+            "bbox": {
+              "x": 310,
+              "y": 119,
+              "w": 594,
+              "h": 421
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "",
+                "score": 0.0,
+                "poly": [
+                  [
+                    399,
+                    119
+                  ],
+                  [
+                    904,
+                    255
+                  ],
+                  [
+                    816,
+                    540
+                  ],
+                  [
+                    310,
+                    437
+                  ]
+                ],
+                "bbox": {
+                  "x": 310,
+                  "y": 119,
+                  "w": 594,
+                  "h": 421
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 310,
+          "y": 119,
+          "w": 594,
+          "h": 421
+        },
+        "role": "body",
+        "ocr_confidence": 0.0
+      }
+    ]
+  },
+  "seconds": 0.0
+}

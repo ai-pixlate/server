@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:50:48.420859+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_438",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 판독할 수 없는 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_439",
+        "outcome": "completed",
+        "translation": "Absorption improvement rate\ncompared to products without spicules",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_440",
+        "outcome": "completed",
+        "translation": "0.00%\nimprovement",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_441",
+        "outcome": "completed",
+        "translation": "20",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_442",
+        "outcome": "completed",
+        "translation": "30",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_444",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 판독할 수 없는 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_445",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 판독할 수 없는 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_446",
+        "outcome": "completed",
+        "translation": "6",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_447",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 판독할 수 없는 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_448",
+        "outcome": "completed",
+        "translation": "10",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_449",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 판독할 수 없는 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_450",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 판독할 수 없는 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_451",
+        "outcome": "completed",
+        "translation": "15",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "ebfe5d969325b945e908825d95c3249d87f263edfcf61c03f8c768eec677f9aa",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "e7a17c74a6e9702d45dfcf7e16ed1d511592a3e7a9695c4bf0b4b95a3950b03e",
+      "usage": {
+        "candidates_token_count": 420,
+        "prompt_token_count": 1058,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1058
+          }
+        ],
+        "thoughts_token_count": 5664,
+        "total_token_count": 7142
+      }
+    }
+  ],
+  "seconds": 48.73399999993853
+}

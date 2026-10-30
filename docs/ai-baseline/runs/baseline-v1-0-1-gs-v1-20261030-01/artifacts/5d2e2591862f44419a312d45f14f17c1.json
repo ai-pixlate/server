@@ -1,0 +1,150 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:03:17.499869+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_309",
+        "outcome": "completed",
+        "translation": "Good all goodal",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_310",
+        "outcome": "completed",
+        "translation": "Good for All of Us",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_311",
+        "outcome": "completed",
+        "translation": "goodal strives for a life where nature and people coexist.\nFrom harvesting raw ingredients grown in Korea and extracting them, to excluding suspicious ingredients and using sustainable packaging,\nwe care for every step of a product's journey, starting with small efforts.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_312",
+        "outcome": "completed",
+        "translation": "A Fresh Moment\nFresh Catch!",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_313",
+        "outcome": "completed",
+        "translation": "We freshly harvest raw ingredients grown in Korea\nto create active ingredients that make a visible difference in your skin.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_314",
+        "outcome": "completed",
+        "translation": "Verification of Standards and\nContinuous Commitment",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_318",
+        "outcome": "completed",
+        "translation": "We will always review and analyze our standards,\nstriving to deliver only verifiable facts with sincerity.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_321",
+        "outcome": "completed",
+        "translation": "*Conducts \"free of\" ingredient analysis tests per product\n*Secures research on active ingredient efficacy and verifiable clinical study data",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_323",
+        "outcome": "completed",
+        "translation": "Free of 18 Suspicious Ingredients",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_324",
+        "outcome": "completed",
+        "translation": "18\nFree",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_325",
+        "outcome": "completed",
+        "translation": "Based on goodal's Clear Clean Guide,\n18 suspicious ingredients across 4 functional categories\nhave been formulated out.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_326",
+        "outcome": "completed",
+        "translation": "*Applies to all new products launched after September 2021",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_327",
+        "outcome": "completed",
+        "translation": "*Refer to the list below for the 18 excluded ingredients",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_328",
+        "outcome": "completed",
+        "translation": "01. Preservatives (Function: Shelf-life guarantee)\n1) 7 types of Parabens [4-Hydroxybenzoic Acid, Methylparaben, Ethylparaben, Isopropylparaben, Propylparaben, Isobutylparaben, Butylparaben]\n2) Benzyl Alcohol 3) Imidazolidinyl Urea 4) BHA 5) Benzalkonium Chloride 6) Diazolidinyl Urea 7) BHT\n8) o-Cymen-5-ol 9) Sorbic Acid 10) Thymol 11) Phenoxyethanol 12) Isopropyl Alcohol",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_329",
+        "outcome": "completed",
+        "translation": "02. Plasticizers (Function: Reduces sticky feel)\n13) Diisononyl Phthalate",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_330",
+        "outcome": "completed",
+        "translation": "03. Surfactants (Function: Cleansing/mixing formulation)\n14) Triethanolamine 15) Sodium Lauryl Sulfate 16) Sodium Laureth Sulfate\n(*To analyze ingredients 15 and 16, all 4 types of sulfate surfactants were tested)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_331",
+        "outcome": "completed",
+        "translation": "04. Sunscreen Agents (Function: UV protection)\n17) Benzophenone-3 18) Butyl Methoxydibenzoylmethane",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "ae3ffdddee6ff54b7a8a5045d45cef77f1f27121c178bb8a041b898f04352798",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "d59552308488b04f7e98b58f0bdc0034e0d93d49aff42fa3c0fa94c1997d97d2",
+      "usage": {
+        "candidates_token_count": 715,
+        "prompt_token_count": 2917,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 2917
+          }
+        ],
+        "total_token_count": 3632
+      }
+    }
+  ],
+  "seconds": 7.702999999979511
+}

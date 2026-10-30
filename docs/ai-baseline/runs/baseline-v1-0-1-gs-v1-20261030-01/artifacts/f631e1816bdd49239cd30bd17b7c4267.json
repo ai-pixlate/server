@@ -1,0 +1,207 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:14.171891+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_12",
+      "section_key": "sec_54",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_661",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_662",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_663",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_664",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_665",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_666",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_667",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_668",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_669",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_670",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_671",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_12",
+      "section_key": "sec_54",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "1706936fcfa33ecaeeea0ec5e996071caa055f4aad359f084c5bf66d9404636f",
+      "label_fingerprint": "64ed584144639e30eae595d208e5fb5359946edf2d155bf220abe77a1dad4eee",
+      "label_input_fingerprint": "1706936fcfa33ecaeeea0ec5e996071caa055f4aad359f084c5bf66d9404636f",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 11,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 11,
+        "compared": 11
+      },
+      "decisions": [
+        {
+          "block_key": "blk_661",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "smab524m27140ver02",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_662",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "매끄럽고깨끗하게7일턴오버개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_663",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "각질탈락주기",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_664",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "제품미도포",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_665",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "제품미도포7일후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_666",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "제품도포",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_667",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "제품도포7일후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_668",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "피부각질층턴오버개선율",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_669",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "7963감소",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_670",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_671",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "1주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

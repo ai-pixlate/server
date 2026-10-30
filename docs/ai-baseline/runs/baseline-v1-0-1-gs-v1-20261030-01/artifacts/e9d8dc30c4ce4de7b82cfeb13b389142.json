@@ -1,0 +1,151 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:46.903201+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_6",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_88",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_89",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_90",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_91",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_92",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_93",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_94",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_6",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "6a38d69053244aa023c8ae6a1a9a274b793e9ee75f0c1b48a4a1fd9787b0c8cc",
+      "label_fingerprint": "ac27f178abdf56936885aa03e2d5c2d1ab397b67cacc83848c31a1dd531e66e8",
+      "label_input_fingerprint": "6a38d69053244aa023c8ae6a1a9a274b793e9ee75f0c1b48a4a1fd9787b0c8cc",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 7,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 7,
+        "compared": 7
+      },
+      "decisions": [
+        {
+          "block_key": "blk_88",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "인체적용시험으로확인된",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_89",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "자외선차단효과spf50+pa++++",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_90",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "spf자외선b차단지수",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_91",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "pa자외선a차단지수",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_92",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "spf612±69",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_93",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "pa++++170±33",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_94",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "자외선apfabspf차단지수인체적용시험한국피부과학연구원|10명대상|20230116~20230210|개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

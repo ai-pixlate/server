@@ -1,0 +1,99 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:49:50.744869+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_72",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_807",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_808",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_809",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_810",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_811",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_812",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_813",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_814",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_815",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_816",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_817",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_818",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_819",
+        "is_product_label": true,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "ad3e52f5bf0fdda1e6e4997ba1e12c5d66ac49860ba96518aefa0d64802b975f",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_807",
+        "blk_808",
+        "blk_809",
+        "blk_810",
+        "blk_811",
+        "blk_812",
+        "blk_813",
+        "blk_814",
+        "blk_815",
+        "blk_816",
+        "blk_817",
+        "blk_818",
+        "blk_819"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 11.061999999918044
+}

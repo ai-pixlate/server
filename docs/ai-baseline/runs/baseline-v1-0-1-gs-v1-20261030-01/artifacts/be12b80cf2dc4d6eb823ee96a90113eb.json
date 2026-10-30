@@ -1,0 +1,108 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:59:59.171628+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_794",
+        "outcome": "completed",
+        "translation": "celimax Retinal Shot\nTightening Booster Q&A",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_795",
+        "outcome": "completed",
+        "translation": "Q) Can I use it both morning and night?",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_796",
+        "outcome": "completed",
+        "translation": "A) Retinal is sensitive to light and heat, so we recommend using it in the evening. However, if you choose to use it in the morning, make sure to apply sunscreen.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_798",
+        "outcome": "completed",
+        "translation": "Q) If there is no irritation upon first use,\ncan I apply more?",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_799",
+        "outcome": "completed",
+        "translation": "A) Even if you do not experience irritation upon first use, the skin's adaptation reaction to retinal can appear later. Even if no reaction occurs, please do not increase the amount or frequency of use, and we recommend following the proper usage instructions for the first 2 weeks.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_800",
+        "outcome": "completed",
+        "translation": "Q) What are the symptoms of skin adapting to retinal?",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_801",
+        "outcome": "completed",
+        "translation": "A) If you are using retinal for the first time, your skin needs an adjustment period of up to 2 weeks.\nDuring this adaptation period, temporary skin reactions such as redness, flaking, itching, a burning sensation, or stinging may occur.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_802",
+        "outcome": "completed",
+        "translation": "Q) Can pregnant women use it?",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_803",
+        "outcome": "completed",
+        "translation": "A) We do not recommend use for pregnant or breastfeeding women, as hormonal changes during this time make the skin more sensitive.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_804",
+        "outcome": "completed",
+        "translation": "Q) Are there any ingredients that shouldn't be used together?",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_805",
+        "outcome": "completed",
+        "translation": "A) Simultaneous use with products containing high concentrations of Vitamin C, physical scrubs, or exfoliating ingredients is not recommended. If using them in the same routine, we recommend adjusting your usage schedule properly (e.g., alternating days).",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "df37ec9a36a98099447501ad93d40ff6c12d4caa3b930b45b9ccf3728f3477fb",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "0ec044f072e8dad3b0bda53001dc412761275bc953b078577f53f22d74dbaeb9",
+      "usage": {
+        "candidates_token_count": 539,
+        "prompt_token_count": 1384,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1384
+          }
+        ],
+        "total_token_count": 1923
+      }
+    }
+  ],
+  "seconds": 6.546000000089407
+}

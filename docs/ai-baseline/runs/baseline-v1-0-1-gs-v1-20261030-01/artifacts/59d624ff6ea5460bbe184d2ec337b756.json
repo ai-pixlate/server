@@ -1,0 +1,70 @@
+{
+  "request_id": "67809af06f834e74869b944e1a430984",
+  "actor": "예람",
+  "action": "continue",
+  "acknowledgedWarnings": [
+    {
+      "blockId": 438,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 444,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 445,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 447,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 449,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 450,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 527,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 537,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 544,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 552,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 558,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 563,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 581,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 602,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 701,
+      "code": "translation_failed"
+    }
+  ],
+  "user_confirmation": "경고 15건 확인, GS-02 N5 변경 없이 진행",
+  "confirmation_source": "현재 대화의 사용자 명시적 응답",
+  "recorded_at": "2026-10-30T02:02:53.268640+00:00"
+}

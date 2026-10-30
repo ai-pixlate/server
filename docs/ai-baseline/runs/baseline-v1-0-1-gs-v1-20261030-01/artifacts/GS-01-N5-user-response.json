@@ -1,0 +1,18 @@
+{
+  "request_id": "d3202bcb155346c9b42a30d2c1edb409",
+  "actor": "예람",
+  "action": "continue",
+  "acknowledgedWarnings": [
+    {
+      "blockId": 95,
+      "code": "translation_failed"
+    },
+    {
+      "blockId": 96,
+      "code": "translation_failed"
+    }
+  ],
+  "user_confirmation": "경고 2건 확인, GS-01 N5 변경 없이 진행",
+  "confirmation_source": "현재 대화의 사용자 명시적 응답",
+  "recorded_at": "2026-10-30T01:05:54.841721+00:00"
+}

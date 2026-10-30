@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:11.193446+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_14",
+      "section_key": "sec_59",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_691",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_14",
+      "section_key": "sec_59",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "2b89b6fde67b18109e90ce1cd3e9744fe6bd1e2218088a38c79ea6b4c38cf4f3",
+      "label_fingerprint": "bda74c93e84b0703d034dbaad066bccb7ad50f0d807dce7063ce4b771368e9ec",
+      "label_input_fingerprint": "2b89b6fde67b18109e90ce1cd3e9744fe6bd1e2218088a38c79ea6b4c38cf4f3",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 1,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 1,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_691",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷타이트닝부스터사용후만족도설문평가주스킨메드임상시험센터20240527~0613성인남녀22명개인차있음3점이상긍정답변율로답변한시험대상자수백분율평균값기준",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

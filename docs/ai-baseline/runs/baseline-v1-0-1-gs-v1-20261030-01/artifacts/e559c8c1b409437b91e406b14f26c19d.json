@@ -1,0 +1,109 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:11.727219+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_62",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_715",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_716",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_717",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_718",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_62",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "ea06a040838067e168c0a81d77e8bfdd6dbffb536bb90b2e6c0a449802640803",
+      "label_fingerprint": "658e24477f0b12e5c34b6c7e53da2ea7beb1e7cd770ce0e4b0c1ad66f782022c",
+      "label_input_fingerprint": "ea06a040838067e168c0a81d77e8bfdd6dbffb536bb90b2e6c0a449802640803",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 4,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 4
+      },
+      "decisions": [
+        {
+          "block_key": "blk_715",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "제형영양이가득담긴고농축의노란빛제형",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_716",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "발림성도톰하게굴러가는부드러운발림성",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_717",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "사용감주름과모공이메꿔지는듯한쪼폰함",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_718",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "마무리감피부에영양이빈틈없이스며들어폰득한피부",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.015999999828636646
+}

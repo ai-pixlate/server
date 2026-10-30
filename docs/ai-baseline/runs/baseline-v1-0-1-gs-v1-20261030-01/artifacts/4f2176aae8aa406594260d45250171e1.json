@@ -1,0 +1,53 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:00:32.857860+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_114",
+        "outcome": "completed",
+        "translation": "Certified Vegan",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_115",
+        "outcome": "completed",
+        "translation": "Certified Vegan in Belgium,\nformulated without animal-derived ingredients",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_116",
+        "outcome": "completed",
+        "translation": "VEGAN\nCERTIFIED",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "eeb1dc6947f35aafa6e8288288fc2c8dfbe1c4c2a4fade4f61ea916c9b6f2e3b",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "6b93cc5d3943a1fa113612ec727cc1b674f9bfbc5395ae0c5c7a9eb07ac81e96",
+      "usage": {
+        "candidates_token_count": 49,
+        "prompt_token_count": 752,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 752
+          }
+        ],
+        "thoughts_token_count": 517,
+        "total_token_count": 1318
+      }
+    }
+  ],
+  "seconds": 7.797000000020489
+}

@@ -1,0 +1,137 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:50.016844+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_16",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_179",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_180",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_181",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_182",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_183",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_184",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_16",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "0ac22ae84ca48d2a2743b601eed16984ab42093de2035c60f9d8c7e9b34c2378",
+      "label_fingerprint": "be8a34c6741b8d38a5b9de34e6eab0b77c3ef9c3ddfd027f01dd54f53dd4c5a9",
+      "label_input_fingerprint": "0ac22ae84ca48d2a2743b601eed16984ab42093de2035c60f9d8c7e9b34c2378",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 6,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 6,
+        "compared": 6
+      },
+      "decisions": [
+        {
+          "block_key": "blk_179",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "point03",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_180",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "바다산호초를생각하는reefsafe선크림",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_181",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "건강한해양생태계를위해산호초에영향을주는자외선차단원료옥시벤존옥티노세이트를배제하였습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_182",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "옥시벤존벤조페논3옥티노세이트에칠헥실메톡시신나메이트불검출시험완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_183",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "reefsafe",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_184",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "내피부는물론바다환경까지생각하는배려깊은당신을위해",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

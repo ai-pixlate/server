@@ -1,0 +1,96 @@
+{
+  "schema_version": "1",
+  "rules_version": "policy@2026-09-28.0",
+  "basis": "합성 테스트용 — 실제 규칙 값이 아니다. 구조는 build_dict.RULES_TEMPLATE과 같다. overrides에 가짜 예외 쌍 1개(형식 검증용)",
+  "regulatory_class_map": {
+    "cosmetic": {
+      "applied_classes": [
+        "cosmetic",
+        "common"
+      ],
+      "dict_coverage": "selected_class_all_entries"
+    },
+    "otc": {
+      "applied_classes": [
+        "otc",
+        "common"
+      ],
+      "dict_coverage": "selected_class_all_entries"
+    },
+    "combination": {
+      "applied_classes": [
+        "otc",
+        "common"
+      ],
+      "dict_coverage": "partial_class_combination"
+    },
+    "unknown": {
+      "applied_classes": [
+        "cosmetic",
+        "common"
+      ],
+      "dict_coverage": "unverified_class"
+    }
+  },
+  "verdict_map": [
+    {
+      "dict_type": "regulatory",
+      "verdict_status": "allowed",
+      "alternative": "any",
+      "emit_verdict_status": null,
+      "bucket": "none"
+    },
+    {
+      "dict_type": "regulatory",
+      "verdict_status": "conditional",
+      "alternative": "any",
+      "emit_verdict_status": "conditional",
+      "bucket": "include"
+    },
+    {
+      "dict_type": "regulatory",
+      "verdict_status": "rewritable",
+      "alternative": "required",
+      "emit_verdict_status": "regulated",
+      "bucket": "include"
+    },
+    {
+      "dict_type": "regulatory",
+      "verdict_status": "regulated",
+      "alternative": "present",
+      "emit_verdict_status": "regulated",
+      "bucket": "include"
+    },
+    {
+      "dict_type": "regulatory",
+      "verdict_status": "regulated",
+      "alternative": "absent",
+      "emit_verdict_status": "regulated",
+      "bucket": "exclude"
+    },
+    {
+      "dict_type": "local",
+      "verdict_status": "irrelevant",
+      "alternative": "any",
+      "emit_verdict_status": "irrelevant",
+      "bucket": "exclude"
+    },
+    {
+      "dict_type": "local",
+      "verdict_status": "needs_fix",
+      "alternative": "any",
+      "emit_verdict_status": "needs_fix",
+      "bucket": "exclude"
+    }
+  ],
+  "uncertain_bucket": "exclude",
+  "overrides": [
+    {
+      "keep": "RG-903",
+      "drop": [
+        "RG-902"
+      ],
+      "basis": "합성: 형식 검증용 예외 쌍(실제 근거 아님)"
+    }
+  ]
+}

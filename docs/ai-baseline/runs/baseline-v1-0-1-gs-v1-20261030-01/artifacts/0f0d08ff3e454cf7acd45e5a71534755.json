@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:20.199985+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_66",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_750",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_751",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_752",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_753",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_754",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_66",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "410d698fab3c32cf5859360d2952eeb8143c9005d08f88531da9767f83230407",
+      "label_fingerprint": "73a366cd93b72a88e5f7397a9b70859cc2a0e7282b900ada29188b6205c0e701",
+      "label_input_fingerprint": "410d698fab3c32cf5859360d2952eeb8143c9005d08f88531da9767f83230407",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 5,
+      "counts": {
+        "product_label": 3,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 2,
+        "compared": 2
+      },
+      "decisions": [
+        {
+          "block_key": "blk_750",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "함께사용하면더효과있는thevitaaset",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_751",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "retinolshottighteningserum+retinalshottighteningbooster",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_752",
+          "block_order": 3,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_753",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_754",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

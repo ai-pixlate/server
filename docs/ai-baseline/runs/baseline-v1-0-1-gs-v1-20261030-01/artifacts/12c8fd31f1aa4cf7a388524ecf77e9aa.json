@@ -1,0 +1,158 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:57:30.618825+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_732",
+        "outcome": "completed",
+        "translation": "Recommended Usage Guide by Retinal Adaptation Stage",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_733",
+        "outcome": "completed",
+        "translation": "Amount (Per Application)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_734",
+        "outcome": "completed",
+        "translation": "Frequency of Use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_735",
+        "outcome": "completed",
+        "translation": "• Use 1–2 times a week\nfor the first month",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_736",
+        "outcome": "completed",
+        "translation": "A small amount, the size of an Oryza Sativa (Rice) Kernel",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_737",
+        "outcome": "completed",
+        "translation": "Beginner\nFirst-time user of\nRetinol/Retinal products",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_738",
+        "outcome": "completed",
+        "translation": "• Gradually increase to 3–4 times a week\nwhile observing skin reaction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_739",
+        "outcome": "completed",
+        "translation": "An appropriate amount,\nabout the size of a Glycine Max (Soybean) Pulp",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_740",
+        "outcome": "completed",
+        "translation": "• Use every other day\n(once every two days)\nfor the first month\nGradually increase to 5–6 times a week\nwhile observing skin reaction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_741",
+        "outcome": "completed",
+        "translation": "Intermediate\nUsers who have used\nRetinol/Retinal products\nat least once",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_742",
+        "outcome": "completed",
+        "translation": "YL",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_743",
+        "outcome": "completed",
+        "translation": "Suitable for daily use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_744",
+        "outcome": "completed",
+        "translation": "An appropriate amount on desired areas\nor over the entire skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_745",
+        "outcome": "completed",
+        "translation": "Advanced\nFrequent users of\nRetinol/Retinal products",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_746",
+        "outcome": "completed",
+        "translation": "※ Retinal reactions may vary depending on skin type, so it is recommended to follow the usage guide for the first 2 weeks.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_747",
+        "outcome": "completed",
+        "translation": "3-10°C",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_748",
+        "outcome": "completed",
+        "translation": "Store in a cool place",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_749",
+        "outcome": "completed",
+        "translation": "Recommended to store in a cool place",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "4c705b6af79a452fbe9c19b106985cf679df6649bce0c59dc7d50407a71ed588",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "5c4e7864acb97f90cddc7b7238fdf26adb835acae7d085636bbf0012b5059720",
+      "usage": {
+        "candidates_token_count": 646,
+        "prompt_token_count": 1528,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1528
+          }
+        ],
+        "thoughts_token_count": 5567,
+        "total_token_count": 7741
+      }
+    }
+  ],
+  "seconds": 47.188000000081956
+}

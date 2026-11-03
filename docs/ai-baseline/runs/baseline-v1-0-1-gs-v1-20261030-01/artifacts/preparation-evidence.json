@@ -1,0 +1,12 @@
+{
+  "recorded_at": "2026-10-30T00:59:03.541750+00:00",
+  "files": {
+    "artifacts\\official-tests-20261030.txt": "248a411b16710ba0e0bbe8fe7da9fee3839131f6c4d944cbcaf137a2f86075ad",
+    "artifacts\\prepare-official-20261030.py": "2a9ef6067f3d22e0a0517e24f2f51b4124822028f2ed7ae713676afb435834f3",
+    "artifacts\\launch-official-20261030.py": "c2af57401d7c45945713b6306e20fe0f113ed1756ba718b70daa9b17fcd0ecac"
+  },
+  "synthetic_tests": {
+    "passed": 110,
+    "models_called": false
+  }
+}

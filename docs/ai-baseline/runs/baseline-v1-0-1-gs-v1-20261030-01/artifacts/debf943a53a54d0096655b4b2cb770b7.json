@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:52:21.584163+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_660",
+        "outcome": "completed",
+        "translation": "**Satisfaction survey results among 21 participants in a clinical study / Individual results may vary / Percentage of participants who gave a positive response of 3 points or higher (%)\nBased on participant percentage and mean values",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "1382529485db50ec81e354d19d3eef82cb91b8b96c92fba1579752dfec751776",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "beed18777f6cb16900417702b73372f408bac1967d7bd645e0f66806fd8b2e7a",
+      "usage": {
+        "candidates_token_count": 76,
+        "prompt_token_count": 760,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 760
+          }
+        ],
+        "thoughts_token_count": 1307,
+        "total_token_count": 2143
+      }
+    }
+  ],
+  "seconds": 14.530999999959022
+}

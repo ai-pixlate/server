@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:12.258180+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_6",
+      "section_key": "sec_32",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_436",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_437",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_6",
+      "section_key": "sec_32",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "28eb843538dd78d91ae538ae33de577473d9df54789337add3008ae292376ea9",
+      "label_fingerprint": "c41d89994d3c37c4ddb8be0704ecffee7900a5d2a8353c33488d6c71a8d5b1ca",
+      "label_input_fingerprint": "28eb843538dd78d91ae538ae33de577473d9df54789337add3008ae292376ea9",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 2,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 2,
+        "compared": 2
+      },
+      "decisions": [
+        {
+          "block_key": "blk_436",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "흡수깊이89235개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_437",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "흡수된영역붉게표시됨피부깊게흡수될수록아래쪽이붉게표시됨",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

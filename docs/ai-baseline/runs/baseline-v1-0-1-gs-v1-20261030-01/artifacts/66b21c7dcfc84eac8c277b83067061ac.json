@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:53:03.369258+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_691",
+        "outcome": "completed",
+        "translation": "Satisfaction survey evaluation after using celimax Retinal Shot Tightening Booster / SkinMed Clinical Trial Center Co., Ltd. / 2024.05.27–06.13 / 22 adult men and women / Individual results may vary / Based on average values and percentage (%) of participants who gave positive ratings of 3 points or higher",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "624ae27e5037ba84152e3f1fd5bfd2afae3b5fd08d47a566828304b64e9fb66e",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "67bd66ca2c739061df289292865776461af91bda7336763084601a6b04ff062f",
+      "usage": {
+        "candidates_token_count": 108,
+        "prompt_token_count": 716,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 716
+          }
+        ],
+        "thoughts_token_count": 1262,
+        "total_token_count": 2086
+      }
+    }
+  ],
+  "seconds": 13.125
+}

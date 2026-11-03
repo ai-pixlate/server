@@ -1,0 +1,53 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:01:47.343578+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_176",
+        "outcome": "completed",
+        "translation": "Zero White Cast, Blends Seamlessly with a Fresh Finish!",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_177",
+        "outcome": "completed",
+        "translation": "Applies evenly without clumping or caking,\nleaving skin feeling refreshed.\nGlides on smoothly and softly",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_178",
+        "outcome": "completed",
+        "translation": "*Limited to the characteristics of the raw ingredients",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "e7dddbbf252961b60f40a3195b044682f012901d62ba6baf9df73d3be544a981",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "598905f6962d3a23b9589a3bad95381248141a7cab8fc01a9b4a3c0adce45401",
+      "usage": {
+        "candidates_token_count": 121,
+        "prompt_token_count": 770,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 770
+          }
+        ],
+        "thoughts_token_count": 692,
+        "total_token_count": 1583
+      }
+    }
+  ],
+  "seconds": 8.484999999869615
+}

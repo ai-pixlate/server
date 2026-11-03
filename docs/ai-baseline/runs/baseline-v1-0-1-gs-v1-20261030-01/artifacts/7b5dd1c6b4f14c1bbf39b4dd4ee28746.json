@@ -1,0 +1,105 @@
+{
+  "source_id": "GS-01",
+  "stage": "label",
+  "at": "2026-10-30T00:57:09.026535+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_14",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_162",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_163",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_164",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_165",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_166",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_167",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_168",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_169",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_170",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_171",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_172",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_173",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_174",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_175",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "03f328ad80292cdda9b9f80000b7b242fcb623093b262b102669e7c99a5d6534",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_162",
+        "blk_163",
+        "blk_164",
+        "blk_165",
+        "blk_166",
+        "blk_167",
+        "blk_168",
+        "blk_169",
+        "blk_170",
+        "blk_171",
+        "blk_172",
+        "blk_173",
+        "blk_174",
+        "blk_175"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 6.655999999959022
+}

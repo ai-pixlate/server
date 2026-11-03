@@ -157,7 +157,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 | 입력 | 적용값 · 출처 |
 |---|---|
 | `is_excluded`가 false가 아님(라벨 · 로고 · 규제 제외 등) / 빈 원문 / 번역문 없음(NULL · 빈 문자열) | 조판하지 않음(`skip_reason` excluded · empty_source · no_translation). 기본값으로 되살리지 않는다 |
-| ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. 단일 줄 · 동률 left(`align_basis` default_single_line · default_tie)도 측정 결과다 |
+| ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. 기존 함수는 단일 줄 · 동률 left도 `measured`로 분류하지만 실제 원본 정렬 판정과 기본 left를 구분해야 한다(`contract.md` 6.4 · #78) |
 | ⑦ 완료, 일부 NULL | NULL 항목만 역할 기본값 — 출처 `role_default` |
 | ⑦ 실패(style 객체 NULL) | 세 항목 모두 역할 기본값. 단계 상태는 `failed` 그대로(측정 성공으로 만들지 않음) |
 | 계약 위반(⑦ 완료인데 대상 블록 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값) | `StyleInputInvalid` — 기본값으로 덮지 않는다 |
@@ -180,7 +180,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
             "font_face": "role_config", "letter_spacing": "role_config", "line_height": "role_config"}}
 ```
 
-현행 BE 렌더 기록(`applied` = `font_color` · `est_font_px` · `align`, `source` = measured · role_default)을 이 형식으로 넓히는 안을 추천한다. `align_basis`는 현재 `text_block.style`에 저장되지 않는다 — 보존 여부는 BE 결정이며, 보존하지 않아도 `align`이 NULL이 아니면 측정값으로 취급한다.
+현행 BE 렌더 기록(`applied` = `font_color` · `est_font_px` · `align`, `source` = measured · role_default)을 이 형식으로 넓히는 안을 추천한다. `align_basis` 보존 필요성은 2026-10-29 FE–AI가 동의했다. 저장 위치·키와 FE·공통 렌더 전달 범위, 최종 정렬·스타일 계산 책임은 여전히 #78의 미정 계약이다. 이 예제를 확정 응답·저장 형식으로 사용하지 않는다. 근거: `contract.md` 6장 조판 D-03·07 및 노션 3-1절.
 
 ### 6.5 참고 렌더와 운영 렌더의 차이
 
@@ -188,15 +188,15 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 python -m pipeline.handoff.style_reference --out pipeline/out/style-defaults-check
 ```
 
-사례마다 원본 폭 × 섹션 높이의 흰 캔버스 PNG와 `layout.json`(적용값 · 줄 · 줄 폭 · 넘침)을 만든다. **AI 검증용이며 운영 렌더가 아니다. 이 렌더의 성공은 운영 연결 완료가 아니다.** 운영 렌더(BE)와 다를 수 있는 점:
+사례마다 원본 폭 × 섹션 높이의 흰 캔버스 PNG와 `layout.json`(적용값 · 줄 · 줄 폭 · 넘침)을 만든다. **AI 검증용이며 운영 렌더가 아니다. 이 렌더의 성공은 운영 연결 완료가 아니다.** 아래 비교표는 당시 참고 렌더의 특성이다. 운영 조판 기준은 2026-10-28~29 FE–AI 합의를 반영한 `contract.md` 6.2·6.4가 소유한다(#79 해결).
 
-| 항목 | 참고 렌더(Pillow 12.3 · Layout.BASIC · raqm 없음) | 운영 조판에서 정할 것 |
+| 항목 | 참고 렌더(Pillow 12.3 · Layout.BASIC · raqm 없음) | 합의된 운영 조판 기준(`contract.md` 6.2·6.4) |
 |---|---|---|
-| 커닝 · 합자 | GPOS 미적용 | HarfBuzz · 브라우저 엔진이면 적용됨 → 줄 폭 차이 |
-| 글리프 진행 폭 | 정수 px로 반올림(힌팅) — 20px에서 `i` = 4px | 서브픽셀 진행 폭 사용 여부 |
-| 자간 | 글자 사이에만(줄 폭 = 글리프 합 + 자간 × (글자 수 − 1)) | CSS는 엔진에 따라 마지막 글자 뒤에도 더한다 |
-| 세로 위치 | 반행간을 위아래로 분배, ascent/descent = FreeType 값 | 브라우저는 OS/2 typo 값을 쓸 수 있다(USE_TYPO_METRICS 설정됨). 넘침 높이는 줄 수 × 행간이라 무관 |
-| 줄바꿈 | 원문 `\n` 유지 · 나머지 공백 접기 · 단어 단위 · 긴 단어 자르지 않음(CSS `white-space: pre-line` 상당) | 같은 규칙 권장(현행 `app/typeset.py`와 같다) |
+| 커닝 · 합자 | GPOS 미적용 | CSS `font-kerning: normal` |
+| 글리프 진행 폭 | 정수 px로 반올림(힌팅) — 20px에서 `i` = 4px | 소수 유지. 넘침은 진행 폭만으로 판단하지 않고 배치된 ink boundary 사용 |
+| 자간 | 글자 사이에만(줄 폭 = 글리프 합 + 자간 × (글자 수 − 1)) | 승인 자간을 CSS `letter-spacing`으로 적용, 끝 자간 별도 제거 보정 없음 |
+| 세로 위치 | 반행간을 위아래로 분배, ascent/descent = FreeType 값 | CSS 줄 상자·행간 1.2로 배치. 실제 DOM baseline과 ink boundary로 세로 넘침 판정 |
+| 줄바꿈 | 원문 `\n` 유지 · 나머지 공백 접기 · 단어 단위 · 긴 단어 자르지 않음(CSS `white-space: pre-line` 상당) | `white-space: pre-line` + 브라우저 기본 줄바꿈. 참고 렌더 줄 구성을 정답으로 삼지 않음 |
 
 사례 08의 804(여러 줄 감기)는 참고 렌더에서 한 줄 폭이 영역보다 1px 넓어 줄이 갈린다 — 엔진 차이에 민감해 기대 줄 구성을 두지 않았다. 운영 엔진에서 이 사례의 줄 구성을 기록해 두기를 권한다.
 
@@ -207,7 +207,7 @@ python -m pipeline.handoff.style_reference --out pipeline/out/style-defaults-che
 1. **`app/typeset.py` 로더 교체**: `load_role_defaults()`가 `pipeline.handoff.style_defaults.load_style_defaults()` + `verify_fonts()`를 쓰게 한다. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS`는 대체 경로로 두는 안을 추천한다(정책 규칙 `PIXLATE_POLICY_RULES`와 같은 방식). 폰트 검증 실패는 기존 `StyleDefaultsUnavailable`처럼 렌더 실패로 처리하고 내장 폰트로 그리지 않는다. `deploy/pixlate.env.example` 설명도 함께 고친다. **상태: 반영(PR #71 `65f350e`)** — `load_role_defaults()`가 정본 경로 + `verify_fonts()`, 실패하면 `STYLE_DEFAULTS_UNAPPROVED`로 중단. 검증 실패 시 내장 폰트로 대체하지 않는 정책은 유지한다(사용자 결정 2026-10-15, PR #72 코멘트).
 2. **스타일 해석**: `resolve_style()`을 `resolve_block()`으로 대체하거나 같은 규칙으로 고친다. 원본 폭(섹션 `bbox.w`)과 섹션의 ⑦ 시도 결과(done/failed)를 넘긴다. 현재는 단계 상태 없이 style NULL만 본다. **상태: 반영(PR #71)** — `resolve_style()`이 `resolve_block()`을 부르고, ⑦ 단계 상태는 렌더 manifest의 `style_stage`, 원본 폭은 섹션 배경 폭으로 넘긴다. 계약 위반은 `STYLE_RESULT_INVALID`.
 3. **실제 폰트 · 굵기 · 자간 · 행간 적용**: `_font()`의 `ImageFont.load_default` 대신 역할 굵기의 실제 OTF를 적용 크기(소수 허용)로 연다. 자간 · 행간은 적용값의 px를 쓴다(`LINE_SPACING` 상수 대신 설정 자료의 비율). **상태: 미반영** — `_font()`는 아직 `ImageFont.load_default`, 행간은 상수 1.2. 폰트(Pretendard) · 역할별 굵기는 release에서 BE 진행 예정(측정 · 그리기에 같은 폰트 객체, `RENDERER_VERSION` 갱신, 역할별 폰트 · 굵기와 특수문자 · 한글 출력 시험), 자간 · 행간은 develop 후속.
-4. **넘침 계산을 실제 조판과 같은 기준으로**: 폭은 자간을 포함한 실제 줄 폭, 높이는 줄 수 × 행간 px. 높이가 영역과 같으면 넘침이 아니다. 넘쳐도 크기 축소 · 문구 축약 · 측정값 교체를 하지 않는다. 운영 엔진의 자간 끝 처리 · 커닝 기준은 #79. **상태: develop 후속**(자간 적용과 함께).
+4. **넘침 계산 기준 정정(2026-10-29 합의)**: 종전 줄 폭·줄 수 × 행간 판정은 `contract.md` 6.2·6.4의 DOM baseline·배치된 ink boundary 기준으로 대체한다(#79 해결). 구현 상태를 갱신한 기록은 아니다.
 5. **입력 지문**: `app/flows/downstream.py`의 `_render_inputs`(미리보기 — 최종 렌더의 `app/flows/final.py` `_final_inputs`도 이것을 부른다)와 `_final_inputs`의 `style_defaults`를 `render_inputs(d)`(설정 버전 · SHA-256 · 폰트 SHA-256 · 규칙 버전)로 바꾸고, `RENDERER_VERSION`의 렌더 라이브러리 버전을 유지한다. `_render_section`의 대조도 같은 값으로 한다(다르면 `INPUT_CHANGED`). **상태: 반영(PR #71)** — manifest `style_defaults` = `typeset.style_inputs()`(`render_inputs`), 자료를 쓸 수 없으면 `unavailable`을 남기고 렌더 때 실패. 폰트 교체 시 `RENDERER_VERSION`을 올리는 것은 위 3의 release 작업에 포함. 지문이 달라진 기존 미리보기가 언제 다시 그려지는지는 단정하지 않는다 — 코드상 하류 실행이 `running`인 동안의 `progress()`만 새 시도를 만든다(N5 이후 · 재시도 영향은 BE 확인).
 6. **미리보기 · 최종 렌더 공통**: 두 경로가 같은 로더 · 같은 `resolve_block` · 같은 조판 함수를 쓴다. 최종 렌더가 미리보기와 다른 설정을 읽을 수 없게 한다. **상태: 반영(PR #71)** — 최종 렌더도 같은 `style_inputs()` · `_render_section` · `render`를 쓴다.
 7. **기록**: `text_block.style`은 측정값 그대로 둔다. 렌더 payload의 `applied` · `source`를 6.4 형식으로 넓힌다(저장 위치는 #78). **상태: develop 후속** — 현재 `applied` · `source`는 글자색 · 크기 · 정렬 세 키.
@@ -245,7 +245,7 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 ### 6.8 남은 것 · 검증 한계
 
 - 운영 연결(6.6)은 1 · 2 · 5 · 6이 PR #71로 반영됐고 8은 일부다(2026-10-15 코드 대조, 당시 기준 — 현재 상태는 `status.md` ⑨ 행). 남은 것: 실제 폰트 · 굵기(release, BE 진행 예정), 자간 · 행간 · 넘침 기준 · 기록 형식(develop). 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽은 단위 · 참고 렌더 검증만 했고, PR #71의 BE 시험은 실행하지 않았다.
-- #78 적용값 기록 위치 · 키, #79 운영 조판 엔진의 측정 기준(자간 끝 · 커닝 · 서브픽셀)은 BE 확인이 필요하다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
+- #78 적용값 기록 위치·키·최종 스타일 책임은 계약 미정이다. #79 측정 기준은 FE–AI 합의로 해결했으며 `contract.md` 6.2·6.4를 따른다. 사용자 조정 계약은 #87, 이미지 경계 이탈의 화면·API 계약은 #88이다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
 - 디자인 원본 이미지는 이 작업에서 직접 열람하지 않았다. 토큰 값은 사용자가 전달한 승인표 기준이다.
 
 ## 7. Linux CPU OCR 수정 인계(2026-10-12)

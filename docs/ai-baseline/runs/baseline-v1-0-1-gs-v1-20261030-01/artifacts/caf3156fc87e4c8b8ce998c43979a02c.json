@@ -1,0 +1,219 @@
+{
+  "source_id": "GS-01",
+  "stage": "label",
+  "at": "2026-10-30T00:57:44.931915+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_19",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_209",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_210",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_211",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_212",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_213",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_214",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_215",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_216",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_217",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_218",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_219",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_220",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_221",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_222",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_223",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_224",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_225",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_226",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_227",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_228",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_229",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_230",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_231",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_232",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_233",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_234",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_235",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_236",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_237",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_238",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_239",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_240",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_241",
+        "is_product_label": true,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "434604516eca5886ae215b5d3ab71299b02ff1f10902b69ecb8e92fc05068753",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_209",
+        "blk_210",
+        "blk_211",
+        "blk_212",
+        "blk_213",
+        "blk_214",
+        "blk_215",
+        "blk_216",
+        "blk_217",
+        "blk_218",
+        "blk_219",
+        "blk_220",
+        "blk_221",
+        "blk_222",
+        "blk_223",
+        "blk_224",
+        "blk_225",
+        "blk_226",
+        "blk_227",
+        "blk_228",
+        "blk_229",
+        "blk_230",
+        "blk_231",
+        "blk_232",
+        "blk_233",
+        "blk_234",
+        "blk_235",
+        "blk_236",
+        "blk_237",
+        "blk_238",
+        "blk_239",
+        "blk_240",
+        "blk_241"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 18.57800000021234
+}

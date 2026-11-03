@@ -1,0 +1,60 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:02:18.297310+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_191",
+        "outcome": "completed",
+        "translation": "Mineral Sunscreen\nHow to Use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_192",
+        "outcome": "completed",
+        "translation": "From your face to body sun care!\nAt the final step of your skincare routine, apply evenly to your face and areas of the body easily exposed to UV rays.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_193",
+        "outcome": "completed",
+        "translation": "Daily Sunscreen for Everyone\nWith a hydrating, non-sticky finish, anyone can enjoy comfortable daily sun protection.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_194",
+        "outcome": "completed",
+        "translation": "Doubles as a makeup booster with a hydrating, pill-free texture!\nA lightweight, hydrating formula that sets smoothly without pilling also works as a makeup booster.",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "12482107a4a1f14c7a1b05bcbede8ba8ce32f459974c4ef3cbc04e38884e1cf0",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "725ea98c3fdb5f836c23da8dbfad576012c8ba081301710abf6424e19ec17ab2",
+      "usage": {
+        "candidates_token_count": 196,
+        "prompt_token_count": 1269,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1269
+          }
+        ],
+        "thoughts_token_count": 514,
+        "total_token_count": 1979
+      }
+    }
+  ],
+  "seconds": 9.264999999897555
+}

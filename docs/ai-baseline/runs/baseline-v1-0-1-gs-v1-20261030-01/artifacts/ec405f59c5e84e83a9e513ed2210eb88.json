@@ -1,0 +1,151 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:02:55.050319+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_258",
+        "outcome": "completed",
+        "translation": "Tone-Up Sun Care",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_264",
+        "outcome": "completed",
+        "translation": "Heartleaf Pink Tone Up Sun",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_265",
+        "outcome": "completed",
+        "translation": "Heartleaf Green Tone Up Sun",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_266",
+        "outcome": "completed",
+        "translation": "#RednessCorrection",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_267",
+        "outcome": "completed",
+        "translation": "#FreshAdherence",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_268",
+        "outcome": "completed",
+        "translation": "#RadiantGlow",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_269",
+        "outcome": "completed",
+        "translation": "#VitalizingToneUp",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_270",
+        "outcome": "completed",
+        "translation": "#BlemishCoverage",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_271",
+        "outcome": "completed",
+        "translation": "#DarkSpotCoverage",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_272",
+        "outcome": "completed",
+        "translation": "Portable Stick Sun Care",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_273",
+        "outcome": "completed",
+        "translation": "Portable\nStick",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_274",
+        "outcome": "completed",
+        "translation": "Portable\nStick",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_280",
+        "outcome": "completed",
+        "translation": "Heartleaf Matte Sun Stick",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_281",
+        "outcome": "completed",
+        "translation": "Heartleaf Quick Sun Stick",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_282",
+        "outcome": "completed",
+        "translation": "#CoolingEffect",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_283",
+        "outcome": "completed",
+        "translation": "#NonSticky #ZeroFlaking\n#SmoothFit",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_284",
+        "outcome": "completed",
+        "translation": "#NonGreasy\n#LightweightMatte",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "20e35400f28c7b1e7a137746810c4b6b3b515d85de1d30341251ca024447923a",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "b350fb51a8a65038bb390c5232e16ff600ce3fb735a2d3298f7896bd4fa80126",
+      "usage": {
+        "candidates_token_count": 478,
+        "prompt_token_count": 1533,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1533
+          }
+        ],
+        "thoughts_token_count": 771,
+        "total_token_count": 2782
+      }
+    }
+  ],
+  "seconds": 9.860000000102445
+}

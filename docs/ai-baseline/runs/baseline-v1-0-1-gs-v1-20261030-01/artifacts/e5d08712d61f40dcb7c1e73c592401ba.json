@@ -1,0 +1,137 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:54:51.416117+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_674",
+        "outcome": "completed",
+        "translation": "SM-AB5-24M27-139_ver02",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_675",
+        "outcome": "completed",
+        "translation": "Boosts inner elasticity\nto improve even deep wrinkles",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_676",
+        "outcome": "completed",
+        "translation": "Improvement in deep forehead wrinkles",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_677",
+        "outcome": "completed",
+        "translation": "-28.54%\nReduction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_678",
+        "outcome": "completed",
+        "translation": "Before",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_679",
+        "outcome": "completed",
+        "translation": "After 2 weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_680",
+        "outcome": "completed",
+        "translation": "Improvement in deep eye wrinkles",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_681",
+        "outcome": "completed",
+        "translation": "-14.31%\nReduction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_682",
+        "outcome": "completed",
+        "translation": "Before",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_683",
+        "outcome": "completed",
+        "translation": "After 2 weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_684",
+        "outcome": "completed",
+        "translation": "Improvement in deep nasolabial folds",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_685",
+        "outcome": "completed",
+        "translation": "-18.49%\nReduction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_686",
+        "outcome": "completed",
+        "translation": "Before",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_687",
+        "outcome": "completed",
+        "translation": "After 2 weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_688",
+        "outcome": "completed",
+        "translation": "clinical study on the improvement of deep wrinkles (forehead/eye area/wrinkles) / SkinMed Clinical Trial Center / 2024.05.27–2024.06.13 / 21 adult men and women / Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "3953d556c5faa68e70f0edc235846e44cb966098571deca66df76e88eae0e0f4",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "9be4315ccfddf3b4546fcdfc56773e1fe8c4dce8d9838ac2a44e93679ca50f7f",
+      "usage": {
+        "candidates_token_count": 497,
+        "prompt_token_count": 1317,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1317
+          }
+        ],
+        "thoughts_token_count": 788,
+        "total_token_count": 2602
+      }
+    }
+  ],
+  "seconds": 11.484000000171363
+}

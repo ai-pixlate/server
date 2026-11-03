@@ -1,0 +1,57 @@
+{
+  "source_id": "GS-01",
+  "stage": "label",
+  "at": "2026-10-30T00:57:28.560641+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_17",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_185",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_186",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_187",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_188",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_189",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_190",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "759a8abb35c3d7ac3af7dbd724b4db25c6bfd6b925328519c2a4179e03c5e885",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_185",
+        "blk_186",
+        "blk_187",
+        "blk_188",
+        "blk_189",
+        "blk_190"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 5.344000000040978
+}

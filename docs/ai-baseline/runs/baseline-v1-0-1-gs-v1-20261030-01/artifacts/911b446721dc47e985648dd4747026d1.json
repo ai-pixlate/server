@@ -1,0 +1,60 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T00:59:31.699444+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_54",
+        "outcome": "completed",
+        "translation": "#No White Cast, Fresh & Seamless Adherence",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_55",
+        "outcome": "completed",
+        "translation": "#Hypoallergenic Mild Sunscreen",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_56",
+        "outcome": "completed",
+        "translation": "#SPF50+ PA++++",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_57",
+        "outcome": "completed",
+        "translation": "[UVA (PFA) and UVB (SPF) Protection Factor Clinical Study]\\nKorea Institute of Dermatological Sciences | 10 participants | 2023.01.16~2023.02.10 | Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "9912d9c26d569fdde4b1ba217845db76943862e508b1b37ee22adcd3235e34f1",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "12e16c25ee144fa56fb9ff8c7bd3eb9cd4eb628731f16ab015ed3b05f911e92e",
+      "usage": {
+        "candidates_token_count": 176,
+        "prompt_token_count": 926,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 926
+          }
+        ],
+        "thoughts_token_count": 735,
+        "total_token_count": 1837
+      }
+    }
+  ],
+  "seconds": 8.875
+}

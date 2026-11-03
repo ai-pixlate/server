@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:22.047264+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_68",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_777",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_778",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_68",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "834471e94fc203aa8d757eae6e4cfe0c3f34b8ce210ec6c77bb97393d3b2319f",
+      "label_fingerprint": "9b2425943a9f8ad602f9aebfc8f81933bf0391e5687ceee4b9a520d225203c0b",
+      "label_input_fingerprint": "834471e94fc203aa8d757eae6e4cfe0c3f34b8ce210ec6c77bb97393d3b2319f",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 2,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 2,
+        "compared": 2
+      },
+      "decisions": [
+        {
+          "block_key": "blk_777",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "레티놀샷타이트닝세럼",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_778",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "문제성모공주름",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

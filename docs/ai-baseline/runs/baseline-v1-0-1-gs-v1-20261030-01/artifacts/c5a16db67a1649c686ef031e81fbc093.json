@@ -1,0 +1,94 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:54:21.354171+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_621",
+        "outcome": "completed",
+        "translation": "See real skin transformations\nthrough unfiltered customer reviews.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_622",
+        "outcome": "completed",
+        "translation": "\"I loved how it felt like it was tightening my pores. My skin\nfeels much firmer and smoother.\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_623",
+        "outcome": "completed",
+        "translation": "Customer Yang Eun-*",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_624",
+        "outcome": "completed",
+        "translation": "\"In just 2 weeks, my skin looked brighter, developed a subtle glow, and felt smoother.\nI finally saw with my own eyes what a refined, radiant texture really means.\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_625",
+        "outcome": "completed",
+        "translation": "Customer Kim Eun-*",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_626",
+        "outcome": "completed",
+        "translation": "\"I could see my pores looking gradually filled in. With my smoother skin texture\nand radiant glow, looking in the mirror has become a joy.\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_627",
+        "outcome": "completed",
+        "translation": "Customer Lim Geon-*",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_628",
+        "outcome": "completed",
+        "translation": "\"As you can see in the photos, the wrinkles haven't completely disappeared,\nbut they are much less noticeable, and I'm very satisfied.\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_629",
+        "outcome": "completed",
+        "translation": "Customer Jung Soo-*",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "424f4a92858fe0c5e88133fb1a56f5f3ffa180f36c7099db8ea4cb64ac20c934",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "f6014c4a249302e31fd3ccf29ab3f4496fa7877cb1e1b705af645832f6ac02b8",
+      "usage": {
+        "candidates_token_count": 357,
+        "prompt_token_count": 1035,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1035
+          }
+        ],
+        "total_token_count": 1392
+      }
+    }
+  ],
+  "seconds": 5.265999999828637
+}

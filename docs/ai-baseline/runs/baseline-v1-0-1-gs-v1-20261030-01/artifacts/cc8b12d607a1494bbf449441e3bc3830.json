@@ -1,0 +1,179 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:49.127271+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_13",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_153",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_154",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_155",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_156",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_157",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_158",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_159",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_160",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_161",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_13",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "6121215a5c1d5bdf5baacfb246209994a8c405bcc77d46ebc35ceb7218ebde6b",
+      "label_fingerprint": "a79d8e2ba5509def8ff3fd8b6d92a793ea5a86a457866caf2b5d5bd26a704dfb",
+      "label_input_fingerprint": "6121215a5c1d5bdf5baacfb246209994a8c405bcc77d46ebc35ceb7218ebde6b",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 9,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 9,
+        "compared": 9
+      },
+      "decisions": [
+        {
+          "block_key": "blk_153",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "test",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_154",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "매일매일쓰는거니까저자극으로순하게",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_155",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "인체적용테스트완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_156",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "인체적용피부자극테스트완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_157",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "인체적용테스트완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_158",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "민감성피부사용적합테스트완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_159",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "여드름성피부사용적합테스트완료",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_160",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "tested",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_161",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "여드름성피부사용적합테스트한국피부과학연구원|성인남녀21명|20221230~20230220민감성피부사용적합테스트한국피부과학연구원|성인남녀32명|20221230~20230203피부일차자극테스트한국피부과학연구원|성인남녀32명|20230102~20230203개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

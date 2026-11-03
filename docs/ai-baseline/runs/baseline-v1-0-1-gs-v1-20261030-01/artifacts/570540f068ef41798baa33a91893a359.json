@@ -1,0 +1,46 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:59:32.776177+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_777",
+        "outcome": "completed",
+        "translation": "Retinol Shot Tightening Serum",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_778",
+        "outcome": "completed",
+        "translation": "Troubled Pores*, Wrinkles",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "7e33044f8afce2a7c0d76e32b921f1abbdd01819c008439c3fa07201859e670e",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "0d6ffd0df1941713a01199febe659575bd0f2cf215a9bde398f4d18d82227ffb",
+      "usage": {
+        "candidates_token_count": 70,
+        "prompt_token_count": 714,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 714
+          }
+        ],
+        "thoughts_token_count": 794,
+        "total_token_count": 1578
+      }
+    }
+  ],
+  "seconds": 9.109999999869615
+}

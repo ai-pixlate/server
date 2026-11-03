@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T00:59:54.294857+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_88",
+        "outcome": "completed",
+        "translation": "Proven by clinical study",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_89",
+        "outcome": "completed",
+        "translation": "UV Protection\nSPF50+ PA++++",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_90",
+        "outcome": "completed",
+        "translation": "SPF UVB Protection Factor",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_91",
+        "outcome": "completed",
+        "translation": "PA UVA Protection Factor",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_92",
+        "outcome": "completed",
+        "translation": "SPF 61.2 ± 6.9",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_93",
+        "outcome": "completed",
+        "translation": "PA++++(17.0 ± 3.3)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_94",
+        "outcome": "completed",
+        "translation": "[UVA (PFA) & UVB (SPF) Protection Factor clinical study]\nKorea Institute of Dermatological Sciences | Tested on 10 subjects | 2023.01.16~2023.02.10 | Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "2a50fbd46c505480d7af70306e541cc772716646dcba34f6da1b895b9e1c9413",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "8a212cbe4ee7b92eb8bc5f242e95d1c7846d24115260ad1968c1080a0ad83f92",
+      "usage": {
+        "candidates_token_count": 268,
+        "prompt_token_count": 1065,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1065
+          }
+        ],
+        "thoughts_token_count": 956,
+        "total_token_count": 2289
+      }
+    }
+  ],
+  "seconds": 10.468000000109896
+}

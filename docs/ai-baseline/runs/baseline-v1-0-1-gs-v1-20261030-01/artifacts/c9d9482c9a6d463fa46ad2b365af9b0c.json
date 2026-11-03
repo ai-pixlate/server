@@ -1,0 +1,502 @@
+{
+  "source_id": "GS-02",
+  "stage": "merge",
+  "at": "2026-10-30T01:27:46.659368+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_16_05",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_16_05",
+        "block_order": 1,
+        "source_ko": "함께 사용하면 더 효과있는\nTHE VITA-A SET",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "함께 사용하면 더 효과있는",
+            "bbox": {
+              "x": 191,
+              "y": 171,
+              "w": 446,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "함께 사용하면 더 효과있는",
+                "score": 0.9631561636924744,
+                "poly": [
+                  [
+                    191,
+                    171
+                  ],
+                  [
+                    637,
+                    171
+                  ],
+                  [
+                    637,
+                    218
+                  ],
+                  [
+                    191,
+                    218
+                  ]
+                ],
+                "bbox": {
+                  "x": 191,
+                  "y": 171,
+                  "w": 446,
+                  "h": 47
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_002",
+            "text": "THE VITA-A SET",
+            "bbox": {
+              "x": 148,
+              "y": 241,
+              "w": 533,
+              "h": 69
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "THE VITA-A SET",
+                "score": 0.9901442527770996,
+                "poly": [
+                  [
+                    148,
+                    244
+                  ],
+                  [
+                    681,
+                    241
+                  ],
+                  [
+                    681,
+                    308
+                  ],
+                  [
+                    148,
+                    310
+                  ]
+                ],
+                "bbox": {
+                  "x": 148,
+                  "y": 241,
+                  "w": 533,
+                  "h": 69
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 148,
+          "y": 171,
+          "w": 533,
+          "h": 139
+        },
+        "role": "title",
+        "ocr_confidence": 0.9631561636924744
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_16_05",
+        "block_order": 2,
+        "source_ko": "RETINOL SHOT TIGHTENING SERUM\n+\nRETINAL SHOT TIGHTENING BOOSTER",
+        "source_lines": [
+          {
+            "line_key": "line_003",
+            "text": "RETINOL SHOT TIGHTENING SERUM",
+            "bbox": {
+              "x": 150,
+              "y": 397,
+              "w": 527,
+              "h": 33
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "RETINOL SHOT TIGHTENING SERUM",
+                "score": 0.9759564399719238,
+                "poly": [
+                  [
+                    150,
+                    397
+                  ],
+                  [
+                    677,
+                    397
+                  ],
+                  [
+                    677,
+                    430
+                  ],
+                  [
+                    150,
+                    430
+                  ]
+                ],
+                "bbox": {
+                  "x": 150,
+                  "y": 397,
+                  "w": 527,
+                  "h": 33
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_004",
+            "text": "+",
+            "bbox": {
+              "x": 401,
+              "y": 454,
+              "w": 27,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "+",
+                "score": 0.9963496923446655,
+                "poly": [
+                  [
+                    401,
+                    454
+                  ],
+                  [
+                    428,
+                    454
+                  ],
+                  [
+                    428,
+                    481
+                  ],
+                  [
+                    401,
+                    481
+                  ]
+                ],
+                "bbox": {
+                  "x": 401,
+                  "y": 454,
+                  "w": 27,
+                  "h": 27
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_005",
+            "text": "RETINAL SHOT TIGHTENING BOOSTER",
+            "bbox": {
+              "x": 134,
+              "y": 503,
+              "w": 560,
+              "h": 34
+            },
+            "regions": [
+              {
+                "region_key": "reg_0005",
+                "text": "RETINAL SHOT TIGHTENING BOOSTER",
+                "score": 0.9816078543663025,
+                "poly": [
+                  [
+                    134,
+                    503
+                  ],
+                  [
+                    694,
+                    503
+                  ],
+                  [
+                    694,
+                    537
+                  ],
+                  [
+                    134,
+                    537
+                  ]
+                ],
+                "bbox": {
+                  "x": 134,
+                  "y": 503,
+                  "w": 560,
+                  "h": 34
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 134,
+          "y": 397,
+          "w": 560,
+          "h": 140
+        },
+        "role": "title",
+        "ocr_confidence": 0.9759564399719238
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_16_05",
+        "block_order": 3,
+        "source_ko": "RETINAS\nFRMS",
+        "source_lines": [
+          {
+            "line_key": "line_006",
+            "text": "RETINAS",
+            "bbox": {
+              "x": 424,
+              "y": 971,
+              "w": 59,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0006",
+                "text": "RETINAS",
+                "score": 0.8681566119194031,
+                "poly": [
+                  [
+                    427,
+                    971
+                  ],
+                  [
+                    483,
+                    987
+                  ],
+                  [
+                    480,
+                    998
+                  ],
+                  [
+                    424,
+                    982
+                  ]
+                ],
+                "bbox": {
+                  "x": 424,
+                  "y": 971,
+                  "w": 59,
+                  "h": 27
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_007",
+            "text": "FRMS",
+            "bbox": {
+              "x": 455,
+              "y": 1011,
+              "w": 30,
+              "h": 19
+            },
+            "regions": [
+              {
+                "region_key": "reg_0007",
+                "text": "FRMS",
+                "score": 0.6095213294029236,
+                "poly": [
+                  [
+                    458,
+                    1011
+                  ],
+                  [
+                    485,
+                    1019
+                  ],
+                  [
+                    482,
+                    1030
+                  ],
+                  [
+                    455,
+                    1022
+                  ]
+                ],
+                "bbox": {
+                  "x": 455,
+                  "y": 1011,
+                  "w": 30,
+                  "h": 19
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 424,
+          "y": 971,
+          "w": 61,
+          "h": 59
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6095213294029236
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_16_05",
+        "block_order": 4,
+        "source_ko": "PETINOLSHO\naonGS",
+        "source_lines": [
+          {
+            "line_key": "line_008",
+            "text": "PETINOLSHO",
+            "bbox": {
+              "x": 270,
+              "y": 1418,
+              "w": 67,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0008",
+                "text": "PETINOLSHO",
+                "score": 0.9042865037918091,
+                "poly": [
+                  [
+                    270,
+                    1435
+                  ],
+                  [
+                    333,
+                    1418
+                  ],
+                  [
+                    337,
+                    1432
+                  ],
+                  [
+                    274,
+                    1449
+                  ]
+                ],
+                "bbox": {
+                  "x": 270,
+                  "y": 1418,
+                  "w": 67,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_009",
+            "text": "aonGS",
+            "bbox": {
+              "x": 278,
+              "y": 1431,
+              "w": 58,
+              "h": 25
+            },
+            "regions": [
+              {
+                "region_key": "reg_0009",
+                "text": "aonGS",
+                "score": 0.25258147716522217,
+                "poly": [
+                  [
+                    278,
+                    1446
+                  ],
+                  [
+                    333,
+                    1431
+                  ],
+                  [
+                    336,
+                    1441
+                  ],
+                  [
+                    281,
+                    1456
+                  ]
+                ],
+                "bbox": {
+                  "x": 278,
+                  "y": 1431,
+                  "w": 58,
+                  "h": 25
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 270,
+          "y": 1418,
+          "w": 67,
+          "h": 38
+        },
+        "role": "caption",
+        "ocr_confidence": 0.25258147716522217
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_16_05",
+        "block_order": 5,
+        "source_ko": "celimax",
+        "source_lines": [
+          {
+            "line_key": "line_010",
+            "text": "celimax",
+            "bbox": {
+              "x": 303,
+              "y": 1562,
+              "w": 46,
+              "h": 22
+            },
+            "regions": [
+              {
+                "region_key": "reg_0010",
+                "text": "celimax",
+                "score": 0.9792109727859497,
+                "poly": [
+                  [
+                    303,
+                    1570
+                  ],
+                  [
+                    346,
+                    1562
+                  ],
+                  [
+                    349,
+                    1576
+                  ],
+                  [
+                    306,
+                    1584
+                  ]
+                ],
+                "bbox": {
+                  "x": 303,
+                  "y": 1562,
+                  "w": 46,
+                  "h": 22
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 303,
+          "y": 1562,
+          "w": 46,
+          "h": 22
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9792109727859497
+      }
+    ]
+  },
+  "seconds": 16.391000000061467
+}

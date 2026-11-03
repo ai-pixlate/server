@@ -1,0 +1,1901 @@
+{
+  "source_id": "GS-02",
+  "stage": "merge",
+  "at": "2026-10-30T01:09:24.955696+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_4_01",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_4_01",
+        "block_order": 1,
+        "source_ko": "celimax× OLIVE\nYOUNG",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "celimax× OLIVE",
+            "bbox": {
+              "x": 272,
+              "y": 83,
+              "w": 315,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "celimax×",
+                "score": 0.9535373449325562,
+                "poly": [
+                  [
+                    273,
+                    83
+                  ],
+                  [
+                    487,
+                    86
+                  ],
+                  [
+                    486,
+                    129
+                  ],
+                  [
+                    272,
+                    125
+                  ]
+                ],
+                "bbox": {
+                  "x": 272,
+                  "y": 83,
+                  "w": 215,
+                  "h": 46
+                }
+              },
+              {
+                "region_key": "reg_0002",
+                "text": "OLIVE",
+                "score": 0.9979704022407532,
+                "poly": [
+                  [
+                    489,
+                    91
+                  ],
+                  [
+                    587,
+                    93
+                  ],
+                  [
+                    586,
+                    124
+                  ],
+                  [
+                    489,
+                    121
+                  ]
+                ],
+                "bbox": {
+                  "x": 489,
+                  "y": 91,
+                  "w": 98,
+                  "h": 33
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_002",
+            "text": "YOUNG",
+            "bbox": {
+              "x": 637,
+              "y": 92,
+              "w": 114,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "YOUNG",
+                "score": 0.9975519180297852,
+                "poly": [
+                  [
+                    637,
+                    92
+                  ],
+                  [
+                    751,
+                    92
+                  ],
+                  [
+                    751,
+                    123
+                  ],
+                  [
+                    637,
+                    123
+                  ]
+                ],
+                "bbox": {
+                  "x": 637,
+                  "y": 92,
+                  "w": 114,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 272,
+          "y": 83,
+          "w": 479,
+          "h": 46
+        },
+        "role": "title",
+        "ocr_confidence": 0.9535373449325562
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_4_01",
+        "block_order": 2,
+        "source_ko": "레티날 부스터\n올리브영 단독 증정\n정기획",
+        "source_lines": [
+          {
+            "line_key": "line_003",
+            "text": "레티날 부스터",
+            "bbox": {
+              "x": 278,
+              "y": 212,
+              "w": 450,
+              "h": 94
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "레티날",
+                "score": 0.9998972415924072,
+                "poly": [
+                  [
+                    278,
+                    214
+                  ],
+                  [
+                    503,
+                    214
+                  ],
+                  [
+                    503,
+                    306
+                  ],
+                  [
+                    278,
+                    306
+                  ]
+                ],
+                "bbox": {
+                  "x": 278,
+                  "y": 214,
+                  "w": 225,
+                  "h": 92
+                }
+              },
+              {
+                "region_key": "reg_0005",
+                "text": "부스터",
+                "score": 0.9999361634254456,
+                "poly": [
+                  [
+                    504,
+                    215
+                  ],
+                  [
+                    727,
+                    212
+                  ],
+                  [
+                    728,
+                    303
+                  ],
+                  [
+                    505,
+                    306
+                  ]
+                ],
+                "bbox": {
+                  "x": 504,
+                  "y": 212,
+                  "w": 224,
+                  "h": 94
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_004",
+            "text": "올리브영 단독 증정",
+            "bbox": {
+              "x": 119,
+              "y": 323,
+              "w": 616,
+              "h": 94
+            },
+            "regions": [
+              {
+                "region_key": "reg_0006",
+                "text": "올리브영",
+                "score": 0.9999650716781616,
+                "poly": [
+                  [
+                    119,
+                    325
+                  ],
+                  [
+                    410,
+                    323
+                  ],
+                  [
+                    410,
+                    413
+                  ],
+                  [
+                    119,
+                    415
+                  ]
+                ],
+                "bbox": {
+                  "x": 119,
+                  "y": 323,
+                  "w": 291,
+                  "h": 92
+                }
+              },
+              {
+                "region_key": "reg_0007",
+                "text": "단독",
+                "score": 0.9998558163642883,
+                "poly": [
+                  [
+                    415,
+                    323
+                  ],
+                  [
+                    573,
+                    323
+                  ],
+                  [
+                    573,
+                    417
+                  ],
+                  [
+                    415,
+                    417
+                  ]
+                ],
+                "bbox": {
+                  "x": 415,
+                  "y": 323,
+                  "w": 158,
+                  "h": 94
+                }
+              },
+              {
+                "region_key": "reg_0008",
+                "text": "증정",
+                "score": 0.9983508586883545,
+                "poly": [
+                  [
+                    576,
+                    323
+                  ],
+                  [
+                    735,
+                    323
+                  ],
+                  [
+                    735,
+                    416
+                  ],
+                  [
+                    576,
+                    416
+                  ]
+                ],
+                "bbox": {
+                  "x": 576,
+                  "y": 323,
+                  "w": 159,
+                  "h": 93
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_005",
+            "text": "정기획",
+            "bbox": {
+              "x": 688,
+              "y": 318,
+              "w": 194,
+              "h": 98
+            },
+            "regions": [
+              {
+                "region_key": "reg_0009",
+                "text": "정기획",
+                "score": 0.883030116558075,
+                "poly": [
+                  [
+                    688,
+                    318
+                  ],
+                  [
+                    882,
+                    318
+                  ],
+                  [
+                    882,
+                    416
+                  ],
+                  [
+                    688,
+                    416
+                  ]
+                ],
+                "bbox": {
+                  "x": 688,
+                  "y": 318,
+                  "w": 194,
+                  "h": 98
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 119,
+          "y": 212,
+          "w": 763,
+          "h": 205
+        },
+        "role": "title",
+        "ocr_confidence": 0.883030116558075
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_4_01",
+        "block_order": 3,
+        "source_ko": "BCAN",
+        "source_lines": [
+          {
+            "line_key": "line_006",
+            "text": "BCAN",
+            "bbox": {
+              "x": 681,
+              "y": 602,
+              "w": 52,
+              "h": 52
+            },
+            "regions": [
+              {
+                "region_key": "reg_0010",
+                "text": "BCAN",
+                "score": 0.4469548761844635,
+                "poly": [
+                  [
+                    681,
+                    637
+                  ],
+                  [
+                    715,
+                    602
+                  ],
+                  [
+                    733,
+                    619
+                  ],
+                  [
+                    698,
+                    654
+                  ]
+                ],
+                "bbox": {
+                  "x": 681,
+                  "y": 602,
+                  "w": 52,
+                  "h": 52
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 681,
+          "y": 602,
+          "w": 52,
+          "h": 52
+        },
+        "role": "caption",
+        "ocr_confidence": 0.4469548761844635
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_4_01",
+        "block_order": 4,
+        "source_ko": "OISL ETITNINSOEN 0",
+        "source_lines": [
+          {
+            "line_key": "line_007",
+            "text": "OISL ETITNINSOEN 0",
+            "bbox": {
+              "x": 593,
+              "y": 641,
+              "w": 358,
+              "h": 209
+            },
+            "regions": [
+              {
+                "region_key": "reg_0016",
+                "text": "OISL ETITNINSOEN",
+                "score": 0.3120308220386505,
+                "poly": [
+                  [
+                    593,
+                    833
+                  ],
+                  [
+                    758,
+                    641
+                  ],
+                  [
+                    778,
+                    659
+                  ],
+                  [
+                    613,
+                    850
+                  ]
+                ],
+                "bbox": {
+                  "x": 593,
+                  "y": 641,
+                  "w": 185,
+                  "h": 209
+                }
+              },
+              {
+                "region_key": "reg_0011",
+                "text": "0",
+                "score": 0.4709782600402832,
+                "poly": [
+                  [
+                    860,
+                    663
+                  ],
+                  [
+                    951,
+                    673
+                  ],
+                  [
+                    932,
+                    843
+                  ],
+                  [
+                    840,
+                    832
+                  ]
+                ],
+                "bbox": {
+                  "x": 840,
+                  "y": 663,
+                  "w": 111,
+                  "h": 180
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 593,
+          "y": 641,
+          "w": 358,
+          "h": 209
+        },
+        "role": "caption",
+        "ocr_confidence": 0.3120308220386505
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_4_01",
+        "block_order": 5,
+        "source_ko": "2.G-BB6C4",
+        "source_lines": [
+          {
+            "line_key": "line_008",
+            "text": "2.G-BB6C4",
+            "bbox": {
+              "x": 521,
+              "y": 682,
+              "w": 83,
+              "h": 96
+            },
+            "regions": [
+              {
+                "region_key": "reg_0013",
+                "text": "2.G-BB6C4",
+                "score": 0.27922576665878296,
+                "poly": [
+                  [
+                    521,
+                    768
+                  ],
+                  [
+                    590,
+                    682
+                  ],
+                  [
+                    604,
+                    693
+                  ],
+                  [
+                    535,
+                    778
+                  ]
+                ],
+                "bbox": {
+                  "x": 521,
+                  "y": 682,
+                  "w": 83,
+                  "h": 96
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 521,
+          "y": 682,
+          "w": 83,
+          "h": 96
+        },
+        "role": "caption",
+        "ocr_confidence": 0.27922576665878296
+      },
+      {
+        "block_key": "blk_006",
+        "section_key": "sec_4_01",
+        "block_order": 6,
+        "source_ko": "NTE ANN",
+        "source_lines": [
+          {
+            "line_key": "line_009",
+            "text": "NTE ANN",
+            "bbox": {
+              "x": 549,
+              "y": 706,
+              "w": 92,
+              "h": 103
+            },
+            "regions": [
+              {
+                "region_key": "reg_0015",
+                "text": "NTE ANN",
+                "score": 0.53114914894104,
+                "poly": [
+                  [
+                    549,
+                    794
+                  ],
+                  [
+                    624,
+                    706
+                  ],
+                  [
+                    641,
+                    721
+                  ],
+                  [
+                    566,
+                    809
+                  ]
+                ],
+                "bbox": {
+                  "x": 549,
+                  "y": 706,
+                  "w": 92,
+                  "h": 103
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 549,
+          "y": 706,
+          "w": 92,
+          "h": 103
+        },
+        "role": "caption",
+        "ocr_confidence": 0.53114914894104
+      },
+      {
+        "block_key": "blk_007",
+        "section_key": "sec_4_01",
+        "block_order": 7,
+        "source_ko": "판매랭킹\nTOP.",
+        "source_lines": [
+          {
+            "line_key": "line_010",
+            "text": "판매랭킹",
+            "bbox": {
+              "x": 754,
+              "y": 728,
+              "w": 123,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0012",
+                "text": "판매랭킹",
+                "score": 0.9998329877853394,
+                "poly": [
+                  [
+                    754,
+                    731
+                  ],
+                  [
+                    876,
+                    728
+                  ],
+                  [
+                    877,
+                    772
+                  ],
+                  [
+                    755,
+                    774
+                  ]
+                ],
+                "bbox": {
+                  "x": 754,
+                  "y": 728,
+                  "w": 123,
+                  "h": 46
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_011",
+            "text": "TOP.",
+            "bbox": {
+              "x": 752,
+              "y": 772,
+              "w": 126,
+              "h": 59
+            },
+            "regions": [
+              {
+                "region_key": "reg_0014",
+                "text": "TOP.",
+                "score": 0.989162802696228,
+                "poly": [
+                  [
+                    752,
+                    772
+                  ],
+                  [
+                    878,
+                    772
+                  ],
+                  [
+                    878,
+                    831
+                  ],
+                  [
+                    752,
+                    831
+                  ]
+                ],
+                "bbox": {
+                  "x": 752,
+                  "y": 772,
+                  "w": 126,
+                  "h": 59
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 752,
+          "y": 728,
+          "w": 126,
+          "h": 103
+        },
+        "role": "caption",
+        "ocr_confidence": 0.989162802696228
+      },
+      {
+        "block_key": "blk_008",
+        "section_key": "sec_4_01",
+        "block_order": 8,
+        "source_ko": "LOHS",
+        "source_lines": [
+          {
+            "line_key": "line_012",
+            "text": "LOHS",
+            "bbox": {
+              "x": 623,
+              "y": 762,
+              "w": 98,
+              "h": 102
+            },
+            "regions": [
+              {
+                "region_key": "reg_0017",
+                "text": "LOHS",
+                "score": 0.7788782119750977,
+                "poly": [
+                  [
+                    623,
+                    840
+                  ],
+                  [
+                    694,
+                    762
+                  ],
+                  [
+                    721,
+                    786
+                  ],
+                  [
+                    650,
+                    864
+                  ]
+                ],
+                "bbox": {
+                  "x": 623,
+                  "y": 762,
+                  "w": 98,
+                  "h": 102
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 623,
+          "y": 762,
+          "w": 98,
+          "h": 102
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7788782119750977
+      },
+      {
+        "block_key": "blk_009",
+        "section_key": "sec_4_01",
+        "block_order": 9,
+        "source_ko": "Retinal",
+        "source_lines": [
+          {
+            "line_key": "line_013",
+            "text": "Retinal",
+            "bbox": {
+              "x": 805,
+              "y": 846,
+              "w": 63,
+              "h": 21
+            },
+            "regions": [
+              {
+                "region_key": "reg_0018",
+                "text": "Retinal",
+                "score": 0.999588131904602,
+                "poly": [
+                  [
+                    805,
+                    846
+                  ],
+                  [
+                    868,
+                    846
+                  ],
+                  [
+                    868,
+                    867
+                  ],
+                  [
+                    805,
+                    867
+                  ]
+                ],
+                "bbox": {
+                  "x": 805,
+                  "y": 846,
+                  "w": 63,
+                  "h": 21
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 805,
+          "y": 846,
+          "w": 63,
+          "h": 21
+        },
+        "role": "caption",
+        "ocr_confidence": 0.999588131904602
+      },
+      {
+        "block_key": "blk_010",
+        "section_key": "sec_4_01",
+        "block_order": 10,
+        "source_ko": "모공\n탄력",
+        "source_lines": [
+          {
+            "line_key": "line_014",
+            "text": "모공",
+            "bbox": {
+              "x": 780,
+              "y": 948,
+              "w": 117,
+              "h": 69
+            },
+            "regions": [
+              {
+                "region_key": "reg_0019",
+                "text": "모공",
+                "score": 0.9997172355651855,
+                "poly": [
+                  [
+                    780,
+                    948
+                  ],
+                  [
+                    897,
+                    948
+                  ],
+                  [
+                    897,
+                    1017
+                  ],
+                  [
+                    780,
+                    1017
+                  ]
+                ],
+                "bbox": {
+                  "x": 780,
+                  "y": 948,
+                  "w": 117,
+                  "h": 69
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_015",
+            "text": "탄력",
+            "bbox": {
+              "x": 781,
+              "y": 1011,
+              "w": 115,
+              "h": 73
+            },
+            "regions": [
+              {
+                "region_key": "reg_0020",
+                "text": "탄력",
+                "score": 0.9961422681808472,
+                "poly": [
+                  [
+                    781,
+                    1011
+                  ],
+                  [
+                    896,
+                    1011
+                  ],
+                  [
+                    896,
+                    1084
+                  ],
+                  [
+                    781,
+                    1084
+                  ]
+                ],
+                "bbox": {
+                  "x": 781,
+                  "y": 1011,
+                  "w": 115,
+                  "h": 73
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 780,
+          "y": 948,
+          "w": 117,
+          "h": 136
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9961422681808472
+      },
+      {
+        "block_key": "blk_011",
+        "section_key": "sec_4_01",
+        "block_order": 11,
+        "source_ko": "ntot %0TTTTIKAAE I",
+        "source_lines": [
+          {
+            "line_key": "line_016",
+            "text": "ntot %0TTTTIKAAE I",
+            "bbox": {
+              "x": 214,
+              "y": 1014,
+              "w": 219,
+              "h": 185
+            },
+            "regions": [
+              {
+                "region_key": "reg_0021",
+                "text": "ntot",
+                "score": 0.2574079632759094,
+                "poly": [
+                  [
+                    214,
+                    1121
+                  ],
+                  [
+                    306,
+                    1014
+                  ],
+                  [
+                    326,
+                    1032
+                  ],
+                  [
+                    234,
+                    1138
+                  ]
+                ],
+                "bbox": {
+                  "x": 214,
+                  "y": 1014,
+                  "w": 112,
+                  "h": 124
+                }
+              },
+              {
+                "region_key": "reg_0022",
+                "text": "%0TTTTIKAAE I",
+                "score": 0.31209781765937805,
+                "poly": [
+                  [
+                    289,
+                    1185
+                  ],
+                  [
+                    417,
+                    1036
+                  ],
+                  [
+                    433,
+                    1051
+                  ],
+                  [
+                    306,
+                    1199
+                  ]
+                ],
+                "bbox": {
+                  "x": 289,
+                  "y": 1036,
+                  "w": 144,
+                  "h": 163
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 214,
+          "y": 1014,
+          "w": 219,
+          "h": 185
+        },
+        "role": "caption",
+        "ocr_confidence": 0.2574079632759094
+      },
+      {
+        "block_key": "blk_012",
+        "section_key": "sec_4_01",
+        "block_order": 12,
+        "source_ko": "r",
+        "source_lines": [
+          {
+            "line_key": "line_017",
+            "text": "r",
+            "bbox": {
+              "x": 304,
+              "y": 1019,
+              "w": 178,
+              "h": 198
+            },
+            "regions": [
+              {
+                "region_key": "reg_0023",
+                "text": " r",
+                "score": 0.4667706787586212,
+                "poly": [
+                  [
+                    304,
+                    1202
+                  ],
+                  [
+                    464,
+                    1019
+                  ],
+                  [
+                    482,
+                    1035
+                  ],
+                  [
+                    323,
+                    1217
+                  ]
+                ],
+                "bbox": {
+                  "x": 304,
+                  "y": 1019,
+                  "w": 178,
+                  "h": 198
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 304,
+          "y": 1019,
+          "w": 178,
+          "h": 198
+        },
+        "role": "caption",
+        "ocr_confidence": 0.4667706787586212
+      },
+      {
+        "block_key": "blk_013",
+        "section_key": "sec_4_01",
+        "block_order": 13,
+        "source_ko": "TIGHTENING BOOSTER RETINAL SHOT",
+        "source_lines": [
+          {
+            "line_key": "line_018",
+            "text": "TIGHTENING BOOSTER RETINAL SHOT",
+            "bbox": {
+              "x": 381,
+              "y": 1485,
+              "w": 28,
+              "h": 100
+            },
+            "regions": [
+              {
+                "region_key": "reg_0025",
+                "text": "TIGHTENING BOOSTER",
+                "score": 0.9836220145225525,
+                "poly": [
+                  [
+                    381,
+                    1486
+                  ],
+                  [
+                    395,
+                    1485
+                  ],
+                  [
+                    396,
+                    1585
+                  ],
+                  [
+                    382,
+                    1585
+                  ]
+                ],
+                "bbox": {
+                  "x": 381,
+                  "y": 1485,
+                  "w": 15,
+                  "h": 100
+                }
+              },
+              {
+                "region_key": "reg_0026",
+                "text": "RETINAL SHOT",
+                "score": 0.9643659591674805,
+                "poly": [
+                  [
+                    395,
+                    1487
+                  ],
+                  [
+                    409,
+                    1487
+                  ],
+                  [
+                    409,
+                    1577
+                  ],
+                  [
+                    395,
+                    1577
+                  ]
+                ],
+                "bbox": {
+                  "x": 395,
+                  "y": 1487,
+                  "w": 14,
+                  "h": 90
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 381,
+          "y": 1485,
+          "w": 28,
+          "h": 100
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9643659591674805
+      },
+      {
+        "block_key": "blk_014",
+        "section_key": "sec_4_01",
+        "block_order": 14,
+        "source_ko": "FOR",
+        "source_lines": [
+          {
+            "line_key": "line_019",
+            "text": "FOR",
+            "bbox": {
+              "x": 362,
+              "y": 1488,
+              "w": 11,
+              "h": 20
+            },
+            "regions": [
+              {
+                "region_key": "reg_0024",
+                "text": "FOR",
+                "score": 0.9982364177703857,
+                "poly": [
+                  [
+                    362,
+                    1488
+                  ],
+                  [
+                    373,
+                    1488
+                  ],
+                  [
+                    373,
+                    1508
+                  ],
+                  [
+                    362,
+                    1508
+                  ]
+                ],
+                "bbox": {
+                  "x": 362,
+                  "y": 1488,
+                  "w": 11,
+                  "h": 20
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 362,
+          "y": 1488,
+          "w": 11,
+          "h": 20
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9982364177703857
+      },
+      {
+        "block_key": "blk_015",
+        "section_key": "sec_4_01",
+        "block_order": 15,
+        "source_ko": "20350AGM FIRMSKIN",
+        "source_lines": [
+          {
+            "line_key": "line_020",
+            "text": "20350AGM FIRMSKIN",
+            "bbox": {
+              "x": 346,
+              "y": 1536,
+              "w": 27,
+              "h": 49
+            },
+            "regions": [
+              {
+                "region_key": "reg_0027",
+                "text": "20350AGM",
+                "score": 0.6225956678390503,
+                "poly": [
+                  [
+                    346,
+                    1537
+                  ],
+                  [
+                    357,
+                    1536
+                  ],
+                  [
+                    359,
+                    1583
+                  ],
+                  [
+                    348,
+                    1584
+                  ]
+                ],
+                "bbox": {
+                  "x": 346,
+                  "y": 1536,
+                  "w": 13,
+                  "h": 48
+                }
+              },
+              {
+                "region_key": "reg_0028",
+                "text": "FIRMSKIN",
+                "score": 0.9954978823661804,
+                "poly": [
+                  [
+                    362,
+                    1540
+                  ],
+                  [
+                    373,
+                    1540
+                  ],
+                  [
+                    373,
+                    1585
+                  ],
+                  [
+                    362,
+                    1585
+                  ]
+                ],
+                "bbox": {
+                  "x": 362,
+                  "y": 1540,
+                  "w": 11,
+                  "h": 45
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 346,
+          "y": 1536,
+          "w": 27,
+          "h": 49
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6225956678390503
+      },
+      {
+        "block_key": "blk_016",
+        "section_key": "sec_4_01",
+        "block_order": 16,
+        "source_ko": "TGHTENNG BOOSTER RETINAL SHOT",
+        "source_lines": [
+          {
+            "line_key": "line_021",
+            "text": "TGHTENNG BOOSTER RETINAL SHOT",
+            "bbox": {
+              "x": 629,
+              "y": 1635,
+              "w": 22,
+              "h": 66
+            },
+            "regions": [
+              {
+                "region_key": "reg_0031",
+                "text": "TGHTENNG BOOSTER",
+                "score": 0.9117529988288879,
+                "poly": [
+                  [
+                    629,
+                    1638
+                  ],
+                  [
+                    639,
+                    1638
+                  ],
+                  [
+                    639,
+                    1701
+                  ],
+                  [
+                    629,
+                    1701
+                  ]
+                ],
+                "bbox": {
+                  "x": 629,
+                  "y": 1638,
+                  "w": 10,
+                  "h": 63
+                }
+              },
+              {
+                "region_key": "reg_0032",
+                "text": "RETINAL SHOT",
+                "score": 0.9572613835334778,
+                "poly": [
+                  [
+                    635,
+                    1635
+                  ],
+                  [
+                    649,
+                    1635
+                  ],
+                  [
+                    651,
+                    1701
+                  ],
+                  [
+                    637,
+                    1701
+                  ]
+                ],
+                "bbox": {
+                  "x": 635,
+                  "y": 1635,
+                  "w": 16,
+                  "h": 66
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 629,
+          "y": 1635,
+          "w": 22,
+          "h": 66
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9117529988288879
+      },
+      {
+        "block_key": "blk_017",
+        "section_key": "sec_4_01",
+        "block_order": 17,
+        "source_ko": "C FOR",
+        "source_lines": [
+          {
+            "line_key": "line_022",
+            "text": "C FOR",
+            "bbox": {
+              "x": 598,
+              "y": 1637,
+              "w": 21,
+              "h": 14
+            },
+            "regions": [
+              {
+                "region_key": "reg_0029",
+                "text": "C",
+                "score": 0.2895628809928894,
+                "poly": [
+                  [
+                    598,
+                    1640
+                  ],
+                  [
+                    608,
+                    1640
+                  ],
+                  [
+                    608,
+                    1651
+                  ],
+                  [
+                    598,
+                    1651
+                  ]
+                ],
+                "bbox": {
+                  "x": 598,
+                  "y": 1640,
+                  "w": 10,
+                  "h": 11
+                }
+              },
+              {
+                "region_key": "reg_0030",
+                "text": "FOR",
+                "score": 0.7952275276184082,
+                "poly": [
+                  [
+                    611,
+                    1637
+                  ],
+                  [
+                    619,
+                    1637
+                  ],
+                  [
+                    619,
+                    1651
+                  ],
+                  [
+                    611,
+                    1651
+                  ]
+                ],
+                "bbox": {
+                  "x": 611,
+                  "y": 1637,
+                  "w": 8,
+                  "h": 14
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 598,
+          "y": 1637,
+          "w": 21,
+          "h": 14
+        },
+        "role": "caption",
+        "ocr_confidence": 0.2895628809928894
+      },
+      {
+        "block_key": "blk_018",
+        "section_key": "sec_4_01",
+        "block_order": 18,
+        "source_ko": "M0ARor FRMSON\ncelimax",
+        "source_lines": [
+          {
+            "line_key": "line_023",
+            "text": "M0ARor FRMSON",
+            "bbox": {
+              "x": 599,
+              "y": 1660,
+              "w": 21,
+              "h": 40
+            },
+            "regions": [
+              {
+                "region_key": "reg_0033",
+                "text": "M0ARor",
+                "score": 0.4446333646774292,
+                "poly": [
+                  [
+                    599,
+                    1660
+                  ],
+                  [
+                    609,
+                    1660
+                  ],
+                  [
+                    609,
+                    1699
+                  ],
+                  [
+                    599,
+                    1699
+                  ]
+                ],
+                "bbox": {
+                  "x": 599,
+                  "y": 1660,
+                  "w": 10,
+                  "h": 39
+                }
+              },
+              {
+                "region_key": "reg_0034",
+                "text": "FRMSON",
+                "score": 0.8110501170158386,
+                "poly": [
+                  [
+                    610,
+                    1669
+                  ],
+                  [
+                    620,
+                    1669
+                  ],
+                  [
+                    620,
+                    1700
+                  ],
+                  [
+                    610,
+                    1700
+                  ]
+                ],
+                "bbox": {
+                  "x": 610,
+                  "y": 1669,
+                  "w": 10,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_024",
+            "text": "celimax",
+            "bbox": {
+              "x": 595,
+              "y": 1719,
+              "w": 17,
+              "h": 48
+            },
+            "regions": [
+              {
+                "region_key": "reg_0037",
+                "text": "celimax",
+                "score": 0.9973821043968201,
+                "poly": [
+                  [
+                    597,
+                    1719
+                  ],
+                  [
+                    612,
+                    1720
+                  ],
+                  [
+                    610,
+                    1767
+                  ],
+                  [
+                    595,
+                    1767
+                  ]
+                ],
+                "bbox": {
+                  "x": 595,
+                  "y": 1719,
+                  "w": 17,
+                  "h": 48
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 595,
+          "y": 1660,
+          "w": 25,
+          "h": 107
+        },
+        "role": "caption",
+        "ocr_confidence": 0.4446333646774292
+      },
+      {
+        "block_key": "blk_019",
+        "section_key": "sec_4_01",
+        "block_order": 19,
+        "source_ko": "celimax AEATRIXYL* 3000 3%",
+        "source_lines": [
+          {
+            "line_key": "line_025",
+            "text": "celimax AEATRIXYL* 3000 3%",
+            "bbox": {
+              "x": 347,
+              "y": 1681,
+              "w": 46,
+              "h": 69
+            },
+            "regions": [
+              {
+                "region_key": "reg_0036",
+                "text": "celimax",
+                "score": 0.9968464970588684,
+                "poly": [
+                  [
+                    347,
+                    1697
+                  ],
+                  [
+                    361,
+                    1697
+                  ],
+                  [
+                    361,
+                    1750
+                  ],
+                  [
+                    347,
+                    1750
+                  ]
+                ],
+                "bbox": {
+                  "x": 347,
+                  "y": 1697,
+                  "w": 14,
+                  "h": 53
+                }
+              },
+              {
+                "region_key": "reg_0035",
+                "text": "AEATRIXYL* 3000 3%",
+                "score": 0.8368279933929443,
+                "poly": [
+                  [
+                    383,
+                    1681
+                  ],
+                  [
+                    393,
+                    1681
+                  ],
+                  [
+                    393,
+                    1750
+                  ],
+                  [
+                    383,
+                    1750
+                  ]
+                ],
+                "bbox": {
+                  "x": 383,
+                  "y": 1681,
+                  "w": 10,
+                  "h": 69
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 347,
+          "y": 1681,
+          "w": 46,
+          "h": 69
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8368279933929443
+      },
+      {
+        "block_key": "blk_020",
+        "section_key": "sec_4_01",
+        "block_order": 20,
+        "source_ko": "더비타 A레티날 샷 타이트닝 부스터 15m",
+        "source_lines": [
+          {
+            "line_key": "line_026",
+            "text": "더비타 A레티날 샷 타이트닝 부스터 15m",
+            "bbox": {
+              "x": 284,
+              "y": 1907,
+              "w": 551,
+              "h": 40
+            },
+            "regions": [
+              {
+                "region_key": "reg_0039",
+                "text": "더비타 A레티날 샷 타이트닝 부스터 15m",
+                "score": 0.9248676896095276,
+                "poly": [
+                  [
+                    284,
+                    1907
+                  ],
+                  [
+                    835,
+                    1907
+                  ],
+                  [
+                    835,
+                    1947
+                  ],
+                  [
+                    284,
+                    1947
+                  ]
+                ],
+                "bbox": {
+                  "x": 284,
+                  "y": 1907,
+                  "w": 551,
+                  "h": 40
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 284,
+          "y": 1907,
+          "w": 551,
+          "h": 40
+        },
+        "role": "body",
+        "ocr_confidence": 0.9248676896095276
+      },
+      {
+        "block_key": "blk_021",
+        "section_key": "sec_4_01",
+        "block_order": 21,
+        "source_ko": "구성\n증정",
+        "source_lines": [
+          {
+            "line_key": "line_027",
+            "text": "구성",
+            "bbox": {
+              "x": 190,
+              "y": 1908,
+              "w": 59,
+              "h": 41
+            },
+            "regions": [
+              {
+                "region_key": "reg_0038",
+                "text": "구성",
+                "score": 0.9997820258140564,
+                "poly": [
+                  [
+                    190,
+                    1908
+                  ],
+                  [
+                    249,
+                    1908
+                  ],
+                  [
+                    249,
+                    1949
+                  ],
+                  [
+                    190,
+                    1949
+                  ]
+                ],
+                "bbox": {
+                  "x": 190,
+                  "y": 1908,
+                  "w": 59,
+                  "h": 41
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_028",
+            "text": "증정",
+            "bbox": {
+              "x": 190,
+              "y": 1970,
+              "w": 59,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0040",
+                "text": "증정",
+                "score": 0.9988816380500793,
+                "poly": [
+                  [
+                    190,
+                    1970
+                  ],
+                  [
+                    249,
+                    1970
+                  ],
+                  [
+                    249,
+                    2009
+                  ],
+                  [
+                    190,
+                    2009
+                  ]
+                ],
+                "bbox": {
+                  "x": 190,
+                  "y": 1970,
+                  "w": 59,
+                  "h": 39
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 190,
+          "y": 1908,
+          "w": 59,
+          "h": 101
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9988816380500793
+      },
+      {
+        "block_key": "blk_022",
+        "section_key": "sec_4_01",
+        "block_order": 22,
+        "source_ko": "더 비타A레티날 샷 타이트닝 부스터3m",
+        "source_lines": [
+          {
+            "line_key": "line_029",
+            "text": "더 비타A레티날 샷 타이트닝 부스터3m",
+            "bbox": {
+              "x": 286,
+              "y": 1972,
+              "w": 535,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0041",
+                "text": "더 비타A레티날 샷 타이트닝 부스터3m",
+                "score": 0.9319646954536438,
+                "poly": [
+                  [
+                    286,
+                    1972
+                  ],
+                  [
+                    821,
+                    1972
+                  ],
+                  [
+                    821,
+                    2009
+                  ],
+                  [
+                    286,
+                    2009
+                  ]
+                ],
+                "bbox": {
+                  "x": 286,
+                  "y": 1972,
+                  "w": 535,
+                  "h": 37
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 286,
+          "y": 1972,
+          "w": 535,
+          "h": 37
+        },
+        "role": "body",
+        "ocr_confidence": 0.9319646954536438
+      }
+    ]
+  },
+  "seconds": 14.953999999910593
+}

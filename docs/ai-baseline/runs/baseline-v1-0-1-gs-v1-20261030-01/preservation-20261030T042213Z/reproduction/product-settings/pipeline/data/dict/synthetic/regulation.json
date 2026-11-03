@@ -1,0 +1,187 @@
+{
+  "schema_version": "1",
+  "dictionary_version": "regulation@2026-09-28.0",
+  "dict_type": "regulatory",
+  "source": {
+    "file": "synthetic.xlsx",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "sheets": [
+      "synthetic"
+    ],
+    "claimed_version": "v0",
+    "version_status": "as_claimed",
+    "version_note": "합성 데이터 — 실제 사전 값이 아니다",
+    "extracted_at": "2026-09-28",
+    "row_count": 6
+  },
+  "entries": [
+    {
+      "id": "RG-901",
+      "dict_type": "regulatory",
+      "target_country": "US",
+      "regulatory_class": "cosmetic",
+      "source_expression": "가짜치료",
+      "variant_expressions.ko": [
+        "가짜치료",
+        "가짜 치료",
+        "가짜케어"
+      ],
+      "variant_expressions.en": [
+        "fakecure",
+        "fake cure"
+      ],
+      "alternative_expression": [
+        "fake-friendly"
+      ],
+      "verdict_status": "regulated",
+      "reason": "합성: 교체형",
+      "evidence": {
+        "evidence_id": "WL-901",
+        "source_type": "Warning Letter",
+        "article": "§ 0.0",
+        "url": "https://example.invalid/e",
+        "quote": "synthetic quote",
+        "verified_at": "2026-09-28"
+      },
+      "verified_at": "2026-09-28",
+      "internal_category": null
+    },
+    {
+      "id": "RG-902",
+      "dict_type": "regulatory",
+      "target_country": "US",
+      "regulatory_class": "otc",
+      "source_expression": "가짜방수",
+      "variant_expressions.ko": [
+        "가짜방수",
+        "가짜 방수"
+      ],
+      "variant_expressions.en": [
+        "fakeproof"
+      ],
+      "alternative_expression": [],
+      "verdict_status": "regulated",
+      "reason": "합성: 금지형",
+      "evidence": {
+        "evidence_id": "MN-901",
+        "source_type": "OTC 모노그래프",
+        "article": "§ 0.0",
+        "url": "https://example.invalid/e",
+        "quote": "synthetic quote",
+        "verified_at": "2026-09-28"
+      },
+      "verified_at": "2026-09-28",
+      "internal_category": null
+    },
+    {
+      "id": "RG-903",
+      "dict_type": "regulatory",
+      "target_country": "US",
+      "regulatory_class": "otc",
+      "source_expression": "가짜조건",
+      "variant_expressions.ko": [
+        "가짜조건",
+        "가짜 방수 시험"
+      ],
+      "variant_expressions.en": [
+        "fake conditional"
+      ],
+      "alternative_expression": [
+        "Fake Conditional (40 minutes)"
+      ],
+      "verdict_status": "conditional",
+      "reason": "합성: 조건형",
+      "evidence": {
+        "evidence_id": "MN-902",
+        "source_type": "OTC 모노그래프",
+        "article": "§ 0.0",
+        "url": "https://example.invalid/e",
+        "quote": "synthetic quote",
+        "verified_at": "2026-09-28"
+      },
+      "verified_at": "2026-09-28",
+      "internal_category": null
+    },
+    {
+      "id": "RG-904",
+      "dict_type": "regulatory",
+      "target_country": "US",
+      "regulatory_class": "cosmetic",
+      "source_expression": "가짜완충",
+      "variant_expressions.ko": [
+        "가짜완충"
+      ],
+      "variant_expressions.en": [
+        "fake soften"
+      ],
+      "alternative_expression": [
+        "the look of fake"
+      ],
+      "verdict_status": "rewritable",
+      "reason": "합성: 완충형",
+      "evidence": {
+        "evidence_id": "WL-902",
+        "source_type": "Warning Letter",
+        "article": "§ 0.0",
+        "url": "https://example.invalid/e",
+        "quote": "synthetic quote",
+        "verified_at": "2026-09-28"
+      },
+      "verified_at": "2026-09-28",
+      "internal_category": null
+    },
+    {
+      "id": "RG-905",
+      "dict_type": "regulatory",
+      "target_country": "US",
+      "regulatory_class": "cosmetic",
+      "source_expression": "가짜허용",
+      "variant_expressions.ko": [
+        "가짜허용",
+        "가짜 피부용"
+      ],
+      "variant_expressions.en": [
+        "fake-prone"
+      ],
+      "alternative_expression": [],
+      "verdict_status": "allowed",
+      "reason": "합성: 허용",
+      "evidence": {
+        "evidence_id": "MP-901",
+        "source_type": "시장 관행",
+        "article": null,
+        "url": "https://example.invalid/mp",
+        "quote": "synthetic quote",
+        "verified_at": "2026-09-28"
+      },
+      "verified_at": "2026-09-28",
+      "internal_category": null
+    },
+    {
+      "id": "RG-906",
+      "dict_type": "regulatory",
+      "target_country": "US",
+      "regulatory_class": "common",
+      "source_expression": "가짜공통",
+      "variant_expressions.ko": [
+        "가짜공통"
+      ],
+      "variant_expressions.en": [
+        "fake common"
+      ],
+      "alternative_expression": [],
+      "verdict_status": "regulated",
+      "reason": "합성: 공통 분류 금지형",
+      "evidence": {
+        "evidence_id": "WL-903",
+        "source_type": "Warning Letter",
+        "article": "§ 0.0",
+        "url": "https://example.invalid/e",
+        "quote": "synthetic quote",
+        "verified_at": "2026-09-28"
+      },
+      "verified_at": "2026-09-28",
+      "internal_category": null
+    }
+  ]
+}

@@ -1,0 +1,484 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:47:59.880345+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_43",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_513",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_514",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_515",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_516",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_517",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_518",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_519",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_520",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_521",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_522",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_523",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_524",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_525",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_526",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_527",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_528",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_529",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_530",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_531",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_532",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_533",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_534",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_535",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_536",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_537",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_538",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_539",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_540",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_541",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_542",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_543",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_544",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_545",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_546",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_547",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_548",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_549",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_550",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_551",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_552",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_553",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_554",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_555",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_556",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_557",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_558",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_559",
+        "is_product_label": false,
+        "basis": "blank_text"
+      },
+      {
+        "block_key": "blk_560",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_561",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_562",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_563",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_564",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_565",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_566",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_567",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_568",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_569",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_570",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_571",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_572",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_573",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_574",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_575",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_576",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_577",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_578",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_579",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_580",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_581",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_582",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_583",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_584",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_585",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_586",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_587",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_588",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_589",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "f6f68004f7912164deb75bc569a3bc42f96b495460df0ab05505a616cc2c037c",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_513",
+        "blk_514",
+        "blk_515",
+        "blk_516",
+        "blk_517",
+        "blk_518",
+        "blk_519",
+        "blk_520",
+        "blk_521",
+        "blk_522",
+        "blk_523",
+        "blk_524",
+        "blk_525",
+        "blk_527",
+        "blk_531",
+        "blk_537",
+        "blk_542",
+        "blk_544",
+        "blk_545",
+        "blk_552",
+        "blk_558",
+        "blk_560",
+        "blk_561",
+        "blk_562",
+        "blk_563",
+        "blk_564",
+        "blk_565",
+        "blk_566",
+        "blk_567",
+        "blk_568",
+        "blk_569",
+        "blk_570",
+        "blk_571",
+        "blk_572",
+        "blk_573",
+        "blk_574",
+        "blk_575",
+        "blk_576",
+        "blk_577",
+        "blk_578",
+        "blk_579",
+        "blk_580",
+        "blk_581",
+        "blk_582",
+        "blk_583",
+        "blk_584",
+        "blk_585",
+        "blk_586",
+        "blk_587",
+        "blk_588",
+        "blk_589"
+      ],
+      "blank_block_keys": [
+        "blk_526",
+        "blk_528",
+        "blk_529",
+        "blk_530",
+        "blk_532",
+        "blk_533",
+        "blk_534",
+        "blk_535",
+        "blk_536",
+        "blk_538",
+        "blk_539",
+        "blk_540",
+        "blk_541",
+        "blk_543",
+        "blk_546",
+        "blk_547",
+        "blk_548",
+        "blk_549",
+        "blk_550",
+        "blk_551",
+        "blk_553",
+        "blk_554",
+        "blk_555",
+        "blk_556",
+        "blk_557",
+        "blk_559"
+      ]
+    },
+    "error": null
+  },
+  "seconds": 12.75
+}

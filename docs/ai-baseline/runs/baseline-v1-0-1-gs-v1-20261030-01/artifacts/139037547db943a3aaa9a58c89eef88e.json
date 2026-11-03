@@ -1,0 +1,2236 @@
+{
+  "source_id": "GS-01",
+  "stage": "merge",
+  "at": "2026-10-30T00:42:00.670529+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_2_20",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_2_20",
+        "block_order": 1,
+        "source_ko": "톤업선케어",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "톤업선케어",
+            "bbox": {
+              "x": 420,
+              "y": 34,
+              "w": 172,
+              "h": 44
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "톤업선케어",
+                "score": 0.9994480013847351,
+                "poly": [
+                  [
+                    420,
+                    34
+                  ],
+                  [
+                    592,
+                    34
+                  ],
+                  [
+                    592,
+                    78
+                  ],
+                  [
+                    420,
+                    78
+                  ]
+                ],
+                "bbox": {
+                  "x": 420,
+                  "y": 34,
+                  "w": 172,
+                  "h": 44
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 420,
+          "y": 34,
+          "w": 172,
+          "h": 44
+        },
+        "role": "title",
+        "ocr_confidence": 0.9994480013847351
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_2_20",
+        "block_order": 2,
+        "source_ko": "HEARTLEAF\nCalming\nTone Up\nSUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 286,
+              "y": 207,
+              "w": 45,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "HEARTLEAF",
+                "score": 0.99433434009552,
+                "poly": [
+                  [
+                    286,
+                    207
+                  ],
+                  [
+                    331,
+                    207
+                  ],
+                  [
+                    331,
+                    217
+                  ],
+                  [
+                    286,
+                    217
+                  ]
+                ],
+                "bbox": {
+                  "x": 286,
+                  "y": 207,
+                  "w": 45,
+                  "h": 10
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_003",
+            "text": "Calming",
+            "bbox": {
+              "x": 281,
+              "y": 220,
+              "w": 56,
+              "h": 20
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "Calming",
+                "score": 0.9986018538475037,
+                "poly": [
+                  [
+                    282,
+                    220
+                  ],
+                  [
+                    337,
+                    223
+                  ],
+                  [
+                    336,
+                    240
+                  ],
+                  [
+                    281,
+                    237
+                  ]
+                ],
+                "bbox": {
+                  "x": 281,
+                  "y": 220,
+                  "w": 56,
+                  "h": 20
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_004",
+            "text": "Tone Up",
+            "bbox": {
+              "x": 282,
+              "y": 236,
+              "w": 54,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0005",
+                "text": "Tone Up",
+                "score": 0.9812491536140442,
+                "poly": [
+                  [
+                    282,
+                    236
+                  ],
+                  [
+                    336,
+                    236
+                  ],
+                  [
+                    336,
+                    253
+                  ],
+                  [
+                    282,
+                    253
+                  ]
+                ],
+                "bbox": {
+                  "x": 282,
+                  "y": 236,
+                  "w": 54,
+                  "h": 17
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_005",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 289,
+              "y": 253,
+              "w": 41,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0007",
+                "text": "SUN CREAM",
+                "score": 0.988896369934082,
+                "poly": [
+                  [
+                    289,
+                    253
+                  ],
+                  [
+                    330,
+                    253
+                  ],
+                  [
+                    330,
+                    264
+                  ],
+                  [
+                    289,
+                    264
+                  ]
+                ],
+                "bbox": {
+                  "x": 289,
+                  "y": 253,
+                  "w": 41,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 281,
+          "y": 207,
+          "w": 56,
+          "h": 57
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9812491536140442
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_2_20",
+        "block_order": 3,
+        "source_ko": "HEARTLEAF\nSoothing\nTone Up\nSUN CREAM\nSEEN CORECTNG",
+        "source_lines": [
+          {
+            "line_key": "line_006",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 698,
+              "y": 218,
+              "w": 45,
+              "h": 9
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "HEARTLEAF",
+                "score": 0.9819308519363403,
+                "poly": [
+                  [
+                    698,
+                    218
+                  ],
+                  [
+                    743,
+                    218
+                  ],
+                  [
+                    743,
+                    227
+                  ],
+                  [
+                    698,
+                    227
+                  ]
+                ],
+                "bbox": {
+                  "x": 698,
+                  "y": 218,
+                  "w": 45,
+                  "h": 9
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_007",
+            "text": "Soothing",
+            "bbox": {
+              "x": 690,
+              "y": 232,
+              "w": 61,
+              "h": 20
+            },
+            "regions": [
+              {
+                "region_key": "reg_0006",
+                "text": "Soothing",
+                "score": 0.9974119663238525,
+                "poly": [
+                  [
+                    691,
+                    232
+                  ],
+                  [
+                    751,
+                    235
+                  ],
+                  [
+                    751,
+                    252
+                  ],
+                  [
+                    690,
+                    249
+                  ]
+                ],
+                "bbox": {
+                  "x": 690,
+                  "y": 232,
+                  "w": 61,
+                  "h": 20
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_008",
+            "text": "Tone Up",
+            "bbox": {
+              "x": 694,
+              "y": 248,
+              "w": 53,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0008",
+                "text": "Tone Up",
+                "score": 0.9317479729652405,
+                "poly": [
+                  [
+                    695,
+                    248
+                  ],
+                  [
+                    747,
+                    251
+                  ],
+                  [
+                    746,
+                    265
+                  ],
+                  [
+                    694,
+                    263
+                  ]
+                ],
+                "bbox": {
+                  "x": 694,
+                  "y": 248,
+                  "w": 53,
+                  "h": 17
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_009",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 700,
+              "y": 266,
+              "w": 43,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0009",
+                "text": "SUN CREAM",
+                "score": 0.9536830186843872,
+                "poly": [
+                  [
+                    700,
+                    266
+                  ],
+                  [
+                    743,
+                    266
+                  ],
+                  [
+                    743,
+                    276
+                  ],
+                  [
+                    700,
+                    276
+                  ]
+                ],
+                "bbox": {
+                  "x": 700,
+                  "y": 266,
+                  "w": 43,
+                  "h": 10
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_010",
+            "text": "SEEN CORECTNG",
+            "bbox": {
+              "x": 696,
+              "y": 285,
+              "w": 52,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0010",
+                "text": "SEEN CORECTNG",
+                "score": 0.6710959672927856,
+                "poly": [
+                  [
+                    696,
+                    285
+                  ],
+                  [
+                    748,
+                    285
+                  ],
+                  [
+                    748,
+                    292
+                  ],
+                  [
+                    696,
+                    292
+                  ]
+                ],
+                "bbox": {
+                  "x": 696,
+                  "y": 285,
+                  "w": 52,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 690,
+          "y": 218,
+          "w": 61,
+          "h": 74
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6710959672927856
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_2_20",
+        "block_order": 4,
+        "source_ko": "PA",
+        "source_lines": [
+          {
+            "line_key": "line_011",
+            "text": "PA",
+            "bbox": {
+              "x": 710,
+              "y": 351,
+              "w": 18,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0011",
+                "text": "PA",
+                "score": 0.8903207182884216,
+                "poly": [
+                  [
+                    710,
+                    351
+                  ],
+                  [
+                    728,
+                    351
+                  ],
+                  [
+                    728,
+                    358
+                  ],
+                  [
+                    710,
+                    358
+                  ]
+                ],
+                "bbox": {
+                  "x": 710,
+                  "y": 351,
+                  "w": 18,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 710,
+          "y": 351,
+          "w": 18,
+          "h": 7
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8903207182884216
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_2_20",
+        "block_order": 5,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_012",
+            "text": "goodal",
+            "bbox": {
+              "x": 287,
+              "y": 368,
+              "w": 46,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0012",
+                "text": "goodal",
+                "score": 0.9969360828399658,
+                "poly": [
+                  [
+                    287,
+                    373
+                  ],
+                  [
+                    331,
+                    368
+                  ],
+                  [
+                    333,
+                    386
+                  ],
+                  [
+                    289,
+                    391
+                  ]
+                ],
+                "bbox": {
+                  "x": 287,
+                  "y": 368,
+                  "w": 46,
+                  "h": 23
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 287,
+          "y": 368,
+          "w": 46,
+          "h": 23
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9969360828399658
+      },
+      {
+        "block_key": "blk_006",
+        "section_key": "sec_2_20",
+        "block_order": 6,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_013",
+            "text": "goodal",
+            "bbox": {
+              "x": 698,
+              "y": 385,
+              "w": 44,
+              "h": 20
+            },
+            "regions": [
+              {
+                "region_key": "reg_0013",
+                "text": "goodal",
+                "score": 0.9975075125694275,
+                "poly": [
+                  [
+                    698,
+                    390
+                  ],
+                  [
+                    741,
+                    385
+                  ],
+                  [
+                    742,
+                    400
+                  ],
+                  [
+                    700,
+                    405
+                  ]
+                ],
+                "bbox": {
+                  "x": 698,
+                  "y": 385,
+                  "w": 44,
+                  "h": 20
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 698,
+          "y": 385,
+          "w": 44,
+          "h": 20
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9975075125694275
+      },
+      {
+        "block_key": "blk_007",
+        "section_key": "sec_2_20",
+        "block_order": 7,
+        "source_ko": "어성초 핑크톤업선",
+        "source_lines": [
+          {
+            "line_key": "line_014",
+            "text": "어성초 핑크톤업선",
+            "bbox": {
+              "x": 190,
+              "y": 538,
+              "w": 232,
+              "h": 36
+            },
+            "regions": [
+              {
+                "region_key": "reg_0014",
+                "text": "어성초 핑크톤업선",
+                "score": 0.9989153742790222,
+                "poly": [
+                  [
+                    190,
+                    538
+                  ],
+                  [
+                    422,
+                    538
+                  ],
+                  [
+                    422,
+                    574
+                  ],
+                  [
+                    190,
+                    574
+                  ]
+                ],
+                "bbox": {
+                  "x": 190,
+                  "y": 538,
+                  "w": 232,
+                  "h": 36
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 190,
+          "y": 538,
+          "w": 232,
+          "h": 36
+        },
+        "role": "title",
+        "ocr_confidence": 0.9989153742790222
+      },
+      {
+        "block_key": "blk_008",
+        "section_key": "sec_2_20",
+        "block_order": 8,
+        "source_ko": "어성초 그린톤업선",
+        "source_lines": [
+          {
+            "line_key": "line_015",
+            "text": "어성초 그린톤업선",
+            "bbox": {
+              "x": 597,
+              "y": 544,
+              "w": 235,
+              "h": 38
+            },
+            "regions": [
+              {
+                "region_key": "reg_0015",
+                "text": "어성초 그린톤업선",
+                "score": 0.971339762210846,
+                "poly": [
+                  [
+                    597,
+                    544
+                  ],
+                  [
+                    832,
+                    544
+                  ],
+                  [
+                    832,
+                    582
+                  ],
+                  [
+                    597,
+                    582
+                  ]
+                ],
+                "bbox": {
+                  "x": 597,
+                  "y": 544,
+                  "w": 235,
+                  "h": 38
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 597,
+          "y": 544,
+          "w": 235,
+          "h": 38
+        },
+        "role": "title",
+        "ocr_confidence": 0.971339762210846
+      },
+      {
+        "block_key": "blk_009",
+        "section_key": "sec_2_20",
+        "block_order": 9,
+        "source_ko": "#붉은톤커버",
+        "source_lines": [
+          {
+            "line_key": "line_016",
+            "text": "#붉은톤커버",
+            "bbox": {
+              "x": 578,
+              "y": 612,
+              "w": 135,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0018",
+                "text": "#붉은톤커버",
+                "score": 0.9937198758125305,
+                "poly": [
+                  [
+                    578,
+                    612
+                  ],
+                  [
+                    713,
+                    612
+                  ],
+                  [
+                    713,
+                    643
+                  ],
+                  [
+                    578,
+                    643
+                  ]
+                ],
+                "bbox": {
+                  "x": 578,
+                  "y": 612,
+                  "w": 135,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 578,
+          "y": 612,
+          "w": 135,
+          "h": 31
+        },
+        "role": "body",
+        "ocr_confidence": 0.9937198758125305
+      },
+      {
+        "block_key": "blk_010",
+        "section_key": "sec_2_20",
+        "block_order": 10,
+        "source_ko": "#산뜻밀착",
+        "source_lines": [
+          {
+            "line_key": "line_017",
+            "text": "#산뜻밀착",
+            "bbox": {
+              "x": 740,
+              "y": 612,
+              "w": 113,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0019",
+                "text": "#산뜻밀착",
+                "score": 0.9988479614257812,
+                "poly": [
+                  [
+                    740,
+                    612
+                  ],
+                  [
+                    853,
+                    612
+                  ],
+                  [
+                    853,
+                    643
+                  ],
+                  [
+                    740,
+                    643
+                  ]
+                ],
+                "bbox": {
+                  "x": 740,
+                  "y": 612,
+                  "w": 113,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 740,
+          "y": 612,
+          "w": 113,
+          "h": 31
+        },
+        "role": "body",
+        "ocr_confidence": 0.9988479614257812
+      },
+      {
+        "block_key": "blk_011",
+        "section_key": "sec_2_20",
+        "block_order": 11,
+        "source_ko": "#화사한광채",
+        "source_lines": [
+          {
+            "line_key": "line_018",
+            "text": "#화사한광채",
+            "bbox": {
+              "x": 304,
+              "y": 614,
+              "w": 135,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0017",
+                "text": "#화사한광채",
+                "score": 0.999853789806366,
+                "poly": [
+                  [
+                    304,
+                    614
+                  ],
+                  [
+                    439,
+                    614
+                  ],
+                  [
+                    439,
+                    645
+                  ],
+                  [
+                    304,
+                    645
+                  ]
+                ],
+                "bbox": {
+                  "x": 304,
+                  "y": 614,
+                  "w": 135,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 304,
+          "y": 614,
+          "w": 135,
+          "h": 31
+        },
+        "role": "body",
+        "ocr_confidence": 0.999853789806366
+      },
+      {
+        "block_key": "blk_012",
+        "section_key": "sec_2_20",
+        "block_order": 12,
+        "source_ko": "#생기톤업",
+        "source_lines": [
+          {
+            "line_key": "line_019",
+            "text": "#생기톤업",
+            "bbox": {
+              "x": 165,
+              "y": 615,
+              "w": 112,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0016",
+                "text": "#생기톤업",
+                "score": 0.9976884126663208,
+                "poly": [
+                  [
+                    165,
+                    615
+                  ],
+                  [
+                    277,
+                    615
+                  ],
+                  [
+                    277,
+                    646
+                  ],
+                  [
+                    165,
+                    646
+                  ]
+                ],
+                "bbox": {
+                  "x": 165,
+                  "y": 615,
+                  "w": 112,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 165,
+          "y": 615,
+          "w": 112,
+          "h": 31
+        },
+        "role": "body",
+        "ocr_confidence": 0.9976884126663208
+      },
+      {
+        "block_key": "blk_013",
+        "section_key": "sec_2_20",
+        "block_order": 13,
+        "source_ko": "#여드름커버",
+        "source_lines": [
+          {
+            "line_key": "line_020",
+            "text": "#여드름커버",
+            "bbox": {
+              "x": 653,
+              "y": 659,
+              "w": 134,
+              "h": 30
+            },
+            "regions": [
+              {
+                "region_key": "reg_0021",
+                "text": "#여드름커버",
+                "score": 0.9974046349525452,
+                "poly": [
+                  [
+                    653,
+                    659
+                  ],
+                  [
+                    787,
+                    659
+                  ],
+                  [
+                    787,
+                    689
+                  ],
+                  [
+                    653,
+                    689
+                  ]
+                ],
+                "bbox": {
+                  "x": 653,
+                  "y": 659,
+                  "w": 134,
+                  "h": 30
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 653,
+          "y": 659,
+          "w": 134,
+          "h": 30
+        },
+        "role": "body",
+        "ocr_confidence": 0.9974046349525452
+      },
+      {
+        "block_key": "blk_014",
+        "section_key": "sec_2_20",
+        "block_order": 14,
+        "source_ko": "#기미잡티흔적커버",
+        "source_lines": [
+          {
+            "line_key": "line_021",
+            "text": "#기미잡티흔적커버",
+            "bbox": {
+              "x": 204,
+              "y": 663,
+              "w": 199,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0020",
+                "text": "#기미잡티흔적커버",
+                "score": 0.9972306489944458,
+                "poly": [
+                  [
+                    204,
+                    663
+                  ],
+                  [
+                    403,
+                    663
+                  ],
+                  [
+                    403,
+                    690
+                  ],
+                  [
+                    204,
+                    690
+                  ]
+                ],
+                "bbox": {
+                  "x": 204,
+                  "y": 663,
+                  "w": 199,
+                  "h": 27
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 204,
+          "y": 663,
+          "w": 199,
+          "h": 27
+        },
+        "role": "body",
+        "ocr_confidence": 0.9972306489944458
+      },
+      {
+        "block_key": "blk_015",
+        "section_key": "sec_2_20",
+        "block_order": 15,
+        "source_ko": "휴대용 스틱형 선 케어",
+        "source_lines": [
+          {
+            "line_key": "line_022",
+            "text": "휴대용 스틱형 선 케어",
+            "bbox": {
+              "x": 358,
+              "y": 858,
+              "w": 295,
+              "h": 44
+            },
+            "regions": [
+              {
+                "region_key": "reg_0022",
+                "text": "휴대용 스틱형 선 케어",
+                "score": 0.9850618243217468,
+                "poly": [
+                  [
+                    358,
+                    860
+                  ],
+                  [
+                    653,
+                    858
+                  ],
+                  [
+                    653,
+                    900
+                  ],
+                  [
+                    358,
+                    902
+                  ]
+                ],
+                "bbox": {
+                  "x": 358,
+                  "y": 858,
+                  "w": 295,
+                  "h": 44
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 358,
+          "y": 858,
+          "w": 295,
+          "h": 44
+        },
+        "role": "title",
+        "ocr_confidence": 0.9850618243217468
+      },
+      {
+        "block_key": "blk_016",
+        "section_key": "sec_2_20",
+        "block_order": 16,
+        "source_ko": "휴대용\n스틱형",
+        "source_lines": [
+          {
+            "line_key": "line_023",
+            "text": "휴대용",
+            "bbox": {
+              "x": 336,
+              "y": 982,
+              "w": 84,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0023",
+                "text": "휴대용",
+                "score": 0.9998642802238464,
+                "poly": [
+                  [
+                    336,
+                    982
+                  ],
+                  [
+                    420,
+                    982
+                  ],
+                  [
+                    420,
+                    1021
+                  ],
+                  [
+                    336,
+                    1021
+                  ]
+                ],
+                "bbox": {
+                  "x": 336,
+                  "y": 982,
+                  "w": 84,
+                  "h": 39
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_024",
+            "text": "스틱형",
+            "bbox": {
+              "x": 336,
+              "y": 1017,
+              "w": 83,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0025",
+                "text": "스틱형",
+                "score": 0.9973340034484863,
+                "poly": [
+                  [
+                    336,
+                    1017
+                  ],
+                  [
+                    419,
+                    1017
+                  ],
+                  [
+                    419,
+                    1054
+                  ],
+                  [
+                    336,
+                    1054
+                  ]
+                ],
+                "bbox": {
+                  "x": 336,
+                  "y": 1017,
+                  "w": 83,
+                  "h": 37
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 336,
+          "y": 982,
+          "w": 84,
+          "h": 72
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9973340034484863
+      },
+      {
+        "block_key": "blk_017",
+        "section_key": "sec_2_20",
+        "block_order": 17,
+        "source_ko": "휴대용\n스틱형",
+        "source_lines": [
+          {
+            "line_key": "line_025",
+            "text": "휴대용",
+            "bbox": {
+              "x": 759,
+              "y": 983,
+              "w": 84,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0024",
+                "text": "휴대용",
+                "score": 0.999906599521637,
+                "poly": [
+                  [
+                    759,
+                    983
+                  ],
+                  [
+                    843,
+                    983
+                  ],
+                  [
+                    843,
+                    1020
+                  ],
+                  [
+                    759,
+                    1020
+                  ]
+                ],
+                "bbox": {
+                  "x": 759,
+                  "y": 983,
+                  "w": 84,
+                  "h": 37
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_026",
+            "text": "스틱형",
+            "bbox": {
+              "x": 758,
+              "y": 1017,
+              "w": 84,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0026",
+                "text": "스틱형",
+                "score": 0.9975892901420593,
+                "poly": [
+                  [
+                    758,
+                    1017
+                  ],
+                  [
+                    842,
+                    1017
+                  ],
+                  [
+                    842,
+                    1054
+                  ],
+                  [
+                    758,
+                    1054
+                  ]
+                ],
+                "bbox": {
+                  "x": 758,
+                  "y": 1017,
+                  "w": 84,
+                  "h": 37
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 758,
+          "y": 983,
+          "w": 85,
+          "h": 71
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9975892901420593
+      },
+      {
+        "block_key": "blk_018",
+        "section_key": "sec_2_20",
+        "block_order": 18,
+        "source_ko": "HEARTLE\nCalming\nCOOLING SUN STICK",
+        "source_lines": [
+          {
+            "line_key": "line_027",
+            "text": "HEARTLE",
+            "bbox": {
+              "x": 270,
+              "y": 1031,
+              "w": 48,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0027",
+                "text": "HEARTLE",
+                "score": 0.9964858293533325,
+                "poly": [
+                  [
+                    270,
+                    1031
+                  ],
+                  [
+                    318,
+                    1031
+                  ],
+                  [
+                    318,
+                    1042
+                  ],
+                  [
+                    270,
+                    1042
+                  ]
+                ],
+                "bbox": {
+                  "x": 270,
+                  "y": 1031,
+                  "w": 48,
+                  "h": 11
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_028",
+            "text": "Calming",
+            "bbox": {
+              "x": 262,
+              "y": 1051,
+              "w": 72,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0028",
+                "text": "Calming",
+                "score": 0.9949952960014343,
+                "poly": [
+                  [
+                    263,
+                    1051
+                  ],
+                  [
+                    334,
+                    1054
+                  ],
+                  [
+                    333,
+                    1075
+                  ],
+                  [
+                    262,
+                    1072
+                  ]
+                ],
+                "bbox": {
+                  "x": 262,
+                  "y": 1051,
+                  "w": 72,
+                  "h": 24
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_029",
+            "text": "COOLING SUN STICK",
+            "bbox": {
+              "x": 257,
+              "y": 1078,
+              "w": 83,
+              "h": 13
+            },
+            "regions": [
+              {
+                "region_key": "reg_0029",
+                "text": "COOLING SUN STICK",
+                "score": 0.9746608734130859,
+                "poly": [
+                  [
+                    257,
+                    1078
+                  ],
+                  [
+                    340,
+                    1078
+                  ],
+                  [
+                    340,
+                    1091
+                  ],
+                  [
+                    257,
+                    1091
+                  ]
+                ],
+                "bbox": {
+                  "x": 257,
+                  "y": 1078,
+                  "w": 83,
+                  "h": 13
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 257,
+          "y": 1031,
+          "w": 83,
+          "h": 60
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9746608734130859
+      },
+      {
+        "block_key": "blk_019",
+        "section_key": "sec_2_20",
+        "block_order": 19,
+        "source_ko": "HEARTLEAF\nSoothing\nQUICK SUIDING\nSUN STICK",
+        "source_lines": [
+          {
+            "line_key": "line_030",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 703,
+              "y": 1156,
+              "w": 51,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0030",
+                "text": "HEARTLEAF",
+                "score": 0.9888887405395508,
+                "poly": [
+                  [
+                    703,
+                    1156
+                  ],
+                  [
+                    754,
+                    1156
+                  ],
+                  [
+                    754,
+                    1166
+                  ],
+                  [
+                    703,
+                    1166
+                  ]
+                ],
+                "bbox": {
+                  "x": 703,
+                  "y": 1156,
+                  "w": 51,
+                  "h": 10
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_031",
+            "text": "Soothing",
+            "bbox": {
+              "x": 689,
+              "y": 1171,
+              "w": 77,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0031",
+                "text": "Soothing",
+                "score": 0.9993923902511597,
+                "poly": [
+                  [
+                    690,
+                    1171
+                  ],
+                  [
+                    766,
+                    1175
+                  ],
+                  [
+                    765,
+                    1195
+                  ],
+                  [
+                    689,
+                    1192
+                  ]
+                ],
+                "bbox": {
+                  "x": 689,
+                  "y": 1171,
+                  "w": 77,
+                  "h": 24
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_032",
+            "text": "QUICK SUIDING",
+            "bbox": {
+              "x": 702,
+              "y": 1196,
+              "w": 53,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0033",
+                "text": "QUICK SUIDING",
+                "score": 0.9109501242637634,
+                "poly": [
+                  [
+                    702,
+                    1196
+                  ],
+                  [
+                    755,
+                    1196
+                  ],
+                  [
+                    755,
+                    1206
+                  ],
+                  [
+                    702,
+                    1206
+                  ]
+                ],
+                "bbox": {
+                  "x": 702,
+                  "y": 1196,
+                  "w": 53,
+                  "h": 10
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_033",
+            "text": "SUN STICK",
+            "bbox": {
+              "x": 709,
+              "y": 1207,
+              "w": 40,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0034",
+                "text": "SUN STICK",
+                "score": 0.9369156956672668,
+                "poly": [
+                  [
+                    709,
+                    1207
+                  ],
+                  [
+                    749,
+                    1207
+                  ],
+                  [
+                    749,
+                    1217
+                  ],
+                  [
+                    709,
+                    1217
+                  ]
+                ],
+                "bbox": {
+                  "x": 709,
+                  "y": 1207,
+                  "w": 40,
+                  "h": 10
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 689,
+          "y": 1156,
+          "w": 77,
+          "h": 61
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9109501242637634
+      },
+      {
+        "block_key": "blk_020",
+        "section_key": "sec_2_20",
+        "block_order": 20,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_034",
+            "text": "goodal",
+            "bbox": {
+              "x": 268,
+              "y": 1182,
+              "w": 58,
+              "h": 25
+            },
+            "regions": [
+              {
+                "region_key": "reg_0032",
+                "text": "goodal",
+                "score": 0.9989302754402161,
+                "poly": [
+                  [
+                    268,
+                    1187
+                  ],
+                  [
+                    324,
+                    1182
+                  ],
+                  [
+                    326,
+                    1201
+                  ],
+                  [
+                    270,
+                    1207
+                  ]
+                ],
+                "bbox": {
+                  "x": 268,
+                  "y": 1182,
+                  "w": 58,
+                  "h": 25
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 268,
+          "y": 1182,
+          "w": 58,
+          "h": 25
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9989302754402161
+      },
+      {
+        "block_key": "blk_021",
+        "section_key": "sec_2_20",
+        "block_order": 21,
+        "source_ko": "PA.*",
+        "source_lines": [
+          {
+            "line_key": "line_035",
+            "text": "PA.*",
+            "bbox": {
+              "x": 717,
+              "y": 1250,
+              "w": 16,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0035",
+                "text": "PA.*",
+                "score": 0.8266743421554565,
+                "poly": [
+                  [
+                    717,
+                    1250
+                  ],
+                  [
+                    733,
+                    1250
+                  ],
+                  [
+                    733,
+                    1257
+                  ],
+                  [
+                    717,
+                    1257
+                  ]
+                ],
+                "bbox": {
+                  "x": 717,
+                  "y": 1250,
+                  "w": 16,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 717,
+          "y": 1250,
+          "w": 16,
+          "h": 7
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8266743421554565
+      },
+      {
+        "block_key": "blk_022",
+        "section_key": "sec_2_20",
+        "block_order": 22,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_036",
+            "text": "goodal",
+            "bbox": {
+              "x": 702,
+              "y": 1264,
+              "w": 52,
+              "h": 22
+            },
+            "regions": [
+              {
+                "region_key": "reg_0036",
+                "text": "goodal",
+                "score": 0.9989044666290283,
+                "poly": [
+                  [
+                    702,
+                    1268
+                  ],
+                  [
+                    753,
+                    1264
+                  ],
+                  [
+                    754,
+                    1282
+                  ],
+                  [
+                    704,
+                    1286
+                  ]
+                ],
+                "bbox": {
+                  "x": 702,
+                  "y": 1264,
+                  "w": 52,
+                  "h": 22
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 702,
+          "y": 1264,
+          "w": 52,
+          "h": 22
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9989044666290283
+      },
+      {
+        "block_key": "blk_023",
+        "section_key": "sec_2_20",
+        "block_order": 23,
+        "source_ko": "어성초 보송 선스틱",
+        "source_lines": [
+          {
+            "line_key": "line_037",
+            "text": "어성초 보송 선스틱",
+            "bbox": {
+              "x": 173,
+              "y": 1379,
+              "w": 243,
+              "h": 38
+            },
+            "regions": [
+              {
+                "region_key": "reg_0037",
+                "text": "어성초 보송 선스틱",
+                "score": 0.9679287672042847,
+                "poly": [
+                  [
+                    173,
+                    1379
+                  ],
+                  [
+                    416,
+                    1379
+                  ],
+                  [
+                    416,
+                    1417
+                  ],
+                  [
+                    173,
+                    1417
+                  ]
+                ],
+                "bbox": {
+                  "x": 173,
+                  "y": 1379,
+                  "w": 243,
+                  "h": 38
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 173,
+          "y": 1379,
+          "w": 243,
+          "h": 38
+        },
+        "role": "title",
+        "ocr_confidence": 0.9679287672042847
+      },
+      {
+        "block_key": "blk_024",
+        "section_key": "sec_2_20",
+        "block_order": 24,
+        "source_ko": "어성초 퀵 선스틱",
+        "source_lines": [
+          {
+            "line_key": "line_038",
+            "text": "어성초 퀵 선스틱",
+            "bbox": {
+              "x": 612,
+              "y": 1380,
+              "w": 212,
+              "h": 35
+            },
+            "regions": [
+              {
+                "region_key": "reg_0038",
+                "text": "어성초 퀵 선스틱",
+                "score": 0.9874590635299683,
+                "poly": [
+                  [
+                    612,
+                    1380
+                  ],
+                  [
+                    824,
+                    1380
+                  ],
+                  [
+                    824,
+                    1415
+                  ],
+                  [
+                    612,
+                    1415
+                  ]
+                ],
+                "bbox": {
+                  "x": 612,
+                  "y": 1380,
+                  "w": 212,
+                  "h": 35
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 612,
+          "y": 1380,
+          "w": 212,
+          "h": 35
+        },
+        "role": "title",
+        "ocr_confidence": 0.9874590635299683
+      },
+      {
+        "block_key": "blk_025",
+        "section_key": "sec_2_20",
+        "block_order": 25,
+        "source_ko": "#쿨링효과",
+        "source_lines": [
+          {
+            "line_key": "line_039",
+            "text": "#쿨링효과",
+            "bbox": {
+              "x": 343,
+              "y": 1448,
+              "w": 114,
+              "h": 32
+            },
+            "regions": [
+              {
+                "region_key": "reg_0040",
+                "text": "#쿨링효과",
+                "score": 0.9966179132461548,
+                "poly": [
+                  [
+                    343,
+                    1448
+                  ],
+                  [
+                    457,
+                    1448
+                  ],
+                  [
+                    457,
+                    1480
+                  ],
+                  [
+                    343,
+                    1480
+                  ]
+                ],
+                "bbox": {
+                  "x": 343,
+                  "y": 1448,
+                  "w": 114,
+                  "h": 32
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 343,
+          "y": 1448,
+          "w": 114,
+          "h": 32
+        },
+        "role": "body",
+        "ocr_confidence": 0.9966179132461548
+      },
+      {
+        "block_key": "blk_026",
+        "section_key": "sec_2_20",
+        "block_order": 26,
+        "source_ko": "#끈적임NO #밀림걱정없이\n#매끈밀착",
+        "source_lines": [
+          {
+            "line_key": "line_040",
+            "text": "#끈적임NO #밀림걱정없이",
+            "bbox": {
+              "x": 578,
+              "y": 1448,
+              "w": 309,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0041",
+                "text": "#끈적임NO",
+                "score": 0.9253069758415222,
+                "poly": [
+                  [
+                    578,
+                    1448
+                  ],
+                  [
+                    716,
+                    1448
+                  ],
+                  [
+                    716,
+                    1479
+                  ],
+                  [
+                    578,
+                    1479
+                  ]
+                ],
+                "bbox": {
+                  "x": 578,
+                  "y": 1448,
+                  "w": 138,
+                  "h": 31
+                }
+              },
+              {
+                "region_key": "reg_0042",
+                "text": "#밀림걱정없이",
+                "score": 0.9814135432243347,
+                "poly": [
+                  [
+                    729,
+                    1448
+                  ],
+                  [
+                    887,
+                    1448
+                  ],
+                  [
+                    887,
+                    1479
+                  ],
+                  [
+                    729,
+                    1479
+                  ]
+                ],
+                "bbox": {
+                  "x": 729,
+                  "y": 1448,
+                  "w": 158,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_041",
+            "text": "#매끈밀착",
+            "bbox": {
+              "x": 672,
+              "y": 1496,
+              "w": 114,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0044",
+                "text": "#매끈밀착",
+                "score": 0.9793024063110352,
+                "poly": [
+                  [
+                    672,
+                    1496
+                  ],
+                  [
+                    786,
+                    1496
+                  ],
+                  [
+                    786,
+                    1527
+                  ],
+                  [
+                    672,
+                    1527
+                  ]
+                ],
+                "bbox": {
+                  "x": 672,
+                  "y": 1496,
+                  "w": 114,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 578,
+          "y": 1448,
+          "w": 309,
+          "h": 79
+        },
+        "role": "body",
+        "ocr_confidence": 0.9253069758415222
+      },
+      {
+        "block_key": "blk_027",
+        "section_key": "sec_2_20",
+        "block_order": 27,
+        "source_ko": "#번들거림NO\n#가볍게보송",
+        "source_lines": [
+          {
+            "line_key": "line_042",
+            "text": "#번들거림NO",
+            "bbox": {
+              "x": 159,
+              "y": 1449,
+              "w": 153,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0039",
+                "text": "#번들거림NO",
+                "score": 0.9661411046981812,
+                "poly": [
+                  [
+                    159,
+                    1449
+                  ],
+                  [
+                    312,
+                    1449
+                  ],
+                  [
+                    312,
+                    1480
+                  ],
+                  [
+                    159,
+                    1480
+                  ]
+                ],
+                "bbox": {
+                  "x": 159,
+                  "y": 1449,
+                  "w": 153,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_043",
+            "text": "#가볍게보송",
+            "bbox": {
+              "x": 237,
+              "y": 1496,
+              "w": 137,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0043",
+                "text": "#가볍게보송",
+                "score": 0.9862808585166931,
+                "poly": [
+                  [
+                    237,
+                    1496
+                  ],
+                  [
+                    374,
+                    1496
+                  ],
+                  [
+                    374,
+                    1527
+                  ],
+                  [
+                    237,
+                    1527
+                  ]
+                ],
+                "bbox": {
+                  "x": 237,
+                  "y": 1496,
+                  "w": 137,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 159,
+          "y": 1449,
+          "w": 215,
+          "h": 78
+        },
+        "role": "body",
+        "ocr_confidence": 0.9661411046981812
+      }
+    ]
+  },
+  "seconds": 4.0310000001918525
+}

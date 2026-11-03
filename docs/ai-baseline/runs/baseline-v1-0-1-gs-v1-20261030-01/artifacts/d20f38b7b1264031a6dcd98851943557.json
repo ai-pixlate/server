@@ -1,0 +1,109 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:46.237154+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_4",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_54",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_55",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_56",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_57",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_4",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "648cfd85649fa441029b71b72b37c3fbca3a1ef1ea5cd3818b5eefed83257262",
+      "label_fingerprint": "192450ea32d41b4b611de9abcdd3f369f3716a620419064bbf59e1a451e10cb2",
+      "label_input_fingerprint": "648cfd85649fa441029b71b72b37c3fbca3a1ef1ea5cd3818b5eefed83257262",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 4,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 4
+      },
+      "decisions": [
+        {
+          "block_key": "blk_54",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "백탁없이산뜻밀착",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_55",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "저자극순한선크림",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_56",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "spf50+pa++++",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_57",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "자외선apfabspf차단지수인체적용시험한국피부과학연구원|10명대상|20230116~20230210|개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

@@ -1,0 +1,111 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:49:27.847721+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_69",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_779",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_780",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_781",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_782",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_783",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_784",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_785",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_786",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_787",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_788",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_789",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_790",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_791",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_792",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_793",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "48a226e0c7596b3fb7948e29e0bd99102b0550323c2c59d8497aed7d67d55be1",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_779",
+        "blk_780",
+        "blk_781",
+        "blk_782",
+        "blk_783",
+        "blk_784",
+        "blk_785",
+        "blk_786",
+        "blk_787",
+        "blk_788",
+        "blk_789",
+        "blk_790",
+        "blk_791",
+        "blk_792",
+        "blk_793"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 9.234999999869615
+}

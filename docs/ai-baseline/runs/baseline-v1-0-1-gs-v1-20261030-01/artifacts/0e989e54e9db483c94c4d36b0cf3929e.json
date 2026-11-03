@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:12.539222+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_8",
+      "section_key": "sec_35",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_458",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_459",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_460",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_461",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_462",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_8",
+      "section_key": "sec_35",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "42a1907133348deef2834679f4e4a897eb07f77b0dd3b8ca50331c97bdde8166",
+      "label_fingerprint": "d5c02e85da2150004516514c7d3e86f861c5d8fc9670c29b714c2944be9c1645",
+      "label_input_fingerprint": "42a1907133348deef2834679f4e4a897eb07f77b0dd3b8ca50331c97bdde8166",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 5,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 5,
+        "compared": 5
+      },
+      "decisions": [
+        {
+          "block_key": "blk_458",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "더깊게더많이스며드는이유",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_459",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "핀홀중앙통로스피쿨",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_460",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "중앙이비어있는구조로설계된핀홀스피큘내부통로를따라더깊은층까지고르게전달됩니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_461",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "실제현미경으로관측한레티날샷부스터핀홀스피큘",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_462",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "c",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

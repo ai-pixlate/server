@@ -1,0 +1,1098 @@
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_analyze", "args": [2], "at": "2026-10-30T00:26:59.384028+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_analyze", "args": [2], "seconds": 1060.3279999999795, "at": "2026-10-30T00:44:39.702495+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [3], "at": "2026-10-30T00:44:39.702495+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [3], "seconds": 23.67200000002049, "at": "2026-10-30T00:45:03.381183+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [4], "at": "2026-10-30T00:45:03.381183+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [4], "seconds": 53.32799999997951, "at": "2026-10-30T00:45:56.714396+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [5], "at": "2026-10-30T00:45:56.715403+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [5], "seconds": 10.078999999910593, "at": "2026-10-30T00:46:06.790551+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [6], "at": "2026-10-30T00:46:06.790551+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [6], "seconds": 16.093000000109896, "at": "2026-10-30T00:46:22.878085+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [7], "at": "2026-10-30T00:46:22.878085+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [7], "seconds": 11.906999999890104, "at": "2026-10-30T00:46:34.780540+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [8], "at": "2026-10-30T00:46:34.781548+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [8], "seconds": 18.014999999897555, "at": "2026-10-30T00:46:52.804343+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [9], "at": "2026-10-30T00:46:52.805343+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [9], "seconds": 56.90600000019185, "at": "2026-10-30T00:47:49.715120+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [10], "at": "2026-10-30T00:47:49.716121+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [10], "seconds": 11.531999999890104, "at": "2026-10-30T00:48:01.239615+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [11], "at": "2026-10-30T00:48:01.241131+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [11], "seconds": 18.25, "at": "2026-10-30T00:48:19.491334+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [12], "at": "2026-10-30T00:48:19.491846+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [12], "seconds": 15.077999999979511, "at": "2026-10-30T00:48:34.569322+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [13], "at": "2026-10-30T00:48:34.569322+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [13], "seconds": 16.140000000130385, "at": "2026-10-30T00:48:50.713115+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [14], "at": "2026-10-30T00:48:50.713115+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [14], "seconds": 17.343999999808148, "at": "2026-10-30T00:49:08.054966+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [15], "at": "2026-10-30T00:49:08.054966+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [15], "seconds": 33.07800000021234, "at": "2026-10-30T00:49:41.134301+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [16], "at": "2026-10-30T00:49:41.135301+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [16], "seconds": 21.593999999808148, "at": "2026-10-30T00:50:02.728031+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [17], "at": "2026-10-30T00:50:02.729030+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [17], "seconds": 14.109000000171363, "at": "2026-10-30T00:50:16.835697+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [18], "at": "2026-10-30T00:50:16.836697+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [18], "seconds": 16.390999999828637, "at": "2026-10-30T00:50:33.222861+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [19], "at": "2026-10-30T00:50:33.222861+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [19], "seconds": 12.672000000020489, "at": "2026-10-30T00:50:45.899956+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [20], "at": "2026-10-30T00:50:45.899956+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [20], "seconds": 11.875, "at": "2026-10-30T00:50:57.771503+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [21], "at": "2026-10-30T00:50:57.771503+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [21], "seconds": 17.312000000150874, "at": "2026-10-30T00:51:15.078123+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [22], "at": "2026-10-30T00:51:15.079121+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [22], "seconds": 20.265999999828637, "at": "2026-10-30T00:51:35.352412+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [23], "at": "2026-10-30T00:51:35.353417+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [23], "seconds": 15.234000000171363, "at": "2026-10-30T00:51:50.583434+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [24], "at": "2026-10-30T00:51:50.583434+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [24], "seconds": 17.875, "at": "2026-10-30T00:52:08.463049+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [25], "at": "2026-10-30T00:52:08.463049+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [25], "seconds": 13.031999999890104, "at": "2026-10-30T00:52:21.492794+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_judge", "args": [26], "at": "2026-10-30T00:52:21.494420+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_judge", "args": [26], "seconds": 34.98399999993853, "at": "2026-10-30T00:52:56.474799+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [28], "at": "2026-10-30T00:55:36.678637+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [28], "seconds": 7.5780000002123415, "at": "2026-10-30T00:55:44.260657+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [29], "at": "2026-10-30T00:55:44.261163+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [29], "seconds": 5.75, "at": "2026-10-30T00:55:50.006223+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [30], "at": "2026-10-30T00:55:50.007233+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [30], "seconds": 7.2189999998081475, "at": "2026-10-30T00:55:57.225634+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [31], "at": "2026-10-30T00:55:57.226643+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [31], "seconds": 11.719000000040978, "at": "2026-10-30T00:56:08.951107+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [32], "at": "2026-10-30T00:56:08.951107+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [32], "seconds": 6.140000000130385, "at": "2026-10-30T00:56:15.089159+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [33], "at": "2026-10-30T00:56:15.089159+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [33], "seconds": 12.265999999828637, "at": "2026-10-30T00:56:27.356330+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [34], "at": "2026-10-30T00:56:27.357341+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [34], "seconds": 5.391000000061467, "at": "2026-10-30T00:56:32.744809+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [35], "at": "2026-10-30T00:56:32.745815+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [35], "seconds": 7.077999999979511, "at": "2026-10-30T00:56:39.818283+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [36], "at": "2026-10-30T00:56:39.818283+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [36], "seconds": 6.875, "at": "2026-10-30T00:56:46.702706+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [37], "at": "2026-10-30T00:56:46.703710+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [37], "seconds": 8.578999999910593, "at": "2026-10-30T00:56:55.295966+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [38], "at": "2026-10-30T00:56:55.296965+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [38], "seconds": 8.141000000061467, "at": "2026-10-30T00:57:03.440802+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [39], "at": "2026-10-30T00:57:03.442286+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [39], "seconds": 5.577999999979511, "at": "2026-10-30T00:57:09.017500+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [40], "at": "2026-10-30T00:57:09.017500+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [40], "seconds": 6.702999999979511, "at": "2026-10-30T00:57:15.726020+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [41], "at": "2026-10-30T00:57:15.726020+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [41], "seconds": 6.327999999979511, "at": "2026-10-30T00:57:22.055671+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [42], "at": "2026-10-30T00:57:22.056176+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [42], "seconds": 6.5, "at": "2026-10-30T00:57:28.551113+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [43], "at": "2026-10-30T00:57:28.551113+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [43], "seconds": 5.391000000061467, "at": "2026-10-30T00:57:33.947364+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [44], "at": "2026-10-30T00:57:33.947364+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [44], "seconds": 10.969000000040978, "at": "2026-10-30T00:57:44.919034+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [45], "at": "2026-10-30T00:57:44.919034+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [45], "seconds": 18.639999999897555, "at": "2026-10-30T00:58:03.547058+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [46], "at": "2026-10-30T00:58:03.547058+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [46], "seconds": 7.594000000040978, "at": "2026-10-30T00:58:11.155410+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [47], "at": "2026-10-30T00:58:11.155410+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [47], "seconds": 12.469000000040978, "at": "2026-10-30T00:58:23.623986+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [48], "at": "2026-10-30T00:58:23.623986+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [48], "seconds": 5.952999999979511, "at": "2026-10-30T00:58:29.564275+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [49], "at": "2026-10-30T00:58:29.565280+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [49], "seconds": 10.030999999959022, "at": "2026-10-30T00:58:39.604889+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_label", "args": [50], "at": "2026-10-30T00:58:39.605507+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_label", "args": [50], "seconds": 5.952999999979511, "at": "2026-10-30T00:58:45.551507+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [51], "at": "2026-10-30T00:58:45.551507+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [51], "seconds": 0.45300000021234155, "at": "2026-10-30T00:58:46.006183+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [52], "at": "2026-10-30T00:58:46.006183+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [52], "seconds": 0.21899999980814755, "at": "2026-10-30T00:58:46.230194+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [53], "at": "2026-10-30T00:58:46.231193+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [53], "seconds": 0.2190000000409782, "at": "2026-10-30T00:58:46.451142+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [54], "at": "2026-10-30T00:58:46.451142+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [54], "seconds": 0.4529999999795109, "at": "2026-10-30T00:58:46.895336+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [55], "at": "2026-10-30T00:58:46.895336+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [55], "seconds": 0.2190000000409782, "at": "2026-10-30T00:58:47.125113+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [56], "at": "2026-10-30T00:58:47.125616+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [56], "seconds": 0.43799999984912574, "at": "2026-10-30T00:58:47.572780+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [57], "at": "2026-10-30T00:58:47.573284+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [57], "seconds": 0.2190000000409782, "at": "2026-10-30T00:58:47.792888+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [58], "at": "2026-10-30T00:58:47.793892+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [58], "seconds": 0.2339999999385327, "at": "2026-10-30T00:58:48.023975+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [59], "at": "2026-10-30T00:58:48.025563+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [59], "seconds": 0.43700000015087426, "at": "2026-10-30T00:58:48.468524+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [60], "at": "2026-10-30T00:58:48.469520+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [60], "seconds": 0.2029999999795109, "at": "2026-10-30T00:58:48.686885+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [61], "at": "2026-10-30T00:58:48.687885+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [61], "seconds": 0.4220000000204891, "at": "2026-10-30T00:58:49.118843+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [62], "at": "2026-10-30T00:58:49.119841+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [62], "seconds": 0.2339999999385327, "at": "2026-10-30T00:58:49.347408+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [63], "at": "2026-10-30T00:58:49.347408+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [63], "seconds": 0.23400000017136335, "at": "2026-10-30T00:58:49.582946+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [64], "at": "2026-10-30T00:58:49.582946+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [64], "seconds": 0.4220000000204891, "at": "2026-10-30T00:58:50.008190+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [65], "at": "2026-10-30T00:58:50.008698+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [65], "seconds": 0.21899999980814755, "at": "2026-10-30T00:58:50.234486+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [66], "at": "2026-10-30T00:58:50.235990+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [66], "seconds": 0.4529999999795109, "at": "2026-10-30T00:58:50.692872+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [67], "at": "2026-10-30T00:58:50.693904+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [67], "seconds": 0.2339999999385327, "at": "2026-10-30T00:58:50.926810+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [68], "at": "2026-10-30T00:58:50.927818+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [68], "seconds": 0.23500000010244548, "at": "2026-10-30T00:58:51.159759+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [69], "at": "2026-10-30T00:58:51.160758+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [69], "seconds": 0.4529999999795109, "at": "2026-10-30T00:58:51.609769+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [70], "at": "2026-10-30T00:58:51.610772+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [70], "seconds": 0.21800000010989606, "at": "2026-10-30T00:58:51.840701+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [71], "at": "2026-10-30T00:58:51.842440+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [71], "seconds": 0.45399999991059303, "at": "2026-10-30T00:58:52.284833+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [72], "at": "2026-10-30T00:58:52.286033+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [72], "seconds": 0.25, "at": "2026-10-30T00:58:52.533167+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_logo", "args": [73], "at": "2026-10-30T00:58:52.533679+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_logo", "args": [73], "seconds": 0.04600000008940697, "at": "2026-10-30T00:58:52.581650+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [74], "at": "2026-10-30T00:58:52.581650+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [74], "seconds": 7.656999999890104, "at": "2026-10-30T00:59:00.240812+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [75], "at": "2026-10-30T00:59:00.240812+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [75], "seconds": 0.09300000010989606, "at": "2026-10-30T00:59:00.341547+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [76], "at": "2026-10-30T00:59:00.343057+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [76], "seconds": 11.640999999828637, "at": "2026-10-30T00:59:11.981062+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [77], "at": "2026-10-30T00:59:11.981062+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [77], "seconds": 5.859000000171363, "at": "2026-10-30T00:59:17.842290+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [78], "at": "2026-10-30T00:59:17.843290+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [78], "seconds": 0.09399999980814755, "at": "2026-10-30T00:59:17.929714+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [79], "at": "2026-10-30T00:59:17.930719+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [79], "seconds": 8.922000000020489, "at": "2026-10-30T00:59:26.856339+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [80], "at": "2026-10-30T00:59:26.857339+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [80], "seconds": 4.594000000040978, "at": "2026-10-30T00:59:31.440646+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [81], "at": "2026-10-30T00:59:31.440646+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [81], "seconds": 0.06200000015087426, "at": "2026-10-30T00:59:31.511421+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [82], "at": "2026-10-30T00:59:31.512928+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [82], "seconds": 9.109999999869615, "at": "2026-10-30T00:59:40.613780+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [83], "at": "2026-10-30T00:59:40.614284+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [83], "seconds": 6.108999999938533, "at": "2026-10-30T00:59:46.727723+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [84], "at": "2026-10-30T00:59:46.728945+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [84], "seconds": 0.1410000000614673, "at": "2026-10-30T00:59:46.861947+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [85], "at": "2026-10-30T00:59:46.863029+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [85], "seconds": 6.390000000130385, "at": "2026-10-30T00:59:53.265212+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [86], "at": "2026-10-30T00:59:53.266370+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [86], "seconds": 0.75, "at": "2026-10-30T00:59:54.017827+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [87], "at": "2026-10-30T00:59:54.018832+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [87], "seconds": 0.0779999999795109, "at": "2026-10-30T00:59:54.104445+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [88], "at": "2026-10-30T00:59:54.105878+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [88], "seconds": 10.702999999979511, "at": "2026-10-30T01:00:04.798443+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [89], "at": "2026-10-30T01:00:04.798443+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [89], "seconds": 2.6100000001024455, "at": "2026-10-30T01:00:07.408821+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [90], "at": "2026-10-30T01:00:07.408821+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [90], "seconds": 0.2029999999795109, "at": "2026-10-30T01:00:07.619204+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [91], "at": "2026-10-30T01:00:07.619709+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [91], "seconds": 24.343000000109896, "at": "2026-10-30T01:00:31.961330+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [92], "at": "2026-10-30T01:00:31.962331+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [92], "seconds": 0.6409999998286366, "at": "2026-10-30T01:00:32.601628+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [93], "at": "2026-10-30T01:00:32.601628+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [93], "seconds": 0.06300000008195639, "at": "2026-10-30T01:00:32.669085+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [94], "at": "2026-10-30T01:00:32.669085+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [94], "seconds": 8.030999999959022, "at": "2026-10-30T01:00:40.688280+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [95], "at": "2026-10-30T01:00:40.689785+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [95], "seconds": 1.5, "at": "2026-10-30T01:00:42.189819+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [96], "at": "2026-10-30T01:00:42.189819+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [96], "seconds": 0.10899999993853271, "at": "2026-10-30T01:00:42.310889+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [97], "at": "2026-10-30T01:00:42.310889+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [97], "seconds": 7.172000000020489, "at": "2026-10-30T01:00:49.475230+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [98], "at": "2026-10-30T01:00:49.475230+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [98], "seconds": 0.7190000000409782, "at": "2026-10-30T01:00:50.203448+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [99], "at": "2026-10-30T01:00:50.203448+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [99], "seconds": 0.0940000000409782, "at": "2026-10-30T01:00:50.285429+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [100], "at": "2026-10-30T01:00:50.285429+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [100], "seconds": 10.875, "at": "2026-10-30T01:01:01.162020+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [101], "at": "2026-10-30T01:01:01.163537+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [101], "seconds": 1.0149999998975545, "at": "2026-10-30T01:01:02.174441+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [102], "at": "2026-10-30T01:01:02.175447+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [102], "seconds": 0.07800000021234155, "at": "2026-10-30T01:01:02.262656+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [103], "at": "2026-10-30T01:01:02.262656+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [103], "seconds": 8.937999999849126, "at": "2026-10-30T01:01:11.202198+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [104], "at": "2026-10-30T01:01:11.202198+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [104], "seconds": 1.297000000020489, "at": "2026-10-30T01:01:12.488610+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [105], "at": "2026-10-30T01:01:12.488610+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [105], "seconds": 0.10899999993853271, "at": "2026-10-30T01:01:12.599155+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [106], "at": "2026-10-30T01:01:12.600228+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [106], "seconds": 13.109000000171363, "at": "2026-10-30T01:01:25.705794+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [107], "at": "2026-10-30T01:01:25.706799+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [107], "seconds": 1.375, "at": "2026-10-30T01:01:27.093566+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [108], "at": "2026-10-30T01:01:27.094077+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [108], "seconds": 0.125, "at": "2026-10-30T01:01:27.215576+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [109], "at": "2026-10-30T01:01:27.215576+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [109], "seconds": 11.515999999828637, "at": "2026-10-30T01:01:38.728160+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [110], "at": "2026-10-30T01:01:38.729165+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [110], "seconds": 0.9220000000204891, "at": "2026-10-30T01:01:39.656441+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [111], "at": "2026-10-30T01:01:39.657441+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [111], "seconds": 0.09300000010989606, "at": "2026-10-30T01:01:39.755358+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [112], "at": "2026-10-30T01:01:39.755358+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [112], "seconds": 5.8439999998081475, "at": "2026-10-30T01:01:45.609294+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [113], "at": "2026-10-30T01:01:45.609294+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [113], "seconds": 1.2190000000409782, "at": "2026-10-30T01:01:46.816211+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [114], "at": "2026-10-30T01:01:46.816211+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [114], "seconds": 0.10899999993853271, "at": "2026-10-30T01:01:46.930398+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [115], "at": "2026-10-30T01:01:46.931396+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [115], "seconds": 8.938000000081956, "at": "2026-10-30T01:01:55.874384+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [116], "at": "2026-10-30T01:01:55.875907+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [116], "seconds": 1.5159999998286366, "at": "2026-10-30T01:01:57.399507+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [117], "at": "2026-10-30T01:01:57.400509+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [117], "seconds": 0.1410000000614673, "at": "2026-10-30T01:01:57.540801+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [118], "at": "2026-10-30T01:01:57.540801+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [118], "seconds": 7.405999999959022, "at": "2026-10-30T01:02:04.953617+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [119], "at": "2026-10-30T01:02:04.953617+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [119], "seconds": 0.7650000001303852, "at": "2026-10-30T01:02:05.718202+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [120], "at": "2026-10-30T01:02:05.719320+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [120], "seconds": 0.07899999991059303, "at": "2026-10-30T01:02:05.791549+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [121], "at": "2026-10-30T01:02:05.792551+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [121], "seconds": 10.702999999979511, "at": "2026-10-30T01:02:16.488708+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [122], "at": "2026-10-30T01:02:16.489716+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [122], "seconds": 1.468000000109896, "at": "2026-10-30T01:02:17.962392+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [123], "at": "2026-10-30T01:02:17.963897+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [123], "seconds": 0.14099999982863665, "at": "2026-10-30T01:02:18.102476+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [124], "at": "2026-10-30T01:02:18.102476+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [124], "seconds": 9.5, "at": "2026-10-30T01:02:27.601147+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [125], "at": "2026-10-30T01:02:27.602153+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [125], "seconds": 1.1880000000819564, "at": "2026-10-30T01:02:28.796944+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [126], "at": "2026-10-30T01:02:28.796944+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [126], "seconds": 0.10899999993853271, "at": "2026-10-30T01:02:28.905587+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [127], "at": "2026-10-30T01:02:28.905587+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [127], "seconds": 11.516000000061467, "at": "2026-10-30T01:02:40.408124+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [128], "at": "2026-10-30T01:02:40.409343+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [128], "seconds": 0.7339999999385327, "at": "2026-10-30T01:02:41.146949+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [129], "at": "2026-10-30T01:02:41.148454+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [129], "seconds": 0.0779999999795109, "at": "2026-10-30T01:02:41.228329+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [130], "at": "2026-10-30T01:02:41.228329+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [130], "seconds": 12.391000000061467, "at": "2026-10-30T01:02:53.613580+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [131], "at": "2026-10-30T01:02:53.613580+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [131], "seconds": 1.125, "at": "2026-10-30T01:02:54.741836+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [132], "at": "2026-10-30T01:02:54.742842+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [132], "seconds": 0.10899999993853271, "at": "2026-10-30T01:02:54.847085+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [133], "at": "2026-10-30T01:02:54.847085+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [133], "seconds": 10.109000000171363, "at": "2026-10-30T01:03:04.961198+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [134], "at": "2026-10-30T01:03:04.962204+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [134], "seconds": 1.172000000020489, "at": "2026-10-30T01:03:06.133053+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [135], "at": "2026-10-30T01:03:06.134053+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [135], "seconds": 0.09399999980814755, "at": "2026-10-30T01:03:06.233812+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [136], "at": "2026-10-30T01:03:06.234822+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [136], "seconds": 8.969000000040978, "at": "2026-10-30T01:03:15.191608+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [137], "at": "2026-10-30T01:03:15.191608+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [137], "seconds": 1.9690000000409782, "at": "2026-10-30T01:03:17.164738+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [138], "at": "2026-10-30T01:03:17.164738+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [138], "seconds": 0.13999999989755452, "at": "2026-10-30T01:03:17.298199+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [139], "at": "2026-10-30T01:03:17.299719+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [139], "seconds": 7.969000000040978, "at": "2026-10-30T01:03:25.272331+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [140], "at": "2026-10-30T01:03:25.272331+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [140], "seconds": 0.10900000017136335, "at": "2026-10-30T01:03:25.376959+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_style", "args": [141], "at": "2026-10-30T01:03:25.377959+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_style", "args": [141], "seconds": 0.015999999828636646, "at": "2026-10-30T01:03:25.401572+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_translate", "args": [142], "at": "2026-10-30T01:03:25.402082+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_translate", "args": [142], "seconds": 0.030999999959021807, "at": "2026-10-30T01:03:25.424871+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [72], "at": "2026-10-30T01:03:25.424871+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [72], "seconds": 0.125, "at": "2026-10-30T01:03:25.559596+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [75], "at": "2026-10-30T01:03:25.559596+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [75], "seconds": 0.11000000010244548, "at": "2026-10-30T01:03:25.667320+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [78], "at": "2026-10-30T01:03:25.668327+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [78], "seconds": 0.10899999993853271, "at": "2026-10-30T01:03:25.769178+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [81], "at": "2026-10-30T01:03:25.769178+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [81], "seconds": 0.1410000000614673, "at": "2026-10-30T01:03:25.911191+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [84], "at": "2026-10-30T01:03:25.911191+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [84], "seconds": 0.09300000010989606, "at": "2026-10-30T01:03:26.015441+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [87], "at": "2026-10-30T01:03:26.016445+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [87], "seconds": 0.15699999989010394, "at": "2026-10-30T01:03:26.161473+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [90], "at": "2026-10-30T01:03:26.161473+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [90], "seconds": 0.10899999993853271, "at": "2026-10-30T01:03:26.273853+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [93], "at": "2026-10-30T01:03:26.273853+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [93], "seconds": 0.125, "at": "2026-10-30T01:03:26.405357+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [96], "at": "2026-10-30T01:03:26.406425+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [96], "seconds": 0.1410000000614673, "at": "2026-10-30T01:03:26.534595+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [99], "at": "2026-10-30T01:03:26.535125+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [99], "seconds": 0.125, "at": "2026-10-30T01:03:26.659101+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [102], "at": "2026-10-30T01:03:26.659101+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [102], "seconds": 0.125, "at": "2026-10-30T01:03:26.787480+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [105], "at": "2026-10-30T01:03:26.788490+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [105], "seconds": 0.13999999989755452, "at": "2026-10-30T01:03:26.923444+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [108], "at": "2026-10-30T01:03:26.923950+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [108], "seconds": 0.11000000010244548, "at": "2026-10-30T01:03:27.033693+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [111], "at": "2026-10-30T01:03:27.034209+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [111], "seconds": 0.125, "at": "2026-10-30T01:03:27.158853+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [114], "at": "2026-10-30T01:03:27.159418+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [114], "seconds": 0.13999999989755452, "at": "2026-10-30T01:03:27.303990+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [117], "at": "2026-10-30T01:03:27.303990+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [117], "seconds": 0.0940000000409782, "at": "2026-10-30T01:03:27.406557+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [120], "at": "2026-10-30T01:03:27.406557+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [120], "seconds": 0.1410000000614673, "at": "2026-10-30T01:03:27.547816+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [123], "at": "2026-10-30T01:03:27.548321+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [123], "seconds": 0.125, "at": "2026-10-30T01:03:27.686301+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [126], "at": "2026-10-30T01:03:27.687291+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [126], "seconds": 0.125, "at": "2026-10-30T01:03:27.805861+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [129], "at": "2026-10-30T01:03:27.806901+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [129], "seconds": 0.125, "at": "2026-10-30T01:03:27.929464+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [132], "at": "2026-10-30T01:03:27.929464+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [132], "seconds": 0.125, "at": "2026-10-30T01:03:28.057561+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [135], "at": "2026-10-30T01:03:28.057561+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [135], "seconds": 0.125, "at": "2026-10-30T01:03:28.184831+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_adopt", "args": [138], "at": "2026-10-30T01:03:28.186138+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [138], "seconds": 0.11000000010244548, "at": "2026-10-30T01:03:28.287081+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [143], "at": "2026-10-30T01:03:28.288149+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [143], "seconds": 0.2339999999385327, "at": "2026-10-30T01:03:28.525538+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [144], "at": "2026-10-30T01:03:28.526540+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [144], "seconds": 0.10900000017136335, "at": "2026-10-30T01:03:28.637541+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [145], "at": "2026-10-30T01:03:28.637541+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [145], "seconds": 0.09399999980814755, "at": "2026-10-30T01:03:28.730320+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [146], "at": "2026-10-30T01:03:28.730320+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [146], "seconds": 0.2660000000614673, "at": "2026-10-30T01:03:28.991428+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [147], "at": "2026-10-30T01:03:28.992430+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [147], "seconds": 0.14000000013038516, "at": "2026-10-30T01:03:29.126461+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [148], "at": "2026-10-30T01:03:29.126461+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [148], "seconds": 0.40699999989010394, "at": "2026-10-30T01:03:29.532638+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [149], "at": "2026-10-30T01:03:29.533644+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [149], "seconds": 0.125, "at": "2026-10-30T01:03:29.665381+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [150], "at": "2026-10-30T01:03:29.666387+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [150], "seconds": 0.2809999999590218, "at": "2026-10-30T01:03:29.939339+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [151], "at": "2026-10-30T01:03:29.939339+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [151], "seconds": 0.1720000000204891, "at": "2026-10-30T01:03:30.113007+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [152], "at": "2026-10-30T01:03:30.115022+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [152], "seconds": 0.21800000010989606, "at": "2026-10-30T01:03:30.341981+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [153], "at": "2026-10-30T01:03:30.341981+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [153], "seconds": 0.2970000000204891, "at": "2026-10-30T01:03:30.634993+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [154], "at": "2026-10-30T01:03:30.634993+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [154], "seconds": 0.35999999986961484, "at": "2026-10-30T01:03:30.994883+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [155], "at": "2026-10-30T01:03:30.996142+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [155], "seconds": 0.21800000010989606, "at": "2026-10-30T01:03:31.207097+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [156], "at": "2026-10-30T01:03:31.207097+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [156], "seconds": 0.28199999989010394, "at": "2026-10-30T01:03:31.495315+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [157], "at": "2026-10-30T01:03:31.495315+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [157], "seconds": 0.46800000010989606, "at": "2026-10-30T01:03:31.954506+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [158], "at": "2026-10-30T01:03:31.955026+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [158], "seconds": 0.21899999980814755, "at": "2026-10-30T01:03:32.186445+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [159], "at": "2026-10-30T01:03:32.187451+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [159], "seconds": 0.40600000019185245, "at": "2026-10-30T01:03:32.584883+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [160], "at": "2026-10-30T01:03:32.586394+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [160], "seconds": 0.39099999982863665, "at": "2026-10-30T01:03:32.979757+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [161], "at": "2026-10-30T01:03:32.980785+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [161], "seconds": 0.2970000000204891, "at": "2026-10-30T01:03:33.280361+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [162], "at": "2026-10-30T01:03:33.280361+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [162], "seconds": 0.3440000000409782, "at": "2026-10-30T01:03:33.624511+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [163], "at": "2026-10-30T01:03:33.625015+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [163], "seconds": 0.375, "at": "2026-10-30T01:03:33.989103+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [164], "at": "2026-10-30T01:03:33.990197+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [164], "seconds": 0.4220000000204891, "at": "2026-10-30T01:03:34.408685+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_preview", "args": [165], "at": "2026-10-30T01:03:34.409686+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_preview", "args": [165], "seconds": 0.4059999999590218, "at": "2026-10-30T01:03:34.821138+00:00"}
+{"source_id": "GS-01", "event": "task_started", "task": "app.tasks.run_render", "args": [167], "at": "2026-10-30T01:05:57.447678+00:00"}
+{"source_id": "GS-01", "event": "task_finished", "task": "app.tasks.run_render", "args": [167], "seconds": 6.187000000150874, "at": "2026-10-30T01:06:03.628454+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_analyze", "args": [169], "at": "2026-10-30T01:06:09.261152+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_analyze", "args": [169], "seconds": 1514.7189999998081, "at": "2026-10-30T01:31:23.989077+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [170], "at": "2026-10-30T01:31:23.989077+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [170], "seconds": 10.281000000191852, "at": "2026-10-30T01:31:34.257265+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [171], "at": "2026-10-30T01:31:34.257265+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [171], "seconds": 27.29699999978766, "at": "2026-10-30T01:32:01.553671+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [172], "at": "2026-10-30T01:32:01.553671+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [172], "seconds": 29.0, "at": "2026-10-30T01:32:30.559104+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [173], "at": "2026-10-30T01:32:30.559619+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [173], "seconds": 16.719000000040978, "at": "2026-10-30T01:32:47.286455+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [174], "at": "2026-10-30T01:32:47.287459+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [174], "seconds": 12.484000000171363, "at": "2026-10-30T01:32:59.760319+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [175], "at": "2026-10-30T01:32:59.761326+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [175], "seconds": 21.937999999849126, "at": "2026-10-30T01:33:21.699161+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [176], "at": "2026-10-30T01:33:21.699667+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [176], "seconds": 14.733999999938533, "at": "2026-10-30T01:33:36.435141+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [177], "at": "2026-10-30T01:33:36.435141+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [177], "seconds": 9.813000000081956, "at": "2026-10-30T01:33:46.246727+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [178], "at": "2026-10-30T01:33:46.247726+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [178], "seconds": 12.297000000020489, "at": "2026-10-30T01:33:58.542808+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [179], "at": "2026-10-30T01:33:58.543810+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [179], "seconds": 13.0, "at": "2026-10-30T01:34:11.538801+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [180], "at": "2026-10-30T01:34:11.539805+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [180], "seconds": 12.077999999979511, "at": "2026-10-30T01:34:23.631029+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [181], "at": "2026-10-30T01:34:23.631029+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [181], "seconds": 10.233999999938533, "at": "2026-10-30T01:34:33.866181+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [182], "at": "2026-10-30T01:34:33.866685+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [182], "seconds": 8.0, "at": "2026-10-30T01:34:41.870807+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [183], "at": "2026-10-30T01:34:41.870807+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [183], "seconds": 12.108999999938533, "at": "2026-10-30T01:34:53.986181+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [184], "at": "2026-10-30T01:34:53.987181+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [184], "seconds": 22.063000000081956, "at": "2026-10-30T01:35:16.043165+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [185], "at": "2026-10-30T01:35:16.043165+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [185], "seconds": 12.233999999938533, "at": "2026-10-30T01:35:28.286662+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [186], "at": "2026-10-30T01:35:28.286662+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [186], "seconds": 15.625, "at": "2026-10-30T01:35:43.908109+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [187], "at": "2026-10-30T01:35:43.908109+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [187], "seconds": 10.234000000171363, "at": "2026-10-30T01:35:54.138508+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [188], "at": "2026-10-30T01:35:54.138508+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [188], "seconds": 10.984999999869615, "at": "2026-10-30T01:36:05.122631+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [189], "at": "2026-10-30T01:36:05.122631+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [189], "seconds": 24.733999999938533, "at": "2026-10-30T01:36:29.852743+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [190], "at": "2026-10-30T01:36:29.852743+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [190], "seconds": 13.016000000061467, "at": "2026-10-30T01:36:42.872456+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [191], "at": "2026-10-30T01:36:42.873458+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [191], "seconds": 12.125, "at": "2026-10-30T01:36:55.003795+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [192], "at": "2026-10-30T01:36:55.005301+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [192], "seconds": 14.093000000109896, "at": "2026-10-30T01:37:09.099084+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [193], "at": "2026-10-30T01:37:09.100086+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [193], "seconds": 13.984999999869615, "at": "2026-10-30T01:37:23.080954+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [194], "at": "2026-10-30T01:37:23.081472+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [194], "seconds": 16.92200000002049, "at": "2026-10-30T01:37:40.006307+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [195], "at": "2026-10-30T01:37:40.007725+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [195], "seconds": 16.70299999997951, "at": "2026-10-30T01:37:56.722555+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [196], "at": "2026-10-30T01:37:56.722555+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [196], "seconds": 11.531999999890104, "at": "2026-10-30T01:38:08.242410+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [197], "at": "2026-10-30T01:38:08.243917+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [197], "seconds": 14.436999999918044, "at": "2026-10-30T01:38:22.681355+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [198], "at": "2026-10-30T01:38:22.681355+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [198], "seconds": 11.156000000191852, "at": "2026-10-30T01:38:33.837558+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [199], "at": "2026-10-30T01:38:33.838557+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [199], "seconds": 13.578999999910593, "at": "2026-10-30T01:38:47.424224+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [200], "at": "2026-10-30T01:38:47.425728+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [200], "seconds": 9.5, "at": "2026-10-30T01:38:56.920174+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [201], "at": "2026-10-30T01:38:56.920678+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [201], "seconds": 7.233999999938533, "at": "2026-10-30T01:39:04.153237+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [202], "at": "2026-10-30T01:39:04.153237+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [202], "seconds": 12.655999999959022, "at": "2026-10-30T01:39:16.808995+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [203], "at": "2026-10-30T01:39:16.808995+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [203], "seconds": 9.860000000102445, "at": "2026-10-30T01:39:26.669701+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [204], "at": "2026-10-30T01:39:26.669701+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [204], "seconds": 10.593000000109896, "at": "2026-10-30T01:39:37.268577+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [205], "at": "2026-10-30T01:39:37.269585+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [205], "seconds": 13.202999999979511, "at": "2026-10-30T01:39:50.475025+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [206], "at": "2026-10-30T01:39:50.476158+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [206], "seconds": 11.203999999910593, "at": "2026-10-30T01:40:01.665627+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [207], "at": "2026-10-30T01:40:01.666632+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [207], "seconds": 16.889999999897555, "at": "2026-10-30T01:40:18.560569+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [208], "at": "2026-10-30T01:40:18.561075+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [208], "seconds": 12.094000000040978, "at": "2026-10-30T01:40:30.649487+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [209], "at": "2026-10-30T01:40:30.650992+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [209], "seconds": 13.016000000061467, "at": "2026-10-30T01:40:43.666580+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [210], "at": "2026-10-30T01:40:43.667580+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [210], "seconds": 17.343000000109896, "at": "2026-10-30T01:41:01.011000+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [211], "at": "2026-10-30T01:41:01.011508+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [211], "seconds": 15.952999999979511, "at": "2026-10-30T01:41:16.966073+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [212], "at": "2026-10-30T01:41:16.966073+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [212], "seconds": 25.656999999890104, "at": "2026-10-30T01:41:42.630048+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [213], "at": "2026-10-30T01:41:42.630048+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [213], "seconds": 11.718000000109896, "at": "2026-10-30T01:41:54.347905+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [214], "at": "2026-10-30T01:41:54.347905+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [214], "seconds": 16.953999999910593, "at": "2026-10-30T01:42:11.297059+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [215], "at": "2026-10-30T01:42:11.298060+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [215], "seconds": 12.280999999959022, "at": "2026-10-30T01:42:23.572052+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [216], "at": "2026-10-30T01:42:23.573577+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [216], "seconds": 10.202999999979511, "at": "2026-10-30T01:42:33.777181+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [217], "at": "2026-10-30T01:42:33.778188+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [217], "seconds": 17.905999999959022, "at": "2026-10-30T01:42:51.694665+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_judge", "args": [218], "at": "2026-10-30T01:42:51.694665+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_judge", "args": [218], "seconds": 14.469000000040978, "at": "2026-10-30T01:43:06.160177+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [220], "at": "2026-10-30T01:44:53.466043+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [220], "seconds": 6.156999999890104, "at": "2026-10-30T01:44:59.619204+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [221], "at": "2026-10-30T01:44:59.620200+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [221], "seconds": 7.061999999918044, "at": "2026-10-30T01:45:06.682341+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [222], "at": "2026-10-30T01:45:06.682341+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [222], "seconds": 8.563000000081956, "at": "2026-10-30T01:45:15.255158+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [223], "at": "2026-10-30T01:45:15.256162+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [223], "seconds": 8.530999999959022, "at": "2026-10-30T01:45:23.789158+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [224], "at": "2026-10-30T01:45:23.789662+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [224], "seconds": 5.625, "at": "2026-10-30T01:45:29.412590+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [225], "at": "2026-10-30T01:45:29.413602+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [225], "seconds": 12.452999999979511, "at": "2026-10-30T01:45:41.853815+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [226], "at": "2026-10-30T01:45:41.854815+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [226], "seconds": 5.563000000081956, "at": "2026-10-30T01:45:47.426529+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [227], "at": "2026-10-30T01:45:47.426529+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [227], "seconds": 4.2649999998975545, "at": "2026-10-30T01:45:51.684854+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [228], "at": "2026-10-30T01:45:51.686362+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [228], "seconds": 4.313000000081956, "at": "2026-10-30T01:45:56.004876+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [229], "at": "2026-10-30T01:45:56.005876+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [229], "seconds": 5.186999999918044, "at": "2026-10-30T01:46:01.189522+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [230], "at": "2026-10-30T01:46:01.190525+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [230], "seconds": 6.313000000081956, "at": "2026-10-30T01:46:07.506043+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [231], "at": "2026-10-30T01:46:07.507042+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [231], "seconds": 5.765000000130385, "at": "2026-10-30T01:46:13.272691+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [232], "at": "2026-10-30T01:46:13.272691+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [232], "seconds": 4.875, "at": "2026-10-30T01:46:18.135989+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [233], "at": "2026-10-30T01:46:18.136990+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [233], "seconds": 6.125, "at": "2026-10-30T01:46:24.260455+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [234], "at": "2026-10-30T01:46:24.261958+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [234], "seconds": 7.077999999979511, "at": "2026-10-30T01:46:31.348261+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [235], "at": "2026-10-30T01:46:31.349592+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [235], "seconds": 6.656999999890104, "at": "2026-10-30T01:46:37.999855+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [236], "at": "2026-10-30T01:46:38.000858+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [236], "seconds": 6.905999999959022, "at": "2026-10-30T01:46:44.906903+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [237], "at": "2026-10-30T01:46:44.906903+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [237], "seconds": 8.155999999959022, "at": "2026-10-30T01:46:53.063561+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [238], "at": "2026-10-30T01:46:53.065064+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [238], "seconds": 10.047000000020489, "at": "2026-10-30T01:47:03.116253+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [239], "at": "2026-10-30T01:47:03.116253+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [239], "seconds": 8.188000000081956, "at": "2026-10-30T01:47:11.304892+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [240], "at": "2026-10-30T01:47:11.305895+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [240], "seconds": 7.827999999979511, "at": "2026-10-30T01:47:19.125440+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [241], "at": "2026-10-30T01:47:19.126439+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [241], "seconds": 5.75, "at": "2026-10-30T01:47:24.881255+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [242], "at": "2026-10-30T01:47:24.881255+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [242], "seconds": 7.452999999979511, "at": "2026-10-30T01:47:32.323812+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [243], "at": "2026-10-30T01:47:32.324809+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [243], "seconds": 5.233999999938533, "at": "2026-10-30T01:47:37.562763+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [244], "at": "2026-10-30T01:47:37.563772+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [244], "seconds": 6.344000000040978, "at": "2026-10-30T01:47:43.909634+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [245], "at": "2026-10-30T01:47:43.909634+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [245], "seconds": 4.234000000171363, "at": "2026-10-30T01:47:48.146895+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [246], "at": "2026-10-30T01:47:48.147902+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [246], "seconds": 5.0, "at": "2026-10-30T01:47:53.143590+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [247], "at": "2026-10-30T01:47:53.144592+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [247], "seconds": 6.7189999998081475, "at": "2026-10-30T01:47:59.865177+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [248], "at": "2026-10-30T01:47:59.866178+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [248], "seconds": 12.844000000040978, "at": "2026-10-30T01:48:12.706798+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [249], "at": "2026-10-30T01:48:12.706798+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [249], "seconds": 7.25, "at": "2026-10-30T01:48:19.960237+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [250], "at": "2026-10-30T01:48:19.961243+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [250], "seconds": 8.187000000150874, "at": "2026-10-30T01:48:28.136000+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [251], "at": "2026-10-30T01:48:28.137008+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [251], "seconds": 9.656999999890104, "at": "2026-10-30T01:48:37.804242+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [252], "at": "2026-10-30T01:48:37.804242+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [252], "seconds": 6.702999999979511, "at": "2026-10-30T01:48:44.494493+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [253], "at": "2026-10-30T01:48:44.495493+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [253], "seconds": 7.233999999938533, "at": "2026-10-30T01:48:51.735814+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [254], "at": "2026-10-30T01:48:51.735814+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [254], "seconds": 6.702999999979511, "at": "2026-10-30T01:48:58.436992+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [255], "at": "2026-10-30T01:48:58.436992+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [255], "seconds": 10.781000000191852, "at": "2026-10-30T01:49:09.227785+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [256], "at": "2026-10-30T01:49:09.229024+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [256], "seconds": 9.156000000191852, "at": "2026-10-30T01:49:18.392275+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [257], "at": "2026-10-30T01:49:18.392275+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [257], "seconds": 4.2189999998081475, "at": "2026-10-30T01:49:22.618145+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [258], "at": "2026-10-30T01:49:22.619145+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [258], "seconds": 5.218000000109896, "at": "2026-10-30T01:49:27.837890+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [259], "at": "2026-10-30T01:49:27.837890+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [259], "seconds": 9.281999999890104, "at": "2026-10-30T01:49:37.130850+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [260], "at": "2026-10-30T01:49:37.132354+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [260], "seconds": 9.483999999938533, "at": "2026-10-30T01:49:46.618474+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [261], "at": "2026-10-30T01:49:46.618474+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [261], "seconds": 4.125, "at": "2026-10-30T01:49:50.734638+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [262], "at": "2026-10-30T01:49:50.734638+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [262], "seconds": 11.125, "at": "2026-10-30T01:50:01.866283+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_label", "args": [263], "at": "2026-10-30T01:50:01.866283+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_label", "args": [263], "seconds": 5.952999999979511, "at": "2026-10-30T01:50:07.820847+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [264], "at": "2026-10-30T01:50:07.820847+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [264], "seconds": 0.5, "at": "2026-10-30T01:50:08.318367+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [265], "at": "2026-10-30T01:50:08.318367+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [265], "seconds": 0.28100000019185245, "at": "2026-10-30T01:50:08.602435+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [266], "at": "2026-10-30T01:50:08.603443+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [266], "seconds": 0.28199999989010394, "at": "2026-10-30T01:50:08.870117+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [267], "at": "2026-10-30T01:50:08.871632+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [267], "seconds": 0.4839999999385327, "at": "2026-10-30T01:50:09.365861+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [268], "at": "2026-10-30T01:50:09.367365+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [268], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:09.624955+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [269], "at": "2026-10-30T01:50:09.625963+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [269], "seconds": 0.26500000013038516, "at": "2026-10-30T01:50:09.895922+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [270], "at": "2026-10-30T01:50:09.895922+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [270], "seconds": 0.5, "at": "2026-10-30T01:50:10.391226+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [271], "at": "2026-10-30T01:50:10.392735+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [271], "seconds": 0.28199999989010394, "at": "2026-10-30T01:50:10.678927+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [272], "at": "2026-10-30T01:50:10.679931+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [272], "seconds": 0.5149999998975545, "at": "2026-10-30T01:50:11.184894+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [273], "at": "2026-10-30T01:50:11.184894+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [273], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:11.454823+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [274], "at": "2026-10-30T01:50:11.454823+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [274], "seconds": 0.26500000013038516, "at": "2026-10-30T01:50:11.720165+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [275], "at": "2026-10-30T01:50:11.721173+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [275], "seconds": 0.5319999998901039, "at": "2026-10-30T01:50:12.248500+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [276], "at": "2026-10-30T01:50:12.249496+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [276], "seconds": 0.2809999999590218, "at": "2026-10-30T01:50:12.528036+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [277], "at": "2026-10-30T01:50:12.528036+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [277], "seconds": 0.5470000000204891, "at": "2026-10-30T01:50:13.074041+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [278], "at": "2026-10-30T01:50:13.074041+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [278], "seconds": 0.2970000000204891, "at": "2026-10-30T01:50:13.374854+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [279], "at": "2026-10-30T01:50:13.374854+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [279], "seconds": 0.26500000013038516, "at": "2026-10-30T01:50:13.640157+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [280], "at": "2026-10-30T01:50:13.641164+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [280], "seconds": 0.5159999998286366, "at": "2026-10-30T01:50:14.161823+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [281], "at": "2026-10-30T01:50:14.161823+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [281], "seconds": 0.3440000000409782, "at": "2026-10-30T01:50:14.503922+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [282], "at": "2026-10-30T01:50:14.504930+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [282], "seconds": 0.5779999999795109, "at": "2026-10-30T01:50:15.074971+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [283], "at": "2026-10-30T01:50:15.075973+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [283], "seconds": 0.2970000000204891, "at": "2026-10-30T01:50:15.382588+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [284], "at": "2026-10-30T01:50:15.383597+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [284], "seconds": 0.2809999999590218, "at": "2026-10-30T01:50:15.658533+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [285], "at": "2026-10-30T01:50:15.658533+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [285], "seconds": 0.5160000000614673, "at": "2026-10-30T01:50:16.179346+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [286], "at": "2026-10-30T01:50:16.179346+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [286], "seconds": 0.2649999998975545, "at": "2026-10-30T01:50:16.440010+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [287], "at": "2026-10-30T01:50:16.441011+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [287], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:16.697360+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [288], "at": "2026-10-30T01:50:16.697360+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [288], "seconds": 0.5, "at": "2026-10-30T01:50:17.211976+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [289], "at": "2026-10-30T01:50:17.212480+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [289], "seconds": 0.26500000013038516, "at": "2026-10-30T01:50:17.472374+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [290], "at": "2026-10-30T01:50:17.473381+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [290], "seconds": 0.26599999982863665, "at": "2026-10-30T01:50:17.737212+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [291], "at": "2026-10-30T01:50:17.737212+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [291], "seconds": 0.48400000017136335, "at": "2026-10-30T01:50:18.227869+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [292], "at": "2026-10-30T01:50:18.227869+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [292], "seconds": 0.34399999980814755, "at": "2026-10-30T01:50:18.569212+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [293], "at": "2026-10-30T01:50:18.569212+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [293], "seconds": 0.5, "at": "2026-10-30T01:50:19.066827+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [294], "at": "2026-10-30T01:50:19.067334+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [294], "seconds": 0.3130000000819564, "at": "2026-10-30T01:50:19.378068+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [295], "at": "2026-10-30T01:50:19.378068+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [295], "seconds": 0.3119999999180436, "at": "2026-10-30T01:50:19.695402+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [296], "at": "2026-10-30T01:50:19.696403+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [296], "seconds": 0.5, "at": "2026-10-30T01:50:20.192832+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [297], "at": "2026-10-30T01:50:20.193414+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [297], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:20.450147+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [298], "at": "2026-10-30T01:50:20.450147+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [298], "seconds": 0.26500000013038516, "at": "2026-10-30T01:50:20.722376+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [299], "at": "2026-10-30T01:50:20.722376+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [299], "seconds": 0.5, "at": "2026-10-30T01:50:21.224463+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [300], "at": "2026-10-30T01:50:21.225825+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [300], "seconds": 0.2970000000204891, "at": "2026-10-30T01:50:21.517201+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [301], "at": "2026-10-30T01:50:21.518363+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [301], "seconds": 0.5159999998286366, "at": "2026-10-30T01:50:22.035619+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [302], "at": "2026-10-30T01:50:22.035619+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [302], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:22.306239+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [303], "at": "2026-10-30T01:50:22.307245+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [303], "seconds": 0.5, "at": "2026-10-30T01:50:22.811581+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [304], "at": "2026-10-30T01:50:22.812590+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [304], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:23.082364+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [305], "at": "2026-10-30T01:50:23.083573+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [305], "seconds": 0.26500000013038516, "at": "2026-10-30T01:50:23.339838+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [306], "at": "2026-10-30T01:50:23.340835+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [306], "seconds": 0.46899999980814755, "at": "2026-10-30T01:50:23.816228+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_logo", "args": [307], "at": "2026-10-30T01:50:23.817225+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_logo", "args": [307], "seconds": 0.2660000000614673, "at": "2026-10-30T01:50:24.081199+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [308], "at": "2026-10-30T01:50:24.081199+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [308], "seconds": 0.8589999999385327, "at": "2026-10-30T01:50:24.940022+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [309], "at": "2026-10-30T01:50:24.941026+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [309], "seconds": 0.0940000000409782, "at": "2026-10-30T01:50:25.029459+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [310], "at": "2026-10-30T01:50:25.030461+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [310], "seconds": 11.641000000061467, "at": "2026-10-30T01:50:36.672486+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [311], "at": "2026-10-30T01:50:36.672486+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [311], "seconds": 1.9839999999385327, "at": "2026-10-30T01:50:38.659088+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [312], "at": "2026-10-30T01:50:38.660096+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [312], "seconds": 0.1559999999590218, "at": "2026-10-30T01:50:38.809838+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [313], "at": "2026-10-30T01:50:38.809838+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [313], "seconds": 8.266000000061467, "at": "2026-10-30T01:50:47.074610+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [314], "at": "2026-10-30T01:50:47.074610+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [314], "seconds": 0.6870000001508743, "at": "2026-10-30T01:50:47.774145+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [315], "at": "2026-10-30T01:50:47.775153+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [315], "seconds": 0.10999999986961484, "at": "2026-10-30T01:50:47.876328+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [316], "at": "2026-10-30T01:50:47.876328+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [316], "seconds": 49.343000000109896, "at": "2026-10-30T01:51:37.225158+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [317], "at": "2026-10-30T01:51:37.226673+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [317], "seconds": 0.6720000000204891, "at": "2026-10-30T01:51:37.891625+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [318], "at": "2026-10-30T01:51:37.893141+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [318], "seconds": 0.10999999986961484, "at": "2026-10-30T01:51:37.995766+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [319], "at": "2026-10-30T01:51:37.996774+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [319], "seconds": 5.172000000020489, "at": "2026-10-30T01:51:43.171676+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [320], "at": "2026-10-30T01:51:43.172682+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [320], "seconds": 0.375, "at": "2026-10-30T01:51:43.545076+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [321], "at": "2026-10-30T01:51:43.546076+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [321], "seconds": 0.0779999999795109, "at": "2026-10-30T01:51:43.631793+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [322], "at": "2026-10-30T01:51:43.631793+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [322], "seconds": 13.875, "at": "2026-10-30T01:51:57.497223+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [323], "at": "2026-10-30T01:51:57.497223+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [323], "seconds": 1.297000000020489, "at": "2026-10-30T01:51:58.792034+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [324], "at": "2026-10-30T01:51:58.792034+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [324], "seconds": 0.10899999993853271, "at": "2026-10-30T01:51:58.915955+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [325], "at": "2026-10-30T01:51:58.915955+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [325], "seconds": 10.516000000061467, "at": "2026-10-30T01:52:09.429564+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [326], "at": "2026-10-30T01:52:09.429564+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [326], "seconds": 0.8589999999385327, "at": "2026-10-30T01:52:10.286462+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [327], "at": "2026-10-30T01:52:10.286462+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [327], "seconds": 0.10900000017136335, "at": "2026-10-30T01:52:10.399965+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [328], "at": "2026-10-30T01:52:10.399965+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [328], "seconds": 10.187999999849126, "at": "2026-10-30T01:52:20.573917+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [329], "at": "2026-10-30T01:52:20.573917+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [329], "seconds": 0.4839999999385327, "at": "2026-10-30T01:52:21.064235+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [330], "at": "2026-10-30T01:52:21.065241+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [330], "seconds": 0.07800000021234155, "at": "2026-10-30T01:52:21.140432+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [331], "at": "2026-10-30T01:52:21.140936+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [331], "seconds": 15.046999999787658, "at": "2026-10-30T01:52:36.184085+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [332], "at": "2026-10-30T01:52:36.185143+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [332], "seconds": 0.5310000001918525, "at": "2026-10-30T01:52:36.722943+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [333], "at": "2026-10-30T01:52:36.723447+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [333], "seconds": 0.07899999991059303, "at": "2026-10-30T01:52:36.801711+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [334], "at": "2026-10-30T01:52:36.802219+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [334], "seconds": 25.608999999938533, "at": "2026-10-30T01:53:02.411390+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [335], "at": "2026-10-30T01:53:02.412895+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [335], "seconds": 0.4529999999795109, "at": "2026-10-30T01:53:02.862010+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [336], "at": "2026-10-30T01:53:02.863172+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [336], "seconds": 0.0779999999795109, "at": "2026-10-30T01:53:02.937769+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [337], "at": "2026-10-30T01:53:02.937769+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [337], "seconds": 13.610000000102445, "at": "2026-10-30T01:53:16.550551+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [338], "at": "2026-10-30T01:53:16.552055+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [338], "seconds": 1.0149999998975545, "at": "2026-10-30T01:53:17.557453+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [339], "at": "2026-10-30T01:53:17.558450+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [339], "seconds": 0.0940000000409782, "at": "2026-10-30T01:53:17.652929+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [340], "at": "2026-10-30T01:53:17.654440+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [340], "seconds": 9.719000000040978, "at": "2026-10-30T01:53:27.373250+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [341], "at": "2026-10-30T01:53:27.374255+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [341], "seconds": 0.5619999999180436, "at": "2026-10-30T01:53:27.935066+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [342], "at": "2026-10-30T01:53:27.936067+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [342], "seconds": 0.0940000000409782, "at": "2026-10-30T01:53:28.030414+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [343], "at": "2026-10-30T01:53:28.031927+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [343], "seconds": 14.375, "at": "2026-10-30T01:53:42.404299+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [344], "at": "2026-10-30T01:53:42.404299+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [344], "seconds": 0.5309999999590218, "at": "2026-10-30T01:53:42.943981+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [345], "at": "2026-10-30T01:53:42.943981+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [345], "seconds": 0.07800000021234155, "at": "2026-10-30T01:53:43.022196+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [346], "at": "2026-10-30T01:53:43.023201+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [346], "seconds": 9.640999999828637, "at": "2026-10-30T01:53:52.658942+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [347], "at": "2026-10-30T01:53:52.660446+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [347], "seconds": 0.8279999999795109, "at": "2026-10-30T01:53:53.491197+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [348], "at": "2026-10-30T01:53:53.491703+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [348], "seconds": 0.10900000017136335, "at": "2026-10-30T01:53:53.597339+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [349], "at": "2026-10-30T01:53:53.597339+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [349], "seconds": 4.609999999869615, "at": "2026-10-30T01:53:58.209569+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [350], "at": "2026-10-30T01:53:58.210570+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [350], "seconds": 1.297000000020489, "at": "2026-10-30T01:53:59.509614+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [351], "at": "2026-10-30T01:53:59.509614+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [351], "seconds": 0.14000000013038516, "at": "2026-10-30T01:53:59.647447+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [352], "at": "2026-10-30T01:53:59.648459+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [352], "seconds": 7.327999999979511, "at": "2026-10-30T01:54:06.965534+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [353], "at": "2026-10-30T01:54:06.965534+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [353], "seconds": 0.7970000000204891, "at": "2026-10-30T01:54:07.774173+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [354], "at": "2026-10-30T01:54:07.774678+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [354], "seconds": 0.10999999986961484, "at": "2026-10-30T01:54:07.870050+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [355], "at": "2026-10-30T01:54:07.870050+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [355], "seconds": 11.75, "at": "2026-10-30T01:54:19.626104+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [356], "at": "2026-10-30T01:54:19.627105+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [356], "seconds": 1.375, "at": "2026-10-30T01:54:20.999347+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [357], "at": "2026-10-30T01:54:20.999347+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [357], "seconds": 0.125, "at": "2026-10-30T01:54:21.121511+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [358], "at": "2026-10-30T01:54:21.122016+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [358], "seconds": 5.547000000020489, "at": "2026-10-30T01:54:26.671751+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [359], "at": "2026-10-30T01:54:26.671751+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [359], "seconds": 1.1399999998975545, "at": "2026-10-30T01:54:27.808761+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [360], "at": "2026-10-30T01:54:27.809766+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [360], "seconds": 0.32800000021234155, "at": "2026-10-30T01:54:28.145667+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [361], "at": "2026-10-30T01:54:28.146672+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [361], "seconds": 21.609999999869615, "at": "2026-10-30T01:54:49.745107+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [362], "at": "2026-10-30T01:54:49.746104+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [362], "seconds": 1.297000000020489, "at": "2026-10-30T01:54:51.052057+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [363], "at": "2026-10-30T01:54:51.053565+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [363], "seconds": 0.13999999989755452, "at": "2026-10-30T01:54:51.184181+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [364], "at": "2026-10-30T01:54:51.184181+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [364], "seconds": 11.781000000191852, "at": "2026-10-30T01:55:02.969430+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [365], "at": "2026-10-30T01:55:02.970294+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [365], "seconds": 0.875, "at": "2026-10-30T01:55:03.841550+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [366], "at": "2026-10-30T01:55:03.843038+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [366], "seconds": 0.14099999982863665, "at": "2026-10-30T01:55:03.991750+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [367], "at": "2026-10-30T01:55:03.992750+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [367], "seconds": 7.344000000040978, "at": "2026-10-30T01:55:11.335682+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [368], "at": "2026-10-30T01:55:11.336685+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [368], "seconds": 1.0, "at": "2026-10-30T01:55:12.332755+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [369], "at": "2026-10-30T01:55:12.332755+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [369], "seconds": 0.10899999993853271, "at": "2026-10-30T01:55:12.433962+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [370], "at": "2026-10-30T01:55:12.434466+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [370], "seconds": 8.547000000020489, "at": "2026-10-30T01:55:20.993457+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [371], "at": "2026-10-30T01:55:20.994463+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [371], "seconds": 0.5940000000409782, "at": "2026-10-30T01:55:21.578197+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [372], "at": "2026-10-30T01:55:21.578197+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [372], "seconds": 0.0940000000409782, "at": "2026-10-30T01:55:21.668139+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [373], "at": "2026-10-30T01:55:21.668139+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [373], "seconds": 16.436999999918044, "at": "2026-10-30T01:55:38.105619+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [374], "at": "2026-10-30T01:55:38.106619+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [374], "seconds": 1.0630000000819564, "at": "2026-10-30T01:55:39.182602+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [375], "at": "2026-10-30T01:55:39.183607+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [375], "seconds": 0.0940000000409782, "at": "2026-10-30T01:55:39.286447+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [376], "at": "2026-10-30T01:55:39.287689+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [376], "seconds": 13.141000000061467, "at": "2026-10-30T01:55:52.420375+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [377], "at": "2026-10-30T01:55:52.420375+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [377], "seconds": 0.5149999998975545, "at": "2026-10-30T01:55:52.943369+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [378], "at": "2026-10-30T01:55:52.944505+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [378], "seconds": 0.07800000021234155, "at": "2026-10-30T01:55:53.026254+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [379], "at": "2026-10-30T01:55:53.027264+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [379], "seconds": 8.155999999959022, "at": "2026-10-30T01:56:01.189921+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [380], "at": "2026-10-30T01:56:01.190921+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [380], "seconds": 0.7970000000204891, "at": "2026-10-30T01:56:01.982061+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [381], "at": "2026-10-30T01:56:01.983566+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [381], "seconds": 0.10900000017136335, "at": "2026-10-30T01:56:02.091357+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [382], "at": "2026-10-30T01:56:02.091357+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [382], "seconds": 18.25, "at": "2026-10-30T01:56:20.340532+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [383], "at": "2026-10-30T01:56:20.341537+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [383], "seconds": 0.45399999991059303, "at": "2026-10-30T01:56:20.804767+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [384], "at": "2026-10-30T01:56:20.804767+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [384], "seconds": 0.0779999999795109, "at": "2026-10-30T01:56:20.879354+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [385], "at": "2026-10-30T01:56:20.880858+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [385], "seconds": 10.655999999959022, "at": "2026-10-30T01:56:31.527453+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [386], "at": "2026-10-30T01:56:31.527453+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [386], "seconds": 0.5470000000204891, "at": "2026-10-30T01:56:32.083808+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [387], "at": "2026-10-30T01:56:32.084813+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [387], "seconds": 0.0779999999795109, "at": "2026-10-30T01:56:32.161720+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [388], "at": "2026-10-30T01:56:32.161720+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [388], "seconds": 8.812000000150874, "at": "2026-10-30T01:56:40.965532+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [389], "at": "2026-10-30T01:56:40.966534+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [389], "seconds": 0.7970000000204891, "at": "2026-10-30T01:56:41.771247+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [390], "at": "2026-10-30T01:56:41.772246+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [390], "seconds": 0.10999999986961484, "at": "2026-10-30T01:56:41.878351+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [391], "at": "2026-10-30T01:56:41.878351+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [391], "seconds": 10.436999999918044, "at": "2026-10-30T01:56:52.317798+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [392], "at": "2026-10-30T01:56:52.318812+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [392], "seconds": 2.0630000000819564, "at": "2026-10-30T01:56:54.385707+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [393], "at": "2026-10-30T01:56:54.385707+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [393], "seconds": 0.25, "at": "2026-10-30T01:56:54.630045+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [394], "at": "2026-10-30T01:56:54.631891+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [394], "seconds": 21.311999999918044, "at": "2026-10-30T01:57:15.944769+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [395], "at": "2026-10-30T01:57:15.945787+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [395], "seconds": 0.9690000000409782, "at": "2026-10-30T01:57:16.902495+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [396], "at": "2026-10-30T01:57:16.902495+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [396], "seconds": 0.0940000000409782, "at": "2026-10-30T01:57:17.007344+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [397], "at": "2026-10-30T01:57:17.008850+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [397], "seconds": 12.311999999918044, "at": "2026-10-30T01:57:29.318801+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [398], "at": "2026-10-30T01:57:29.319981+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [398], "seconds": 0.9530000002123415, "at": "2026-10-30T01:57:30.262856+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [399], "at": "2026-10-30T01:57:30.262856+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [399], "seconds": 0.125, "at": "2026-10-30T01:57:30.388700+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [400], "at": "2026-10-30T01:57:30.389701+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [400], "seconds": 47.484999999869615, "at": "2026-10-30T01:58:17.875809+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [401], "at": "2026-10-30T01:58:17.877314+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [401], "seconds": 1.047000000020489, "at": "2026-10-30T01:58:18.919703+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [402], "at": "2026-10-30T01:58:18.919703+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [402], "seconds": 0.10899999993853271, "at": "2026-10-30T01:58:19.029536+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [403], "at": "2026-10-30T01:58:19.029536+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [403], "seconds": 13.905999999959022, "at": "2026-10-30T01:58:32.940634+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [404], "at": "2026-10-30T01:58:32.941145+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [404], "seconds": 0.9530000002123415, "at": "2026-10-30T01:58:33.889320+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [405], "at": "2026-10-30T01:58:33.890371+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [405], "seconds": 0.09399999980814755, "at": "2026-10-30T01:58:33.992281+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [406], "at": "2026-10-30T01:58:33.992281+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [406], "seconds": 10.859000000171363, "at": "2026-10-30T01:58:44.840081+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [407], "at": "2026-10-30T01:58:44.840587+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [407], "seconds": 1.078999999910593, "at": "2026-10-30T01:58:45.926849+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [408], "at": "2026-10-30T01:58:45.927854+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [408], "seconds": 0.10899999993853271, "at": "2026-10-30T01:58:46.031552+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [409], "at": "2026-10-30T01:58:46.031552+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [409], "seconds": 4.562000000150874, "at": "2026-10-30T01:58:50.602086+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [410], "at": "2026-10-30T01:58:50.602086+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [410], "seconds": 0.828999999910593, "at": "2026-10-30T01:58:51.421761+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [411], "at": "2026-10-30T01:58:51.421761+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [411], "seconds": 0.10899999993853271, "at": "2026-10-30T01:58:51.528041+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [412], "at": "2026-10-30T01:58:51.529043+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [412], "seconds": 9.484000000171363, "at": "2026-10-30T01:59:01.014582+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [413], "at": "2026-10-30T01:59:01.015090+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [413], "seconds": 0.9529999999795109, "at": "2026-10-30T01:59:01.967148+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [414], "at": "2026-10-30T01:59:01.967148+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [414], "seconds": 0.10999999986961484, "at": "2026-10-30T01:59:02.075129+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [415], "at": "2026-10-30T01:59:02.075129+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [415], "seconds": 8.797000000020489, "at": "2026-10-30T01:59:10.872709+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [416], "at": "2026-10-30T01:59:10.874231+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [416], "seconds": 1.452999999979511, "at": "2026-10-30T01:59:12.335175+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [417], "at": "2026-10-30T01:59:12.335175+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [417], "seconds": 0.14000000013038516, "at": "2026-10-30T01:59:12.479174+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [418], "at": "2026-10-30T01:59:12.480209+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [418], "seconds": 12.359999999869615, "at": "2026-10-30T01:59:24.837175+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [419], "at": "2026-10-30T01:59:24.838688+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [419], "seconds": 0.375, "at": "2026-10-30T01:59:25.201643+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [420], "at": "2026-10-30T01:59:25.201643+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [420], "seconds": 0.0779999999795109, "at": "2026-10-30T01:59:25.291533+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [421], "at": "2026-10-30T01:59:25.292542+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [421], "seconds": 6.625, "at": "2026-10-30T01:59:31.903903+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [422], "at": "2026-10-30T01:59:31.904408+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [422], "seconds": 0.5620000001508743, "at": "2026-10-30T01:59:32.467886+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [423], "at": "2026-10-30T01:59:32.467886+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [423], "seconds": 0.09399999980814755, "at": "2026-10-30T01:59:32.558479+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [424], "at": "2026-10-30T01:59:32.559837+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [424], "seconds": 9.375, "at": "2026-10-30T01:59:41.937211+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [425], "at": "2026-10-30T01:59:41.938214+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [425], "seconds": 0.9220000000204891, "at": "2026-10-30T01:59:42.856564+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [426], "at": "2026-10-30T01:59:42.858079+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [426], "seconds": 0.3279999999795109, "at": "2026-10-30T01:59:43.198672+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [427], "at": "2026-10-30T01:59:43.198672+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [427], "seconds": 13.641000000061467, "at": "2026-10-30T01:59:56.835318+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [428], "at": "2026-10-30T01:59:56.835844+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [428], "seconds": 1.9690000000409782, "at": "2026-10-30T01:59:58.802343+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [429], "at": "2026-10-30T01:59:58.803344+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [429], "seconds": 0.13999999989755452, "at": "2026-10-30T01:59:58.948105+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [430], "at": "2026-10-30T01:59:58.949783+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [430], "seconds": 6.844000000040978, "at": "2026-10-30T02:00:05.796416+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [431], "at": "2026-10-30T02:00:05.797425+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [431], "seconds": 0.5, "at": "2026-10-30T02:00:06.302570+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [432], "at": "2026-10-30T02:00:06.302570+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [432], "seconds": 0.09300000010989606, "at": "2026-10-30T02:00:06.391907+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [433], "at": "2026-10-30T02:00:06.392905+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [433], "seconds": 4.937999999849126, "at": "2026-10-30T02:00:11.337782+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [434], "at": "2026-10-30T02:00:11.337782+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [434], "seconds": 0.6720000000204891, "at": "2026-10-30T02:00:11.999126+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [435], "at": "2026-10-30T02:00:12.000152+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [435], "seconds": 0.0779999999795109, "at": "2026-10-30T02:00:12.087975+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [436], "at": "2026-10-30T02:00:12.087975+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [436], "seconds": 7.625, "at": "2026-10-30T02:00:19.711707+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_inpaint", "args": [437], "at": "2026-10-30T02:00:19.712717+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_inpaint", "args": [437], "seconds": 0.8120000001508743, "at": "2026-10-30T02:00:20.525375+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_style", "args": [438], "at": "2026-10-30T02:00:20.525375+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_style", "args": [438], "seconds": 0.10999999986961484, "at": "2026-10-30T02:00:20.633658+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_translate", "args": [439], "at": "2026-10-30T02:00:20.633658+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_translate", "args": [439], "seconds": 11.172000000020489, "at": "2026-10-30T02:00:31.795048+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [303], "at": "2026-10-30T02:00:31.795553+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [303], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:31.905257+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [306], "at": "2026-10-30T02:00:31.905257+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [306], "seconds": 0.125, "at": "2026-10-30T02:00:32.035931+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [309], "at": "2026-10-30T02:00:32.035931+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [309], "seconds": 0.125, "at": "2026-10-30T02:00:32.158845+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [312], "at": "2026-10-30T02:00:32.159844+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [312], "seconds": 0.10900000017136335, "at": "2026-10-30T02:00:32.274288+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [315], "at": "2026-10-30T02:00:32.274288+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [315], "seconds": 0.10999999986961484, "at": "2026-10-30T02:00:32.380752+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [318], "at": "2026-10-30T02:00:32.382126+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [318], "seconds": 0.14000000013038516, "at": "2026-10-30T02:00:32.519265+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [321], "at": "2026-10-30T02:00:32.519265+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [321], "seconds": 0.10999999986961484, "at": "2026-10-30T02:00:32.636641+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [324], "at": "2026-10-30T02:00:32.637639+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [324], "seconds": 0.09399999980814755, "at": "2026-10-30T02:00:32.733967+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [327], "at": "2026-10-30T02:00:32.734473+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [327], "seconds": 0.0940000000409782, "at": "2026-10-30T02:00:32.839572+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [330], "at": "2026-10-30T02:00:32.839572+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [330], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:32.946705+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [333], "at": "2026-10-30T02:00:32.946705+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [333], "seconds": 0.1410000000614673, "at": "2026-10-30T02:00:33.075160+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [336], "at": "2026-10-30T02:00:33.075160+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [336], "seconds": 0.0940000000409782, "at": "2026-10-30T02:00:33.181293+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [339], "at": "2026-10-30T02:00:33.181293+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [339], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:33.288627+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [342], "at": "2026-10-30T02:00:33.288627+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [342], "seconds": 0.125, "at": "2026-10-30T02:00:33.408686+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [345], "at": "2026-10-30T02:00:33.409684+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [345], "seconds": 0.1410000000614673, "at": "2026-10-30T02:00:33.552052+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [348], "at": "2026-10-30T02:00:33.552052+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [348], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:33.661440+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [351], "at": "2026-10-30T02:00:33.662447+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [351], "seconds": 0.125, "at": "2026-10-30T02:00:33.791300+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [354], "at": "2026-10-30T02:00:33.791300+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [354], "seconds": 0.125, "at": "2026-10-30T02:00:33.914534+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [357], "at": "2026-10-30T02:00:33.914534+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [357], "seconds": 0.1410000000614673, "at": "2026-10-30T02:00:34.056582+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [360], "at": "2026-10-30T02:00:34.057582+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [360], "seconds": 0.125, "at": "2026-10-30T02:00:34.177639+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [363], "at": "2026-10-30T02:00:34.177639+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [363], "seconds": 0.125, "at": "2026-10-30T02:00:34.298052+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [366], "at": "2026-10-30T02:00:34.298052+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [366], "seconds": 0.09300000010989606, "at": "2026-10-30T02:00:34.401703+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [369], "at": "2026-10-30T02:00:34.402710+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [369], "seconds": 0.10900000017136335, "at": "2026-10-30T02:00:34.521541+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [372], "at": "2026-10-30T02:00:34.522547+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [372], "seconds": 0.10999999986961484, "at": "2026-10-30T02:00:34.629507+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [375], "at": "2026-10-30T02:00:34.630513+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [375], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:34.738472+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [378], "at": "2026-10-30T02:00:34.739477+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [378], "seconds": 0.0940000000409782, "at": "2026-10-30T02:00:34.830906+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [381], "at": "2026-10-30T02:00:34.830906+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [381], "seconds": 0.0940000000409782, "at": "2026-10-30T02:00:34.933181+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [384], "at": "2026-10-30T02:00:34.934685+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [384], "seconds": 0.11000000010244548, "at": "2026-10-30T02:00:35.050780+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [387], "at": "2026-10-30T02:00:35.050780+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [387], "seconds": 0.17100000008940697, "at": "2026-10-30T02:00:35.215253+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [390], "at": "2026-10-30T02:00:35.216764+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [390], "seconds": 0.125, "at": "2026-10-30T02:00:35.344736+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [393], "at": "2026-10-30T02:00:35.345242+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [393], "seconds": 0.125, "at": "2026-10-30T02:00:35.467493+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [396], "at": "2026-10-30T02:00:35.467997+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [396], "seconds": 0.10999999986961484, "at": "2026-10-30T02:00:35.587660+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [399], "at": "2026-10-30T02:00:35.588656+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [399], "seconds": 0.125, "at": "2026-10-30T02:00:35.712742+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [402], "at": "2026-10-30T02:00:35.712742+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [402], "seconds": 0.125, "at": "2026-10-30T02:00:35.835238+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [405], "at": "2026-10-30T02:00:35.836305+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [405], "seconds": 0.125, "at": "2026-10-30T02:00:35.951637+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [408], "at": "2026-10-30T02:00:35.952959+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [408], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:36.070768+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [411], "at": "2026-10-30T02:00:36.070768+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [411], "seconds": 0.15600000019185245, "at": "2026-10-30T02:00:36.217684+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [414], "at": "2026-10-30T02:00:36.218692+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [414], "seconds": 0.09399999980814755, "at": "2026-10-30T02:00:36.315997+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [417], "at": "2026-10-30T02:00:36.317006+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [417], "seconds": 0.11000000010244548, "at": "2026-10-30T02:00:36.426785+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [420], "at": "2026-10-30T02:00:36.426785+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [420], "seconds": 0.125, "at": "2026-10-30T02:00:36.557629+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [423], "at": "2026-10-30T02:00:36.558628+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [423], "seconds": 0.13999999989755452, "at": "2026-10-30T02:00:36.690778+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [426], "at": "2026-10-30T02:00:36.692158+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [426], "seconds": 0.11000000010244548, "at": "2026-10-30T02:00:36.806924+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [429], "at": "2026-10-30T02:00:36.807923+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [429], "seconds": 0.125, "at": "2026-10-30T02:00:36.926230+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_adopt", "args": [432], "at": "2026-10-30T02:00:36.926230+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_adopt", "args": [432], "seconds": 0.10899999993853271, "at": "2026-10-30T02:00:37.041068+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [440], "at": "2026-10-30T02:00:37.042063+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [440], "seconds": 0.0940000000409782, "at": "2026-10-30T02:00:37.123652+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [441], "at": "2026-10-30T02:00:37.124649+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [441], "seconds": 0.2339999999385327, "at": "2026-10-30T02:00:37.366340+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [442], "at": "2026-10-30T02:00:37.366340+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [442], "seconds": 0.125, "at": "2026-10-30T02:00:37.495292+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [443], "at": "2026-10-30T02:00:37.495292+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [443], "seconds": 0.125, "at": "2026-10-30T02:00:37.620694+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [444], "at": "2026-10-30T02:00:37.620694+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [444], "seconds": 0.125, "at": "2026-10-30T02:00:37.732011+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [445], "at": "2026-10-30T02:00:37.732011+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [445], "seconds": 0.25, "at": "2026-10-30T02:00:37.987734+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [446], "at": "2026-10-30T02:00:37.988738+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [446], "seconds": 0.15600000019185245, "at": "2026-10-30T02:00:38.142629+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [447], "at": "2026-10-30T02:00:38.142629+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [447], "seconds": 0.125, "at": "2026-10-30T02:00:38.272766+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [448], "at": "2026-10-30T02:00:38.272766+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [448], "seconds": 0.14099999982863665, "at": "2026-10-30T02:00:38.411879+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [449], "at": "2026-10-30T02:00:38.411879+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [449], "seconds": 0.1559999999590218, "at": "2026-10-30T02:00:38.560227+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [450], "at": "2026-10-30T02:00:38.561232+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [450], "seconds": 0.1880000000819564, "at": "2026-10-30T02:00:38.756794+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [451], "at": "2026-10-30T02:00:38.756794+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [451], "seconds": 0.1720000000204891, "at": "2026-10-30T02:00:38.921107+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [452], "at": "2026-10-30T02:00:38.921107+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [452], "seconds": 0.1559999999590218, "at": "2026-10-30T02:00:39.086713+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [453], "at": "2026-10-30T02:00:39.086713+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [453], "seconds": 0.2339999999385327, "at": "2026-10-30T02:00:39.321957+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [454], "at": "2026-10-30T02:00:39.321957+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [454], "seconds": 0.3440000000409782, "at": "2026-10-30T02:00:39.660425+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [455], "at": "2026-10-30T02:00:39.660425+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [455], "seconds": 0.23400000017136335, "at": "2026-10-30T02:00:39.888460+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [456], "at": "2026-10-30T02:00:39.889459+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [456], "seconds": 0.34399999980814755, "at": "2026-10-30T02:00:40.235283+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [457], "at": "2026-10-30T02:00:40.236799+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [457], "seconds": 0.3130000000819564, "at": "2026-10-30T02:00:40.554596+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [458], "at": "2026-10-30T02:00:40.554596+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [458], "seconds": 0.3589999999385327, "at": "2026-10-30T02:00:40.915765+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [459], "at": "2026-10-30T02:00:40.916774+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [459], "seconds": 0.3279999999795109, "at": "2026-10-30T02:00:41.232764+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [460], "at": "2026-10-30T02:00:41.233268+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [460], "seconds": 0.3130000000819564, "at": "2026-10-30T02:00:41.553213+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [461], "at": "2026-10-30T02:00:41.553213+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [461], "seconds": 0.25, "at": "2026-10-30T02:00:41.801938+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [462], "at": "2026-10-30T02:00:41.802938+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [462], "seconds": 0.34300000010989606, "at": "2026-10-30T02:00:42.140147+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [463], "at": "2026-10-30T02:00:42.141149+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [463], "seconds": 0.29699999978765845, "at": "2026-10-30T02:00:42.434533+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [464], "at": "2026-10-30T02:00:42.434533+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [464], "seconds": 0.32800000021234155, "at": "2026-10-30T02:00:42.770427+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [465], "at": "2026-10-30T02:00:42.770427+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [465], "seconds": 0.29699999978765845, "at": "2026-10-30T02:00:43.059036+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [466], "at": "2026-10-30T02:00:43.059036+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [466], "seconds": 0.2970000000204891, "at": "2026-10-30T02:00:43.369381+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [467], "at": "2026-10-30T02:00:43.369381+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [467], "seconds": 0.3440000000409782, "at": "2026-10-30T02:00:43.713127+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [468], "at": "2026-10-30T02:00:43.714649+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [468], "seconds": 0.5940000000409782, "at": "2026-10-30T02:00:44.299136+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [469], "at": "2026-10-30T02:00:44.299136+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [469], "seconds": 0.42100000008940697, "at": "2026-10-30T02:00:44.716223+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [470], "at": "2026-10-30T02:00:44.717232+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [470], "seconds": 0.4220000000204891, "at": "2026-10-30T02:00:45.147782+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [471], "at": "2026-10-30T02:00:45.148789+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [471], "seconds": 0.42199999978765845, "at": "2026-10-30T02:00:45.573592+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [472], "at": "2026-10-30T02:00:45.573592+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [472], "seconds": 0.4380000000819564, "at": "2026-10-30T02:00:46.004322+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [473], "at": "2026-10-30T02:00:46.004886+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [473], "seconds": 0.4220000000204891, "at": "2026-10-30T02:00:46.432407+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [474], "at": "2026-10-30T02:00:46.432407+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [474], "seconds": 0.4369999999180436, "at": "2026-10-30T02:00:46.864772+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [475], "at": "2026-10-30T02:00:46.865277+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [475], "seconds": 0.5, "at": "2026-10-30T02:00:47.362716+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [476], "at": "2026-10-30T02:00:47.363717+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [476], "seconds": 0.5310000001918525, "at": "2026-10-30T02:00:47.889662+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [477], "at": "2026-10-30T02:00:47.890662+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [477], "seconds": 0.375, "at": "2026-10-30T02:00:48.275105+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [478], "at": "2026-10-30T02:00:48.275610+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [478], "seconds": 0.40699999989010394, "at": "2026-10-30T02:00:48.683095+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [479], "at": "2026-10-30T02:00:48.683095+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [479], "seconds": 0.5149999998975545, "at": "2026-10-30T02:00:49.195225+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [480], "at": "2026-10-30T02:00:49.196847+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [480], "seconds": 0.5940000000409782, "at": "2026-10-30T02:00:49.782479+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [481], "at": "2026-10-30T02:00:49.783998+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [481], "seconds": 0.4059999999590218, "at": "2026-10-30T02:00:50.198390+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [482], "at": "2026-10-30T02:00:50.198390+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [482], "seconds": 0.5, "at": "2026-10-30T02:00:50.689117+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_preview", "args": [483], "at": "2026-10-30T02:00:50.690411+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_preview", "args": [483], "seconds": 0.4850000001024455, "at": "2026-10-30T02:00:51.178186+00:00"}
+{"source_id": "GS-02", "event": "task_started", "task": "app.tasks.run_render", "args": [485], "at": "2026-10-30T02:02:57.858371+00:00"}
+{"source_id": "GS-02", "event": "task_finished", "task": "app.tasks.run_render", "args": [485], "seconds": 6.859000000171363, "at": "2026-10-30T02:03:04.721688+00:00"}
+{"source_id": "GS-03", "event": "task_started", "task": "app.tasks.run_analyze", "args": [487], "at": "2026-10-30T02:03:21.554811+00:00"}
+{"source_id": "GS-03", "event": "task_finished", "task": "app.tasks.run_analyze", "args": [487], "seconds": 707.0779999999795, "at": "2026-10-30T02:15:08.626103+00:00"}
+{"source_id": "GS-03", "event": "task_started", "task": "app.tasks.run_analyze", "args": [488], "at": "2026-10-30T02:15:08.627630+00:00"}
+{"source_id": "GS-03", "event": "task_finished", "task": "app.tasks.run_analyze", "args": [488], "seconds": 778.405999999959, "at": "2026-10-30T02:28:07.046396+00:00"}
+{"source_id": "GS-03", "event": "task_started", "task": "app.tasks.run_analyze", "args": [489], "at": "2026-10-30T02:28:07.046396+00:00"}
+{"source_id": "GS-03", "event": "task_finished", "task": "app.tasks.run_analyze", "args": [489], "seconds": 509.0779999999795, "at": "2026-10-30T02:36:36.114129+00:00"}

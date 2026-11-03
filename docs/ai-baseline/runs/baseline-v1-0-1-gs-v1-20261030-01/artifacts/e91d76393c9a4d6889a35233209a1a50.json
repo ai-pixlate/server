@@ -1,0 +1,151 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:20.731400+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_11",
+      "section_key": "sec_51",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_652",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_653",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_654",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_655",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_656",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_657",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_658",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_11",
+      "section_key": "sec_51",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "578b2739263f36bdafe70713ebf80f7d8b568bcc613af994af1b6fd6b5d1d95c",
+      "label_fingerprint": "f35b3725ce32ea710bce05a70b14f892909bc3dbe7d749798d63cafb54cdad67",
+      "label_input_fingerprint": "578b2739263f36bdafe70713ebf80f7d8b568bcc613af994af1b6fd6b5d1d95c",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 7,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 7,
+        "compared": 7
+      },
+      "decisions": [
+        {
+          "block_key": "blk_652",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "smab524m27141ver02",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_653",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "단2주사용으로뚜렷한4중리프팅",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_654",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "눈가부위피부각도40",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_655",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "볼부위피부각도332",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_656",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "턱선부위피부각도246",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_657",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "입가부위피부각도321",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_658",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷타이트닝부스터의피부리프팅눈꼬리볼입꼬리턱리프팅개선에대한인체적용시험주스킨메드임상시험센터20240527~20240613성인남녀21명개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:10.400996+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_12",
+      "section_key": "sec_53",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_660",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_12",
+      "section_key": "sec_53",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "25ee2e1793b9078ff47180314209ed9daa79fca79ad5cea1d3b2329df6802847",
+      "label_fingerprint": "08cf2efe36a34ddaab380a8103e221d6015ce1776ea7a27fa093260a0ff9060b",
+      "label_input_fingerprint": "25ee2e1793b9078ff47180314209ed9daa79fca79ad5cea1d3b2329df6802847",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 1,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 1,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_660",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "인체적용시험참여21명대상만족도조사결과개인차있음3점이상금정답변율로답변한시험대상자수백분율평균값기준",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

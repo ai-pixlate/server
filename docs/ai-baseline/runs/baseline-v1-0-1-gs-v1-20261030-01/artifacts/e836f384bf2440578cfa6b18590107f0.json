@@ -1,0 +1,46 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:53:43.466386+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_436",
+        "outcome": "completed",
+        "translation": "892.35% Improvement in Absorption Depth",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_437",
+        "outcome": "completed",
+        "translation": "*Absorbed area shown in red (the deeper the absorption into the skin, the redder the lower area appears)",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "17279eceeb43af64ddd213f9be9c4d90ff9a4c09042ec1ef06dbe494329e146d",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "f5973044e8fb59bd369be5e97d1cd295510963063c208ae658163b8fbc7e60ae",
+      "usage": {
+        "candidates_token_count": 62,
+        "prompt_token_count": 696,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 696
+          }
+        ],
+        "thoughts_token_count": 586,
+        "total_token_count": 1344
+      }
+    }
+  ],
+  "seconds": 9.125
+}

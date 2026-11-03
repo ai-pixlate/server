@@ -510,6 +510,9 @@ def _translate_targets(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
 
 
+# ⑧ 표현 지시 공급 규칙(#71). 시도 명세 supply 에 이 값이 없는 시도(활성화 전에 만든 시도)는 지시 없이 공급을 다시 만들어
+# 대조·실행한다 — 기존 대기 시도가 INPUT_CHANGED 로 멈추지 않고, 재시도로 새로 만드는 시도부터 지시를 넣는다.
+INSTRUCTIONS_RULE = "translate-instructions@2026-11-03.1"
 _PLACEHOLDER = re.compile(r"\[[^\[\]\n]+\]")  # 템플릿 대체 표현(예: [value]) — 번역 지시로 쓰지 않는다(D9-2, PR #55 규칙과 같음)
 
 
@@ -581,8 +584,8 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
         if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated":
             continue
         alts = ai_alternatives(e["alternative_expression"])
-        if not alts or any(_PLACEHOLDER.search(a) for a in alts):
-            continue
+        if not isinstance(alts, list) or not alts or any(_PLACEHOLDER.search(a) for a in alts):
+            continue  # 구분 규칙 위반(원문 문자열) · 대체 표현 없음 · 템플릿은 지시하지 않는다
         for m in det.get("matches", []):
             if m["snapshot_key"] == v["dictionary_ref"] and m["finding_key"] == v["finding_key"] and m["block_id"] in target_ids:
                 item = {"block_key": block_key(m["block_id"]), "external_id": v["dictionary_ref"], "matched_text": m["matched_text"]}
@@ -591,20 +594,30 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
     return out
 
 
-def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]]) -> dict[str, Any]:
+def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]], *,
+                      instructions: bool = True) -> dict[str, Any]:
+    """instructions=False: 표현 지시 활성화 전 공급 규칙(지시 없음) — 그 전에 만든 시도의 대조·실행에만 쓴다."""
     scope = _run_scope(db, run_id)
     hid, bundle = _analysis_bundle(db, scope["analysis_task_id"])
     glossary, selection = _glossary_supply(db, scope["target_lang"], sid, targets)
-    instructions = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle)
+    ins = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle) if instructions else []
     return {"bundle_handoff_id": hid, "bundle": bundle, "glossary": glossary, "glossary_selection": selection,
-            "instructions": instructions}
+            "instructions": ins, "instructions_rule": INSTRUCTIONS_RULE if instructions else None}
 
 
 def _supply_ref(supply: dict[str, Any]) -> dict[str, Any]:
     """시도 명세에 고정할 공급 지문. 실행 때 다시 만든 공급과 대조한다(5.32 입력 고정)."""
-    return {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
-            "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
-            "instructions": supply["instructions"]}
+    ref = {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
+           "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
+           "instructions": supply["instructions"]}
+    if supply["instructions_rule"] is not None:  # 활성화 전 시도의 명세에는 이 키가 없다
+        ref["instructions_rule"] = supply["instructions_rule"]
+    return ref
+
+
+def _instructions_enabled(fixed: dict[str, Any] | None) -> bool:
+    """이 시도에 표현 지시를 넣는가. 고정 공급에 instructions_rule 이 없으면 활성화 전에 만든 시도 — 지시 없이 대조·실행한다."""
+    return fixed is None or "instructions_rule" in fixed
 
 
 def _translate_manifest(sid: int, rows: list[dict[str, Any]], targets: list[dict[str, Any]], lang: str,
@@ -633,7 +646,8 @@ def execute_translate(attempt_id: int) -> dict[str, Any]:
                    for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
         db = app_db.SessionLocal()
         try:
-            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids])
+            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids],
+                                       instructions=_instructions_enabled(m.get("supply")))
         finally:
             db.close()
         if m.get("supply") is not None and _supply_ref(supply) != m["supply"]:

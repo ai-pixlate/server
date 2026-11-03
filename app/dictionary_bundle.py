@@ -13,7 +13,9 @@
   환경변수 PIXLATE_POLICY_RULES 는 실험용 대체 경로다. BE는 규칙 내용을 만들지 않는다. 규칙 지문(policy_rules_sha256)도 보존한다.
   규제 행 조회 분류는 규칙의 applied_classes(common 포함)를 따르고, common 을 뺀 분류가 D8 대응과 같아야 한다.
 - AI 인계 형식(pipeline.handoff.bundle.RuntimeBundle)은 to_ai_bundle()이 이 저장 묶음에서 결정적으로 만든다.
-  대체 표현은 #71 구분 규칙('; ' — 적재 규칙과 같다)으로 나눈 배열을 보낸다(⑧ 표현 지시에 쓰인다).
+  대체 표현은 #71 구분 규칙('; ' — 적재 규칙과 같다)으로 나눈 배열을 보낸다(⑧ 표현 지시에 쓰인다). 규칙에 맞지 않는
+  값(새 묶음은 생성 때 막히므로 그 전에 고정된 묶음에만 있을 수 있다)은 예외 없이 나누지 않은 원문 문자열로 보낸다 —
+  AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다(PR #55 3217142 형식).
   근거는 저장 묶음의 근거 배열 전체(PK 제외)를 보낸다. DB PK 는 AI에 보내지 않는다.
 """
 from __future__ import annotations
@@ -273,13 +275,14 @@ def _alternatives_problem(raw: str | None) -> bool:
     return any(p.strip() == "" or ";" in p for p in raw.split(ALTERNATIVES_SEP))
 
 
-def ai_alternatives(raw: str | None) -> list[str]:
+def ai_alternatives(raw: str | None) -> str | list[str]:
     """DB 대체 표현 → AI 형식: #71 구분 규칙('; ')으로 나눈 배열(적재 규칙과 같이 조각을 다듬지 않는다). 비었으면 빈 배열.
-    규칙에 맞지 않으면 BundleError — 묶음 생성 때 이미 걸러진다."""
+    규칙에 맞지 않으면 예외 없이 나누지 않은 원문 문자열 — ⑧ 표현 지시를 만들지 않는다. 새 묶음은 생성 때 이미 걸러지고,
+    그 전에 고정된 묶음은 시도 생성·실행·재시도 어디서도 사전 오류로 멈추지 않게 한다."""
     if not raw or not raw.strip():
         return []
     if _alternatives_problem(raw):
-        raise BundleError(f"대체 표현이 '; ' 구분 규칙에 맞지 않는다: {raw!r}", retryable=False, code="REGULATORY_DICT_INVALID")
+        return raw
     return raw.split(ALTERNATIVES_SEP)
 
 

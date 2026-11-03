@@ -68,21 +68,20 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     assert cb.identity["rules_sha256"] == fingerprint(be["policy_rules"])  # BE 저장 지문과 AI identity 대조 가능
 
 
-def test_to_ai_bundle_rejects_alternatives_breaking_split_rule():
+def test_to_ai_bundle_keeps_alternatives_breaking_split_rule_as_text():
     be = _be_bundle()
-    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;Calming"  # '; ' 아닌 구분자 — 나누지 않고 공급 불가
-    with pytest.raises(BundleError) as e:
-        to_ai_bundle(be)
-    assert e.value.code == "REGULATORY_DICT_INVALID"
+    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;Calming"  # '; ' 아닌 구분자(생성 때 막히기 전 고정된 묶음)
+    rg = check_bundle(to_ai_bundle(be), target_country="US").regulation  # 예외 없이 원문 문자열 — 대체 표현 있음 · 지시 불가
+    assert rg["RG-902"].alternative_expression == "Soothing;Calming" and rg["RG-902"].alternatives_split is None
+    assert rg["RG-902"].has_alternative
 
 
 def test_ai_alternatives_rule():
     assert ai_alternatives(None) == [] and ai_alternatives("  ") == []
     assert ai_alternatives("a; b; c") == ["a", "b", "c"]
-    # 적재 규칙(dictionary_ingest._split)과 같다: 빈 조각 · '; ' 아닌 ';'는 규칙 위반
+    # 적재 규칙(dictionary_ingest._split)과 같다: 빈 조각 · '; ' 아닌 ';'는 규칙 위반 → 나누지 않은 원문 문자열
     for bad in ("a; ; b", "a;b", "a; b;", " ; "):
-        with pytest.raises(BundleError):
-            ai_alternatives(bad)
+        assert ai_alternatives(bad) == bad
 
 
 def test_to_ai_bundle_local_unavailable_and_missing_rules():
@@ -110,3 +109,14 @@ def test_load_policy_rules_rejects_overrides_and_d8_mismatch(tmp_path):
     p.write_text(json.dumps(ov), encoding="utf-8")
     with pytest.raises(BundleError):
         load_policy_rules(str(p))
+
+
+def test_new_bundle_rejects_alternatives_breaking_split_rule():
+    from app.dictionary_bundle import _problems_regulatory
+
+    def entry(alt):
+        return _entry("RG-1", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt=alt)
+
+    assert _problems_regulatory(entry("calm; soothing")) == [] and _problems_regulatory(entry(None)) == []
+    for bad in ("calm;soothing", "calm; ; soothing", "calm; "):  # 묶음 생성 때 필수값 누락처럼 공급 불가(REGULATORY_DICT_INVALID)
+        assert any("alternative_expression" in p for p in _problems_regulatory(entry(bad)))

@@ -4,7 +4,7 @@
 
 ## 회차 디렉터리
 
-[reference-preparation-20261027](reference-preparation-20261027/README.md)은 **기준 자료 검토 전 초안 묶음**이다. 공식 실행 회차가 아니며 manifest·실행/평가/집계 결과와 동결된 `reference_units.jsonl`을 만들지 않았다. 초안은 `artifacts/reference_units.draft.jsonl`로 분리하며 아래 완성 회차 구조와 혼동하지 않는다.
+[reference-preparation-20261027](reference-preparation-20261027/README.md)은 **미동결 기준 자료 초안 묶음**이다. [11/3 GS-01 PM 회신](reference-preparation-20261027/gs01-review-changes.md)을 반영했으며 수정·신규 단위 재확인 전이다. GS-02·03 상태는 유지한다. 공식 실행 회차가 아니며 manifest·실행/평가/집계 결과와 동결된 `reference_units.jsonl`을 만들지 않았다. 초안은 `artifacts/reference_units.draft.jsonl`로 분리하며 아래 완성 회차 구조와 혼동하지 않는다.
 
 ```txt
 docs/ai-baseline/runs/<run_id>/

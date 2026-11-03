@@ -2,14 +2,14 @@
   "evaluation_run_id": "reference-preparation-20261027",
   "reference_version": "gs-v1-reference-draft-20261027",
   "reference_freeze": null,
-  "status": "PM 검토 전 초안 · 공식 실측 아님",
+  "status": "GS-01 PM 회신 반영 초안 · 반영 재확인 전 · GS-02/03 미회신 · 전체 미동결",
   "model_output_used_as_truth": false,
   "product_version": "1.0.1",
   "product_commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
   "basis_protocol_commit": "5d09bf627c184732012b7b34df55ebd8f8b6c157",
   "cost_execution_approval": "보류",
   "draft_file": "artifacts/reference_units.draft.jsonl",
-  "draft_sha256": "fc90a445bb627d9252a62455757e067afd6d526f09c64f9ebc0879e3dff056bb",
+  "draft_sha256": "824a59c5abb7ba178030ad58a7a37086119fedc3243e91880806a293e02194a8",
   "dataset_manifest_path": "pipeline/samples/evaluation/gs-v1/manifest.json",
   "dataset_manifest_sha256": "8c4267a09aac5c948ec131c89ebed93d3b828cff16252490fa8ed481d8bea1c8",
   "policy_index_sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f",
@@ -31,11 +31,12 @@
       "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065",
       "width": 1000,
       "height": 1360,
-      "draft_units": 9,
+      "draft_units": 11,
       "verified_units": 0,
       "focus_regions": [],
       "content_uncertainty_ids": [
-        "GS-01_001-REF-008"
+        "GS-01_001-REF-010",
+        "GS-01_001-REF-011"
       ]
     },
     {
@@ -45,18 +46,14 @@
       "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
       "width": 1000,
       "height": 37665,
-      "draft_units": 42,
+      "draft_units": 47,
       "verified_units": 0,
       "focus_regions": [
         "K01",
         "K02",
         "K03"
       ],
-      "content_uncertainty_ids": [
-        "GS-01_002-REF-015",
-        "GS-01_002-REF-031",
-        "GS-01_002-REF-037"
-      ]
+      "content_uncertainty_ids": []
     },
     {
       "source_key": "GS-02-IMG-001",
@@ -493,5 +490,13 @@
         "GS-03_018-REF-024"
       ]
     }
-  ]
+  ],
+  "gs01_review_revision": {
+    "date": "2026-11-03",
+    "feedback": "artifacts/pm-feedback-gs01-20261103.json",
+    "changes": "artifacts/gs01-review-changes-20261103.json",
+    "before_draft_sha256": "fc90a445bb627d9252a62455757e067afd6d526f09c64f9ebc0879e3dff056bb",
+    "new_units": 7,
+    "total_units": 331
+  }
 }

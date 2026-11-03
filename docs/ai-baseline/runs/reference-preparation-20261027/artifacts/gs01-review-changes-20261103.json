@@ -1,0 +1,5140 @@
+{
+  "status": "GS-01 PM 회신 반영 초안 · 반영 재확인 전 · 미동결",
+  "reference_freeze": null,
+  "source_commit": "d343e9c7f4eec54454d061710ea396af41d8feb9",
+  "before_draft_sha256": "fc90a445bb627d9252a62455757e067afd6d526f09c64f9ebc0879e3dff056bb",
+  "after_draft_sha256": "824a59c5abb7ba178030ad58a7a37086119fedc3243e91880806a293e02194a8",
+  "feedback_ref": {
+    "path": "artifacts/pm-feedback-gs01-20261103.json",
+    "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+  },
+  "precedence": "11/3 PM > 철회되지 않은 10/29 PM > 기존 초안. 개발자 10/29 답변은 경위 자료.",
+  "counts": {
+    "existing_gs01": 51,
+    "added": 7,
+    "gs01_total": 58,
+    "all_total": 331,
+    "unchanged_gs02_gs03": 273
+  },
+  "open_items": [
+    {
+      "ids": [
+        "GS-01_001-REF-010",
+        "GS-01_001-REF-011"
+      ],
+      "issue": "PM 좌표 미지정: 기존 REF-005 문맥 좌표 임시 상속. 두 text_span 분리와 좌우 글자 정밀 범위 재확인 필요."
+    },
+    {
+      "ids": [
+        "GS-01_001-REF-010",
+        "GS-01_001-REF-011",
+        "GS-01_002-REF-043",
+        "GS-01_002-REF-044",
+        "GS-01_002-REF-045",
+        "GS-01_002-REF-046",
+        "GS-01_002-REF-047"
+      ],
+      "issue": "신규 ID 및 단위 분리·연결에 대한 PM 재확인 필요. H01/H04 외 적용 필드를 임의 추가하지 않음."
+    }
+  ],
+  "changes": [
+    {
+      "reference_unit_id": "GS-01_001-REF-001",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-001",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "구달 맑은 어성초 진정 무기자차 선크림",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-001",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "구달 맑은 어성초 진정 무기자차 선크림",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. GS-01_001은 원본 전체가 제외 정답인 단일 소제목 섹션. 해당 내용의 정상 제외는 보존 실패가 아니라 정보 손실로만 기록한다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": false,
+            "service_final": false
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-002",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-002",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "용량 50ml",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-002",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "용량 50ml",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. GS-01_001은 원본 전체가 제외 정답인 단일 소제목 섹션. 해당 내용의 정상 제외는 보존 실패가 아니라 정보 손실로만 기록한다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": false,
+            "service_final": false
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-003",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-003",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "구성 1+1 기획",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-003",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "구성 1+1 기획",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. GS-01_001은 원본 전체가 제외 정답인 단일 소제목 섹션. 해당 내용의 정상 제외는 보존 실패가 아니라 정보 손실로만 기록한다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": false,
+            "service_final": false
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-004",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-004",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "디자인 리뉴얼이며 내용물의 성분과 용량은 기존과 동일",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-004",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "디자인 리뉴얼이며 내용물의 성분과 용량은 기존과 동일",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. GS-01_001은 원본 전체가 제외 정답인 단일 소제목 섹션. 해당 내용의 정상 제외는 보존 실패가 아니라 정보 손실로만 기록한다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": false,
+            "service_final": false
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-005",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-005",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            420,
+            1000,
+            1010
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "기존·신규 디자인의 튜브와 상자, goodal 로고, 신규 디자인 녹색 테두리",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-005",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            420,
+            1000,
+            1010
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "기존·신규 디자인의 튜브와 상자, goodal 로고, 신규 디자인 녹색 테두리; 그림 아래 「기존 디자인」·「신규 디자인」 설명 글자는 번역 대상이며 보호에서 제외한다. 정상 번역을 보호 요소 훼손으로 세지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. GS-01_001은 원본 전체가 제외 정답인 단일 소제목 섹션. 해당 내용의 정상 제외는 보존 실패가 아니라 정보 손실로만 기록한다.",
+          "condition": "GS-01_001은 전체 제외 정답이므로 이번 측정에서 보호 결과를 요구하지 않는다. 섹션 기준 변경 시 보호 범위와 적용 조건을 다시 검토한다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-006",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-006",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            1020,
+            1000,
+            1300
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "주문 시점에 따라 발송 디자인이 다를 수 있다는 안내와 디자인 변경에 의한 교환·환불 어려움 문구를 구분",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-006",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            1020,
+            1000,
+            1300
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "주문 시점에 따라 발송 디자인이 다를 수 있다는 안내와 디자인 변경에 의한 교환·환불 어려움 문구를 구분",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. GS-01_001은 원본 전체가 제외 정답인 단일 소제목 섹션. 해당 내용의 정상 제외는 보존 실패가 아니라 정보 손실로만 기록한다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-007",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-007",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            1140,
+            1000,
+            1220
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "교환·환불 안내를 포함하는 실제 섹션 전체 제외. 리뉴얼·용량 정보가 같이 사라지면 정보 손실을 별도 기록.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "PM 검토 전 정책 기대 후보. H01 원본 전체 적용 여부는 별도 전체 검토 후 결정하며 이 영역의 제외를 원본 전체 제외로 전파하지 않는다.",
+          "dictionary_ids": [
+            "LC-04"
+          ],
+          "all_sections_excluded": null
+        },
+        "applicability": {
+          "H01": null
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-007",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            1140,
+            1000,
+            1220
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "LC-04 교환·환불 안내가 포함된 소제목 섹션 전체 제외. GS-01_001은 「디자인 리뉴얼 안내」 하나의 섹션이므로 원본 전체 제외가 정답. 함께 사라지는 리뉴얼·용량 정보는 정보 손실로 별도 기록한다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. 10/29의 실제 분할에 따른 H01 결정 제안은 11/3 PM이 철회했다. 정책 제외의 임의 전파가 아니라 단일 소제목 섹션에 근거한 원본별 기대값이다.",
+          "dictionary_ids": [
+            "LC-04"
+          ],
+          "all_sections_excluded": true
+        },
+        "applicability": {
+          "H01": false
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-008",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-008",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            440
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "1+1 기획 구성은 LC-01 문맥 검토. 미국 동일 구성 판매 여부는 셀러 확인 전 미정.",
+          "human_confirmation_required": true,
+          "uncertainty": "미국 판매 구성·N3 되살리기 선택 미확인",
+          "note": "PM 검토 전 정책 기대 후보. H01 원본 전체 적용 여부는 별도 전체 검토 후 결정하며 이 영역의 제외를 원본 전체 제외로 전파하지 않는다.",
+          "dictionary_ids": [
+            "LC-01"
+          ],
+          "all_sections_excluded": null
+        },
+        "applicability": {
+          "H01": null
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-008",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            225,
+            1000,
+            265
+          ],
+          "description": "10/29 PM 지정 좌표 유지: 굵은 상품명·50ml 1+1 기획 줄. [x_min,y_min,x_max,y_max]."
+        },
+        "expected_value": {
+          "text": "LC-01 적용. 「50ml 1+1 기획」 세트의 포장 변경 안내로 기획 구성을 설명하는 소제목 섹션 전체 제외. GS-01_001은 원본 전체가 한 섹션이므로 전체 제외. 함께 사라지는 제품명·용량·리뉴얼 안내는 정보 손실 기록. N3 되살리기 없음.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. 10/29의 실제 분할에 따른 H01 결정 제안은 11/3 PM이 철회했다. 정책 제외의 임의 전파가 아니라 단일 소제목 섹션에 근거한 원본별 기대값이다.",
+          "dictionary_ids": [
+            "LC-01"
+          ],
+          "all_sections_excluded": true
+        },
+        "applicability": {
+          "H01": false
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-001",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-001",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            0,
+            1000,
+            2300
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "구달 어성초 진정 무기자차 선크림",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-001",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            0,
+            1000,
+            2300
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "구달 어성초 진정 무기자차 선크림",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-002",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-002",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            0,
+            1000,
+            2300
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "용량 50ml",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-002",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            0,
+            1000,
+            2300
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "용량 50ml",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-003",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-003",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            500,
+            1000,
+            1900
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "goodal 로고·영문 패키지 인쇄·튜브 윤곽·어성초 잎·제형",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-003",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            640,
+            1000,
+            1900
+          ],
+          "description": "11/3 PM 지정. 제품명 줄을 보호 밖으로 제외; 좌표는 [x_min,y_min,x_max,y_max]."
+        },
+        "expected_value": {
+          "text": "goodal 로고·영문 패키지 인쇄·튜브 윤곽·어성초 잎·제형; VEGAN CERTIFIED 인증 마크 [774,884,956,1115] 보호. 제품명은 REF-001의 번역/정보 보존 대상이며 보호에서 제외한다. 「산뜻 밀착」 배지 [781,704,949,872]는 번역 대상으로 보호에서 제외하고 REF-043에서 확인한다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-004",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-004",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "설문 참여 200명",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-004",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "설문 참여 200명",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-005",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-005",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "순한 사용감 98%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-005",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "순한 사용감 98%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-006",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-006",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "민감성 피부 추천 96%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-006",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "민감성 피부 추천 96%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-007",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-007",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "산뜻한 마무리 95%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-007",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            2300,
+            1000,
+            4700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "산뜻한 마무리 95%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-008",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-008",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "표시 SPF 50+",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-008",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "표시 SPF 50+",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-009",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-009",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "표시 PA++++",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-009",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "표시 PA++++",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-010",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-010",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "SPF 시험값 61.2 ± 6.9",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-010",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "SPF 시험값 61.2 ± 6.9",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-011",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-011",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "PA 시험값 17.0 ± 3.3",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-011",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "PA 시험값 17.0 ± 3.3",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-012",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-012",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "자외선 시험 대상 10명",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-012",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "자외선 시험 대상 10명",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-013",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-013",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "자외선 시험 기간 2023.01.16~2023.02.10",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-013",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "자외선 시험 기간 2023.01.16~2023.02.10",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-014",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-014",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "SPF는 자외선 B, PA는 자외선 A 표와 대응. 한국피부과학연구원·개인차 있음 각주를 함께 보존",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-014",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "SPF는 자외선 B, PA는 자외선 A 표와 대응. 한국피부과학연구원·개인차 있음 각주를 함께 보존",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-015",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-015",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "SPF·PA 숫자는 원문 보존 후보. 미국 시험 조건의 충족은 undetermined. 조건부 표현에 필요한 N5 경고 표시를 별도로 확인. PA++++를 Broad Spectrum으로 임의 치환하지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": "§ M020.80/90 시험 충족 증빙 없음",
+          "note": "PM 검토 전 정책 기대 후보. H01 원본 전체 적용 여부는 별도 전체 검토 후 결정하며 이 영역의 제외를 원본 전체 제외로 전파하지 않는다.",
+          "dictionary_ids": [
+            "RG-021",
+            "RG-022"
+          ],
+          "all_sections_excluded": null
+        },
+        "applicability": {
+          "H01": null
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-015",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "SPF·PA 원문 숫자 보존, 조건부 표현에 필요한 N5 경고 표시, PA++++의 Broad Spectrum 임의 치환 금지. 미국 시험 조건 충족 여부는 증빙 미확인(undetermined)이며 실제 시험 충족을 적합으로 확정하지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. § M020.80/90 시험 충족 증빙 없음은 실제 제품에 대한 참고 메모이며 위 번역·경고 기대값의 미확정 사유나 동결 차단 항목이 아니다.",
+          "dictionary_ids": [
+            "RG-021",
+            "RG-022"
+          ],
+          "all_sections_excluded": false
+        },
+        "applicability": {
+          "H01": true
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-016",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-016",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "10종 히알루론 쿨링 성분",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-016",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "10종 히알루 쿨링성분",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. 본문 POINT 02(y 9217~9260) 표기를 따른다. 각주 ***의 「히알루론산」 표기와 혼합하지 않는다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-017",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-017",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "3가지 징크 콤플렉스",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-017",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "3가지 징크 콤플렉스",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-018",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-018",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "진정 시험 사용 전 17.70",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-018",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "진정 시험 사용 전 17.70",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-019",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-019",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "7일 후 14.88",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-019",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "7일 후 14.88",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-020",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-020",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "진정 개선 15.92%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-020",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            9000,
+            1000,
+            13800
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "진정 개선 15.92%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-021",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-021",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            10000,
+            1000,
+            14000
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "어성초 추출물·징크옥사이드/징크글루코네이트/징크락테이트 설명과 원료적 특성에 한함, 성인 여성 21명·개인차 각주를 연결",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-021",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            10000,
+            1000,
+            14000
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "어성초 추출물·징크옥사이드/징크글루코네이트/징크락테이트 설명과 원료적 특성에 한함, 성인 여성 21명·개인차 각주를 연결",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-022",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-022",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            13800,
+            1000,
+            16100
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "논-나노 무기자외선차단제",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-022",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            13800,
+            1000,
+            16100
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "논-나노 무기자외선차단제",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-023",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-023",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            18400,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "쿨링 시험 사용 전 34.61",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-023",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            18400,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "쿨링 시험 사용 전 34.61",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-024",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-024",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            18400,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "1회 사용 직후 32.26",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-024",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            18400,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "1회 사용 직후 32.26",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-025",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-025",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            18400,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "쿨링 효과 6.78%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-025",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            18400,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "쿨링 효과 6.78%",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-026",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-026",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            17500,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "여드름성 피부 사용 적합·민감성 피부 사용 적합·피부 자극 테스트를 치료 효능으로 바꾸지 않음. 임상 대상·기간·일시적 효과·개인차 각주 PM 대조",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-026",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            17500,
+            1000,
+            20700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "여드름성 피부 사용 적합·민감성 피부 사용 적합·피부 자극 테스트와 각주 대응 보존. 배지 3개와 각주 3줄이 순서대로 짝이에요\n(여드름성 피부 사용 적합 ↔ 성인남녀 21명 · 2022.12.30~2023.02.20 /\n민감성 피부 사용 적합 ↔ 성인남녀 32명 · 2022.12.30~2023.02.03 /\n피부 자극 ↔ [피부 일차 자극 테스트] 성인남녀 32명 · 2023.01.02~2023.02.03) + 「*개인차 있음」.\n「일시적」은 아래 쿨링 시험 각주(성인여성 21명 · 2022.12.29~2023.02.03 · 일시적, 개인차 있음)에 있어,\n이 단위는 두 섹션의 각주를 각각 자기 내용과 짝지어 봐요.\n「여드름성 피부」는 RG-035(허용)라 acne-prone 표현은 유지하고, 치료 · 효과 표현(RG-023)으로 바꾸지 않는 것이 기대값이에요.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-027",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-027",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "바다·산호·물고기·빛과 사진 질감. 일반 흰 글자 제거/번역 영역과 구분",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-027",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "바다·산호·물고기·빛과 사진 질감. 일반 흰 글자 제거/번역 영역과 구분",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-028",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-028",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Reef Safe",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-028",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Reef Safe",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-029",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-029",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "옥시벤존(벤조페논-3) 불검출 시험 완료",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-029",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "옥시벤존(벤조페논-3) 불검출 시험 완료",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-030",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-030",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-030",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-031",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-031",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Reef Safe와 비건·저자극 문구를 원본/고정 사전 문맥으로 검토. 별도의 미국 인증 획득 사실을 추가하지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": "인증·환경 주장에 대한 실제 증빙의 범위는 PM 확인",
+          "note": "PM 검토 전 정책 기대 후보. H01 원본 전체 적용 여부는 별도 전체 검토 후 결정하며 이 영역의 제외를 원본 전체 제외로 전파하지 않는다.",
+          "dictionary_ids": [],
+          "all_sections_excluded": null
+        },
+        "applicability": {
+          "H01": null
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-031",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "이 영역의 「Reef Safe」 원본 주장을 그대로 옮기고 별도의 미국 인증 획득 사실을 추가하지 않는다. 비건 주장은 REF-046으로 분리하며 저자극은 이 인증 정책의 대상이 아니다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. 실제 제품의 환경 주장 증빙 범위는 별도 참고 사항이며 이 번역 기대값의 미확정 사유나 동결 차단 항목이 아니다. 증빙을 확인했다고 기록하지 않는다.",
+          "dictionary_ids": [],
+          "all_sections_excluded": false
+        },
+        "applicability": {
+          "H01": true
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-032",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-032",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            25300,
+            1000,
+            27600
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "스킨케어 마지막 단계에서 얼굴과 자외선에 노출되기 쉬운 바디 부위에 고르게 펴 바름",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "critical",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-032",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            25300,
+            1000,
+            27600
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "스킨케어 마지막 단계에서 얼굴과 자외선에 노출되기 쉬운 바디 부위에 고르게 펴 바름",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-033",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-033",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            26000,
+            1000,
+            33700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "선크림 라인업 각 제품의 색·형상·로고·패키지 글자와 재활용/FSC/SOYINK 마크",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-033",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            26000,
+            1000,
+            33700
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "선크림 라인업 각 제품의 색·형상·로고·패키지 글자와 재활용/FSC/SOYINK 마크; 영역 안의 한국어(사용법 문장·라인업 제목·제품명·해시태그·「휴대용 스틱형」 배지·패키지 설명)는 번역 대상이라 보호에서 제외한다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-034",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-034",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Good all goodal",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-034",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Good all goodal",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-035",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-035",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "의심성분 18 Free",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-035",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "의심성분 18 Free",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-036",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-036",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "4가지 기능별 18개 성분 무첨가",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": null,
+            "service_final": null
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-036",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "critical_fact",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "4가지 기능별 18개 성분 무첨가",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {
+          "H04": {
+            "machine_snapshot": true,
+            "service_final": true
+          }
+        },
+        "importance": "important",
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-037",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-037",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            35000,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "18 Free의 보존제·가소제·계면활성제·자외선차단제 목록을 보존. 작은 성분명 전체의 정확한 전사는 PM 원본 확대 확인 후 원자화",
+          "human_confirmation_required": true,
+          "uncertainty": "세부 성분명 전사 미완료",
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-037",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            35000,
+            1000,
+            36365
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "18 Free의 다음 원본 전사와 4분류·설명·목록 관계를 보존한다. 단위는 하나로 유지하고 성분별로 원자화하지 않는다.\n01. 보존제 (기능 : 유통기한 보장)\n  1) 파라벤 7종[4-하이드록시벤조익애씨드, 메틸파라벤, 에틸파라벤, 아이소프로필파라벤, 프로필파라벤,\n  아이소부틸파라벤, 부틸파라벤] 2) 벤질알코올 3) 이미다졸리디닐우레아 4) 비에이치에이\n  5) 벤잘코늄클로라이드 6) 디아졸리디닐우레아 7) 비에이치티 8) o-사이멘-5-올 9)소르빅애씨드\n  10) 티몰 11) 페녹시에탄올 12) 아이소프로필알코올\n  02. 가소제 (기능 : 끈적이는 사용감 감소)\n  13) 다이아이소노닐프탈레이트\n  03. 계면활성제 (기능 : 세정/성상 혼합)\n  14) 트라이에탄올아민 15) 소듐라우릴설페이트 16) 소듐라우레스설페이트\n  (*15, 16 성분 분석을 위해 설페이트계 계면활성제 4종 모두 확인)\n  04. 자외선차단제 (기능 : 자외선 차단)\n  17) 벤조페논-3 18) 부틸메톡시디벤조일메탄",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-038",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-038",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            37665
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Good all goodal 브랜드 로고, 사진 속 손·잎·튜브와 마지막 제품 인쇄 보호",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-038",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "protected_visual",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            37665
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "Good all goodal 브랜드 로고, 사진 속 손·잎·튜브와 마지막 제품 인쇄 보호; 영역 안의 한국어(소개 문장·칸 제목·설명·각주·18 Free 성분 목록)는 번역 대상이라 보호에서 제외한다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-009",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-009",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            1360
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "원본 전체 섹션의 유지·제외·대체·조건부 경고를 PM이 확인한 뒤 H01 적용 여부를 확정. 정책 단위의 일부 제외와 전체 제외를 구분. 허용 표현 잔존은 결함 아님. 조건부 표현은 필요한 N5 경고 표시를 확인.",
+          "human_confirmation_required": true,
+          "uncertainty": "PM 검토 전 전체 적용 여부 미확정",
+          "note": "PM 검토 전 정책 기대 후보. H01 원본 전체 적용 여부는 별도 전체 검토 후 결정하며 이 영역의 제외를 원본 전체 제외로 전파하지 않는다.",
+          "dictionary_ids": [],
+          "all_sections_excluded": null
+        },
+        "applicability": {
+          "H01": null
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-009",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            0,
+            1000,
+            1360
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "원본 전체가 「디자인 리뉴얼 안내」 하나의 소제목 섹션이며 「1+1 기획」(LC-01, REF-008)과 「교환, 환불」(LC-04, REF-007)을 포함하므로 전체 제외가 정답. 제목·리뉴얼 두 줄·비교 그림·디자인이 상이할 수 있다는 안내 자체는 제외 사유가 아니지만 같은 섹션이라 함께 제외하고 정보 손실로 기록한다. 대체·조건부 경고 없음. H01 미적용 및 H04 REF-001~004 양 체크포인트 미적용은 원본 기준 PM 기대값이며 실제 AI 분할에 따라 바꾸지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다. 10/29의 실제 분할에 따른 H01 결정 제안은 11/3 PM이 철회했다. 정책 제외의 임의 전파가 아니라 단일 소제목 섹션에 근거한 원본별 기대값이다.",
+          "dictionary_ids": [
+            "LC-01",
+            "LC-04"
+          ],
+          "all_sections_excluded": true
+        },
+        "applicability": {
+          "H01": false
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-039",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-039",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            0,
+            1000,
+            37665
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "원본 전체 섹션의 유지·제외·대체·조건부 경고를 PM이 확인한 뒤 H01 적용 여부를 확정. 정책 단위의 일부 제외와 전체 제외를 구분. 허용 표현 잔존은 결함 아님. 조건부 표현은 필요한 N5 경고 표시를 확인.",
+          "human_confirmation_required": true,
+          "uncertainty": "PM 검토 전 전체 적용 여부 미확정",
+          "note": "PM 검토 전 정책 기대 후보. H01 원본 전체 적용 여부는 별도 전체 검토 후 결정하며 이 영역의 제외를 원본 전체 제외로 전파하지 않는다.",
+          "dictionary_ids": [],
+          "all_sections_excluded": null
+        },
+        "applicability": {
+          "H01": null
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-039",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            0,
+            1000,
+            37665
+          ],
+          "description": "원본 픽셀의 문맥 포함 확인 영역. 글자 단위 정밀 박스가 아님."
+        },
+        "expected_value": {
+          "text": "제외할 섹션 없음 — 원본의 모든 섹션이 남아야 한다(어느 섹션이든 자동 제외되면 decision_wrong).\n  조건부 경고(RG-021, 고정 사전 기준) 확인 위치: 해시태그 「# SPF 50+ PA++++」(y 1907~3180) ·\n  추천 「자외선차단지수」(y 24460~25308). SPF 시험 섹션은 REF-015에서 본다.\n  허용(RG-035): 테스트 섹션 「여드름성 피부」 — 남아도 결함 아님.\n  튜브 등 제품 인쇄 글자의 경고 여부는 이 단위에서 보지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "dictionary_ids": [
+            "RG-021",
+            "RG-035"
+          ],
+          "all_sections_excluded": false
+        },
+        "applicability": {
+          "H01": true
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/protocol-dataset.md",
+            "sha256": "d9ecd06b12ee101932a1a9c7705b85c3dec66e1d315a78cd0cc52720c32999f2"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-040",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-040",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "layout_region",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "K01 기존 확정 좌표 그대로"
+        },
+        "expected_value": {
+          "text": "SPF 50+/PA++++와 시험값·±·각주·항목 대응; 미국 시험 충족 판단은 별도",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "focus_region_id": "K01"
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-040",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "layout_region",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            5808,
+            1000,
+            6774
+          ],
+          "description": "K01 기존 확정 좌표 그대로"
+        },
+        "expected_value": {
+          "text": "SPF 50+/PA++++와 시험값·±·각주·항목 대응; 미국 시험 충족 판단은 별도",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "focus_region_id": "K01"
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-041",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-041",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "layout_region",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "K02 기존 확정 좌표 그대로"
+        },
+        "expected_value": {
+          "text": "Reef Safe 흰 글자/본문/각주와 사진 질감·산호·빛 보존",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "focus_region_id": "K02"
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-041",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "layout_region",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            22303,
+            1000,
+            24460
+          ],
+          "description": "K02 기존 확정 좌표 그대로"
+        },
+        "expected_value": {
+          "text": "Reef Safe 흰 글자/본문/각주와 사진 질감·산호·빛 보존",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "focus_region_id": "K02"
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-042",
+      "before": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-042",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "layout_region",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "K03 기존 확정 좌표 그대로"
+        },
+        "expected_value": {
+          "text": "Good all goodal 로고, 18 Free와 4분류 설명·사진·패키지 대응",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다.",
+          "focus_region_id": "K03"
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-042",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "layout_region",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            33684,
+            1000,
+            36365
+          ],
+          "description": "K03 기존 확정 좌표 그대로"
+        },
+        "expected_value": {
+          "text": "Good all goodal 로고, 18 Free와 4분류 설명·사진·패키지 대응",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "2026-11-03 PM 회신을 반영한 초안. 수정 반영분 재확인 전이며 동결/공식 채점 아님. 효능 입증 또는 실제 제품의 규제 적합성 인증이 아니다.",
+          "focus_region_id": "K03"
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-010",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-010",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "text_span",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            420,
+            1000,
+            1010
+          ],
+          "description": "PM은 좌표 미지정. 기존 REF-005의 비교 그림 문맥 영역을 임시 연결; 왼쪽 아래 설명 글자. 정밀 좌표 재확인 필요."
+        },
+        "expected_value": {
+          "text": "비교 그림 왼쪽 「기존 디자인」을 번역 대상 글자로 분리한다. 튜브·상자·로고·녹색 테두리 보호에서 제외하며 정상 번역은 보호 요소 훼손이 아니다. GS-01_001 전체 제외 정답에 따라 이번 측정에서 번역 결과를 요구하지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": "신규 text_span의 정밀 좌표는 PM 재확인 필요; 임시 문맥 영역 사용",
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_001-REF-011",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-001",
+        "reference_unit_id": "GS-01_001-REF-011",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "text_span",
+        "location": {
+          "artifact_id": "GS-01_001",
+          "bbox": [
+            0,
+            420,
+            1000,
+            1010
+          ],
+          "description": "PM은 좌표 미지정. 기존 REF-005의 비교 그림 문맥 영역을 임시 연결; 오른쪽 아래 설명 글자. 정밀 좌표 재확인 필요."
+        },
+        "expected_value": {
+          "text": "비교 그림 오른쪽 「신규 디자인」을 번역 대상 글자로 분리한다. 튜브·상자·로고·녹색 테두리 보호에서 제외하며 정상 번역은 보호 요소 훼손이 아니다. GS-01_001 전체 제외 정답에 따라 이번 측정에서 번역 결과를 요구하지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": "신규 text_span의 정밀 좌표는 PM 재확인 필요; 임시 문맥 영역 사용",
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065.jpg",
+            "sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6487521336",
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-043",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-043",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "text_span",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            781,
+            704,
+            949,
+            872
+          ],
+          "description": "11/3 PM 지정 원본 좌표 [x_min,y_min,x_max,y_max]. 신규 단위 반영 재확인 대기."
+        },
+        "expected_value": {
+          "text": "「산뜻 밀착」 배지를 번역할 글자로 분리한다. REF-003 보호 영역에서 제외하고 정상 번역을 보호 요소 훼손으로 세지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-044",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-044",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            8990,
+            1000,
+            10080
+          ],
+          "description": "11/3 PM 지정 원본 좌표 [x_min,y_min,x_max,y_max]. 신규 단위 반영 재확인 대기."
+        },
+        "expected_value": {
+          "text": "POINT 01~04 문장의 *~***** 기호와 각주 5줄(y 9928~10067)의 대응을 보존한다. 「확실한 진정 효과」는 「원료적 특성에 한함」, 「Reef Safe」는 「옥시벤존·옥티노세이트 불검출 시험 완료」와 연결해 주장 범위를 유지한다. C·D 구간 REF-021과 구분되는 A 구간이다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-045",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-045",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "semantic_block",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            23155,
+            1000,
+            23320
+          ],
+          "description": "11/3 PM 지정 원본 좌표 [x_min,y_min,x_max,y_max]. 신규 단위 반영 재확인 대기."
+        },
+        "expected_value": {
+          "text": "본문 「자외선 차단 원료*(옥시벤존, 옥티노세이트)를 배제하였습니다」의 *와 각주 「*옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료」의 대응을 보존한다. 「배제」 주장의 근거 범위를 불검출 시험으로 한정한다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결."
+        },
+        "applicability": {},
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-046",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-046",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            0,
+            10175,
+            1000,
+            10671
+          ],
+          "description": "11/3 PM 지정 원본 좌표 [x_min,y_min,x_max,y_max]. 신규 단위 반영 재확인 대기."
+        },
+        "expected_value": {
+          "text": "벨기에 바이오리우스 비건 인증 문구를 그대로 옮기고 미국 인증 획득 사실을 추가하지 않는다. B 구간 「비건 인증 완료」 상자 대상이며 첫 화면 VEGAN CERTIFIED 마크·A POINT 03 「비건 인증****」·각주 ****는 같은 주장의 문맥이다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결.",
+          "dictionary_ids": [],
+          "all_sections_excluded": false
+        },
+        "applicability": {
+          "H01": true
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    },
+    {
+      "reference_unit_id": "GS-01_002-REF-047",
+      "before": null,
+      "after": {
+        "evaluation_run_id": "reference-preparation-20261027",
+        "dataset_id": "gs-v1",
+        "case_id": "GS-01",
+        "source_key": "GS-01-IMG-002",
+        "reference_unit_id": "GS-01_002-REF-047",
+        "reference_version": "gs-v1-reference-draft-20261027",
+        "unit_type": "policy_expectation",
+        "location": {
+          "artifact_id": "GS-01_002",
+          "bbox": [
+            190,
+            30715,
+            423,
+            30753
+          ],
+          "description": "11/3 PM 지정 원본 좌표 [x_min,y_min,x_max,y_max]. 신규 단위 반영 재확인 대기."
+        },
+        "expected_value": {
+          "text": "라인업 핑크톤업 칸 「#기미잡티흔적커버」의 「기미」를 melasma·chloasma·hyperpigmentation·freckles 등 RG-025 영어 변형어로 옮기지 않고 가림·겉보기 표현으로 번역한다(예: covers the look of dark spots). 번역 결과 글자만 보며 사전 판에 따라 달라지는 원문 판정 배지는 이 단위에서 보지 않는다.",
+          "human_confirmation_required": true,
+          "uncertainty": null,
+          "note": "PM 요청에 따른 신규 초안. 항목 ID·좌표·기대값의 반영 재확인 전이며 미동결.",
+          "dictionary_ids": [
+            "RG-025"
+          ],
+          "all_sections_excluded": false
+        },
+        "applicability": {
+          "H01": true
+        },
+        "importance": null,
+        "basis_refs": [
+          {
+            "path": "artifacts/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549.jpg",
+            "sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549"
+          },
+          {
+            "path": "artifacts/policy-source-index.json",
+            "sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f"
+          },
+          {
+            "path": "artifacts/pm-feedback-gs01-20261103.json",
+            "sha256": "bbed41acb3b3963d63334b4120dc9612088db1fa888bcb2d60b31dd9e70bdc32"
+          }
+        ],
+        "verified_by": null,
+        "verified_at": null,
+        "verification_ref": null
+      },
+      "status": "PM 회신 반영 · 재확인 대기",
+      "feedback_urls": [
+        "https://github.com/ai-pixlate/server/pull/93#issuecomment-6595275361"
+      ]
+    }
+  ]
+}

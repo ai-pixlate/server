@@ -6,6 +6,7 @@
         --out docs/ai-experiments/runs/2026-10-30_09-typeset_single-line-overflow/rule_compare.json
 
 입력: `typeset_overflow_probe.py`의 `blocks.json`과 사람 검수 TSV. 읽기만 한다. blocks.json은 검수 지문의 입력이라 다시 쓰지 않는다.
+TSV는 `typeset_overflow_review_aggregate.load_review`로 검증한다(지문 · 검수 표본 · 판정값 · 중복). 어기면 결과 파일을 만들지 않고 종료 코드 1.
 출력: `rule_compare.json`(블록별 판정은 넣지 않고 집계만).
 
 기준(폭 · 높이는 Pillow 근사 — 운영 조판과 같은 함수 · 같은 위치):
@@ -24,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import csv
 import json
 import sys
 from pathlib import Path
@@ -37,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from app import typeset as t  # noqa: E402
 from typeset_overflow_probe import _layout  # noqa: E402
+from typeset_overflow_review_aggregate import ReviewInputError, load_review  # noqa: E402
 
 RULES = ("current", "a", "glyph", "glyph_1px")
 EM_RATIOS = (0.9, 0.88, 0.85, 0.833)
@@ -101,10 +102,12 @@ def main() -> int:
     ap.add_argument("--tsv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args()
-    rows = judge(json.loads(a.blocks.read_text(encoding="utf-8")))
-    with a.tsv.open(encoding="utf-8", newline="") as f:
-        verdict = {(r["gs"], int(r["block_id"])): r["verdict"] for r in csv.DictReader(f, delimiter="\t") if r["verdict"]}
-    s = compare(rows, verdict)
+    try:
+        rv = load_review(a.blocks, a.tsv)
+    except ReviewInputError as e:
+        print(e, file=sys.stderr)
+        return 1
+    s = compare(judge(rv.rows), rv.verdict)
     text = json.dumps(s, ensure_ascii=False, indent=1)
     a.out.write_text(text, encoding="utf-8")
     print(text)

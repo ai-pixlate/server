@@ -15,13 +15,13 @@
 | ⑧ | `pipeline.handoff.translation.run_translate` | `HandoffTranslator` → `TranslateOutcome`. 공급은 `context["handoff"]` | `validate_report` + 기존 채택 검사 |
 | ⑥ | `pipeline.handoff.gpu.GpuInpaintRunner` (GPU 측) | `BeControlClient`(AI `ControlClient` 구현), 등록은 `WorkerControl.register_report`, 요청 구성은 `inpaint_stage_request` 공용 | 업로드 해시·시도·세대 대조 → 산출물 고정 → 고정 사본으로 `validate_report(local_paths, allowed_root)` → 채택 |
 
-- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 저장 묶음에 DB 원문 문자열 그대로 두고, AI 인계 형식은 묶음 스키마로 정한다. 스키마 4(`BUNDLE_SCHEMA`)부터 #71 구분 규칙(2026-11-03 사용자 결정 — 적재 규칙과 같은 `"; "`(세미콜론+한 칸), 빈 조각 · 다른 `;`는 위반)으로 나눈 **배열**을 보낸다. 규칙 위반 값은 적재(`dictionary_ingest`)와 묶음 생성(`REGULATORY_DICT_INVALID`)에서 막는다. 스키마 3 이하 묶음은 **나누지 않은 원문 문자열**(없으면 빈 배열)을 보낸다 — AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다. 이미 고정된 분석의 AI 묶음 지문을 바꾸지 않으려는 구분이다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
+- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 저장 묶음에 DB 원문 문자열 그대로 두고, AI 인계 때 #71 구분 규칙(2026-11-03 사용자 결정 — 적재 규칙과 같은 `"; "`(세미콜론+한 칸), 빈 조각 · 다른 `;`는 위반)으로 나눈 **배열**(없으면 빈 배열)을 보낸다. 규칙 위반 값은 묶음 생성 때 `REGULATORY_DICT_INVALID`로 공급 불가다. 묶음 스키마는 바꾸지 않았으므로 이미 분석한 묶음도 다음 AI 호출부터 배열로 간다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
 - **정책 규칙**: DB에 없다. 저장소 운영 규칙 `pipeline/data/policy_rules.json`(AI 소유, `policy@2026-10-08.1`)을 분석 시작 때 읽어 묶음에 고정하고 지문(`policy_rules_sha256`)도 보존한다. `PIXLATE_POLICY_RULES`는 실험용 대체 경로다. `overrides`가 있거나 `combination→otc`·`unknown→cosmetic`(D8)과 다르면 거부한다. 규제 행 조회 분류는 규칙의 `applied_classes`(`common` 포함)를 따른다.
-- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 표현 지시는 대체 표현을 배열로 나누는 묶음(스키마 4 이상)에서만 만든다 — N3 채택 판정 중 대체 표현이 있는 금지형(`regulated`) 규제 판정의 매칭을 이번 대상 블록에 한해 `{block_key, external_id, matched_text}`로 넘기고, 자리표시자 템플릿 대체 표현은 넘기지 않는다(D9). 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
+- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(`regulated`) 규제 판정의 매칭을 이번 대상 블록에 한해 `{block_key, external_id, matched_text}`로 넘기고, 자리표시자 템플릿 대체 표현은 넘기지 않는다(D9). 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 검사 연결(8절) — 규칙 검사(`run_text_check`) · LLM 판정(`run_translation_review`) 모두 BE 연동 때 일괄 검토 후 연결(시점 · 순서 미정, D12 보완 2). GPU 제어 HTTP 바인딩. #71 구분 규칙 · 스키마 4 변환 · ⑧ 표현 지시 활성화는 BE 확인 전이다(2026-11-03 사용자 결정으로 구현).
+- **남은 것**: 번역문 검사 연결(8절) — 규칙 검사(`run_text_check`) · LLM 판정(`run_translation_review`) 모두 BE 연동 때 일괄 검토 후 연결(시점 · 순서 미정, D12 보완 2). GPU 제어 HTTP 바인딩. #71 구분 규칙 · 대체 표현 배열 변환 · ⑧ 표현 지시 활성화는 BE 확인 전이다(2026-11-03 사용자 결정으로 구현).
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -107,7 +107,7 @@
 
 ## 5. 함께 확인할 것
 
-0절 「남은 것」과 [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)의 AI 요청(대상 섹션 지정·근거 배열·검증기 경로·정리 상태·예제 재생성의 Unicode 버전 의존)을 따른다. ⑧ 대체 표현 구분자(#71)는 2026-11-03 사용자 결정에 따라 묶음 스키마 4부터 변환·공급을 바꿨다(0절). 용어집 공급은 D10 선별로 교체했다(2026-10-11).
+0절 「남은 것」과 [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)의 AI 요청(대상 섹션 지정·근거 배열·검증기 경로·정리 상태·예제 재생성의 Unicode 버전 의존)을 따른다. ⑧ 대체 표현 구분자(#71)는 2026-11-03 사용자 결정에 따라 변환·공급을 바꿨다(0절). 용어집 공급은 D10 선별로 교체했다(2026-10-11).
 
 ## 6. 역할별 스타일 기본값 — BE 렌더 연결 인계(2026-10-12, D11)
 

@@ -71,8 +71,6 @@ def test_hangul_in_alternative_is_reported_not_rejected(tmp_path):
     ({"verdict_status": "conditional", "alternative_expression": None}, "alternative_expression"),
     ({"verified_at": None}, "verified_at"),
     ({"variant_expressions.ko": "a; ; b"}, "variant_expressions.ko"),
-    ({"alternative_expression": "a; ; b"}, "alternative_expression"),     # #71 구분 규칙: 빈 조각
-    ({"alternative_expression": "a;b"}, "alternative_expression"),        # #71 구분 규칙: '; ' 아닌 구분자
     ({"variant_expressions.en": None}, "variant_expressions.en"),
     ({"evidence_url": "https://other"}, "evidence_url"),
     ({"evidence_id": "WL-777"}, "evidence_id"),                           # 근거 탭에 없음

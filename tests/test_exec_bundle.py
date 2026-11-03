@@ -6,8 +6,7 @@ import json
 
 import pytest
 
-from app.dictionary_bundle import (BUNDLE_SCHEMA, BundleError, ai_alternatives, alternatives_problem, alternatives_split,
-                                   load_policy_rules, to_ai_bundle)
+from app.dictionary_bundle import BundleError, ai_alternatives, load_policy_rules, to_ai_bundle
 from app.manifest import fingerprint
 from pipeline.handoff.bundle import check_bundle
 from pipeline.handoff.bundle import load_policy_rules as repo_rules
@@ -34,7 +33,7 @@ def _be_bundle(*, local_ok=True, rules=None):
         "class_notice": None,
         "regulatory": {"status": "ok", "entries": [
             _entry("RG-901", "regulatory", "cosmetic", "치료", ["치료"], "regulated", fen=["cure"]),
-            # 시트 rewritable → 적재 regulated + 원값 보존. 대체 표현은 나누지 않는다(#71)
+            # 시트 rewritable → 적재 regulated + 원값 보존. 대체 표현은 #71 구분 규칙 '; '로 나뉜다
             {**_entry("RG-902", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt="Soothing; Calming"),
              "source_verdict_status": "rewritable"},
             _entry("RG-903", "regulatory", "common", "보습", ["보습"], "allowed"),
@@ -57,8 +56,8 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     cb = check_bundle(ai, target_country="US")  # AI 쪽 구조·무결성·대응표 검사 통과
     assert ai == to_ai_bundle(copy.deepcopy(be))
     rg = cb.regulation
-    # 스키마 3 이하 묶음: 나누지 않은 원문 문자열 — "대체 표현 있음"·스냅샷에만 쓰이고 ⑧ 지시로 쓰이지 않는다(PR #55 3217142)
-    assert rg["RG-902"].alternative_expression == "Soothing; Calming" and rg["RG-902"].alternatives_split is None
+    assert rg["RG-902"].alternatives_split == ["Soothing", "Calming"]  # #71 구분 규칙으로 나눈 배열(⑧ 표현 지시에 쓰인다)
+    assert be["regulatory"]["entries"][1]["alternative_expression"] == "Soothing; Calming"  # 저장 묶음은 원문 그대로
     assert rg["RG-902"].has_alternative and not rg["RG-901"].has_alternative
     assert rg["RG-902"].verdict_status == "regulated" and rg["RG-902"].source_verdict_status == "rewritable"
     assert rg["RG-901"].variant_en == ["cure"] and rg["RG-903"].variant_en == []  # NULL → 영어 패턴 없음
@@ -69,31 +68,21 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     assert cb.identity["rules_sha256"] == fingerprint(be["policy_rules"])  # BE 저장 지문과 AI identity 대조 가능
 
 
-def test_to_ai_bundle_splits_alternatives_from_schema_4():
+def test_to_ai_bundle_rejects_alternatives_breaking_split_rule():
     be = _be_bundle()
-    be["bundle_schema"] = BUNDLE_SCHEMA
-    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing; Calming; calm-looking"
-    ai = to_ai_bundle(be)
-    rg = check_bundle(ai, target_country="US").regulation
-    # #71 구분 규칙: 적재 규칙과 같은 '; '로 나눈다. 저장 묶음의 원문 문자열은 그대로 둔다
-    assert rg["RG-902"].alternatives_split == ["Soothing", "Calming", "calm-looking"]
-    assert be["regulatory"]["entries"][1]["alternative_expression"] == "Soothing; Calming; calm-looking"
-    assert rg["RG-901"].alternative_expression == [] and not rg["RG-901"].has_alternative
-    assert ai == to_ai_bundle(copy.deepcopy(be))
-    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;Calming"  # 규칙에 맞지 않는 값은 나누지 않고 공급 불가
+    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;Calming"  # '; ' 아닌 구분자 — 나누지 않고 공급 불가
     with pytest.raises(BundleError) as e:
         to_ai_bundle(be)
     assert e.value.code == "REGULATORY_DICT_INVALID"
 
 
 def test_ai_alternatives_rule():
-    assert ai_alternatives(None, True) == [] and ai_alternatives("  ", True) == []
-    assert ai_alternatives("a; b", False) == "a; b"  # 스키마 3 이하: 나누지 않는다
-    assert ai_alternatives("a; b; c", True) == ["a", "b", "c"]
+    assert ai_alternatives(None) == [] and ai_alternatives("  ") == []
+    assert ai_alternatives("a; b; c") == ["a", "b", "c"]
     # 적재 규칙(dictionary_ingest._split)과 같다: 빈 조각 · '; ' 아닌 ';'는 규칙 위반
-    assert not alternatives_problem("a; b") and not alternatives_problem(None)
-    assert alternatives_problem("a; ; b") and alternatives_problem("a;b") and alternatives_problem("a; b;") and alternatives_problem(" ; ")
-    assert alternatives_split({"bundle_schema": "3"}) is False and alternatives_split({"bundle_schema": BUNDLE_SCHEMA}) is True
+    for bad in ("a; ; b", "a;b", "a; b;", " ; "):
+        with pytest.raises(BundleError):
+            ai_alternatives(bad)
 
 
 def test_to_ai_bundle_local_unavailable_and_missing_rules():

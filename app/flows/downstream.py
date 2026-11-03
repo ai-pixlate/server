@@ -28,7 +28,7 @@ from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
 from app.flows import common
 from app.flows.common import block_key, failed_envelope, json_value, report, section_key, set_job_state, submit
-from app.dictionary_bundle import ai_alternatives, alternatives_split, entries_by_ref
+from app.dictionary_bundle import ai_alternatives, entries_by_ref
 from app.manifest import fingerprint, sha256_bytes, sha256_text, stable_hash
 from app.storage import ObjectMissing, get_store
 
@@ -568,12 +568,8 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
 
 def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
     """표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(regulated) 규제 판정의 매칭을 이번 대상 블록에 한해 넘긴다.
-    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다. 템플릿 대체 표현(RG-021/022 등)은 원문 수치 유지라 넘기지 않는다(D9-2).
-
-    대체 표현을 배열로 나누는 묶음(스키마 4 이상, #71)에서만 지시를 만든다. 스키마 3 이하 묶음은 나누지 않은 원문 문자열로
-    공급되고 AI는 그런 행을 표현 지시로 받지 않으므로(PR #55 3217142) 지시를 만들지 않는다."""
-    if not alternatives_split(bundle):
-        return []
+    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다(#71 구분 규칙으로 나눈 배열). 템플릿 대체 표현(RG-021/022 등)은 원문 수치
+    유지라 넘기지 않는다(D9-2)."""
     det = json_value(db.execute(
         text("SELECT detail FROM audit_log WHERE action_type = :a AND target_type = 'section' AND target_id = :s ORDER BY id DESC LIMIT 1"),
         {"a": common.ACT_ANALYSIS_ADOPTED, "s": sid},
@@ -584,7 +580,7 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
         e = refs.get(v["dictionary_ref"])
         if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated":
             continue
-        alts = ai_alternatives(e["alternative_expression"], True)
+        alts = ai_alternatives(e["alternative_expression"])
         if not alts or any(_PLACEHOLDER.search(a) for a in alts):
             continue
         for m in det.get("matches", []):

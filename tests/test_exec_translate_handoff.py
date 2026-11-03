@@ -68,7 +68,7 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
               "ORDER BY a.unit_id", j=ids["job"])
     assert [(a["status"], a["error_code"]) for a in atts] == [("done", None), ("failed", "TRANSLATE_PARTIAL")]
     supply = atts[0]["input_manifest"]["supply"]  # 시도 생성 때 고정한 공급 지문
-    # 스키마 4 묶음: 대체 표현이 있는 금지형 매칭이 이번 대상 블록에 있으면 ⑧ 표현 지시를 고정한다(#71)
+    # 대체 표현이 있는 금지형 매칭이 이번 대상 블록에 있으면 ⑧ 표현 지시를 고정한다(#71)
     assert [(i["external_id"], i["matched_text"]) for i in supply["instructions"]] == [("RG-777", "가짜완화")]
     # 모델 입력까지 나눈 대체 표현으로 간다
     sent = [i for ins in handoff_env["llm"].instructions for i in ins]

@@ -37,7 +37,7 @@
   (① 식), 경계에서 2px 안에 닿는 OCR 상자, 섹션 밖 좌표 영역, 경계 위아래 가장 가까운 줄의 간격 / 줄 높이와 가로 겹침(문단 분할 후보).
 - **육안 확인(에이전트, 사람 검수 아님)**: 신호와 관계없이 고유 경계 81곳 전부를 원본 ±90px 대조 그림(두 자료의 영역 상자 포함)으로 봤다.
   판정 질문은 둘 — (1) 경계가 글자 획을 가르는가 (2) 경계가 한 문단 · 여러 줄 제목을 가르는가. 결과는 `2026-11-03_01-split_boundary-recheck_review.tsv`
-  (SHA-256 `f552efec…0246`). 의심 사례는 원본 해상도로 다시 확대하고 행별 잉크 픽셀을 셌다.
+  (SHA-256 `17d308d1…6b09`, 저장소의 LF 줄바꿈 기준). 의심 사례는 원본 해상도로 다시 확대하고 행별 잉크 픽셀을 셌다.
 - 산출물(git 제외): `docs/ai-experiments/runs/2026-11-03_01-split_boundary-recheck/`(`boundaries.json` · `summary.json` · `crop_index.json` ·
   `crops/sheet_*.png` · `zoom_GS-02_014_9200.png` · `boundary_review.tsv`).
 

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; base-uri 'none'">
+<title>Baseline 결과 비교</title><link rel="stylesheet" href="viewer.css"></head>
+<body>
+<header><div><span class="eyebrow">PIXLATE · BASELINE ARCHIVE</span><h1>결과 비교</h1></div><div class="run"><strong id="run"></strong><span id="version"></span></div><span class="readonly">읽기 전용</span></header>
+<div id="summary" class="summary"></div>
+<div class="layout"><aside><label for="case">상품</label><select id="case"></select><label for="query">원본 ID 검색</label><input id="query" type="search" placeholder="원본 ID 입력"><label for="status">실행 상태</label><select id="status"><option value="all">전체</option></select><div id="sources" class="sources" aria-label="원본 목록"></div></aside>
+<main><div class="heading"><div><h2 id="source-title"></h2><p id="source-state"></p></div><div class="tabs" role="group" aria-label="비교 방식"><button id="whole" aria-pressed="true">원본 ↔ 최종</button><button id="section" aria-pressed="false">섹션 ↔ 최초</button></div></div>
+<div class="toolbar"><label id="section-control" hidden>섹션 <select id="section-select"></select></label><label id="variant-control" hidden>산출물 <select id="variant"></select></label><button id="fit">폭 맞춤</button><button id="actual">100%</button><label class="zoom-label">확대 <input id="zoom" type="range" min="10" max="250" step="5" value="100"><output id="zoom-value">폭 맞춤</output></label><label class="sync"><input id="sync" type="checkbox">스크롤 비율 동기화</label></div>
+<p id="coordinates" class="muted"></p>
+<div class="comparison"><article><div class="panel-heading"><strong id="left-title"></strong><a id="left-link" target="_blank" rel="noopener">원본 파일 열기 ↗</a></div><div class="viewport" id="left-pane" tabindex="0" aria-label="왼쪽 이미지 스크롤"><img id="left-image" alt=""><p class="empty" id="left-empty"></p></div></article><article><div class="panel-heading"><strong id="right-title"></strong><a id="right-link" target="_blank" rel="noopener">원본 파일 열기 ↗</a></div><div class="viewport" id="right-pane" tabindex="0" aria-label="오른쪽 이미지 스크롤"><img id="right-image" alt=""><p class="empty" id="right-empty"></p></div></article></div>
+<details id="evidence"><summary>실행 상태·오류 근거 <span id="error-count"></span></summary><pre id="errors"></pre></details>
+<details id="integrity"><summary>자료 연결·누락 안내 <span id="warning-count"></span></summary><ul id="warnings"></ul></details>
+<p class="footnote">실행 결과 열람용입니다. 전체 제외의 적합성이나 품질 등급을 판정하지 않습니다. 최초 미리보기와 N6 최종 결과는 별도 체크포인트입니다. 스크롤 동기화는 높이 비율 기준이며 같은 원본 좌표를 뜻하지 않습니다.</p>
+</main></div>
+<script id="viewer-data" type="application/json">__VIEWER_DATA__</script><script src="viewer.js"></script>
+</body></html>

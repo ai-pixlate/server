@@ -30,7 +30,7 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |
 
-지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md)은 PM 검토·동결 전이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
+지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리하며 GS-02·03은 미동결이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
 
 [기존 측정 도구 안내](../../tools/baseline/README.md)는 기존 구현의 사용법·검증 범위만 설명한다. 도구 출력이 최신 명세와 일치한다고 가정하지 않으며 도구 정비·실행은 별도 작업이다.
 

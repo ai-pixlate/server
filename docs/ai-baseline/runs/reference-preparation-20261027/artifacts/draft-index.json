@@ -9,7 +9,7 @@
   "basis_protocol_commit": "5d09bf627c184732012b7b34df55ebd8f8b6c157",
   "cost_execution_approval": "보류",
   "draft_file": "artifacts/reference_units.draft.jsonl",
-  "draft_sha256": "824a59c5abb7ba178030ad58a7a37086119fedc3243e91880806a293e02194a8",
+  "draft_sha256": "c3f6a378579c54f7723784c3c18938e5a81f582ffa1b4b117b3122deed35bce7",
   "dataset_manifest_path": "pipeline/samples/evaluation/gs-v1/manifest.json",
   "dataset_manifest_sha256": "8c4267a09aac5c948ec131c89ebed93d3b828cff16252490fa8ed481d8bea1c8",
   "policy_index_sha256": "3c8efebfff2b9660240605596ea4b500f4ed1e8fa8100eddbc8976770b408b7f",
@@ -34,10 +34,7 @@
       "draft_units": 11,
       "verified_units": 0,
       "focus_regions": [],
-      "content_uncertainty_ids": [
-        "GS-01_001-REF-010",
-        "GS-01_001-REF-011"
-      ]
+      "content_uncertainty_ids": []
     },
     {
       "source_key": "GS-01-IMG-002",
@@ -498,5 +495,9 @@
     "before_draft_sha256": "fc90a445bb627d9252a62455757e067afd6d526f09c64f9ebc0879e3dff056bb",
     "new_units": 7,
     "total_units": 331
+  },
+  "gs01_coordinate_update": {
+    "path": "artifacts/gs01-coordinate-update-20261103.json",
+    "sha256": "1c060982f955e2fb3c7bb5ac3816978803657130c1820634a88c514a0d763610"
   }
 }

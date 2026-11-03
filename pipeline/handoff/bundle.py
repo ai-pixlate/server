@@ -52,7 +52,7 @@ class RegulationRow(_Model):
     source_expression: str = Field(min_length=1)
     variant_ko: list[str] = Field(min_length=1)
     variant_en: list[str] = Field(default_factory=list)  # DB forbidden_en(영어 재대조 패턴). NULL이면 BE가 빈 목록으로 공급
-    # 대체 표현: 배열 = BE가 구분 규칙(#71)에 따라 나눈 값 / 문자열 = 나누지 않은 원문(#71 확정 전). 빈 문자열 · 빈 배열 = 없음.
+    # 대체 표현: 배열 = BE가 구분 규칙(#71)에 따라 나눈 값 / 문자열 = 나누지 않은 원문(BE 묶음 스키마 3 이하). 빈 문자열 · 빈 배열 = 없음.
     # AI는 문자열을 나누지 않는다. 원문 문자열은 정책의 "대체 표현 있음" 판단 · 스냅샷에만 쓰고 ⑧ 표현 지시로는 쓰지 않는다
     alternative_expression: list[str] | str = Field(default_factory=list)
     verdict_status: Literal["allowed", "conditional", "regulated"]  # DB 서비스 판정값. 시트의 rewritable은 regulated + 원값으로 온다

@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from app.dictionary_bundle import BundleError, load_policy_rules, to_ai_bundle
+from app.dictionary_bundle import BUNDLE_SCHEMA, BundleError, ai_alternatives, alternatives_split, load_policy_rules, to_ai_bundle
 from app.manifest import fingerprint
 from pipeline.handoff.bundle import check_bundle
 from pipeline.handoff.bundle import load_policy_rules as repo_rules
@@ -56,7 +56,7 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     cb = check_bundle(ai, target_country="US")  # AI 쪽 구조·무결성·대응표 검사 통과
     assert ai == to_ai_bundle(copy.deepcopy(be))
     rg = cb.regulation
-    # #71 확정 전: 나누지 않은 원문 문자열 — "대체 표현 있음"·스냅샷에만 쓰이고 ⑧ 지시로 쓰이지 않는다(PR #55 3217142)
+    # 스키마 3 이하 묶음: 나누지 않은 원문 문자열 — "대체 표현 있음"·스냅샷에만 쓰이고 ⑧ 지시로 쓰이지 않는다(PR #55 3217142)
     assert rg["RG-902"].alternative_expression == "Soothing; Calming" and rg["RG-902"].alternatives_split is None
     assert rg["RG-902"].has_alternative and not rg["RG-901"].has_alternative
     assert rg["RG-902"].verdict_status == "regulated" and rg["RG-902"].source_verdict_status == "rewritable"
@@ -66,6 +66,26 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     assert cb.local["LC-01"].seller_message == "사유" and cb.local["LC-01"].item == "항목 1"
     assert "pk" not in json.dumps(ai)  # DB PK 는 AI 에 보내지 않는다
     assert cb.identity["rules_sha256"] == fingerprint(be["policy_rules"])  # BE 저장 지문과 AI identity 대조 가능
+
+
+def test_to_ai_bundle_splits_alternatives_from_schema_4():
+    be = _be_bundle()
+    be["bundle_schema"] = BUNDLE_SCHEMA
+    be["regulatory"]["entries"][1]["alternative_expression"] = " Soothing;Calming ;; calm-looking "
+    ai = to_ai_bundle(be)
+    rg = check_bundle(ai, target_country="US").regulation
+    # #71 구분 규칙: ';'로 나누고 앞뒤 공백 제거, 빈 조각 버림. 저장 묶음의 원문 문자열은 그대로 둔다
+    assert rg["RG-902"].alternatives_split == ["Soothing", "Calming", "calm-looking"]
+    assert be["regulatory"]["entries"][1]["alternative_expression"] == " Soothing;Calming ;; calm-looking "
+    assert rg["RG-901"].alternative_expression == [] and not rg["RG-901"].has_alternative
+    assert ai == to_ai_bundle(copy.deepcopy(be))
+
+
+def test_ai_alternatives_rule():
+    assert ai_alternatives(None, True) == [] and ai_alternatives("  ", True) == [] and ai_alternatives(" ; ", True) == []
+    assert ai_alternatives("a; b", False) == "a; b"  # 스키마 3 이하: 나누지 않는다
+    assert ai_alternatives("a; b;c", True) == ["a", "b", "c"]
+    assert alternatives_split({"bundle_schema": "3"}) is False and alternatives_split({"bundle_schema": BUNDLE_SCHEMA}) is True
 
 
 def test_to_ai_bundle_local_unavailable_and_missing_rules():

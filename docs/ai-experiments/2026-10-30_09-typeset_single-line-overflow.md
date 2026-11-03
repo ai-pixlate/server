@@ -148,3 +148,8 @@ leading 40건(오판 후보)은 구현 버그가 아니다. 코드는 당시 문
 develop 병합(PR #98 이후) — develop이 #87 · #88을 다른 항목(사용자 조정 계약 · 이미지 경계 이탈)으로 써서 이 항목을 처음부터 #89로
 적었다(이 기록의 이전 커밋 · PR 본문의 #87은 #89를 뜻한다). `be-handoff.md` 6.5 · 6.6 ④는 PR #98에서 합의 기준으로 고쳐졌고, 사례 08 ·
 `style_reference.py`는 옛 기준으로 남아 있다. 조판 협의 태그는 develop의 `[조판 D-xx]` 표기에 맞췄다.
+2026-11-03 — BE 리뷰([PR #96 코멘트](https://github.com/ai-pixlate/server/pull/96#issuecomment-6595346940))를 반영했다. 비교 도구가 검수 TSV의 지문을 확인하지 않는다는 지적에 따라
+`typeset_overflow_review_aggregate.load_review` 공통 검증(필수 열 · 지문 · 검수 표본 · 판정값 · 중복)을 두 도구에 쓰고 실패 시험
+(`tests/test_typeset_overflow_review_tools.py`)을 추가했다 — 실제 검수 TSV의 집계 · 비교 결과는 바뀌지 않았다. 측정 역할 분담 · Pillow 임시
+수정 없이 2차 전환 · `width_overflow` 포괄 의미 유지 · bbox 정수 변환 지적 · 공통 회귀 사례 목록은 BE 의견(확정 · 승인 아님)으로
+`open-questions.md` #89에 옮겼다.

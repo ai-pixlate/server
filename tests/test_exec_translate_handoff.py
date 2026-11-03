@@ -36,7 +36,7 @@ def handoff_env(env, tmp_path, monkeypatch):
             "INSERT INTO expression_dictionary (external_id, source_expression, variant_ko, forbidden_en, target_country, regulatory_class, "
             "dict_type, verdict_status, source_verdict_status, alternative_expression, reason, confirmed_date) VALUES "
             "('RG-777', '가짜완화', CAST(:v AS jsonb), NULL, 'US', 'cosmetic', 'regulatory', 'regulated', 'rewritable', "
-            "'the look of calm;  calming look ;', '완화 표방 금지', DATE '2026-09-30') RETURNING id"),  # #71 구분: ';' · 공백 · 빈 조각
+            "'the look of calm; calming look', '완화 표방 금지', DATE '2026-09-30') RETURNING id"),  # #71 구분 규칙 '; '
             {"v": json.dumps(["가짜완화"], ensure_ascii=False)}
         ).scalar_one()
         c.execute(text("INSERT INTO expression_dictionary_evidence (dictionary_id, external_id, evidence_source_type, is_primary) "
@@ -70,7 +70,7 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
     supply = atts[0]["input_manifest"]["supply"]  # 시도 생성 때 고정한 공급 지문
     # 스키마 4 묶음: 대체 표현이 있는 금지형 매칭이 이번 대상 블록에 있으면 ⑧ 표현 지시를 고정한다(#71)
     assert [(i["external_id"], i["matched_text"]) for i in supply["instructions"]] == [("RG-777", "가짜완화")]
-    # 모델 입력까지 나눈 대체 표현으로 간다(앞뒤 공백 제거 · 빈 조각 버림)
+    # 모델 입력까지 나눈 대체 표현으로 간다
     sent = [i for ins in handoff_env["llm"].instructions for i in ins]
     assert [(i["matched_text"], i["alternatives"]) for i in sent] == [("가짜완화", ["the look of calm", "calming look"])]
     assert supply["bundle_sha256"] and supply["glossary_sha256"]

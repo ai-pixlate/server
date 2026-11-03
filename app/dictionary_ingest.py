@@ -139,6 +139,12 @@ def _split(v: Any, required: bool) -> Optional[list[str]]:
     return parts
 
 
+def _alternatives(v: Any) -> Optional[str]:
+    """대체 표현 — DB에는 원문 문자열 그대로 두고, AI 인계 때 나눌 '; ' 구분 규칙(#71)에 맞는지만 적재 때 검사한다."""
+    _split(v, False)
+    return _text(v, False)
+
+
 def _version(v: Any) -> int:
     if _blank(v):
         raise CellError("필수값이 비어 있음")
@@ -278,7 +284,7 @@ def parse_regulatory(path: str, issues: list[Issue]) -> DictFile:
         r.take(rec, cell, "source_expression", "source_expression", lambda v: _text(v, True))
         r.take(rec, cell, "variant_expressions.ko", "variant_ko", lambda v: _split(v, True))
         r.take(rec, cell, "variant_expressions.en", "forbidden_en", lambda v: _split(v, True))
-        r.take(rec, cell, "alternative_expression", "alternative_expression", lambda v: _text(v, False))
+        r.take(rec, cell, "alternative_expression", "alternative_expression", _alternatives)
         r.take(rec, cell, "reason", "reason", lambda v: _text(v, True))
         r.take(rec, cell, "verified_at", "confirmed_date", _required_date)
         try:

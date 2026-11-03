@@ -6,7 +6,8 @@ import json
 
 import pytest
 
-from app.dictionary_bundle import BUNDLE_SCHEMA, BundleError, ai_alternatives, alternatives_split, load_policy_rules, to_ai_bundle
+from app.dictionary_bundle import (BUNDLE_SCHEMA, BundleError, ai_alternatives, alternatives_problem, alternatives_split,
+                                   load_policy_rules, to_ai_bundle)
 from app.manifest import fingerprint
 from pipeline.handoff.bundle import check_bundle
 from pipeline.handoff.bundle import load_policy_rules as repo_rules
@@ -71,20 +72,27 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
 def test_to_ai_bundle_splits_alternatives_from_schema_4():
     be = _be_bundle()
     be["bundle_schema"] = BUNDLE_SCHEMA
-    be["regulatory"]["entries"][1]["alternative_expression"] = " Soothing;Calming ;; calm-looking "
+    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing; Calming; calm-looking"
     ai = to_ai_bundle(be)
     rg = check_bundle(ai, target_country="US").regulation
-    # #71 구분 규칙: ';'로 나누고 앞뒤 공백 제거, 빈 조각 버림. 저장 묶음의 원문 문자열은 그대로 둔다
+    # #71 구분 규칙: 적재 규칙과 같은 '; '로 나눈다. 저장 묶음의 원문 문자열은 그대로 둔다
     assert rg["RG-902"].alternatives_split == ["Soothing", "Calming", "calm-looking"]
-    assert be["regulatory"]["entries"][1]["alternative_expression"] == " Soothing;Calming ;; calm-looking "
+    assert be["regulatory"]["entries"][1]["alternative_expression"] == "Soothing; Calming; calm-looking"
     assert rg["RG-901"].alternative_expression == [] and not rg["RG-901"].has_alternative
     assert ai == to_ai_bundle(copy.deepcopy(be))
+    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;Calming"  # 규칙에 맞지 않는 값은 나누지 않고 공급 불가
+    with pytest.raises(BundleError) as e:
+        to_ai_bundle(be)
+    assert e.value.code == "REGULATORY_DICT_INVALID"
 
 
 def test_ai_alternatives_rule():
-    assert ai_alternatives(None, True) == [] and ai_alternatives("  ", True) == [] and ai_alternatives(" ; ", True) == []
+    assert ai_alternatives(None, True) == [] and ai_alternatives("  ", True) == []
     assert ai_alternatives("a; b", False) == "a; b"  # 스키마 3 이하: 나누지 않는다
-    assert ai_alternatives("a; b;c", True) == ["a", "b", "c"]
+    assert ai_alternatives("a; b; c", True) == ["a", "b", "c"]
+    # 적재 규칙(dictionary_ingest._split)과 같다: 빈 조각 · '; ' 아닌 ';'는 규칙 위반
+    assert not alternatives_problem("a; b") and not alternatives_problem(None)
+    assert alternatives_problem("a; ; b") and alternatives_problem("a;b") and alternatives_problem("a; b;") and alternatives_problem(" ; ")
     assert alternatives_split({"bundle_schema": "3"}) is False and alternatives_split({"bundle_schema": BUNDLE_SCHEMA}) is True
 
 

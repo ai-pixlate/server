@@ -33,7 +33,7 @@ def _be_bundle(*, local_ok=True, rules=None):
         "class_notice": None,
         "regulatory": {"status": "ok", "entries": [
             _entry("RG-901", "regulatory", "cosmetic", "치료", ["치료"], "regulated", fen=["cure"]),
-            # 시트 rewritable → 적재 regulated + 원값 보존. 대체 표현은 #71 구분 규칙 '; '로 나뉜다
+            # 시트 rewritable → 적재 regulated + 원값 보존. 대체 표현은 #71 구분 규칙(';' · 공백 제거)으로 나뉜다
             {**_entry("RG-902", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt="Soothing; Calming"),
              "source_verdict_status": "rewritable"},
             _entry("RG-903", "regulatory", "common", "보습", ["보습"], "allowed"),
@@ -70,17 +70,18 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
 
 def test_to_ai_bundle_keeps_alternatives_breaking_split_rule_as_text():
     be = _be_bundle()
-    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;Calming"  # '; ' 아닌 구분자(생성 때 막히기 전 고정된 묶음)
+    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;;Calming"  # 빈 조각(생성 때 막히기 전 고정된 묶음)
     rg = check_bundle(to_ai_bundle(be), target_country="US").regulation  # 예외 없이 원문 문자열 — 대체 표현 있음 · 지시 불가
-    assert rg["RG-902"].alternative_expression == "Soothing;Calming" and rg["RG-902"].alternatives_split is None
+    assert rg["RG-902"].alternative_expression == "Soothing;;Calming" and rg["RG-902"].alternatives_split is None
     assert rg["RG-902"].has_alternative
 
 
 def test_ai_alternatives_rule():
     assert ai_alternatives(None) == [] and ai_alternatives("  ") == []
-    assert ai_alternatives("a; b; c") == ["a", "b", "c"]
-    # 적재 규칙(dictionary_ingest._split)과 같다: 빈 조각 · '; ' 아닌 ';'는 규칙 위반 → 나누지 않은 원문 문자열
-    for bad in ("a; ; b", "a;b", "a; b;", " ; "):
+    assert ai_alternatives("a; b; c") == ["a", "b", "c"] and ai_alternatives(" a;b ;  c ") == ["a", "b", "c"]  # 공백은 지운다
+    assert ai_alternatives("look of calm") == ["look of calm"]  # 조각 안의 공백은 그대로
+    # 빈 조각은 규칙 위반 → 나누지 않은 원문 문자열(적재 검증과 같은 split_alternatives)
+    for bad in ("a; ; b", "a;;b", "a; b;", ";a", " ; "):
         assert ai_alternatives(bad) == bad
 
 
@@ -117,6 +118,7 @@ def test_new_bundle_rejects_alternatives_breaking_split_rule():
     def entry(alt):
         return _entry("RG-1", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt=alt)
 
-    assert _problems_regulatory(entry("calm; soothing")) == [] and _problems_regulatory(entry(None)) == []
-    for bad in ("calm;soothing", "calm; ; soothing", "calm; "):  # 묶음 생성 때 필수값 누락처럼 공급 불가(REGULATORY_DICT_INVALID)
+    assert _problems_regulatory(entry("calm; soothing")) == [] and _problems_regulatory(entry("calm;soothing")) == []
+    assert _problems_regulatory(entry(None)) == []
+    for bad in ("calm;;soothing", "calm; ; soothing", "calm; "):  # 묶음 생성 때 필수값 누락처럼 공급 불가(REGULATORY_DICT_INVALID)
         assert any("alternative_expression" in p for p in _problems_regulatory(entry(bad)))

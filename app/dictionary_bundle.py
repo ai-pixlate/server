@@ -13,9 +13,9 @@
   환경변수 PIXLATE_POLICY_RULES 는 실험용 대체 경로다. BE는 규칙 내용을 만들지 않는다. 규칙 지문(policy_rules_sha256)도 보존한다.
   규제 행 조회 분류는 규칙의 applied_classes(common 포함)를 따르고, common 을 뺀 분류가 D8 대응과 같아야 한다.
 - AI 인계 형식(pipeline.handoff.bundle.RuntimeBundle)은 to_ai_bundle()이 이 저장 묶음에서 결정적으로 만든다.
-  대체 표현은 #71 구분 규칙('; ' — 적재 규칙과 같다)으로 나눈 배열을 보낸다(⑧ 표현 지시에 쓰인다). 규칙에 맞지 않는
-  값(새 묶음은 생성 때 막히므로 그 전에 고정된 묶음에만 있을 수 있다)은 예외 없이 나누지 않은 원문 문자열로 보낸다 —
-  AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다(PR #55 3217142 형식).
+  대체 표현은 #71 구분 규칙(';'로 나누고 조각 앞뒤 공백 제거, 빈 조각은 위반)으로 나눈 배열을 보낸다(⑧ 표현 지시에
+  쓰인다). 규칙에 맞지 않는 값(새 묶음은 생성 때 막히므로 그 전에 고정된 묶음에만 있을 수 있다)은 예외 없이
+  나누지 않은 원문 문자열로 보낸다 — AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다(PR #55 3217142 형식).
   근거는 저장 묶음의 근거 배열 전체(PK 제외)를 보낸다. DB PK 는 AI에 보내지 않는다.
 """
 from __future__ import annotations
@@ -31,7 +31,7 @@ from app import db as app_db
 from app.manifest import fingerprint
 
 BUNDLE_SCHEMA = "3"  # 2: policy_rules 고정, 3: 규칙 기본값 저장소 파일·policy_rules_sha256
-ALTERNATIVES_SEP = "; "  # #71 구분 규칙(2026-11-03 사용자 결정): 적재 규칙(dictionary_ingest._split)과 같은 '; '(세미콜론+한 칸)
+ALTERNATIVES_SEP = ";"  # #71 구분 규칙(2026-11-03 데이터 담당 확인): ';'로 나누고 조각 앞뒤 공백은 지운다
 APPLIED_CLASSES = {"cosmetic": ["cosmetic"], "otc": ["otc"], "combination": ["otc"], "unknown": ["cosmetic"]}
 CLASS_NOTICE = {"combination": "combination_otc_basis", "unknown": "unverified_class"}
 REGULATORY_VERDICTS = ("regulated", "conditional", "allowed")
@@ -97,8 +97,8 @@ def _problems_regulatory(e: dict[str, Any]) -> list[str]:
         p.append(f"verdict_status {e['verdict_status']!r}")
     if not e["reason"]:
         p.append("reason 비어 있음")
-    if _alternatives_problem(e["alternative_expression"]):
-        p.append("alternative_expression 을 '; '(세미콜론+한 칸)로 나눈 값에 빈 값이나 다른 구분자가 있음")
+    if split_alternatives(e["alternative_expression"]) is None:
+        p.append("alternative_expression 을 ';'로 나눈 값에 빈 값이 있음")
     return p
 
 
@@ -268,22 +268,21 @@ def _ai_evidence(entry: dict[str, Any]) -> list[dict[str, Any]]:
     return [{k: e[k] for k in _AI_EVIDENCE_KEYS} for e in entry["evidence"]]
 
 
-def _alternatives_problem(raw: str | None) -> bool:
-    """대체 표현이 #71 구분 규칙에 맞지 않는가 — '; '로 나눈 값에 빈 값이나 다른 ';'가 있음(적재 규칙과 같다)."""
+def split_alternatives(raw: str | None) -> list[str] | None:
+    """#71 구분 규칙: ';'로 나누고 조각 앞뒤 공백을 지운다. 값이 없으면 빈 배열, 빈 조각이 있으면(예 'a;;b' · 끝 ';') None.
+    적재 검증(dictionary_ingest)과 묶음 생성·AI 인계가 같이 쓴다."""
     if not raw or not raw.strip():
-        return False
-    return any(p.strip() == "" or ";" in p for p in raw.split(ALTERNATIVES_SEP))
+        return []
+    parts = [p.strip() for p in raw.split(ALTERNATIVES_SEP)]
+    return None if any(p == "" for p in parts) else parts
 
 
 def ai_alternatives(raw: str | None) -> str | list[str]:
-    """DB 대체 표현 → AI 형식: #71 구분 규칙('; ')으로 나눈 배열(적재 규칙과 같이 조각을 다듬지 않는다). 비었으면 빈 배열.
+    """DB 대체 표현 → AI 형식: #71 구분 규칙으로 나눈 배열. 비었으면 빈 배열.
     규칙에 맞지 않으면 예외 없이 나누지 않은 원문 문자열 — ⑧ 표현 지시를 만들지 않는다. 새 묶음은 생성 때 이미 걸러지고,
     그 전에 고정된 묶음은 시도 생성·실행·재시도 어디서도 사전 오류로 멈추지 않게 한다."""
-    if not raw or not raw.strip():
-        return []
-    if _alternatives_problem(raw):
-        return raw
-    return raw.split(ALTERNATIVES_SEP)
+    parts = split_alternatives(raw)
+    return raw if parts is None else parts
 
 
 def to_ai_bundle(bundle: dict[str, Any]) -> dict[str, Any]:

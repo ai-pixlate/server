@@ -16,12 +16,12 @@ def _bundle():
     """규제 행: 정상(RG-1) · conditional(RG-2) · 대체 표현 없음(RG-3) · 템플릿(RG-4) · 대상 밖 블록(RG-5) · 구분 규칙 위반(RG-6)."""
     b = _be_bundle()
     b["regulatory"]["entries"] = [
-        _entry("RG-1", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt="calm; soothing"),
+        _entry("RG-1", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt="calm ;soothing"),
         _entry("RG-2", "regulatory", "cosmetic", "주름", ["주름"], "conditional", alt="fine lines"),
         _entry("RG-3", "regulatory", "cosmetic", "치료", ["치료"], "regulated"),
         _entry("RG-4", "regulatory", "cosmetic", "차단", ["차단"], "regulated", alt="SPF [value]"),
         _entry("RG-5", "regulatory", "cosmetic", "완화", ["완화"], "regulated", alt="eases"),
-        _entry("RG-6", "regulatory", "cosmetic", "개선", ["개선"], "regulated", alt="improves;betters"),
+        _entry("RG-6", "regulatory", "cosmetic", "개선", ["개선"], "regulated", alt="improves;;betters"),
         _entry("RG-7", "regulatory", "common", "보습", ["보습"], "allowed"),
     ]
     return b
@@ -68,7 +68,7 @@ def test_split_rule_violation_in_stored_bundle_skips_instruction_without_error()
     out = ds._translate_instructions(_Db(_detail()), 1, TARGETS, b)  # 예외 없이 RG-6 만 빠진다
     assert all(i["external_id"] != "RG-6" for i in out)
     rg = check_bundle(to_ai_bundle(b), target_country="US").regulation  # AI 묶음: 원문 문자열 — 대체 표현 있음 · 지시 불가
-    assert rg["RG-6"].alternative_expression == "improves;betters" and rg["RG-6"].alternatives_split is None
+    assert rg["RG-6"].alternative_expression == "improves;;betters" and rg["RG-6"].alternatives_split is None
     assert rg["RG-6"].has_alternative and rg["RG-1"].alternatives_split == ["calm", "soothing"]
 
 

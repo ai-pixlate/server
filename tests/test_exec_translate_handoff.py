@@ -36,7 +36,7 @@ def handoff_env(env, tmp_path, monkeypatch):
             "INSERT INTO expression_dictionary (external_id, source_expression, variant_ko, forbidden_en, target_country, regulatory_class, "
             "dict_type, verdict_status, source_verdict_status, alternative_expression, reason, confirmed_date) VALUES "
             "('RG-777', '가짜완화', CAST(:v AS jsonb), NULL, 'US', 'cosmetic', 'regulatory', 'regulated', 'rewritable', "
-            "'the look of calm; calming look', '완화 표방 금지', DATE '2026-09-30') RETURNING id"),  # #71 구분 규칙 '; '
+            "'the look of calm; calming look', '완화 표방 금지', DATE '2026-09-30') RETURNING id"),  # #71 구분 규칙 ';'
             {"v": json.dumps(["가짜완화"], ensure_ascii=False)}
         ).scalar_one()
         c.execute(text("INSERT INTO expression_dictionary_evidence (dictionary_id, external_id, evidence_source_type, is_primary) "

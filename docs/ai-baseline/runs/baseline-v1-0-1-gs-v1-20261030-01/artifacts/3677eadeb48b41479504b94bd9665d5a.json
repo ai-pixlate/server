@@ -1,0 +1,53 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:02:29.089200+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_209",
+        "outcome": "completed",
+        "translation": "Pick based on your skin type!",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_210",
+        "outcome": "completed",
+        "translation": "Heartleaf Calming Sun Care Line",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_211",
+        "outcome": "completed",
+        "translation": "Heartleaf Calming Sun Care",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "a814e050bde10ca652fb59a7921b36e2467f5b9a71ce46eb4e466f3ca03277d7",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "5f28590f2e6b78ceb18b2dcefe3ef7122823d0f4ddd3b5eea3b8ce7fdb148374",
+      "usage": {
+        "candidates_token_count": 48,
+        "prompt_token_count": 1511,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1511
+          }
+        ],
+        "thoughts_token_count": 1067,
+        "total_token_count": 2626
+      }
+    }
+  ],
+  "seconds": 11.265999999828637
+}

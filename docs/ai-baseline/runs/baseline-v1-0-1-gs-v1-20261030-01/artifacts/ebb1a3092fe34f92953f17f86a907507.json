@@ -1,0 +1,249 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:49.354442+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_14",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_162",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_163",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_164",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_165",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_166",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_167",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_168",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_169",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_170",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_171",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_172",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_173",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_174",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_175",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_14",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "03f328ad80292cdda9b9f80000b7b242fcb623093b262b102669e7c99a5d6534",
+      "label_fingerprint": "b1577b6f093e388ce397da03a839f14e5ec4fbabdaec759913864a84bdf4ce4e",
+      "label_input_fingerprint": "03f328ad80292cdda9b9f80000b7b242fcb623093b262b102669e7c99a5d6534",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 14,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 14,
+        "compared": 14
+      },
+      "decisions": [
+        {
+          "block_key": "blk_162",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "10종히알루쿨링으로산뜻하고시원하게cooling",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_163",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "피부쿨링인체적용시험한국피부과학연구원|성인여성21명|20221229~20230203|일시적개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_164",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "제품사용전가온후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_165",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "3461",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_166",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "678쿨링효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_167",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "3226",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_168",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "1회사용직후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_169",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "380",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_170",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "320",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_171",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "340",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_172",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "360",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_173",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "300",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_174",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "a∗value",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_175",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "10종히알루론산|소듐하이알루로네이트다이메틸실란올하이알루로네이트하이드롤라이즈드소듐하이알루로네이트하이드롤라이즈드하이알루로닉애씨드포타슘하이알루로네이트하이알루로닉애씨드소듐하이알루로네이트크로스폴리머하이드록시프로필트라이모늄하이알루로네이트소둠하이알루로네이트다이메틸실란올소듐아세틸레이티드하이알루로네이트",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

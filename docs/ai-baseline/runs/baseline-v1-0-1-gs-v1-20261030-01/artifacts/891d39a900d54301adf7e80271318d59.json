@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:23.090700+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_71",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_806",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_71",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "2f577a5e734562524c6f463a1f4240fb571fab176aed1102be2d25bc7e55f33c",
+      "label_fingerprint": "2694fae8bfb60873aa73ed92132e0d05bbcbb0931c271a1cb23682f5c2f16c52",
+      "label_input_fingerprint": "2f577a5e734562524c6f463a1f4240fb571fab176aed1102be2d25bc7e55f33c",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 1,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 1,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_806",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "레티날샷타이트닝부스터제품개발이야기",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

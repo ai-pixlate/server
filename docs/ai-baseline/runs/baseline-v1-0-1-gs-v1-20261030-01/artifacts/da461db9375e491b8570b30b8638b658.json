@@ -1,0 +1,28 @@
+{
+  "source_id": "GS-01",
+  "stage": "ocr_initialization",
+  "at": "2026-10-30T00:26:59.648071+00:00",
+  "result": null,
+  "model_info": {
+    "engine": "paddleocr",
+    "versions": {
+      "paddle": "3.3.1",
+      "paddleocr": "3.7.0",
+      "paddlex": "3.7.2",
+      "cuda": null
+    },
+    "platform": "win32",
+    "device": "cpu",
+    "settings": {
+      "text_detection_model_name": "PP-OCRv5_server_det",
+      "text_recognition_model_name": "korean_PP-OCRv5_mobile_rec",
+      "use_doc_orientation_classify": false,
+      "use_doc_unwarping": false,
+      "use_textline_orientation": false,
+      "text_rec_score_thresh": 0.0,
+      "enable_mkldnn": false
+    },
+    "enable_mkldnn": false
+  },
+  "seconds": 9.234000000171363
+}

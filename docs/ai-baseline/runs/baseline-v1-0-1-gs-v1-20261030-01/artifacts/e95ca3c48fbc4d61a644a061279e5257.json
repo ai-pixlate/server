@@ -1,0 +1,87 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:46:44.916641+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_54",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_661",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_662",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_663",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_664",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_665",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_666",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_667",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_668",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_669",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_670",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_671",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "1706936fcfa33ecaeeea0ec5e996071caa055f4aad359f084c5bf66d9404636f",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_661",
+        "blk_662",
+        "blk_663",
+        "blk_664",
+        "blk_665",
+        "blk_666",
+        "blk_667",
+        "blk_668",
+        "blk_669",
+        "blk_670",
+        "blk_671"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 8.093000000109896
+}

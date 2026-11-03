@@ -1,0 +1,111 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:52.540707+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_24",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_332",
+          "is_brand_logo": true,
+          "basis": "exact_match"
+        },
+        {
+          "block_key": "blk_333",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_334",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_335",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_24",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "3681dd611ebb759c5d7d4f7e8096322b0e07241a647e44a322d09849dcec8b9d",
+      "label_fingerprint": "ba1dfed996ede1b0e3f6931dec30778755a1a74b6bbdc6d415380d9434214442",
+      "label_input_fingerprint": "3681dd611ebb759c5d7d4f7e8096322b0e07241a647e44a322d09849dcec8b9d",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 4,
+      "counts": {
+        "product_label": 3,
+        "empty_text": 0,
+        "exact_match": 1,
+        "no_match": 0,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_332",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "goodal",
+          "matched_names": [
+            "name_en"
+          ],
+          "is_brand_logo": true,
+          "basis": "exact_match"
+        },
+        {
+          "block_key": "blk_333",
+          "block_order": 2,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_334",
+          "block_order": 3,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_335",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

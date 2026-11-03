@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:23.825412+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_73",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_820",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_821",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_822",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_823",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_824",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_73",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "a3bd37e3c582c3fc9e59bf058b5d9fda9a0c44fcf867ccc5ae6ae575ab1149fa",
+      "label_fingerprint": "e40b217be844f75083021dc2259097c92a0d00d79018f3919e1831a2c1025c8a",
+      "label_input_fingerprint": "a3bd37e3c582c3fc9e59bf058b5d9fda9a0c44fcf867ccc5ae6ae575ab1149fa",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 5,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 5,
+        "compared": 5
+      },
+      "decisions": [
+        {
+          "block_key": "blk_820",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "피부탄력이필요할땐레티날샷타이트닝부스터로해결해보세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_821",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "개발기간약455일간피부탄력저하로인해발생이되는다양한형태의주름그리고모공의근본적인문제를해결하기위하여각종논문자료와연구자료를찾아보며레티날샷타이트닝부스터를개발했습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_822",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "실제로체감할수있는피부변화를위해고기능성비타민a나노레티날과탄력부스팅을위한성분까지고함량으로배합하여더효과적인탄력케어를할수있어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_823",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "탄력이고민일때레티날샷타이트닝부스터로매끄럽고탄탄하게변화하는피부를직접경험해보세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_824",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "감사합니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

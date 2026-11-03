@@ -1,0 +1,41 @@
+{
+  "source_id": "GS-02",
+  "stage": "section_split",
+  "at": "2026-10-30T01:22:23.220376+00:00",
+  "result": {
+    "schema_version": "2",
+    "source_image_id": 13,
+    "source_width": 830,
+    "source_height": 2994,
+    "sections": [
+      {
+        "section_key": "sec_13_01",
+        "source_image_id": 13,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 306,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_13_01.png"
+      },
+      {
+        "section_key": "sec_13_02",
+        "source_image_id": 13,
+        "section_order": 2,
+        "top_offset": 306,
+        "height": 2315,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_13_02.png"
+      },
+      {
+        "section_key": "sec_13_03",
+        "source_image_id": 13,
+        "section_order": 3,
+        "top_offset": 2621,
+        "height": 373,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_13_03.png"
+      }
+    ]
+  },
+  "seconds": 14.203999999910593
+}

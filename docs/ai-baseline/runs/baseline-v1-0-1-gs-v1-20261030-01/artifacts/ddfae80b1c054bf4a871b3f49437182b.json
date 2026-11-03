@@ -1,0 +1,60 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:01:13.004431+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_145",
+        "outcome": "completed",
+        "translation": "POINT 02",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_146",
+        "outcome": "completed",
+        "translation": "No Worries About Dryness",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_147",
+        "outcome": "completed",
+        "translation": "Fresh and Soft-Matte Daily Soothing Sun Care",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_148",
+        "outcome": "completed",
+        "translation": "Glides on smoothly and spreads evenly without clumping, featuring a refreshing texture that does not pill under makeup.",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "9d2767f5096c7d01320cc7ae5bc87c5a92da01c75f5941805e8f6011d1b8a699",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "24a4a8cc757b6fe7f65ff2435c56d8cb9beae8dabec647f35c45a37fd4a0f176",
+      "usage": {
+        "candidates_token_count": 78,
+        "prompt_token_count": 943,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 943
+          }
+        ],
+        "thoughts_token_count": 1263,
+        "total_token_count": 2284
+      }
+    }
+  ],
+  "seconds": 12.656999999890104
+}

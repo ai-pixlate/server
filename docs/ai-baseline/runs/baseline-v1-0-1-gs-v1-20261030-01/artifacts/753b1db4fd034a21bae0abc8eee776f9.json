@@ -1,0 +1,60 @@
+{
+  "source_id": "GS-01",
+  "stage": "inpaint_proc_initialization",
+  "at": "2026-10-30T00:58:52.711782+00:00",
+  "result": null,
+  "model_info": {
+    "name": "lama",
+    "adapter": "pipeline.stages.inpaint_lama.LamaModel",
+    "reference": "iopaint==1.6.0 (model/lama.py LaMa.forward + model/base.py InpaintModel._pad_forward, hd_strategy=ORIGINAL)",
+    "weights": {
+      "path": "C:\\Users\\Yeram\\.cache\\torch\\hub\\checkpoints\\big-lama.pt",
+      "bytes": 205669692,
+      "md5": "e3aa4aaa15225a33ec84f9f4bc47e500",
+      "sha256": "344c77bbcb158f17dd143070d1e789f38a66c04202311ae3a258ef66667a9ea9",
+      "expected_md5": "e3aa4aaa15225a33ec84f9f4bc47e500",
+      "source_url": "https://github.com/Sanster/models/releases/download/add_big_lama/big-lama.pt",
+      "param_dtypes": [
+        "torch.float32"
+      ]
+    },
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "gpu_total_mib": 8187,
+    "capability": "8.9",
+    "precision": "fp32",
+    "autocast": false,
+    "grad": "inference_mode",
+    "batch": 1,
+    "pad_mod": 8,
+    "pad_mode": "symmetric (bottom/right)",
+    "size_policy": "원본 해상도 1회 추론 — 내부 리사이즈 · 분할(HD CROP/RESIZE) 없음, 아래 · 오른쪽 symmetric 패딩으로 8의 배수 → 결과를 원래 H×W로 자름",
+    "color": "RGB in / RGB out",
+    "mask_threshold": "mask/255 > 0 → 1 (int64)",
+    "output_cast": "clip(x*255, 0, 255).astype(uint8) (truncate)",
+    "torch": "2.7.1+cu118",
+    "cuda": "11.8",
+    "cudnn": 90100,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": false,
+    "numpy": "2.3.5",
+    "python": "3.12.10",
+    "init": {
+      "hash_s": 0.346,
+      "load_s": 0.694,
+      "total_s": 1.044
+    },
+    "retry": false,
+    "auto_resize": false,
+    "cpu_fallback": false,
+    "process": {
+      "start_method": "spawn",
+      "factory": "pipeline.stages.inpaint_lama:LamaModel",
+      "init_timeout_s": 60,
+      "infer_timeout_s": 30,
+      "kill_grace_s": 5,
+      "init_wall_s": 5.238
+    }
+  },
+  "seconds": 5.234999999869615
+}

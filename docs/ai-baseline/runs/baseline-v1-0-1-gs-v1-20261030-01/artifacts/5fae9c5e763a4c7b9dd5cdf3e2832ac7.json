@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:47:24.890798+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_39",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_478",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_479",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_480",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_481",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_482",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_483",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_484",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_485",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_486",
+        "is_product_label": true,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_487",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "99cb0804b1192c26a9dbe35b941f4146bdb37a4649e4f793189c1aa0f43ffb2e",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_478",
+        "blk_479",
+        "blk_480",
+        "blk_481",
+        "blk_482",
+        "blk_483",
+        "blk_484",
+        "blk_485",
+        "blk_486",
+        "blk_487"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 7.375
+}

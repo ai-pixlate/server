@@ -1,0 +1,109 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:07.828376+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_5",
+      "section_key": "sec_30",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_420",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_421",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_422",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_423",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_5",
+      "section_key": "sec_30",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "ff1263deeea2d468b4e154a02689ceb9679fcdb70ebaf4e79c136300d56535ba",
+      "label_fingerprint": "f4652b9bf5c9099ad603f410bd8dd6acde076ace65cfab42014dd1a2e83d1b66",
+      "label_input_fingerprint": "ff1263deeea2d468b4e154a02689ceb9679fcdb70ebaf4e79c136300d56535ba",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 4,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 4
+      },
+      "decisions": [
+        {
+          "block_key": "blk_420",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "고함량고농축고기능성",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_421",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷부스터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_422",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "20250915북미아마존레티날retinal키워드베스트셀러1위",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_423",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "확실한효과로아마존베스트셀러1위",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

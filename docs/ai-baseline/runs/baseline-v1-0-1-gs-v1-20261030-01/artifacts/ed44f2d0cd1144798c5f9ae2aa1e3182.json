@@ -1,0 +1,2808 @@
+{
+  "source_id": "GS-01",
+  "stage": "merge",
+  "at": "2026-10-30T00:42:32.183974+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_2_21",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_2_21",
+        "block_order": 1,
+        "source_ko": "Sustainable Packaging",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "Sustainable Packaging",
+            "bbox": {
+              "x": 265,
+              "y": 235,
+              "w": 472,
+              "h": 54
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "Sustainable Packaging",
+                "score": 0.9907191395759583,
+                "poly": [
+                  [
+                    265,
+                    235
+                  ],
+                  [
+                    737,
+                    235
+                  ],
+                  [
+                    737,
+                    289
+                  ],
+                  [
+                    265,
+                    289
+                  ]
+                ],
+                "bbox": {
+                  "x": 265,
+                  "y": 235,
+                  "w": 472,
+                  "h": 54
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 265,
+          "y": 235,
+          "w": 472,
+          "h": 54
+        },
+        "role": "title",
+        "ocr_confidence": 0.9907191395759583
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_2_21",
+        "block_order": 2,
+        "source_ko": "자연을 위한 작은 실천",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "자연을 위한 작은 실천",
+            "bbox": {
+              "x": 183,
+              "y": 306,
+              "w": 635,
+              "h": 95
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "자연을 위한",
+                "score": 0.9249384999275208,
+                "poly": [
+                  [
+                    183,
+                    306
+                  ],
+                  [
+                    540,
+                    306
+                  ],
+                  [
+                    540,
+                    401
+                  ],
+                  [
+                    183,
+                    401
+                  ]
+                ],
+                "bbox": {
+                  "x": 183,
+                  "y": 306,
+                  "w": 357,
+                  "h": 95
+                }
+              },
+              {
+                "region_key": "reg_0003",
+                "text": "작은",
+                "score": 0.9997129440307617,
+                "poly": [
+                  [
+                    531,
+                    311
+                  ],
+                  [
+                    678,
+                    311
+                  ],
+                  [
+                    678,
+                    395
+                  ],
+                  [
+                    531,
+                    395
+                  ]
+                ],
+                "bbox": {
+                  "x": 531,
+                  "y": 311,
+                  "w": 147,
+                  "h": 84
+                }
+              },
+              {
+                "region_key": "reg_0004",
+                "text": "실천",
+                "score": 0.9999662637710571,
+                "poly": [
+                  [
+                    662,
+                    310
+                  ],
+                  [
+                    818,
+                    310
+                  ],
+                  [
+                    818,
+                    398
+                  ],
+                  [
+                    662,
+                    398
+                  ]
+                ],
+                "bbox": {
+                  "x": 662,
+                  "y": 310,
+                  "w": 156,
+                  "h": 88
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 183,
+          "y": 306,
+          "w": 635,
+          "h": 95
+        },
+        "role": "title",
+        "ocr_confidence": 0.9249384999275208
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_2_21",
+        "block_order": 3,
+        "source_ko": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다.",
+        "source_lines": [
+          {
+            "line_key": "line_003",
+            "text": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다.",
+            "bbox": {
+              "x": 143,
+              "y": 433,
+              "w": 719,
+              "h": 32
+            },
+            "regions": [
+              {
+                "region_key": "reg_0005",
+                "text": "구달은 자연과 사람을",
+                "score": 0.9495847225189209,
+                "poly": [
+                  [
+                    143,
+                    434
+                  ],
+                  [
+                    386,
+                    434
+                  ],
+                  [
+                    386,
+                    465
+                  ],
+                  [
+                    143,
+                    465
+                  ]
+                ],
+                "bbox": {
+                  "x": 143,
+                  "y": 434,
+                  "w": 243,
+                  "h": 31
+                }
+              },
+              {
+                "region_key": "reg_0006",
+                "text": "생각하는 지속 가능한 패키지를 사용합니다.",
+                "score": 0.9941924810409546,
+                "poly": [
+                  [
+                    378,
+                    434
+                  ],
+                  [
+                    862,
+                    433
+                  ],
+                  [
+                    862,
+                    464
+                  ],
+                  [
+                    378,
+                    465
+                  ]
+                ],
+                "bbox": {
+                  "x": 378,
+                  "y": 433,
+                  "w": 484,
+                  "h": 32
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 143,
+          "y": 433,
+          "w": 719,
+          "h": 32
+        },
+        "role": "body",
+        "ocr_confidence": 0.9495847225189209
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_2_21",
+        "block_order": 4,
+        "source_ko": "cl Glyceryl Caprylate,\nIadecassoside, Zinc\nCopolymer, Butylene\nlucon-\nHydro-\nolyzed\nassium\njodium\nDxypro-\nAcety-",
+        "source_lines": [
+          {
+            "line_key": "line_004",
+            "text": "cl Glyceryl Caprylate,",
+            "bbox": {
+              "x": 470,
+              "y": 546,
+              "w": 220,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0007",
+                "text": "cl Glyceryl Caprylate,",
+                "score": 0.897365391254425,
+                "poly": [
+                  [
+                    470,
+                    555
+                  ],
+                  [
+                    688,
+                    546
+                  ],
+                  [
+                    690,
+                    584
+                  ],
+                  [
+                    472,
+                    593
+                  ]
+                ],
+                "bbox": {
+                  "x": 470,
+                  "y": 546,
+                  "w": 220,
+                  "h": 47
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_005",
+            "text": "Iadecassoside, Zinc",
+            "bbox": {
+              "x": 472,
+              "y": 608,
+              "w": 219,
+              "h": 51
+            },
+            "regions": [
+              {
+                "region_key": "reg_0011",
+                "text": "Iadecassoside, Zinc",
+                "score": 0.9114801287651062,
+                "poly": [
+                  [
+                    472,
+                    617
+                  ],
+                  [
+                    689,
+                    608
+                  ],
+                  [
+                    691,
+                    650
+                  ],
+                  [
+                    474,
+                    659
+                  ]
+                ],
+                "bbox": {
+                  "x": 472,
+                  "y": 608,
+                  "w": 219,
+                  "h": 51
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_006",
+            "text": "Copolymer, Butylene",
+            "bbox": {
+              "x": 473,
+              "y": 676,
+              "w": 218,
+              "h": 53
+            },
+            "regions": [
+              {
+                "region_key": "reg_0015",
+                "text": "Copolymer, Butylene",
+                "score": 0.9349898099899292,
+                "poly": [
+                  [
+                    473,
+                    685
+                  ],
+                  [
+                    689,
+                    676
+                  ],
+                  [
+                    691,
+                    720
+                  ],
+                  [
+                    475,
+                    729
+                  ]
+                ],
+                "bbox": {
+                  "x": 473,
+                  "y": 676,
+                  "w": 218,
+                  "h": 53
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_007",
+            "text": "lucon-",
+            "bbox": {
+              "x": 611,
+              "y": 749,
+              "w": 79,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0018",
+                "text": "lucon-",
+                "score": 0.9786278605461121,
+                "poly": [
+                  [
+                    611,
+                    749
+                  ],
+                  [
+                    690,
+                    749
+                  ],
+                  [
+                    690,
+                    786
+                  ],
+                  [
+                    611,
+                    786
+                  ]
+                ],
+                "bbox": {
+                  "x": 611,
+                  "y": 749,
+                  "w": 79,
+                  "h": 37
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_008",
+            "text": "Hydro-",
+            "bbox": {
+              "x": 606,
+              "y": 779,
+              "w": 85,
+              "h": 45
+            },
+            "regions": [
+              {
+                "region_key": "reg_0020",
+                "text": "Hydro-",
+                "score": 0.8811476826667786,
+                "poly": [
+                  [
+                    606,
+                    779
+                  ],
+                  [
+                    691,
+                    779
+                  ],
+                  [
+                    691,
+                    824
+                  ],
+                  [
+                    606,
+                    824
+                  ]
+                ],
+                "bbox": {
+                  "x": 606,
+                  "y": 779,
+                  "w": 85,
+                  "h": 45
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_009",
+            "text": "olyzed",
+            "bbox": {
+              "x": 602,
+              "y": 813,
+              "w": 91,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0023",
+                "text": "olyzed",
+                "score": 0.9936218857765198,
+                "poly": [
+                  [
+                    602,
+                    813
+                  ],
+                  [
+                    693,
+                    813
+                  ],
+                  [
+                    693,
+                    859
+                  ],
+                  [
+                    602,
+                    859
+                  ]
+                ],
+                "bbox": {
+                  "x": 602,
+                  "y": 813,
+                  "w": 91,
+                  "h": 46
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_010",
+            "text": "assium",
+            "bbox": {
+              "x": 599,
+              "y": 850,
+              "w": 92,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0028",
+                "text": "assium",
+                "score": 0.9833409190177917,
+                "poly": [
+                  [
+                    601,
+                    850
+                  ],
+                  [
+                    691,
+                    853
+                  ],
+                  [
+                    690,
+                    889
+                  ],
+                  [
+                    599,
+                    886
+                  ]
+                ],
+                "bbox": {
+                  "x": 599,
+                  "y": 850,
+                  "w": 92,
+                  "h": 39
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_011",
+            "text": "jodium",
+            "bbox": {
+              "x": 597,
+              "y": 879,
+              "w": 96,
+              "h": 45
+            },
+            "regions": [
+              {
+                "region_key": "reg_0033",
+                "text": "jodium",
+                "score": 0.9267566800117493,
+                "poly": [
+                  [
+                    599,
+                    879
+                  ],
+                  [
+                    693,
+                    883
+                  ],
+                  [
+                    691,
+                    924
+                  ],
+                  [
+                    597,
+                    920
+                  ]
+                ],
+                "bbox": {
+                  "x": 597,
+                  "y": 879,
+                  "w": 96,
+                  "h": 45
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_012",
+            "text": "Dxypro-",
+            "bbox": {
+              "x": 595,
+              "y": 918,
+              "w": 97,
+              "h": 43
+            },
+            "regions": [
+              {
+                "region_key": "reg_0037",
+                "text": "Dxypro-",
+                "score": 0.9230089783668518,
+                "poly": [
+                  [
+                    597,
+                    918
+                  ],
+                  [
+                    692,
+                    921
+                  ],
+                  [
+                    691,
+                    961
+                  ],
+                  [
+                    595,
+                    958
+                  ]
+                ],
+                "bbox": {
+                  "x": 595,
+                  "y": 918,
+                  "w": 97,
+                  "h": 43
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_013",
+            "text": "Acety-",
+            "bbox": {
+              "x": 599,
+              "y": 984,
+              "w": 89,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0041",
+                "text": "Acety-",
+                "score": 0.9434850811958313,
+                "poly": [
+                  [
+                    601,
+                    984
+                  ],
+                  [
+                    688,
+                    989
+                  ],
+                  [
+                    686,
+                    1030
+                  ],
+                  [
+                    599,
+                    1026
+                  ]
+                ],
+                "bbox": {
+                  "x": 599,
+                  "y": 984,
+                  "w": 89,
+                  "h": 46
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 470,
+          "y": 546,
+          "w": 223,
+          "h": 484
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8811476826667786
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_2_21",
+        "block_order": 5,
+        "source_ko": "mrstickysticky\nroplied or not.\nmpaluonic acid\nitcalms\nBirisegan\nmndevn ref\nbegan orius\nIoapints, and\nsiety easy\nretacol sun\ntis ight like\nWaifect of\ntied coling\nMae that'ss not",
+        "source_lines": [
+          {
+            "line_key": "line_014",
+            "text": "mrstickysticky",
+            "bbox": {
+              "x": 802,
+              "y": 559,
+              "w": 86,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0008",
+                "text": "mrstickysticky",
+                "score": 0.6194677352905273,
+                "poly": [
+                  [
+                    802,
+                    572
+                  ],
+                  [
+                    882,
+                    559
+                  ],
+                  [
+                    888,
+                    593
+                  ],
+                  [
+                    808,
+                    606
+                  ]
+                ],
+                "bbox": {
+                  "x": 802,
+                  "y": 559,
+                  "w": 86,
+                  "h": 47
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_015",
+            "text": "roplied or not.",
+            "bbox": {
+              "x": 803,
+              "y": 594,
+              "w": 84,
+              "h": 44
+            },
+            "regions": [
+              {
+                "region_key": "reg_0010",
+                "text": "roplied or not.",
+                "score": 0.6823326349258423,
+                "poly": [
+                  [
+                    803,
+                    607
+                  ],
+                  [
+                    881,
+                    594
+                  ],
+                  [
+                    887,
+                    625
+                  ],
+                  [
+                    808,
+                    638
+                  ]
+                ],
+                "bbox": {
+                  "x": 803,
+                  "y": 594,
+                  "w": 84,
+                  "h": 44
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_016",
+            "text": "mpaluonic acid",
+            "bbox": {
+              "x": 802,
+              "y": 626,
+              "w": 87,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0012",
+                "text": "mpaluonic acid",
+                "score": 0.6930379271507263,
+                "poly": [
+                  [
+                    802,
+                    640
+                  ],
+                  [
+                    883,
+                    626
+                  ],
+                  [
+                    889,
+                    659
+                  ],
+                  [
+                    808,
+                    673
+                  ]
+                ],
+                "bbox": {
+                  "x": 802,
+                  "y": 626,
+                  "w": 87,
+                  "h": 47
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_017",
+            "text": "itcalms",
+            "bbox": {
+              "x": 802,
+              "y": 661,
+              "w": 87,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0014",
+                "text": " itcalms",
+                "score": 0.721599817276001,
+                "poly": [
+                  [
+                    802,
+                    674
+                  ],
+                  [
+                    884,
+                    661
+                  ],
+                  [
+                    889,
+                    694
+                  ],
+                  [
+                    807,
+                    707
+                  ]
+                ],
+                "bbox": {
+                  "x": 802,
+                  "y": 661,
+                  "w": 87,
+                  "h": 46
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_018",
+            "text": "Birisegan",
+            "bbox": {
+              "x": 802,
+              "y": 695,
+              "w": 87,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0016",
+                "text": "Birisegan",
+                "score": 0.6560028791427612,
+                "poly": [
+                  [
+                    802,
+                    706
+                  ],
+                  [
+                    885,
+                    695
+                  ],
+                  [
+                    889,
+                    730
+                  ],
+                  [
+                    807,
+                    741
+                  ]
+                ],
+                "bbox": {
+                  "x": 802,
+                  "y": 695,
+                  "w": 87,
+                  "h": 46
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_019",
+            "text": "mndevn ref",
+            "bbox": {
+              "x": 801,
+              "y": 730,
+              "w": 88,
+              "h": 43
+            },
+            "regions": [
+              {
+                "region_key": "reg_0019",
+                "text": "mndevn ref",
+                "score": 0.6356977224349976,
+                "poly": [
+                  [
+                    801,
+                    742
+                  ],
+                  [
+                    885,
+                    730
+                  ],
+                  [
+                    889,
+                    762
+                  ],
+                  [
+                    806,
+                    773
+                  ]
+                ],
+                "bbox": {
+                  "x": 801,
+                  "y": 730,
+                  "w": 88,
+                  "h": 43
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_020",
+            "text": "began orius",
+            "bbox": {
+              "x": 803,
+              "y": 764,
+              "w": 86,
+              "h": 43
+            },
+            "regions": [
+              {
+                "region_key": "reg_0021",
+                "text": "began orius",
+                "score": 0.6042404770851135,
+                "poly": [
+                  [
+                    803,
+                    774
+                  ],
+                  [
+                    885,
+                    764
+                  ],
+                  [
+                    889,
+                    797
+                  ],
+                  [
+                    808,
+                    807
+                  ]
+                ],
+                "bbox": {
+                  "x": 803,
+                  "y": 764,
+                  "w": 86,
+                  "h": 43
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_021",
+            "text": "Ioapints, and",
+            "bbox": {
+              "x": 800,
+              "y": 797,
+              "w": 91,
+              "h": 46
+            },
+            "regions": [
+              {
+                "region_key": "reg_0024",
+                "text": "Ioapints, and",
+                "score": 0.5508597493171692,
+                "poly": [
+                  [
+                    800,
+                    807
+                  ],
+                  [
+                    887,
+                    797
+                  ],
+                  [
+                    891,
+                    833
+                  ],
+                  [
+                    805,
+                    843
+                  ]
+                ],
+                "bbox": {
+                  "x": 800,
+                  "y": 797,
+                  "w": 91,
+                  "h": 46
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_022",
+            "text": "siety easy",
+            "bbox": {
+              "x": 799,
+              "y": 833,
+              "w": 90,
+              "h": 43
+            },
+            "regions": [
+              {
+                "region_key": "reg_0029",
+                "text": "siety easy",
+                "score": 0.5724754333496094,
+                "poly": [
+                  [
+                    799,
+                    842
+                  ],
+                  [
+                    885,
+                    833
+                  ],
+                  [
+                    889,
+                    867
+                  ],
+                  [
+                    803,
+                    876
+                  ]
+                ],
+                "bbox": {
+                  "x": 799,
+                  "y": 833,
+                  "w": 90,
+                  "h": 43
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_023",
+            "text": "retacol sun",
+            "bbox": {
+              "x": 800,
+              "y": 868,
+              "w": 90,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0034",
+                "text": "retacol sun",
+                "score": 0.5760418772697449,
+                "poly": [
+                  [
+                    800,
+                    875
+                  ],
+                  [
+                    887,
+                    868
+                  ],
+                  [
+                    890,
+                    900
+                  ],
+                  [
+                    802,
+                    907
+                  ]
+                ],
+                "bbox": {
+                  "x": 800,
+                  "y": 868,
+                  "w": 90,
+                  "h": 39
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_024",
+            "text": "tis ight like",
+            "bbox": {
+              "x": 798,
+              "y": 900,
+              "w": 92,
+              "h": 43
+            },
+            "regions": [
+              {
+                "region_key": "reg_0036",
+                "text": "tis ight like",
+                "score": 0.6295251250267029,
+                "poly": [
+                  [
+                    798,
+                    907
+                  ],
+                  [
+                    887,
+                    900
+                  ],
+                  [
+                    890,
+                    936
+                  ],
+                  [
+                    802,
+                    943
+                  ]
+                ],
+                "bbox": {
+                  "x": 798,
+                  "y": 900,
+                  "w": 92,
+                  "h": 43
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_025",
+            "text": "Waifect of",
+            "bbox": {
+              "x": 801,
+              "y": 937,
+              "w": 88,
+              "h": 38
+            },
+            "regions": [
+              {
+                "region_key": "reg_0039",
+                "text": "Waifect of",
+                "score": 0.7439807057380676,
+                "poly": [
+                  [
+                    801,
+                    942
+                  ],
+                  [
+                    887,
+                    937
+                  ],
+                  [
+                    889,
+                    970
+                  ],
+                  [
+                    803,
+                    975
+                  ]
+                ],
+                "bbox": {
+                  "x": 801,
+                  "y": 937,
+                  "w": 88,
+                  "h": 38
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_026",
+            "text": "tied coling",
+            "bbox": {
+              "x": 799,
+              "y": 969,
+              "w": 92,
+              "h": 43
+            },
+            "regions": [
+              {
+                "region_key": "reg_0042",
+                "text": "tied coling",
+                "score": 0.690407395362854,
+                "poly": [
+                  [
+                    799,
+                    976
+                  ],
+                  [
+                    888,
+                    969
+                  ],
+                  [
+                    891,
+                    1005
+                  ],
+                  [
+                    802,
+                    1012
+                  ]
+                ],
+                "bbox": {
+                  "x": 799,
+                  "y": 969,
+                  "w": 92,
+                  "h": 43
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_027",
+            "text": "Mae that'ss not",
+            "bbox": {
+              "x": 801,
+              "y": 1004,
+              "w": 90,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0044",
+                "text": "Mae that'ss not",
+                "score": 0.6272435784339905,
+                "poly": [
+                  [
+                    801,
+                    1011
+                  ],
+                  [
+                    888,
+                    1004
+                  ],
+                  [
+                    891,
+                    1036
+                  ],
+                  [
+                    803,
+                    1043
+                  ]
+                ],
+                "bbox": {
+                  "x": 801,
+                  "y": 1004,
+                  "w": 90,
+                  "h": 39
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 798,
+          "y": 559,
+          "w": 93,
+          "h": 484
+        },
+        "role": "caption",
+        "ocr_confidence": 0.5508597493171692
+      },
+      {
+        "block_key": "blk_006",
+        "section_key": "sec_2_21",
+        "block_order": 6,
+        "source_ko": "soane, Ethylhexylgly-\nOctadecane, Lactic\nfycol, Magnesium",
+        "source_lines": [
+          {
+            "line_key": "line_028",
+            "text": "soane, Ethylhexylgly-",
+            "bbox": {
+              "x": 472,
+              "y": 577,
+              "w": 214,
+              "h": 50
+            },
+            "regions": [
+              {
+                "region_key": "reg_0009",
+                "text": "soane, Ethylhexylgly-",
+                "score": 0.9112778902053833,
+                "poly": [
+                  [
+                    472,
+                    586
+                  ],
+                  [
+                    684,
+                    577
+                  ],
+                  [
+                    686,
+                    618
+                  ],
+                  [
+                    474,
+                    627
+                  ]
+                ],
+                "bbox": {
+                  "x": 472,
+                  "y": 577,
+                  "w": 214,
+                  "h": 50
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_029",
+            "text": "Octadecane, Lactic",
+            "bbox": {
+              "x": 479,
+              "y": 644,
+              "w": 208,
+              "h": 48
+            },
+            "regions": [
+              {
+                "region_key": "reg_0013",
+                "text": "Octadecane, Lactic",
+                "score": 0.9629719257354736,
+                "poly": [
+                  [
+                    479,
+                    653
+                  ],
+                  [
+                    685,
+                    644
+                  ],
+                  [
+                    687,
+                    683
+                  ],
+                  [
+                    481,
+                    692
+                  ]
+                ],
+                "bbox": {
+                  "x": 479,
+                  "y": 644,
+                  "w": 208,
+                  "h": 48
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_030",
+            "text": "fycol, Magnesium",
+            "bbox": {
+              "x": 473,
+              "y": 711,
+              "w": 215,
+              "h": 50
+            },
+            "regions": [
+              {
+                "region_key": "reg_0017",
+                "text": "fycol, Magnesium",
+                "score": 0.823972225189209,
+                "poly": [
+                  [
+                    473,
+                    719
+                  ],
+                  [
+                    686,
+                    711
+                  ],
+                  [
+                    688,
+                    753
+                  ],
+                  [
+                    475,
+                    761
+                  ]
+                ],
+                "bbox": {
+                  "x": 473,
+                  "y": 711,
+                  "w": 215,
+                  "h": 50
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 472,
+          "y": 577,
+          "w": 216,
+          "h": 184
+        },
+        "role": "caption",
+        "ocr_confidence": 0.823972225189209
+      },
+      {
+        "block_key": "blk_007",
+        "section_key": "sec_2_21",
+        "block_order": 7,
+        "source_ko": "HEARTLEAF\nMINERAL FLTER",
+        "source_lines": [
+          {
+            "line_key": "line_031",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 316,
+              "y": 808,
+              "w": 65,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0022",
+                "text": "HEARTLEAF",
+                "score": 0.993015706539154,
+                "poly": [
+                  [
+                    322,
+                    808
+                  ],
+                  [
+                    381,
+                    830
+                  ],
+                  [
+                    375,
+                    845
+                  ],
+                  [
+                    316,
+                    824
+                  ]
+                ],
+                "bbox": {
+                  "x": 316,
+                  "y": 808,
+                  "w": 65,
+                  "h": 37
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_032",
+            "text": "MINERAL FLTER",
+            "bbox": {
+              "x": 300,
+              "y": 855,
+              "w": 76,
+              "h": 45
+            },
+            "regions": [
+              {
+                "region_key": "reg_0030",
+                "text": "MINERAL FLTER",
+                "score": 0.9655294418334961,
+                "poly": [
+                  [
+                    307,
+                    855
+                  ],
+                  [
+                    376,
+                    883
+                  ],
+                  [
+                    369,
+                    900
+                  ],
+                  [
+                    300,
+                    871
+                  ]
+                ],
+                "bbox": {
+                  "x": 300,
+                  "y": 855,
+                  "w": 76,
+                  "h": 45
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 300,
+          "y": 808,
+          "w": 81,
+          "h": 92
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9655294418334961
+      },
+      {
+        "block_key": "blk_008",
+        "section_key": "sec_2_21",
+        "block_order": 8,
+        "source_ko": "HEARTLEAF",
+        "source_lines": [
+          {
+            "line_key": "line_033",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 492,
+              "y": 823,
+              "w": 66,
+              "h": 20
+            },
+            "regions": [
+              {
+                "region_key": "reg_0026",
+                "text": "HEARTLEAF",
+                "score": 0.994739294052124,
+                "poly": [
+                  [
+                    492,
+                    823
+                  ],
+                  [
+                    558,
+                    825
+                  ],
+                  [
+                    557,
+                    843
+                  ],
+                  [
+                    492,
+                    841
+                  ]
+                ],
+                "bbox": {
+                  "x": 492,
+                  "y": 823,
+                  "w": 66,
+                  "h": 20
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 492,
+          "y": 823,
+          "w": 66,
+          "h": 20
+        },
+        "role": "caption",
+        "ocr_confidence": 0.994739294052124
+      },
+      {
+        "block_key": "blk_009",
+        "section_key": "sec_2_21",
+        "block_order": 9,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_034",
+            "text": "Soothing",
+            "bbox": {
+              "x": 297,
+              "y": 824,
+              "w": 92,
+              "h": 61
+            },
+            "regions": [
+              {
+                "region_key": "reg_0025",
+                "text": "Soothing",
+                "score": 0.9979863166809082,
+                "poly": [
+                  [
+                    308,
+                    824
+                  ],
+                  [
+                    389,
+                    860
+                  ],
+                  [
+                    378,
+                    885
+                  ],
+                  [
+                    297,
+                    848
+                  ]
+                ],
+                "bbox": {
+                  "x": 297,
+                  "y": 824,
+                  "w": 92,
+                  "h": 61
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 297,
+          "y": 824,
+          "w": 92,
+          "h": 61
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9979863166809082
+      },
+      {
+        "block_key": "blk_010",
+        "section_key": "sec_2_21",
+        "block_order": 10,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_035",
+            "text": "Soothing",
+            "bbox": {
+              "x": 484,
+              "y": 846,
+              "w": 89,
+              "h": 32
+            },
+            "regions": [
+              {
+                "region_key": "reg_0027",
+                "text": "Soothing",
+                "score": 0.9993828535079956,
+                "poly": [
+                  [
+                    485,
+                    846
+                  ],
+                  [
+                    573,
+                    850
+                  ],
+                  [
+                    572,
+                    878
+                  ],
+                  [
+                    484,
+                    874
+                  ]
+                ],
+                "bbox": {
+                  "x": 484,
+                  "y": 846,
+                  "w": 89,
+                  "h": 32
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 484,
+          "y": 846,
+          "w": 89,
+          "h": 32
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9993828535079956
+      },
+      {
+        "block_key": "blk_011",
+        "section_key": "sec_2_21",
+        "block_order": 11,
+        "source_ko": "SUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_036",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 304,
+              "y": 874,
+              "w": 62,
+              "h": 36
+            },
+            "regions": [
+              {
+                "region_key": "reg_0031",
+                "text": "SUN CREAM",
+                "score": 0.9855707883834839,
+                "poly": [
+                  [
+                    310,
+                    874
+                  ],
+                  [
+                    366,
+                    895
+                  ],
+                  [
+                    360,
+                    910
+                  ],
+                  [
+                    304,
+                    889
+                  ]
+                ],
+                "bbox": {
+                  "x": 304,
+                  "y": 874,
+                  "w": 62,
+                  "h": 36
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 304,
+          "y": 874,
+          "w": 62,
+          "h": 36
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9855707883834839
+      },
+      {
+        "block_key": "blk_012",
+        "section_key": "sec_2_21",
+        "block_order": 12,
+        "source_ko": "MINERAL FILTER\nSUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_037",
+            "text": "MINERAL FILTER",
+            "bbox": {
+              "x": 491,
+              "y": 875,
+              "w": 77,
+              "h": 21
+            },
+            "regions": [
+              {
+                "region_key": "reg_0032",
+                "text": "MINERAL FILTER",
+                "score": 0.8942669630050659,
+                "poly": [
+                  [
+                    491,
+                    875
+                  ],
+                  [
+                    568,
+                    878
+                  ],
+                  [
+                    567,
+                    896
+                  ],
+                  [
+                    491,
+                    893
+                  ]
+                ],
+                "bbox": {
+                  "x": 491,
+                  "y": 875,
+                  "w": 77,
+                  "h": 21
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_038",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 500,
+              "y": 893,
+              "w": 61,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0035",
+                "text": "SUN CREAM",
+                "score": 0.9787566065788269,
+                "poly": [
+                  [
+                    500,
+                    893
+                  ],
+                  [
+                    561,
+                    893
+                  ],
+                  [
+                    561,
+                    910
+                  ],
+                  [
+                    500,
+                    910
+                  ]
+                ],
+                "bbox": {
+                  "x": 500,
+                  "y": 893,
+                  "w": 61,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 491,
+          "y": 875,
+          "w": 77,
+          "h": 35
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8942669630050659
+      },
+      {
+        "block_key": "blk_013",
+        "section_key": "sec_2_21",
+        "block_order": 13,
+        "source_ko": "nHyal-",
+        "source_lines": [
+          {
+            "line_key": "line_039",
+            "text": "nHyal-",
+            "bbox": {
+              "x": 596,
+              "y": 948,
+              "w": 96,
+              "h": 48
+            },
+            "regions": [
+              {
+                "region_key": "reg_0038",
+                "text": "nHyal-",
+                "score": 0.9545819759368896,
+                "poly": [
+                  [
+                    596,
+                    948
+                  ],
+                  [
+                    692,
+                    948
+                  ],
+                  [
+                    692,
+                    996
+                  ],
+                  [
+                    596,
+                    996
+                  ]
+                ],
+                "bbox": {
+                  "x": 596,
+                  "y": 948,
+                  "w": 96,
+                  "h": 48
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 596,
+          "y": 948,
+          "w": 96,
+          "h": 48
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9545819759368896
+      },
+      {
+        "block_key": "blk_014",
+        "section_key": "sec_2_21",
+        "block_order": 14,
+        "source_ko": "SPF5O",
+        "source_lines": [
+          {
+            "line_key": "line_040",
+            "text": "SPF5O",
+            "bbox": {
+              "x": 297,
+              "y": 969,
+              "w": 41,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0040",
+                "text": "SPF5O",
+                "score": 0.8851526975631714,
+                "poly": [
+                  [
+                    302,
+                    969
+                  ],
+                  [
+                    338,
+                    982
+                  ],
+                  [
+                    333,
+                    996
+                  ],
+                  [
+                    297,
+                    982
+                  ]
+                ],
+                "bbox": {
+                  "x": 297,
+                  "y": 969,
+                  "w": 41,
+                  "h": 27
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 297,
+          "y": 969,
+          "w": 41,
+          "h": 27
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8851526975631714
+      },
+      {
+        "block_key": "blk_015",
+        "section_key": "sec_2_21",
+        "block_order": 15,
+        "source_ko": "SPF 50+",
+        "source_lines": [
+          {
+            "line_key": "line_041",
+            "text": "SPF 50+",
+            "bbox": {
+              "x": 517,
+              "y": 986,
+              "w": 40,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0043",
+                "text": "SPF 50+",
+                "score": 0.927344799041748,
+                "poly": [
+                  [
+                    517,
+                    986
+                  ],
+                  [
+                    557,
+                    986
+                  ],
+                  [
+                    557,
+                    1004
+                  ],
+                  [
+                    517,
+                    1004
+                  ]
+                ],
+                "bbox": {
+                  "x": 517,
+                  "y": 986,
+                  "w": 40,
+                  "h": 18
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 517,
+          "y": 986,
+          "w": 40,
+          "h": 18
+        },
+        "role": "caption",
+        "ocr_confidence": 0.927344799041748
+      },
+      {
+        "block_key": "blk_016",
+        "section_key": "sec_2_21",
+        "block_order": 16,
+        "source_ko": "PA++++",
+        "source_lines": [
+          {
+            "line_key": "line_042",
+            "text": "PA++++",
+            "bbox": {
+              "x": 520,
+              "y": 1021,
+              "w": 35,
+              "h": 14
+            },
+            "regions": [
+              {
+                "region_key": "reg_0045",
+                "text": "PA++++",
+                "score": 0.8962764739990234,
+                "poly": [
+                  [
+                    520,
+                    1021
+                  ],
+                  [
+                    555,
+                    1021
+                  ],
+                  [
+                    555,
+                    1035
+                  ],
+                  [
+                    520,
+                    1035
+                  ]
+                ],
+                "bbox": {
+                  "x": 520,
+                  "y": 1021,
+                  "w": 35,
+                  "h": 14
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 520,
+          "y": 1021,
+          "w": 35,
+          "h": 14
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8962764739990234
+      },
+      {
+        "block_key": "blk_017",
+        "section_key": "sec_2_21",
+        "block_order": 17,
+        "source_ko": "",
+        "source_lines": [
+          {
+            "line_key": "line_043",
+            "text": "",
+            "bbox": {
+              "x": 803,
+              "y": 1047,
+              "w": 28,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0046",
+                "text": "",
+                "score": 0.0,
+                "poly": [
+                  [
+                    803,
+                    1047
+                  ],
+                  [
+                    831,
+                    1047
+                  ],
+                  [
+                    831,
+                    1074
+                  ],
+                  [
+                    803,
+                    1074
+                  ]
+                ],
+                "bbox": {
+                  "x": 803,
+                  "y": 1047,
+                  "w": 28,
+                  "h": 27
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 803,
+          "y": 1047,
+          "w": 28,
+          "h": 27
+        },
+        "role": "caption",
+        "ocr_confidence": 0.0
+      },
+      {
+        "block_key": "blk_018",
+        "section_key": "sec_2_21",
+        "block_order": 18,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_044",
+            "text": "goodal",
+            "bbox": {
+              "x": 263,
+              "y": 1062,
+              "w": 64,
+              "h": 34
+            },
+            "regions": [
+              {
+                "region_key": "reg_0047",
+                "text": "goodal",
+                "score": 0.9977428317070007,
+                "poly": [
+                  [
+                    267,
+                    1062
+                  ],
+                  [
+                    327,
+                    1074
+                  ],
+                  [
+                    322,
+                    1096
+                  ],
+                  [
+                    263,
+                    1083
+                  ]
+                ],
+                "bbox": {
+                  "x": 263,
+                  "y": 1062,
+                  "w": 64,
+                  "h": 34
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 263,
+          "y": 1062,
+          "w": 64,
+          "h": 34
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9977428317070007
+      },
+      {
+        "block_key": "blk_019",
+        "section_key": "sec_2_21",
+        "block_order": 19,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_045",
+            "text": "goodal",
+            "bbox": {
+              "x": 506,
+              "y": 1078,
+              "w": 66,
+              "h": 33
+            },
+            "regions": [
+              {
+                "region_key": "reg_0048",
+                "text": "goodal",
+                "score": 0.9972895979881287,
+                "poly": [
+                  [
+                    506,
+                    1082
+                  ],
+                  [
+                    570,
+                    1078
+                  ],
+                  [
+                    572,
+                    1107
+                  ],
+                  [
+                    507,
+                    1111
+                  ]
+                ],
+                "bbox": {
+                  "x": 506,
+                  "y": 1078,
+                  "w": 66,
+                  "h": 33
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 506,
+          "y": 1078,
+          "w": 66,
+          "h": 33
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9972895979881287
+      },
+      {
+        "block_key": "blk_020",
+        "section_key": "sec_2_21",
+        "block_order": 20,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_046",
+            "text": "goodal",
+            "bbox": {
+              "x": 623,
+              "y": 1211,
+              "w": 75,
+              "h": 34
+            },
+            "regions": [
+              {
+                "region_key": "reg_0049",
+                "text": "goodal",
+                "score": 0.9993577599525452,
+                "poly": [
+                  [
+                    623,
+                    1217
+                  ],
+                  [
+                    696,
+                    1211
+                  ],
+                  [
+                    698,
+                    1240
+                  ],
+                  [
+                    625,
+                    1245
+                  ]
+                ],
+                "bbox": {
+                  "x": 623,
+                  "y": 1211,
+                  "w": 75,
+                  "h": 34
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 623,
+          "y": 1211,
+          "w": 75,
+          "h": 34
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9993577599525452
+      },
+      {
+        "block_key": "blk_021",
+        "section_key": "sec_2_21",
+        "block_order": 21,
+        "source_ko": "MIX\nPackaging\nFSC FSC° C149190",
+        "source_lines": [
+          {
+            "line_key": "line_047",
+            "text": "MIX",
+            "bbox": {
+              "x": 370,
+              "y": 1459,
+              "w": 33,
+              "h": 20
+            },
+            "regions": [
+              {
+                "region_key": "reg_0050",
+                "text": "MIX",
+                "score": 0.9927622675895691,
+                "poly": [
+                  [
+                    370,
+                    1459
+                  ],
+                  [
+                    403,
+                    1459
+                  ],
+                  [
+                    403,
+                    1479
+                  ],
+                  [
+                    370,
+                    1479
+                  ]
+                ],
+                "bbox": {
+                  "x": 370,
+                  "y": 1459,
+                  "w": 33,
+                  "h": 20
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_048",
+            "text": "Packaging",
+            "bbox": {
+              "x": 349,
+              "y": 1477,
+              "w": 73,
+              "h": 25
+            },
+            "regions": [
+              {
+                "region_key": "reg_0051",
+                "text": "Packaging",
+                "score": 0.9433553218841553,
+                "poly": [
+                  [
+                    349,
+                    1477
+                  ],
+                  [
+                    422,
+                    1480
+                  ],
+                  [
+                    421,
+                    1502
+                  ],
+                  [
+                    349,
+                    1499
+                  ]
+                ],
+                "bbox": {
+                  "x": 349,
+                  "y": 1477,
+                  "w": 73,
+                  "h": 25
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_049",
+            "text": "FSC FSC° C149190",
+            "bbox": {
+              "x": 283,
+              "y": 1504,
+              "w": 153,
+              "h": 19
+            },
+            "regions": [
+              {
+                "region_key": "reg_0054",
+                "text": "FSC",
+                "score": 0.9886458516120911,
+                "poly": [
+                  [
+                    283,
+                    1504
+                  ],
+                  [
+                    328,
+                    1504
+                  ],
+                  [
+                    328,
+                    1521
+                  ],
+                  [
+                    283,
+                    1521
+                  ]
+                ],
+                "bbox": {
+                  "x": 283,
+                  "y": 1504,
+                  "w": 45,
+                  "h": 17
+                }
+              },
+              {
+                "region_key": "reg_0055",
+                "text": "FSC° C149190",
+                "score": 0.9356889724731445,
+                "poly": [
+                  [
+                    337,
+                    1505
+                  ],
+                  [
+                    436,
+                    1505
+                  ],
+                  [
+                    436,
+                    1523
+                  ],
+                  [
+                    337,
+                    1523
+                  ]
+                ],
+                "bbox": {
+                  "x": 337,
+                  "y": 1505,
+                  "w": 99,
+                  "h": 18
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 283,
+          "y": 1459,
+          "w": 153,
+          "h": 64
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9356889724731445
+      },
+      {
+        "block_key": "blk_022",
+        "section_key": "sec_2_21",
+        "block_order": 22,
+        "source_ko": "PRINTED WITH\nSOYINK\nTM",
+        "source_lines": [
+          {
+            "line_key": "line_050",
+            "text": "PRINTED WITH",
+            "bbox": {
+              "x": 644,
+              "y": 1470,
+              "w": 109,
+              "h": 21
+            },
+            "regions": [
+              {
+                "region_key": "reg_0052",
+                "text": "PRINTED WITH",
+                "score": 0.9598033428192139,
+                "poly": [
+                  [
+                    644,
+                    1470
+                  ],
+                  [
+                    753,
+                    1470
+                  ],
+                  [
+                    753,
+                    1491
+                  ],
+                  [
+                    644,
+                    1491
+                  ]
+                ],
+                "bbox": {
+                  "x": 644,
+                  "y": 1470,
+                  "w": 109,
+                  "h": 21
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_051",
+            "text": "SOYINK",
+            "bbox": {
+              "x": 642,
+              "y": 1490,
+              "w": 113,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0053",
+                "text": "SOYINK",
+                "score": 0.9986512660980225,
+                "poly": [
+                  [
+                    642,
+                    1490
+                  ],
+                  [
+                    755,
+                    1490
+                  ],
+                  [
+                    755,
+                    1521
+                  ],
+                  [
+                    642,
+                    1521
+                  ]
+                ],
+                "bbox": {
+                  "x": 642,
+                  "y": 1490,
+                  "w": 113,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_052",
+            "text": "TM",
+            "bbox": {
+              "x": 756,
+              "y": 1512,
+              "w": 18,
+              "h": 13
+            },
+            "regions": [
+              {
+                "region_key": "reg_0056",
+                "text": "TM",
+                "score": 0.9961594343185425,
+                "poly": [
+                  [
+                    756,
+                    1512
+                  ],
+                  [
+                    774,
+                    1512
+                  ],
+                  [
+                    774,
+                    1525
+                  ],
+                  [
+                    756,
+                    1525
+                  ]
+                ],
+                "bbox": {
+                  "x": 756,
+                  "y": 1512,
+                  "w": 18,
+                  "h": 13
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 642,
+          "y": 1470,
+          "w": 132,
+          "h": 55
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9598033428192139
+      },
+      {
+        "block_key": "blk_023",
+        "section_key": "sec_2_21",
+        "block_order": 23,
+        "source_ko": "소이 잉크로 인쇄된\n종이사용",
+        "source_lines": [
+          {
+            "line_key": "line_053",
+            "text": "소이 잉크로 인쇄된",
+            "bbox": {
+              "x": 589,
+              "y": 1559,
+              "w": 178,
+              "h": 28
+            },
+            "regions": [
+              {
+                "region_key": "reg_0058",
+                "text": "소이 잉크로 인쇄된",
+                "score": 0.9435874819755554,
+                "poly": [
+                  [
+                    589,
+                    1559
+                  ],
+                  [
+                    767,
+                    1559
+                  ],
+                  [
+                    767,
+                    1587
+                  ],
+                  [
+                    589,
+                    1587
+                  ]
+                ],
+                "bbox": {
+                  "x": 589,
+                  "y": 1559,
+                  "w": 178,
+                  "h": 28
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_054",
+            "text": "종이사용",
+            "bbox": {
+              "x": 631,
+              "y": 1598,
+              "w": 95,
+              "h": 32
+            },
+            "regions": [
+              {
+                "region_key": "reg_0060",
+                "text": "종이사용",
+                "score": 0.9934848546981812,
+                "poly": [
+                  [
+                    631,
+                    1598
+                  ],
+                  [
+                    726,
+                    1598
+                  ],
+                  [
+                    726,
+                    1630
+                  ],
+                  [
+                    631,
+                    1630
+                  ]
+                ],
+                "bbox": {
+                  "x": 631,
+                  "y": 1598,
+                  "w": 95,
+                  "h": 32
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 589,
+          "y": 1559,
+          "w": 178,
+          "h": 71
+        },
+        "role": "body",
+        "ocr_confidence": 0.9435874819755554
+      },
+      {
+        "block_key": "blk_024",
+        "section_key": "sec_2_21",
+        "block_order": 24,
+        "source_ko": "FSC 산림보존인증 단상자를 사용하여\n국제 산림 보호 운동 참여",
+        "source_lines": [
+          {
+            "line_key": "line_055",
+            "text": "FSC 산림보존인증 단상자를 사용하여",
+            "bbox": {
+              "x": 181,
+              "y": 1562,
+              "w": 346,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0057",
+                "text": "FSC 산림보존인증 단상자를 사용하여",
+                "score": 0.9626747369766235,
+                "poly": [
+                  [
+                    181,
+                    1562
+                  ],
+                  [
+                    527,
+                    1562
+                  ],
+                  [
+                    527,
+                    1586
+                  ],
+                  [
+                    181,
+                    1586
+                  ]
+                ],
+                "bbox": {
+                  "x": 181,
+                  "y": 1562,
+                  "w": 346,
+                  "h": 24
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_056",
+            "text": "국제 산림 보호 운동 참여",
+            "bbox": {
+              "x": 241,
+              "y": 1602,
+              "w": 226,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0059",
+                "text": "국제 산림 보호 운동 참여",
+                "score": 0.945639431476593,
+                "poly": [
+                  [
+                    241,
+                    1602
+                  ],
+                  [
+                    467,
+                    1602
+                  ],
+                  [
+                    467,
+                    1626
+                  ],
+                  [
+                    241,
+                    1626
+                  ]
+                ],
+                "bbox": {
+                  "x": 241,
+                  "y": 1602,
+                  "w": 226,
+                  "h": 24
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 181,
+          "y": 1562,
+          "w": 346,
+          "h": 64
+        },
+        "role": "body",
+        "ocr_confidence": 0.945639431476593
+      }
+    ]
+  },
+  "seconds": 14.235000000102445
+}

@@ -1,0 +1,72 @@
+{
+  "checked_at": "2026-10-30T04:22:36.427597+00:00",
+  "run_id": "baseline-v1-0-1-gs-v1-20261030-01",
+  "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+  "protocol_sha": "f85b23ea811eeaf98f969730bea097e9f856ebc0",
+  "protocol_validation": [],
+  "original_files": 1980,
+  "original_bytes": 397960918,
+  "image_artifacts_verified": 114,
+  "unique_objects_verified": 383,
+  "object_keys": 654,
+  "model_asset_hashes_verified": 31,
+  "settings_hashes_verified": 17,
+  "tools_hashes_verified": 16,
+  "package_lock": {
+    "package_count": 121,
+    "sha256": "085ba4046f5cf7142cdb63c501665c7d324fc9339358f31915bad177a2772fc6",
+    "matched": true
+  },
+  "missing_intermediate_keys": [],
+  "draft_units": 324,
+  "draft_sources": 34,
+  "draft_source_and_bbox_verified": true,
+  "draft_basis_refs_resolved": true,
+  "reference_freeze": null,
+  "quality_scored": false,
+  "draft_type_counts": {
+    "critical_fact": 199,
+    "protected_visual": 36,
+    "semantic_block": 22,
+    "policy_expectation": 58,
+    "layout_region": 9
+  },
+  "operational_source_status_counts": {
+    "ai_all_excluded_pending_pm": 3,
+    "generated": 13,
+    "job_analysis_failed": 18
+  },
+  "shared_execution_failure": {
+    "group": "GS-03-job-3-N2",
+    "job_id": 3,
+    "attempt_ids": [
+      487,
+      488,
+      489
+    ],
+    "automatic_retries": 2,
+    "affected_sources": 18,
+    "independent_quality_defects_assigned": false
+  },
+  "budget": {
+    "invoice_usd": null,
+    "price_estimate_usd": "2.11574850",
+    "unknown_request_reservation_usd": "21.84",
+    "budget_consumed_usd": "23.95574850",
+    "remaining_budget_usd": "26.04425150",
+    "call_count": 393,
+    "call_limit": 1367,
+    "known_total_tokens": 1243650,
+    "unknown_cost_requests": 21,
+    "failed_requests": 3
+  },
+  "backup_scope": "same-disk local zip; not offsite; existing run plus new audit/reproduction sidecars; model weights/venv/wheelhouse and full PostgreSQL instance not copied",
+  "known_gaps": [
+    "PM reference freeze absent",
+    "Evaluation session/model/settings/transcript not registered",
+    "GS-03 temporary section/debug files deleted by product TemporaryDirectory; stages and DB/usage/error evidence retained",
+    "Actual API invoice unavailable",
+    "No verified independent-device/offsite backup",
+    "Source-to-result reference-unit placement requires review after freeze; section transforms are indexed"
+  ]
+}

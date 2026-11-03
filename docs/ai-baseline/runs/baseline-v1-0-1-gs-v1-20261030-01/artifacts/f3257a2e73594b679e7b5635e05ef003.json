@@ -1,0 +1,116 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:00:50.692525+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_129",
+        "outcome": "completed",
+        "translation": "Test",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_130",
+        "outcome": "completed",
+        "translation": "Helps soothe and improve\nskin weakened by external irritation",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_131",
+        "outcome": "completed",
+        "translation": "Before product use\n(After UV exposure)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_132",
+        "outcome": "completed",
+        "translation": "17.70",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_133",
+        "outcome": "completed",
+        "translation": "7 days after\nproduct use",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_134",
+        "outcome": "completed",
+        "translation": "15.92%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_135",
+        "outcome": "completed",
+        "translation": "14.88",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_136",
+        "outcome": "completed",
+        "translation": "14.0",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_137",
+        "outcome": "completed",
+        "translation": "20.0\na* value",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_138",
+        "outcome": "completed",
+        "translation": "11.0",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_139",
+        "outcome": "completed",
+        "translation": "17.0",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_140",
+        "outcome": "completed",
+        "translation": "[Clinical study on soothing skin from external irritation with goodal Heartleaf Calming Mineral Sunscreen]\nKorea Institute of Dermatological Sciences | 21 adult females | 2022.12.29–2023.02.03 | Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "79d1cbfb6ed61968ffb62eb79c8e009bee8d2aa952ae602b212acacd7640d887",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "ce8038020e767c3740ee06f1ad275a7190c7b36267fb4af4304af985fdbd017c",
+      "usage": {
+        "candidates_token_count": 403,
+        "prompt_token_count": 1274,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1274
+          }
+        ],
+        "thoughts_token_count": 741,
+        "total_token_count": 2418
+      }
+    }
+  ],
+  "seconds": 10.422000000020489
+}

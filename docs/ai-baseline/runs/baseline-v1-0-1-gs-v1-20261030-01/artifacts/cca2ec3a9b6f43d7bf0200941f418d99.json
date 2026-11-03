@@ -1,0 +1,375 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:52.295152+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_23",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_309",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_310",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_311",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_312",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_313",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_314",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_315",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_316",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_317",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_318",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_319",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_320",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_321",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_322",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_323",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_324",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_325",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_326",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_327",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_328",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_329",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_330",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_331",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_23",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "a220beb77fa1a9870b3c9f646b5e0730661fab25e7c2859517fa5c9adece513b",
+      "label_fingerprint": "b14281ba17c1aa459cd1a608008c34dcdd199553172d1bd882b0cb10b881fb95",
+      "label_input_fingerprint": "a220beb77fa1a9870b3c9f646b5e0730661fab25e7c2859517fa5c9adece513b",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 23,
+      "counts": {
+        "product_label": 5,
+        "empty_text": 1,
+        "exact_match": 0,
+        "no_match": 17,
+        "compared": 18
+      },
+      "decisions": [
+        {
+          "block_key": "blk_309",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "goodallgoodal",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_310",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "우리모두에게좋은것으로",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_311",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "구달은자연과사람이공존하는삶을지향합니다한국에서자란원물을수확하여추출의심성분배제지속가능한패키지까지제품의전여정을돌보며작은노력부터실천합니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_312",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "신선한순간freshcatch",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_313",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "한국에서자란원물을신선하게수확하여피부에변화를느낄수있는액티브성분을만듭니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_314",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "기준에대한검증과지속적관심",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_315",
+          "block_order": 7,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_316",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_317",
+          "block_order": 9,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_318",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "늘자사의기준을검토분석하여검증가능한사실만을진실되게전달하도록노력하겠습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_319",
+          "block_order": 11,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_320",
+          "block_order": 12,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_321",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "제품별free성분분석테스트진행액티브성분에대한효능연구및입증가능한인체적용시험데이터확보",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_322",
+          "block_order": 14,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_323",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "의심성분18free",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_324",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "18free",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_325",
+          "block_order": 17,
+          "is_product_label": false,
+          "normalized": "구달의clearcleanguide기준으로4가지기능별18개의심성분을무첨가하였습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_326",
+          "block_order": 18,
+          "is_product_label": false,
+          "normalized": "21년9월이후로출시된신제품부터모두적용",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_327",
+          "block_order": 19,
+          "is_product_label": false,
+          "normalized": "18개free성분명하단내용참고",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_328",
+          "block_order": 20,
+          "is_product_label": false,
+          "normalized": "01보존제기능유통기한보장1파라벤7종4하이드록시벤조익애씨드메틸파라벤에틸파라벤아이소프로필파라벤프로필파라벤아이소부틸파라벤부틸파라벤2벤질알코을3이미다졸리디닐우레아4비에이치에이5벤잘코늄클로라이드6디아졸리디닐우레아7비에이치티80사이멘5올9소르빅애씨드10티몰11페녹시에탄올12아이소프로필알코을",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_329",
+          "block_order": 21,
+          "is_product_label": false,
+          "normalized": "02가소제기능끈적이는사용감감소13다이아이소노닐프탈레이트",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_330",
+          "block_order": 22,
+          "is_product_label": false,
+          "normalized": "03계면활성제기능세정성상혼합14트라이에탄올아민15소듐라우릴설페이트16소듐라우레스설페이트1516성분분석을위해설페이트계계면활성제4종모두확인",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_331",
+          "block_order": 23,
+          "is_product_label": false,
+          "normalized": "04자외선차단제기능자외선차단17벤조페논318부틸메톡시디벤조일메탄",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

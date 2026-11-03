@@ -1,0 +1,23 @@
+{
+  "source_id": "GS-01",
+  "stage": "section_split",
+  "at": "2026-10-30T00:26:59.452733+00:00",
+  "result": {
+    "schema_version": "2",
+    "source_image_id": 1,
+    "source_width": 1000,
+    "source_height": 1360,
+    "sections": [
+      {
+        "section_key": "sec_1_01",
+        "source_image_id": 1,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 1360,
+        "width": 1000,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_1_01.png"
+      }
+    ]
+  },
+  "seconds": 0.14099999982863665
+}

@@ -1,0 +1,353 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:56:54.921267+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_513",
+        "outcome": "completed",
+        "translation": "Why celimax Retinal Shot is Even More Special ①",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_514",
+        "outcome": "completed",
+        "translation": "High-Concentration Vitamin A: Retinal 0.1%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_515",
+        "outcome": "completed",
+        "translation": "Vibrant yellow without artificial colorants\nHigh-concentration Retinal Cream",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_521",
+        "outcome": "completed",
+        "translation": "10.2 Times More Expensive Than Retinol Raw Material\nPremium Ingredient: Retinal",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_522",
+        "outcome": "completed",
+        "translation": "*Based on raw materials used in our Retinol serum",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_523",
+        "outcome": "completed",
+        "translation": "Retinal is a vitamin A derivative that is rapidly activated in the skin to deliver immediate results.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_524",
+        "outcome": "completed",
+        "translation": "The Effects of Vitamin A Retinal\nProven Through Research and Clinical Papers",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_525",
+        "outcome": "completed",
+        "translation": "Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results From In Vitro to Clinical Studies",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_527",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 단순 기호 또는 깨진 문자로 번역할 수 없습니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_531",
+        "outcome": "completed",
+        "translation": "ABSTRACT",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_537",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: OCR 오류로 인해 판독이 불가능한 문자열입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_542",
+        "outcome": "completed",
+        "translation": "DISCUSSION",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_544",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 단편적인 숫자와 기호로 구성되어 판독 및 번역이 불가능합니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_545",
+        "outcome": "completed",
+        "translation": "1",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_552",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: OCR 오류로 인해 판독할 수 없는 텍스트입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_558",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 깨진 문자열로 원문의 의미를 판독할 수 없습니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_560",
+        "outcome": "completed",
+        "translation": "References",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_561",
+        "outcome": "completed",
+        "translation": "- A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies (Celine Rouvrais, Daniel Bacqueville, Patrick Bogdanowicz, Marie-Jose Haure, Laure Duprat, Christine Coutanceau, Nathalie Castex-Rizzi, Helene Duplan, Valerie Mengeaud, Sandrine Bessou-Touya / Clinical, Cosmetic and Investigational Dermatology (2017))\n- Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies (Anthony Brown, Marta Furmanczyk, David Ramos, Adria Ribes, Laia Pons, Javier Bustos, Antonio R. Fernandez de Henestrosa, Corinne Granger, Eric Jourdan (2023))\n- A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin (Rong Kong, PhD, Yilei Cui, PhD, Gary J. Fisher, PhD, Xiaojuan Wang, BS, Yinbei Chen, MS, Louise M. Schneider, BS, & Gopa Majmudar, PhD (2015))\n- Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model (Department of Pathology, Hopital Pitie-Salpetriere, and Groupe de Recherche en Dermatologie et Cosmetologie, Paris, and Laboratoires Dermatologiques Avene, Castres, France (1999))\n- Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance (Jean Hilaire Saurat, Liliane Didierjean, Elisabeth Masgrau, Pierre A. Pletta, Stefano Jaconi, Dominique Chatellard-Gruaz, Dagmar Gumowski, Isabelle Masouye, Denis Salomon, and Georges Siegenthaler (2010))\n- The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study (Jemin Kim MD, Jihee Kim MD, PhD, Tunyaporn Jongudomsombat MD, Eunbin Kim BS, Jangmi Suk MS, Dongwon Lee MD, PhD, Ju Hee Lee MD, PhD (2020))",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_562",
+        "outcome": "completed",
+        "translation": "Dermatology",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_563",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 깨진 출처 정보 표기로 판독이 불가능합니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_564",
+        "outcome": "completed",
+        "translation": "Repair of UVA-Induced Elastic Fiber and\nCollagen Damage by 0.05%\nRetinaldehyde Cream in an ex vivo",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_565",
+        "outcome": "completed",
+        "translation": "Retinal is effective in stimulating\ncollagen synthesis within the skin*",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_566",
+        "outcome": "completed",
+        "translation": "Potentiate the Effects\nPhotodamaged Skin: Results\nStudies",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_567",
+        "outcome": "completed",
+        "translation": "David Ramos\n- Antonio R. Fernandez de Henestr",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_568",
+        "outcome": "completed",
+        "translation": "specimens, collagen and elastic fibers were restored to\nthe level of unexposed skin. UVA exposure induced a\ndecrease in collagen synthesis, whereas in retinalde-\nhyde-treated UVA-exposed skin\nsimilar to that of unexposed skin. Our results have\nshown that retinaldehyde has properties similar to\ntretinoin in its biological and beneficial effects on\nphotoaging. We have verified some of these observations,\nespecially on dermal cellular changes in all the compartments of\nobtaining significant repair of ela-",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_569",
+        "outcome": "completed",
+        "translation": "Key Words\nRetinaldehyde - Normal human skin - Ex vivo model -",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_570",
+        "outcome": "completed",
+        "translation": "Organ culture - Collagen - Elastic fibers - Ultraviolet\nlight - Photoaging",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_571",
+        "outcome": "completed",
+        "translation": "Retinal is effective on visible signs of aging,\nsuch as eye wrinkles and fine lines around the eyes",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_572",
+        "outcome": "completed",
+        "translation": "Abstract",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_573",
+        "outcome": "completed",
+        "translation": "cated in cutaneous aging. UV radiations induce struc-\ntural and cellular changes in all the compartments of\nskin. Aims: To study the antiaging efficacy of a cream\ncontaining 0.05% retinaldehyde with an ex vivo tech-\nnique using human skin in order to approximate in vivo\nmetabolic conditions. Methods: Human skin explants\nwere maintained alive in organ culture for 18 days and\nsubjected to UVA exposure, thus simulating skin pho-\ntoaging. Retinaldehyde cream was then applied to the",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_574",
+        "outcome": "completed",
+        "translation": "Introduction\nThe effectiveness of topical tretinoin (all-trans-retinoic acid)\ncould be enhanced without compromising its\nskin irritation profile. The purpose of this study\nwas to demonstrate that BAK and VAE potenti-\nate the anti-photoaging activity of RAL.\nMethods: Gene expression profiling of full-\nthickness reconstructed skin was first used to\nexamine the impact of BAK or VAE in combi-\nnation on skin biology. Next, the",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_575",
+        "outcome": "completed",
+        "translation": "other anti-photoaging ingredients, such as\nniacinamide and melatonin, 3RC reversed\nultraviolet radiation-induced deficits in struc-\ntural components of the dermal extracellular\nmatrix, including hyaluronic acid and collagen.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_576",
+        "outcome": "completed",
+        "translation": "retinal",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_577",
+        "outcome": "completed",
+        "translation": "A RAL",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_578",
+        "outcome": "completed",
+        "translation": "A comparative study of the effects\nhistological, molecular, and cl",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_579",
+        "outcome": "completed",
+        "translation": "In vivo, it led to a reversal of clinical signs of aging\nand photodamage, with statistically significant\nimprovement to skin firmness (+5.6%), skin\nelasticity (+13.9%), wrinkle count (–43.2%),\nand skin tone homogeneity (+7.0%), observed\nwithin 28 days of once nightly use. Notably, the\nnumber of crow's feet wrinkles was reduced in\n100% of subjects. Furthermore, 3RC was very\nwell tolerated.\nConclusion: These data suggest that 3RC is a\nhighly effective and well-tolerated treatment for",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_580",
+        "outcome": "completed",
+        "translation": "Rong Kong, PhD, Yilei Cui, PhD, Gary J. Fisher,\nLouise M. Schneider, BS, & Gopa Majmudar.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_581",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 문자열이 손상되어 원문의 의미를 명확히 판독할 수 없습니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_582",
+        "outcome": "completed",
+        "translation": "this combination, and its\nsigns of photoaging in an\nused. Finally, a proof-of-\nclinical study was performed\nphotoaging capacity and\na cosmetic formulation",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_583",
+        "outcome": "completed",
+        "translation": "Retinal is effective in smoothing the skin\nand enhancing elasticity",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_584",
+        "outcome": "completed",
+        "translation": "photoaging-",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_585",
+        "outcome": "completed",
+        "translation": "there is limited research\nin\nObjectives: In this study, we compare the effects of retinol and retinoic acid on skin\nstructure and expression of skin function-related genes and proteins. We also\nMethods: Skin histology was examined by H&E staining and in vivo confocal",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_586",
+        "outcome": "completed",
+        "translation": "examining the effect of retinol treatment on skin appearance.\nmicroscopy. Expression levels of skin genes and proteins were analyzed using RT-PCR\nand immunohistochemistry. The efficacy of a retinol formulation in improving skin\nappearance was assessed using digital image-based wrinkle analysis",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_587",
+        "outcome": "completed",
+        "translation": "Results: Four weeks of retinoic acid and retinol treatments both increased epidermal\nthickness, and upregulated genes for collagen type 1 (COL1A1), and collagen type 3\n(COL3A1) with corresponding increases in procollagen I and procollagen III protein\nfollowing 12 weeks of retinol application.\nConclusion: The results of this study demonstrate that topical application of retinol\nsignificantly affects both cellular and molecular properties of the epidermis and",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_588",
+        "outcome": "completed",
+        "translation": "expression. Facial image analysis showed a significant reduction in facial wrinkles",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_589",
+        "outcome": "completed",
+        "translation": "*Excerpts regarding retinal raw material are from references and published research papers / Limited to the characteristics of the raw ingredient",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "5fec1b21587dad926197a6dc84f121e4431a9e2d1f6e61e30689466a437a3645",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "4a00f3cb0c2f898ec6c0b9a18741d0787ecfa873483b42d715b56d4b8d3c338e",
+      "usage": {
+        "candidates_token_count": 2839,
+        "prompt_token_count": 4873,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 4873
+          }
+        ],
+        "total_token_count": 7712
+      }
+    }
+  ],
+  "seconds": 20.936999999918044
+}

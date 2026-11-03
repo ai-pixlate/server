@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "rules_version": "policy@2026-10-08.1",
+  "basis": "운영 묶음 공급용 정책 규칙. 로컬 개발 규칙 policy@2026-09-28.1(사전 5종 사용 설명서 v3.4.3 §3·§4 기반)에서 DB 서비스 판정값에 없는 rewritable 행을 뺀 것 — 시트의 rewritable은 regulated + 대체 표현 있음으로 공급된다. 현지 uncertain 기본 제외·제외형 하나라도 있으면 섹션 제외는 PM 확정(D8). 판정값·배지 매핑(#7·5.9)은 계약 채택 전. overrides(개발용 예외 쌍)는 운영 규칙이 아니므로 빈 목록. BE가 묶음 생성 시 이 파일을 그대로 rules에 싣는다.",
+  "regulatory_class_map": {
+    "cosmetic": {"applied_classes": ["cosmetic", "common"], "dict_coverage": "selected_class_all_entries"},
+    "otc": {"applied_classes": ["otc", "common"], "dict_coverage": "selected_class_all_entries"},
+    "combination": {"applied_classes": ["otc", "common"], "dict_coverage": "partial_class_combination"},
+    "unknown": {"applied_classes": ["cosmetic", "common"], "dict_coverage": "unverified_class"}
+  },
+  "verdict_map": [
+    {"dict_type": "regulatory", "verdict_status": "allowed", "alternative": "any", "emit_verdict_status": null, "bucket": "none"},
+    {"dict_type": "regulatory", "verdict_status": "conditional", "alternative": "any", "emit_verdict_status": "conditional", "bucket": "include"},
+    {"dict_type": "regulatory", "verdict_status": "regulated", "alternative": "present", "emit_verdict_status": "regulated", "bucket": "include"},
+    {"dict_type": "regulatory", "verdict_status": "regulated", "alternative": "absent", "emit_verdict_status": "regulated", "bucket": "exclude"},
+    {"dict_type": "local", "verdict_status": "irrelevant", "alternative": "any", "emit_verdict_status": "irrelevant", "bucket": "exclude"},
+    {"dict_type": "local", "verdict_status": "needs_fix", "alternative": "any", "emit_verdict_status": "needs_fix", "bucket": "exclude"}
+  ],
+  "uncertain_bucket": "exclude",
+  "overrides": []
+}

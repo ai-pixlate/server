@@ -1,0 +1,63 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:47:53.153123+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_64",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_725",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_726",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_727",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_728",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_729",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_730",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_731",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "5eae0d407cc9155f32d0f76381b4ca09fb01c49762ca8b20d152273f8aaa6d5e",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_725",
+        "blk_726",
+        "blk_727",
+        "blk_728",
+        "blk_729",
+        "blk_730",
+        "blk_731"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 6.655999999959022
+}

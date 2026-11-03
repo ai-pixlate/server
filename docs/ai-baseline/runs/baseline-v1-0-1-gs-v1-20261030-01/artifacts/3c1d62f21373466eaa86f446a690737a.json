@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-01",
+  "task_context": {
+    "task": "app.tasks.run_judge",
+    "args": [
+      3
+    ]
+  },
+  "event": "model_call",
+  "call": 37,
+  "model": "gemini-3.8-flash",
+  "at": "2026-10-30T00:44:40.391675+00:00",
+  "usage": {
+    "cache_tokens_details": null,
+    "cached_content_token_count": null,
+    "candidates_token_count": 647,
+    "candidates_tokens_details": null,
+    "prompt_token_count": 4625,
+    "prompt_tokens_details": [
+      {
+        "modality": "IMAGE",
+        "token_count": 1092
+      },
+      {
+        "modality": "TEXT",
+        "token_count": 3533
+      }
+    ],
+    "thoughts_token_count": null,
+    "tool_use_prompt_token_count": null,
+    "tool_use_prompt_tokens_details": null,
+    "total_token_count": 5272,
+    "traffic_type": null
+  },
+  "cost": null,
+  "cost_reason": "실제 청구액/단가 정산 전",
+  "status": "done",
+  "budget_consumed": 2.3280347499999996
+}

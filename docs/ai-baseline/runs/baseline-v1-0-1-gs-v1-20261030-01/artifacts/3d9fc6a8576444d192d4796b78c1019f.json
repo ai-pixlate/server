@@ -1,0 +1,32 @@
+{
+  "source_id": "GS-02",
+  "stage": "section_split",
+  "at": "2026-10-30T01:23:31.676234+00:00",
+  "result": {
+    "schema_version": "2",
+    "source_image_id": 15,
+    "source_width": 830,
+    "source_height": 3225,
+    "sections": [
+      {
+        "section_key": "sec_15_01",
+        "source_image_id": 15,
+        "section_order": 1,
+        "top_offset": 0,
+        "height": 1565,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_15_01.png"
+      },
+      {
+        "section_key": "sec_15_02",
+        "source_image_id": 15,
+        "section_order": 2,
+        "top_offset": 1565,
+        "height": 1660,
+        "width": 830,
+        "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_15_02.png"
+      }
+    ]
+  },
+  "seconds": 9.733999999938533
+}

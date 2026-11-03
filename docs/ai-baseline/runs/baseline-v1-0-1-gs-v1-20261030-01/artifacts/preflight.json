@@ -1,0 +1,215 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10",
+  "packages": {
+    "Pillow": "12.3.0",
+    "SQLAlchemy": "2.1.4",
+    "psycopg": "3.3.6",
+    "alembic": "1.20.0",
+    "google-genai": "2.29.0",
+    "paddlepaddle": "3.3.1",
+    "paddleocr": "3.7.0",
+    "torch": "2.7.1+cu118"
+  },
+  "input_count": 34,
+  "input_hashes": {
+    "GS-01_001": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065",
+    "GS-01_002": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+    "GS-02_001": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4",
+    "GS-02_002": "91dee0b2018a89e3c4e595bfd4e05eaaef141198284f5add4d1c65a3feee272a",
+    "GS-02_003": "ca750554556880bd7437669d4bc0c3b5dc7fc8d742d5ba95a9da0efbd4cbb137",
+    "GS-02_004": "a565751f851e61176a1dfc2b016c814e7a50867b5966454bbad2f2491f8f94a3",
+    "GS-02_005": "bd7eed2473ba95571701d0e2c253b473138c9618896de0378232df9e7d8522b4",
+    "GS-02_006": "2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b",
+    "GS-02_007": "0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86",
+    "GS-02_008": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+    "GS-02_009": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910",
+    "GS-02_010": "d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5",
+    "GS-02_011": "6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39",
+    "GS-02_012": "031be239854f57cbabacca94612f9f9cb2ff53ddd50f351f73431e69a96a04fe",
+    "GS-02_013": "8cd5c87dcaa94cf0663194cbe5663563d8603def8ac92002aa0d9c2ca9896def",
+    "GS-02_014": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+    "GS-03_001": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+    "GS-03_002": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+    "GS-03_003": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+    "GS-03_004": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+    "GS-03_005": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+    "GS-03_006": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+    "GS-03_007": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+    "GS-03_008": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+    "GS-03_009": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+    "GS-03_010": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+    "GS-03_011": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+    "GS-03_012": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f",
+    "GS-03_013": "4585ffd307e9ec9e5c042644c00d951f02d06679593569f091338c2fb2f33be0",
+    "GS-03_014": "3e658d865927409bbddb98f7ccabf47feeab615a13796d40a0b9545e96ad5a2f",
+    "GS-03_015": "4251c02b6e935006f5d5848ebb846e1530b0d6fb31546999dea5a7224fd60e2a",
+    "GS-03_016": "d2493815f7b7cc96cbed23b5b64b10c25b1aa7493abc7ff5c19d028bd4152b58",
+    "GS-03_017": "3cec5ca60131774810cca56040d4775d9376a0ebc53073b218814dd6b5b51231",
+    "GS-03_018": "d541ca2aee1d54dbd85b8ef5c434044cd8e05fe93cb58f667a189f72dc00c3be"
+  },
+  "product_commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+  "model_assets": [
+    {
+      "file": "big-lama.pt",
+      "sha256": "344c77bbcb158f17dd143070d1e789f38a66c04202311ae3a258ef66667a9ea9",
+      "matched": true
+    },
+    {
+      "file": ".gitattributes",
+      "sha256": "a3a43406012ee8c7b9b38dfab1b11610f33e8245cd864a9a9302d042616a859e",
+      "matched": true
+    },
+    {
+      "file": "config.json",
+      "sha256": "436bf19010fe3879477e8599a870a0ec8ccd14ca39056805ec4ed20ab318ec04",
+      "matched": true
+    },
+    {
+      "file": "inference.json",
+      "sha256": "af5876933d8806a1b50d895867e0781e135cd92ff37381992828fc8d1b842d28",
+      "matched": true
+    },
+    {
+      "file": "inference.pdiparams",
+      "sha256": "183146fe9d9910352f68482f623bcbbb9fa7b9e8fa1463b9ad288cef00524d2d",
+      "matched": true
+    },
+    {
+      "file": "inference.yml",
+      "sha256": "28fb721efc3634fc8aa677e474b9602cb815a91cf569ef357a7a553d7b3ce685",
+      "matched": true
+    },
+    {
+      "file": "README.md",
+      "sha256": "4fd4cf7c6fc3239ede7274c3877e7a0c4424ffa7f56b2775e4e7961c24b1f107",
+      "matched": true
+    },
+    {
+      "file": ".gitignore",
+      "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+      "matched": true
+    },
+    {
+      "file": "CACHEDIR.TAG",
+      "sha256": "e8893e2dcb3f4545ef67a0a5b7b769113d38eef1aa61c7c7ba14659b02af955f",
+      "matched": true
+    },
+    {
+      "file": ".gitattributes.metadata",
+      "sha256": "090f1ffd4cbaae552c8fec3e23eede870f3216cde14343e67d6983c7f55d699a",
+      "matched": true
+    },
+    {
+      "file": "config.json.metadata",
+      "sha256": "bb94b3c8e793cdc18a6803bf49fdee1e94b6aecf21e48c412e6101e6c02d5f6e",
+      "matched": true
+    },
+    {
+      "file": "inference.json.metadata",
+      "sha256": "caed2849d62e02e1f1b9ecfa64662e3125af139db8bc9404de18a9b72d4fdabe",
+      "matched": true
+    },
+    {
+      "file": "inference.pdiparams.metadata",
+      "sha256": "d4ded35a15eb9670a8d32e0a40d28b6f0dd7186f646f78b57d718c4e8240751d",
+      "matched": true
+    },
+    {
+      "file": "inference.yml.metadata",
+      "sha256": "6071218e4f96615f2628e91d1b4734874a7e2015d9af8ecb97255f1ab4ee4ffe",
+      "matched": true
+    },
+    {
+      "file": "README.md.metadata",
+      "sha256": "362a7f601dff72f68d5d33572d5a6009944f789621180870dbab6cd5b4d5f6b5",
+      "matched": true
+    },
+    {
+      "file": "ca867c897ecbca8873081573a802ad70d499cb94.json",
+      "sha256": "647b6d2a62d47e95710710b28fca63b633600ad75fbe73e5a5eaaf0e3a522faf",
+      "matched": true
+    },
+    {
+      "file": ".gitattributes",
+      "sha256": "a3a43406012ee8c7b9b38dfab1b11610f33e8245cd864a9a9302d042616a859e",
+      "matched": true
+    },
+    {
+      "file": "config.json",
+      "sha256": "c86a49d6301e6c4ff3398a87a2a1926b3521a46e90042833e18bbfa8ba6165c2",
+      "matched": true
+    },
+    {
+      "file": "inference.json",
+      "sha256": "562404e3c590c50c93778d5f0a94df21b47b5ab8f3ea6d47c7f8a7930c3bc844",
+      "matched": true
+    },
+    {
+      "file": "inference.pdiparams",
+      "sha256": "cac3e5f12cf04aaa77f6a5bc704e4e736ef2908476551891d84b41b4e9090462",
+      "matched": true
+    },
+    {
+      "file": "inference.yml",
+      "sha256": "f757fa1c40e99edcf27e9cce879b93eb2a51fa46f5ef39095689b8c37dd75998",
+      "matched": true
+    },
+    {
+      "file": "README.md",
+      "sha256": "0524f6bd8681b9b37f817a11a0bdd8cc99d5a4968b65b693baf532fb73f8a99b",
+      "matched": true
+    },
+    {
+      "file": ".gitignore",
+      "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+      "matched": true
+    },
+    {
+      "file": "CACHEDIR.TAG",
+      "sha256": "e8893e2dcb3f4545ef67a0a5b7b769113d38eef1aa61c7c7ba14659b02af955f",
+      "matched": true
+    },
+    {
+      "file": ".gitattributes.metadata",
+      "sha256": "71099f10754088433fd0589df59df3bcbe82823c6674d26d2d79aa7e38efccd5",
+      "matched": true
+    },
+    {
+      "file": "config.json.metadata",
+      "sha256": "c66547e658c18e5e04f3ca1971c2a94bac8c27ff631b3b65adea838605a0b069",
+      "matched": true
+    },
+    {
+      "file": "inference.json.metadata",
+      "sha256": "72260e291369a98406814fdb5b1203de56a5fdbe046ada1cf1f64053eeb03d5a",
+      "matched": true
+    },
+    {
+      "file": "inference.pdiparams.metadata",
+      "sha256": "947f4b7ee581a96628b92e0104645385cd435ec962117ce272a562bd747585f7",
+      "matched": true
+    },
+    {
+      "file": "inference.yml.metadata",
+      "sha256": "846f16b5726b4325befabeb5ef51a17307744f3286d6b0fd33ce744cd5edfcdf",
+      "matched": true
+    },
+    {
+      "file": "README.md.metadata",
+      "sha256": "84cd5772cc19eac5472a87bbde39c3039f7c5260b702b00b0b629c72ce591046",
+      "matched": true
+    },
+    {
+      "file": "c02ecaf1f22bfd1c618cce154fd19185b47e663a.json",
+      "sha256": "6e8c1527daf6bc8b0d2caa4753f2998a061750a6d6e867a83d4e606917a5274b",
+      "matched": true
+    }
+  ],
+  "issues": [],
+  "database_check": "별도 localhost 읽기 전용 점검 필요",
+  "model_loaded": false,
+  "executed": false,
+  "approval_pending": true,
+  "formal_ready": false
+}

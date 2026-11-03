@@ -1,0 +1,21 @@
+{
+  "checkpoint": "service_final",
+  "artifact_ids": [
+    "ac37a0d23d7a4ad9aab9ce5888a80e4f"
+  ],
+  "state_ref": {
+    "path": "artifacts/919b44478d5a470a952aafa1252e24fe.json",
+    "sha256": "081d91460602bb18c239440140d54b5a814edd213902e4cd3bc00f2e5ca3bf04"
+  },
+  "files": [
+    {
+      "source_key": "GS-01-IMG-002",
+      "target_id": 1,
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\objects\\f05d0bea7bf2d46a68cbe7750782c32513097c39098cc03e71fae2363d6ec87c",
+      "kind": "final_image",
+      "width": 1000,
+      "height": 37665,
+      "media_type": "image/png"
+    }
+  ]
+}

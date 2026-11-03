@@ -1,0 +1,151 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:17.745548+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_64",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_725",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_726",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_727",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_728",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_729",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_730",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_731",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_64",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "5eae0d407cc9155f32d0f76381b4ca09fb01c49762ca8b20d152273f8aaa6d5e",
+      "label_fingerprint": "e2f54ceee1c032fff1b95ee078ecc16578d1e749de62ac74da6d6405634c7c8b",
+      "label_input_fingerprint": "5eae0d407cc9155f32d0f76381b4ca09fb01c49762ca8b20d152273f8aaa6d5e",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 7,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 7,
+        "compared": 7
+      },
+      "decisions": [
+        {
+          "block_key": "blk_725",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "사용전꼭확인해주세요올바른레티날사용법가이드",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_726",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "4mm04g3주후매일사용",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_727",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "2mm02g2주간격일사용",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_728",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "적응단계별추천사용법에따라사용량을조금씩늘려주세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_729",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "적응이완료되면얼굴전체에발라주셔도좋습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_730",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "레티날사용한다음날아침에는자외선차단제를끔끔히발라주시면레티날제품을더효과적이고자극없이사용할수있어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_731",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "자극이지속된다면사용량과빈도를줄이고진정보습케어를충분히해주세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

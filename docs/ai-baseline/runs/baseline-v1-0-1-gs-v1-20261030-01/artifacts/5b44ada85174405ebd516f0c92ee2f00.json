@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:19.703842+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_11",
+      "section_key": "sec_50",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_647",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_648",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_649",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_650",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_651",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_11",
+      "section_key": "sec_50",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "1cd48bb7c8f424cef450a99abbfcf20ed58c0ffd518fca945b4bb08eb74d5ba1",
+      "label_fingerprint": "ff80a552b073019b402cb8cab07ce388a9190263dda1db231628889569f7d673",
+      "label_input_fingerprint": "1cd48bb7c8f424cef450a99abbfcf20ed58c0ffd518fca945b4bb08eb74d5ba1",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 5,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 5,
+        "compared": 5
+      },
+      "decisions": [
+        {
+          "block_key": "blk_647",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "깊어질수록강력한3단깊이탄력개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_648",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "1단깊이탄력+721증가",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_649",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "2단깊이탄력+738증가",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_650",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "3단깊이탄력+754증가",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_651",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷타이트닝부스터의피부3단깊이200300450mbar탄력개선에대한인체적용시험주스킨메드임상시험센터20240527~20240613성인남녀21명개인차있음위이미지는이해를돕기위해연출된이미지입니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

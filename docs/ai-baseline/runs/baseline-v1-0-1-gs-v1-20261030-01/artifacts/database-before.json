@@ -1,0 +1,30 @@
+{
+  "server_version": "16.15",
+  "schema": "0008",
+  "tables": {
+    "job": {
+      "count": 0,
+      "content_hash": null
+    },
+    "seller": {
+      "count": 0,
+      "content_hash": null
+    },
+    "brand": {
+      "count": 0,
+      "content_hash": null
+    },
+    "expression_dictionary": {
+      "count": 24,
+      "content_hash": "602414b210b027aa52b4624aaee5a572"
+    },
+    "expression_dictionary_evidence": {
+      "count": 16,
+      "content_hash": "03a8584d615f6cc6c09dcbbabe630edc"
+    },
+    "glossary": {
+      "count": 20653,
+      "content_hash": "c5815467f139d493056741ac0c3f514e"
+    }
+  }
+}

@@ -1,0 +1,857 @@
+{
+  "source_image": [
+    {
+      "id": 17,
+      "job_id": 3,
+      "upload_order": 1,
+      "image_type": "detail",
+      "file_url": "source/GS-03_001.jpg",
+      "width": 1000,
+      "height": 455,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c"
+    },
+    {
+      "id": 18,
+      "job_id": 3,
+      "upload_order": 2,
+      "image_type": "detail",
+      "file_url": "source/GS-03_002.jpg",
+      "width": 1000,
+      "height": 13425,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20"
+    },
+    {
+      "id": 19,
+      "job_id": 3,
+      "upload_order": 3,
+      "image_type": "detail",
+      "file_url": "source/GS-03_003.jpg",
+      "width": 1000,
+      "height": 540,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec"
+    },
+    {
+      "id": 20,
+      "job_id": 3,
+      "upload_order": 4,
+      "image_type": "detail",
+      "file_url": "source/GS-03_004.jpg",
+      "width": 1000,
+      "height": 1760,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b"
+    },
+    {
+      "id": 21,
+      "job_id": 3,
+      "upload_order": 5,
+      "image_type": "detail",
+      "file_url": "source/GS-03_005.jpg",
+      "width": 1000,
+      "height": 2040,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410"
+    },
+    {
+      "id": 22,
+      "job_id": 3,
+      "upload_order": 6,
+      "image_type": "detail",
+      "file_url": "source/GS-03_006.jpg",
+      "width": 1000,
+      "height": 679,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688"
+    },
+    {
+      "id": 23,
+      "job_id": 3,
+      "upload_order": 7,
+      "image_type": "detail",
+      "file_url": "source/GS-03_007.jpg",
+      "width": 1000,
+      "height": 710,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1"
+    },
+    {
+      "id": 24,
+      "job_id": 3,
+      "upload_order": 8,
+      "image_type": "detail",
+      "file_url": "source/GS-03_008.jpg",
+      "width": 1000,
+      "height": 1576,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c"
+    },
+    {
+      "id": 25,
+      "job_id": 3,
+      "upload_order": 9,
+      "image_type": "detail",
+      "file_url": "source/GS-03_009.jpg",
+      "width": 1000,
+      "height": 710,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9"
+    },
+    {
+      "id": 26,
+      "job_id": 3,
+      "upload_order": 10,
+      "image_type": "detail",
+      "file_url": "source/GS-03_010.jpg",
+      "width": 1000,
+      "height": 4700,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea"
+    },
+    {
+      "id": 27,
+      "job_id": 3,
+      "upload_order": 11,
+      "image_type": "detail",
+      "file_url": "source/GS-03_011.jpg",
+      "width": 1000,
+      "height": 1720,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d"
+    },
+    {
+      "id": 28,
+      "job_id": 3,
+      "upload_order": 12,
+      "image_type": "detail",
+      "file_url": "source/GS-03_012.jpg",
+      "width": 1000,
+      "height": 830,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f"
+    },
+    {
+      "id": 29,
+      "job_id": 3,
+      "upload_order": 13,
+      "image_type": "detail",
+      "file_url": "source/GS-03_013.jpg",
+      "width": 1000,
+      "height": 2350,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "4585ffd307e9ec9e5c042644c00d951f02d06679593569f091338c2fb2f33be0"
+    },
+    {
+      "id": 30,
+      "job_id": 3,
+      "upload_order": 14,
+      "image_type": "detail",
+      "file_url": "source/GS-03_014.jpg",
+      "width": 1000,
+      "height": 3352,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "3e658d865927409bbddb98f7ccabf47feeab615a13796d40a0b9545e96ad5a2f"
+    },
+    {
+      "id": 31,
+      "job_id": 3,
+      "upload_order": 15,
+      "image_type": "detail",
+      "file_url": "source/GS-03_015.jpg",
+      "width": 1000,
+      "height": 800,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "4251c02b6e935006f5d5848ebb846e1530b0d6fb31546999dea5a7224fd60e2a"
+    },
+    {
+      "id": 32,
+      "job_id": 3,
+      "upload_order": 16,
+      "image_type": "detail",
+      "file_url": "source/GS-03_016.jpg",
+      "width": 1000,
+      "height": 403,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "d2493815f7b7cc96cbed23b5b64b10c25b1aa7493abc7ff5c19d028bd4152b58"
+    },
+    {
+      "id": 33,
+      "job_id": 3,
+      "upload_order": 17,
+      "image_type": "detail",
+      "file_url": "source/GS-03_017.jpg",
+      "width": 1000,
+      "height": 960,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "3cec5ca60131774810cca56040d4775d9376a0ebc53073b218814dd6b5b51231"
+    },
+    {
+      "id": 34,
+      "job_id": 3,
+      "upload_order": 18,
+      "image_type": "detail",
+      "file_url": "source/GS-03_018.jpg",
+      "width": 1000,
+      "height": 10785,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "sha256": "d541ca2aee1d54dbd85b8ef5c434044cd8e05fe93cb58f667a189f72dc00c3be"
+    }
+  ],
+  "section": [],
+  "job_async_task": [
+    {
+      "id": 488,
+      "job_id": 3,
+      "task_type": "ocr",
+      "unit_type": "job",
+      "unit_id": 3,
+      "status": "failed",
+      "retry_count": 1,
+      "max_retry": 2,
+      "error_code": "ANALYZE_UNEXPECTED",
+      "error_message": "VlmError: LLM 호출 실패 model=gemini-3.8-flash: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}",
+      "started_at": "2026-10-30 11:15:08.629224+09:00",
+      "finished_at": "2026-10-30 11:28:07.024924+09:00",
+      "revision": null,
+      "execution_schema_version": 1,
+      "parent_task_id": 486,
+      "run_kind": null,
+      "run_scope": null,
+      "stage": "analyze",
+      "attempt_no": 2,
+      "is_current": false,
+      "supersedes_task_id": 487,
+      "retry_origin": "auto",
+      "lease_owner": "DESKTOP-PG9FMRQ:44488",
+      "lease_epoch": 1,
+      "lease_expires_at": null,
+      "heartbeat_at": "2026-10-30 11:28:04.623996+09:00",
+      "dispatch_count": 1,
+      "last_dispatched_at": "2026-10-30 11:15:08.624627+09:00",
+      "input_manifest": {
+        "stage": "analyze",
+        "job_id": 3,
+        "sources": [
+          {
+            "key": "source/GS-03_001.jpg",
+            "width": 1000,
+            "height": 455,
+            "sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+            "upload_order": 1,
+            "source_image_id": 17
+          },
+          {
+            "key": "source/GS-03_002.jpg",
+            "width": 1000,
+            "height": 13425,
+            "sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+            "upload_order": 2,
+            "source_image_id": 18
+          },
+          {
+            "key": "source/GS-03_003.jpg",
+            "width": 1000,
+            "height": 540,
+            "sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+            "upload_order": 3,
+            "source_image_id": 19
+          },
+          {
+            "key": "source/GS-03_004.jpg",
+            "width": 1000,
+            "height": 1760,
+            "sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+            "upload_order": 4,
+            "source_image_id": 20
+          },
+          {
+            "key": "source/GS-03_005.jpg",
+            "width": 1000,
+            "height": 2040,
+            "sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+            "upload_order": 5,
+            "source_image_id": 21
+          },
+          {
+            "key": "source/GS-03_006.jpg",
+            "width": 1000,
+            "height": 679,
+            "sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+            "upload_order": 6,
+            "source_image_id": 22
+          },
+          {
+            "key": "source/GS-03_007.jpg",
+            "width": 1000,
+            "height": 710,
+            "sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+            "upload_order": 7,
+            "source_image_id": 23
+          },
+          {
+            "key": "source/GS-03_008.jpg",
+            "width": 1000,
+            "height": 1576,
+            "sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+            "upload_order": 8,
+            "source_image_id": 24
+          },
+          {
+            "key": "source/GS-03_009.jpg",
+            "width": 1000,
+            "height": 710,
+            "sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+            "upload_order": 9,
+            "source_image_id": 25
+          },
+          {
+            "key": "source/GS-03_010.jpg",
+            "width": 1000,
+            "height": 4700,
+            "sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+            "upload_order": 10,
+            "source_image_id": 26
+          },
+          {
+            "key": "source/GS-03_011.jpg",
+            "width": 1000,
+            "height": 1720,
+            "sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+            "upload_order": 11,
+            "source_image_id": 27
+          },
+          {
+            "key": "source/GS-03_012.jpg",
+            "width": 1000,
+            "height": 830,
+            "sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f",
+            "upload_order": 12,
+            "source_image_id": 28
+          },
+          {
+            "key": "source/GS-03_013.jpg",
+            "width": 1000,
+            "height": 2350,
+            "sha256": "4585ffd307e9ec9e5c042644c00d951f02d06679593569f091338c2fb2f33be0",
+            "upload_order": 13,
+            "source_image_id": 29
+          },
+          {
+            "key": "source/GS-03_014.jpg",
+            "width": 1000,
+            "height": 3352,
+            "sha256": "3e658d865927409bbddb98f7ccabf47feeab615a13796d40a0b9545e96ad5a2f",
+            "upload_order": 14,
+            "source_image_id": 30
+          },
+          {
+            "key": "source/GS-03_015.jpg",
+            "width": 1000,
+            "height": 800,
+            "sha256": "4251c02b6e935006f5d5848ebb846e1530b0d6fb31546999dea5a7224fd60e2a",
+            "upload_order": 15,
+            "source_image_id": 31
+          },
+          {
+            "key": "source/GS-03_016.jpg",
+            "width": 1000,
+            "height": 403,
+            "sha256": "d2493815f7b7cc96cbed23b5b64b10c25b1aa7493abc7ff5c19d028bd4152b58",
+            "upload_order": 16,
+            "source_image_id": 32
+          },
+          {
+            "key": "source/GS-03_017.jpg",
+            "width": 1000,
+            "height": 960,
+            "sha256": "3cec5ca60131774810cca56040d4775d9376a0ebc53073b218814dd6b5b51231",
+            "upload_order": 17,
+            "source_image_id": 33
+          },
+          {
+            "key": "source/GS-03_018.jpg",
+            "width": 1000,
+            "height": 10785,
+            "sha256": "d541ca2aee1d54dbd85b8ef5c434044cd8e05fe93cb58f667a189f72dc00c3be",
+            "upload_order": 18,
+            "source_image_id": 34
+          }
+        ],
+        "analyzer": "pipeline.analyze@cfg:6ca536353bd206fc:llm=1",
+        "target_country": "US",
+        "regulatory_class": "cosmetic"
+      },
+      "input_fingerprint": "7da4b965a52fd1a1d2a1bad5235b87cdf5ac8c011df8092ab6133178e2045ab9",
+      "skip_reason": null,
+      "target_count": 18,
+      "cancelled_at": null
+    },
+    {
+      "id": 487,
+      "job_id": 3,
+      "task_type": "ocr",
+      "unit_type": "job",
+      "unit_id": 3,
+      "status": "failed",
+      "retry_count": 0,
+      "max_retry": 2,
+      "error_code": "ANALYZE_UNEXPECTED",
+      "error_message": "VlmError: LLM 호출 실패 model=gemini-3.8-flash: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}",
+      "started_at": "2026-10-30 11:03:21.557477+09:00",
+      "finished_at": "2026-10-30 11:15:08.609929+09:00",
+      "revision": null,
+      "execution_schema_version": 1,
+      "parent_task_id": 486,
+      "run_kind": null,
+      "run_scope": null,
+      "stage": "analyze",
+      "attempt_no": 1,
+      "is_current": false,
+      "supersedes_task_id": null,
+      "retry_origin": null,
+      "lease_owner": "DESKTOP-PG9FMRQ:44488",
+      "lease_epoch": 1,
+      "lease_expires_at": null,
+      "heartbeat_at": "2026-10-30 11:15:05.443576+09:00",
+      "dispatch_count": 1,
+      "last_dispatched_at": "2026-10-30 11:03:21.553612+09:00",
+      "input_manifest": {
+        "stage": "analyze",
+        "job_id": 3,
+        "sources": [
+          {
+            "key": "source/GS-03_001.jpg",
+            "width": 1000,
+            "height": 455,
+            "sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+            "upload_order": 1,
+            "source_image_id": 17
+          },
+          {
+            "key": "source/GS-03_002.jpg",
+            "width": 1000,
+            "height": 13425,
+            "sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+            "upload_order": 2,
+            "source_image_id": 18
+          },
+          {
+            "key": "source/GS-03_003.jpg",
+            "width": 1000,
+            "height": 540,
+            "sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+            "upload_order": 3,
+            "source_image_id": 19
+          },
+          {
+            "key": "source/GS-03_004.jpg",
+            "width": 1000,
+            "height": 1760,
+            "sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+            "upload_order": 4,
+            "source_image_id": 20
+          },
+          {
+            "key": "source/GS-03_005.jpg",
+            "width": 1000,
+            "height": 2040,
+            "sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+            "upload_order": 5,
+            "source_image_id": 21
+          },
+          {
+            "key": "source/GS-03_006.jpg",
+            "width": 1000,
+            "height": 679,
+            "sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+            "upload_order": 6,
+            "source_image_id": 22
+          },
+          {
+            "key": "source/GS-03_007.jpg",
+            "width": 1000,
+            "height": 710,
+            "sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+            "upload_order": 7,
+            "source_image_id": 23
+          },
+          {
+            "key": "source/GS-03_008.jpg",
+            "width": 1000,
+            "height": 1576,
+            "sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+            "upload_order": 8,
+            "source_image_id": 24
+          },
+          {
+            "key": "source/GS-03_009.jpg",
+            "width": 1000,
+            "height": 710,
+            "sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+            "upload_order": 9,
+            "source_image_id": 25
+          },
+          {
+            "key": "source/GS-03_010.jpg",
+            "width": 1000,
+            "height": 4700,
+            "sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+            "upload_order": 10,
+            "source_image_id": 26
+          },
+          {
+            "key": "source/GS-03_011.jpg",
+            "width": 1000,
+            "height": 1720,
+            "sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+            "upload_order": 11,
+            "source_image_id": 27
+          },
+          {
+            "key": "source/GS-03_012.jpg",
+            "width": 1000,
+            "height": 830,
+            "sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f",
+            "upload_order": 12,
+            "source_image_id": 28
+          },
+          {
+            "key": "source/GS-03_013.jpg",
+            "width": 1000,
+            "height": 2350,
+            "sha256": "4585ffd307e9ec9e5c042644c00d951f02d06679593569f091338c2fb2f33be0",
+            "upload_order": 13,
+            "source_image_id": 29
+          },
+          {
+            "key": "source/GS-03_014.jpg",
+            "width": 1000,
+            "height": 3352,
+            "sha256": "3e658d865927409bbddb98f7ccabf47feeab615a13796d40a0b9545e96ad5a2f",
+            "upload_order": 14,
+            "source_image_id": 30
+          },
+          {
+            "key": "source/GS-03_015.jpg",
+            "width": 1000,
+            "height": 800,
+            "sha256": "4251c02b6e935006f5d5848ebb846e1530b0d6fb31546999dea5a7224fd60e2a",
+            "upload_order": 15,
+            "source_image_id": 31
+          },
+          {
+            "key": "source/GS-03_016.jpg",
+            "width": 1000,
+            "height": 403,
+            "sha256": "d2493815f7b7cc96cbed23b5b64b10c25b1aa7493abc7ff5c19d028bd4152b58",
+            "upload_order": 16,
+            "source_image_id": 32
+          },
+          {
+            "key": "source/GS-03_017.jpg",
+            "width": 1000,
+            "height": 960,
+            "sha256": "3cec5ca60131774810cca56040d4775d9376a0ebc53073b218814dd6b5b51231",
+            "upload_order": 17,
+            "source_image_id": 33
+          },
+          {
+            "key": "source/GS-03_018.jpg",
+            "width": 1000,
+            "height": 10785,
+            "sha256": "d541ca2aee1d54dbd85b8ef5c434044cd8e05fe93cb58f667a189f72dc00c3be",
+            "upload_order": 18,
+            "source_image_id": 34
+          }
+        ],
+        "analyzer": "pipeline.analyze@cfg:6ca536353bd206fc:llm=1",
+        "target_country": "US",
+        "regulatory_class": "cosmetic"
+      },
+      "input_fingerprint": "7da4b965a52fd1a1d2a1bad5235b87cdf5ac8c011df8092ab6133178e2045ab9",
+      "skip_reason": null,
+      "target_count": 18,
+      "cancelled_at": null
+    },
+    {
+      "id": 489,
+      "job_id": 3,
+      "task_type": "ocr",
+      "unit_type": "job",
+      "unit_id": 3,
+      "status": "failed",
+      "retry_count": 2,
+      "max_retry": 2,
+      "error_code": "ANALYZE_UNEXPECTED",
+      "error_message": "VlmError: LLM 호출 실패 model=gemini-3.8-flash: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}",
+      "started_at": "2026-10-30 11:28:07.047720+09:00",
+      "finished_at": "2026-10-30 11:36:36.098268+09:00",
+      "revision": null,
+      "execution_schema_version": 1,
+      "parent_task_id": 486,
+      "run_kind": null,
+      "run_scope": null,
+      "stage": "analyze",
+      "attempt_no": 3,
+      "is_current": true,
+      "supersedes_task_id": 488,
+      "retry_origin": "auto",
+      "lease_owner": "DESKTOP-PG9FMRQ:44488",
+      "lease_epoch": 1,
+      "lease_expires_at": null,
+      "heartbeat_at": "2026-10-30 11:36:09.593645+09:00",
+      "dispatch_count": 1,
+      "last_dispatched_at": "2026-10-30 11:28:07.045112+09:00",
+      "input_manifest": {
+        "stage": "analyze",
+        "job_id": 3,
+        "sources": [
+          {
+            "key": "source/GS-03_001.jpg",
+            "width": 1000,
+            "height": 455,
+            "sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+            "upload_order": 1,
+            "source_image_id": 17
+          },
+          {
+            "key": "source/GS-03_002.jpg",
+            "width": 1000,
+            "height": 13425,
+            "sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+            "upload_order": 2,
+            "source_image_id": 18
+          },
+          {
+            "key": "source/GS-03_003.jpg",
+            "width": 1000,
+            "height": 540,
+            "sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+            "upload_order": 3,
+            "source_image_id": 19
+          },
+          {
+            "key": "source/GS-03_004.jpg",
+            "width": 1000,
+            "height": 1760,
+            "sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+            "upload_order": 4,
+            "source_image_id": 20
+          },
+          {
+            "key": "source/GS-03_005.jpg",
+            "width": 1000,
+            "height": 2040,
+            "sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+            "upload_order": 5,
+            "source_image_id": 21
+          },
+          {
+            "key": "source/GS-03_006.jpg",
+            "width": 1000,
+            "height": 679,
+            "sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+            "upload_order": 6,
+            "source_image_id": 22
+          },
+          {
+            "key": "source/GS-03_007.jpg",
+            "width": 1000,
+            "height": 710,
+            "sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+            "upload_order": 7,
+            "source_image_id": 23
+          },
+          {
+            "key": "source/GS-03_008.jpg",
+            "width": 1000,
+            "height": 1576,
+            "sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+            "upload_order": 8,
+            "source_image_id": 24
+          },
+          {
+            "key": "source/GS-03_009.jpg",
+            "width": 1000,
+            "height": 710,
+            "sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+            "upload_order": 9,
+            "source_image_id": 25
+          },
+          {
+            "key": "source/GS-03_010.jpg",
+            "width": 1000,
+            "height": 4700,
+            "sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+            "upload_order": 10,
+            "source_image_id": 26
+          },
+          {
+            "key": "source/GS-03_011.jpg",
+            "width": 1000,
+            "height": 1720,
+            "sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+            "upload_order": 11,
+            "source_image_id": 27
+          },
+          {
+            "key": "source/GS-03_012.jpg",
+            "width": 1000,
+            "height": 830,
+            "sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f",
+            "upload_order": 12,
+            "source_image_id": 28
+          },
+          {
+            "key": "source/GS-03_013.jpg",
+            "width": 1000,
+            "height": 2350,
+            "sha256": "4585ffd307e9ec9e5c042644c00d951f02d06679593569f091338c2fb2f33be0",
+            "upload_order": 13,
+            "source_image_id": 29
+          },
+          {
+            "key": "source/GS-03_014.jpg",
+            "width": 1000,
+            "height": 3352,
+            "sha256": "3e658d865927409bbddb98f7ccabf47feeab615a13796d40a0b9545e96ad5a2f",
+            "upload_order": 14,
+            "source_image_id": 30
+          },
+          {
+            "key": "source/GS-03_015.jpg",
+            "width": 1000,
+            "height": 800,
+            "sha256": "4251c02b6e935006f5d5848ebb846e1530b0d6fb31546999dea5a7224fd60e2a",
+            "upload_order": 15,
+            "source_image_id": 31
+          },
+          {
+            "key": "source/GS-03_016.jpg",
+            "width": 1000,
+            "height": 403,
+            "sha256": "d2493815f7b7cc96cbed23b5b64b10c25b1aa7493abc7ff5c19d028bd4152b58",
+            "upload_order": 16,
+            "source_image_id": 32
+          },
+          {
+            "key": "source/GS-03_017.jpg",
+            "width": 1000,
+            "height": 960,
+            "sha256": "3cec5ca60131774810cca56040d4775d9376a0ebc53073b218814dd6b5b51231",
+            "upload_order": 17,
+            "source_image_id": 33
+          },
+          {
+            "key": "source/GS-03_018.jpg",
+            "width": 1000,
+            "height": 10785,
+            "sha256": "d541ca2aee1d54dbd85b8ef5c434044cd8e05fe93cb58f667a189f72dc00c3be",
+            "upload_order": 18,
+            "source_image_id": 34
+          }
+        ],
+        "analyzer": "pipeline.analyze@cfg:6ca536353bd206fc:llm=1",
+        "target_country": "US",
+        "regulatory_class": "cosmetic"
+      },
+      "input_fingerprint": "7da4b965a52fd1a1d2a1bad5235b87cdf5ac8c011df8092ab6133178e2045ab9",
+      "skip_reason": null,
+      "target_count": 18,
+      "cancelled_at": null
+    },
+    {
+      "id": 486,
+      "job_id": 3,
+      "task_type": "ocr",
+      "unit_type": "job",
+      "unit_id": 3,
+      "status": "failed",
+      "retry_count": 0,
+      "max_retry": 0,
+      "error_code": "ANALYZE_UNEXPECTED",
+      "error_message": "VlmError: LLM 호출 실패 model=gemini-3.8-flash: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}",
+      "started_at": "2026-10-30 11:03:21.547410+09:00",
+      "finished_at": "2026-10-30 11:36:36.098268+09:00",
+      "revision": null,
+      "execution_schema_version": 1,
+      "parent_task_id": null,
+      "run_kind": "analysis",
+      "run_scope": {
+        "target_country": "US",
+        "regulatory_class": "cosmetic",
+        "source_image_ids": [
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34
+        ]
+      },
+      "stage": null,
+      "attempt_no": null,
+      "is_current": true,
+      "supersedes_task_id": null,
+      "retry_origin": null,
+      "lease_owner": null,
+      "lease_epoch": 0,
+      "lease_expires_at": null,
+      "heartbeat_at": null,
+      "dispatch_count": 0,
+      "last_dispatched_at": null,
+      "input_manifest": null,
+      "input_fingerprint": null,
+      "skip_reason": null,
+      "target_count": null,
+      "cancelled_at": null
+    }
+  ],
+  "task_handoff": [],
+  "task_artifact": [],
+  "deliverable": [],
+  "text_block": [],
+  "section_verdict": [],
+  "deliverable_section": [],
+  "job": [
+    {
+      "id": 3,
+      "seller_id": 3,
+      "brand_id": 3,
+      "parent_job_id": null,
+      "status": "failed",
+      "current_step": "N2",
+      "user_facing_status": "failed",
+      "target_country": "US",
+      "regulatory_class": "cosmetic",
+      "target_lang": "en",
+      "spec_type": "original",
+      "channel_spec_id": null,
+      "display_category_id": null,
+      "internal_category": "common",
+      "image_type": null,
+      "is_saved": false,
+      "saved_at": null,
+      "expire_at": null,
+      "created_at": "2026-10-30 11:03:21.192108+09:00",
+      "updated_at": "2026-10-30 11:36:36.098268+09:00",
+      "product_name": "b3+ 브라이트닝 세럼 톤 코렉팅 미백 톤업 바디로션",
+      "product_code": null,
+      "current_analysis_task_id": null
+    }
+  ]
+}

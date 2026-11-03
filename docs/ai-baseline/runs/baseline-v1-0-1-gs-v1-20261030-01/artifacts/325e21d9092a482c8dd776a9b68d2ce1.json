@@ -1,0 +1,81 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:56:42.123672+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_725",
+        "outcome": "completed",
+        "translation": "Please read before use.\nGuide to Using Retinal Correctly",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_726",
+        "outcome": "completed",
+        "translation": "4mm (0.4g)\nUse daily after 3 weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_727",
+        "outcome": "completed",
+        "translation": "2mm (0.2g)\nUse every other day for 2 weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_728",
+        "outcome": "completed",
+        "translation": "Gradually increase the amount according to the recommended usage for each adaptation stage.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_729",
+        "outcome": "completed",
+        "translation": "Once your skin has adapted, you can apply it all over your face.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_730",
+        "outcome": "completed",
+        "translation": "Applying sunscreen thoroughly the morning after using retinal helps you use retinal products more effectively and without irritation.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_731",
+        "outcome": "completed",
+        "translation": "If irritation persists, reduce the amount and frequency of use, and provide ample soothing and moisturizing care.",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "cd29eee710a48bd9f08ec94df9810c34ead27b9bfca2568ffb9647777c30fbf2",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "51a4fd04181f22d749fa85161bac7d8cafe8f77f75c91a3475f0165ec1cd434a",
+      "usage": {
+        "candidates_token_count": 173,
+        "prompt_token_count": 990,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 990
+          }
+        ],
+        "thoughts_token_count": 993,
+        "total_token_count": 2156
+      }
+    }
+  ],
+  "seconds": 10.125
+}

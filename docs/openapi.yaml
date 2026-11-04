@@ -36,8 +36,18 @@ info:
     - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
     - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
     - **멱등·동시성**: `POST /jobs`는 `Idempotency-Key` 헤더 · `PATCH /jobs/{jobId}/blocks/{blockId}`는 `revision` 낙관적 잠금(409 REVISION_CONFLICT).
+      블록·섹션 PATCH의 `Idempotency-Key`·섹션 revision·처리 순서는 [PRD v3.5.10 · BE 계약안](blockPatch 설명 「저장 공통」).
     - **비동기**: `/analyze`·`/sections/proceed`·`/render`·`PATCH /blocks` 등은 202 + taskId를 반환하고, 진행은 `GET /jobs/{jobId}/tasks` 폴링(2초).
     - **파생 필드**: `verdictType`·`displayTop`·`scale`·`signals[]`·`uiStatus`·`stages[]` 등은 응답에만 포함(서버 계산·미저장).
+
+    ## 2차 통합(PRD v3.5.10) 반영 — 진행 중
+    이 명세의 기준 버전(3.4.2)은 아직 바꾸지 않았다. PRD v3.5.10·실행계획 v3.5.10 2차 범위 중 **합의된 규칙만** 해당 오퍼레이션·스키마
+    설명에 `[PRD v3.5.10 · 계약 확정]`으로 표시해 반영한다. 서버가 아직 따르지 않으면 `· 구현 대기`를 붙인다.
+    FE가 필드 설계를 BE에 맡긴 항목(`/preview` 렌더 입력·시도·결과)은 `[PRD v3.5.10 · BE 계약안]`으로 스키마·예시까지 넣되,
+    AI 합의가 필요한 내부 값은 후보로 표시한다.
+    FE·AI가 BE에 구체안을 요청한 저장 공통(멱등·처리 순서)·섹션 제외·복원·블록 배치·검사 연결 경계도 `[PRD v3.5.10 · BE 계약안]`으로
+    스키마·예시까지 넣되, 합의 전이므로 확인할 담당자(FE·AI·PM 확인)를 함께 적는다. 예시 이름·요약에 `BE 계약안`이 붙은 것은 정본 확정값이 아니다.
+    그 밖에 협의 중인 것은 "협의 중(미확정)"으로만 적는다. 반영 현황표·확인 질문은 `docs/README.md` 7절.
   contact:
     name: Pixate Backend
 servers:
@@ -104,6 +114,16 @@ components:
       in: path
       required: true
       schema: { type: integer, format: int64 }
+    EditIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[!-~]+$' }
+      description: >
+        [PRD v3.5.10 · 계약 확정(FE) · 구현 대기] 블록·섹션 PATCH 저장 재전송의 멱등 키 — 규칙은 blockPatch 설명 「저장 공통」.
+        FE 합의: 사용자 조작마다 새 키, 같은 조작의 통신 재시도는 같은 키·같은 요청 본문. 형식 = 공백 없는 ASCII 1~128자(UUID v4 권장), 어기면 422(요청 형식 오류).
+        적용 순서(계약안): 서버가 먼저 키를 받아 처리하고 키 없는 요청은 지금처럼 멱등 보장 없이 처리 → FE 적용 확인 뒤 필수(키 없으면 422). 필수화 시점은 FE 확인.
+        섹션 PATCH에 이 키를 보내면 `revision`도 함께 보내야 한다(없으면 422) — 기록 만료 뒤 재전송을 revision이 막도록(sectionPatch 설명).
 
   responses:
     BadRequest:
@@ -419,7 +439,25 @@ components:
             details:
               type: [object, 'null']
               additionalProperties: true
-              description: 코드별 부가 정보 (예 REVISION_CONFLICT → { current })
+              description: >
+                코드별 부가 정보 (예 REVISION_CONFLICT → { current }).
+                [PRD v3.5.10 · 구현 대기] **409 구분** — `error.code` + `details.reason` 조합(15종 enum은 늘리지 않는다). 아래 목록의 조합과 `check_not_settled`의 `registeredBlockIds`는
+                **FE 확정(11-04)**. 이후 새로 제안하는 사유는 일괄 승인이 아니라 따로 확인한다(`boundary_check_in_progress`·`boundary_check_missing`은 그런 후보다):
+                REVISION_CONFLICT(reason 없음) → `details.current` 최신 대상으로 교체 /
+                DUPLICATE `idempotency_key_reused` → 같은 키를 다른 요청에 썼음(FE 키 관리 오류) — 재조회 /
+                INVALID_STATE `job_not_editable` → 작업이 그 단계가 아님(N5 아님·취소 등) — 작업 재조회 /
+                INVALID_STATE `not_render_target` → 그리지 않는 블록의 배치 저장 /
+                INVALID_STATE `n3_excluded_section` → N5에서 N3 제외 섹션 복원 /
+                INVALID_STATE `restore_basis_missing` → 최초 판정 기록 없는 직접 제외 섹션 복원(PM-R8 결정 전) /
+                INVALID_STATE `check_not_settled` → 검사 미종료, `details.blocks: [{blockId, state}]`, 이 요청이 검사를 새로 등록한 블록은 `details.registeredBlockIds` — 검사 상태 재조회 /
+                INVALID_STATE `acknowledgement_mismatch` → 확인 목록이 서버의 미해결 집합과 다름, `details.warnings`(·`details.sections`) = 서버 집합 — 확인창 갱신 /
+                INVALID_STATE `acknowledgement_outdated` → 확인 기준(`inputKey`·섹션 실패 task)이 현재와 다름, `details.warnings` = 서버 집합 — 최신 검사 결과 재조회 후 확인창 갱신 /
+                INVALID_STATE `image_boundary_exceeded` → 이미지 경계 이탈로 확정 차단(Q-07, 확인으로 풀 수 없음), `details.blocks`, `details.basis`(current = 현재 입력 판정 · last_completed = 현재 판정이 없거나 실패해 마지막 완료 판정) /
+                INVALID_STATE `boundary_check_in_progress`(후보) → 현재 입력의 경계 판정 진행 중 / `boundary_check_missing`(후보 — PM 미결) → 완료 판정이 한 번도 없음 /
+                INVALID_STATE `legacy_renderer` → 렌더러 전환 이전 작업 차단(PM-R0 결정 뒤) /
+                ALL_SECTIONS_EXCLUDED·RETRY_NOT_ALLOWED → 현행 그대로.
+                현행 서버의 INVALID_STATE는 `details.reason`이 없다 — 추가 필드라 호환되며, reason이 없으면 FE는 일반 상태 오류로 처리한다.
+                요청 형식 오류(422 VALIDATION_ERROR — 현행 FastAPI 처리)와 업무 검증 실패(400 VALIDATION_ERROR)는 둘 다 `details.fields: [{loc, msg}]`.
             traceId: { type: string, description: '서버 추적 ID' }
     AcceptedTask:
       type: object
@@ -509,7 +547,11 @@ components:
       type: string
       description: >
         확인 필요 신호 코드 (원천 10 · 화면 8). admin 2종(low_ocr_confidence·inpaint_residual_flag)은
-        서버가 셀러 응답 signals[]에서 제외.
+        서버가 셀러 응답 signals[]에서 제외. 이 값 공간은 HTTP `error.code`와 다르다.
+        [PRD v3.5.10 · BE 계약안 · AI·FE 확인] `check_failed` = 현재 입력의 번역문 검사가 최종 실패한 블록(「⚠ 검사하지 못했습니다」, PRD F-CFM-09 ②) — 3.4.2에 없는 후보 값이다.
+        규칙 검사는 금지(regulated)와 조건부(conditional) 매칭을 모두 regulatory flag로 남기되 판정 상태·사전 ID·위치를 따로 보존한다(AI A9).
+        **확정(FE·PM 11-04)**: 공통 코드 `prohibited_expression`에 판정 구분 `ReviewSignal.regulationVerdict`(regulated | conditional)를 더한다 — 필드 이름·값은 BE 계약안.
+        표시명은 regulated = 「금지 표현」, conditional = 「조건부 규제」이고, 조건부에는 사전의 허용 조건을 `reason`으로 준다.
       enum:
         - prohibited_expression
         - mandatory_term_unapplied
@@ -519,6 +561,7 @@ components:
         - width_overflow
         - low_ocr_confidence
         - inpaint_residual_flag
+        - check_failed
 
     # ===== 파생·공통 DTO =====
     ReviewSignal:
@@ -530,7 +573,13 @@ components:
         reason: { type: [string, 'null'] }
         basisArticle: { type: [string, 'null'], description: '조문 식별자만 (전문 미수록, OI-58)' }
         evidenceUrl: { type: [string, 'null'], format: uri, description: 'presigned, 만료 5분' }
-        taskId: { type: [integer, 'null'], format: int64, description: 'translation_failed 신호에 동봉' }
+        taskId: { type: [integer, 'null'], format: int64, description: 'translation_failed 신호에 동봉 — 이 블록을 실패시킨 현재 번역 시도' }
+        regulationVerdict:
+          type: [string, 'null']
+          enum: [regulated, conditional, null]
+          description: >
+            [PRD v3.5.10 · BE 계약안 · 구현 대기] `prohibited_expression`의 판정 구분(FE·PM 11-04 — 공통 코드 + 판정 구분 방식 확정, 필드 이름·값은 계약안).
+            regulated = 「금지 표현」, conditional = 「조건부 규제」(사전의 허용 조건을 `reason`에). AI 규칙 검사 flag의 사전 판정 상태(`dictionary_verdict_status`)에서 채운다. 다른 코드에서는 null
         retryable: { type: [boolean, 'null'], description: 'translation_failed 신호에 동봉' }
     AutoAdjust:
       type: object
@@ -581,7 +630,7 @@ components:
         agreed: { type: boolean, description: '책임 한계 동의(true)' }
     ConsentResponse:
       type: object
-      description: 'consentId를 JOB-02 바디에 넣어 작업과 연결'
+      description: '(3.4.2 계약: consentId를 JOB-02 바디에 넣어 작업과 연결) [PRD v3.5.10] 사용하지 않음 — consentCreate 설명'
       properties:
         consentId: { type: integer, format: int64 }
         consentType: { type: string }
@@ -699,10 +748,20 @@ components:
         targetLanguage: { type: string }
         specType: { $ref: '#/components/schemas/SpecType' }
         channelSpecId: { type: [integer, 'null'], format: int64 }
-        categoryId: { type: integer, format: int64 }
+        categoryId:
+          type: integer
+          format: int64
+          description: >
+            카테고리 마스터(MST-04)의 id. [PRD v3.5.10 · 계약 확정 · 구현 대기] 더 펼칠 것이 없는 항목(leaf — 소분류, 또는 소분류가 없는 중분류)만
+            허용한다(F-SRC-04 J41②). 검증 실패 응답 형식과 analyze 게이트의 필수 검사 적용 시점(FE 입력 연결 — 3차)은 협의 중(미확정).
         keywords: { type: array, items: { type: string } }
         imageType: { $ref: '#/components/schemas/ImageContinuity' }
-        consentId: { type: integer, format: int64, description: 'AUTH-05 응답값(본인·미사용 검증 후 연결)' }
+        consentId:
+          type: integer
+          format: int64
+          description: >
+            [PRD v3.5.10] 사용하지 않는다 — 서버는 저장하지 않는다(현행과 같음). 동의 시각은 작업 생성 시각으로 본다(F-ACC-04) —
+            단 동의 체크가 [다음]의 필수 조건으로 적용된 뒤부터다(전제·현재 상태는 jobCreate 설명). 필드·POST /consents의 제거 여부는 협의 중(미확정).
     JobPatch:
       type: object
       description: >
@@ -712,16 +771,27 @@ components:
         productName: { type: [string, 'null'], description: 'F-SRC-11' }
         productCode: { type: [string, 'null'] }
         targetCountry: { type: [string, 'null'] }
-        regulatoryClass: { oneOf: [ { $ref: '#/components/schemas/RegulatoryClass' }, { type: 'null' } ] }
+        regulatoryClass:
+          oneOf: [ { $ref: '#/components/schemas/RegulatoryClass' }, { type: 'null' } ]
+          description: >
+            [PRD v3.5.10 · 정책 확정(PM 11-04) · 필드는 새 규제사전(F 묶음) 계약에서] OTC 종류와의 관계 — OTC·복합 → 화장품·잘 모름으로 바꾸면 OTC 종류를 지운다.
+            OTC ↔ 복합 사이 변경은 OTC 종류를 유지한다. 국가를 바꾸면 규제 분류와 OTC 종류를 다시 고른다.
+            임시 M020: OTC·복합이면서 OTC 종류가 없는 작업에 실제로 저장한다(기존 작업 포함, 화장품·잘 모름에는 적용하지 않음). 3차 필수 선택을 도입하면 새 임시 적용은 끝내고
+            이미 저장한 M020은 유지한다(적용 대상·종료 조건은 PM 승인 — 다시 묻지 않는다).
+            기존 작업에 M020을 기록할 때(AI 동의 11-04): 실제로 소비하는 사전 행이 바뀌면 영향받는 기존 결과를 무효화하고 필요한 검사를 등록한다.
+            기존 실행의 고정 사전 묶음은 덮어쓰지 않고, 바뀐 적용값·정책 버전·근거를 기록한다. 선행 규제 판정·번역에 주는 영향은 AI가 확인한다. 실제 백필 실행은 별도 승인이다.
         targetLanguage: { type: [string, 'null'] }
         specType:
           allOf: [ { $ref: '#/components/schemas/SpecType' } ]
           description: 'null 불가(400 VALIDATION_ERROR) — 생략하면 기존 값 유지. 1.0.0 은 original 만 사용(2026-10-14 결정)'
         channelSpecId: { type: [integer, 'null'], format: int64 }
-        categoryId: { type: [integer, 'null'], format: int64 }
+        categoryId:
+          type: [integer, 'null']
+          format: int64
+          description: '카테고리 마스터 id. [PRD v3.5.10 · 계약 확정 · 구현 대기] leaf 항목만 허용(JobCreate.categoryId와 같음). 검증 실패 응답 형식·필수 적용 시점은 협의 중.'
         keywords: { type: array, items: { type: string }, description: '보내면 전체 교체. null 불가' }
         imageType: { oneOf: [ { $ref: '#/components/schemas/ImageContinuity' }, { type: 'null' } ] }
-        consentId: { type: [integer, 'null'], format: int64, description: 'AUTH-05 응답값' }
+        consentId: { type: [integer, 'null'], format: int64, description: '[PRD v3.5.10] 사용하지 않음(서버 미저장). 동의 시각은 동의 체크가 [다음]의 필수 조건으로 적용된 뒤부터 작업 생성 시각으로 본다(F-ACC-04, jobCreate 설명). 제거 여부는 협의 중.' }
     Job:
       type: object
       description: 'ERD job — 상태 + N1 입력값 전체'
@@ -940,7 +1010,7 @@ components:
       description: 'ERD section'
       properties:
         id: { type: integer, format: int64 }
-        sectionOrder: { type: integer }
+        sectionOrder: { type: integer, description: '원본 세로 순서. N3 목록은 버킷과 관계없이 이 순서로 보인다(PRD v3.5.10 F-SEC-02 — 응답의 두 배열을 합쳐 정렬)' }
         sourceImageId: { type: integer, format: int64 }
         topOffset: { type: [integer, 'null'], description: '원본 이미지 내 세로 좌표(px). N5 스택엔 displayTop 사용' }
         displayTop: { type: [integer, 'null'], description: '서버 계산·미저장 (Σ 앞선 include 섹션 height)' }
@@ -954,14 +1024,25 @@ components:
         warningBadge: { oneOf: [ { $ref: '#/components/schemas/WarningBadge' }, { type: 'null' } ] }
         verdicts:
           type: array
-          description: '판정 목록 (정렬 불변식 regulated→policy→irrelevant→needs_fix→conditional, 같은 값은 id 순). 제외 버킷만 전체 노출 — 목록(sectionList)의 포함 섹션은 빈 배열, 상세(SEC-02)는 판정 근거 전체.'
+          description: >
+            판정 목록 (정렬 불변식 regulated→policy→irrelevant→needs_fix→conditional, 같은 값은 id 순).
+            **[PRD v3.5.10 · 계약 확정 · 구현 대기]** 목록(sectionList)도 버킷과 관계없이 그 섹션에 달린 판정 전부를 싣는다 —
+            포함 섹션도 배지·판정 목록을 보인다(F-SEC-02 J74④ · F-SEC-04 J76⑤). 상세(SEC-02)는 판정 근거 전체.
+            현재 서버(f85b23e)는 목록의 포함 섹션을 빈 배열로 반환한다(구현 차이).
           items: { $ref: '#/components/schemas/SectionVerdict' }
         signals:
           type: array
           items: { $ref: '#/components/schemas/ReviewSignal' }
+        revision:
+          type: integer
+          description: >
+            [PRD v3.5.10 · BE 계약안 · 구현 대기] 섹션 낙관적 잠금 버전(섹션 revision 사용은 FE 합의). 포함 상태(`bucket`·`exclusionReason`·`excludedStage`)가
+            실제로 바뀔 때만 +1 — 판정·배지·인페인트 같은 파이프라인 값은 올리지 않는다. 기존 섹션은 0부터.
     SectionList:
       type: object
-      description: '버킷 2단 (제외=판정 목록 / 포함=썸네일만)'
+      description: >
+        버킷 2단. 두 배열 모두 섹션마다 판정 목록 전부를 싣는다([PRD v3.5.10 · 계약 확정 · 구현 대기] — 현재 서버는 포함 섹션 빈 배열).
+        화면의 원래 순서 목록은 두 배열을 합쳐 `sectionOrder`로 정렬한다(단일 배열 응답은 협의안 — 미확정).
       properties:
         exclude:
           type: array
@@ -972,9 +1053,15 @@ components:
     SectionPatch:
       type: object
       required: [action]
-      description: 'N3(드래그)·N5(휴지통 F-CFM-14) 공용. excludedStage는 서버가 currentStep으로 기록.'
+      description: 'N3(섹션 카드 버튼 — PRD v3.5.10 F-SEC-03)·N5(F-CFM-14) 공용. excludedStage는 서버가 currentStep으로 기록. 복원 의미는 sectionPatch 설명.'
       properties:
         action: { type: string, enum: [restore, exclude] }
+        revision:
+          type: integer
+          description: >
+            [PRD v3.5.10 · BE 계약안 · 구현 대기] 현재 섹션 revision. 다르면 409 REVISION_CONFLICT(`details.current` = 최신 Section).
+            적용 순서(계약안): `Idempotency-Key`가 있는 요청은 처음부터 필수(없으면 422) — 키 없는 요청만 생략 허용(충돌 검사·멱등 보장 없음, 현행 FE 호환) →
+            FE 적용 뒤 모든 요청에서 필수.
     InpaintResult:
       type: object
       properties:
@@ -998,34 +1085,156 @@ components:
         sourceKo: { type: [string, 'null'] }
         trans1: { type: [string, 'null'] }
         trans2: { type: [string, 'null'], description: '9월 null' }
-        blockStatus: { $ref: '#/components/schemas/BlockStatus' }
+        blockStatus:
+          allOf: [ { $ref: '#/components/schemas/BlockStatus' } ]
+          description: >
+            「사용자수정」 표시(F-CFM-02a). `edited`는 **번역문이 바뀐 저장**에서만 된다.
+            [PRD v3.5.10 · 계약 확정] 배치(박스·글자 배율)만 바꾼 저장은 이 값을 바꾸지 않는다(배치 저장 필드는 협의 중 — 미확정).
         bbox: { oneOf: [ { $ref: '#/components/schemas/Bbox' }, { type: 'null' } ] }
         charCount: { type: [integer, 'null'] }
         charLimit: { type: [integer, 'null'], description: '항상 필드 포함, 상한 없으면 null' }
-        overflow: { type: boolean }
+        overflow:
+          type: boolean
+          description: >
+            마지막으로 채택된 미리보기 결과의 측정값 — 현재 입력과 다를 수 있다(편집 직후·렌더 중·실패·스타일만 바뀐 경우).
+            [PRD v3.5.10 · 계약 확정(FE)] 기존 호환을 위해 유지하되 넘침 판정에는 쓰지 않는다 — 판정은 /preview `render.result.overflow`.
         autoAdjust: { oneOf: [ { $ref: '#/components/schemas/AutoAdjust' }, { type: 'null' } ] }
         signals:
           type: array
           items: { $ref: '#/components/schemas/ReviewSignal' }
         alternativeExpression: { type: [string, 'null'] }
         revision: { type: integer, description: '낙관적 잠금 버전' }
+        layoutAdjust:
+          oneOf: [ { $ref: '#/components/schemas/LayoutAdjust' }, { type: 'null' } ]
+          description: >
+            [PRD v3.5.10 · BE 계약안 · 구현 대기] 저장된 셀러 배치 조정(F-CFM-15, 2차). null = 셀러 조정 없음. 원본 `bbox`는 바뀌지 않는다.
+            적용 박스·배율의 정본은 /preview `renderInput`이다(3차 시스템 조정이 들어와도 FE가 우선순위를 계산하지 않게).
+            합의되면 항상 제공(required)으로 바꾼다 — 지금은 확정 예시(blockPatch changed 등)를 바꾸지 않으려고 넣지 않았다.
+        systemAdjust:
+          type: [object, 'null']
+          description: '[PRD v3.5.10 · BE 계약안] 시스템 자동 조정(F-TRN-04 — 3차) 자리. 2차는 항상 null이며 요청으로 받지 않는다(요청 키가 있으면 422). 구조는 3차에 정한다.'
+        sectionInputFingerprint:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{64}$'
+          description: >
+            [PRD v3.5.10 · 계약 확정(FE 11-04) · 구현 대기] 이 블록이 속한 섹션의 **현재 렌더 입력 지문** — 이 `/blocks` 응답을 만든 시점에 서버가 계산한 값이며,
+            /preview `sections[].inputFingerprint`와 같은 계산이다(배경·스타일·렌더러·대상 블록 구성·박스·배율 포함). 같은 섹션의 블록은 같은 값을 갖는다.
+            FE가 필요하다고 회신(11-03) — 배경·스타일·렌더러·대상 블록 구성까지 포함해 표(`/blocks`)와 뷰어(`/preview`)가 같은 섹션 입력을 봤는지 판단하는 용도.
+            미리보기 최신성은 /preview 안에서 판단한다. 비교 규칙은 blockList 설명.
+            null = N5 제외 섹션 또는 입력 구성 실패(/preview `inputError`). 합의되면 항상 제공(required)으로 바꾼다.
+        check:
+          oneOf: [ { $ref: '#/components/schemas/BlockCheck' }, { type: 'null' } ]
+          description: '[PRD v3.5.10 · BE 계약안 · 구현 대기 · AI·FE 확인] 현재 입력에 대한 번역문 규칙 검사 상태. 검사 대상이 아니면(라벨·로고·빈 원문·빈 번역문·제외 섹션) null.'
     BlockPatch:
       type: object
-      required: [trans1, revision]
+      required: [revision]
+      description: >
+        [PRD v3.5.10 · BE 계약안 · 구현 대기] `trans1`·`layoutAdjust` 중 하나 이상을 보낸다(둘 다 없으면 422 — 요청 모델이 판단). 3.4.2 계약은 `trans1` 필수였다 —
+        생략 허용은 완화라서 지금 FE 요청(`trans1`·`revision`)은 그대로 통과한다.
       properties:
-        trans1: { type: string, description: '수정 번역문' }
+        trans1: { type: string, description: '수정 번역문. 생략 = 그대로(BE 계약안). null은 422 — 비우기는 빈 문자열(현행 허용)' }
         revision: { type: integer, description: '현재 블록 revision. 불일치 시 409 REVISION_CONFLICT' }
+        layoutAdjust:
+          oneOf: [ { $ref: '#/components/schemas/LayoutAdjustPatch' }, { type: 'null' } ]
+          description: '[계약 확정(FE) · 구현 대기] 셀러 배치 조정. 생략 = 그대로, null = 셀러 조정 전부 해제(적용값 = 원본 bbox·배율 1.0)'
+    LayoutAdjustPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      description: >
+        [PRD v3.5.10 · 계약 확정(FE) · 구현 대기] 셀러 조정만 담는다(그 밖의 키는 422). 안쪽 키 생략 = 그 값 유지, 안쪽 키 null = 그 값만 해제, 빈 객체는 422.
+        서버는 받은 절대값을 저장할 뿐 [+][−]·손잡이·옮기기를 해석하거나 다시 계산하지 않는다(blockPatch 설명 「블록 배치」).
+      properties:
+        box:
+          oneOf: [ { $ref: '#/components/schemas/LayoutBox' }, { type: 'null' } ]
+          description: '셀러 배치 영역(절대값). null = 박스 조정 해제(원본 bbox). 네 값을 모두 보낸다'
+        fontScale:
+          type: [number, 'null']
+          exclusiveMinimum: 0
+          description: >
+            기준 글자 크기 대비 **절대 배율**(직전 배율에 곱하지 않는다 — AI 원칙). null = 배율 해제(적용값 1.0). 상한 없음(PRD J109③).
+            1.0을 보내면 null과 같은 상태로 저장한다(정규화 — 2차, 시스템 조정이 없는 상태). 3차에 그 블록에 시스템 조정이 있으면 셀러가 명시한 1.0을 보존한다(FE 수용 · AI 동의 11-04).
+    LayoutBox:
+      type: object
+      required: [x, y, w, h]
+      additionalProperties: false
+      description: >
+        [PRD v3.5.10 · BE 계약안] 섹션 로컬 원본 px(섹션 왼쪽 위 = 0,0). 소수 그대로 저장·반환한다(서버가 자르거나 반올림하지 않는다 — AI 원칙).
+        범위 0 ≤ x, 0 ≤ y, w > 0, h > 0, x + w ≤ 섹션 폭, y + h ≤ 섹션 높이 — 허용 오차 없이 십진수로 비교하고, 벗어나면 400(보정하지 않음).
+      properties:
+        x: { type: number, minimum: 0 }
+        y: { type: number, minimum: 0 }
+        w: { type: number, exclusiveMinimum: 0 }
+        h: { type: number, exclusiveMinimum: 0 }
+    LayoutAdjust:
+      type: object
+      required: [box, fontScale]
+      description: '[PRD v3.5.10 · BE 계약안] 저장된 셀러 조정(정규화 후). 둘 다 없으면 이 객체 대신 null.'
+      properties:
+        box:
+          oneOf: [ { $ref: '#/components/schemas/LayoutBox' }, { type: 'null' } ]
+          description: 'null = 박스 조정 없음(원본 bbox와 같은 값을 보낸 경우도 null로 저장 — FE 조건부 동의, BE 계약안)'
+        fontScale: { type: [number, 'null'], description: 'null = 셀러 배율 없음(적용값 1.0)' }
+    BlockCheck:
+      type: object
+      required: [state]
+      description: >
+        [PRD v3.5.10 · 구현 대기] 서버가 계산한 현재 입력의 규칙 검사 상태. 5개 상태와 FE 처리는 **계약 확정(FE 동의, 11-03)**.
+        "현재 입력"은 블록 revision이 아니라 **검사 유효성 지문**으로 판단한다(confirmReview 설명 「검사 연결 경계」) — 배치만 바뀌면 상태가 바뀌지 않는다.
+        판단 기준(유효성 지문·`inputKey`의 의미 입력)은 AI 확정(11-04). 지문의 내부 필드·직렬화는 BE·AI가 구현 때 정한다.
+      properties:
+        inputKey:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{64}$'
+          description: >
+            [계약 확정(FE 구조 · AI 기준 11-04) · 구현 대기] 지금 보이는 결과(`signals`·실패)가 어느 입력의 것인지 나타내는 블록 검사 입력 키.
+            규칙 검사 = 블록 ID, 원문·번역문, 그 블록에 적용되는 고정 사전·용어집 선별 결과, 규칙 버전 등 의미 입력. LLM 검사(3차) = 여기에 섹션 전체 문맥·모델·프롬프트·구현 버전·분할 한도.
+            배치·배율·저장 revision·활성 검사 구성은 넣지 않는다. 확인 최신성 대조용이며 섹션 결과의 블록별 부분 채택을 뜻하지 않는다. 확정 확인 항목에 그대로 보낸다(ConfirmRequest).
+            보일 결과가 없으면(missing·in_progress 중 결과 없음) null. outdated면 이전 입력의 키라 현재 키와 다르다.
+        state:
+          type: string
+          enum: [settled, in_progress, failed, missing, outdated]
+          description: >
+            settled = 현재 입력 검사가 정상 종료(결과는 `signals`) / in_progress = 현재 입력 검사가 대기·실행 중 /
+            failed = 현재 입력 검사가 최종 실패(재시도 소진) — 「⚠ 검사하지 못했습니다」. 2차에는 확인 없이 확정을 통과하고, 3차부터 확정 때 확인 대상(`check_failed`)이다(PM 11-04) /
+            missing = 현재 입력 검사 기록이 없음(등록 전·취소됨) / outdated = 이전 입력의 결과만 있고 현재 입력 검사가 없음.
+            AI 내부 상태(기술 입출력 계약 v0.1 §3.4)와의 대응: settled = done·current / in_progress = pending·running / failed = failed·current(최종 실패) /
+            missing = none·cancelled, 그리고 done·current인데 결과 기록이 없는 무결성 오류 / outdated = stale·not_comparable /
+            skipped(no_targets)·inactive(작업에 예정되지 않은 검사)는 블록 상태로 내지 않는다(검사 대상 아님 → `check` null, 비활성 검사는 집계에서 빠짐).
     BlockPatchResponse:
       type: object
+      required: [rerenderTaskId]
       properties:
         block: { $ref: '#/components/schemas/TextBlock' }
-        rerenderTaskId: { type: integer, format: int64, description: '/tasks 폴링 → done 시 블록·/preview 재조회' }
+        rerenderTaskId:
+          type: [integer, 'null']
+          format: int64
+          description: >
+            **[PRD v3.5.10 · 계약 확정(FE 합의)]** 항상 포함한다.
+            숫자 = **이 요청으로 만든** 새 재렌더 task ID — /tasks로 추적하고 done이면 블록·/preview를 재조회한다.
+            null = 이 요청으로 새 task를 만들지 않았다는 뜻일 뿐이다. 변경 없음(no-op)·렌더 완료·저장 실패의 판정 근거로 쓰지 않으며,
+            null이어도 이미 추적 중인 pending/running task는 계속 추적한다. 번역문·박스·배율의 Undo/Redo 저장도 같은 규칙이다.
+            no-op 여부를 알리는 별도 필드는 두지 않는다.
+            [구현 대기] 같은 값 저장은 null이어야 한다(현재 서버는 새 task를 만든다). 실제 값이 바뀐 저장인데
+            진행 중인 후속 처리 실행이나 현재 미리보기 시도가 없어 null이 나오는 현행 경로는 정상 no-op이 아니다 —
+            편집 뒤 필요한 재렌더를 보장하도록 서버를 보완한다.
     ReviewPreview:
       type: object
       description: >
         다폭 대응 검수 프리뷰 (계산값·미저장). scale=previewWidth/maxOriginalWidth · align=left.
         요청 파라미터는 jobId뿐(폭 파라미터 없음). 리사이즈 시 재요청하지 않고 FE가
-        `transform: scale(표시폭/previewWidth)`로 축소 · 재조회는 구성 변경(SEC-03·CFM-02) 시만(10차 #B).
+        `transform: scale(표시폭/previewWidth)`로 축소한다(10차 #B — 리사이즈는 재조회 계기가 아니다).
+        재조회 계기 = 구성 변경(SEC-03·CFM-02), 추적 중인 재렌더 task 완료, reviewPreview 상태 판정 규칙(d·e·g)의 재조회.
+
+
+        [PRD v3.5.10 · BE 계약안 · 구현 대기] **필드 제공 규칙** — `required`의 키는 항상 낸다(키 생략은 계약 위반이며 정상 상태로 해석하지 않는다).
+        null은 정해진 경우에만 쓴다: N5 제외 섹션(`bucket=exclude`)이면 `renderInput`·`inputFingerprint`·`render`가 모두 null,
+        포함 섹션이면 `render`는 항상 있고, `renderInput`·`inputFingerprint`는 둘 다 있거나(정상) 입력 구성 실패면 둘 다 null이며 그때만 `inputError`가 있다.
+        이 필드 간 조건과 `PreviewRender`의 isCurrent·overflow 조건은 스키마 조건식이 아니라 설명으로 정한다
+        (조건식은 문서 도구의 예시 검사가 분기를 따로 엄격 평가해 정상 예시를 거부한다). 기존 필드는 현행 서버(f85b23e)가 이미 항상 내는 것이고, 새 필드(`renderer`·`renderInput`·
+        `inputFingerprint`·`render`)는 아직 내지 않는다. 호환 기간은 두지 않는 안이다 — 기존 FE가 추가 필드를 허용하는지와 기존 필드 의미
+        (`renderedUrl`의 이전 성공 이미지 유지 등)가 호환되는지를 확인한 뒤 서버가 먼저 배포하고, FE는 그 뒤 판정 규칙을 적용한다. 새 FE가 새 키 없는 응답을 받으면 렌더 상태를 판정하지 않고 오류로 보고한다.
+      required: [maxOriginalWidth, originalHeight, previewWidth, previewHeight, scale, align, renderer, sections]
       properties:
         maxOriginalWidth: { type: integer }
         originalHeight: { type: integer }
@@ -1035,10 +1244,17 @@ components:
         previewHeight: { type: integer }
         scale: { type: number, format: float }
         align: { type: string, enum: [left] }
+        renderer:
+          $ref: '#/components/schemas/PreviewRenderer'
+        boundaryCheck:
+          oneOf: [ { $ref: '#/components/schemas/BoundaryCheck' }, { type: 'null' } ]
+          description: '[PRD v3.5.10 · 계약 확정(11-04) · 3차(11/27) — PM 11-04 · 구현 대기] 이미지 경계 판정(Q-07, 작업 단위). 2차 서버는 이 키를 내지 않고 Q-07 확정 제한도 적용하지 않는다'
         sections:
           type: array
           items:
             type: object
+            required: [id, sectionOrder, bucket, excludedStage, sourceImageId, width, displayTop, height, originalUrl, renderedUrl,
+                       renderInput, inputFingerprint, inputError, render, signals, revision]
             properties:
               id: { type: integer, format: int64 }
               sectionOrder: { type: integer }
@@ -1046,13 +1262,263 @@ components:
               excludedStage: { oneOf: [ { $ref: '#/components/schemas/ExcludedStage' }, { type: 'null' } ] }
               sourceImageId: { type: integer, format: int64 }
               width: { type: integer, description: '소속 원본 폭 (source_image.width 조인)' }
-              displayTop: { type: integer }
+              displayTop:
+                type: integer
+                description: >
+                  화면 세로 위치(현행 서버 = 이 응답에 실린 섹션의 높이를 차례로 더한 값 — N5 제외 섹션의 높이도 더한다).
+                  그래서 Q-07의 **제외를 반영한 최종 출력 위치**와 값이 다르다(PM·AI 11-04: 출력 위치로 재사용하지 않는다) — 경계 판정에는 이 값을 쓰지 않고
+                  최종 출력 위치(앞선 포함 섹션 높이의 합)를 따로 계산한다. 두 값을 나눌지(필드 추가)·displayTop의 의미를 바꿀지는 BE·FE 결정.
               height: { type: integer }
               originalUrl: { type: [string, 'null'], format: uri, description: 'presigned' }
-              renderedUrl: { type: [string, 'null'], format: uri, description: 'presigned · 렌더 전/실패/제외 시 null' }
+              renderedUrl:
+                type: [string, 'null']
+                format: uri
+                description: >
+                  presigned. [PRD v3.5.10 · BE 계약안] 포함 섹션에서는 **표시 결과**(`render.result`)의 완성 이미지이며,
+                  `render.result`가 null일 때만 null이다. 새 시도가 진행 중이거나 실패해도 이전 성공 결과가 있으면 그 이미지를 낸다
+                  (현행 서버도 재렌더 실패 때 이전 이미지 키를 지우지 않는다 — 3.4.2의 "실패 시 null"은 최초 렌더 실패에만 맞았다).
+                  현재 입력에 대응하는지는 `render.isCurrent`로 판단한다. N5 제외 섹션의 값은 이 계약안에서 바꾸지 않으며
+                  (현행 서버는 제외 전 이미지가 있으면 낸다) 렌더 상태 판정에 쓰지 않는다.
+              renderInput:
+                oneOf: [ { $ref: '#/components/schemas/PreviewRenderInput' }, { type: 'null' } ]
+                description: '[PRD v3.5.10 · BE 계약안 · 구현 대기] 서버가 저장한 현재 입력으로 만든 공통 렌더 입력. N5 제외 섹션이면 null. 포함 섹션은 값이 있고(렌더 대상 블록 0개면 `blocks=[]`), 입력을 만들 수 없을 때만 null(`inputError`).'
+              inputFingerprint:
+                type: [string, 'null']
+                pattern: '^[0-9a-f]{64}$'
+                description: >
+                  [PRD v3.5.10 · BE 계약안 · 구현 대기] `renderInput`(같은 응답)에 대응하는 서버 렌더 입력 지문 — SHA-256 16진수 소문자 64자.
+                  서버 미리보기 시도의 입력 지문과 같은 계산이다. N5 제외 섹션·입력 구성 실패(`inputError`)면 null.
+                  **원칙(계약안의 고정 조건)**: 렌더 결과(이미지·넘침 측정)를 바꿀 수 있는 입력은 모두 지문에 들어간다. 지금 들어가는 것은
+                  배경 key·sha256·출처, 블록별 revision·번역문 해시·스타일 해시·적용 박스, 렌더러 식별자, 스타일 기본값 자료다.
+                  HTML 렌더로 바꾸면 `bundleId`·측정 규칙 버전(`rendererId`)도 넣는다(AI A6). 섹션의 출력 위치는 넣지 않는다 — 섹션 입력이 같으면 섹션 이미지를 다시 쓰고,
+                  경계 판정은 최종 합성 단계에서 출력 위치로 한다(Q-07 — PM·AI 11-04, `boundaryCheck`).
+                  사용자 배율·정렬 근거처럼 아직 저장 필드가 없는 입력도, 도입되는 변경에서 그 값 자체 또는 그 값이 반영된 최종 렌더 입력
+                  (`renderInput`에 실리는 값)으로 반드시 지문에 넣는다 — 지문에 빠진 입력이 있으면 `isCurrent`가 틀린다.
+                  AI·FE 협의는 그 값의 필드 이름·표현·계산 방법을 정하는 일이며, 지문에 넣을지는 협의 대상이 아니다.
+                  presigned URL 재발급처럼 결과를 바꾸지 않는 값은 넣지 않는다.
+              inputError:
+                oneOf: [ { $ref: '#/components/schemas/PreviewInputError' }, { type: 'null' } ]
+                description: >
+                  [PRD v3.5.10 · BE 계약안 · 구현 대기 · AI 확인] 포함 섹션인데 서버가 공통 렌더 입력을 만들 수 없을 때만 값이 있다 —
+                  그때 `renderInput`·`inputFingerprint`는 null이다(값을 지어내거나 임의 기본값으로 채우지 않는다). 입력을 만들었으면 null.
+                  입력은 만들었고 실행하다 실패한 경우는 이 필드가 아니라 `render.attempt.status=failed`다. N5 제외 섹션은 null.
+              render:
+                oneOf: [ { $ref: '#/components/schemas/PreviewRender' }, { type: 'null' } ]
+                description: '[PRD v3.5.10 · BE 계약안 · 구현 대기] 현재 시도와 표시 결과. N5 제외 섹션이면 null, 포함 섹션이면 항상 값이 있다.'
               signals:
                 type: array
                 items: { $ref: '#/components/schemas/ReviewSignal' }
+              revision: { type: integer, description: '[PRD v3.5.10 · BE 계약안 · 구현 대기] 섹션 revision(Section.revision과 같음) — N5 섹션 제외·복원 요청에 쓴다' }
+    BoundaryCheck:
+      type: object
+      required: [state, basis, currentTargetKey, judgedTargetKey, ruleVersions, exceeded, confirmBlock]
+      description: >
+        [PRD v3.5.10 · 계약 확정(구조 FE · 키·버전 AI · 차단 정책 PM — 11-04, 이름 후보·BE 해석 표시분 제외) · **3차(11/27)** — PM 11-04(PRD의 「12월」은 기존 로드맵 표기) · 구현 대기] 이미지 경계 판정(Q-07) — 제외를 반영한 최종 결합 이미지 좌표계, 작업 단위.
+        **구조 수용(FE 11-04)**: 작업 단위 `state`·`basis`·`exceeded`·`confirmBlock`. **키·버전(AI 동의 11-04)**: 판정 대상 키와 완료 판정 입력 키의 분리, `renderer`·`composite`·`boundary` 버전 구분.
+        **차단 정책(`confirmBlock`)은 PM 제품 결정이며 AI 합의가 아니다** — confirmReview 「이미지 경계 이탈」(AI 기술 의견은 그곳에 따로 기록).
+        최신 판정 상태(`state`), 보여 주는 판정의 기준(`basis`), 확정 차단(`confirmBlock`)을 나눠 과거 판정을 최신 결과처럼 보이지 않게 한다.
+        **판정 키는 결과 지문이 아니라 입력 지문으로 만든다** — 번역문을 고쳤는데 새 렌더가 아직 끝나지 않았으면 섹션 결과 지문(C)은 그대로이므로, 결과 지문으로 만든 키는
+        이전 판정을 최신으로 오인한다. 그래서:
+        `currentTargetKey` = 현재 **저장 입력**에 대응하는 판정 대상 키 — 포함 섹션 순서, 각 섹션의 현재 렌더 입력 지문(B — 그 섹션 렌더가 끝났는지와 무관), 출력 위치
+        (최종 블록 y = 섹션 로컬 y + 제외 반영 출력 위치, `displayTop`은 쓰지 않음), 최종 이미지 크기, `ruleVersions`로 만든다.
+        `judgedTargetKey` = 완료 판정이 **실제로 사용한** 판정 입력 키 — 그 판정이 쓴 섹션 결과들의 입력 지문(C)·출력 위치·규칙 버전으로 같은 방식으로 만든다.
+        두 키가 같을 때만 `basis = current`다. **지문 불일치 자체는 상태가 아니라, 이전 판정을 `current`로 인정하지 않는 조건이다.**
+        상태(`state`)는 현재 입력에 필요한 섹션 렌더·입력 구성·판정이 실제로 어떻게 되어 있는지로 정한다 —
+        `in_progress` = 필요한 렌더나 판정이 실제로 대기·실행 중 / `failed` = 필요한 렌더·입력 구성(`inputError`)·판정 중 하나가 실패 /
+        `none` = 필요한 렌더·판정 시도가 등록돼 있지 않음(미등록) / `done` = 현재 입력의 판정이 끝남(이때만 `basis = current`).
+        섹션이 여럿이면 하나라도 대기·실행 중이면 `in_progress`, 아니면 하나라도 실패면 `failed`, 아니면 하나라도 미등록이면 `none`이다(BE 해석).
+        `failed`·`none`이면 확정 제한 ③(마지막 완료 판정)을 따른다 — 지문이 다르다는 이유만으로 진행 중으로 두어 버튼을 계속 막지 않는다.
+        **채택과 늦은 결과**: 판정 결과는 채택할 때의 `currentTargetKey`와 그 판정이 쓴 입력 키가 같을 때만 채택한다(현재 시도·lease 조건과 함께).
+        지난 입력의 늦은 결과는 채택하지 않으므로 「마지막 완료 판정」이 되지 않고, 기존 이탈 차단을 풀지 못한다(PM 원칙 — 구현 방법은 BE 해석).
+        **판정 부재와 허용을 섞지 않는다**: `basis = none`은 완료 판정이 한 번도 없다는 뜻 그대로이며 `exceeded`는 null이다(이탈 없음 `[]`이 아니다).
+        PM 정책상 이때 확정은 허용되지만 그것은 `confirmBlock.blocked = false`로만 나타낸다.
+      properties:
+        state: { type: string, enum: [in_progress, done, failed, none], description: '`currentTargetKey`에 대한 판정 상태. in_progress = 필요한 렌더·판정이 실제로 대기·실행 중 / failed = 필요한 렌더·입력 구성·판정 실패 / none = 필요한 렌더·판정 시도 미등록 / done = 현재 입력 판정 완료' }
+        basis:
+          type: string
+          enum: [current, last_completed, none]
+          description: '`exceeded`가 어느 판정의 결과인지 — current = 현재 입력의 완료 판정, last_completed = 현재 판정이 없거나 실패해 쓴 마지막 완료 판정(최신 결과 아님 — 정상이어도 현재 입력의 정상 판정으로 표시하지 않는다), none = 완료 판정이 한 번도 없음(이탈 없음이 아니다)'
+        currentTargetKey: { type: [string, 'null'], pattern: '^[0-9a-f]{64}$', description: '현재 저장 입력에 대응하는 판정 대상 키(섹션 렌더 입력 지문 기준). 포함 섹션이 없거나 입력 구성 실패가 있으면 null' }
+        judgedTargetKey: { type: [string, 'null'], pattern: '^[0-9a-f]{64}$', description: '`exceeded`를 만든 완료 판정이 실제로 사용한 판정 입력 키. basis=current면 currentTargetKey와 같다. basis=none이면 null' }
+        ruleVersions:
+          type: object
+          required: [renderer, composite, boundary]
+          description: '판정 키에 들어가는 규칙 버전(이름·값은 AI 확인). 하나라도 바뀌면 키가 바뀌어 이전 판정은 current가 아니다'
+          properties:
+            renderer: { type: string, description: '섹션 렌더·측정 실행 환경과 측정 규칙(`renderer.rendererId`)' }
+            composite: { type: string, description: '섹션 이미지를 이어 붙이는 합성 규칙 버전' }
+            boundary: { type: string, description: '최종 이미지 경계 측정 규칙 버전' }
+        exceeded:
+          type: [array, 'null']
+          description: '`basis` 판정에서 이미지 경계를 넘은 블록. 빈 배열 = 그 판정에서 이탈 없음, null = 완료 판정 없음(측정하지 않음 — 빈 배열로 바꾸지 않는다)'
+          items:
+            type: object
+            required: [sectionId, blockId]
+            properties:
+              sectionId: { type: integer, format: int64 }
+              blockId: { type: integer, format: int64 }
+        confirmBlock:
+          type: object
+          required: [blocked, reason]
+          properties:
+            blocked: { type: boolean }
+            reason:
+              type: [string, 'null']
+              description: >
+                차단 사유 — `boundary_check_in_progress`(필요한 렌더·판정이 실제로 대기·실행 중, 이름 후보) · `image_boundary_exceeded`(basis 판정에서 이탈).
+                차단이 없으면 null. 완료 판정이 한 번도 없으면(`basis = none`) 진행 중이 아닌 한 차단하지 않는다(PM 11-04 — 사유 후보였던 `boundary_check_missing`은 쓰지 않는다).
+                confirmReview의 409 사유와 같은 값
+    PreviewInputError:
+      type: object
+      required: [code, blockIds]
+      description: >
+        [PRD v3.5.10 · BE 계약안 · 구현 대기 · AI 확인] 공통 렌더 입력 구성 실패. `code`는 task `errorCode`와 같은 값 공간(자유 텍스트)이며 HTTP `error.code`가 아니다.
+        이 상태는 다시 시도해도 풀리지 않는다(입력·자료를 고쳐야 함). **세 코드의 역할 구분은 AI 동의로 확정(11-04)** — 겹치지 않게 다음처럼 나눈다:
+        `STYLE_RESULT_INVALID` = AI 스타일 결과(⑦)의 계약 위반 — ⑦ 완료·실패 상태와 style의 모순, 측정 4키 형식 밖 값, 알 수 없는 역할·원본 폭(AI A8 원문).
+        `STYLE_DEFAULTS_UNAPPROVED` = **승인 스타일 설정·폰트 자산의 검증 실패** — 승인 기본값 누락, 폰트·번들 자산 파일이 없거나 해시·메타가 승인값과 다름.
+        `RENDER_INPUT_INVALID` = **BE가 구성한 값의 오류** — 박스(섹션 밖·w·h ≤ 0)·배율(유한 양수 아님)·조정값 조합(원본·셀러·시스템 조정의 잘못된 조합, 배율 중복 적용)이 어긋남,
+        그리고 렌더 입력이 서버에 없는 번들·폰트를 **가리키는 잘못된 참조**.
+        번들·폰트의 분류 기준: 자산 **자체가 승인 검증을 통과하지 못하면** `STYLE_DEFAULTS_UNAPPROVED`, 입력이 **잘못된 자산을 참조하면** `RENDER_INPUT_INVALID`.
+        정상 입력을 받은 뒤 브라우저 실행·측정·이미지 생성 중에 생긴 실패는 이 필드가 아니라 렌더 시도 실패(`render.attempt.status = failed`, 실행 오류 코드)다.
+        현행 렌더 코드(`typeset`)는 앞의 두 코드로 미리보기 시도를 실패시킨다(AI A8 — 의미 확인).
+      properties:
+        code: { type: string }
+        blockIds:
+          type: array
+          items: { type: integer, format: int64 }
+          description: '입력을 만들 수 없는 블록(섹션 단위 자료 문제면 빈 배열)'
+    PreviewRenderer:
+      type: object
+      description: >
+        [PRD v3.5.10 · BE 계약안 · 구현 대기] 지금 서버가 미리보기를 그리는 렌더러. 식별자 둘은 용도가 다르며 서로 비교하지 않는다.
+        둘 다 문자열 하나이고 FE는 파싱하지 않고 같은지만 본다. 번들을 반입·고정하는 방식은 FE·BE·AI 협의 중(후보: GitHub Release + SHA-256 잠금).
+      required: [rendererId, bundleId]
+      properties:
+        rendererId:
+          type: string
+          description: >
+            서버 렌더·측정 **실행 환경** 식별자 — 결과 비교(`render.result.rendererId`)에만 쓴다(AI A6 승인: 번들 호환과 서버 최신성 분리).
+            브라우저 엔진·버전, 출력 배율 등 결과에 영향을 주는 서버 조건과 **측정 규칙 버전**(HTML/CSS 줄바꿈·DOM baseline·glyph ink 경계·경계 비교 구현)이 바뀌면 바뀐다.
+            AI의 기존 `role-style-rule/1`(스타일 기본값·폰트 계산 규칙 버전)은 측정 규칙 버전과 다르다 — 스타일 기본값 자료는 지문에 따로 들어간다.
+            섹션 입력 지문의 구성요소이며 섹션 입력을 대신하지 않는다. 문자열 생성·배포 방식은 BE·FE 확정 전.
+        bundleId:
+          type: [string, 'null']
+          description: >
+            [BE 계약안 · AI A6 승인 범위] 공통 렌더 번들(HTML/CSS·공통 계산·측정 코드와 사용 폰트 자산)의 식별자 — FE·서버 번들 호환 확인용. 그 자산·의미가 바뀔 때만 바뀐다.
+            FE는 자기 번들 식별자와 같은지만 본다. 다르면 로컬 미리보기가 서버와 다를 수 있으니 넘침·최신 판정은 서버 값만 쓴다.
+            서버가 공통 번들을 쓰지 않는 렌더러(현행 Pillow)면 null.
+    PreviewRenderInput:
+      type: object
+      description: >
+        [PRD v3.5.10 · BE 계약안 · 구현 대기] 공통 렌더 입력(섹션 단위). 서버가 만들고 FE는 그대로 공통 렌더 코드에 넘긴다 —
+        스타일·기본값을 FE가 계산하지 않는다. 사용자 입력(번역문·박스·배율)을 저장 전에 미리 보여 줄 때만 FE가 그 값을 로컬에서 바꾼다.
+        폰트 목록(파일 해시)은 번들 합의(R-FE-6) 뒤 추가한다.
+      required: [section, blocks]
+      properties:
+        section:
+          type: object
+          required: [id, width, height, background]
+          properties:
+            id: { type: integer, format: int64 }
+            width: { type: integer, description: '섹션 원본 px' }
+            height: { type: integer, description: '섹션 원본 px' }
+            background:
+              type: object
+              required: [url, source, sha256]
+              description: '그리는 바탕. 완성 이미지(renderedUrl) 위에 다시 그리지 않는다.'
+              properties:
+                url: { type: string, format: uri, description: 'presigned(만료 5분). URL 재발급은 지문을 바꾸지 않는다' }
+                source: { type: string, enum: [inpaint, original], description: 'inpaint = 글자를 지운 배경, original = 인페인트 실패·생략으로 원본 위에 그림' }
+                sha256: { type: [string, 'null'], pattern: '^[0-9a-f]{64}$', description: '배경 파일 내용 해시(SHA-256 16진수 소문자 64자). 서버가 해시를 모르면 null' }
+        blocks:
+          type: array
+          description: >
+            렌더 대상 블록만(라벨·로고·빈 원문·빈 번역문 제외 — 현행 대상 규칙). 0개면 빈 배열이며, 그 섹션의 렌더 결과는 배경만 그린 이미지다
+            (현행 서버도 대상 0개 섹션을 배경만으로 그려 채택한다). 0개라는 것은 결과 이미지의 모양일 뿐 상태 판정의 예외가 아니다 —
+            시도·결과는 다른 섹션과 같은 규칙으로 판정하고, 실패는 실패로 표시한다.
+          items: { $ref: '#/components/schemas/PreviewRenderBlock' }
+    PreviewRenderBlock:
+      type: object
+      description: '[PRD v3.5.10 · BE 계약안 · 구현 대기] 렌더 대상 블록 하나의 공통 렌더 입력(서버 저장값 기준)'
+      required: [blockId, revision, text, box, style]
+      properties:
+        blockId: { type: integer, format: int64 }
+        revision: { type: integer }
+        text: { type: string, description: '서버에 저장된 번역문' }
+        box:
+          type: object
+          required: [x, y, w, h]
+          description: '적용 박스 = 셀러 박스가 있으면 그것, 없으면 원본 bbox. 섹션 로컬 원본 px, **소수 그대로**(AI 원칙 — 허용 오차 없음). 렌더러에 실제로 넘기는 값이며 이미 적용된 절대값이라 렌더 코드가 배율로 다시 키우지 않는다. [구현 대기] 현행 서버는 렌더 입력 박스를 정수로 자른다(`_render_inputs`) — 보완 대상'
+          properties:
+            x: { type: number }
+            y: { type: number }
+            w: { type: number }
+            h: { type: number }
+        style:
+          type: object
+          additionalProperties: true
+          required: [fontFamily, fontWeight, fontSizePx, fontScale, fontColor, align, letterSpacingEm, lineHeightRatio]
+          description: >
+            [PRD v3.5.10 · BE 계약안 · AI 확인] 공통 렌더 코드에 넘기는 **최소 스타일**. 서버가 저장 상태(측정값·역할 기본값·셀러 조정)로 만들며 null을 쓰지 않는다 —
+            값을 만들 수 없으면 기본값으로 숨기지 않고 그 섹션의 `renderInput`을 내지 않는다(섹션 `inputError`). 키가 늘어나면 추가로만 늘린다.
+            **계산 책임**: 서버 = 저장 상태를 이 입력으로 구성(기준 글자 크기의 출처 선택·최종 정렬 결정까지) /
+            공통 렌더 코드 = 최종 글자 크기·행간·자간 px 계산과 측정 /
+            FE = 저장 전 편집값(번역문·박스·배율)만 이 입력에 바꿔 넣고 같은 공통 코드로 로컬 미리보기 — FE가 따로 계산 규칙을 두지 않는다.
+            **배율 이중 적용 방지**: 최종 글자 크기 = `fontSizePx × fontScale`을 공통 렌더 코드에서 한 번만 계산한다. 서버는 최종 크기를 싣지 않고,
+            `box`는 이미 적용된 절대값이라 배율로 다시 키우지 않는다. [+][−]의 박스 변화는 FE가 저장 전에 계산해 `box`에 넣는다(blockPatch 「블록 배치」).
+            정렬 근거(alignBasis)는 ⑦ 측정 style 4키 밖에 보존하고 렌더 입력 지문에 연결하되 이 입력에는 싣지 않는다(렌더에는 최종 `align`만 필요). 저장 위치는 미확정(AI §4.3).
+            AI A1 승인: 8키는 조판 최소값으로 적절하다. 단 승인 폰트 face(Regular·SemiBold)·파일·SHA-256·설정 버전을 공통 번들의 폰트 매니페스트에서 일의적으로 찾을 수 있어야 하며,
+            블록마다 `fontFace`를 둘지는 미정이다(BE 권장: 두지 않고 fontFamily·fontWeight로 매니페스트에서 찾는다). 측정값·출처 메타는 렌더 입력 밖에 보존한다.
+          properties:
+            fontFamily: { type: string, description: '예 Pretendard. 폰트 파일·굵기 대응은 공통 번들이 가진다(대체 폰트 없음)' }
+            fontWeight: { type: integer, minimum: 100, maximum: 900 }
+            fontSizePx: { type: number, exclusiveMinimum: 0, description: '기준 글자 크기 — 셀러 배율 적용 전, 섹션 원본 px. 측정값 또는 역할 기본값(be-handoff 6.3)' }
+            fontScale: { type: number, exclusiveMinimum: 0, description: '적용 배율 — 셀러 배율, 없으면 1.0(null 아님). 저장상의 null 정규화와는 별개다' }
+            fontColor: { type: string, description: "글자색 — AI 현행 검증은 대문자 6자리 '#RRGGBB'(측정값 null은 승인 기본값으로 해소한 뒤 전달, AI A3). API 표기·정규화 책임은 BE·FE 확정 전" }
+            align: { type: string, description: '최종 정렬 left | center | right(AI A3) — 원본 정렬 근거가 있으면 그 정렬, 없을 때만 left. 측정값 null은 승인 기본값으로 해소한 값' }
+            letterSpacingEm: { type: number, description: '자간 — 글자 크기 대비 비율. px는 공통 렌더 코드가 최종 글자 크기로 계산' }
+            lineHeightRatio: { type: number, exclusiveMinimum: 0, description: '행간 비율 — 승인값 1.2(AI 회신). 행간 px = 비율 × 최종 글자 크기' }
+    PreviewRender:
+      type: object
+      description: >
+        [PRD v3.5.10 · BE 계약안 · 구현 대기] **현재 시도**(attempt)와 **표시 결과**(result)를 나눈다.
+        새 시도가 진행 중이거나 실패해도 이전 성공 결과를 result로 낼 수 있다.
+        `isCurrent=true`면 result가 있고 `result.overflow`는 객체, false면 result가 null이거나 `result.overflow`가 null이다.
+      required: [attempt, result, isCurrent]
+      properties:
+        attempt:
+          oneOf: [ { $ref: '#/components/schemas/PreviewRenderAttempt' }, { type: 'null' } ]
+          description: '이 섹션의 현재 미리보기 시도. null = 현재 시도 없음(포함 섹션의 정상 흐름에는 없다 — 판정은 reviewPreview 설명 g·e)'
+        result:
+          oneOf: [ { $ref: '#/components/schemas/PreviewRenderResult' }, { type: 'null' } ]
+          description: '화면에 표시하는 마지막 성공 결과. null = 아직 성공 결과 없음(renderedUrl도 null)'
+        isCurrent:
+          type: boolean
+          description: '서버 계산. `result != null && result.inputFingerprint == inputFingerprint`(같은 응답 안에서). 조회 시점 서버 입력 기준이며 FE의 미저장 편집과 같다는 뜻이 아니다.'
+    PreviewRenderAttempt:
+      type: object
+      description: '[PRD v3.5.10 · BE 계약안 · 구현 대기] 섹션의 현재 미리보기 시도'
+      required: [taskId, status, errorCode, retryable]
+      properties:
+        taskId: { type: integer, format: int64, description: '저장 응답의 rerenderTaskId와 같은 번호 체계 — 내 저장에 대한 시도인지 대조할 수 있다' }
+        status: { $ref: '#/components/schemas/RenderStatus' }
+        errorCode: { type: [string, 'null'], description: 'failed일 때 오류 코드(예: PREVIEW_FAILED)' }
+        retryable: { type: boolean, description: 'failed이고 true면 POST /jobs/{jobId}/tasks/{taskId}/retry 로 다시 시도할 수 있다' }
+    PreviewRenderResult:
+      type: object
+      description: '[PRD v3.5.10 · BE 계약안 · 구현 대기] 화면에 표시하는 마지막 성공 결과'
+      required: [taskId, inputFingerprint, rendererId, overflow]
+      properties:
+        taskId: { type: integer, format: int64, description: '이 결과를 만든 시도' }
+        inputFingerprint: { type: string, pattern: '^[0-9a-f]{64}$', description: '이 결과를 만든 입력의 지문(섹션 `inputFingerprint`와 같은 계산)' }
+        rendererId: { type: string, description: '이 결과를 그린 렌더러' }
+        overflow:
+          type: [object, 'null']
+          additionalProperties: { type: boolean }
+          description: >
+            블록 ID(문자열) → 넘침. **넘침 판정의 정본.** `isCurrent`가 true일 때만 값을 싣고, false면 서버가 null로 낸다 —
+            이전 이미지가 남아 있어도 이전 측정값을 최신 넘침으로 쓰지 않는다. null = 현재 입력에 대한 측정 없음.
+            렌더 대상 블록이 0개인 섹션의 현재 결과는 빈 객체 `{}`다.
     ConfirmRequest:
       type: object
       description: >
@@ -1060,6 +1526,79 @@ components:
         서버는 받은 목록 중 필수 확인 대상만 골라 서버의 미해결 필수 경고 집합과 비교하고, 다르면 409 INVALID_STATE
         (error.details.warnings = 서버 집합). 그 밖의 코드(width_overflow 등)·제외 섹션 블록은 보내도 무시한다 —
         화면 신호 전부를 보내도 된다. 넘침 경고는 표시만 하고 확정을 막지 않는다(2026-10-14 결정).
+
+
+        [PRD v3.5.10 · 구현 대기 · **추가 필수 확인은 3차(11/27) — PM 11-04**] **필수 확인 대상**(PRD F-CFM-09 조건·①~⑦ 기준) — `{blockId, code}`에 아래 확인 기준을 더해 보낸다.
+        2차(11/6)의 필수 확인은 현행 `translation_failed`뿐이다 — 규칙 검사는 2차에 연결되지만 `check_failed`·`prohibited_expression`의 필수 확인은 3차에 켠다:
+        `translation_failed`(번역 처리 실패로 번역문이 빈 블록 — 현행, 2차 유지) / `check_failed`(현재 입력 검사가 최종 실패, 후보 신호 — 3차) /
+        `prohibited_expression`(현재 입력 규칙 검사의 미해결 규제 경고 — 금지·조건부 매칭 모두. 화면 구분은 `ReviewSignal.regulationVerdict` — 3차).
+        `mandatory_term_unapplied`는 확인 대상으로 세지 않는다 — **PRD F-CFM-09 I열 기준**("⑩ 원문 판정 행과 미적용 강제 용어는 세지 않는다", PM 재확인 11-04).
+        확인 대상에서 빼는 것과 검사·근거·flag·신호 보존은 함께 한다 — 강제 용어 flag와 신호는 그대로 남고 화면에도 보인다. 원문 판정 행만 있는 작업은 확인 없이 확정된다(⑦).
+        비교 대상은 서버가 계산한 **현재 입력**의 미해결 집합이다. `{blockId, code}`만으로는 셀러가 **어느 입력·어느 실패를 보고** 확인했는지 알 수 없으므로 코드마다 확인 기준을 받는다
+        (검사 결과의 최신성과 확인한 내용의 최신성은 별개):
+
+        - `check_failed`·`prohibited_expression` → `inputKey` — **확정(FE 구조 수용 11-03 · AI 키 기준 11-04) · 3차 적용**. 화면이 보여 준 결과의 `TextBlock.check.inputKey`.
+          현재 입력의 키와 다르면 409 INVALID_STATE(`details.reason: acknowledgement_outdated`, `details.warnings` = 서버 집합). FE는 이때 최신 검사 결과를 재조회하고 확인창을 갱신한다.
+
+        - `translation_failed` → `taskId` — **계약 확정(FE 동의 11-04 · F20) · 구현 대기**. 현행 서버 기준 발생·해소 조건(`app/flows/final.py` `block_signals`):
+          발생 = 그 섹션의 현재 번역 시도가 failed이고(구조·호출 실패면 대상 전체, 부분 실패면 검증 결과의 실패 목록) 블록의 `trans_1`이 NULL이며 `block_status = machine`(셀러가 손대지 않음).
+          해소 = 번역 재시도가 그 블록을 채우거나 셀러가 번역문을 저장하면(빈 문자열 저장 포함 — `edited`가 된다) 조건이 깨져 신호가 사라진다.
+          그래서 이 코드는 **처리 실패**이고, 셀러가 일부러 비운 **빈 번역문**(빈 문자열 저장)과는 다르다 — PRD F-CFM-09 "번역 실패로 번역문이 빈 블록"과 같은 뜻이다.
+          재시도가 다시 실패하면 같은 블록에 같은 코드가 새 실패로 다시 나온다 — 코드만으로는 과거 확인이 어느 실패에 대한 것인지 구분할 수 없다.
+          계약: FE는 확인 항목에 화면이 본 `ReviewSignal.taskId`(실패 번역 시도)를 보낸다. 서버는 **그 경고가 지금도 유효한지**(현재 미해결 집합에 있는지)와
+          **`taskId`가 지금 그 블록을 실패시킨 현재 번역 시도인지**를 함께 검증하고, 시도가 다르면 409 `acknowledgement_outdated`. `inputKey`는 쓰지 않는다(검사 대상이 아니라 `check`가 null).
+          **적용 시점·호환 순서(BE 제안 — 계약과 별개)**: 현행 `{blockId, code}` 확인은 2차에도 그대로 동작한다. 서버가 먼저 `taskId`를 선택 필드로 받아 값이 있으면 검증하고(없으면 현행 판정),
+          FE 적용을 확인한 뒤 필수로 바꾼다. 필수화 시점은 FE·BE가 배포 일정으로 정한다.
+
+        확인한 목록은 감사 로그에 블록 ID·코드·확인 기준(`inputKey`·`taskId`)·revision으로 남긴다(PM C3).
+        `check_failed`·`prohibited_expression`을 필수로 바꾸는 것은 **3차**에 적용한다 — 2차에는 보내도 필수 집합에 넣지 않는다(무시).
+        블록 하나에 같은 코드의 경고가 여럿이어도 블록·코드 단위로 한 번 확인한다(경고별 식별자 warningKey는 #82).
+        **차수(PM 11-04)**: 2차 = 현행 `translation_failed` 확인 유지·검사 중 확정 거절·미저장 번역문 확인창(confirmReview).
+        3차 = `check_failed`·`prohibited_expression` 필수 확인과 실행 실패 섹션 확인(`acknowledgedSections`) — 2차의 미저장 번역문 확인창에 항목을 더하는 방향. 조건부 칩 표시(2차 J)는 이 확인 절차와 별개다.
+
+
+        **실행 실패 섹션 확인(PRD F-CFM-09 ③) — 3차(PM 11-04) · 구조 계약 확정(FE 동의 11-04 · F21) · 구현 대기** — `acknowledgedSections: [{sectionId, reason, taskId}]`.
+        블록 경고와 한 확인창에서 받는다. 2차 서버는 이 필드를 검증하지 않는다.
+        `taskId` = 화면이 본 실패 시도. 인페인팅은 `/tasks` 항목(`taskType=inpaint`·`unitType=section`·`unitId=섹션 ID` — 현행 서버는 진행 중 하류 실행의 현재 시도만 낸다, `app/flows/status.py`),
+        렌더는 `/preview`의 `render.attempt.taskId`. FE Adapter가 과거 실패 task를 고를 수 있는 부분은 현재 시도를 쓰도록 FE가 보완한다(F21).
+        `reason`(BE 계약안) = `inpaint_failed`(인페인팅 실패) · `render_failed`(**N4 렌더 실패만** — 아래 판별 기준). 12월 라벨·로고 판단 실패는 범위 밖.
+
+        **`render_failed` 판별 기준(BE 계약안 — PM 출력 정책 11-04에 맞춤)**: `render.result = null`은 **필요조건일 뿐 N4 렌더 실패의 충분조건이 아니다** —
+        성공 이력 없이 N5 재렌더가 다시 실패한 섹션도 `result = null`·`attempt.status = failed`다. 그래서 세 조건을 모두 확인한다:
+        ① 포함 섹션 / ② **성공 이력 없음** — 현재 하류 실행에서 그 섹션의 미리보기 시도가 한 번도 채택되지 않음(시도 체인에 `done` 채택 없음. 표시 필드 `render.result = null`이나
+        `section.render_image_key` 비어 있음만으로 판단하지 않는다) / ③ **N4 계보의 최종 실패** — 현재 실패 시도가 N4 최초 시도(`supersedes` 없음)에서
+        같은 입력의 실패 재시도(`create_retry` — `retry_count` 증가·입력 지문 같음)로만 이어졌고, 입력 변경 재렌더(N5 저장 `rerender_section`·입력 변경 자동 재렌더 — `count_retry=False`라 `retry_count`가 그대로)가 체인에 없음.
+        **이 판별은 BE 후보다(BE 해석)** — 세 전제 위에서만 성립한다: 현행 생성 경로(N4 최초 시도·`create_retry`·`rerender_section`·입력 변경 자동 재렌더) /
+        시도마다 입력 지문(`input_fingerprint`)이 있음 / 완전한 시도 체인(`supersedes_task_id`가 끊기지 않고 N4 최초 시도까지 이어짐).
+        **미분류**: 전제를 확인할 근거가 부족한 데이터 — 체인이 끊겼거나 최초 시도를 찾을 수 없음, 입력 지문이 없음, `retry_count`가 늘었는데 입력 지문이 바뀜,
+        위 생성 경로로 설명되지 않는 시도(v0 레거시 행 등) — 는 N4 렌더 실패로도 P15(a)로도 단정하지 않고 미분류로 남긴다(확인 대상 여부·N6 출력을 정하지 않고 보고한다).
+        시도 등록 원인을 명시 기록할지는 구현 때 정한다(DB 변경은 제안만).
+        입력 구성 실패(`inputError`)도 ①~③을 만족하면 여기에 든다(BE 해석).
+        **이전 성공 결과가 있는 섹션의 재렌더 실패(N5 미리보기 갱신 실패)는 확인 대상이 아니다** — 성공 이력이 있으면 현재 시도가 실패해도 `render_failed`가 아니며,
+        `acknowledgedSections`에 넣으면 집합 불일치(409)다.
+        **PM 확인(P15) — 성공 이력이 없지만 N4 렌더 실패로 단정하지 않는 섹션**: (a) 성공 이력 없이 N5 재렌더가 다시 실패한 섹션(③ 불충족 — N4 실패 뒤 수정해 재렌더했는데 또 실패),
+        (b) 확정 때 시도가 대기·실행 중인 섹션(실패 미확정). 두 경우의 확인 대상 여부와 N6 출력(원본·재렌더)은 PM 답 전에는 정하지 않는다 — 3차 구현 전 확정이 필요하다.
+        참고: client PR #44 뷰포트는 성공 결과가 없고 현재 렌더 실패가 있으면 (a)도 원본으로 보이고, (b)는 대기로 보인다. 현행 N6는 (a)·(b) 모두 다시 그린다.
+        서버 검증: 대상 = 위 기준의 섹션 + 인페인팅이 실패한 포함 섹션(N5에서 제외한 섹션은 대상 아님 — ④). 섹션마다 실패 종류(`reason`)와 현재 실패 시도(`taskId`)가 맞아야 한다.
+        집합이 다르면 409 `acknowledgement_mismatch`(`details.sections`), 시도가 바뀌었으면 409 `acknowledgement_outdated`.
+
+        **출력 정책(PM 확정 11-04 — 출처는 검토 채팅에 제공된 PM 원문)**:
+
+        - 인페인팅 실패 섹션 = 원본 위에 번역문.
+
+        - N4 렌더 실패 섹션(위 기준) = N5에서 원본을 보이고 **N6에서도 원본을 쓴다** — N6에서 다시 그리지 않고, 원본 사용 자체를 새 렌더 실패로 세지 않는다.
+
+        - 이전 성공 이미지가 있는 N5 재렌더 실패 섹션 = N6에서 **확정된 번역문으로 다시 렌더**한다 — 이전 이미지나 원본으로 대체하지 않는다. N6 재렌더도 실패하면 N6 렌더 실패 화면으로 간다.
+          N5 미리보기 갱신 실패 자체는 확정 때 확인 대상이 아니다. 현행 N6 최종 렌더는 포함 섹션 전체를 확정 번역문으로 다시 그리므로 이 경우는 현행과 같다(`app/flows/final.py` `_final_inputs`).
+
+        - N6 결과는 셀러가 N5에서 확인한 모습과 같아야 한다.
+
+
+        **구현·검증 상태**: N4 렌더 실패 원본 표시 = **FE 기본 분기 구현 확인**(client PR #44 `n5-viewport.tsx` — 성공 결과가 없고 현재 렌더 실패가 확인되면 `originalUrl`,
+        `renderedUrl: null`만으로 실패를 단정하지 않음, 대기와 실패 구분, 원본 위에 번역 텍스트를 다시 합성하지 않음). 현재 시도 판별·E2E·N6 출력 일치는 **통합 검증 대기**.
+        서버의 N6 원본 사용은 구현 대기 — 현행 N6는 N4 렌더 실패 섹션도 다시 그린다. 그 적용 차수는 PM 확인(확인 절차는 3차).
+        **확인 필요(FE)**: PM 설명은 N5 갱신 실패 때 FE가 새 번역문을 로컬 렌더로 보여 준다는 전제를 둔다. 현재 계약(`/preview` 판정 단계 c — 이전 이미지 표시)과
+        PR #44 뷰포트(표시 결과 `renderedUrl`이 있으면 그 이미지)는 **이전 성공 이미지**를 보인다 — 로컬 렌더 표시는 FE 계약·구현에서 확인되지 않았다.
       properties:
         acknowledgedWarnings:
           type: array
@@ -1068,6 +1607,24 @@ components:
             properties:
               blockId: { type: integer, format: int64 }
               code: { $ref: '#/components/schemas/SignalCode' }
+              inputKey:
+                type: string
+                pattern: '^[0-9a-f]{64}$'
+                description: '[PRD v3.5.10 · 계약 확정(FE·AI) · 구현 대기 · 3차] 확인할 때 화면이 보여 준 결과의 블록 검사 입력 키(`TextBlock.check.inputKey`). check_failed·prohibited_expression에 보낸다(필수 확인은 3차). translation_failed에는 보내지 않는다'
+              taskId:
+                type: integer
+                format: int64
+                description: '[PRD v3.5.10 · 계약 확정(FE 11-04) · 구현 대기 — 서버가 선택 필드로 먼저 받고 FE 적용 뒤 필수] translation_failed 확인의 기준 — 화면이 본 실패 번역 시도(`ReviewSignal.taskId`). 서버는 경고 유효성과 함께 검증하고, 지금 그 블록을 실패시킨 현재 번역 시도와 다르면 409 acknowledgement_outdated'
+        acknowledgedSections:
+          type: array
+          description: '[PRD v3.5.10 · 3차(PM 11-04) · 구현 대기] 제외하지 않은 실행 실패 섹션의 확인(PRD F-CFM-09 ③). 구조는 FE 동의(11-04), reason 판별·서버 검증은 BE 계약안, 출력 정책은 PM 확정(ConfirmRequest 설명). 2차 서버는 검증하지 않는다'
+          items:
+            type: object
+            required: [sectionId, reason, taskId]
+            properties:
+              sectionId: { type: integer, format: int64 }
+              reason: { type: string, enum: [inpaint_failed, render_failed], description: '후보 값(BE 계약안). render_failed = 성공 이력이 없고 N4 계보에서 최종 실패한 섹션만(result=null만으로 판단 안 함) — N5 갱신 실패는 넣지 않고, 성공 이력 없는 N5 재렌더 재실패는 PM 확인(P15)' }
+              taskId: { type: integer, format: int64, description: '화면이 보여 준 실패 시도 ID — 현재 실패 시도와 다르면 409 acknowledgement_outdated' }
 
     # ===== N6 Deliverable / Export =====
     RenderResponse:
@@ -1233,7 +1790,12 @@ paths:
       operationId: consentCreate
       x-screen: 'G1'
       x-source: API-AUTH-05
-      description: '작업 시작 시점(N1). consentId를 JOB-02 바디에 넣어 연결. audit_log 부수 적재. 🟢9월.'
+      description: >
+        **[PRD v3.5.10]** 동의를 따로 저장하지 않는다 — 동의 시각은 작업 생성 시각으로 본다(F-ACC-04, 전제는 jobCreate 설명).
+        현재 서버(f85b23e)는 저장·audit_log 적재 없이 간이 응답만 돌려주며, 화면은 이 API를 부르지 않아도 된다.
+        이 API의 제거 여부는 협의 중(미확정).
+
+        (3.4.2 계약 — PRD v3.5.10으로 대체: 작업 시작 시점(N1)에 호출해 consentId를 JOB-02 바디에 넣어 연결하고 audit_log에 부수 적재. 🟢9월.)
       requestBody:
         required: true
         content:
@@ -1540,6 +2102,15 @@ paths:
         draft 생성 (A3 draft-first). brandId만으로 빈 draft를 만들고 jobId 반환.
         흐름: POST /jobs(draft) → SRC-02(원본 업로드) → PATCH /jobs/{jobId}(N1 값) → analyze.
         N1 필수값 검증은 analyze(ANL-01) 게이트. Idempotency-Key 헤더 권장. 🟢9월.
+
+        **[PRD v3.5.10 · 계약 확정] 호출 시점과 책임 동의(F-ACC-04)** — 화면은 책임 동의 체크 뒤 N1 [다음]에서 이 API를 호출하고
+        이어서 위 순서(업로드 → PATCH → analyze)를 실행한다. draft-first는 [다음] 이후의 호출 순서다.
+        동의는 따로 저장하지 않는다. `createdAt`은 지금은 작업 생성 시각이며, 동의 체크를 [다음]의 필수 조건으로 적용한 뒤부터는
+        PM 정책에 따라 동의 시각으로도 쓴다. 현재 확인한 화면(client 8319dd6)에는 동의 체크가 없어(고지 문구만 있음) 이 전제는 아직 충족되지 않는다.
+        생성 뒤 업로드 실패로 남는 draft의 재개·취소 정책은 별도(미확정).
+
+        **[PRD v3.5.10 · 정책 확정(PM 11-04) · 구현 대기] 브랜드 스냅샷** — 브랜드 정보는 작업 생성 시점의 값으로 고정한다. 번역·검사·재시도에서도 이후의 브랜드 수정값을 섞지 않는다.
+        현행 서버는 작업에 `brand_id`만 저장하고, 브랜드 값은 N3 [이대로 진행] 때 하류 실행 범위(`run_scope.brand`)에 고정한다 — 생성 시점 스냅샷으로 옮기는 것은 구현 대기.
       parameters:
         - name: Idempotency-Key
           in: header
@@ -1828,7 +2399,9 @@ paths:
       operationId: sectionList
       x-screen: 'N3'
       x-source: API-SEC-01
-      description: '제외 버킷=판정 목록 전부(정렬 불변식), 포함=썸네일만. verdictType 파생. 🟢9월.'
+      description: >
+        버킷별 두 배열. 섹션마다 판정 목록 전부(정렬 불변식) — **[PRD v3.5.10 · 계약 확정 · 구현 대기]** 포함 섹션도 판정을 싣는다
+        (현재 서버는 포함 섹션 verdicts=[]). 원래 순서는 sectionOrder. verdictType 파생. 🟢9월.
       parameters:
         - name: bucket
           in: query
@@ -1864,20 +2437,134 @@ paths:
       operationId: sectionPatch
       x-screen: 'N3·N5'
       x-source: API-SEC-03
-      description: 'excludedStage는 서버가 currentStep으로 기록. N5에서 excludedStage=N3 조작 시 409 INVALID_STATE. 🟢9월.'
+      description: >
+        excludedStage는 서버가 currentStep으로 기록. N5에서 excludedStage=N3 섹션 복원 시 409 INVALID_STATE. 🟢9월.
+
+        **[PRD v3.5.10 · 계약 확정 · 구현 대기] 복원(restore)의 의미** — N3 [번역하기]·N5 [되돌리기]·N5 Undo 모두 같다:
+
+        - 직접 제외(`user_manual`)의 복원 = **제외 전 상태로**. 원래 포함 섹션이면 `exclusionReason=null`(새로운 「되살린 섹션」 배지를 붙이지 않으며 기존 판정·경고 배지는 보존 — PRD H106),
+          N3에서 되살렸던 섹션이면 `restored_by_user`(배지 사유는 최초 판정 그대로).
+        - 자동 제외(`auto_*`)의 복원 = `restored_by_user`(F-SEC-06).
+
+        - 제외·복원 어느 쪽도 판정(verdicts)·근거·최초 판정 기록·warningBadge를 바꾸지 않는다.
+
+        - 현재 서버(f85b23e)는 복원 시 항상 `restored_by_user`로 덮는다(구현 차이).
+
+        - 섹션 revision·충돌 검사·재전송 멱등·같은 동작 반복 처리는 아래 BE 계약안이다(합의 전).
+
+
+        **[PRD v3.5.10 · 구현 대기] 섹션 revision·멱등·같은 동작** — **계약 확정(FE 동의, 11-03)**: 요청 `{action, revision}`·멱등 키·이미 같은 상태면 200 no-op·
+        제외와 복원 각각 Undo/Redo 한 단계·저장 성공 뒤 `/blocks`·`/preview` 재조회·충돌 시 최신 상태 동기화와 이력 정리(FE 몫), 원상 복원(PM).
+        **BE 계약안**: revision을 올리는 범위, N5 복원 때 시도 확보 세부, 키가 있을 때 revision 필수, 복원 근거 없음 처리(PM-R8 결정 전).
+
+        - 처리 순서·멱등은 blockPatch 「저장 공통」과 같다(오퍼레이션 범위 = 섹션 PATCH). 요청 `{action, revision}` + `Idempotency-Key`.
+
+        - revision이 오르는 변경 = 포함 상태(`bucket`·`exclusionReason`·`excludedStage`)가 실제로 바뀐 경우만. 판정·배지·인페인트 같은 파이프라인 값은 섹션 revision을 올리지 않는다(셀러 조작과 무관한 409를 막는다).
+
+        - 409 REVISION_CONFLICT — `details.current` = 최신 Section 전체(revision 포함). FE는 그 섹션의 이력만 정리하고 current로 맞춘다(FE 합의).
+
+        - 이미 같은 상태(제외인데 제외, 포함인데 복원) → 변경 없음 200. revision·사유·단계 그대로, 감사·이벤트 기록 없음. revision 검사가 먼저다.
+          N5에서 N3 제외 섹션 복원은 같은 동작 판정보다 먼저 409 INVALID_STATE(현행 유지).
+        - 응답 = 갱신된 Section 전체(현행 서버는 요약 6필드 — 구현 대기).
+
+        - 제외: 진행 중인 미리보기·검사 시도를 취소하지 않는다(늦게 끝난 결과도 평소 채택 조건대로 채택되며, 복원 때 재사용 판단에 쓴다).
+
+        - **N5 제외·복원과 뒤 섹션**(Q-07 — PM·AI 11-04): 제외·복원은 뒤에 있는 포함 섹션들의 출력 위치를 바꾼다. 뒤 섹션의 섹션 입력이 같으면 섹션 이미지를 다시 쓰고
+          **다시 렌더하지 않는다**. 바뀐 출력 위치로 최종 합성과 경계 재판정만 한다(`boundaryCheck` — 3차, confirmReview 「이미지 경계 이탈」. 2차에는 경계 재판정이 없다).
+
+        - **복원(실제로 포함이 된 경우) — 필요한 렌더·검사 확보**. 단계에 따라 다르다.
+          N3 복원 = 아무것도 등록하지 않는다. 아직 번역·스타일 결과가 없을 수 있으므로 후속 처리는 기존 N3→N4 진행([이대로 진행]) 흐름에 맡긴다.
+          N5 복원 = 복원 트랜잭션에서 그 섹션의 현재 입력 기준으로 미리보기와 활성 검사마다 현재 시도를 본다. 무조건 다시 실행하지 않는다
+            (PM 11-04: 제외·복원만으로 규제·강제 용어 검사를 다시 실행하지 않는다 — 아래는 유효한 결과가 없을 때의 확보다).
+            현재 입력 지문의 시도가 있으면 그 상태를 그대로 둔다 — 성공 결과·대기·실행 중은 물론 **최종 실패도 그대로**다. 같은 입력의 최종 실패를 복원 때문에 다시 실행하지 않으며,
+            재시도 횟수도 초기화하지 않는다(미리보기 실패는 기존 재시도 API·한도대로, 검사 최종 실패는 「⚠ 검사하지 못했습니다」 표시 — 2차는 확인 없이 확정 통과, 3차부터 확인 후 진행(PM 11-04)).
+            현재 입력 지문의 시도가 없을 때만(제외 중 번들 갱신·검사 활성화·규칙 버전 변경 등으로 지문이 바뀜, 또는 시도 기록 없음) 새 시도를 등록한다 — 입력이 바뀐 새 시도이므로 재시도 횟수를 쓰지 않는다.
+          응답 뒤 FE는 /preview·/blocks를 재조회한다(새로 만든 task ID를 따로 싣지 않는다 — 판정은 /preview `render`·블록 `check`).
+
+        - 복원의 근거는 섹션의 최초 판정 기록(`original_verdict`)의 버킷이다 — 직접 제외 + 최초 포함 → 사유 없음 / 직접 제외 + 최초 제외 → `restored_by_user` / 자동 제외 → `restored_by_user`.
+          **최초 판정 기록이 없는 직접 제외 섹션**(과거·누락 데이터)은 제외 전 상태를 알 수 없어 서버가 원래 상태를 지어내지 않는다.
+          BE 권장: 대상 행 수를 먼저 확인(사용자 읽기)하고, 결정 전까지는 409 INVALID_STATE `details.reason: restore_basis_missing`으로 거절한다. 대상이 있으면 처리는 PM 결정(PM-R8).
+        - N5 섹션 Undo/Redo(FE 합의 — 서버 revision 사용): N5에서 직접 제외한 것의 Undo = 복원 요청, 그 복원의 Undo = 제외 요청(`user_manual`·`excludedStage=N5`).
+          별도 Undo 동작 없이 위 규칙과 일반 [되돌리기](F-CFM-14)의 복원 규칙을 그대로 쓴다. N5 범위로 한정한다 —
+          N3 자동 제외를 되살린 뒤 Undo로 다시 제외하면 사유가 `auto_*`가 아니라 `user_manual`이 되므로 N3 Undo는 이 범위 밖이다.
+      parameters:
+        - $ref: '#/components/parameters/EditIdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/SectionPatch' }
+            examples:
+              exclude:
+                summary: '(가상 값 · BE 계약안) N5에서 제외'
+                value: { action: exclude, revision: 2 }
+              restore:
+                summary: '(가상 값 · BE 계약안) 복원([되돌리기]·Undo 공통)'
+                value: { action: restore, revision: 3 }
       responses:
         '200':
-          description: '갱신된 섹션 전체 (정렬 verdicts)'
+          description: '갱신된 섹션 전체 (정렬 verdicts). 이미 같은 상태면 변경 없음 — revision 그대로(BE 계약안)'
+          headers:
+            Idempotent-Replayed:
+              description: '[PRD v3.5.10 · 계약 확정(FE) · 구현 대기] blockPatch의 같은 헤더와 같다(CORS 노출 포함)'
+              schema: { type: string, enum: ['true'] }
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Section' }
+              examples:
+                excludedInN5:
+                  summary: '(가상 값 · BE 계약안) 원래 포함 섹션을 N5에서 제외 — revision 2→3'
+                  value:
+                    { id: 12, sectionOrder: 1, sourceImageId: 501, topOffset: 0, displayTop: 0, height: 1240, bbox: { x: 0, y: 0, w: 860, h: 1240 },
+                      category: null, bucket: exclude, exclusionReason: user_manual, excludedStage: N5, inpaintStatus: done, warningBadge: null,
+                      verdicts: [], signals: [], revision: 3 }
+                restoredToOriginal:
+                  summary: '(가상 값 · BE 계약안) 그 섹션을 복원 — 최초 판정이 포함이므로 사유 없음·새 배지 없음, revision 3→4'
+                  value:
+                    { id: 12, sectionOrder: 1, sourceImageId: 501, topOffset: 0, displayTop: 0, height: 1240, bbox: { x: 0, y: 0, w: 860, h: 1240 },
+                      category: null, bucket: include, exclusionReason: null, excludedStage: null, inpaintStatus: done, warningBadge: null,
+                      verdicts: [], signals: [], revision: 4 }
+                alreadyIncluded:
+                  summary: '(가상 값 · BE 계약안) 이미 포함인 섹션에 복원 — 변경 없음, revision 4 그대로'
+                  value:
+                    { id: 12, sectionOrder: 1, sourceImageId: 501, topOffset: 0, displayTop: 0, height: 1240, bbox: { x: 0, y: 0, w: 860, h: 1240 },
+                      category: null, bucket: include, exclusionReason: null, excludedStage: null, inpaintStatus: done, warningBadge: null,
+                      verdicts: [], signals: [], revision: 4 }
+        '422':
+          description: '요청 형식 오류(현행 FastAPI 처리) — action 값 오류, 키가 있는데 revision 없음 등. 분류는 blockPatch 설명 「저장 공통」의 오류 분류'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                keyWithoutRevision:
+                  summary: '(가상 값 · BE 계약안) Idempotency-Key가 있는데 revision 없음 — 거절(만료 뒤 중복 방지를 revision이 맡으므로)'
+                  value:
+                    error: { code: VALIDATION_ERROR, message: 'request validation failed', retryable: false,
+                             details: { fields: [ { loc: [body, revision], msg: 'revision is required when Idempotency-Key is sent' } ] },
+                             traceId: 'example-trace-0014' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
+        '409':
+          description: '상태 충돌 — REVISION_CONFLICT(details.current = 최신 Section) · INVALID_STATE · DUPLICATE(멱등 키 재사용 — BE 계약안)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                revisionConflict:
+                  summary: '(가상 값 · BE 계약안) 다른 탭이 먼저 복원 — 최신 Section을 details.current로'
+                  value:
+                    error: { code: REVISION_CONFLICT, message: 'section was changed', retryable: false,
+                             details: { current: { id: 12, bucket: include, exclusionReason: null, excludedStage: null, warningBadge: null, revision: 4 } },
+                             traceId: 'example-trace-0011' }
+                restoreBasisMissing:
+                  summary: '(가상 값 · BE 계약안) 최초 판정 기록이 없는 직접 제외 섹션 복원 — 원래 상태를 지어내지 않고 거절(PM-R8 결정 전)'
+                  value:
+                    error: { code: INVALID_STATE, message: 'restore basis is missing for this section', retryable: false,
+                             details: { reason: restore_basis_missing }, traceId: 'example-trace-0012' }
+                n3ExcludedInN5:
+                  summary: '(가상 값) N5에서 N3 제외 섹션 복원 — 거절(현행, `details.reason`은 BE 계약안 추가)'
+                  value:
+                    error: { code: INVALID_STATE, message: 'N3 에서 제외한 섹션은 N5 에서 되살릴 수 없다', retryable: false,
+                             details: { reason: n3_excluded_section }, traceId: 'example-trace-0013' }
   /jobs/{jobId}/sections/proceed:
     parameters:
       - $ref: '#/components/parameters/JobId'
@@ -1943,7 +2630,33 @@ paths:
       operationId: blockList
       x-screen: 'N5'
       x-source: API-CFM-01
-      description: 'sectionId 필터(섹션 단위 lazy-load), 페이징 없음. signals[] 조립(admin 2종 제외). 🟢9월.'
+      description: >
+        sectionId 필터(섹션 단위 lazy-load), 페이징 없음. signals[] 조립(admin 2종 제외). 🟢9월.
+
+
+        **[PRD v3.5.10 · 계약 확정(FE 11-04) · 구현 대기] 섹션 입력 지문 세 가지의 관계** — 셋은 같은 계산(섹션 렌더 입력의 SHA-256)이다.
+
+        - A = `/blocks`의 `sectionInputFingerprint` — 이 `/blocks` 응답 시점의 현재 섹션 입력.
+
+        - B = `/preview`의 `sections[].inputFingerprint` — 그 `/preview` 응답 시점의 현재 섹션 입력.
+
+        - C = `/preview`의 `render.result.inputFingerprint` — 표시 중인 결과를 만든 입력. 결과마다 고정된 값이라 언제 조회해도 같다.
+
+        - **비교는 두 가지만 한다**(셋 중 아무 둘이나 비교하지 않는다):
+          ① 미리보기 최신성 = B와 C(같은 `/preview` 응답 안 — 서버가 `render.isCurrent`로 계산한다). C가 `/blocks`의 A와 같아도 B와 다르면 최신이 아니다(A = C ≠ B — `/blocks`가 더 오래된 조회일 수 있다).
+          ② 표와 뷰어의 입력 일치 = A와 B. 같으면 표(`/blocks`)와 뷰어(`/preview`)가 같은 섹션 입력을 봤으므로 함께 쓴다. A ≠ B = C면 미리보기는 최신이지만 표가 다른 입력을 봤다.
+          A와 C를 직접 비교해 최신 여부를 정하지 않는다.
+        - **null**: 어느 하나라도 null이면(N5 제외·입력 구성 실패) 비교하지 않는다 — 일치로도 불일치로도 보지 않는다. 결과가 없으면 C가 없다.
+
+        - **블록이 없는 섹션**: `/blocks`에 그 섹션의 행이 없어 A가 없다 — 표와 맞출 것이 없으므로 `/preview` 안의 B·C로 미리보기 최신성만 판단한다.
+
+        - **불일치는 선후를 알려 주지 않는다**: 지문은 같은 입력인지만 알려 주고 어느 응답이 더 오래됐는지는 알려 주지 않는다. 그래서 응답 교체는 **요청을 보낸 순서**로 한다 —
+          같은 종류의 응답은 나중에 보낸 요청의 응답만 앞의 응답을 덮는다(먼저 보낸 요청의 응답이 늦게 와도 덮지 않는다).
+          A ≠ B면 두 조회를 함께 다시 보낸다(그 섹션의 `/blocks?sectionId=` 와 `/preview`). 다시 받은 A·B도 다르면 그 사이에도 입력이 바뀐 것이므로, 표는 `/blocks`, 뷰어는 `/preview`로 각자 그리고
+          두 응답을 섞어 쓰지 않는다(예: 표의 편집값을 뷰어 렌더 입력에 끼워 넣지 않는다). 다음 계기(저장 응답, 추적 task 완료, 화면 재진입)에 다시 맞춘다 — 자동 반복 재조회는 하지 않는다.
+          서로 다른 조회는 같은 시점을 보장하지 않는다. 같다는 것은 "같은 입력을 봤다"는 뜻일 뿐 같은 순간이라는 뜻이 아니다.
+
+        - 블록 revision 비교(`TextBlock.revision` ↔ `renderInput.blocks[].revision`)는 두 응답에 모두 있는 블록의 편집값 대조에만 쓴다 — 섹션 입력 전체가 같다는 증명이 아니다.
       parameters:
         - name: sectionId
           in: query
@@ -1955,6 +2668,24 @@ paths:
           content:
             application/json:
               schema: { type: array, items: { $ref: '#/components/schemas/TextBlock' } }
+              examples:
+                withSectionInputFingerprint:
+                  summary: '(가상 값 · BE 계약안) 섹션 입력 지문·배치·검사 상태가 든 블록'
+                  description: >
+                    섹션 12의 블록 둘은 같은 sectionInputFingerprint(A)를 갖는다. 이 값이 /preview의 sections[].inputFingerprint(B)와 같을 때만 표와 뷰어를 함께 쓴다.
+                    미리보기가 최신인지는 /preview 안의 B와 render.result.inputFingerprint(C)로 본다. 두 조회가 같은 순간을 뜻하지는 않는다.
+                  value:
+                    - { id: 301, sectionId: 12, displayTop: 0, blockOrder: 1, role: title, isExcluded: false, sourceKo: '피부결 개선', trans1: 'Visibly smoother skin',
+                        trans2: null, blockStatus: edited, bbox: { x: 40, y: 120, w: 520, h: 64 }, charCount: 21, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 5, layoutAdjust: null, systemAdjust: null,
+                        sectionInputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d',
+                        check: { state: settled, inputKey: 'acb339a1e3e7778195234415eee880f44a6dd39afdb04449de716024e62d896f' } }
+                    - { id: 302, sectionId: 12, displayTop: 0, blockOrder: 2, role: body, isExcluded: false, sourceKo: '수분 장벽 강화', trans1: 'Strengthens the moisture barrier',
+                        trans2: null, blockStatus: machine, bbox: { x: 40, y: 200, w: 520, h: 48 }, charCount: 32, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [ { code: prohibited_expression, reason: null, basisArticle: null, evidenceUrl: null } ], alternativeExpression: null, revision: 7,
+                        layoutAdjust: { box: { x: 27.5, y: 211.05, w: 546, h: 50.4 }, fontScale: 1.05 }, systemAdjust: null,
+                        sectionInputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d',
+                        check: { state: settled, inputKey: 'c3e85b395960bf0d665223f9cf44efe893b460ab06a782ba07808565ed62d559' } }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/blocks/{blockId}:
     parameters:
@@ -1968,20 +2699,246 @@ paths:
       x-source: API-CFM-02
       description: >
         revision 낙관적 잠금(불일치 409 REVISION_CONFLICT · details.current). char_count 즉시,
-        overflow·autoAdjust는 재렌더 후. 응답 rerenderTaskId → /tasks 폴링. 🟢9월.
+        overflow·autoAdjust는 재렌더 후. 응답 `rerenderTaskId`가 숫자면 /tasks 폴링, null이면 새 task 없음(BlockPatchResponse 설명). 🟢9월.
+
+        **[PRD v3.5.10 · 계약 확정] 실행 취소·재실행(F-CFM-03)** — 전용 API가 없다. 화면이 이력을 갖고, 되돌릴 때는
+        과거 값을 **현재 revision으로 이 API에 다시 저장**한다(새 수정 — 과거 revision으로 되돌리지 않는다).
+        일반 수정과 같은 상태 검사·revision 충돌·재렌더를 거치며, 실제 값이 바뀌는 저장이 성공하면 revision이 증가한다.
+
+        **[PRD v3.5.10 · 계약 확정 · 구현 대기] 같은 값 저장(FE 합의)** — 현재 값과 같은 값을 저장하면 revision을 유지하고
+        새 재렌더를 만들지 않는다(`rerenderTaskId: null`). 현재 서버(f85b23e)는 같은 값이어도 revision을 올리고 재렌더를 등록한다(구현 차이).
+
+        **재전송 응답의 화면 처리(FE 합의 — 멱등 재전송을 채택할 경우)** — 최초 성공 응답을 다시 돌려받으면 그 요청이 성공했다는
+        확인으로만 쓴다. 응답의 과거 `block`으로 현재 화면 캐시를 덮지 않고, 서버 상태를 재조회해 최신 값·revision으로 화면과 이력을 맞춘다.
+        과거 응답의 task ID도 현재 미리보기의 최신성을 보장하지 않는다. 응답 스키마는 바꾸지 않는다.
+        아래 확정 예시(`changed`·`sameValue`·`sameValueWhileRendering`)는 번역문만 쓴다. 배치 필드·멱등 키가 들어간 예시는 BE 계약안이다.
+
+
+        **[PRD v3.5.10 · 구현 대기] 저장 공통 — 처리 순서·멱등**(블록·섹션 PATCH 공통, sectionPatch도 이 규칙을 따른다)
+        — **계약 확정(FE 동의, 11-03)**: 아래 처리 순서 1~9·오류 분류(422·400·409)·키 생성(조작마다 UUID v4, 통신 재시도는 같은 키·같은 본문)·결과 불명 동안 후속 조작 보류.
+        **계약 확정(FE 수용, 11-04)**: 보관 24시간·기록 만료 뒤 새 요청 처리·잠금 대기 초과 503·재전송 표시 헤더 `Idempotent-Replayed: true`. 결과 불명이면 FE는 같은 키·같은 본문으로 재시도하고 그 대상의 후속 저장·Undo/Redo를 보류한다.
+        BE 계약안(서버 내부): 키 범위·같은 요청 판별·작업 취소 때 기록 삭제. **구현 대기**: 브라우저가 교차 출처 응답에서 `Idempotent-Replayed`를 읽도록 CORS `Access-Control-Expose-Headers`에 넣는다.
+
+        1. 인증(401) · 요청 형식(422 VALIDATION_ERROR — 아래 분류표) · `Idempotency-Key` 형식(422).
+
+        2. 작업 소유 확인 — 남의 작업·없는 작업은 404. 저장된 응답을 재전송하기 전에도 매번 확인한다.
+
+        3. 작업 행 잠금 — 같은 작업의 저장은 직렬화된다.
+
+        4. 작업 상태 확인 — 취소된 작업·N5 검수 중이 아닌 작업(섹션 PATCH는 N3·N5)·전환 이전 작업(PM-R0 결정 뒤) 등은 409 INVALID_STATE.
+           **멱등 기록이 있어도 재전송하지 않는다** — 권한·작업 제한을 재전송으로 건너뛰지 않는다. 이때 FE는 결과 불명 처리대로 재조회해 서버 상태에 맞춘다.
+        5. 멱등 기록 조회(키가 있을 때) — 같은 요청이면 최초 응답을 그대로 돌려준다(다시 적용하지 않고 revision도 다시 비교하지 않는다, 헤더 `Idempotent-Replayed: true`).
+           같은 키로 다른 요청이면 409 DUPLICATE `details.reason: idempotency_key_reused`, 아무것도 적용하지 않는다.
+        6. 대상 확인(없으면 404) → revision 검사 — 다르면 409 REVISION_CONFLICT(`details.current`). 같은 값 저장이어도 revision이 다르면 409다(FE 선호안 — revision 먼저).
+
+        7. 업무 검증(저장된 상태와 비교해야 아는 것) — 실패하면 400 VALIDATION_ERROR(`details.fields`) 또는 409 INVALID_STATE(`details.reason`). 요청 전체가 한 단위라 일부만 적용하지 않는다.
+
+        8. 변경 없음(no-op) 판정 — 정규화한 저장값이 지금과 같으면 200, revision 유지, `rerenderTaskId: null`, 부수 기록 없음.
+
+        9. 적용 — 변경·revision+1·부수 처리(edit_signal·재렌더 시도·검사 등록)와 멱등 기록을 **같은 DB 트랜잭션**으로 커밋한다. 변경만 남거나 기록만 남는 일이 없다.
+
+        - **오류 분류**(블록·섹션 PATCH 공통 — 스키마 오류를 400으로 바꾸지 않는다):
+          요청 형식 = 요청 본문·헤더만 보고 판단되는 것(타입·필수·허용되지 않은 키·빈 `layoutAdjust`·`box` 좌표 일부·`fontScale` ≤ 0·`trans1` null·
+          `trans1`·`layoutAdjust` 모두 없음·키 형식·키가 있는 섹션 요청의 `revision` 누락) → **422 VALIDATION_ERROR** `details.fields: [{loc, msg}]`(현행 FastAPI 처리 그대로) /
+          업무 검증 = 저장된 상태와 비교해야 아는 것(섹션 크기를 넘는 박스) → **400 VALIDATION_ERROR** `details.fields` /
+          상태 거절 = 대상·작업 상태 때문에 못 하는 것(그리지 않는 블록·N5 아님·N3 제외 섹션의 N5 복원·복원 근거 없음) → **409 INVALID_STATE** `details.reason`.
+          (참고: Error 스키마 enum 주석은 VALIDATION_ERROR를 400으로 적었지만 현행 서버는 요청 형식 오류를 422로 낸다 — 이 분류가 현행 동작과 같다.)
+        - **키 범위**: (판매자, 작업, 오퍼레이션, 키). **같은 요청** = 오퍼레이션 + 경로의 대상 ID + 정규화한 본문(생략과 null은 다르다, 숫자는 값으로 비교)의 SHA-256이 같음 —
+          같은 키를 다른 블록에 쓰면 다른 요청이다. 키 없는 요청은 멱등 보장 없이 처리한다(필수화 전 — `Idempotency-Key` 파라미터 설명).
+        - **기록**: 2xx 응답만(no-op 200 포함). 4xx(400·409·422)·5xx는 기록하지 않으므로 같은 키로 다시 보내면 그때 상태로 다시 판정한다.
+          보관 24시간(POST /jobs와 같음). 작업을 취소하면 그 작업의 기록을 지운다(번역문이 든 응답이 재전송으로 다시 나가지 않게).
+        - **동시·처리 중 재전송**: 작업 잠금으로 직렬화되므로 뒤 요청은 앞 요청이 커밋된 뒤 기록을 보고 최초 응답을 받는다(두 번 적용되지 않음).
+          잠금 대기가 한도를 넘으면 503 SERVICE_UNAVAILABLE(retryable) — 같은 키로 다시 보내도 안전하다.
+        - **응답 유실**: 같은 키·같은 본문으로 다시 보내 결과를 확인한다(저장됐으면 최초 응답, 아니면 지금 처리).
+          FE 합의: 결과 불명 동안 그 대상의 후속 저장·Undo/Redo를 보류하고, 재전송 응답은 성공 확인에만 쓰고 재조회로 화면·이력을 맞춘다. `rerenderTaskId` 필수·nullable 유지, `noOp` 필드 없음.
+        - **보관 기한 뒤 재전송**: 새 요청으로 처리된다. 최초가 실제 변경이었으면 revision이 올라 409, 최초가 no-op이었고 그 뒤 변경이 없으면 다시 no-op 200,
+          최초가 처리되지 않았으면 정상 처리 또는 409 — 어느 경우도 두 번 적용되지 않는다(revision 낙관적 잠금이 두 번째 방어선). 24시간 안에 확인하지 못하면 FE는 재조회한다.
+          이 보장은 **revision이 든 요청에만** 성립한다. 블록 PATCH는 revision이 항상 필수이고, 섹션 PATCH는 키를 보내면 revision도 필수다(키 없이 revision도 없는 섹션 요청은 멱등·중복 방지 보장 밖).
+        - **POST /jobs와 다른 점**: POST /jobs는 같은 키면 본문이 달라도 최초 응답을 돌려주고 처리 중이면 409 DUPLICATE다(Redis 기록).
+          PATCH는 본문이 다르면 거절하고(다른 편집을 성공으로 오인하지 않게) 기록을 변경과 같은 트랜잭션에 둔다.
+
+
+        **[PRD v3.5.10 · 구현 대기] 블록 배치(F-CFM-15)** — 이 API를 확장한다(새 엔드포인트 없음).
+        **계약 확정(FE 동의, 11-03)**: 요청 구조·생략/null 의미·[+][−] 계산식·섹션 밖 400·소수 유지(고정 자릿수 없음)·저장 뒤 서버 반환값으로 동기화.
+        **정규화 — 확정(FE 수용 · AI 동의 11-04)**: 2차는 1.0·원본 bbox를 셀러 조정 null로 정규화하고, 3차에 시스템 조정이 있는 상태에서는 셀러가 명시한 기본값을 보존한다(아래 「정규화」).
+
+        - 요청 `layoutAdjust: { box, fontScale }` — 셀러 조정만. 좌표 = 섹션 로컬 원본 px, 소수 유지. 배율 = 기준 글자 크기 대비 절대 배율.
+
+        - 생략·null: `layoutAdjust` 생략 = 그대로 / `layoutAdjust: null` = 셀러 조정 전부 해제 / 안쪽 `box`·`fontScale` 생략 = 그 값 유지 / 안쪽 null = 그 값만 해제 /
+          빈 객체·`box` 좌표 일부만·`trans1`·`layoutAdjust` 모두 없음 = 422(요청 형식).
+        - 정규화(저장·응답): `fontScale` 1.0 = 배율 없음(null), `box`가 원본 bbox와 같으면 박스 조정 없음(null), 둘 다 없으면 `layoutAdjust: null`.
+          같은 상태를 한 모양으로 저장해 같은 값 판정·content.csv 빈칸(PM 확정)·Undo가 어긋나지 않게 한다. 적용값은 정규화와 별개로 배율 1.0·원본 bbox다.
+          FE는 null을 적용 배율 1.0·원본 bbox로 해석하고 Undo/Redo도 정규화된 서버 상태를 쓴다(FE 회신).
+          **2차·3차 구분(AI 동의 11-04)**: 2차 = 시스템 조정이 없는 상태이므로 1.0·원본 bbox를 셀러 조정 null로 정규화한다.
+          3차 = 그 블록에 시스템 조정이 있으면 셀러가 명시한 1.0·원본 박스를 정규화하지 않고 "셀러 지정"으로 보존한다("셀러 값 없음 → 시스템 값 적용"과 구분).
+          `box`와 `fontScale`은 따로 판단한다(한 필드만 기본값이면 그 필드만 정규화·보존). FE는 실제로 바꾼 필드만 PATCH에 싣는다(안쪽 생략 = 그 값 유지).
+        - 원본 `bbox`는 바뀌지 않는다. 적용 박스 = 셀러 박스, 없으면 원본 bbox / 적용 배율 = 셀러 배율, 없으면 1.0. FE는 적용값을 /preview `renderInput`에서 읽는다.
+
+        - 화면 조작(PM 확정 F-CFM-15)과 요청: 손잡이 끌기 = `box` 크기만(배율 그대로) / 영역 옮기기 = `box` 위치만 /
+          [+][−] = 지금 영역·지금 배율에서 `box`와 `fontScale`을 함께 — FE가 새 절대값 둘을 계산해 한 요청으로 보낸다.
+          서버는 [+][−]를 해석하거나 박스를 다시 계산하지 않는다.
+          PM 확정 화면 규칙: 증감량 0.05 · 확대 기준점 = 박스 중심 · 섹션 경계를 넘으면 크기를 유지한 채 안쪽으로 이동 · 다음 확대가 섹션보다 커지면 [+] 비활성 ·
+          Undo 이력 50단계 · 옮길 때 섹션 가운데 세로선·가로선에 스냅. 계산식(FE 동의): 새 배율 s′ = s ± 0.05(절대 배율에 더하고 빼기),
+          새 박스 = 중심 고정으로 w·h에 s′/s를 곱한 뒤 섹션 안으로 이동, 계산한 절대값 전송 — 계산·경계 보정·버튼 비활성은 FE 몫.
+          버튼 비활성: [+]는 다음 확대가 섹션보다 커질 때(PM 확정). [−]는 s′ ≤ 0이 될 때(BE 제안, FE가 계산식 회신에서 버튼 비활성 처리에 동의 — PM 규칙에는 [−] 조건이 따로 없다).
+        - 범위: 0 ≤ x, 0 ≤ y, w > 0, h > 0, x + w ≤ 섹션 폭, y + h ≤ 섹션 높이(PRD I109·J109⑧, 허용 오차 없음, 십진수 비교).
+          벗어나면 **400으로 거절하고 서버가 보정하지 않는다** — 보정하면 셀러가 보낸 값과 저장값이 달라져 Undo·재전송 판별·화면이 어긋난다.
+          끌기·확대를 섹션 안으로 막는 것은 FE다(PRD J109⑧). 배율 상한은 없다(J109③).
+        - 대상: 렌더 대상 블록만(라벨·로고·빈 원문·빈 번역문 제외 — 같은 요청의 `trans1`이 번역문을 채우면 대상). 아니면 409 INVALID_STATE `details.reason: not_render_target`.
+
+        - 원자성: 모든 필드를 검증한 뒤 한 번에 적용한다. 하나라도 실패하면 번역문도 저장하지 않는다.
+
+        - 처리: 번역문만 바뀜 → revision+1·`edited`·edit_signal·재렌더 시도·검사 등록 /
+          배치만 바뀜 → revision+1·`blockStatus` 그대로(PM 확정)·edit_signal 없음·재렌더 시도·**검사 등록 없음**(검사 입력이 같아 기존 결과가 유효 — confirmReview 「검사 연결 경계」) /
+          둘 다 바뀜 → revision+1 한 번·`edited`·재렌더 시도 하나·검사 등록 / 정규화 뒤 둘 다 지금과 같음 → no-op.
+        - 2차·3차 경계: 2차는 셀러 조정만 저장한다. 시스템 자동 조정(F-TRN-04)은 3차 — 응답 `systemAdjust`는 2차에 항상 null이고 요청으로 받지 않는다(422).
+          셀러 변경은 시스템 조정값을 덮지 않는다(저장 위치가 다르다). 둘의 적용 우선순위는 3차에 정한다.
+        - 저장: `text_block.layout_adjust` 안에 `user`·`system`을 나눠 둔다(스키마안 — 마이그레이션은 구현 PR). content.csv의 `layout_x·layout_y·layout_w·layout_h·font_scale`은 `user` 값(PM 확정, 없으면 빈칸).
+      parameters:
+        - $ref: '#/components/parameters/EditIdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/BlockPatch' }
+            examples:
+              translation:
+                summary: '번역문만 수정(현행 요청과 같음)'
+                value: { revision: 4, trans1: 'Visibly smoother skin' }
+              layoutMove:
+                summary: '(가상 값 · BE 계약안) 영역 옮기기 — box 위치만, 배율 그대로'
+                description: '블록 302(원본 bbox 40, 200, 520×48)를 옮겼다. 크기는 원본과 같고 위치만 소수로 바뀐다.'
+                value: { revision: 5, layoutAdjust: { box: { x: 40.5, y: 212.25, w: 520, h: 48 } } }
+              layoutPlus:
+                summary: '(가상 값 · BE 계약안) [+] 한 번 — box와 fontScale을 함께(FE가 계산)'
+                description: >
+                  지금 영역(40.5, 212.25, 520×48)·배율 1.0에서 [+]. 증감량 0.05·박스 중심 기준은 PM 확정, 박스에 s′/s(=1.05)를 곱하는 계산식은 FE 동의.
+                  서버는 받은 절대값 그대로 저장한다.
+                value: { revision: 6, layoutAdjust: { box: { x: 27.5, y: 211.05, w: 546, h: 50.4 }, fontScale: 1.05 } }
+              layoutResize:
+                summary: '(가상 값 · BE 계약안) 손잡이 끌기 — box 크기만, 배율 그대로'
+                value: { revision: 7, layoutAdjust: { box: { x: 27.5, y: 211.05, w: 600.5, h: 50.4 } } }
+              clearScale:
+                summary: '(가상 값 · BE 계약안) 배율만 해제(첫 [+]의 Undo 등) — 박스 조정은 유지'
+                value: { revision: 8, layoutAdjust: { fontScale: null } }
+              clearAll:
+                summary: '(가상 값 · BE 계약안) 셀러 조정 전부 해제'
+                value: { revision: 9, layoutAdjust: null }
+              translationAndLayout:
+                summary: '(가상 값 · BE 계약안) 번역문과 배치를 한 요청으로 — revision 한 번 증가, 재렌더 시도 하나'
+                value: { revision: 10, trans1: 'Strengthens and protects the moisture barrier', layoutAdjust: { box: { x: 40, y: 200, w: 560, h: 48 } } }
       responses:
         '200':
-          description: '수정됨 (재렌더·재검증 트리거)'
+          description: '저장 성공. 값이 바뀐 저장이면 revision 증가·새 재렌더 task, 같은 값 저장이면 revision 유지·rerenderTaskId null'
+          headers:
+            Idempotent-Replayed:
+              description: >
+                [PRD v3.5.10 · 계약 확정(FE) · 구현 대기] 같은 Idempotency-Key·같은 요청의 재전송에 최초 응답을 돌려줄 때만 `true`. 본문은 최초 응답 그대로다.
+                FE는 이 헤더가 없어도 재전송한 요청의 응답을 성공 확인에만 쓰고 재조회한다(FE 합의). 교차 출처에서도 읽히도록 CORS 노출 헤더에 넣는다(구현 대기).
+              schema: { type: string, enum: ['true'] }
           content:
+
             application/json:
               schema: { $ref: '#/components/schemas/BlockPatchResponse' }
+              examples:
+                changed:
+                  summary: '(가상 값) 번역문 변경 — revision 4→5, 새 재렌더 task'
+                  description: '요청 `{"trans1": "Visibly smoother skin", "revision": 4}`. 이 요청으로 만든 task 9183을 추적하고 done이면 블록·/preview를 재조회한다.'
+                  value:
+                    block:
+                      { id: 301, sectionId: 12, displayTop: 0, blockOrder: 1, role: title, isExcluded: false,
+                        sourceKo: '피부결 개선', trans1: 'Visibly smoother skin', trans2: null, blockStatus: edited,
+                        bbox: { x: 40, y: 120, w: 520, h: 64 }, charCount: 21, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 5 }
+                    rerenderTaskId: 9183
+                sameValue:
+                  summary: '(가상 값) [구현 대기] 현재 revision으로 같은 값 저장 — revision 유지, 새 task 없음'
+                  description: >
+                    요청 `{"trans1": "Visibly smoother skin", "revision": 5}`(현재 값과 같음). revision 5 유지, `rerenderTaskId: null`.
+                    null은 새 task를 만들지 않았다는 뜻일 뿐 렌더 완료를 뜻하지 않는다. 현재 서버는 아직 revision을 올리고 task를 만든다.
+                  value:
+                    block:
+                      { id: 301, sectionId: 12, displayTop: 0, blockOrder: 1, role: title, isExcluded: false,
+                        sourceKo: '피부결 개선', trans1: 'Visibly smoother skin', trans2: null, blockStatus: edited,
+                        bbox: { x: 40, y: 120, w: 520, h: 64 }, charCount: 21, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 5 }
+                    rerenderTaskId: null
+                sameValueWhileRendering:
+                  summary: '(가상 값) [구현 대기] 이전 렌더 진행 중 같은 값 저장 — 새 task 없음, 기존 렌더 추적 유지'
+                  description: >
+                    직전 저장(changed)으로 만든 task 9183이 running인 동안 같은 값을 다시 저장했다. 응답은 sameValue와 같다(revision 5, null).
+                    화면은 null을 받았다고 9183 추적을 멈추지 않는다 — 9183이 done이면 블록·/preview를 재조회한다.
+                    같은 값 저장은 진행 중인 9183을 취소하지 않는다.
+                  value:
+                    block:
+                      { id: 301, sectionId: 12, displayTop: 0, blockOrder: 1, role: title, isExcluded: false,
+                        sourceKo: '피부결 개선', trans1: 'Visibly smoother skin', trans2: null, blockStatus: edited,
+                        bbox: { x: 40, y: 120, w: 520, h: 64 }, charCount: 21, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 5 }
+                    rerenderTaskId: null
+                layoutOnly:
+                  summary: '(가상 값 · BE 계약안) 배치만 수정 — revision 6→7, 「사용자수정」 그대로, 새 재렌더 task'
+                  description: >
+                    요청 = 요청 예시 layoutPlus. blockStatus는 machine 그대로(PM 확정), 검사 입력이 같아 검사를 다시 등록하지 않으므로 check.state는 settled 그대로다.
+                    재렌더 task 9190을 추적하고 done이면 /preview로 넘침을 본다. layoutAdjust·systemAdjust·check는 BE 계약안 필드다.
+                  value:
+                    block:
+                      { id: 302, sectionId: 12, displayTop: 0, blockOrder: 2, role: body, isExcluded: false,
+                        sourceKo: '수분 장벽 강화', trans1: 'Strengthens the moisture barrier', trans2: null, blockStatus: machine,
+                        bbox: { x: 40, y: 200, w: 520, h: 48 }, charCount: 32, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 7,
+                        layoutAdjust: { box: { x: 27.5, y: 211.05, w: 546, h: 50.4 }, fontScale: 1.05 }, systemAdjust: null,
+                        sectionInputFingerprint: '44fa75cf8c257a8422e49648a93363231748f4bfafef6d57cd8b2ac368dbff83',
+                        check: { state: settled, inputKey: 'c3e85b395960bf0d665223f9cf44efe893b460ab06a782ba07808565ed62d559' } }
+                    rerenderTaskId: 9190
+        '422':
+          description: '요청 형식 오류(현행 FastAPI 처리) — 아무것도 적용하지 않는다. 분류는 설명 「저장 공통」의 오류 분류'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                emptyLayoutAdjust:
+                  summary: '(가상 값 · BE 계약안) 빈 layoutAdjust — 요청 형식 오류(422)'
+                  value:
+                    error: { code: VALIDATION_ERROR, message: 'request validation failed', retryable: false,
+                             details: { fields: [ { loc: [body, layoutAdjust], msg: 'layoutAdjust must have at least one of box, fontScale' } ] },
+                             traceId: 'example-trace-0005' }
+        '400':
+          description: '[PRD v3.5.10 · BE 계약안] 업무 검증 실패(저장된 섹션 크기와 비교 — 박스 범위) — 아무것도 적용하지 않는다. 요청 형식 오류는 422'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                boxOutsideSection:
+                  summary: '(가상 값 · BE 계약안) 섹션 밖 박스 — 거절하고 보정하지 않는다'
+                  value:
+                    error: { code: VALIDATION_ERROR, message: 'layoutAdjust.box must be inside the section', retryable: false,
+                             details: { fields: [ { loc: [body, layoutAdjust, box], msg: 'x + w = 880.5 exceeds section width 860' } ] },
+                             traceId: 'example-trace-0001' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
+        '409':
+          description: '상태 충돌 — REVISION_CONFLICT(details.current) · INVALID_STATE · DUPLICATE(멱등 키 재사용 — BE 계약안)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                revisionConflict:
+                  summary: '(가상 값) 다른 탭이 먼저 저장 — 최신 블록을 details.current로(현행)'
+                  description: 'revision 검사는 같은 값 판정보다 먼저다(같은 값이어도 409). FE는 그 블록의 이력 항목만 정리하고 current로 맞춘다.'
+                  value:
+                    error: { code: REVISION_CONFLICT, message: 'block was changed', retryable: false,
+                             details: { current: { id: 301, sectionId: 12, blockOrder: 1, role: title, trans1: 'Smoother-looking skin', blockStatus: edited, revision: 6 } },
+                             traceId: 'example-trace-0002' }
+                idempotencyKeyReused:
+                  summary: '(가상 값 · BE 계약안) 같은 Idempotency-Key로 다른 요청 — 거절, 아무것도 적용하지 않음'
+                  value:
+                    error: { code: DUPLICATE, message: 'Idempotency-Key was used for a different request', retryable: false,
+                             details: { reason: idempotency_key_reused }, traceId: 'example-trace-0003' }
+                notRenderTarget:
+                  summary: '(가상 값 · BE 계약안) 그리지 않는 블록(라벨·로고·빈 원문·빈 번역문)의 배치 저장 — 거절'
+                  value:
+                    error: { code: INVALID_STATE, message: 'layout can be adjusted only for rendered blocks', retryable: false,
+                             details: { reason: not_render_target }, traceId: 'example-trace-0004' }
   /jobs/{jobId}/preview:
     parameters:
       - $ref: '#/components/parameters/JobId'
@@ -1994,12 +2951,227 @@ paths:
       description: >
         displayTop·scale·previewHeight 서버 계산(미저장). scale=previewWidth/maxOriginalWidth · align=left.
         섹션별 presigned. N3 제외 제외 · N5 제외는 bucket=exclude 포함. 🟢9월.
+
+
+        **[PRD v3.5.10 · BE 계약안 · 구현 대기] 렌더 입력·현재 시도·표시 결과** — FE가 필드 설계를 BE에 맡긴 항목이다
+        (FE 요구: 표시 preview의 입력, 현재 시도 상태, 표시 preview가 현재 입력의 결과인지). 필드 이름·구조는 이 계약안이다.
+        `renderInput.blocks[].style` 최소 필드는 BE 계약안(AI 확인)이고, 정렬 근거의 저장·지문 표현은 AI 확인 대상이다. 다만 렌더 결과를 바꾸는 값을 지문에 넣는 것은 후보가 아니다(`inputFingerprint` 원칙).
+        현재 서버(f85b23e)는 이 필드들을 내지 않는다. 필드 제공 규칙·호환은 ReviewPreview 설명에 있다.
+
+
+        - **한 스냅샷**: 한 응답의 `renderer`·`renderInput`·`inputFingerprint`·`render`는 서버의 같은 시점 상태로 만든다.
+          최신성은 이 응답 안에서만 비교하고, 다른 조회(`/blocks`)의 revision과 섞어 판단하지 않는다.
+        - **최신성은 지문으로**: revision만 비교하지 않는다. 렌더 결과를 바꾸는 입력은 모두 지문에 들어가므로(배율·정렬 근거 포함 — 원칙)
+          revision이 같아도 스타일·배경·배율·렌더러가 바뀌면 `isCurrent=false`다.
+        - **서버 입력 기준**: `isCurrent`는 조회 시점에 서버가 저장한 입력 기준이다. FE의 저장 전 로컬 편집과 같다는 뜻이 아니며,
+          로컬 편집과의 차이는 FE가 따로 처리한다.
+        - **넘침**: `render.result.overflow`만 판정에 쓴다. `isCurrent=false`면 서버가 null로 낸다.
+
+        - **상태 판정**(섹션마다, 같은 응답 안에서 위에서부터 처음 맞는 것 — 가능한 조합은 모두 어느 하나에 걸린다):
+          x `render=null` → N5 제외 섹션(`renderInput`·`inputFingerprint`도 null). 렌더 상태를 판정하지 않는다. 제외 표시는 기존 N5 제외 화면 규칙을 따른다.
+          i `inputError≠null` → 입력 구성 실패(`renderInput`·`inputFingerprint` null, isCurrent=false). result가 있으면 이전 이미지를 최신 아님으로, 없으면 이미지 없음. 넘침 미측정.
+            [다시 시도] 없음(같은 입력으로는 풀리지 않는다), 자동 재조회 없음, 보고. 로컬 미리보기도 할 수 없다(공통 입력이 없다). attempt가 같은 코드로 failed여도 i가 먼저다.
+          a `isCurrent=true` → 최신. 결과 이미지를 표시하고 `result.overflow`로 넘침을 표시한다.
+          b `attempt.status`가 pending·running → 진행 중. result가 있으면 이전 이미지, 없으면 이미지 없음. 넘침 미측정. `attempt.taskId`를 /tasks로 추적하고 끝나면 재조회.
+          c `attempt.status=failed` → 실패. result가 있으면 이전 이미지, 없으면 이미지 없음. 넘침 미측정. 자동 재조회 없음. `retryable`이면 [다시 시도].
+          d `attempt.status=done`이고 result가 null이거나 `attempt.taskId ≠ result.taskId` → 채택 직후·채택 거절. 한 번 재조회하고, 그대로면 e처럼 처리한다.
+          (여기까지 걸리지 않았으면 attempt는 null이거나 result와 같은 task(done)이고, isCurrent=false다.)
+          g result가 있고 `result.rendererId ≠ renderer.rendererId` → 렌더러 갱신 뒤 새 시도 등록 대기. 이전 이미지, 넘침 미측정. 재조회는 아래 「g의 재조회」.
+          e 나머지 전부 — ① result가 있고 렌더러도 같은데 입력이 바뀌었고 새 시도가 없음, ② attempt·result가 모두 null → 시도 누락(서버 결함).
+            한 번 재조회 후 그대로면 실패처럼 표시하고(result가 있으면 이전 이미지, 넘침 미측정) 보고한다. 재시도할 task가 없으므로 [다시 시도]는 없다.
+        - **렌더 대상 블록 0개**(`renderInput.blocks=[]`)는 판정의 예외가 아니다. 결과 이미지가 배경만 그린 이미지일 뿐이며 x~e를 그대로 적용한다
+          (현재 결과면 `overflow={}`). 실패·시도 누락을 정상으로 보지 않는다.
+        - **결과 없음 vs 시도 없음 vs 대상 없음**: 성공 결과 없음 = `result=null`·`renderedUrl=null`(b·c·d·e②) /
+          현재 시도 없음 = `attempt=null`(g·e — 포함 섹션의 정상 흐름에는 없다) / 렌더 대상 블록 없음 = `renderInput.blocks=[]`(판정은 같음) /
+          렌더 판정 대상 아님 = `render=null`(x).
+        - **g의 재조회**(BE 계약안 — 횟수·간격은 FE 수용): 과거 task(`result.taskId`)는 폴링하지 않는다. 새 시도 등록은 `/preview`를 다시 조회해야만
+          알 수 있으므로 다음 계기로 재조회한다 — ① g를 처음 본 뒤 제한된 자동 재조회(5초 간격 최대 12회, 약 1분 — FE 수용),
+          ② 기존 재조회 계기(추적 task 완료·구성 변경·화면 재진입)에 함께 확인, ③ 사용자의 새로고침.
+          서버는 HTML 번들 갱신 대상에 새 미리보기 시도를 등록한다. 등록 방식과 완료 시간 보장은 BE 배포 설계에서 정한다 —
+          FE의 자동 재조회 횟수는 화면의 자동 조회 종료 기준이며 서버의 등록 완료 시간 보장이 아니다.
+          재조회에서 attempt가 새 task로 바뀌면 b가 되고 이후 a·c로 이어진다(이미 끝났으면 바로 a·c·d).
+          한도에 도달해도 새 시도가 확인되지 않으면 자동 재조회를 멈추고 "새 렌더 등록을 아직 확인하지 못함"으로 처리한다.
+          이전 이미지는 최신이 아닌 상태로 유지하고 넘침은 미측정으로 표시한다. 이후 ②·③(화면 재진입·사용자 새로고침 등)으로 다시 확인할 수 있다.
+          한도 도달은 관측 정보로 기록할 수 있지만, 서버가 확인한 등록 실패와 같게 취급하지 않는다(서버 결함으로 확정하지 않는다).
+        - **렌더러 전환**: 같은 HTML 렌더 안의 공통 번들 갱신은 서버가 새 미리보기 시도를 등록한다(PM 확정). 새 시도가 확인되기 전 구간은 g다.
+          전환 이전 작업은 새 시도를 만들지 않는다(다운로드만). 대상(PM 11-04): 대상·건수를 조사해 테스트 작업을 취소로 정리할 수 있는지 확인하고 결과에 따라 정한다 — 정리가 어려우면 전환 시점의 모든 미완료 작업,
+          단 최종 렌더가 끝난 N6 저장 대기 작업은 [저장]·취소를 허용한다(조사 뒤 적용). 이 작업도 /preview에서는 g와 같은 모양이므로
+          작업 단위 표시로 먼저 구별하고 그 작업에는 g의 재조회를 하지 않는다 — 그 표시 필드는 협의 중.
       responses:
         '200':
           description: '다폭 프리뷰'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ReviewPreview' }
+              examples:
+                current:
+                  summary: '(가상 값 · BE 계약안) 1. 현재 입력과 일치하는 성공 결과 (a)'
+                  description: '`render.isCurrent=true` — `result.overflow`로 넘침을 표시한다. style 내부 키와 rendererId 값은 가상(AI 협의 후보).'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', inputError: null,
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: { '301': false } },
+                                  isCurrent: true },
+                        signals: [] } ] }
+                renderingWithPrevious:
+                  summary: '(가상 값 · BE 계약안) 2. 새 렌더 진행 중 — 이전 성공 결과 표시 (b)'
+                  description: '블록 301을 revision 6으로 저장한 직후. renderedUrl은 이전 결과(9183). overflow는 null(미측정). attempt 9184를 추적한다.'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 6, text: 'Visibly smoother, softer skin', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: '44fa75cf8c257a8422e49648a93363231748f4bfafef6d57cd8b2ac368dbff83', inputError: null,
+                        render: { attempt: { taskId: 9184, status: running, errorCode: null, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
+                failedWithPrevious:
+                  summary: '(가상 값 · BE 계약안) 3. 새 렌더 실패 — 이전 성공 결과 표시 (c)'
+                  description: '이전 이미지(9183)는 표시하되 넘침은 미측정. 반복 재조회하지 않고, retryable이므로 [다시 시도]를 보인다.'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 6, text: 'Visibly smoother, softer skin', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: '44fa75cf8c257a8422e49648a93363231748f4bfafef6d57cd8b2ac368dbff83', inputError: null,
+                        render: { attempt: { taskId: 9184, status: failed, errorCode: PREVIEW_FAILED, retryable: true },
+                                  result: { taskId: 9183, inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
+                noResultYet:
+                  summary: '(가상 값 · BE 계약안) 4. 아직 표시할 성공 결과 없음 (b)'
+                  description: '최초 렌더 진행 중. result·renderedUrl이 null. 최초 렌더가 실패하면 attempt.status=failed(c)이고 이전 이미지도 없다.'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: null,
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 1, text: 'Helps smooth skin texture', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: 'ad5b5d8b3dfc9d07ee4ca0f254b1478384d7a1ac19d01adc0115be9d0af28060', inputError: null,
+                        render: { attempt: { taskId: 9101, status: running, errorCode: null, retryable: false }, result: null, isCurrent: false },
+                        signals: [] } ] }
+                noTargets:
+                  summary: '(가상 값 · BE 계약안) 5. 렌더 대상 블록 없음 — 현재 결과 (a)'
+                  description: >
+                    렌더 대상 0개 섹션도 같은 판정을 쓴다. 결과 이미지(9102)는 배경만 그린 것이고, 현재 결과이므로 overflow는 빈 객체다.
+                    이 섹션의 시도가 진행 중·실패면 b·c로 판정한다. 배경은 인페인트 생략으로 원본.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 13, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/13/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/13/render-9102.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 13, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/13/original.png?X-Amz-Signature=example', source: original, sha256: '9459a11a24f738ce63d11734f802c837d2ea6c7ad696160503bdc5dd6c95e240' } },
+                                       blocks: [] },
+                        inputFingerprint: '6f0a3bd901530b04e141c337206284667c6d9e78fe66a9c3ed816f5ee9d52647', inputError: null,
+                        render: { attempt: { taskId: 9102, status: done, errorCode: null, retryable: false },
+                                  result: { taskId: 9102, inputFingerprint: '6f0a3bd901530b04e141c337206284667c6d9e78fe66a9c3ed816f5ee9d52647', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: {} },
+                                  isCurrent: true },
+                        signals: [] } ] }
+                excludedSection:
+                  summary: '(가상 값 · BE 계약안) 6. N5 제외 섹션 — 렌더 판정 없음 (x)'
+                  description: >
+                    `bucket=exclude`(N5)면 renderInput·inputFingerprint·render가 모두 null이다. 렌더 상태를 판정하지 않고 기존 제외 화면 규칙을 따른다.
+                    renderedUrl의 값은 이 계약안에서 바꾸지 않으며 판정에 쓰지 않는다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 14, revision: 1, sectionOrder: 1, bucket: exclude, excludedStage: N5, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/14/original.png?X-Amz-Signature=example', renderedUrl: null,
+                        renderInput: null, inputFingerprint: null, inputError: null, render: null,
+                        signals: [] } ] }
+                waitingAfterBundleUpdate:
+                  summary: '(가상 값 · BE 계약안) 7. HTML 번들 갱신 뒤 새 렌더 등록 대기 (g)'
+                  description: >
+                    렌더러가 bundle-2026.11.01에서 2026.11.05로 갱신됐고 서버가 이 섹션의 새 시도를 아직 등록하지 않았다. 입력은 그대로인데
+                    렌더러가 지문에 들어가 지문이 달라졌다. 이전 이미지를 표시하고 넘침은 미측정. 과거 task 9183은 폴링하지 않고,
+                    새 시도 등록은 /preview 재조회(「g의 재조회」 계기)로 확인한다 — 다음 예시 8이 그 결과다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.05', bundleId: 'pixlate-render@0.3.1' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: 'ad641bdfc273cd3ba0d2bc41cd757c4666eefaa014b003c7cedefed0cc6eba49', inputError: null,
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
+                newAttemptAfterBundleUpdate:
+                  summary: '(가상 값 · BE 계약안) 8. 번들 갱신 대기에서 새 시도로 전환 (g → b)'
+                  description: >
+                    예시 7 뒤 재조회한 응답. 서버가 새 렌더러로 시도 9190을 등록해 attempt가 바뀌었으므로 b다. 이제 9190을 /tasks로 추적하고,
+                    끝나면 재조회해 a(또는 c)가 된다. 이전 이미지(9183)는 계속 표시하고 넘침은 미측정.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.05', bundleId: 'pixlate-render@0.3.1' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: 'ad641bdfc273cd3ba0d2bc41cd757c4666eefaa014b003c7cedefed0cc6eba49', inputError: null,
+                        render: { attempt: { taskId: 9190, status: pending, errorCode: null, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
+                attemptMissing:
+                  summary: '(가상 값 · BE 계약안) 9. 시도·결과 모두 없음 — 서버 결함 (e)'
+                  description: >
+                    포함 섹션인데 attempt·result가 모두 null이다. 정상 흐름에는 없는 상태(시도 누락)이므로 한 번 재조회하고, 그대로면
+                    이미지 없음·넘침 미측정으로 실패처럼 표시하고 보고한다. 재시도할 task가 없어 [다시 시도]는 없다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: null,
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'b263b239c69501cf5231f2778c1174fd3361d89972a58e72ca085aefa80bc12b' } },
+                                       blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', inputError: null,
+                        render: { attempt: null, result: null, isCurrent: false },
+                        signals: [] } ] }
+                inputUnavailable:
+                  summary: '(가상 값 · BE 계약안) 10. 입력 구성 실패 — 기준 글자 크기를 정할 수 없음 (i)'
+                  description: >
+                    블록 301의 스타일 결과가 계약과 어긋나 서버가 렌더 입력을 만들 수 없다. renderInput·inputFingerprint는 null이고 값을 지어내지 않는다.
+                    현재 시도도 같은 코드로 실패했다. 이전 이미지(9183)는 최신 아님으로 두고, 넘침은 미측정, [다시 시도]는 보이지 않는다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 719, scale: 0.58, align: left,
+                      renderer: { rendererId: 'html-typeset/1+bundle-2026.11.01', bundleId: 'pixlate-render@0.3.0' },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: null, inputFingerprint: null,
+                        inputError: { code: STYLE_RESULT_INVALID, blockIds: [301] },
+                        render: { attempt: { taskId: 9186, status: failed, errorCode: STYLE_RESULT_INVALID, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d', rendererId: 'html-typeset/1+bundle-2026.11.01', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/confirm:
     parameters:
@@ -2014,11 +3186,137 @@ paths:
         전 섹션 제외 차단. acknowledgedWarnings 정합 아니면 409 INVALID_STATE(+현재 경고 목록).
         job→review/N6. confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
         FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
+
+        **[PRD v3.5.10 · 계약 확정 · 구현 대기] 번역문 검사 중 확정 거절** — 확정 대상 번역문에 필요한 규칙 검사가
+        진행 중이면 서버가 확정을 거절한다(F-CFM-09 J110⑥). 화면은 같은 동안 [저장하러 가기]를 비활성으로 둔다(2차).
+        거절 응답·검사 상태·등록 시점·"끝남"의 판정 기준은 아래 「검사 연결 경계」 BE 계약안이다(합의 전 — AI·FE 확인).
+        미리보기 재렌더 진행 중 확정은 허용한다 — **2차 유지(PM 11-04)**(현행 — 진행 중 재렌더는 취소, N6가 다시 그린다).
+        3차에 Q-07 확정 제한 ①이 켜지면 경계 판정에 필요한 렌더·판정이 실제로 대기·실행 중일 때 거절로 바뀐다(아래 「이미지 경계 이탈」).
+        저장되지 않은 번역문이 남아 있을 때 그 개수를 안내하는 확인창(PM 확정)은 화면 동작이며 위 검사 중 거절·비활성을 해제하지 않는다.
+
+        **[PRD v3.5.10 · 구현 대기] 검사 연결 경계** — 검사 연결(실행계획 BE 6번 · 2차 J 묶음) 전에 맞출 경계 계약이다.
+        제품 정책(PM 확정): 검사 중 확정 불가·화면 비활성(2차), 최종 실패는 「⚠ 검사하지 못했습니다」 안내(2차 표시) 후 확인받고 진행(**확인 절차는 3차** — PM 11-04), 확인 기록은 감사 로그.
+        **글자가 바뀌지 않은 박스·배율 변경과 섹션 제외·복원은 규제·강제 용어 검사를 다시 실행하지 않는다**(PM 확정 11-04).
+        기술 방향(AI 승인): 요청 검증과 결과 유효성 검증 분리, 기존 lease·현재 시도 검증 유지, 취소·확정 뒤 오래된 결과는 채택·등록에 쓰지 않음.
+        공개 상태 5값·상태별 버튼 처리·409 구분(`check_not_settled`·`registeredBlockIds`)은 FE 확정이다. 지문의 내부 필드·호환 구조는 BE·AI가 구현 때 정한다.
+
+        - 활성 검사(2차, 확정 — AI 회신): 규칙 검사(`run_text_check`)만. 번역문 LLM 규제 판정은 3차(AI 회신·실행계획 F-TRN-03)라 2차에는 등록하지 않는다.
+
+        - 요청·결과 형식: AI 함수의 기존 형식을 그대로 쓴다(대상 블록 키·번역문·그 실행의 고정 규제 묶음·용어집 선별 — be-handoff 8.1). 결과는 블록별 flag이며,
+          채택하면 자기 producer의 `compliance_flags` 항목만 바꾸고 화면에는 `signals`로 낸다(기존 SignalCode).
+
+        - 등록 단위: 섹션(검사 가능한 블록 전체 — 포함 섹션·제외되지 않은 블록·비공백 원문·비공백 번역문).
+
+        - **등록 보장(원래 흐름)** — 아래 흐름이 같은 트랜잭션에서 등록하므로 정상 흐름에서 `missing`·`outdated`는 생기지 않는다:
+          ① N4 번역 채택 ② 번역 재시도 채택 ③ N5 번역문이 실제로 바뀐 저장(이전 시도 대체)
+          ④ N5 섹션 복원 — **재실행이 아니라 유효한 결과의 확보**다. 현재 검사 유효성 지문의 시도가 있으면(완료·최종 실패·대기·실행 중 모두) 그대로 쓰고,
+            없을 때만(제외해 둔 사이 검사를 켰거나 규칙 버전이 바뀐 경우 등 — 유효한 결과가 없는 경우) 새 시도를 등록한다(sectionPatch 설명).
+          ⑤ 배포 — 검사를 켜는 배포와 검사 규칙 구현 버전을 바꾸는 배포에서 대상 N5 작업에 일괄 등록(#83, 배포 절차 단계).
+          등록하지 않는 경우: 글자가 바뀌지 않은 박스·배율 저장, 같은 값 저장, 섹션 제외, 유효한 결과가 있는 섹션의 복원.
+
+        - **제외·복원과 검사 대상 집합**(BE 정리 — PM 원칙과 확보 규칙을 맞춘 것): 섹션을 제외하면 그 섹션 블록은 확정 때의 검사 대상 집합(`check_not_settled` 판정·필수 확인 집합)에서 빠진다 — 결과·flag는 지우지 않는다.
+          복원하면 다시 들어오고, 기존 결과는 유효성 지문이 같으면 그대로 쓴다(섹션 포함 여부는 유효성 지문에 들어가지 않는다 — 복원만으로 `outdated`가 되지 않는다).
+          제외해 둔 사이 유효한 결과가 없어졌으면 ④로 확보한다 — "다시 실행하지 않는다"는 원칙과 부딪치지 않는다(재실행이 아니라 없는 결과를 만드는 것).
+
+        - **보조 복구 경로**: 그래도 `missing`·`outdated`가 남았으면(등록 실패·누락) 확정 요청이 그 블록의 검사를 등록하고 확정은 거절한다. 원래 흐름을 대신하지 않는다.
+
+        - **두 지문을 구분한다**(AI A4 승인 — 기술 입출력 계약 v0.1 §2. 외부 필드·호환 구조는 BE·AI 확정 전):
+          요청 검증 지문 = 기존 `StageReport.input_manifest_sha256`·`expected_input_manifest_sha256`(요청 전체, revision 포함). 고정된 요청·시도의 정합성 검증 역할을 그대로 둔다
+          (`validate_report`·lease 소유·현재 시도·실행 세대·취소/확정 가드와 함께). 요청 안의 revision은 **현재 블록 revision과 비교하지 않는다** — flag의 revision은 출처·감사 메타로 보존한다.
+          검사 유효성 지문(검사별 의미 입력 — 실제로 소비하는 입력만):
+          규칙 검사 = 섹션·대상 블록 키, 원문·번역문 내용, 적용 국가·규제 분류, 고정 사전 묶음에서 실제 소비한 행, 강제 용어 공급·선별과 영어 매칭 규칙·구현 버전.
+          현행 규칙 검사 요청에는 국가(`target_country`)만 있고 언어 필드가 없다 — 언어를 넣으려면 요청 형식과 함께 바꾼다(지금 입력으로 단정하지 않는다).
+          LLM 검사(3차) = 국가·대상 언어·분류·규제 항목·참고 항목 스냅샷, 섹션 전체 블록 순서·역할·원문·대상/비대상·라벨/로고, 모델·프롬프트 SHA·분할 한도·검사 버전.
+          **블록 revision·박스·배율·스타일·렌더러는 넣지 않는다.** 활성 검사 구성(`active_checks`)도 검사별 지문에 넣지 않는다 — 다른 검사를 켰다는 이유로 바뀌지 않은 규칙 검사를 다시 돌리지 않는다.
+          작업의 검사 종료 판정은 활성 구성과 검사별 유효 결과를 함께 본다. 현재 입력과의 최신성은 이 지문만으로 본다 — 배치만 바뀌어 revision이 올라도 같다.
+          검사 유효성 지문에서 revision을 빼는 것과 요청 검증에서 revision을 빼는 것은 다른 변경이다 — 이 계약은 앞의 것만 한다.
+
+        - 결과 채택 조건: 현재 시도 · lease 세대 · `validate_report`(요청 검증) 통과 + 시도에 고정한 유효성 지문 = 지금 입력으로 다시 계산한 유효성 지문. 하나라도 아니면 보고 전체를 거절한다(블록별 부분 채택 없음).
+          확정이 하류 실행을 닫은 뒤 도착한 결과도 거절한다.
+
+        - "오래된 결과" = 결과의 유효성 지문이 지금 유효성 지문과 다른 결과다. 블록 revision 불일치로 정의하지 않는다.
+
+        - 블록 `check.inputKey` — **기준 확정(AI 11-04)**: 규칙 검사 = 블록 ID, 원문·번역문, 그 블록에 적용되는 고정 사전·용어집 선별 결과, 규칙 버전 등 의미 입력.
+          LLM 검사(3차) = 여기에 섹션 전체 문맥과 모델·프롬프트·구현 버전·분할 한도를 더한다. 배치·배율·저장 revision은 두 검사 모두 넣지 않는다.
+          블록별 키는 **확인 최신성 대조용**이며 섹션 단위 검사 결과의 블록별 부분 채택을 허용하는 것이 아니다(채택은 계속 섹션 보고 전체 단위).
+          같은 섹션의 다른 블록 번역문이 바뀌어 섹션을 다시 검사해도, 규칙 검사에서 바뀌지 않은 블록의 키는 같으므로 그 블록에서 한 확인은 유효하다(LLM 검사는 섹션 문맥이 키에 들어가 바뀐다).
+
+        - 버전 변경(AI A7 승인): 검사 의미·구현 버전이 바뀌면 **영향받는 검사만** 유효성 지문이 바뀌어 기존 결과·최종 실패를 재사용하지 않고, 배포가 새 시도를 등록한다(시점·백필은 BE 운영 절차).
+          예전 지문이 비교 불가능하면 유효 검사로 승계하지 않는다(`outdated`). 과거 실행의 고정 묶음을 최신 사전으로 재해석하지 않는다. 지문이 같은 입력의 최종 실패는 다시 실행하지 않는다.
+          검사를 새로 켜면 그 검사만 `missing`이 되어 등록된다 — 이미 끝난 다른 검사 결과는 그대로다.
+
+        - 배치만 바뀐 경우: 지문이 같으므로 진행 중 검사는 그대로 채택되고, 끝난 결과도 유효하다(`settled` 유지).
+
+        - 번역문이 바뀐 경우: 새 시도가 이전 시도를 대체한다. 이전 시도의 늦은 보고는 현재 시도가 아니라서 거절되고, 이전 결과는 `outdated`, 새 결과를 채택하면 `settled`.
+
+        - 공개 상태와 FE 처리 — **계약 확정(FE 동의, 11-03)**(블록 `check.state` — 검사 대상이 아니면 null). 확정 버튼은 포함 섹션 검사 대상 블록의 상태로 정한다:
+          settled = 결과(`signals`) 표시. 모든 블록이 settled·failed면 버튼 활성 /
+          in_progress = 「검사 중」 표시, 버튼 **비활성**(PRD J110⑥). /tasks(taskType=verify, unitType=section)를 기존 2초 폴링으로 추적하고 끝나면 /blocks 재조회 /
+          failed = 「⚠ 검사하지 못했습니다」, 버튼 활성 — 2차에는 확인 없이 확정을 통과한다. 3차부터 확정 때 `check_failed`를 확인 대상으로 보낸다 /
+          missing·outdated = 「검사 준비 중」 표시, 버튼 **활성으로 둔다**(정상 흐름에서는 생기지 않는 상태). 화면 진입·재조회 때 그대로면 확정 요청이 보조 복구 경로가 되어
+          서버가 검사를 등록하고 409 `check_not_settled`로 답한다 → 그 블록이 in_progress가 되고 버튼이 비활성으로 바뀐다. 버튼을 막아 복구 요청이 나가지 않는 일이 없게 한다.
+
+        - **이미지 경계 이탈(Q-07) — PM·AI 기준으로 통일(11-04)**. FE의 "섹션별 이미지 경계" 선호는 최종 합의가 아니다. 포함 섹션만 대상이고 제외 섹션은 대상이 아니다.
+          **좌표계**: 제외를 반영한 **최종 결합 이미지**. 최종 블록 y = 섹션 로컬 y + 제외 반영 출력 위치(output offset — 앞선 포함 섹션 높이의 합).
+          `/preview`의 `displayTop`은 N5 제외 섹션 높이를 포함하므로 출력 위치로 재사용하지 않는다.
+          **재사용·재판정**: 섹션 자체 입력(섹션 렌더 입력 지문)이 같으면 유효한 섹션 이미지를 다시 쓴다 — 출력 위치는 섹션 렌더 입력 지문에 넣지 않는다.
+          제외·복원 뒤에는 최종 합성과 경계 재판정이 필요하다(판정 대상 = 포함 섹션 순서·각 섹션의 **현재 렌더 입력 지문**·출력 위치·규칙 버전 — 결과 지문이 아니다). 뒤 섹션의 글자를 무조건 다시 렌더하지 않는다.
+          섹션 렌더가 실제로 대기·실행 중이면 판정 진행 중(①)이고, 렌더·입력 구성·판정이 실패했거나 필요한 시도가 없으면 판정 없음·실패(③ — 마지막 완료 판정)다.
+          지문이 다른 것만으로는 진행 중이 아니다 — 이전 판정을 최신(`current`)으로 인정하지 않을 뿐이다.
+          **중간 섹션 이미지의 글자 잘림(AI 기술 제안 11-04 — 구체화 필요)**: 블록 bbox 초과·섹션 경계 초과·최종 이미지 경계 이탈을 구분한다.
+          실제 글리프 경계로 픽셀 손실을 검출하고, 픽셀을 보존할 수 있으면 최종 합성 기준으로 판정하며, 보존할 수 없으면 섹션 렌더를 성공으로 처리하지 않는 방향이다.
+          이 실패를 N4·N5 출력 정책(N4 렌더 실패 = 원본, N5 갱신 실패 = N6 재렌더)과 어떻게 잇는지와 오류 표현(시도 실패 코드·화면)은 아직 정하지 않았다.
+          **적용 차수(PM 11-04)**: Q-07 경계 이탈 판정·최종 결합 좌표계·아래 확정 제한·관련 N6 오류 화면·N6 [중단]→N5 복귀는 모두 **3차(11/27)**다(PRD의 「12월」은 기존 로드맵 표기).
+          **2차(11/6)에는 Q-07 차단을 켜지 않는다** — `boundaryCheck`를 내지 않고 아래 409 사유를 쓰지 않으며, 미리보기 재렌더 진행 중 확정 허용을 유지한다.
+          2차의 블록 넘침 재판정(`render.result.overflow` — 블록 박스 기준)은 최종 이미지 경계 이탈 판정과 별개이고 지금처럼 확정을 막지 않는다.
+          **확정 제한 — 3차, PM 제품 결정(11-04)**:
+            ① 필요한 섹션 렌더·경계 판정이 실제로 대기·실행 중 → 버튼 비활성, 서버도 확정 거절(409 `boundary_check_in_progress` — 이름 후보). 지문이 다른 것만으로는 진행 중이 아니다
+            ② 현재 입력의 판정 완료(`basis: current`) → 그 결과로 정한다. 이탈이면 차단(409 `image_boundary_exceeded`, `details.basis: current`) — 확인 목록으로 풀 수 없다
+            ③ 현재 입력의 판정 실패·미등록 → **마지막으로 유효하게 채택된 완료 판정**을 쓴다(`basis: last_completed`). 그 판정이 정상이면 진행을 허용하되 현재 입력의 정상 판정으로 표시하지 않는다
+            ④ 마지막 완료 판정이 이탈 → 차단 유지(`image_boundary_exceeded`, `details.basis: last_completed`). 최신 입력에 대한 서버 재판정(`basis: current`)에서 해소돼야 풀린다
+            ⑤ 완료 판정이 한 번도 없음(`basis: none`) → 진행 허용. 판정 부재를 이탈 없음으로 바꾸지 않는다(`exceeded: null`, `confirmBlock.blocked: false`). 실제로 진행 중이면 ①이 먼저다
+            놓친 이탈은 N6 최종 렌더 판정에서 확인한다(렌더 실패와 같은 오류 → [중단] → 수정 보존 N5 복귀 — 3차, 현행 중단 API는 N2·N4만).
+            지난 입력의 늦은 정상 결과로 기존 이탈 차단을 풀지 않는다 — 판정은 채택 때의 현재 판정 대상 키와 입력 키가 같을 때만 채택한다(`BoundaryCheck` 설명, 구현 방법은 BE 해석).
+          **AI 기술 의견(11-04 — PM 결정과 다름, 따로 기록)**: 현재 키와 다른 이전 정상 판정으로 허용하면 안 된다(③의 정상 허용·⑤와 다르다).
+          PM은 판정 실패·미등록이 확정 전체를 막지 않게 하고, 알려진 이탈은 해소 전까지 막으며, 놓친 이탈은 N6 최종 판정에서 잡는 쪽을 택했다 — 3차에는 PM 결정을 적용한다.
+          **응답**: 섹션 렌더 결과(`render.result`)는 섹션 단위이고 `isCurrent`가 아니면 비워지므로, 최종 결합 좌표의 판정과 과거 이탈에 따른 차단을 함께 나타낼 수 없다.
+          과거 판정을 최신 결과처럼 보이면 안 되므로 BE 계약안은 작업 단위 `ReviewPreview.boundaryCheck`로 판정 상태(`state`)·판정 기준(`basis`)·확정 차단(`confirmBlock`)을 나눠 낸다.
+          이 구조는 FE가 수용했고(F23 — 11-04), 판정 대상 키·판정 입력 키·규칙 버전 구성은 AI가 동의했다(A15 — 11-04). 차단 정책은 위 PM 결정이다.
+
+        - 확정 조건: 포함 섹션의 검사 대상 블록이 모두 `settled`·`failed`인 경우 — **2차**에는 `failed`도 확인 없이 통과한다(거절은 검사 중·미종료만).
+          **3차**부터는 `failed`이면 확인받아야 통과한다(PM 11-04). 그 밖의 블록이 있으면 409 INVALID_STATE
+          `details.reason: check_not_settled`, `details.blocks: [{blockId, state}]`, 이 요청이 검사를 등록한 블록 `details.registeredBlockIds`(FE 확정 — 등록으로 생긴 409를 다른 충돌과 구분). `missing`·`outdated`는 같은 요청에서 서버가 검사를 등록한다 —
+          등록은 커밋하고 확정만 거절하므로, FE는 그 블록이 `in_progress`가 된 것을 보고 끝나기를 기다린다.
+          3차에 `failed`를 확인하지 않았으면 기존 409 INVALID_STATE(`details.warnings`)로 거절한다 — 확인 요청 형식은 ConfirmRequest 설명(신호 `check_failed`, 후보). 2차에는 이 확인을 요구하지 않는다.
+          **차수**: PM이 2차로 명시한 동작 — 검사 중 [저장하러 가기] 비활성·서버 확정 거절(PM C4·C9), 미저장 번역문 확인창(PM D1) — 은 **2차 확정**이다.
+          규칙 검사 결과의 **표시**(금지·조건부 칩 포함 — `regulationVerdict`)는 확인 절차와 별개로, 규칙 검사 연결(J 묶음 · F-TRN-03a · 2차)의 결과 표시 범위로 둔다(BE 해석 — 실행계획 J 배정 근거).
+          검사 최종 실패·미해결 규제 경고의 확정 시 필수 확인(`check_failed`·`prohibited_expression`)과 실행 실패 섹션 확인(`acknowledgedSections`)은 **3차(PM 11-04)**다 —
+          2차의 미저장 번역문 확인창에 항목을 더하는 방향. 현행 `translation_failed` 확인은 2차에도 그대로 유지된다.
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/ConfirmRequest' }
+            examples:
+              acknowledgeAfterChecks:
+                summary: '(가상 값 · 3차 · BE 계약안) 최종 실패·미해결 규제 경고·번역 실패를 확인하고 진행'
+                description: >
+                  블록 301은 검사 최종 실패(check_failed), 302는 미해결 규제 경고(prohibited_expression), 303은 번역 실패(translation_failed).
+                  검사에서 나온 두 항목에는 화면이 보여 준 결과의 `check.inputKey`를(확정 — 필수 확인은 3차), 번역 실패에는 실패 번역 시도의 `taskId`를(FE 동의 11-04) 함께 보낸다. 기준이 현재와 다르면 409.
+                  mandatory_term_unapplied·width_overflow는 보내도 무시된다(PRD F-CFM-09 — 확인 대상 아님, 신호는 그대로 보인다). 서버 현재 입력의 미해결 집합과 같아야 진행된다.
+                value:
+                  acknowledgedWarnings:
+                    - { blockId: 301, code: check_failed, inputKey: 'acb339a1e3e7778195234415eee880f44a6dd39afdb04449de716024e62d896f' }
+                    - { blockId: 302, code: prohibited_expression, inputKey: 'c3e85b395960bf0d665223f9cf44efe893b460ab06a782ba07808565ed62d559' }
+                    - { blockId: 303, code: translation_failed, taskId: 9120 }
+              acknowledgeWithSections:
+                summary: '(가상 값 · 3차 · BE 계약안) 블록 경고와 실행 실패 섹션을 한 확인창에서 확인'
+                description: '섹션 14는 N4 미리보기 렌더가 최종 실패(task 9201 — N4 최초 시도의 같은 입력 재시도)했고 성공 이력이 없다(render_failed 대상). PM 확정: N6는 이 섹션에 원본을 쓰고 새 렌더 실패로 세지 않는다. 이전 성공 결과가 있는 N5 갱신 실패 섹션은 이 목록에 넣지 않는다.'
+                value:
+                  acknowledgedWarnings:
+                    - { blockId: 303, code: translation_failed, taskId: 9120 }
+                  acknowledgedSections:
+                    - { sectionId: 14, reason: render_failed, taskId: 9201 }
       responses:
         '200':
           description: 'N6 진입'
@@ -2026,7 +3324,21 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Job' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
+        '409':
+          description: '상태 충돌 — 전 섹션 제외(ALL_SECTIONS_EXCLUDED) · 경고 확인 불일치(INVALID_STATE details.warnings) · 검사 미종료(INVALID_STATE details.reason, BE 계약안)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                checkNotSettled:
+                  summary: '(가상 값 · BE 계약안) 검사가 끝나지 않은 블록이 있어 확정 거절'
+                  description: >
+                    블록 301은 검사 진행 중, 302는 이전 입력 결과만 있었다. 서버는 302의 검사를 이 요청에서 등록(커밋)했으므로 이후 조회에서 302는 in_progress다.
+                    FE는 [저장하러 가기]를 비활성으로 두고 검사가 끝난 뒤 다시 확정한다.
+                  value:
+                    error: { code: INVALID_STATE, message: 'translation checks are not settled', retryable: false,
+                             details: { reason: check_not_settled, blocks: [ { blockId: 301, state: in_progress }, { blockId: 302, state: outdated } ], registeredBlockIds: [302] },
+                             traceId: 'example-trace-0021' }
 
   /jobs/{jobId}/render:
     parameters:
@@ -2101,6 +3413,11 @@ paths:
         만들지 않고 400 VALIDATION_ERROR(error.details.unsupported). csv·images와 html·psd가 섞여 있어도 전체 400이고 산출물을 만들지 않는다.
         둘 이상 고르면 하나의 zip 으로 묶어 artifactType=zip 을
         반환하고, 하나만 고르면 그 구성요소(csv·images)를 반환한다.
+
+        **content.csv 열** — 현행 `sectionId, blockOrder, role, sourceKo, trans1`.
+        **[PRD v3.5.10 · 계약 확정 · 구현 대기]** 뒤에 배치 조정 5열 `layout_x, layout_y, layout_w, layout_h, font_scale`을 더한다(F-CFM-15 H109).
+        값은 셀러 배치 조정값 — 좌표·크기는 섹션 로컬 원본 px(소수 그대로), font_scale은 무차원 배율. 조정하지 않은 항목은 빈칸
+        (박스만 조정하면 font_scale만 빈칸, 배율만 조정하면 layout_* 4열이 빈칸). 수식 주입 방어는 모든 열에 같게 적용.
       requestBody:
         required: true
         content:

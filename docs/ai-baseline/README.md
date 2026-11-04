@@ -5,6 +5,8 @@
 
 릴리즈 1.0.1과 후속 고도화 버전의 품질을 같은 평가셋과 방법으로 비교하기 위한 문서다. 제품 버전과 평가 명세 버전은 구분한다.
 
+> 2026-11-04 사용자 결정: GS-01 2장 평가는 평가 도구·절차 검증과 문제 발견을 위한 **사전 검증(Pilot Evaluation)**으로 분류한다. AI 최초 결과에 대한 PM 검수·공식 확정은 진행하지 않으며 기존 검수 요청은 철회한다. PM 승인 기준 자료 58개 항목의 동결은 유지한다. 향후 GS-01~03 전체 34장 공식 평가는 별도로 진행하며, 이번 결과를 공식 성능 지표나 버전 비교의 확정 기준으로 사용하지 않는다. [Pilot 결과 안내](evaluations/baseline-v1-0-1-gs01-20261103/README.md).
+
 ## 기준과 승인 상태
 
 1~5단계 평가 기준은 [PR #89](https://github.com/ai-pixlate/server/pull/89)의 develop 병합 커밋 `33bd1efe3f415a756879e1a391db18577c865b7c`을 기준으로 유지한다. GitHub 문서와 승인 커밋이 공식 정본이며 Notion은 계획 입력·이력·링크 용도다. 두 내용이 다르면 GitHub 기준을 따른다.
@@ -30,7 +32,7 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |
 
-지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md)은 PM 검토·동결 전이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
+지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리하며 GS-02·03은 미동결이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
 
 [기존 측정 도구 안내](../../tools/baseline/README.md)는 기존 구현의 사용법·검증 범위만 설명한다. 도구 출력이 최신 명세와 일치한다고 가정하지 않으며 도구 정비·실행은 별도 작업이다.
 

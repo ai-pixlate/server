@@ -129,12 +129,14 @@ Codex의 최초 평가 및 재평가 기록이다. 기본 단위는 원본×체�
 
 ## metrics.csv
 
-집계 대상×지표×체크포인트×하위 결과당 한 행이다. 핵심·보조 지표·원인 단계별 결함 건수와 내부 파생 분석을 함께 저장하되 구분한다.
+분류명은 [AI 파이프라인 평가 지표](../protocols/v1/aggregation.md#ai-파이프라인-평가-지표-분류)를 따른다. 단계별 기술 품질 지표의 독립 평가 범위는 그대로 유지하며 이번 분류 변경으로 결과 파일 필드나 지표 ID를 추가하지 않는다.
+
+집계 대상×지표×체크포인트×하위 결과당 한 행이다. 서비스 성과 지표·운영 성능 지표·공통 결함 분석의 건수와 내부 파생 분석을 함께 저장하되 구분한다.
 
 최소 열: `evaluation_run_id`, `metric_id`, `scope`, `case_id`, `source_key`, `checkpoint`, `breakdown`, `numerator`, `denominator`, `value`, `unit`, `applicable_count`, `measured_count`, `not_applicable_count`, `undetermined_count`, `no_output_count`, `evaluation_failed_count`, `ai_only_count`, `human_checked_count`, `display_reason`, `evidence_refs`, `aggregation_basis`, `include_in_presentation`.
 
 - `scope`는 전체·상품·원본 등 집계 범위를 명시한다. `breakdown`은 A/B/C, 수정 건수 구간, 원인 단계×심각도 등 기존 결과 구분을 담는다. 미사용 ID·수치 셀은 null이다.
-- `metric_id`는 기존 H01~H05·OP01~OP07을 재사용한다. 별도 지표 ID가 없는 원인 진단·파생 분석은 ID를 임의의 새 핵심 지표로 만들지 않고 null과 설명을 사용한다.
+- `metric_id`는 기존 H01~H05·OP01~OP07을 재사용한다. 별도 지표 ID가 없는 원인 진단·파생 분석은 ID를 임의의 새 서비스 성과 지표로 만들지 않고 null과 설명을 사용한다.
 - `aggregation_basis`에 사용한 실행·평가 ID와 사람 검수 반영 내역, 집계 방식·버전을 연결한다. 최신 유효 평가와 해당 항목의 사람 수정만 반영하고 이전 이력을 중복 계산하지 않는다.
 - 분자·분모·0건 표시·예외 건수는 [집계 명세](../protocols/v1/aggregation.md)를 그대로 적용한다. 정상 측정 0건을 0%나 100%로 채우지 않는다. H01처럼 개별 분모가 양수인 경우에는 개별 규칙이 우선한다.
 - OP06 무수정 승인률의 `include_in_presentation`은 false다. 내부 기록과 기존 계산식은 유지하며 H05는 별도다.

@@ -91,7 +91,9 @@ class BlockUpdate(BaseModel):
 @router.patch("/jobs/{job_id}/blocks/{block_id}", summary="API-CFM-02 번역문 셀 수정 (DB·낙관적 잠금)")
 def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     """N5 에서만 수정한다. revision 이 같아야 하고, 수정하면 revision+1 · edited · 수정 전후 기록(edit_signal).
-    같은 트랜잭션에서 그 섹션의 미리보기 재렌더 시도를 현재 revision 으로 만든다(옛 렌더 결과는 거절된다)."""
+    같은 트랜잭션에서 그 섹션의 미리보기 재렌더 시도를 현재 revision 으로 만든다(옛 렌더 결과는 거절된다).
+    현재 값과 같은 값이면(소유·작업 상태·revision 검사를 통과한 뒤 판정) 아무것도 바꾸지 않는다 — revision·blockStatus·
+    edit_signal·진행 중 렌더 그대로, 전체 TextBlock 과 rerenderTaskId=null(계약 blockPatch 「같은 값 저장」)."""
     from app import execution
     from app.flows.downstream import rerender_section
 
@@ -116,6 +118,11 @@ def update_block(job_id: int, block_id: int, body: BlockUpdate, db: Session = De
             status_code=409,
             detail={"code": "REVISION_CONFLICT", "message": "block was changed", "current": latest},
         )
+    if cur["trans_1"] == body.trans1:
+        # 같은 값 저장(no-op): 쓰기·기록·재렌더 없음. 재렌더 등록 가능 여부는 묻지 않는다. NULL 칸에 빈 문자열은 같은 값이 아니다
+        block = _blocks(db, job_id, block_id=block_id)[0]
+        db.rollback()  # 바꾼 것이 없으므로 잠금만 푼다
+        return {"block": block, "rerenderTaskId": None}
 
     db.execute(
         text(

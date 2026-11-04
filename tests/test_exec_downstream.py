@@ -636,6 +636,77 @@ def test_block_patch_returns_full_block_and_conflict_current(env):  # D
     assert set(b) <= set(err["details"]["current"])
 
 
+def _edit_signals(block_id):
+    return _q("SELECT before_text, after_text FROM edit_signal WHERE text_block_id = :b ORDER BY id", b=block_id)
+
+
+def test_block_patch_same_value_is_noop(env):
+    """같은 값 저장(계약 blockPatch 「같은 값 저장」): revision·blockStatus·edit_signal·재렌더 그대로, 전체 TextBlock + rerenderTaskId null."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]][0]
+    cols = "SELECT trans_1, block_status, revision, char_count, updated_at FROM text_block WHERE id = :b"
+    n_preview, before_db = _preview_count(job), _q(cols, b=b["id"])
+    r = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"]})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert "rerenderTaskId" in body and body["rerenderTaskId"] is None
+    assert body["block"] == b  # 목록(CFM-01)과 같은 전체 TextBlock, 값 그대로
+    assert _q(cols, b=b["id"]) == before_db
+    assert _edit_signals(b["id"]) == [] and _preview_count(job) == n_preview and env["q"].messages == []
+    # 같은 값을 다시 보내도 같다(revision 이 그대로라 연속 no-op 이 가능하다)
+    again = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"]})
+    assert again.status_code == 200 and again.json() == body
+    # 다른 값 저장은 기존 동작 그대로
+    ch = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"] + " now", "revision": b["revision"]})
+    assert ch.status_code == 200 and ch.json()["rerenderTaskId"]
+    assert (ch.json()["block"]["revision"], ch.json()["block"]["blockStatus"]) == (b["revision"] + 1, "edited")
+    assert _edit_signals(b["id"]) == [{"before_text": b["trans1"], "after_text": b["trans1"] + " now"}]
+
+
+def test_block_patch_same_value_keeps_running_rerender(env):
+    """진행 중 재렌더가 있을 때 같은 값 저장: 새 task 없음, 진행 중 시도를 취소·대체하지 않는다(실행 권한 유지)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]][0]
+    r1 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Visibly smoother skin", "revision": b["revision"]}).json()
+    t1, rev = r1["rerenderTaskId"], r1["block"]["revision"]
+    lease = execution.acquire(t1, "slow-renderer")  # 재렌더 실행 중
+    assert lease is not None
+    n_preview = _preview_count(job)
+    r2 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Visibly smoother skin", "revision": rev})
+    assert r2.status_code == 200 and r2.json()["rerenderTaskId"] is None
+    assert r2.json()["block"]["revision"] == rev and _preview_count(job) == n_preview
+    st = _q("SELECT status, is_current FROM job_async_task WHERE id = :t", t=t1)[0]
+    assert st == {"status": "running", "is_current": True} and execution.heartbeat(lease) is True  # 권한 그대로
+    assert len(_edit_signals(b["id"])) == 1  # 첫 수정 기록만
+
+
+def test_block_patch_same_value_checks_come_first(env):
+    """같은 값이어도 revision 불일치는 409 REVISION_CONFLICT, N5 가 아니면 409 INVALID_STATE(기존 검사가 먼저)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]][0]
+    stale = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"] + 7})
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "REVISION_CONFLICT"
+    assert stale.json()["error"]["details"]["current"]["revision"] == b["revision"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    late = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"]})
+    assert late.status_code == 409 and late.json()["error"]["code"] == "INVALID_STATE"
+
+
+def test_block_patch_empty_string_on_null_is_an_edit(env):
+    """번역문이 없는(NULL) 칸에 빈 문자열 저장은 같은 값이 아니다 — 기존대로 수정(edited·revision+1·기록·재렌더)."""
+    ids, target = _to_n5(env, fail_first=True)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["id"] == target][0]
+    assert b["trans1"] is None
+    r = c.patch(f"/v1/jobs/{job}/blocks/{target}", json={"trans1": "", "revision": b["revision"]})
+    assert r.status_code == 200 and r.json()["rerenderTaskId"]
+    assert (r.json()["block"]["revision"], r.json()["block"]["blockStatus"], r.json()["block"]["trans1"]) == (b["revision"] + 1, "edited", "")
+    assert _edit_signals(target) == [{"before_text": None, "after_text": ""}]
+
+
 def _mutate_regulatory(raw):
     raw["blocks"][1]["source_ko"] = "피부 치료 효과와 주름 개선"
 

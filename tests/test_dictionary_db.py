@@ -1,4 +1,4 @@
-"""규제사전·현지부적합 마이그레이션(0006)·적재 — 격리된 테스트 DB에서만 실행.
+"""규제사전·현지부적합 마이그레이션(0006 · 0009)·적재 — 격리된 테스트 DB에서만 실행.
 
 용어집 DB 테스트와 같은 GLOSSARY_TEST_DATABASE_URL(CREATE DATABASE 권한이 있는 접속)이 있을 때만 돌고,
 테스트마다 전용 DB를 만들고 지운다. DATABASE_URL 만 설정된 경우에는 실행하지 않는다.
@@ -9,35 +9,84 @@ from alembic import command
 
 from app.dictionary_ingest import main
 from tests.dictionary_fixtures import basic_regulatory, ev_row, local_row, reg_row, write_local, write_regulatory
-from tests.test_dictionary_ingest import CORRECTED, _delivery
+from tests.test_dictionary_ingest import v12_delivery
 from tests.test_glossary_db import ADMIN_URL, _alembic, _q, _revision, db_url  # noqa: F401 (fixture)
 
 pytestmark = pytest.mark.skipif(not ADMIN_URL, reason="GLOSSARY_TEST_DATABASE_URL 없음")
 
 
-def _insert_dict(url, ext, dict_type="regulatory", status="regulated", expr="표현", cls="cosmetic"):
-    return _q(url, "INSERT INTO expression_dictionary (external_id, source_expression, target_country, "
-                   "regulatory_class, dict_type, verdict_status) VALUES (:e, :x, 'US', :c, :t, :s) RETURNING id",
-              e=ext, x=expr, c=cls, t=dict_type, s=status)[0][0]
+def _insert_dict(url, ext, dict_type="regulatory", status="regulated", expr="표현", cls="cosmetic", key=None):
+    """key 를 주면 monograph_key 도 넣는다(0009 이후). 0009 전 리비전에서는 key 없이 쓴다."""
+    col, val = (", monograph_key", ", :k") if key else ("", "")
+    return _q(url, f"INSERT INTO expression_dictionary (external_id, source_expression, target_country, "
+                   f"regulatory_class, dict_type, verdict_status{col}) VALUES (:e, :x, 'US', :c, :t, :s{val}) "
+                   f"RETURNING id", e=ext, x=expr, c=cls, t=dict_type, s=status, k=key)[0][0]
 
 
 # ── 마이그레이션 ─────────────────────────────────────────────────────────
 
 def test_upgrade_adds_constraints_and_columns(db_url):
     command.upgrade(_alembic(), "head")
-    assert _revision(db_url) == "0006"
+    assert _revision(db_url) == "0009"
     cons = {r[0] for r in _q(db_url, "SELECT conname FROM pg_constraint WHERE conrelid IN "
                                      "('expression_dictionary'::regclass, 'expression_dictionary_evidence'::regclass)")}
-    assert {"uq_expr_dict_external_id", "uq_expr_dict_content", "ck_expr_dict_dict_type",
-            "ck_expr_dict_verdict_status", "uq_expr_evidence_link"} <= cons
-    idx = {r[0] for r in _q(db_url, "SELECT indexname FROM pg_indexes WHERE tablename='expression_dictionary_evidence'")}
-    assert "uq_expr_evidence_primary" in idx
+    assert {"ck_expr_dict_dict_type", "ck_expr_dict_verdict_status", "uq_expr_evidence_link",
+            "fk_expr_dict_monograph", "ck_expr_dict_monograph_key"} <= cons
+    idx = {r[0] for r in _q(db_url, "SELECT indexname FROM pg_indexes WHERE tablename IN "
+                                    "('expression_dictionary', 'expression_dictionary_evidence')")}
+    assert {"uq_expr_evidence_primary", "uq_expr_dict_external_id", "uq_expr_dict_content"} <= idx
     # dict_type별 판정 CHECK
     with pytest.raises(Exception):
         _insert_dict(db_url, "RG-900", status="irrelevant")
     with pytest.raises(Exception):
         _insert_dict(db_url, "LC-90", dict_type="local", status="regulated")
     assert _insert_dict(db_url, "LC-91", dict_type="local", status="cultural", cls="common")
+
+
+def test_0009_seeds_otc_master_matching_loader_keys(db_url):
+    from app.dictionary_ingest import MONOGRAPH_KEYS
+    command.upgrade(_alembic(), "0009")
+    rows = _q(db_url, "SELECT country_code, monograph_key, name_ko, name_en_short FROM master_otc_monograph "
+                      "ORDER BY display_order")
+    assert [(c, k) for c, k, *_ in rows] == [("US", k) for k in MONOGRAPH_KEYS["US"]]
+    assert rows[2][2:] == ("비듬·지루성 피부염·건선", "Dandruff · Seborrheic Dermatitis · Psoriasis")
+
+
+@pytest.mark.parametrize("cls,key,ok", [
+    ("common", None, True), ("cosmetic", "M006", True), ("otc", "M020", True),
+    ("common", "M020", False),     # common 은 열쇠를 비운다
+    ("cosmetic", None, False),     # cosmetic · otc 는 열쇠 필수
+    ("otc", None, False),
+    ("otc", "M999", False),        # 마스터에 없는 열쇠(외래키)
+])
+def test_0009_key_rule_for_new_rows(db_url, cls, key, ok):
+    command.upgrade(_alembic(), "0009")
+    if ok:
+        assert _insert_dict(db_url, "RG-001", cls=cls, key=key)
+    else:
+        with pytest.raises(Exception):
+            _insert_dict(db_url, "RG-001", cls=cls, key=key)
+
+
+def test_0009_keeps_existing_rows_without_key(db_url):
+    # 현재 적재본처럼 열쇠 없는 cosmetic 행이 있어도 업그레이드는 멈추지 않는다(NOT VALID — 기존 행 일괄 검사만 미룸)
+    command.upgrade(_alembic(), "0008")
+    _insert_dict(db_url, "RG-008", expr="주름")
+    command.upgrade(_alembic(), "0009")
+    assert _q(db_url, "SELECT monograph_key, retired_at FROM expression_dictionary")[0] == (None, None)
+
+
+def test_0009_active_unique_allows_retired_duplicate_and_downgrade_stops(db_url):
+    command.upgrade(_alembic(), "0009")
+    old = _insert_dict(db_url, "RG-001", expr="표현1", key="M006")
+    with pytest.raises(Exception):  # 살아 있는 같은 항목 ID 는 하나
+        _insert_dict(db_url, "RG-001", expr="표현1b", cls="common")
+    _q(db_url, "UPDATE expression_dictionary SET retired_at = now() WHERE id = :i", i=old)
+    assert _insert_dict(db_url, "RG-001", expr="표현1", cls="common")  # 빠진 행과 같은 ID · 내용 키 허용
+    with pytest.raises(Exception) as e:
+        command.downgrade(_alembic(), "0008")
+    assert "교체로 빠진 사전 행" in str(e.value)
+    assert _revision(db_url) == "0009"
 
 
 @pytest.mark.parametrize("setup,needle", [
@@ -220,7 +269,7 @@ def test_failure_after_partial_writes_rolls_back_everything(head, tmp_path, caps
 
 
 def test_legacy_primary_without_source_id_stops(head, tmp_path, capsys):
-    d = _insert_dict(head, "RG-001", expr="표현1")
+    d = _insert_dict(head, "RG-001", expr="표현1", key="M006")
     _q(head, "INSERT INTO expression_dictionary_evidence (dictionary_id, is_primary) VALUES (:d, true)", d=d)
     assert _run(head, "load", write_regulatory(tmp_path / "a.xlsx", [reg_row(1)], [ev_row("WL-001", "RG-001")])) == 1
     assert "원본 근거 ID 없는 기존 대표 근거" in capsys.readouterr().out
@@ -234,18 +283,106 @@ def test_rows_missing_from_file_are_kept(head, tmp_path, capsys):
     assert set(_dict(head)) == {"LC-01", "LC-02"}
 
 
-@pytest.mark.skipif(_delivery(CORRECTED) is None, reason="DICT_XLSX_DIR 에 2026-09-30 정정본 없음")
-def test_corrected_delivery_loads_twice(head, capsys):
-    reg, loc = _delivery(CORRECTED)
-    assert _run(head, "load", reg, loc) == 0
-    before = (_dict(head), _evidence(head))
-    assert _run(head, "load", reg, loc) == 0
+def test_key_missing_from_db_master_is_rejected(head, tmp_path, capsys):
+    _q(head, "DELETE FROM master_otc_monograph WHERE monograph_key = 'M016'")
+    row = reg_row(1, monograph_key="M016")
+    assert _run(head, "plan", write_regulatory(tmp_path / "a.xlsx", [row], [ev_row("WL-001", "RG-001")])) == 1
+    assert "DB OTC 종류 마스터에 없는 열쇠" in capsys.readouterr().out
+
+
+# ── 교체(--replace) ──────────────────────────────────────────────────────
+
+def _state(url):
+    return sorted(tuple(r) for r in _q(
+        url, "SELECT external_id, id, regulatory_class, monograph_key, retired_at IS NOT NULL "
+             "FROM expression_dictionary"))
+
+
+def _replace_files(tmp_path):
+    v1 = write_regulatory(tmp_path / "v1.xlsx", [reg_row(1, "WL-001"), reg_row(2, "WL-002"),
+                                                 reg_row(3, "MN-001", regulatory_class="otc")],
+                          [ev_row("WL-001", "RG-001"), ev_row("WL-002", "RG-002"), ev_row("MN-001", "RG-003")])
+    # RG-001 같은 번호로 cosmetic → common(RG-008 등과 같은 경우), RG-002 빠짐(RG-030 과 같은 경우)
+    v2 = write_regulatory(tmp_path / "v2.xlsx", [reg_row(1, "WL-001", regulatory_class="common"),
+                                                 reg_row(3, "MN-001", regulatory_class="otc")],
+                          [ev_row("WL-001", "RG-001"), ev_row("MN-001", "RG-003")])
+    return v1, v2
+
+
+def test_replace_retires_reclassed_and_missing_rows(head, tmp_path, capsys):
+    v1, v2 = _replace_files(tmp_path)
+    loc = write_local(tmp_path / "l.xlsx", [local_row(1)])
+    assert _run(head, "load", v1, loc) == 0
+    before = _state(head)
+    old_pk = {r[0]: r[1] for r in before}
+    capsys.readouterr()
+    # 보통 적재는 분류 변경을 거부하고 --replace 를 안내한다
+    assert _run(head, "load", v2) == 1
+    assert "규제사전 교체는 --replace" in capsys.readouterr().out
+    # plan --replace: 빠질 행만 보여 주고 쓰지 않는다
+    assert main(["plan", "--replace", "--regulatory", str(v2)], database_url=head) == 0
     out = capsys.readouterr().out
-    assert "사전: 삽입 0 · 갱신 0 · 변경 없음 24" in out and "대표 근거: 삽입 0 · 갱신 0 · 변경 없음 16" in out
-    assert (_dict(head), _evidence(head)) == before
+    assert "교체로 빠짐(retired_at, 행 보존) 2: RG-001(분류 변경 cosmetic → common), RG-002(파일에 없음)" in out
+    assert _state(head) == before
+    # load --replace
+    assert main(["load", "--replace", "--regulatory", str(v2)], database_url=head) == 0
+    out = capsys.readouterr().out
+    assert "교체로 빠짐 2" in out and "사전 삽입 1" in out
+    rows = _state(head)
+    active = {r[0]: r for r in rows if not r[4]}
+    retired = {r[0]: r for r in rows if r[4]}
+    assert set(active) == {"RG-001", "RG-003", "LC-01"}  # 현지 행은 교체 대상 아님
+    assert active["RG-001"][2:4] == ("common", None) and active["RG-001"][1] != old_pk["RG-001"]
+    assert active["RG-003"][1] == old_pk["RG-003"]  # 바뀌지 않은 행은 PK 유지
+    assert {k: v[1] for k, v in retired.items()} == {"RG-001": old_pk["RG-001"], "RG-002": old_pk["RG-002"]}
+    # 빠진 행의 근거 연결은 그대로 남고, 새 RG-001 에는 대표 근거가 새로 연결된다
+    links = _q(head, "SELECT d.id, v.external_id, v.is_primary FROM expression_dictionary_evidence v "
+                     "JOIN expression_dictionary d ON d.id = v.dictionary_id WHERE d.external_id IN ('RG-001', 'RG-002')")
+    assert sorted(links) == sorted([(old_pk["RG-001"], "WL-001", True), (old_pk["RG-002"], "WL-002", True),
+                                    (active["RG-001"][1], "WL-001", True)])
+    # 다시 돌리면 바뀌는 것 없음
+    assert main(["load", "--replace", "--regulatory", str(v2)], database_url=head) == 0
+    out = capsys.readouterr().out
+    assert "교체로 빠짐(retired_at, 행 보존) 0" in out and "변경 없음 2" in out
+    assert _state(head) == rows
+    # 살아 있는 규제 행이 모두 새로 쓴 행이면 열쇠 CHECK 전체 검사(VALIDATE)도 통과한다
+    _q(head, "ALTER TABLE expression_dictionary VALIDATE CONSTRAINT ck_expr_dict_monograph_key")
+
+
+def test_replace_failure_rolls_back_retirement(head, tmp_path, capsys):
+    v1, v2 = _replace_files(tmp_path)
+    _run(head, "load", v1)
+    before = _state(head)
+    _q(head, "CREATE FUNCTION test_block_dict() RETURNS trigger AS $$ "
+             "BEGIN RAISE EXCEPTION 'test: dictionary insert blocked'; END $$ LANGUAGE plpgsql")
+    _q(head, "CREATE TRIGGER test_block BEFORE INSERT ON expression_dictionary FOR EACH ROW "
+             "EXECUTE FUNCTION test_block_dict()")
+    assert main(["load", "--replace", "--regulatory", str(v2)], database_url=head) == 1
+    assert "전체 롤백" in capsys.readouterr().out
+    assert _state(head) == before  # 빠짐 표시(retired_at)도 함께 롤백
+
+
+@pytest.mark.skipif(v12_delivery() is None, reason="DICT_XLSX_DIR 에 v12 최종 시드 없음")
+def test_v12_final_replace_over_0922_like_rows(head, capsys):
+    # 현재 적재본처럼 열쇠 없는 cosmetic 행(RG-008 · RG-030)이 있는 DB를 v12 로 교체한다
+    # — 빠짐 표시 UPDATE 가 NOT VALID 열쇠 CHECK 를 통과하는지도 여기서 본다
+    command.downgrade(_alembic(), "0008")
+    _insert_dict(head, "RG-008", expr="주름")
+    _insert_dict(head, "RG-030", expr="모공")
+    command.upgrade(_alembic(), "head")
+    reg = v12_delivery()
+    assert main(["plan", "--replace", "--regulatory", reg], database_url=head) == 0
+    out = capsys.readouterr().out
+    assert "교체로 빠짐(retired_at, 행 보존) 2: RG-008(분류 변경 cosmetic → common), RG-030(파일에 없음)" in out
+    assert main(["load", "--replace", "--regulatory", reg], database_url=head) == 0
+    assert "교체로 빠짐 2 · 사전 삽입 26" in capsys.readouterr().out
+    active = _q(head, "SELECT count(*), count(*) FILTER (WHERE monograph_key IS NOT NULL) FROM expression_dictionary "
+                      "WHERE retired_at IS NULL")
+    assert active == [(26, 15)]
     prim = _q(head, "SELECT d.external_id, count(*) FROM expression_dictionary d JOIN expression_dictionary_evidence v "
-                    "ON v.dictionary_id = d.id AND v.is_primary GROUP BY 1")
-    assert len(prim) == 16 and all(n == 1 for _, n in prim)
-    rw = _q(head, "SELECT external_id FROM expression_dictionary WHERE source_verdict_status = 'rewritable' ORDER BY 1")
-    assert [r[0] for r in rw] == ["RG-008", "RG-030"]
-    assert _q(head, "SELECT count(*) FROM expression_dictionary WHERE source_verdict_status IS NULL")[0][0] == 0
+                    "ON v.dictionary_id = d.id AND v.is_primary WHERE d.retired_at IS NULL GROUP BY 1")
+    assert len(prim) == 26 and all(n == 1 for _, n in prim)
+    assert main(["load", "--replace", "--regulatory", reg], database_url=head) == 0
+    out = capsys.readouterr().out
+    assert "교체로 빠짐(retired_at, 행 보존) 0" in out and "변경 없음 26" in out
+    _q(head, "ALTER TABLE expression_dictionary VALIDATE CONSTRAINT ck_expr_dict_monograph_key")

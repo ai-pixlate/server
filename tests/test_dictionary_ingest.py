@@ -2,9 +2,10 @@
 
 실제 전달본 검증은 DICT_XLSX_DIR 폴더에 해당 파일이 있을 때만 돈다. 건수는 각 전달본의 검증값이며
 로더의 고정 규칙이 아니다.
-- regulation_dict.xlsx (2026-09-28): 대표 근거 날짜 누락으로 거부되는지(회귀)
-- regulation_dict_20260930.xlsx (정정본): 통과하고 24·16 으로 적재되는지
-- locale_unsuitable_dict.xlsx: 두 경우 공통
+- regulation_dict.xlsx (2026-09-28) · regulation_dict_20260930.xlsx (정정본): v12 이전 형식이라
+  monograph_key 열이 없어 거부되는지(0009 이후 계약)
+- locale_unsuitable_dict.xlsx: 위 두 파일과 함께 둔다
+- 규제사전_v12_시드_2026-10-30_최종.xlsx (v12 최종): 통과하고 26행 · 대표 근거 26(원본 23)으로 적재되는지
 """
 import datetime as dt
 import os
@@ -140,6 +141,95 @@ def test_invalid_local_row(tmp_path, over, column):
     assert column in _cols(vr)
 
 
+@pytest.mark.parametrize("over,needle", [
+    ({"regulatory_class": "common", "monograph_key": "M020"}, "common 행은 열쇠를 비운다"),
+    ({"regulatory_class": "cosmetic", "monograph_key": None}, "cosmetic 행은 OTC 종류 열쇠가 있어야"),
+    ({"regulatory_class": "otc", "monograph_key": None}, "otc 행은 OTC 종류 열쇠가 있어야"),
+    ({"monograph_key": "M02O"}, "OTC 종류 열쇠가 아님"),          # 오타(O)
+    ({"monograph_key": "M019"}, "OTC 종류 열쇠가 아님"),          # 읽지 않은 모노그래프
+    ({"target_country": "JP"}, "선택지 없음"),                     # 선택지가 없는 국가
+])
+def test_monograph_key_rules(tmp_path, over, needle):
+    vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", [reg_row(1, "WL-001", **over)],
+                                             [ev_row("WL-001", "RG-001")])), None)
+    assert any(i.column == "monograph_key" and needle in i.message for i in vr.issues) and vr.records == []
+
+
+def test_monograph_key_is_stored_per_class(tmp_path):
+    rows = [reg_row(1, "WL-001", regulatory_class="common"), reg_row(2, "WL-002"),
+            reg_row(3, "MN-001", regulatory_class="otc", monograph_key="M032")]
+    ev = [ev_row("WL-001", "RG-001"), ev_row("WL-002", "RG-002"), ev_row("MN-001", "RG-003")]
+    vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", rows, ev)), None)
+    assert vr.issues == []
+    assert [r["monograph_key"] for r in vr.records] == [None, "M006", "M032"]
+
+
+def test_missing_monograph_key_column_is_rejected(tmp_path):
+    import openpyxl
+    path = basic_regulatory(tmp_path / "r.xlsx")
+    wb = openpyxl.load_workbook(path)
+    ws = wb["규제사전"]
+    ws.delete_cols([c.value for c in ws[1]].index("monograph_key") + 1)
+    wb.save(path)
+    vr = validate_files(str(path), None)
+    assert any(i.column == "monograph_key" and "필수 열 없음" in i.message for i in vr.issues)
+
+
+@pytest.mark.parametrize("status,alt,row_article,ev_article,rejected", [
+    ("regulated", "safe 1", None, None, True),          # 배지 대상인데 조문 없음
+    ("conditional", "SPF 30", None, None, True),
+    ("regulated", "safe 1", "201(g)(1)", None, True),   # 근거 쪽 조문만 빠짐
+    ("regulated", "safe 1", "201(g)(1)", "201(g)(1)", False),
+])
+def test_badge_rows_require_primary_evidence_article(tmp_path, status, alt, row_article, ev_article, rejected):
+    rows = [reg_row(1, "WL-001", verdict_status=status, alternative_expression=alt, evidence_article=row_article)]
+    vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", rows,
+                                             [ev_row("WL-001", "RG-001", article=ev_article)])), None)
+    assert any("대표 근거 조문이 있어야" in i.message for i in vr.issues) is rejected
+
+
+def test_allowed_row_may_have_no_article(tmp_path):
+    rows = [reg_row(5, "MP-001", verdict_status="allowed", alternative_expression=None)]
+    vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", rows, [ev_row("MP-001", "RG-005")])), None)
+    assert vr.issues == []
+
+
+def _overlap_case(tmp_path, allowed_over, blocked_over):
+    rows = [reg_row(1, "WL-001", **blocked_over),
+            reg_row(5, "MP-001", verdict_status="allowed", alternative_expression=None,
+                    **{"variant_expressions.ko": "허용 표현", "variant_expressions.en": "Same-Claim", **allowed_over})]
+    vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", rows,
+                                             [ev_row("WL-001", "RG-001"), ev_row("MP-001", "RG-005")])), None)
+    return [i for i in vr.issues if "같이 켜지는데" in i.message]
+
+
+@pytest.mark.parametrize("allowed_over,blocked_over,conflict", [
+    # 둘 다 common — 항상 같이 켜진다. 대소문자 · 공백 · 하이픈은 무시하고 비교
+    ({"regulatory_class": "common"}, {"regulatory_class": "common", "variant_expressions.en": "same claim"}, True),
+    # cosmetic(M006) allowed 와 common 금지 — 열쇠 없는 작업에서 같이 켜짐
+    ({}, {"regulatory_class": "common", "variant_expressions.en": "SAME claim"}, True),
+    # otc(M020) allowed 와 cosmetic(M020) 금지 — 같은 열쇠라 같이 켜지지 않음(RG-043 · RG-016 같은 경우)
+    ({"regulatory_class": "otc", "monograph_key": "M020"},
+     {"regulatory_class": "cosmetic", "monograph_key": "M020", "variant_expressions.en": "same claim"}, False),
+    # 열쇠가 다른 otc 끼리는 같이 켜지지 않음
+    ({"regulatory_class": "otc", "monograph_key": "M020"},
+     {"regulatory_class": "otc", "monograph_key": "M032", "variant_expressions.en": "same claim"}, False),
+    # 같이 켜져도 문자열이 다르면 괜찮다(부분 문자열은 오류 아님 — RG-044 · RG-042 같은 경우)
+    ({"regulatory_class": "common"}, {"regulatory_class": "common", "variant_expressions.en": "same claim relief"},
+     False),
+])
+def test_coactive_allowed_and_blocking_rows_must_not_share_strings(tmp_path, allowed_over, blocked_over, conflict):
+    assert bool(_overlap_case(tmp_path, allowed_over, blocked_over)) is conflict
+
+
+def test_replace_flag_needs_plan_or_load_with_regulatory(tmp_path):
+    reg = basic_regulatory(tmp_path / "r.xlsx")
+    with pytest.raises(SystemExit):
+        main(["validate", "--replace", "--regulatory", str(reg)])
+    with pytest.raises(SystemExit):
+        main(["plan", "--replace", "--local", str(write_local(tmp_path / "l.xlsx", [local_row(1)]))])
+
+
 def test_one_bad_row_fails_everything(tmp_path, capsys):
     reg = basic_regulatory(tmp_path / "r.xlsx")
     loc = write_local(tmp_path / "l.xlsx", [local_row(1), local_row(2, 판정="?")])
@@ -160,31 +250,36 @@ def _delivery(reg_name: str):
 
 FIRST = "regulation_dict.xlsx"             # 2026-09-28 전달본 — 대표 근거 날짜 누락
 CORRECTED = "regulation_dict_20260930.xlsx"  # 2026-09-30 정정본 — MN 날짜 보완
+V12_FINAL = "규제사전_v12_시드_2026-10-30_최종.xlsx"  # sha256 472ee175… — PM 10-30 최종 확정
 
 
-@pytest.mark.skipif(_delivery(FIRST) is None, reason="DICT_XLSX_DIR 에 2026-09-28 전달본 없음")
-def test_real_delivery_is_blocked_by_missing_evidence_dates():
-    reg, loc = _delivery(FIRST)
+def v12_delivery():
+    d = os.getenv("DICT_XLSX_DIR")
+    path = os.path.join(d, V12_FINAL) if d else None
+    return path if path and os.path.exists(path) else None
+
+
+@pytest.mark.parametrize("name", [FIRST, CORRECTED])
+def test_pre_v12_deliveries_are_rejected_for_missing_monograph_key(name):
+    if _delivery(name) is None:
+        pytest.skip(f"DICT_XLSX_DIR 에 {name} 없음")
+    reg, loc = _delivery(name)
     vr = validate_files(reg, loc)
-    ev_ids = sorted({i.external_id for i in vr.issues if i.column == "verified_at"})
-    assert ev_ids == ["MN-001", "MN-002", "MN-003", "MN-004", "MN-006", "MN-007", "MN-008"]
-    blocked = sorted({i.external_id for i in vr.issues if i.column == "evidence_id"})
-    assert blocked == ["RG-003", "RG-011", "RG-012", "RG-013", "RG-014", "RG-015", "RG-016",
-                       "RG-020", "RG-021", "RG-022"]
+    assert [(i.column, i.message) for i in vr.issues if i.external_id is None and i.row == 1] == [
+        ("monograph_key", "필수 열 없음")]
 
 
-@pytest.mark.skipif(_delivery(CORRECTED) is None, reason="DICT_XLSX_DIR 에 2026-09-30 정정본 없음")
-def test_corrected_delivery_passes():
-    reg, loc = _delivery(CORRECTED)
-    vr = validate_files(reg, loc)
-    assert vr.issues == []  # 대표 근거 날짜 오류 0
-    rf, lf = vr.files
-    assert (len(rf.records), len(rf.evidence), len({e["external_id"] for e in rf.evidence.values()})) == (16, 16, 13)
-    assert len(lf.records) == 8
-    assert sorted(rf.converted) == ["RG-008", "RG-030"]
-    assert sorted(rf.unresolved) == ["RG-021", "RG-022"]  # 한국어 자리표시자 — 적재 가능, 번역 사용 불가
-    assert sorted(r["external_id"] for r in rf.records if r["source_verdict_status"] == "rewritable") == [
-        "RG-008", "RG-030"]
+@pytest.mark.skipif(v12_delivery() is None, reason="DICT_XLSX_DIR 에 v12 최종 시드 없음")
+def test_v12_final_delivery_passes():
     from collections import Counter
-    assert Counter(r["verdict_status"] for r in rf.records) == {"regulated": 10, "conditional": 4, "allowed": 2}
-    assert Counter(r["verdict_status"] for r in lf.records) == {"irrelevant": 5, "needs_fix": 3}
+    vr = validate_files(v12_delivery(), None)
+    assert vr.issues == []
+    (f,) = vr.files
+    assert f.sha256.startswith("472ee175")
+    assert (len(f.records), len(f.evidence), len({e["external_id"] for e in f.evidence.values()})) == (26, 26, 23)
+    assert Counter(r["verdict_status"] for r in f.records) == {"regulated": 19, "conditional": 4, "allowed": 3}
+    assert Counter((r["regulatory_class"], r["monograph_key"]) for r in f.records) == {
+        ("common", None): 11, ("cosmetic", "M006"): 1, ("cosmetic", "M032"): 2, ("cosmetic", "M020"): 1,
+        ("otc", "M020"): 10, ("otc", "M032"): 1}
+    assert f.converted == ["RG-008"] and sorted(f.unresolved) == ["RG-021", "RG-022"]  # D18 — 예상된 경고
+    assert "RG-030" not in {r["external_id"] for r in f.records}

@@ -34,6 +34,8 @@ def reg_row(n: int, evidence: str = "WL-001", **over) -> dict:
         "version": "1",
     }
     row.update(over)
+    if "monograph_key" not in over:  # 분류 규칙(common 비움 · cosmetic/otc 채움)에 맞는 기본 열쇠
+        row["monograph_key"] = {"cosmetic": "M006", "otc": "M020"}.get(row["regulatory_class"])
     return row
 
 

@@ -154,3 +154,20 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - **🔵12월 스텁**: AUTH-06 · JOB-01 · INP-02 · LIB-02 · LIB-03 · ADM-01~07 — 상세 Request/Response 12월 확정.
 - **📌조건부**: JOB-08 `resume` — PM 확정 후 계약 채움. (`PATCH /jobs/{jobId}` 는 jobPatch 로 확정·구현됨)
 - **verify 노드 분리**(N2 판정 vs N4 규제검증) — 오케스트레이션 §15-1 미결(스펙엔 영향 없음).
+
+## 7. 2차 통합(PRD v3.5.10 · 11/6) 계약 반영 현황
+
+명세 표기 규칙은 `openapi.yaml` 머리말 「2차 통합 반영 표기」를 따른다. 명세에는 2차 확정 계약과 구현 상태만 싣는다. 이 표의 구현 상태는 develop 기준이며 서버 배포 완료를 뜻하지 않는다.
+3차(11/27) 예정 기능과 합의 전 후보는 명세에 넣지 않는다.
+
+| 항목 | 계약 | 명세 반영 | 구현 |
+|---|---|---|---|
+| 번역문 같은 값 저장(no-op) | 확정(FE) | blockPatch — develop 반영(#104) | 구현됨(#104) |
+| 저장 공통(처리 순서·멱등 키·422/409/503·재전송 헤더·CORS) | 확정(FE 11-03·11-04) | 블록 PATCH 저장 공통 구현 PR에서 blockPatch에 함께 반영 | 구현 PR 리뷰 중(머지 전) |
+| 409 구분(`error.code` + `details.reason`) | 확정(FE 11-04) | `Error.details` | 각 API 구현과 함께 |
+| 작업 생성 시점·책임 동의, `consentId` 미사용 | 확정 | jobCreate · consentCreate | 서버 현행(미저장). 화면 동의 체크는 FE |
+| 브랜드 생성 시점 스냅샷 | 확정(PM 11-04) | jobCreate | 구현 대기(담당 미확인) |
+| OTC 종류 규칙·임시 M020 | 정책 확정(PM 11-04) | `JobPatch.regulatoryClass` | 필드는 새 규제사전 작업(#103 계열) |
+| 재렌더 중 확정 허용·검사 중 확정 거절·검사 최종 실패 통과·미저장 번역문 확인창·넘침 비차단 | 확정(PM) | confirmReview | 재렌더 중 허용·넘침 비차단 = 현행, 검사 중 거절 = 규칙 검사 연결과 함께, 확인창 = FE |
+| 섹션 제외·복원(revision·no-op·복원 의미) · 블록 배치 저장(정규화·CSV 5열) · 규칙 검사 상태 · `translation_failed` `taskId` · category leaf · N3 포함 섹션 판정 | 확정 | 각 구현 PR에서 그 오퍼레이션에 함께 반영 | 구현 예정 |
+| `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문, `regulationVerdict` | 필드 안 FE 확인 중 | 미반영 — 확정되면 그 구현 PR에서 반영 | 구현 예정 |

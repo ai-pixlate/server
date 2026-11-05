@@ -14,6 +14,13 @@ info:
     - 🟢 9월 (MVP must) · 🟡 9월(should) · 🔵 12월 · 📌 조건부(PM 확정 대기)
     - 12월·조건부 오퍼레이션은 스펙에 **포함**하되 상세 계약이 미확정이라 최소 스키마 + `TODO` 주석으로 둔다.
 
+    ## 2차 통합(PRD v3.5.10 · 11/6) 반영 표기
+    - 명세 버전(`info.version`)은 PRD 버전(v3.5.10)과 다른 번호다.
+    - 이 명세에는 2차 확정 계약만 싣는다. `[PRD v3.5.10 · 계약 확정]` = PRD·PM·FE·AI 확정 규칙이고, 뒤의 구현 상태 표기가
+      `· 구현됨`(서버가 따름) · `· 구현 대기`(계약은 정해졌지만 서버가 아직 따르지 않음) · `· 현행`(지금 서버 동작과 같음) · `· 화면`(FE 동작)이다.
+    - 합의 전 후보는 싣지 않는다. 확정되면 그때 추가한다.
+    - 3차(11/27) 예정 기능(최종 이미지 경계 판정, 확정 때 추가 확인 절차, LLM 규제 판정, 시스템 자동 조정 등)은 이 명세에 넣지 않는다 — 2차 연결에 필요한 필드가 아니다.
+
     ## 화면(Screen) ↔ API 매핑 (MVP=Must)
     각 오퍼레이션에 `x-screen` 확장으로 대응 PRD 화면을 표기했다. Must 화면 전부 API로 커버됨.
     - **G1** 로그인·회원가입 → AUTH-01~05
@@ -419,7 +426,22 @@ components:
             details:
               type: [object, 'null']
               additionalProperties: true
-              description: 코드별 부가 정보 (예 REVISION_CONFLICT → { current })
+              description: >
+                코드별 부가 정보 (예 REVISION_CONFLICT → { current }).
+                [PRD v3.5.10 · 계약 확정(FE 11-04)] **409 구분** — `error.code` + `details.reason` 조합으로 나눈다(15종 enum은 늘리지 않는다).
+                2차에 쓰는 조합: REVISION_CONFLICT(reason 없음) → `details.current` 최신 대상으로 교체 /
+                DUPLICATE `idempotency_key_reused` → 같은 멱등 키를 다른 요청에 썼음 — 재조회 /
+                INVALID_STATE `job_not_editable` → 작업이 그 단계가 아님(N5 아님·취소 등) — 작업 재조회 /
+                INVALID_STATE `not_render_target` → 그리지 않는 블록의 배치 저장 /
+                INVALID_STATE `n3_excluded_section` → N5에서 N3 제외 섹션 복원 /
+                INVALID_STATE `check_not_settled` → 검사 미종료, `details.blocks: [{blockId, state}]`, 이 요청이 검사를 새로 등록한 블록은 `details.registeredBlockIds` — 검사 상태 재조회 /
+                INVALID_STATE `acknowledgement_mismatch` → 확인 목록이 서버의 미해결 집합과 다름, `details.warnings` = 서버 집합 — 확인창 갱신 /
+                INVALID_STATE `acknowledgement_outdated` → 확인 기준(`translation_failed`의 실패 시도 `taskId`)이 현재와 다름 — 재조회 후 확인창 갱신 /
+                ALL_SECTIONS_EXCLUDED·RETRY_NOT_ALLOWED → 현행 그대로.
+                구현 상태: REVISION_CONFLICT·ALL_SECTIONS_EXCLUDED·RETRY_NOT_ALLOWED = 현행 / 나머지 reason = 구현 대기 — 각 API가 구현될 때 쓰기 시작한다(그 오퍼레이션 설명에 구현 상태를 적는다).
+                이후 새로 제안하는 사유는 일괄 승인이 아니라 따로 확인한다.
+                `details.reason`이 없는 INVALID_STATE(현행)는 FE가 일반 상태 오류로 처리한다.
+                요청 형식 오류(422 VALIDATION_ERROR)와 업무 검증 실패(400 VALIDATION_ERROR)는 둘 다 `details.fields: [{loc, msg}]`.
             traceId: { type: string, description: '서버 추적 ID' }
     AcceptedTask:
       type: object
@@ -581,7 +603,7 @@ components:
         agreed: { type: boolean, description: '책임 한계 동의(true)' }
     ConsentResponse:
       type: object
-      description: 'consentId를 JOB-02 바디에 넣어 작업과 연결'
+      description: '(3.4.2 계약: consentId를 JOB-02 바디에 넣어 작업과 연결) [PRD v3.5.10] 사용하지 않음 — consentCreate 설명'
       properties:
         consentId: { type: integer, format: int64 }
         consentType: { type: string }
@@ -702,7 +724,7 @@ components:
         categoryId: { type: integer, format: int64 }
         keywords: { type: array, items: { type: string } }
         imageType: { $ref: '#/components/schemas/ImageContinuity' }
-        consentId: { type: integer, format: int64, description: 'AUTH-05 응답값(본인·미사용 검증 후 연결)' }
+        consentId: { type: integer, format: int64, description: '[PRD v3.5.10] 사용하지 않는다 — 서버는 저장하지 않는다(현행과 같음). 동의 시각은 작업 생성 시각으로 본다(jobCreate 설명). 필드 제거 여부는 협의 중' }
     JobPatch:
       type: object
       description: >
@@ -712,7 +734,12 @@ components:
         productName: { type: [string, 'null'], description: 'F-SRC-11' }
         productCode: { type: [string, 'null'] }
         targetCountry: { type: [string, 'null'] }
-        regulatoryClass: { oneOf: [ { $ref: '#/components/schemas/RegulatoryClass' }, { type: 'null' } ] }
+        regulatoryClass:
+          oneOf: [ { $ref: '#/components/schemas/RegulatoryClass' }, { type: 'null' } ]
+          description: >
+            [PRD v3.5.10 · 계약 확정(PM 11-04) · 구현 대기 — OTC 종류 필드는 새 규제사전 작업에서 추가] OTC 종류와의 관계 — OTC·복합 → 화장품·잘 모름으로 바꾸면 OTC 종류를 지운다.
+            OTC ↔ 복합 사이 변경은 OTC 종류를 유지한다. 국가를 바꾸면 규제 분류와 OTC 종류를 다시 고른다.
+            임시 M020: OTC·복합이면서 OTC 종류가 없는 작업에 저장한다(기존 작업 포함, 화장품·잘 모름 제외).
         targetLanguage: { type: [string, 'null'] }
         specType:
           allOf: [ { $ref: '#/components/schemas/SpecType' } ]
@@ -721,7 +748,7 @@ components:
         categoryId: { type: [integer, 'null'], format: int64 }
         keywords: { type: array, items: { type: string }, description: '보내면 전체 교체. null 불가' }
         imageType: { oneOf: [ { $ref: '#/components/schemas/ImageContinuity' }, { type: 'null' } ] }
-        consentId: { type: [integer, 'null'], format: int64, description: 'AUTH-05 응답값' }
+        consentId: { type: [integer, 'null'], format: int64, description: '[PRD v3.5.10] 사용하지 않음(서버 미저장) — jobCreate 설명' }
     Job:
       type: object
       description: 'ERD job — 상태 + N1 입력값 전체'
@@ -1241,7 +1268,10 @@ paths:
       operationId: consentCreate
       x-screen: 'G1'
       x-source: API-AUTH-05
-      description: '작업 시작 시점(N1). consentId를 JOB-02 바디에 넣어 연결. audit_log 부수 적재. 🟢9월.'
+      description: >
+        **[PRD v3.5.10 · 계약 확정 · 현행]** 동의를 따로 저장하지 않는다 — 동의 시각은 작업 생성 시각으로 본다(F-ACC-04, 전제는 jobCreate 설명).
+        현행 서버는 저장·audit_log 적재 없이 간이 응답만 돌려주며, 화면은 이 API를 부르지 않아도 된다. 이 API의 제거 여부는 협의 중(미확정).
+        (3.4.2 계약 — 대체됨: 작업 시작 시점(N1)에 호출해 consentId를 JOB-02 바디에 넣어 연결하고 audit_log에 부수 적재. 🟢9월.)
       requestBody:
         required: true
         content:
@@ -1548,6 +1578,12 @@ paths:
         draft 생성 (A3 draft-first). brandId만으로 빈 draft를 만들고 jobId 반환.
         흐름: POST /jobs(draft) → SRC-02(원본 업로드) → PATCH /jobs/{jobId}(N1 값) → analyze.
         N1 필수값 검증은 analyze(ANL-01) 게이트. Idempotency-Key 헤더 권장. 🟢9월.
+
+        **[PRD v3.5.10 · 계약 확정 · 서버 현행 · 동의 체크는 화면(구현 대기)] 호출 시점과 책임 동의(F-ACC-04)** — 화면은 책임 동의 체크 뒤 N1 [다음]에서 이 API를 호출하고 이어서 위 순서(업로드 → PATCH → analyze)를 실행한다.
+        동의는 따로 저장하지 않는다. `createdAt`은 지금은 작업 생성 시각이며, 동의 체크를 [다음]의 필수 조건으로 적용한 뒤부터는 동의 시각으로도 쓴다(PM 정책).
+
+        **[PRD v3.5.10 · 계약 확정(PM 11-04) · 구현 대기] 브랜드 스냅샷** — 브랜드 정보는 작업 생성 시점의 값으로 고정한다. 번역·검사·재시도에서도 이후의 브랜드 수정값을 섞지 않는다.
+        현행 서버는 작업에 `brand_id`만 저장하고, 브랜드 값은 N3 [이대로 진행] 때 하류 실행 범위에 고정한다.
       parameters:
         - name: Idempotency-Key
           in: header
@@ -2054,6 +2090,14 @@ paths:
         전 섹션 제외 차단. acknowledgedWarnings 정합 아니면 409 INVALID_STATE(+현재 경고 목록).
         job→review/N6. confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
         FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
+
+        **[PRD v3.5.10 · 계약 확정] 2차(11/6) 확정 규칙**
+        - 미리보기 재렌더가 진행 중이어도 확정을 허용한다 — 현행(진행 중 재렌더는 취소하고 N6가 다시 그린다).
+        - 확정 대상 번역문에 필요한 규칙 검사가 진행 중이면 서버가 확정을 거절하고, 화면은 같은 동안 [저장하러 가기]를 비활성으로 둔다 — 구현 대기(규칙 검사 연결과 함께).
+        - 검사가 최종 실패한 블록(「⚠ 검사하지 못했습니다」)은 추가 확인 없이 확정을 통과한다 — 구현 대기(규칙 검사 연결과 함께).
+        - 저장되지 않은 번역문이 남아 있을 때 개수를 안내하는 확인창 — 화면(FE). 검사 중 거절·비활성을 해제하지 않는다.
+        - 블록 넘침 경고는 표시만 하고 확정을 막지 않는다 — 현행.
+        - 필수 확인 대상은 `translation_failed`다 — 현행(ConfirmRequest 설명).
       requestBody:
         required: true
         content:

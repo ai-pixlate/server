@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import re
 import threading
 
 import pytest
@@ -1766,6 +1767,27 @@ def _pvs(c, job, sid):
     return [s for s in _pv(c, job)["sections"] if s["id"] == sid][0]
 
 
+def _input_state(s):
+    """FE 11-05 확정 조합: 제외 = 네 필드 null / 정상 = 입력·지문 있음·오류 null / 오류 = 입력·지문 null·오류 있음 / 준비 중 = 셋 다 null.
+    일부만 있는 조합은 정상 응답이 아니다. 포함 섹션의 render 는 입력 상태와 상관없이 항상 있다."""
+    ri, fp, er = s["renderInput"], s["inputFingerprint"], s["inputError"]
+    if s["bucket"] != "include":
+        assert (ri, fp, er, s["render"]) == (None, None, None, None), s
+        return "excluded"
+    assert s["render"] is not None and set(s["render"]) == {"attempt", "result", "isCurrent"}, s
+    r = s["render"]
+    assert r["isCurrent"] == (r["result"] is not None and fp is not None and r["result"]["inputFingerprint"] == fp)
+    assert (s["renderedUrl"] is None) == (r["result"] is None)
+    if r["result"] is not None and not r["isCurrent"]:
+        assert r["result"]["overflow"] is None  # 최신이 아닌 결과의 넘침은 내지 않는다
+    if ri is not None and fp is not None and er is None:
+        return "ready"
+    if ri is None and fp is None and er is not None:
+        return "error"
+    assert (ri, fp, er) == (None, None, None), f"일부 필드만 있는 조합: {s}"
+    return "preparing"
+
+
 def _cur_preview(sid):
     return _q("SELECT id, status, error_code, retry_count, retry_origin, supersedes_task_id, input_fingerprint FROM job_async_task "
               "WHERE stage = 'preview' AND unit_id = :s AND is_current", s=sid)[0]
@@ -1802,10 +1824,12 @@ def test_preview_render_input_fingerprint_current_result_and_blocks(env):
     pv = _pv(c, job)
     assert _db_marks(job) == marks  # 조회만 — 시도·인계·섹션·블록·작업 행이 바뀌지 않는다
     assert pv["renderer"] == {"rendererId": typeset.RENDERER_VERSION, "bundleId": None}
+    assert re.fullmatch(r"pillow-typeset/2\+pillow-\S+", pv["renderer"]["rendererId"])  # 현행 문자열(FE는 파싱하지 않음)
     blocks = c.get(f"/v1/jobs/{job}/blocks").json()
     assert pv["sections"]
     for s in pv["sections"]:
         cur = _cur_preview(s["id"])
+        assert _input_state(s) == "ready"
         assert s["bucket"] == "include" and s["inputError"] is None and s["revision"] == 0
         assert s["inputFingerprint"] == cur["input_fingerprint"]
         r = s["render"]
@@ -1826,6 +1850,7 @@ def test_preview_render_input_fingerprint_current_result_and_blocks(env):
             st = x["style"]
             assert set(st) == STYLE8 and st["fontScale"] == 1.0 and st["fontFamily"] == "Pretendard" and st["lineHeightRatio"] == 1.2
             assert st["fontWeight"] in (400, 600) and st["fontSizePx"] > 0 and st["align"] in ("left", "center", "right")
+            assert re.fullmatch(r"#[0-9A-F]{6}", st["fontColor"])  # 대문자 #RRGGBB(FE 11-05)
             assert set(x["box"]) == {"x", "y", "w", "h"}
         assert {b["sectionInputFingerprint"] for b in blocks if b["sectionId"] == s["id"]} == {s["inputFingerprint"]}
 
@@ -1916,6 +1941,7 @@ def test_preview_excluded_section_nulls_and_zero_target_blocks(env):
     url = _pvs(c, job, a)["renderedUrl"]
     assert _spatch(c, job, a, {"action": "exclude", "revision": 0}).status_code == 200
     s = _pvs(c, job, a)
+    assert _input_state(s) == "excluded"
     assert (s["bucket"], s["revision"], s["renderInput"], s["inputFingerprint"], s["inputError"], s["render"]) == (
         "exclude", 1, None, None, None, None)
     assert s["renderedUrl"] == url
@@ -1941,6 +1967,7 @@ def test_preview_input_errors_are_classified_without_inventing_input(env, monkey
     for bad in ({"x": -5, "y": 0, "w": 10, "h": 10}, {"x": 0, "y": 0, "w": 0, "h": 10}, {"x": w - 5, "y": 0, "w": 10, "h": 10}):
         _q("UPDATE text_block SET auto_adjust = CAST(:a AS jsonb) WHERE id = :b", a=json.dumps({"layout_bbox": bad}), b=b["id"])
         s = _pvs(c, job, sid)
+        assert _input_state(s) == "error"
         assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}, bad
         assert s["renderInput"] is None and s["inputFingerprint"] is None
         assert s["render"]["result"]["taskId"] == prev["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
@@ -1953,6 +1980,11 @@ def test_preview_input_errors_are_classified_without_inventing_input(env, monkey
        s=json.dumps({"font_color": "red", "bg_color": None, "est_font_px": None, "align": None}), b=b["id"])
     s = _pvs(c, job, sid)
     assert s["inputError"] == {"code": "STYLE_RESULT_INVALID", "blockIds": [b["id"]]} and s["renderInput"] is None
+    # 소문자 색은 고쳐 쓰지 않는다 — 대문자 #RRGGBB 만 정상 입력(FE 11-05)
+    _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b",
+       s=json.dumps({"font_color": "#ff0000", "bg_color": None, "est_font_px": None, "align": None}), b=b["id"])
+    s = _pvs(c, job, sid)
+    assert _input_state(s) == "error" and s["inputError"] == {"code": "STYLE_RESULT_INVALID", "blockIds": [b["id"]]}
     _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b", s=json.dumps(style) if style is not None else None, b=b["id"])
     assert _pvs(c, job, sid)["inputFingerprint"] == prev["inputFingerprint"]
     monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(tmp_path / "missing-style-defaults.json"))
@@ -2036,11 +2068,12 @@ def test_preview_is_one_snapshot_while_save_and_adoption_commit(env, monkeypatch
 
 
 def test_preview_during_n4_input_preparation_is_not_a_style_error(env):
-    """N4: ⑥⑦⑧ 이 끝나지 않아 입력을 만들 수 없는 섹션을 스타일 오류로 내지 않는다(응답 분기는 FE 합의 대기 — 현재는 모두 null)."""
+    """N4: ⑥⑦⑧ 이 끝나지 않아 입력을 만들 수 없는 섹션 = 입력 준비 중(세 필드 모두 null, FE 11-05 확정). 스타일 오류로 내지 않는다."""
     ids = _to_n3(env)
     c, job = ids["c"], ids["job"]
     assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
     for s in _pv(c, job)["sections"]:
+        assert _input_state(s) == "preparing"
         assert (s["renderInput"], s["inputFingerprint"], s["inputError"]) == (None, None, None)
         assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
     assert {b["sectionInputFingerprint"] for b in c.get(f"/v1/jobs/{job}/blocks").json()} == {None}
@@ -2313,6 +2346,11 @@ def test_n5_restore_after_failed_preview_gets_one_new_preview_once_translation_i
     n0 = _preview_count(job)
     assert _spatch(c, job, sid, {"action": "restore", "revision": rev + 1}).status_code == 200
     assert _preview_count(job) == n0 and _cur_preview(sid) == failed
+    # 입력 준비 중(번역 재시도 진행)이어도 렌더 시도 상태는 따로 낸다 — 실패를 표시하고, 이전 결과는 최신 아님·넘침 없음
+    s = _pvs(c, job, sid)
+    assert _input_state(s) == "preparing"
+    assert s["render"]["attempt"]["taskId"] == failed["id"] and s["render"]["attempt"]["status"] == "failed"
+    assert s["render"]["isCurrent"] is False
     # ③ 바뀐 번역 채택(미리보기 실행은 아직 하지 않는다) → 진행 처리가 새 미리보기 하나를 등록
     sent = env["q"].drain(skip={"app.tasks.run_preview"})
     assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=target)[0]["trans_1"].startswith("EN ")

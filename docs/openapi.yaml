@@ -19,8 +19,7 @@ info:
     - 이 명세에는 2차 확정 계약만 싣는다. `[PRD v3.5.10 · 계약 확정]` = PRD·PM·FE·AI 확정 규칙이고, 뒤의 구현 상태 표기가
       `· 구현됨`(서버가 따름) · `· 구현 대기`(계약은 정해졌지만 서버가 아직 따르지 않음) · `· 현행`(지금 서버 동작과 같음) · `· 화면`(FE 동작)이다.
     - 합의 전 후보는 싣지 않는다. 확정되면 그때 추가한다.
-    - `[PRD v3.5.10 · BE 계약안(FE 확인 대기)]` = FE가 필드 설계를 BE에 맡긴 /preview 렌더 입력·지문·시도/결과다. 서버 구현과 함께 싣고,
-      FE 확인을 받으면 `계약 확정`으로 바꾼다(develop 반영 전 확인).
+    - `[PRD v3.5.10 · 계약 확정(FE 11-05)]` = FE가 필드 설계를 BE에 맡긴 /preview 렌더 입력·지문·시도/결과다. BE 계약안을 FE가 11-05에 수용해 확정했다.
     - 3차(11/27) 예정 기능(최종 이미지 경계 판정, 확정 때 추가 확인 절차, LLM 규제 판정, 시스템 자동 조정 등)은 이 명세에 넣지 않는다 — 2차 연결에 필요한 필드가 아니다.
 
     ## 화면(Screen) ↔ API 매핑 (MVP=Must)
@@ -1068,9 +1067,10 @@ components:
           type: [string, 'null']
           pattern: '^[0-9a-f]{64}$'
           description: >
-            [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 이 응답 시점의 소속 섹션 렌더 입력 지문 — /preview `sections[].inputFingerprint`와 같은 계산이며
-            같은 섹션의 블록은 같은 값을 갖는다. null = 제외 섹션, 입력 구성 실패(/preview `inputError`), 입력 준비 중(N4).
-            /blocks와 /preview는 별도 요청이라 같은 순간을 뜻하지 않는다 — 값이 같을 때만 표와 뷰어를 함께 쓴다. 미리보기 최신성은 /preview 안의 `render.isCurrent`로 본다.
+            [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 이 응답 시점의 소속 섹션 렌더 입력 지문 — /preview `sections[].inputFingerprint`와 같은 계산이며
+            같은 섹션의 블록은 같은 값을 갖는다(지문 A). null = 제외 섹션, 입력 오류(/preview `inputError`), 입력 준비 중 — null은 비교하지 않는다(비교 불가).
+            /blocks와 /preview는 별도 요청이라 같은 순간을 뜻하지 않는다 — 이 값과 /preview `inputFingerprint`(지문 B)가 같을 때만 표와 뷰어 입력이 일치한다고 본다.
+            미리보기 최신성은 /preview 안의 `render.isCurrent`로 본다(reviewPreview 「렌더 입력과 시도·결과」).
     BlockPatch:
       type: object
       required: [trans1, revision]
@@ -1128,26 +1128,27 @@ components:
                 type: [string, 'null']
                 format: uri
                 description: >
-                  presigned. [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 포함 섹션에서는 표시 결과(`render.result`)의 이미지이고 `render.result`가 null이면 null이다.
+                  presigned. [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 포함 섹션에서는 표시 결과(`render.result`)의 이미지이고 `render.result`가 null이면 null이다
+                  (화면은 reviewPreview 「표시 결과가 없을 때」대로 원본을 보인다).
                   새 시도가 진행 중이거나 실패해도 이전 성공 결과가 있으면 그 이미지를 낸다. 현재 입력에 대응하는지는 `render.isCurrent`로 본다.
                   N5 제외 섹션은 현행 그대로(제외 전 이미지가 있으면 낸다)이며 렌더 상태 판정에 쓰지 않는다.
               renderInput:
                 oneOf: [ { $ref: '#/components/schemas/PreviewRenderInput' }, { type: 'null' } ]
-                description: '[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 서버에 저장된 현재 입력으로 만든 공통 렌더 입력. N5 제외 섹션·입력 구성 실패(`inputError`)·입력 준비 중(N4)이면 null.'
+                description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 서버에 저장된 현재 입력으로 만든 공통 렌더 입력. 정상 입력이면 값, N5 제외 섹션·입력 오류(`inputError`)·입력 준비 중이면 null — `inputFingerprint`와 항상 함께 있거나 함께 null이다.'
               inputFingerprint:
                 type: [string, 'null']
                 pattern: '^[0-9a-f]{64}$'
                 description: >
-                  [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] `renderInput`에 대응하는 서버 렌더 입력 지문(SHA-256 16진수 소문자 64자) —
-                  서버 미리보기 시도의 고정 입력 지문과 같은 계산이다. null이면 `renderInput`도 null.
+                  [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] `renderInput`에 대응하는 서버 렌더 입력 지문(SHA-256 16진수 소문자 64자) —
+                  서버 미리보기 시도의 고정 입력 지문과 같은 계산이다(지문 B). null이면 `renderInput`도 null이고 비교하지 않는다(비교 불가).
                   들어가는 입력: 배경 key·sha256·출처, 블록별 revision·역할·번역문 해시·스타일 해시·적용 박스, 섹션 ⑦ 결과, 렌더러 식별자, 스타일 기본값 자료(설정·폰트 해시·규칙 버전).
                   presigned URL처럼 결과를 바꾸지 않는 값은 넣지 않는다. 직렬화는 RFC 8785(JCS)라 같은 수는 표기(10·10.0)와 무관하게 같은 지문이다.
               inputError:
                 oneOf: [ { $ref: '#/components/schemas/PreviewInputError' }, { type: 'null' } ]
-                description: '[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 포함 섹션인데 저장 상태로 공통 렌더 입력을 만들 수 없을 때만 값이 있다. 입력을 만들었으면 null, 입력은 만들었고 실행 중 실패하면 `render.attempt.status = failed`. N5 제외 섹션·입력 준비 중은 null.'
+                description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 포함 섹션인데 저장 상태로 공통 렌더 입력을 만들 수 없을 때만 값이 있다(이때 `renderInput`·`inputFingerprint`는 null). 정상 입력·N5 제외 섹션·입력 준비 중은 null. 렌더 실행 실패(`render.attempt.status = failed`)와는 다른 것이다.'
               render:
                 oneOf: [ { $ref: '#/components/schemas/PreviewRender' }, { type: 'null' } ]
-                description: '[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 현재 시도와 표시 결과. N5 제외 섹션이면 null, 포함 섹션이면 항상 값이 있다.'
+                description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 현재 시도와 표시 결과. N5 제외 섹션이면 null, 포함 섹션이면 항상 값이 있다.'
               signals:
                 type: array
                 items: { $ref: '#/components/schemas/ReviewSignal' }
@@ -1156,7 +1157,7 @@ components:
       type: object
       required: [rendererId, bundleId]
       description: >
-        [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 지금 서버가 미리보기를 그리는 렌더러. FE는 두 값을 파싱하지 않고 같은지만 본다.
+        [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 지금 서버가 미리보기를 그리는 렌더러. FE는 두 값을 파싱하지 않고 같은지만 본다.
         **현행 서버는 Pillow 조판**(`pillow-typeset/…`)이며 공통 렌더 번들(HTML/CSS)을 쓰지 않는다 — `bundleId = null`.
         Pillow 조판은 자간(`style.letterSpacingEm`)을 적용하지 않고 행간은 비율 1.2를 쓴다. 그래서 `renderInput`을 FE 공통 렌더 코드로 그린 로컬 미리보기는
         서버 이미지와 다를 수 있다 — 넘침·최신 판정은 서버 값(`render.result.overflow`·`render.isCurrent`)만 쓴다.
@@ -1164,7 +1165,7 @@ components:
       properties:
         rendererId:
           type: string
-          description: '서버 렌더·측정 실행 환경 식별자(현행 = 렌더러 버전 문자열 그대로). 결과 비교(`render.result.rendererId`)에 쓴다. 표기는 FE 확인 대기'
+          description: '서버 렌더·측정 실행 환경 식별자. 현행 값은 `pillow-typeset/2+pillow-<Pillow 버전>` 문자열 그대로다. FE는 파싱하지 않고 같은지 비교(`render.result.rendererId`)와 진단에만 쓴다(FE 11-05).'
         bundleId:
           type: [string, 'null']
           description: '공통 렌더 번들 식별자 — 서버가 공통 번들을 쓰지 않는 렌더러(현행 Pillow)면 null'
@@ -1172,7 +1173,7 @@ components:
       type: object
       required: [section, blocks]
       description: >
-        [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 공통 렌더 입력(섹션 단위, 서버 저장값 기준). FE는 그대로 공통 렌더 코드에 넘기고,
+        [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 공통 렌더 입력(섹션 단위, 서버 저장값 기준). FE는 그대로 공통 렌더 코드에 넘기고,
         저장 전 편집값(번역문·박스·배율)만 로컬에서 바꿔 넣는다. 폰트 목록(파일 해시)은 번들 합의 뒤 추가한다.
       properties:
         section:
@@ -1197,7 +1198,7 @@ components:
     PreviewRenderBlock:
       type: object
       required: [blockId, revision, text, box, style]
-      description: '[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 렌더 대상 블록 하나의 공통 렌더 입력'
+      description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 렌더 대상 블록 하나의 공통 렌더 입력'
       properties:
         blockId: { type: integer, format: int64 }
         revision: { type: integer }
@@ -1223,7 +1224,7 @@ components:
             fontWeight: { type: integer, minimum: 100, maximum: 900 }
             fontSizePx: { type: number, exclusiveMinimum: 0, description: '기준 글자 크기(배율 적용 전, 섹션 원본 px) — 측정값 또는 역할 기본값' }
             fontScale: { type: number, exclusiveMinimum: 0, description: '적용 배율. 셀러 배율 저장 전이라 현재는 항상 1.0' }
-            fontColor: { type: string, description: "글자색 — AI 검증 형식 대문자 '#RRGGBB' 그대로(표기는 FE 확인 대기)" }
+            fontColor: { type: string, pattern: '^#[0-9A-F]{6}$', description: "글자색 — 대문자 '#RRGGBB'(FE 11-05 확정). 서버는 ⑦ 측정값·역할 기본값을 이 형식으로 검증하고, 소문자 등 형식 밖 측정값은 고치지 않고 `inputError` STYLE_RESULT_INVALID로 낸다" }
             align: { type: string, description: 'left | center | right' }
             letterSpacingEm: { type: number, description: '자간(글자 크기 대비 비율). 현행 서버 Pillow 조판은 적용하지 않는다(PreviewRenderer)' }
             lineHeightRatio: { type: number, exclusiveMinimum: 0, description: '행간 비율(승인값 1.2)' }
@@ -1231,7 +1232,7 @@ components:
       type: object
       required: [code, blockIds]
       description: >
-        [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨 · 코드 역할 AI 동의 11-04] 공통 렌더 입력 구성 실패. `code`는 task `errorCode`와 같은 값 공간이며 HTTP `error.code`가 아니다.
+        [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨 · 코드 역할 AI 동의 11-04] 공통 렌더 입력 구성 실패. `code`는 task `errorCode`와 같은 값 공간이며 HTTP `error.code`가 아니다.
         다시 시도해도 풀리지 않는다(입력·자료를 고쳐야 함). 한 섹션에 여럿이면 `STYLE_DEFAULTS_UNAPPROVED` → `RENDER_INPUT_INVALID` → `STYLE_RESULT_INVALID` 순으로 하나를 낸다(BE 해석).
         `STYLE_DEFAULTS_UNAPPROVED` = 승인 스타일 설정·폰트 자산을 쓸 수 없음 / `STYLE_RESULT_INVALID` = ⑦ 스타일 결과의 계약 위반(⑦ 상태와 style의 모순, 형식 밖 값, 알 수 없는 역할) /
         `RENDER_INPUT_INVALID` = BE가 구성한 값의 오류 — 적용 박스를 읽을 수 없음(bbox NULL·좌표 키 누락·수가 아닌 값·배치 조정값 형식 오류), w·h ≤ 0, 섹션 밖, 섹션 크기·원본 이미지 없음(이때 `blockIds`는 빈 배열).
@@ -1246,12 +1247,13 @@ components:
       type: object
       required: [attempt, result, isCurrent]
       description: >
-        [PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 현재 시도(attempt)와 표시 결과(result)를 나눈다. 새 시도가 진행 중이거나 실패해도 이전 성공 결과를 result로 낸다.
+        [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 현재 시도(attempt)와 표시 결과(result)를 나눈다. 새 시도가 진행 중이거나 실패해도 이전 성공 결과를 result로 낸다.
         `isCurrent=true`면 result가 있고 `result.overflow`는 객체, false면 result가 null이거나 `result.overflow`가 null이다.
+        `isCurrent=false`인 이전 결과는 표시할 수 있지만 최신 결과로 인정하지 않고 넘침도 쓰지 않는다. 입력 상태(입력 준비 중·입력 오류)와 따로 판단한다.
       properties:
         attempt:
           oneOf: [ { $ref: '#/components/schemas/PreviewRenderAttempt' }, { type: 'null' } ]
-          description: '이 섹션의 현재 미리보기 시도. null = 현재 시도 없음(입력 준비 중 등)'
+          description: '이 섹션의 현재 미리보기 시도. null = 현재 시도 없음(N4 입력 준비 중, 시도를 확보하지 못한 섹션 등)'
         result:
           oneOf: [ { $ref: '#/components/schemas/PreviewRenderResult' }, { type: 'null' } ]
           description: >
@@ -1263,7 +1265,7 @@ components:
     PreviewRenderAttempt:
       type: object
       required: [taskId, status, errorCode, retryable]
-      description: '[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 섹션의 현재 미리보기 시도'
+      description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 섹션의 현재 미리보기 시도'
       properties:
         taskId: { type: integer, format: int64, description: '저장 응답의 rerenderTaskId와 같은 번호 체계' }
         status: { $ref: '#/components/schemas/RenderStatus' }
@@ -1272,7 +1274,7 @@ components:
     PreviewRenderResult:
       type: object
       required: [taskId, inputFingerprint, rendererId, overflow]
-      description: '[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 지금 표시하는 이미지를 만든 채택 결과'
+      description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 지금 표시하는 이미지를 만든 채택 결과'
       properties:
         taskId: { type: integer, format: int64, description: '이 결과를 만든 시도' }
         inputFingerprint: { type: string, pattern: '^[0-9a-f]{64}$', description: '이 결과를 만든 입력의 지문(섹션 `inputFingerprint`와 같은 계산)' }
@@ -2139,7 +2141,8 @@ paths:
           **선행 단계가 끝나지 않은 섹션 — 구현됨**: 인페인팅·스타일·번역 단계가 끝나지 않은 섹션(예: N5 번역 재시도 중)은 복원 시점에 시도를 만들지 않는다.
           그 단계가 끝나면 진행 규칙이 현재 미리보기 시도(완료·최종 실패)와 현재 입력의 지문이 다를 때 새 시도 하나를 등록한다(입력 변경 재렌더, 재시도 한도 미사용).
           같은 입력의 최종 실패는 그대로 둔다. 실행이 진행 중일 때만이며 취소·종료된 실행은 재개하지 않는다.
-          **미확보 경로(구현 대기)**: 진행 중인 하류 실행이 없는 N5 섹션(실행 기록 이전 작업 등)은 확보하지 않는다 — 시도 없음(`render.attempt = null`)으로 드러난다.
+          **미확보 경로 — 서버 미완료(응답 표현은 FE 11-05 수용)**: 진행 중인 하류 실행이 없는 N5 섹션(실행 기록 이전 작업 등)은 확보하지 않는다 —
+          시도 없음(`render.attempt = null`)이고 화면은 원본 + 미리보기 없음이다(reviewPreview 「구현 상태」).
         - **구현 대기(별도 항목)**: N5 복원 때 검사 시도 확보 — 규칙 검사 연결 구현에서 같은 기준으로 붙인다.
       requestBody:
         required: true
@@ -2445,25 +2448,144 @@ paths:
         섹션별 presigned. N3 제외 제외 · N5 제외는 bucket=exclude 포함. 🟢9월.
 
 
-        **[PRD v3.5.10 · BE 계약안(FE 확인 대기) · 구현됨] 렌더 입력과 시도·결과**
+        **[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현됨] 렌더 입력과 시도·결과**
         - **한 조회 시점**: 한 응답의 `renderer`·`renderInput`·`inputFingerprint`·`render`·`renderedUrl`은 서버의 같은 시점 상태로 만든다(조회 도중 저장·렌더 채택이 끝나도 섞이지 않고 다음 조회에 반영). 조회는 아무것도 쓰지 않는다.
-        - **지문 비교**: 미리보기 최신성 = 같은 응답 안의 `inputFingerprint`와 `render.result.inputFingerprint`(서버가 `render.isCurrent`로 계산). /blocks의 `sectionInputFingerprint`는 별도 요청의 값이므로
-          표와 뷰어를 함께 쓸지는 그 값과 이 응답의 `inputFingerprint`가 같은지로만 본다.
-        - **섹션별 값**: N5 제외 섹션 = `renderInput`·`inputFingerprint`·`inputError`·`render` 모두 null / 포함 섹션 = `render` 항상 있음, 입력을 만들면 `renderInput`·`inputFingerprint`,
-          만들 수 없으면 둘 다 null이고 `inputError`.
-        - **입력 준비 중 — 협의용 후보(FE 확정 전)**: 인페인팅·스타일·번역 단계가 끝나지 않아 입력을 아직 만들 수 없는 섹션은 스타일 오류로 내지 않는다.
-          지금 서버는 `renderInput`·`inputFingerprint`·`inputError`를 모두 null로 낸다. `render`는 그 시점의 현재 시도·표시 결과다(N4 = 대개 `{attempt: null, result: null, isCurrent: false}`,
-          N5 번역 재시도 중 = 이전 시도·이전 결과·`isCurrent: false`). FE는 N4에서 이 API를 호출하지 않는다(client develop 8319dd6). 표현은 FE 합의 뒤 확정한다.
-        - **표시 결과**: `render.result`는 지금 이미지를 만든 채택 기록이다(PreviewRender.result). 새 시도가 대기·실행 중이거나 실패하면 `attempt`는 그 시도, `result`는 이전 결과(최신 아님)다.
+        - **지문 세 가지**: A = /blocks `sectionInputFingerprint`, B = 이 응답의 `sections[].inputFingerprint`, C = 같은 섹션의 `render.result.inputFingerprint`.
+          표와 뷰어 입력이 일치한다고 보는 것은 A = B일 때뿐이다. 이미지 최신성은 같은 응답의 B·C로 서버가 계산한 `render.isCurrent`로 본다(A·C를 직접 비교하지 않는다).
+          null 지문은 비교하지 않는다(같지도 다르지도 않음 — 비교 불가). 최신이 아닌 결과의 `overflow`는 서버가 null로 내고 FE도 쓰지 않는다.
+        - **입력 상태**(포함 섹션 — 세 필드의 조합으로만 판단하며 별도 상태 필드는 없다):
+          정상 입력 = `renderInput`·`inputFingerprint` 모두 값, `inputError = null` /
+          입력 오류 = `renderInput`·`inputFingerprint` 모두 null, `inputError` 값 /
+          입력 준비 중 = `renderInput`·`inputFingerprint`·`inputError` 모두 null — 인페인팅·스타일·번역 단계가 끝나지 않아 입력을 아직 만들 수 없음(N4, N5 번역 재시도 중). 스타일 오류로 내지 않는다.
+          이 셋 밖의 조합(일부 필드만 있음)은 정상 응답이 아니다 — 서버는 내지 않으며 FE는 정상 응답으로 쓰지 않는다.
+          N5 제외 섹션은 `renderInput`·`inputFingerprint`·`inputError`·`render` 모두 null이고 렌더 상태를 판정하지 않는다(제외 표시는 기존 N5 제외 화면 규칙).
+        - **입력 상태와 렌더 시도 상태는 따로 판단한다**: 포함 섹션의 `render`는 입력 상태와 상관없이 항상 있고, 그 시점의 현재 시도(`attempt`)와 표시 결과(`result`)다.
+          입력 준비 중이어도 `attempt.status = failed`면 렌더 실패를 표시한다(예: 이전 미리보기가 실패한 섹션의 번역 재시도 중).
+          `inputError`는 저장 상태로 입력을 만들 수 없다는 뜻이며 렌더 실행 실패(`attempt.status = failed`)와 구분한다 — 입력 오류 안내를 내고, 같은 입력으로는 풀리지 않는다.
+          이전 성공 결과는 표시할 수 있지만 `isCurrent = false`면 최신 결과로 인정하지 않고 넘침도 쓰지 않는다.
+        - **렌더 판정**(포함 섹션, 같은 응답 안에서 위에서부터 처음 맞는 것):
+          a `isCurrent = true` → 최신. 결과 이미지를 표시하고 `result.overflow`로 넘침을 표시한다.
+          b `attempt.status`가 pending·running → 진행 중. 넘침 미측정. `attempt.taskId`를 /tasks로 추적하고 끝나면 재조회한다.
+          c `attempt.status = failed` → 렌더 실패. 넘침 미측정. 자동 재조회 없음. `retryable`이면 [다시 시도].
+          d `attempt.status = done`인데 `result`가 null이거나 `attempt.taskId ≠ result.taskId` → 채택 직후·채택 거절. 한 번 재조회하고, 그대로면 e로 처리한다.
+          (여기까지 걸리지 않았으면 `attempt`는 null이거나 result와 같은 task(done)이고 `isCurrent = false`다.)
+          g `result`가 있고 `result.rendererId ≠ renderer.rendererId` → 렌더러 갱신 뒤 새 시도 등록 대기. 이전 이미지(최신 아님), 넘침 미측정. 재조회는 「g의 재조회」.
+          e 나머지 — ① result가 있고 렌더러도 같은데 입력이 바뀌었고 새 시도가 없음 → 한 번 재조회하고, 그대로면 이전 이미지(최신 아님)·넘침 미측정으로 두고 보고한다.
+            ② result가 없음 → 「표시 결과가 없을 때」. 정상 입력인데 `attempt`도 null이면 한 번 재조회한 뒤 그 표시로 이어간다. 재시도할 task가 없으므로 [다시 시도]는 없다.
+        - **표시 결과가 없을 때**(`render.result = null` → `renderedUrl = null`. 이유를 담는 필드는 따로 두지 않는다):
+          `attempt`가 pending·running → 렌더 대기 / `attempt.status = failed` → 원본 + 미리보기 생성 실패 / `attempt`가 null 또는 done → 원본 + 미리보기 없음.
+          `inputError`가 있으면 입력 오류 안내를 함께 낸다. 재조회 규칙(d·e의 한 번, g의 제한된 재조회)이 적용되는 경우에는 재조회를 마친 응답으로 다시 판정하고, 그때도 결과가 없으면 이 표시로 이어간다.
           섹션에 이미지 키가 있어도 채택 기록에 연결하지 못하면(실행 기록 이전 작업·이전 실행·N6 최종 렌더 뒤·알 수 없는 키) `result`·`renderedUrl` 모두 null이다 —
-          근거 없는 이미지를 최신 결과로 인정하지 않는다. 이유는 응답에 싣지 않고 서버 로그로 구분한다(화면 표시 방식은 FE 확인 대기).
+          근거 없는 이미지를 최신 결과로 인정하지 않는다. 그 구분은 응답에 싣지 않고 서버 로그로만 한다.
+        - **g의 재조회**: 과거 task(`result.taskId`)는 폴링하지 않는다. 새 시도 등록은 /preview를 다시 조회해야 알 수 있으므로 다음 계기로 재조회한다 —
+          ① g를 처음 본 뒤 제한된 자동 재조회(5초 간격 최대 12회, 약 1분), ② 기존 재조회 계기(추적 task 완료·구성 변경·화면 재진입), ③ 사용자 새로고침.
+          자동 재조회 횟수는 화면의 자동 조회 종료 기준이며 서버의 등록 완료 시간 보장이 아니다. 재조회에서 attempt가 새 task로 바뀌면 b가 되고 이후 a·c로 이어진다.
+          한도에 도달해도 새 시도가 확인되지 않으면 자동 재조회를 멈추고 "새 렌더 등록을 아직 확인하지 못함"으로 처리한다(이전 이미지 최신 아님·넘침 미측정) —
+          서버가 확인한 등록 실패나 서버 결함으로 확정하지 않으며, ②·③으로 다시 확인할 수 있다.
+          렌더러 전환 때 새 시도를 등록하는 방식과 완료 시간은 BE 배포 설계에서 정한다(현행 서버는 전환 때 일괄 등록하지 않는다).
+        - **렌더 대상 블록 0개**(`renderInput.blocks = []`)는 판정의 예외가 아니다 — 결과 이미지는 배경만 그린 이미지이고, 현재 결과면 `overflow = {}`다.
         - **렌더러 제약**: 서버 이미지는 Pillow 조판이며 자간을 적용하지 않는다(PreviewRenderer). style 8키 제공은 FE·서버 렌더 일치를 뜻하지 않는다 — 서버 HTML/Playwright 공통 렌더 연결은 2차 의존 작업이다.
+        - **구현 상태**(FE의 응답 표현 수용 11-05와 별개로, 아래 경로는 서버 처리가 끝나지 않았다):
+          ① 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 — **서버 미완료**. 시도를 만들지 않아 `attempt = null`(→ 원본 + 미리보기 없음)로 남는다.
+          ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 — **서버 미완료**. /preview·/blocks 조회는 `inputError` RENDER_INPUT_INVALID로 답하고 N5 복원도 성공하지만,
+          그 섹션의 블록 저장은 실패 시도를 남기지 못하고 500으로 끝나며 자동 진행 처리도 그 섹션에서 오류로 멈춘다.
+          ③ 서버 HTML/Playwright 공통 렌더 연결 — **미착수**(현행 Pillow).
       responses:
         '200':
           description: '다폭 프리뷰'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ReviewPreview' }
+              examples:
+                current:
+                  summary: '(가상 값) 1. 정상 입력 · 최신 결과 (a)'
+                  description: '`render.isCurrent = true` — 결과 이미지를 표시하고 `result.overflow`로 넘침을 표시한다. rendererId는 현행 형식의 가상 값.'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
+                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4' } },
+                                       blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120.5, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', inputError: null,
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', rendererId: 'pillow-typeset/2+pillow-12.3.0', overflow: { '301': false } },
+                                  isCurrent: true },
+                        signals: [] } ] }
+                preparingWithFailedAttempt:
+                  summary: '(가상 값) 2. 입력 준비 중 · 렌더 실패 (c) — 이전 미리보기가 실패한 섹션의 N5 번역 재시도 중'
+                  description: >
+                    세 입력 필드가 모두 null = 입력 준비 중(번역 단계 진행 중). 입력 상태와 따로 `attempt.status = failed`이므로 렌더 실패를 표시한다.
+                    이전 성공 결과(9183)는 표시할 수 있지만 `isCurrent = false`라 최신이 아니고 `overflow = null`이다. 번역이 채택되면 서버가 새 시도를 등록한다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
+                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: null, inputFingerprint: null, inputError: null,
+                        render: { attempt: { taskId: 9240, status: failed, errorCode: PREVIEW_FAILED, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/2+pillow-12.3.0', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
+                inputError:
+                  summary: '(가상 값) 3. 입력 오류 — 적용 박스가 섹션 밖'
+                  description: >
+                    `renderInput`·`inputFingerprint` null + `inputError` = 입력 오류. 입력 오류 안내를 내고(렌더 실패로 표시하지 않는다), 같은 입력으로는 풀리지 않는다.
+                    이전 결과는 최신 아님으로 표시할 수 있고 넘침은 쓰지 않는다. /blocks의 `sectionInputFingerprint`도 null(비교 불가)이다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
+                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: null, inputFingerprint: null, inputError: { code: RENDER_INPUT_INVALID, blockIds: [301] },
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
+                                  result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/2+pillow-12.3.0', overflow: null },
+                                  isCurrent: false },
+                        signals: [] } ] }
+                pendingWithoutResult:
+                  summary: '(가상 값) 4. 표시 결과 없음 · 시도 대기 (b) → 렌더 대기'
+                  description: '`result = null`·`renderedUrl = null`이고 `attempt`가 pending이므로 렌더 대기로 표시한다. `attempt.taskId`를 /tasks로 추적하고 끝나면 재조회한다.'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
+                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      sections: [ { id: 12, revision: 1, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: null,
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4' } },
+                                       blocks: [ { blockId: 301, revision: 6, text: 'Smoother skin in 2 weeks', box: { x: 40, y: 120.5, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: 'cb3a809ba87fbdfbe5072c6e93bfda1f77d4ef2811fec4e6ca89fbe10b11023e', inputError: null,
+                        render: { attempt: { taskId: 9301, status: pending, errorCode: null, retryable: false }, result: null, isCurrent: false },
+                        signals: [] } ] }
+                unlinkedImage:
+                  summary: '(가상 값) 5. 표시 결과 없음 · 시도 done — 채택 기록에 연결하지 못한 이미지 키 → 원본 + 미리보기 없음'
+                  description: >
+                    섹션에 이미지 키가 있어도(실행 기록 이전 작업·이전 실행·N6 최종 렌더 뒤·알 수 없는 키) 채택 기록에 연결하지 못하면 `result`·`renderedUrl`이 null이다.
+                    `attempt`가 done이므로 d에 따라 한 번 재조회하고, 그대로면 원본 + 미리보기 없음으로 표시한다. 이유 필드는 없고 구분은 서버 로그로만 한다.
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
+                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: null,
+                        renderInput: { section: { id: 12, width: 860, height: 1240,
+                                         background: { url: 'https://example.com/sections/12/inpaint.png?X-Amz-Signature=example', source: inpaint, sha256: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4' } },
+                                       blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120.5, w: 520, h: 64 },
+                                                   style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
+                        inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', inputError: null,
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false }, result: null, isCurrent: false },
+                        signals: [] } ] }
+                excluded:
+                  summary: '(가상 값) 6. N5 제외 섹션'
+                  description: '`renderInput`·`inputFingerprint`·`inputError`·`render` 모두 null — 렌더 상태를 판정하지 않는다. `renderedUrl`은 현행 그대로(제외 전 이미지가 있으면 낸다)이며 판정에 쓰지 않는다.'
+                  value:
+                    { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
+                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      sections: [ { id: 12, revision: 1, sectionOrder: 1, bucket: exclude, excludedStage: N5, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
+                        originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
+                        renderInput: null, inputFingerprint: null, inputError: null, render: null,
+                        signals: [] } ] }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/confirm:
     parameters:

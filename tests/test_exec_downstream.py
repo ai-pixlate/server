@@ -1676,7 +1676,7 @@ def test_preview_renderer_mismatch_and_missing(env, monkeypatch):
     env["q"].drain()
     assert _attempt(t2)["status"] == "done"  # 새 고정 입력(현재 렌더러)
     real = downstream._render_inputs
-    monkeypatch.setattr(downstream, "_render_inputs", lambda db, run_id, sid: {k: v for k, v in real(db, run_id, sid).items() if k != "renderer"})
+    monkeypatch.setattr(downstream, "_render_inputs", lambda db, run_id, sid, **kw: {k: v for k, v in real(db, run_id, sid, **kw).items() if k != "renderer"})
     blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["id"] == blk["id"]][0]
     t3 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care!", "revision": blk["revision"]}).json()["rerenderTaskId"]
     env["q"].drain()
@@ -1738,3 +1738,520 @@ def test_recovery_lease_expiry_skips_old_renderer_and_keeps_other_job(env, monke
     assert _final_counts(a_ids["job"]) == {"runs": 1, "attempts": 1}
     assert _item(a_ids["c"], a_ids["job"], a_att)["retryable"] is False
     env["q"].messages.clear()
+
+
+# ── /preview 공통 렌더 입력·지문·시도/결과(계약 ReviewPreview — PRD v3.5.10 BE 계약안) · N5 복원 렌더 확보 ─────────────────
+STYLE8 = {"fontFamily", "fontWeight", "fontSizePx", "fontScale", "fontColor", "align", "letterSpacingEm", "lineHeightRatio"}
+
+
+def _pv(c, job):
+    r = c.get(f"/v1/jobs/{job}/preview")
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def _pvs(c, job, sid):
+    return [s for s in _pv(c, job)["sections"] if s["id"] == sid][0]
+
+
+def _cur_preview(sid):
+    return _q("SELECT id, status, error_code, retry_count, retry_origin, supersedes_task_id, input_fingerprint FROM job_async_task "
+              "WHERE stage = 'preview' AND unit_id = :s AND is_current", s=sid)[0]
+
+
+def _image_key(sid):
+    return _q("SELECT render_image_key FROM section WHERE id = :s", s=sid)[0]["render_image_key"]
+
+
+def _text_block(c, job):
+    return [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["trans1"]][0]
+
+
+def _db_marks(job):
+    return _q("SELECT (SELECT count(*) FROM job_async_task WHERE job_id = :j) AS tasks, (SELECT count(*) FROM task_handoff WHERE job_id = :j) AS h, "
+              "(SELECT max(updated_at) FROM section WHERE job_id = :j) AS s, (SELECT max(tb.updated_at) FROM text_block tb "
+              "JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j) AS b, (SELECT updated_at FROM job WHERE id = :j) AS jb", j=job)[0]
+
+
+def _render_boom(*a, **k):
+    from app import typeset
+
+    raise typeset.StyleDefaultsUnavailable("시험: 렌더 실패")
+
+
+def test_preview_render_input_fingerprint_current_result_and_blocks(env):
+    """포함 섹션: 공통 렌더 입력(style 8키·저장 박스·번역문·revision), 지문 = 현재 ⑨ 시도의 고정 입력 지문, 현재 시도·표시 결과·최신,
+    넘침은 결과의 측정값. /blocks sectionInputFingerprint 가 같은 계산. 조회는 쓰지 않는다. 렌더러 = 현행 Pillow·번들 없음."""
+    from app import typeset
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    marks = _db_marks(job)
+    pv = _pv(c, job)
+    assert _db_marks(job) == marks  # 조회만 — 시도·인계·섹션·블록·작업 행이 바뀌지 않는다
+    assert pv["renderer"] == {"rendererId": typeset.RENDERER_VERSION, "bundleId": None}
+    blocks = c.get(f"/v1/jobs/{job}/blocks").json()
+    assert pv["sections"]
+    for s in pv["sections"]:
+        cur = _cur_preview(s["id"])
+        assert s["bucket"] == "include" and s["inputError"] is None and s["revision"] == 0
+        assert s["inputFingerprint"] == cur["input_fingerprint"]
+        r = s["render"]
+        assert r["attempt"] == {"taskId": cur["id"], "status": "done", "errorCode": None, "retryable": False}
+        assert r["isCurrent"] is True
+        assert (r["result"]["taskId"], r["result"]["inputFingerprint"], r["result"]["rendererId"]) == (
+            cur["id"], cur["input_fingerprint"], typeset.RENDERER_VERSION)
+        assert s["renderedUrl"] == f"https://presigned.test/{_image_key(s['id'])}"
+        ri = s["renderInput"]
+        assert ri["section"]["id"] == s["id"] and ri["section"]["height"] == s["height"]
+        assert ri["section"]["background"]["source"] in ("inpaint", "original")
+        assert ri["section"]["background"]["url"].startswith("https://presigned.test/")
+        want = [b for b in blocks if b["sectionId"] == s["id"] and b["isExcluded"] is False and (b["trans1"] or "").strip()
+                and (b["sourceKo"] or "").strip()]
+        assert [(x["blockId"], x["revision"], x["text"]) for x in ri["blocks"]] == [(b["id"], b["revision"], b["trans1"]) for b in want]
+        assert set(r["result"]["overflow"]) == {str(b["id"]) for b in want}
+        for x in ri["blocks"]:
+            st = x["style"]
+            assert set(st) == STYLE8 and st["fontScale"] == 1.0 and st["fontFamily"] == "Pretendard" and st["lineHeightRatio"] == 1.2
+            assert st["fontWeight"] in (400, 600) and st["fontSizePx"] > 0 and st["align"] in ("left", "center", "right")
+            assert set(x["box"]) == {"x", "y", "w", "h"}
+        assert {b["sectionInputFingerprint"] for b in blocks if b["sectionId"] == s["id"]} == {s["inputFingerprint"]}
+
+
+def test_preview_new_attempt_pending_then_failed_keeps_adopted_previous_result(env, monkeypatch):
+    """저장 직후: 현재 시도 = 새 시도(pending), 표시 결과 = 이전 채택 결과(최신 아님·넘침 null), 이미지 그대로, 지문 = 새 시도 입력.
+    새 시도가 실패해도 이전 성공 이미지를 결과로 유지한다."""
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    old = _pvs(c, job, b["sectionId"])
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Edited text", "revision": b["revision"]}).json()["rerenderTaskId"]
+    s = _pvs(c, job, b["sectionId"])
+    assert (s["render"]["attempt"]["taskId"], s["render"]["attempt"]["status"]) == (t, "pending")
+    assert s["render"]["result"] == {**old["render"]["result"], "overflow": None} and s["render"]["isCurrent"] is False
+    assert s["renderedUrl"] == old["renderedUrl"]
+    assert s["inputFingerprint"] == _attempt(t)["input_fingerprint"] != old["inputFingerprint"]
+    assert [x["text"] for x in s["renderInput"]["blocks"] if x["blockId"] == b["id"]] == ["Edited text"]
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    env["q"].drain()
+    s = _pvs(c, job, b["sectionId"])
+    att = s["render"]["attempt"]
+    assert (att["taskId"], att["status"], att["errorCode"]) == (t, "failed", "STYLE_DEFAULTS_UNAPPROVED")
+    assert s["render"]["result"]["taskId"] == old["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
+    assert s["render"]["result"]["overflow"] is None and s["renderedUrl"] == old["renderedUrl"]
+
+
+def test_preview_result_is_the_adopted_record_of_the_current_image(env, monkeypatch):
+    """표시 결과는 지금 이미지 키를 만든 채택 기록이다 — 최신 성공 시도가 아니다. 채택되지 않은 성공 보고·모르는 키·
+    현재 분석에 연결되지 않은 하류 실행이면 근거 없음(result·renderedUrl null). 현재 시도는 따로 그대로 낸다."""
+    from app import execution as ex
+    from app.flows import preview_view
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    first = _pvs(c, job, sid)["render"]["result"]["taskId"]
+    first_key = _image_key(sid)
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Second text", "revision": b["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"]["taskId"] == t and s["render"]["isCurrent"] is True
+    second_key = _image_key(sid)
+    assert second_key != first_key
+    # (1) 이미지 키가 이전 채택 결과를 가리키면 그 기록(최신 성공 t 가 아니다) — 최신 아님, 넘침 null
+    _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=first_key, s=sid)
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"]["taskId"] == first and s["render"]["isCurrent"] is False and s["render"]["result"]["overflow"] is None
+    assert s["renderedUrl"] == f"https://presigned.test/{first_key}" and s["render"]["attempt"]["taskId"] == t
+    # (2) 채택되지 않은 성공 보고(인계 verified, 산출물 verified)의 키 → 근거 없음
+    a = _attempt(t)
+    hid = _q("INSERT INTO task_handoff (task_id, job_id, lease_epoch, contract_version, impl_version, input_fingerprint, outcome, target_count, "
+             "payload, manifest_sha256, state) VALUES (:t, :j, 999, 'test', 'pillow-typeset/test', :fp, 'done', 0, '{}'::jsonb, :fp, 'verified') "
+             "RETURNING id", t=t, j=job, fp=a["input_fingerprint"])[0]["id"]
+    _q("INSERT INTO task_artifact (handoff_id, job_id, kind, part_key, verified_key, byte_size, sha256, media_type, width, height, state) "
+       "VALUES (:h, :j, 'render_image', :pk, 'verified/test/unadopted.png', 1, :sha, 'image/png', 1, 1, 'verified')",
+       h=hid, j=job, pk=f"sec_{sid}", sha="0" * 64)
+    for key in ("verified/test/unadopted.png", "legacy/before-execution-records.png"):  # (3) 실행 기록에 없는 키
+        _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=key, s=sid)
+        s = _pvs(c, job, sid)
+        assert s["render"]["result"] is None and s["renderedUrl"] is None and s["render"]["isCurrent"] is False, key
+        assert s["render"]["attempt"]["taskId"] == t and s["inputFingerprint"] == a["input_fingerprint"]
+    # (4) 현재 분석에 연결되지 않은 하류 실행(이전 실행) → 그 실행의 결과·입력을 쓰지 않는다
+    _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=second_key, s=sid)
+    assert _pvs(c, job, sid)["render"]["result"]["taskId"] == t
+    real = ex.latest_run
+
+    def other_analysis(db, job_id, kind):
+        run = real(db, job_id, kind)
+        return {**run, "run_scope": {**run["run_scope"], "analysis_task_id": -1}} if run else run
+
+    monkeypatch.setattr(preview_view.execution, "latest_run", other_analysis)
+    s = _pvs(c, job, sid)
+    assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
+    assert s["renderInput"] is None and s["inputFingerprint"] is None and s["inputError"] is None
+
+
+def test_preview_excluded_section_nulls_and_zero_target_blocks(env):
+    """N5 제외 섹션 = renderInput·inputFingerprint·render null(renderedUrl 현행 그대로). 렌더 대상 블록 0개 = blocks [] · 넘침 {}."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    secs = [s["id"] for s in _pv(c, job)["sections"]]
+    assert len(secs) >= 2
+    a, z = secs[0], secs[1]
+    url = _pvs(c, job, a)["renderedUrl"]
+    assert _spatch(c, job, a, {"action": "exclude", "revision": 0}).status_code == 200
+    s = _pvs(c, job, a)
+    assert (s["bucket"], s["revision"], s["renderInput"], s["inputFingerprint"], s["inputError"], s["render"]) == (
+        "exclude", 1, None, None, None, None)
+    assert s["renderedUrl"] == url
+    assert {b["sectionInputFingerprint"] for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["sectionId"] == a} == {None}
+    for b in [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == z and x["trans1"]]:
+        assert c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "", "revision": b["revision"]}).status_code == 200
+    env["q"].drain()
+    s = _pvs(c, job, z)
+    assert s["renderInput"]["blocks"] == [] and s["render"]["isCurrent"] is True and s["render"]["result"]["overflow"] == {}
+
+
+def test_preview_input_errors_are_classified_without_inventing_input(env, monkeypatch, tmp_path):
+    """입력 구성 실패: renderInput·inputFingerprint null, inputError 3코드(박스 → RENDER_INPUT_INVALID, ⑦ 결과 계약 위반 →
+    STYLE_RESULT_INVALID, 승인 자료 사용 불가 → STYLE_DEFAULTS_UNAPPROVED). 이전 결과는 최신 아님으로 남는다."""
+    import json
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    prev = _pvs(c, job, sid)
+    w = prev["renderInput"]["section"]["width"]
+    for bad in ({"x": -5, "y": 0, "w": 10, "h": 10}, {"x": 0, "y": 0, "w": 0, "h": 10}, {"x": w - 5, "y": 0, "w": 10, "h": 10}):
+        _q("UPDATE text_block SET auto_adjust = CAST(:a AS jsonb) WHERE id = :b", a=json.dumps({"layout_bbox": bad}), b=b["id"])
+        s = _pvs(c, job, sid)
+        assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}, bad
+        assert s["renderInput"] is None and s["inputFingerprint"] is None
+        assert s["render"]["result"]["taskId"] == prev["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
+        assert s["render"]["result"]["overflow"] is None and s["renderedUrl"] == prev["renderedUrl"]
+        assert {x["sectionInputFingerprint"] for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == sid} == {None}
+    _q("UPDATE text_block SET auto_adjust = NULL WHERE id = :b", b=b["id"])
+    assert _pvs(c, job, sid)["inputFingerprint"] == prev["inputFingerprint"]
+    style = _q("SELECT style FROM text_block WHERE id = :b", b=b["id"])[0]["style"]
+    _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b",
+       s=json.dumps({"font_color": "red", "bg_color": None, "est_font_px": None, "align": None}), b=b["id"])
+    s = _pvs(c, job, sid)
+    assert s["inputError"] == {"code": "STYLE_RESULT_INVALID", "blockIds": [b["id"]]} and s["renderInput"] is None
+    _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b", s=json.dumps(style) if style is not None else None, b=b["id"])
+    assert _pvs(c, job, sid)["inputFingerprint"] == prev["inputFingerprint"]
+    monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(tmp_path / "missing-style-defaults.json"))
+    for s in _pv(c, job)["sections"]:
+        assert s["inputError"] == {"code": "STYLE_DEFAULTS_UNAPPROVED", "blockIds": []} and s["inputFingerprint"] is None
+        assert s["render"]["isCurrent"] is False and s["render"]["result"] is not None
+
+
+def test_render_input_box_number_forms_and_fingerprint_compat(env):
+    """지문 직렬화(JCS): 10 과 10.0 은 같은 "10" — 정수 좌표를 소수 표기로 저장해도 지문·최신성이 그대로다. 소수 좌표는 절삭하지 않아
+    지문이 바뀌고(이전 절삭 방식이면 바뀌지 않아 최신으로 잘못 보였다), 새 시도가 소수 박스 그대로 그려 채택된다."""
+    from app import db as app_db
+    from app.flows import downstream
+    from app.manifest import canonical_json, fingerprint
+
+    base = {"box": {"x": 10, "y": 20, "w": 30, "h": 40}}
+    floats = {"box": {"x": 10.0, "y": 20.0, "w": 30.0, "h": 40.0}}
+    assert canonical_json(floats) == canonical_json(base) == '{"box":{"h":40,"w":30,"x":10,"y":20}}'
+    assert fingerprint(floats) == fingerprint(base) != fingerprint({"box": {**base["box"], "w": 29.5}})
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    s0 = _pvs(c, job, sid)
+    assert s0["render"]["isCurrent"] is True
+    bb = _q("SELECT bbox FROM text_block WHERE id = :b", b=b["id"])[0]["bbox"]
+    assert all(isinstance(bb[k], int) for k in ("x", "y", "w", "h"))
+    _q("UPDATE text_block SET bbox = jsonb_build_object('x', (bbox->>'x')::numeric + 0.0, 'y', (bbox->>'y')::numeric + 0.0, "
+       "'w', (bbox->>'w')::numeric + 0.0, 'h', (bbox->>'h')::numeric + 0.0) WHERE id = :b", b=b["id"])
+    stored = _q("SELECT bbox::text AS t, bbox FROM text_block WHERE id = :b", b=b["id"])[0]
+    assert ".0" in stored["t"] and all(isinstance(stored["bbox"][k], float) for k in ("x", "y", "w", "h"))  # 실제 저장·읽기 표현이 10.0
+    s1 = _pvs(c, job, sid)
+    assert s1["inputFingerprint"] == s0["inputFingerprint"] and s1["render"]["isCurrent"] is True
+    # 절삭하면 원래 정수로 돌아가는 소수(x + 0.5) — 절삭 방식은 이 변경을 지문에서 놓친다
+    _q("UPDATE text_block SET bbox = jsonb_set(bbox, '{x}', to_jsonb((bbox->>'x')::numeric + 0.5)) WHERE id = :b", b=b["id"])
+    s2 = _pvs(c, job, sid)
+    assert s2["inputError"] is None, s2["inputError"]
+    assert s2["inputFingerprint"] != s0["inputFingerprint"] and s2["render"]["isCurrent"] is False
+    assert [x["box"]["x"] for x in s2["renderInput"]["blocks"] if x["blockId"] == b["id"]] == [bb["x"] + 0.5]
+    run = _q("SELECT parent_task_id FROM job_async_task WHERE id = :t", t=_cur_preview(sid)["id"])[0]["parent_task_id"]
+    with app_db.SessionLocal() as db:  # 이전 절삭 방식이었다면 지문이 그대로라 이전 결과를 최신으로 보였다
+        m = downstream._render_inputs(db, run, sid)
+        trunc = {**m, "blocks": [{**x, "box": {k: int(v) for k, v in x["box"].items()}} for x in m["blocks"]]}
+        assert fingerprint(m) == s2["inputFingerprint"] and fingerprint(trunc) == s0["inputFingerprint"]
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Float box", "revision": b["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    a = _attempt(t)
+    assert a["status"] == "done"
+    man = _q("SELECT input_manifest FROM job_async_task WHERE id = :t", t=t)[0]["input_manifest"]
+    assert [x["box"]["x"] for x in man["blocks"] if x["block_id"] == b["id"]] == [bb["x"] + 0.5]
+    s3_ = _pvs(c, job, sid)
+    assert s3_["render"]["isCurrent"] is True and s3_["inputFingerprint"] == a["input_fingerprint"] == s3_["render"]["result"]["inputFingerprint"]
+
+
+def test_preview_is_one_snapshot_while_save_and_adoption_commit(env, monkeypatch):
+    """조회 도중 다른 연결에서 저장(번역문·revision)과 이미지 교체가 커밋돼도 그 응답은 조회 시작 시점 값 하나로 만든다."""
+    from app import db as app_db
+    from app.flows import preview_view
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    before = _pvs(c, job, sid)
+    real = preview_view.section_input
+    fired = []
+
+    def mid(ctx, s):
+        if not fired:
+            fired.append(s)
+            with app_db.engine.begin() as other:
+                other.execute(text("UPDATE text_block SET trans_1 = 'Changed meanwhile', revision = revision + 1 WHERE id = :b"), {"b": b["id"]})
+                other.execute(text("UPDATE section SET render_image_key = 'verified/test/meanwhile.png' WHERE id = :s"), {"s": sid})
+        return real(ctx, s)
+
+    monkeypatch.setattr(preview_view, "section_input", mid)
+    assert _pvs(c, job, sid) == before and fired
+    after = _pvs(c, job, sid)  # 다음 조회에는 반영된다
+    assert after["inputFingerprint"] != before["inputFingerprint"] and after["render"]["result"] is None and after["renderedUrl"] is None
+
+
+def test_preview_during_n4_input_preparation_is_not_a_style_error(env):
+    """N4: ⑥⑦⑧ 이 끝나지 않아 입력을 만들 수 없는 섹션을 스타일 오류로 내지 않는다(응답 분기는 FE 합의 대기 — 현재는 모두 null)."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+    for s in _pv(c, job)["sections"]:
+        assert (s["renderInput"], s["inputFingerprint"], s["inputError"]) == (None, None, None)
+        assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
+    assert {b["sectionInputFingerprint"] for b in c.get(f"/v1/jobs/{job}/blocks").json()} == {None}
+
+
+def test_n5_restore_reuses_valid_attempt_and_preserves_same_input_failure(env, monkeypatch):
+    """N5 복원: 현재 입력과 지문이 같은 시도(완료·최종 실패·대기)는 재사용 — 새 시도·전송 없음, 실패 상태·재시도 횟수 보존."""
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    cur0, n0 = _cur_preview(sid), _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 0}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 1}).status_code == 200
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    real_render = downstream._render_section
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Fails twice", "revision": b["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    r = c.post(f"/v1/jobs/{job}/tasks/{t}/retry")
+    assert r.status_code in (200, 202), r.text
+    env["q"].drain()
+    failed = _cur_preview(sid)
+    assert failed["status"] == "failed" and failed["retry_count"] == 1
+    n1 = _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 2}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 3}).status_code == 200
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n1, failed, [])
+    monkeypatch.setattr(downstream, "_render_section", real_render)
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["id"] == b["id"]][0]
+    t2 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Pending now", "revision": b["revision"]}).json()["rerenderTaskId"]
+    sent = list(env["q"].messages)
+    n2 = _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 4}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 5}).status_code == 200
+    assert _preview_count(job) == n2 and _cur_preview(sid)["id"] == t2 and _cur_preview(sid)["status"] == "pending"
+    assert env["q"].messages == sent
+    env["q"].drain()
+    assert _pvs(c, job, sid)["render"]["isCurrent"] is True
+
+
+def test_n5_restore_creates_attempt_only_when_input_changed_not_on_replay_or_rejection(env):
+    """제외 중 입력이 바뀐 섹션의 복원 = 입력 변경 재렌더 1건(이전 시도 대체·재시도 횟수 그대로·커밋 뒤 전송).
+    거절(오래된 revision·복원 근거 없음)과 같은 요청 재전송은 시도를 만들지 않는다."""
+    import json
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 0}).status_code == 200
+    # 시도를 만들지 않는 입력 변경(번역 재시도 성공과 같은 효과)
+    _q("UPDATE text_block SET trans_1 = 'Changed while excluded', revision = revision + 1 WHERE id = :b", b=b["id"])
+    cur0, n0 = _cur_preview(sid), _preview_count(job)
+    stale = _spatch(c, job, sid, {"action": "restore", "revision": 0}, key="rs-stale")
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "REVISION_CONFLICT"
+    ov = _srow(sid)["original_verdict"]
+    _q("UPDATE section SET original_verdict = NULL WHERE id = :s", s=sid)
+    nb = _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="rs-nobasis")
+    assert nb.status_code == 409 and nb.json()["error"]["details"] == {"reason": "restore_basis_missing"}
+    _q("UPDATE section SET original_verdict = CAST(:v AS jsonb) WHERE id = :s", v=json.dumps(ov), s=sid)
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    r1 = _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="rs-1")
+    assert r1.status_code == 200, r1.text
+    cur1 = _cur_preview(sid)
+    assert _preview_count(job) == n0 + 1 and cur1["status"] == "pending"
+    assert (cur1["supersedes_task_id"], cur1["retry_count"], cur1["retry_origin"]) == (cur0["id"], cur0["retry_count"], "user")
+    assert env["q"].messages == [("app.tasks.run_preview", [cur1["id"]])]
+    r2 = _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="rs-1")
+    assert r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert _preview_count(job) == n0 + 1 and len(env["q"].messages) == 1
+    env["q"].drain()
+    s = _pvs(c, job, sid)
+    assert s["render"]["isCurrent"] is True and s["render"]["result"]["taskId"] == cur1["id"]
+
+
+def test_preview_unreadable_bbox_is_render_input_invalid_not_500(env):
+    """적용 박스를 읽을 수 없는 블록(bbox NULL·좌표 키 누락·수가 아닌 값·배치 조정값 형식 오류)과 섹션 크기 없음:
+    /preview·/blocks 는 200, 그 섹션만 RENDER_INPUT_INVALID·지문 null(비교 불가), 다른 섹션은 그대로."""
+    import json
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    before = {s["id"]: s for s in _pv(c, job)["sections"]}
+    others = {k: v["inputFingerprint"] for k, v in before.items() if k != sid}
+    assert others
+    orig = _q("SELECT bbox, auto_adjust FROM text_block WHERE id = :b", b=b["id"])[0]
+    bb = orig["bbox"]
+    cases = [
+        ("bbox", None),
+        ("bbox", {k: v for k, v in bb.items() if k != "w"}),
+        ("bbox", {**bb, "x": str(bb["x"])}),
+        ("bbox", {**bb, "y": True}),
+        ("auto_adjust", ["layout_bbox"]),
+        ("auto_adjust", {"layout_bbox": {"x": 1, "y": 1, "w": 5}}),
+        ("auto_adjust", {"layout_bbox": "0,0,5,5"}),
+    ]
+    for col, val in cases:
+        _q(f"UPDATE text_block SET {col} = CAST(:v AS jsonb) WHERE id = :b", v=None if val is None else json.dumps(val), b=b["id"])
+        r = c.get(f"/v1/jobs/{job}/preview")
+        assert r.status_code == 200, (col, val, r.text)
+        secs = {s["id"]: s for s in r.json()["sections"]}
+        s = secs[sid]
+        assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}, (col, val)
+        assert s["renderInput"] is None and s["inputFingerprint"] is None and s["render"]["isCurrent"] is False
+        assert s["render"]["result"]["taskId"] == before[sid]["render"]["result"]["taskId"]
+        assert {k: secs[k]["inputFingerprint"] for k in others} == others
+        bl = c.get(f"/v1/jobs/{job}/blocks")
+        assert bl.status_code == 200, (col, val, bl.text)
+        fps = {x["sectionId"]: x["sectionInputFingerprint"] for x in bl.json()}
+        assert fps[sid] is None and {k: fps[k] for k in others} == others
+        _q("UPDATE text_block SET bbox = CAST(:bb AS jsonb), auto_adjust = CAST(:aa AS jsonb) WHERE id = :b", bb=json.dumps(bb),
+           aa=None if orig["auto_adjust"] is None else json.dumps(orig["auto_adjust"]), b=b["id"])
+    assert _pvs(c, job, sid)["inputFingerprint"] == before[sid]["inputFingerprint"]
+    sbox = _q("SELECT bbox FROM section WHERE id = :s", s=sid)[0]["bbox"]
+    for sql in ("UPDATE section SET bbox = NULL WHERE id = :s", "UPDATE section SET bbox = bbox - 'w' WHERE id = :s"):
+        _q(sql, s=sid)
+        s = _pvs(c, job, sid)
+        assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": []} and s["inputFingerprint"] is None, sql
+        assert c.get(f"/v1/jobs/{job}/blocks").status_code == 200
+        _q("UPDATE section SET bbox = CAST(:v AS jsonb) WHERE id = :s", v=json.dumps(sbox), s=sid)
+
+
+def test_unlinked_image_keys_are_classified_and_never_current(env, monkeypatch):
+    """이미지 키는 있지만 채택 기록에 연결하지 못하는 경우를 구분한다(레거시·이전 실행·N6 최종 렌더·알 수 없음).
+    어느 경우든 result·renderedUrl null — 근거 없는 이미지를 최신 결과로 인정하지 않는다."""
+    from app import db as app_db
+    from app import execution as ex
+    from app.flows import preview_view as pvw
+
+    logged = []  # 로거 설정(다른 시험의 전파 설정)에 기대지 않고 호출 자체를 본다
+    monkeypatch.setattr(pvw.log, "warning", lambda msg, *a: logged.append(msg % a))
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    key = _image_key(sid)
+
+    def reason():
+        with app_db.SessionLocal() as db:
+            return pvw.unlinked_reason(pvw.PreviewContext(db, job), sid, _image_key(sid))
+
+    _q("UPDATE section SET render_image_key = 'legacy/unknown.png' WHERE id = :s", s=sid)
+    assert reason() == pvw.UNLINKED_UNKNOWN
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"] is None and s["renderedUrl"] is None
+    assert any(f"섹션 {sid}" in m and "unknown" in m for m in logged), logged
+    _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=key, s=sid)
+    real = ex.latest_run
+    monkeypatch.setattr(pvw.execution, "latest_run",
+                        lambda db, j, kind: (lambda r: {**r, "run_scope": {**r["run_scope"], "analysis_task_id": -1}} if r else r)(real(db, j, kind)))
+    assert reason() == pvw.UNLINKED_PREVIOUS_RUN and _pvs(c, job, sid)["renderedUrl"] is None
+    monkeypatch.setattr(pvw.execution, "latest_run", lambda db, j, kind: None)  # 실행 기록 이전 방식(하류 실행 기록 없음)
+    assert reason() == pvw.UNLINKED_LEGACY
+    s = _pvs(c, job, sid)
+    assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
+    monkeypatch.setattr(pvw.execution, "latest_run", real)
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    assert _image_key(sid) != key  # N6 최종 렌더가 섹션 이미지를 최종 이미지로 바꿨다
+    assert reason() == pvw.UNLINKED_FINAL_RENDER
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"] is None and s["renderedUrl"] is None
+
+
+def test_n5_restore_creates_exactly_one_attempt_when_current_is_missing_or_cancelled(env):
+    """현재 미리보기 시도가 없거나(기록 없음) 취소됐으면 복원 때 새 시도가 정확히 하나 생기고 커밋 뒤 한 번 전송된다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    secs = [s["id"] for s in _pv(c, job)["sections"]]
+    a, z = secs[0], secs[1]
+    # 취소된 현재 시도(대기 중 시도가 취소된 채 남음 — 완료 시도는 DB 가드가 상태 변경을 막는다) → 대체하는 새 시도 1건
+    blk = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == a and x["trans1"]][0]
+    c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Will be cancelled", "revision": blk["revision"]})
+    env["q"].messages.clear()
+    assert _spatch(c, job, a, {"action": "exclude", "revision": 0}).status_code == 200
+    cur = _cur_preview(a)
+    assert cur["status"] == "pending"
+    _q("UPDATE job_async_task SET status = 'cancelled', finished_at = now() WHERE id = :t", t=cur["id"])
+    n0 = _preview_count(job)
+    assert _spatch(c, job, a, {"action": "restore", "revision": 1}, key="r-cancelled").status_code == 200
+    new = _cur_preview(a)
+    assert _preview_count(job) == n0 + 1 and new["supersedes_task_id"] == cur["id"] and new["status"] == "pending"
+    assert env["q"].messages == [("app.tasks.run_preview", [new["id"]])]
+    assert _spatch(c, job, a, {"action": "restore", "revision": 1}, key="r-cancelled").headers["Idempotent-Replayed"] == "true"
+    assert _preview_count(job) == n0 + 1 and len(env["q"].messages) == 1
+    env["q"].drain()
+    # 현재 시도 없음(미리보기 시도 기록이 없는 섹션) → 첫 시도 1건
+    assert _spatch(c, job, z, {"action": "exclude", "revision": 0}).status_code == 200
+    _q("DELETE FROM job_async_task WHERE stage = 'preview' AND unit_id = :s", s=z)
+    n1 = _preview_count(job)
+    assert _spatch(c, job, z, {"action": "restore", "revision": 1}).status_code == 200
+    first = _cur_preview(z)
+    assert _preview_count(job) == n1 + 1 and first["supersedes_task_id"] is None and first["retry_count"] == 0
+    assert env["q"].messages == [("app.tasks.run_preview", [first["id"]])]
+    env["q"].drain()
+    assert _pvs(c, job, a)["render"]["isCurrent"] is True
+    assert _attempt(first["id"])["status"] == "done"
+
+
+def test_n5_restore_during_translation_retry_is_not_secured_at_restore(env):
+    """미확보 경로 기록: 번역 재시도가 진행 중(⑧ 미완료)인 섹션을 복원하면 그 시점에는 미리보기 시도를 만들지 않는다.
+    번역이 끝나면 기존 진행 규칙(progress)이 이전 성공 미리보기의 입력 변경을 보고 다시 그린다 — 이 경로는 이전 시도가 done 일 때만 닫힌다."""
+    ids, target = _to_n5(env, fail_first=True)
+    c, job = ids["c"], ids["job"]
+    sid = _q("SELECT section_id FROM text_block WHERE id = :b", b=target)[0]["section_id"]
+    tr = _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s AND is_current", j=job, s=sid)[0]
+    pv0 = _cur_preview(sid)
+    assert pv0["status"] == "done"
+    rev = _srow(sid)["revision"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": rev}).status_code == 200
+    ai_adapters.set_adapters(translator=FakeTranslator())
+    assert c.post(f"/v1/jobs/{job}/tasks/{tr['id']}/retry").status_code == 200
+    n0 = _preview_count(job)
+    sent = list(env["q"].messages)
+    assert _spatch(c, job, sid, {"action": "restore", "revision": rev + 1}).status_code == 200
+    assert _preview_count(job) == n0 and _cur_preview(sid) == pv0 and env["q"].messages == sent  # 복원 시점 미확보
+    assert _pvs(c, job, sid)["renderInput"] is None  # 입력 준비 중(번역 재시도) — N5 에서도 생기는 조합
+    env["q"].drain()
+    cur = _cur_preview(sid)
+    assert cur["id"] != pv0["id"] and cur["status"] == "done" and _pvs(c, job, sid)["render"]["isCurrent"] is True

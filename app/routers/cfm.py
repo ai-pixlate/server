@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from app import edit_idempotency as idem
 from app import render, s3
 from app.db import get_db
+from app.flows import preview_view
 from app.flows.common import VISIBLE
 from app.security import get_current_seller
 
@@ -27,7 +28,7 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
         raise HTTPException(status_code=404, detail="job not found")
 
 
-def _block_dict(r, signals: dict) -> dict:
+def _block_dict(r, signals: dict, fps: dict) -> dict:
     return {
         "id": r["id"],
         "sectionId": r["section_id"],
@@ -47,6 +48,8 @@ def _block_dict(r, signals: dict) -> dict:
         "autoAdjust": r["auto_adjust"],
         "signals": signals.get(r["id"], []),
         "revision": r["revision"],
+        # /preview sections[].inputFingerprint 와 같은 계산 — 같은 섹션의 블록은 같은 값. 제외·입력 구성 실패·입력 준비 중은 null
+        "sectionInputFingerprint": fps.get(r["section_id"]),
     }
 
 
@@ -73,12 +76,16 @@ def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block
 
     rows = db.execute(text(sql), params).mappings().all()
     signals = block_signals(db, job_id)
-    return [_block_dict(r, signals) for r in rows]
+    sids = sorted({r["section_id"] for r in rows})
+    secs = [dict(x) for x in db.execute(text("SELECT id, bucket FROM section WHERE id = ANY(:s)"), {"s": sids}).mappings().all()]
+    fps = preview_view.section_fingerprints(preview_view.PreviewContext(db, job_id), secs) if secs else {}
+    return [_block_dict(r, signals, fps) for r in rows]
 
 
 # ── CFM-01: 실제 DB ───────────────────────────────────────────────
 @router.get("/jobs/{job_id}/blocks", summary="API-CFM-01 텍스트 블록 표(대조) (DB)")
 def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    preview_view.read_snapshot(db)  # 블록 값과 sectionInputFingerprint 를 한 조회 시점으로
     _require_job_owned(db, job_id, seller_id)
     return _blocks(db, job_id, section_id=sectionId)
 
@@ -180,11 +187,13 @@ def update_block(
 
 @router.get("/jobs/{job_id}/preview", summary="API-CFM-03 검수 뷰어 프리뷰(다폭) (DB+S3)")
 def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    """N3 제외 섹션은 빼고 N5 제외는 bucket=exclude 로 포함한다(계약). 미리보기 실패·미완료면 renderedUrl=null(원본 표시)."""
+    """N3 제외 섹션은 빼고 N5 제외는 bucket=exclude 로 포함한다(계약). 포함 섹션은 공통 렌더 입력·지문·현재 시도·표시 결과를 싣는다
+    (app.flows.preview_view). 한 응답은 한 조회 시점(REPEATABLE READ·READ ONLY)으로 만든다. 쓰기 없음."""
+    preview_view.read_snapshot(db)
     _require_job_owned(db, job_id, seller_id)
     rows = db.execute(
         text(
-            "SELECT s.id, s.section_order, s.source_image_id, s.bucket, s.excluded_stage, s.height, "
+            "SELECT s.id, s.section_order, s.source_image_id, s.bucket, s.excluded_stage, s.height, s.revision, "
             "s.image_key, s.render_image_key, si.width AS src_width "
             "FROM section s JOIN job j ON j.id = s.job_id LEFT JOIN source_image si ON si.id = s.source_image_id "
             "WHERE s.job_id = :j AND " + VISIBLE + " AND NOT (s.bucket = 'exclude' AND s.excluded_stage IS DISTINCT FROM 'N5') "
@@ -192,6 +201,7 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
         ),
         {"j": job_id},
     ).mappings().all()
+    ctx = preview_view.PreviewContext(db, job_id)
 
     # 섹션 식별자는 계약(ReviewPreview.sections[].id)대로 `id`로 내보낸다 —
     # `sectionId`로 주면 FE N5 어댑터가 식별자 없음으로 보고 예외를 던진다.
@@ -200,6 +210,7 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
     max_w = max([r["src_width"] or render.CANVAS_WIDTH for r in rows] or [render.CANVAS_WIDTH])
     for r in rows:
         height = r["height"] or 1500
+        view = preview_view.section_view(ctx, dict(r))
         sections.append({
             "id": r["id"],
             "sectionOrder": r["section_order"],
@@ -210,8 +221,13 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
             "displayTop": display_top,
             "height": height,
             "originalUrl": s3.presigned_get(r["image_key"]),
-            "renderedUrl": s3.presigned_get(r["render_image_key"]),
+            "renderedUrl": view["renderedUrl"],
+            "renderInput": view["renderInput"],
+            "inputFingerprint": view["inputFingerprint"],
+            "inputError": view["inputError"],
+            "render": view["render"],
             "signals": [],
+            "revision": r["revision"],
         })
         display_top += height
 
@@ -223,6 +239,7 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
         "scale": scale,
         "previewHeight": round(display_top * scale),
         "align": "left",
+        "renderer": preview_view.renderer(),
         "sections": sections,
     }
 

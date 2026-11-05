@@ -16,7 +16,12 @@
   #list div.sel { background:#e8f1fb; }
   #list small { color:var(--muted); display:block; }
   #stage { overflow:auto; position:relative; }
-  #cv { display:block; cursor:crosshair; }
+  #cv { display:block; cursor:default; }
+  #guide { padding:8px 10px; background:#eef5ff; border-bottom:1px solid var(--line); }
+  #guide p { margin:3px 0; }
+  .geometry { grid-column:2; }
+  .geometry summary { cursor:pointer; color:var(--muted); }
+  .geometry .row2 { margin-top:6px; }
   #side { display:flex; flex-direction:column; border-left:1px solid var(--line); background:var(--panel); min-height:0; }
   #tools { padding:8px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
   #preview { padding:6px 8px; border-bottom:1px solid var(--line); min-height:60px; max-height:180px; overflow:auto; background:#fafafa; }
@@ -29,6 +34,9 @@
   .ln .id { font-weight:600; color:var(--muted); cursor:pointer; }
   .ln .row2 { grid-column:2; display:flex; flex-wrap:wrap; gap:4px 10px; color:var(--muted); font-size:12px; }
   .ln .row2 input.num { width:52px; }
+  .ln[hidden] { display:none; }
+  #overlaps { max-height:150px; overflow:auto; padding:8px; }
+  #progress { padding:8px; }
   #check { padding:6px 8px; border-top:1px solid var(--line); max-height:120px; overflow:auto; font-size:12px; }
   #check .bad { color:var(--warn); } #check .good { color:var(--ok); }
   button { font:inherit; padding:3px 9px; cursor:pointer; }
@@ -50,13 +58,26 @@
   <div id="list"></div>
   <div id="stage"><canvas id="cv"></canvas></div>
   <div id="side">
+    <div id="guide">
+      <b>전사·누락 확인을 먼저, 좌표 수정은 필요한 곳만</b>
+      <p>① 모든 줄의 전사와 빠진 줄 확인 → ② 상자가 해당 줄을 가리키는지 확인 → ③ 겹침·대응이 모호한 영역 집중 확인</p>
+      <details><summary>좌표를 수정해야 하는 경우</summary>
+        글자가 잘리거나 다른 줄·셀을 포함하거나 여백이 과도할 때만 수정합니다. 모든 상자를 픽셀 단위로 다시 그릴 필요는 없습니다.
+        기존 잉크 기준·여백 10% 이하 규칙은 유지합니다. 판단이 어려우면 메모에 ‘확인 필요’를 남기고 완료 체크를 보류하세요.
+      </details>
+    </div>
     <div id="tools">
-      <button id="add">줄 추가</button><button id="del">선택 줄 삭제</button>
+      <button id="add">누락 줄 추가</button><button id="del">선택 줄 삭제</button>
       <button id="up">▲</button><button id="down">▼</button>
       <label><input type="checkbox" id="showAll" checked> 모든 상자</label>
-      <span class="hint">줄 선택 후 이미지에서 드래그 = bbox 다시 그리기 · 여백은 잉크 높이의 10% 이하</span>
+      <label><input type="checkbox" id="editBox"> 상자 수정 모드</label>
+      <span class="hint">필요할 때만 켜고 선택한 줄의 상자를 드래그해 수정합니다.</span>
     </div>
     <div id="preview"><span class="hint">줄을 선택하면 bbox 영역을 2배로 보여 줍니다.</span></div>
+    <div id="progress"></div>
+    <label><input id="pending" type="checkbox">미검수 줄만 표시</label>
+    <label><input id="focusIssues" type="checkbox">집중 확인만: 겹침·상자 없음·메모의 ‘확인 필요’</label>
+    <div id="overlaps"></div>
     <div id="lines"></div>
     <div id="check"></div>
   </div>
@@ -64,6 +85,7 @@
 <script>
 const $ = s => document.querySelector(s);
 let TAGS = [], doc = null, sel = -1, dirty = false, img = new Image(), drag = null, saving = false, gen = 0;
+let readOnly = true, pairSelection = [];
 const cv = $('#cv'), ctx = cv.getContext('2d');
 const zoom = () => parseFloat($('#zoom').value);
 
@@ -75,7 +97,12 @@ window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); 
 async function loadList(keep) {
   const r = await (await fetch('/api/list')).json();
   TAGS = r.tags;
+  readOnly = r.read_only;
+  for (const id of ['save','reason','add','del','up','down','editBox']) $('#' + id).disabled = readOnly;
+  $('#save').textContent = readOnly ? '읽기 전용' : '저장 (Ctrl+S)';
   $('#list').innerHTML = '';
+  const total = r.items.reduce((n,x)=>n+x.lines,0), done = r.items.reduce((n,x)=>n+x.verified,0);
+  const summary = document.createElement('p'); summary.textContent = `저장된 검수 ${done}/${total} · 미검수 ${total-done}`; $('#list').appendChild(summary);
   r.items.forEach(it => {
     const d = document.createElement('div');
     d.innerHTML = `<b>${it.id}</b><small>${it.kind}</small><small>${it.status} · 줄 ${it.lines} · 검수 ${it.verified}</small>`;
@@ -87,6 +114,7 @@ async function loadList(keep) {
 
 async function openDoc(id) {
   doc = await (await fetch('/api/truth/' + encodeURIComponent(id))).json();
+  pairSelection = [];
   sel = doc.lines.length ? 0 : -1; setDirty(false);
   $('#cur').textContent = `${doc.id} · ${doc.image.width}×${doc.image.height} · ${doc.review.status}`;
   img = new Image(); img.onload = () => { draw(); renderLines(); showCheck(doc.check); };
@@ -100,21 +128,22 @@ function draw() {
   cv.width = Math.round(img.width * z); cv.height = Math.round(img.height * z);
   ctx.drawImage(img, 0, 0, cv.width, cv.height);
   doc.lines.forEach((l, i) => {
-    if (!l.bbox || (!$('#showAll').checked && i !== sel)) return;
+    if (!l.bbox || (!$('#showAll').checked && i !== sel && !pairSelection.includes(i))) return;
     const b = l.bbox;
     ctx.lineWidth = i === sel ? 3 : 1.5;
-    ctx.strokeStyle = i === sel ? '#e0a800' : (l.verified ? '#1f8a4c' : '#0b6bcb');
+    ctx.strokeStyle = pairSelection.includes(i) ? '#b3261e' : i === sel ? '#e0a800' : (l.verified ? '#1f8a4c' : '#0b6bcb');
     ctx.strokeRect(b.x * z, b.y * z, b.w * z, b.h * z);
     ctx.fillStyle = ctx.strokeStyle; ctx.font = '11px sans-serif';
     ctx.fillText(l.line_id, b.x * z, Math.max(10, b.y * z - 2));
   });
   if (drag) { ctx.strokeStyle = '#e0a800'; ctx.setLineDash([4, 3]); ctx.strokeRect(drag.x0, drag.y0, drag.x1 - drag.x0, drag.y1 - drag.y0); ctx.setLineDash([]); }
   preview();
+  reviewSummary();
 }
 
 function preview() {
   const box = $('#preview'); const l = doc.lines[sel];
-  if (!l || !l.bbox) { box.innerHTML = '<span class="hint">bbox가 없습니다. 이미지에서 드래그해 그리세요.</span>'; return; }
+  if (!l || !l.bbox) { box.innerHTML = '<span class="hint">상자가 없습니다. 상자 수정 모드를 켜고 해당 줄을 드래그해 지정하세요.</span>'; return; }
   const b = l.bbox, pad = Math.round(b.h * 0.5), s = 2;
   const x = Math.max(0, b.x - pad), y = Math.max(0, b.y - pad);
   const w = Math.min(img.width - x, b.w + 2 * pad), h = Math.min(img.height - y, b.h + 2 * pad);
@@ -134,13 +163,15 @@ function renderLines() {
       <span class="id">${l.line_id}</span>
       <input type="text" class="t" value="${(l.text || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">
       <div class="row2">
-        <label><input type="checkbox" class="v" ${l.verified ? 'checked' : ''}> 이미지와 대조 완료</label>
+        <label><input type="checkbox" class="v" ${l.verified ? 'checked' : ''}> 전사·줄 대응·태그 확인 완료</label>
         ${TAGS.map(t => `<label><input type="checkbox" class="tg" value="${t}" ${l.tags.includes(t) ? 'checked' : ''}>${t}</label>`).join('')}
       </div>
-      <div class="row2">bbox
+      <details class="geometry"><summary>좌표 상세·수정 (필요할 때만)</summary><div class="row2">bbox
         ${['x','y','w','h'].map(k => `${k}<input class="num" data-k="${k}" type="number" value="${b[k]}">`).join('')}
         <span>${l.source || ''}</span>
-        <input type="text" class="note" placeholder="메모" value="${(l.note || '').replace(/"/g,'&quot;')}" style="flex:1;min-width:120px">
+      </div></details>
+      <div class="row2">
+        <input type="text" class="note" placeholder="판단이 모호하면 ‘확인 필요: 사유’ 입력" value="${(l.note || '').replace(/"/g,'&quot;')}" style="flex:1;min-width:120px">
       </div>`;
     d.querySelector('.id').onclick = () => select(i);
     d.querySelector('.t').onfocus = () => select(i, true);
@@ -152,6 +183,8 @@ function renderLines() {
       const v = parseInt(inp.value, 10); if (Number.isNaN(v)) return;
       l.bbox = l.bbox || { x: 0, y: 0, w: 1, h: 1 }; l.bbox[inp.dataset.k] = v; markEdited(l); });
     d.querySelector('.note').oninput = e => { l.note = e.target.value; setDirty(true); };
+    d.querySelectorAll("input").forEach(el => el.disabled = readOnly);
+    d.hidden = !visibleLine(l, i, issueIndices(doc.lines));
     root.appendChild(d);
   });
 }
@@ -171,7 +204,7 @@ function select(i, keepFocus) {
 }
 
 cv.onmousedown = e => {
-  if (sel < 0) return;
+  if (readOnly || !$('#editBox').checked || sel < 0) return;
   const r = cv.getBoundingClientRect(); drag = { x0: e.clientX - r.left, y0: e.clientY - r.top, x1: e.clientX - r.left, y1: e.clientY - r.top };
 };
 cv.onmousemove = e => { if (!drag) return; const r = cv.getBoundingClientRect(); drag.x1 = e.clientX - r.left; drag.y1 = e.clientY - r.top; draw(); };
@@ -199,10 +232,11 @@ $('#del').onclick = () => {
 function move(dlt) { const j = sel + dlt; if (sel < 0 || j < 0 || j >= doc.lines.length) return;
   [doc.lines[sel], doc.lines[j]] = [doc.lines[j], doc.lines[sel]]; sel = j; setDirty(true); renderLines(); draw(); }
 $('#up').onclick = () => move(-1); $('#down').onclick = () => move(1);
+$('#editBox').onchange = () => { drag=null; cv.style.cursor=$('#editBox').checked?'crosshair':'default'; draw(); };
 $('#zoom').onchange = draw; $('#showAll').onchange = draw;
 
 async function save() {
-  if (!doc || saving) return;
+  if (readOnly || !doc || saving) return;
   // 저장 중에는 편집을 잠근다. 그래도 바뀐 것이 있으면(세대 비교) 서버 데이터로 덮어쓰지 않는다.
   saving = true; document.body.classList.add('saving'); document.activeElement && document.activeElement.blur();
   const sentGen = gen, id = doc.id;
@@ -227,8 +261,46 @@ window.addEventListener('keydown', e => {
   if (saving) { e.preventDefault(); e.stopPropagation(); }  // 저장 중 키 입력 차단
 }, true);
 
+// 자동 검사와 같은 기하 조건. 태그나 검수 완료 상태를 자동 변경하지 않는다.
+function overlapPairs(lines) {
+  const pairs = [];
+  lines.forEach((a,i) => lines.slice(i+1).forEach((b,k) => {
+    if (!a.bbox || !b.bbox) return;
+    const x = Math.min(a.bbox.x+a.bbox.w,b.bbox.x+b.bbox.w)-Math.max(a.bbox.x,b.bbox.x);
+    const y = Math.min(a.bbox.y+a.bbox.h,b.bbox.y+b.bbox.h)-Math.max(a.bbox.y,b.bbox.y);
+    if (x<=0 || y<=0) return;
+    const rotated = a.tags.includes('rotated') || b.tags.includes('rotated');
+    const ink = a.tags.includes('ink_overlap') && b.tags.includes('ink_overlap');
+    pairs.push({i,j:i+k+1,x,y,rotated,ink});
+  }));
+  return pairs;
+}
+function issueIndices(lines) {
+  return new Set(overlapPairs(lines).flatMap(p=>[p.i,p.j]));
+}
+function visibleLine(line, index, issues) {
+  return (!$('#pending').checked || !line.verified) &&
+    (!$('#focusIssues').checked || issues.has(index) || !line.bbox || (line.note || '').includes('확인 필요'));
+}
+function reviewSummary() {
+  const done = doc.lines.filter(l=>l.verified).length;
+  $('#progress').textContent = `현재 섹션 ${done}/${doc.lines.length} · 미검수 ${doc.lines.length-done}` + (dirty ? ' (저장 전)' : '');
+  const issues = issueIndices(doc.lines);
+  document.querySelectorAll('.ln').forEach((el,i)=>el.hidden=!visibleLine(doc.lines[i],i,issues));
+  const pairs = overlapPairs(doc.lines), root = $('#overlaps'); root.replaceChildren();
+  const title = document.createElement('div');
+  title.textContent = `겹침 ${pairs.length}쌍 · 태그 예외 없는 ${pairs.filter(p=>!p.rotated&&!p.ink).length}쌍 (태그 예외도 사람 확인 필요)`;
+  root.appendChild(title);
+  for (const p of pairs) {
+    const button = document.createElement('button');
+    button.textContent = `${doc.lines[p.i].line_id} · ${doc.lines[p.j].line_id}: ${p.x}×${p.y}px / rotated=${p.rotated} / 양쪽 ink_overlap=${p.ink}`;
+    button.onclick = () => { $('#pending').checked=false; renderLines(); pairSelection=[p.i,p.j]; sel=-1; select(p.i); const row=document.querySelectorAll('.ln')[p.i]; row?.scrollIntoView({block:'nearest'}); };
+    root.appendChild(button);
+  }
+}
+$('#pending').onchange = $('#focusIssues').onchange = () => { if(doc) renderLines(); };
 function showCheck(errs) {
-  $('#check').innerHTML = !errs || !errs.length ? '<span class="good">자동 검사 통과(좌표 · 범위 · 겹침 · 태그). 여백 10%·빠진 글자·셀 경계는 사람이 확인합니다.</span>'
+  $('#check').innerHTML = !errs || !errs.length ? '<span class="good">자동 검사 통과(좌표 · 범위 · 겹침 · 태그). 전사·누락 줄·줄 대응·태그는 사람이 확인합니다. 적절한 상자는 그대로 두고 문제 영역만 수정하세요.</span>'
     : errs.map(e => `<div class="bad">${e.replace(/</g,'&lt;')}</div>`).join('');
 }
 

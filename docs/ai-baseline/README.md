@@ -29,12 +29,12 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 4 | [evaluation.md](protocols/v1/evaluation.md) | 체크포인트·실패와 심각도·판정 기준·Codex 평가 및 사람 검수 |
 | 5 | [aggregation.md](protocols/v1/aggregation.md) | AI 파이프라인 평가 지표 3개 그룹·공통 결함 분석·파생 분석의 계산·예외·비교 |
 | 6 | [execution.md](protocols/v1/execution.md) | 실행 환경·입력·비용 승인·보관 원칙·후속 실행 설계 제안 |
-| OCR 평가 | [ocr.md](protocols/v1/ocr.md) | OCR01·OCR02 정의·진단·고정 입력 반복 측정 조건 |
+| OCR 평가 | [ocr.md](protocols/v1/ocr.md) | OCR01 텍스트 CER v4·OCR02 보류·텍스트 동결 설계 |
 | OCR 자료 점검 | [ocr-preflight.md](ocr-preflight.md) | 12개 정답 초안·입력 해시·최초 OCR 출력 재사용 가능 범위·후속 작업 |
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |
 
-[AI 파이프라인 평가 지표](protocols/v1/aggregation.md#ai-파이프라인-평가-지표-분류)는 서비스 성과 지표(H01~H05), 단계별 기술 품질 지표(OCR01·OCR02·OI-54·NFR-15 등), 운영 성능 지표(OP01~OP07)의 3개 그룹으로 구분하며 공통 결함 분석은 별도로 유지한다. 지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리하며 GS-02·03은 미동결이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
+[AI 파이프라인 평가 지표](protocols/v1/aggregation.md#ai-파이프라인-평가-지표-분류)는 서비스 성과 지표(H01~H05), 단계별 기술 품질 지표(OCR01·OCR02(보류)·OI-54·NFR-15 등), 운영 성능 지표(OP01~OP07)의 3개 그룹으로 구분하며 공통 결함 분석은 별도로 유지한다. 지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리하며 GS-02·03은 미동결이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
 
 [기존 측정 도구 안내](../../tools/baseline/README.md)는 기존 구현의 사용법·검증 범위만 설명한다. 도구 출력이 최신 명세와 일치한다고 가정하지 않으며 도구 정비·실행은 별도 작업이다.
 

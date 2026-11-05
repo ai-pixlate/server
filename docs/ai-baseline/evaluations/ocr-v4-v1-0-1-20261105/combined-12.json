@@ -1,0 +1,570 @@
+{
+  "metric": "OCR01",
+  "protocol": "ocr-v4",
+  "created_at": "2026-11-05T05:54:28.302893+00:00",
+  "truth_version": "ocr-text-v1-20261104",
+  "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+  "spec_sha256": "686871ca121ce2ecc5f2a1e3d851355b7334a59501fe629a9fbcda9609626a06",
+  "inputs_sha256": "59bd669449ee787cefb4c23ea34c18297b9b04ca3d3fc5fcbe6043d25726d542",
+  "scorer_sha256": "44e83a50228242c72775fb2253236a55ec66fa124eae370395b9d3ae17f068be",
+  "python": "3.12.10",
+  "unicode_version": "15.0.0",
+  "limitation": "L008은 사용자 결정에 따라 빈 정답으로 유지한다. 해당 출력은 제거하지 않으며 전체 CER에 반영한다.",
+  "sections": [
+    {
+      "id": "GS-01_002__sec_1_05",
+      "status": "measured",
+      "reason": null,
+      "S": 0,
+      "D": 0,
+      "I": 0,
+      "N": 149,
+      "output_characters": 149,
+      "cer": 0.0,
+      "cer_percent": 0.0,
+      "truth_source_sha256": "c73dcf1181b62e8dbcdc9978e5ce7fdfa577b35fc23938046590f0bec3481c6e",
+      "input_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+      "provenance": {
+        "id": "GS-01_002__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_05",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:14:2026-10-30T00:33:06.717819+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-01_002__sec_1_05"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 14,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_15",
+      "status": "measured",
+      "reason": null,
+      "S": 0,
+      "D": 1,
+      "I": 0,
+      "N": 154,
+      "output_characters": 153,
+      "cer": 0.006493506493506494,
+      "cer_percent": 0.6493506493506493,
+      "truth_source_sha256": "89b0a33d7579efc90ed1ef3301f684f7c42a1150c768e06e5a974221ce9b7feb",
+      "input_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+      "provenance": {
+        "id": "GS-01_002__sec_1_15",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_15",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:34:2026-10-30T00:38:42.363983+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-01_002__sec_1_15"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 34,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_16",
+      "status": "measured",
+      "reason": null,
+      "S": 0,
+      "D": 0,
+      "I": 0,
+      "N": 113,
+      "output_characters": 113,
+      "cer": 0.0,
+      "cer_percent": 0.0,
+      "truth_source_sha256": "b4112e4f18cd9ee60058176370947c4a6021203a789a07a2179ef159d5b74f0b",
+      "input_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+      "provenance": {
+        "id": "GS-01_002__sec_1_16",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_16",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:36:2026-10-30T00:39:27.576140+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-01_002__sec_1_16"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 36,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_17",
+      "status": "measured",
+      "reason": null,
+      "S": 6,
+      "D": 7,
+      "I": 7,
+      "N": 333,
+      "output_characters": 333,
+      "cer": 0.06006006006006006,
+      "cer_percent": 6.006006006006006,
+      "truth_source_sha256": "30fa06adf0e4d973232cb3b7c410714bad75c0e988457425386f150c6fb54478",
+      "input_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+      "provenance": {
+        "id": "GS-01_002__sec_1_17",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_17",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:38:2026-10-30T00:39:44.675286+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-01_002__sec_1_17"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 38,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_03",
+      "status": "measured",
+      "reason": null,
+      "S": 31,
+      "D": 62,
+      "I": 53,
+      "N": 839,
+      "output_characters": 830,
+      "cer": 0.17401668653158522,
+      "cer_percent": 17.401668653158524,
+      "truth_source_sha256": "9ef49ff7df8fe87ebbf2900f56abdce42dc2a879df5dded835417b43d6c2de19",
+      "input_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+      "provenance": {
+        "id": "GS-02_001__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_3_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:170:2026-10-30T01:06:56.888620+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-02_001__sec_1_03"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 170,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_04",
+      "status": "measured",
+      "reason": null,
+      "S": 17,
+      "D": 1,
+      "I": 0,
+      "N": 888,
+      "output_characters": 887,
+      "cer": 0.02027027027027027,
+      "cer_percent": 2.027027027027027,
+      "truth_source_sha256": "aee3f12678eff8db6f358bcd50b904b0739c32c07b2b4cd677eb87ff1ed79db3",
+      "input_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+      "provenance": {
+        "id": "GS-02_001__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_3_04",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:172:2026-10-30T01:07:56.430161+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-02_001__sec_1_04"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 172,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "status": "measured",
+      "reason": null,
+      "S": 88,
+      "D": 124,
+      "I": 6,
+      "N": 386,
+      "output_characters": 268,
+      "cer": 0.5647668393782384,
+      "cer_percent": 56.476683937823836,
+      "truth_source_sha256": "f2e4b28ed2cf223132a67fc3cc4fb3c308d4ad7d49da963eab186dbfacc3155a",
+      "input_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+      "provenance": {
+        "id": "GS-02_002__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_4_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:175:2026-10-30T01:08:56.407540+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-02_002__sec_1_01"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 175,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_007__sec_1_02",
+      "status": "measured",
+      "reason": null,
+      "S": 5,
+      "D": 9,
+      "I": 0,
+      "N": 500,
+      "output_characters": 491,
+      "cer": 0.028,
+      "cer_percent": 2.8000000000000003,
+      "truth_source_sha256": "ec2f735451e36325bc9d6798d47dd9f0b6f609374632540e97bf68d91b0c7975",
+      "input_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+      "provenance": {
+        "id": "GS-02_007__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_9_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:198:2026-10-30T01:12:50.028583+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-02_007__sec_1_02"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 198,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "status": "measured",
+      "reason": null,
+      "S": 0,
+      "D": 1,
+      "I": 4,
+      "N": 465,
+      "output_characters": 468,
+      "cer": 0.010752688172043012,
+      "cer_percent": 1.0752688172043012,
+      "truth_source_sha256": "859c77e273f02de3f0e5e0c78ba53d0441ef7b5673f10d5f613df6de86ea1d1d",
+      "input_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+      "provenance": {
+        "id": "GS-02_014__sec_1_09",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "input_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_09",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:269:2026-10-30T01:29:36.607748+00:00",
+        "evidence": {
+          "path": "../../preparations/ocr-v4-v1-0-1-20261105/linkage.json",
+          "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+          "locator": "GS-02_014__sec_1_09"
+        },
+        "output": {
+          "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 269,
+          "pointer": "/result"
+        },
+        "origin": "initial_baseline_20261030"
+      },
+      "observed_hashes": {
+        "evidence": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-03_002__sec_1_04",
+      "status": "measured",
+      "reason": null,
+      "S": 57,
+      "D": 78,
+      "I": 28,
+      "N": 531,
+      "output_characters": 481,
+      "cer": 0.3069679849340866,
+      "cer_percent": 30.69679849340866,
+      "truth_source_sha256": "f0972b138b1e8e53952f615ea0bf52efd604d9dfd86164a64dac6fa923ff3818",
+      "input_sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+      "provenance": {
+        "id": "GS-03_002__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "ed3e6a1a25951c3a328cc3ed36a336c4facdf817a47784a3a90a24b4340f792a",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "reason": null,
+        "input_sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_1_04",
+        "attempt_id": "ocr-v4-v1-0-1-20261105-supplement:GS-03_002__sec_1_04:1",
+        "origin": "supplement_20261105",
+        "evidence": {
+          "path": "supplement/GS-03_002__sec_1_04-execution.json",
+          "sha256": "42a1dda1d70d50290da9970f22b6a65355b0fca35b59b08aa198dad1cd35d809",
+          "locator": "ocr.run return; supplement.py and started.json"
+        },
+        "output": {
+          "path": "supplement/GS-03_002__sec_1_04.json",
+          "sha256": "f72a11e06e31a86add40d8aeb4c68fe56a902f0093f6fc282b56964622ded872",
+          "pointer": ""
+        }
+      },
+      "observed_hashes": {
+        "evidence": "42a1dda1d70d50290da9970f22b6a65355b0fca35b59b08aa198dad1cd35d809",
+        "output": "f72a11e06e31a86add40d8aeb4c68fe56a902f0093f6fc282b56964622ded872"
+      }
+    },
+    {
+      "id": "GS-03_016__sec_1_01",
+      "status": "measured",
+      "reason": null,
+      "S": 1,
+      "D": 1,
+      "I": 0,
+      "N": 8,
+      "output_characters": 7,
+      "cer": 0.25,
+      "cer_percent": 25.0,
+      "truth_source_sha256": "240f6c4c4fbf4e5d2a061ae89a00659dcaeebd24d02cb1523424145d61518c80",
+      "input_sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4",
+      "provenance": {
+        "id": "GS-03_016__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "ed3e6a1a25951c3a328cc3ed36a336c4facdf817a47784a3a90a24b4340f792a",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "reason": null,
+        "input_sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_1_01",
+        "attempt_id": "ocr-v4-v1-0-1-20261105-supplement:GS-03_016__sec_1_01:1",
+        "origin": "supplement_20261105",
+        "evidence": {
+          "path": "supplement/GS-03_016__sec_1_01-execution.json",
+          "sha256": "6210e7dfa6a51f9ae0fcd2a0996468b0335339b46945ae2dd4cb8a77cbb2cb00",
+          "locator": "ocr.run return; supplement.py and started.json"
+        },
+        "output": {
+          "path": "supplement/GS-03_016__sec_1_01.json",
+          "sha256": "45300a6f898058db01b16c50d4d44cc5d867ec70281d05926686fcce82f9d87f",
+          "pointer": ""
+        }
+      },
+      "observed_hashes": {
+        "evidence": "6210e7dfa6a51f9ae0fcd2a0996468b0335339b46945ae2dd4cb8a77cbb2cb00",
+        "output": "45300a6f898058db01b16c50d4d44cc5d867ec70281d05926686fcce82f9d87f"
+      }
+    },
+    {
+      "id": "GS-03_018__sec_1_11",
+      "status": "measured",
+      "reason": null,
+      "S": 28,
+      "D": 60,
+      "I": 55,
+      "N": 967,
+      "output_characters": 962,
+      "cer": 0.14788004136504654,
+      "cer_percent": 14.788004136504654,
+      "truth_source_sha256": "92ad8c66ac4c9fafcdb26fd8ca5653c71272b7e36e1ea224d180d58b4bae93da",
+      "input_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+      "provenance": {
+        "id": "GS-03_018__sec_1_11",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "ed3e6a1a25951c3a328cc3ed36a336c4facdf817a47784a3a90a24b4340f792a",
+        "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+        "status": "available",
+        "reason": null,
+        "input_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_1_11",
+        "attempt_id": "ocr-v4-v1-0-1-20261105-supplement:GS-03_018__sec_1_11:1",
+        "origin": "supplement_20261105",
+        "evidence": {
+          "path": "supplement/GS-03_018__sec_1_11-execution.json",
+          "sha256": "77e94986615ee4a1c25086f70fc058624059b00b19d8f54c30eabd0834c3c907",
+          "locator": "ocr.run return; supplement.py and started.json"
+        },
+        "output": {
+          "path": "supplement/GS-03_018__sec_1_11.json",
+          "sha256": "f9983444ec74fa3d14503c2f0a948dcea54baa09cb557e4a3492608252b6ae28",
+          "pointer": ""
+        }
+      },
+      "observed_hashes": {
+        "evidence": "77e94986615ee4a1c25086f70fc058624059b00b19d8f54c30eabd0834c3c907",
+        "output": "f9983444ec74fa3d14503c2f0a948dcea54baa09cb557e4a3492608252b6ae28"
+      }
+    }
+  ],
+  "total": {
+    "S": 233,
+    "D": 344,
+    "I": 153,
+    "N": 5333,
+    "cer": 0.1368835552222014,
+    "cer_percent": 13.688355522220139,
+    "display_reason": null,
+    "planned_sections": 12,
+    "measured_sections": [
+      "GS-01_002__sec_1_05",
+      "GS-01_002__sec_1_15",
+      "GS-01_002__sec_1_16",
+      "GS-01_002__sec_1_17",
+      "GS-02_001__sec_1_03",
+      "GS-02_001__sec_1_04",
+      "GS-02_002__sec_1_01",
+      "GS-02_007__sec_1_02",
+      "GS-02_014__sec_1_09",
+      "GS-03_002__sec_1_04",
+      "GS-03_016__sec_1_01",
+      "GS-03_018__sec_1_11"
+    ],
+    "status_counts": {
+      "measured": 12
+    }
+  }
+}

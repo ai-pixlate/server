@@ -1,0 +1,42 @@
+{
+  "reviewer": "사용자 본인(예람)",
+  "evidence_source": "이 Codex 대화의 사용자 직접 회신 및 현재 작업 요청",
+  "evidence": [
+    {
+      "statement": "검수 결과 채팅으로 알려줄게. 전사, 누락 줄 전수 확인결과 문제 0건",
+      "scope": "12개 섹션·369줄 전사·누락 검수"
+    },
+    {
+      "statement": "정답 369줄의 전사 정확성·누락 여부 전수 검수 완료, 발견 오류 0건.",
+      "scope": "사용자 범위 변경 결정 재확인"
+    },
+    {
+      "statement": "lines[] 배열 순서를 기준으로 채택하자.",
+      "scope": "정답 연결 순서"
+    },
+    {
+      "statement": "빈 정답으로 유지해",
+      "scope": "GS-02_014/sec_1_09 L008; 섹션 평가 포함"
+    },
+    {
+      "statement": "기존 12개 섹션·369줄의 전사 및 누락 검수 완료(발견 오류 0건)를 기준으로 텍스트 전용 정답을 동결해.",
+      "scope": "이번 작업의 명시적 동결 승인"
+    }
+  ],
+  "transcription_review_complete": true,
+  "errors_found": 0,
+  "order": "lines_array",
+  "empty_truth_policy": "keep",
+  "empty_truth_unit": {
+    "section": "GS-02_014__sec_1_09",
+    "line_id": "L008",
+    "text": "",
+    "include_section": true
+  },
+  "freeze_authorized": true,
+  "expected_sections": 12,
+  "expected_lines": 369,
+  "spatial_review": "생략: bbox 위치·겹침 38건은 검증하지 않음",
+  "output_exposure": "미확인: 사용자에게 실제 OCR 출력이 노출됐는지 별도 확인되지 않음",
+  "evidence_limit": "사용자 직접 검수 보고를 근거로 함. 독립 재검수·PM 승인·외부 서명 인증을 주장하지 않음"
+}

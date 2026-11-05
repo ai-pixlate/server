@@ -1,3 +1,8 @@
 * text=auto eol=lf
 *.png binary
 *.jpg binary
+
+# OCR 동결본·측정 증거는 SHA-256 검증을 위해 줄바꿈 변환하지 않는다
+docs/ai-baseline/references/ocr-text/ocr-text-v1-20261104/** -text
+docs/ai-baseline/evaluations/ocr-v4-v1-0-1-20261105/** -text
+docs/ai-baseline/preparations/ocr-v4-v1-0-1-20261105/** -text

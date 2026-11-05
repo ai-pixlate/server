@@ -33,6 +33,9 @@ REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 from pipeline import jsonio  # noqa: E402
 
+IMAGE_ROOT = REPO
+READ_ONLY = False
+
 HERE = Path(__file__).resolve().parent
 EXP = REPO / "docs" / "ai-experiments"
 TRUTH_DIR = EXP / "ocr_truth" / "v1"
@@ -123,7 +126,7 @@ def section_of(sample: str, key: str):
 
 
 def image_file(doc: dict[str, Any]) -> Path:
-    return REPO / doc["image"]["path"]
+    return IMAGE_ROOT / doc["image"]["path"]
 
 
 def git_commit_of(path: str) -> str | None:
@@ -386,7 +389,7 @@ class Handler(BaseHTTPRequestHandler):
                 d = load(tid)
                 items.append({"id": tid, "kind": d["kind"], "status": d["review"]["status"], "lines": len(d["lines"]),
                               "verified": sum(1 for l in d["lines"] if l["verified"])})
-            return self._json(200, {"items": items, "tags": TAGS, "margin_max": MARGIN_MAX})
+            return self._json(200, {"items": items, "tags": TAGS, "margin_max": MARGIN_MAX, "read_only": READ_ONLY})
         if path.startswith("/api/truth/"):
             tid = path.removeprefix("/api/truth/")
             if tid not in all_ids():
@@ -401,6 +404,8 @@ class Handler(BaseHTTPRequestHandler):
         return self._json(404, {"error": "not found"})
 
     def do_POST(self):
+        if READ_ONLY:
+            return self._json(403, {"error": "읽기 전용 모드입니다"})
         path = unquote(self.path.split("?")[0])
         if not path.startswith("/api/truth/"):
             return self._json(404, {"error": "not found"})
@@ -418,12 +423,23 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def cmd_serve(args) -> int:
+    global IMAGE_ROOT, READ_ONLY
+    IMAGE_ROOT = args.image_root.resolve()
+    READ_ONLY = args.read_only
+    # 잘못된 이미지로 검수하지 않도록 시작 전에 원본 연결을 확인한다.
+    for tid in all_ids():
+        d = load(tid)
+        path = image_file(d)
+        if not path.is_file() or jsonio.sha256_file(path) != d["image"]["sha256"]:
+            raise SystemExit(f"{tid}: 입력 이미지 누락 또는 SHA-256 불일치")
     srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
     print(f"정답 작성·검수 화면: http://127.0.0.1:{args.port}/  (Ctrl+C로 종료)")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        srv.server_close()
     return 0
 
 
@@ -475,6 +491,8 @@ def main(argv: list[str] | None = None) -> int:
     sp.set_defaults(fn=cmd_draft)
     sp = sub.add_parser("serve")
     sp.add_argument("--port", type=int, default=8765)
+    sp.add_argument("--image-root", type=Path, default=REPO, help="JSON 이미지 상대 경로의 기준 저장소")
+    sp.add_argument("--read-only", action="store_true", help="화면과 서버 양쪽에서 저장 금지")
     sp.set_defaults(fn=cmd_serve)
     sp = sub.add_parser("check")
     sp.add_argument("--only")

@@ -384,11 +384,11 @@
       "config": {
         "method": "otsu_border",
         "em_ratio": 0.9,
-        "align_section_tolerance": 0.02,
+        "align_section_tolerance": 0.005,
         "align_tolerance": 0.12
       }
     },
-    "input_manifest_sha256": "68c11c421f09dea16fb761ed2ee11e53476eae38b0203440c4cc170da12f381f",
+    "input_manifest_sha256": "95b689ac8fb7db675e17cd56bc915c133758a8e02141736efa03f6bf1b109bfe",
     "outcome": "skipped",
     "target_count": 0,
     "skip_reason": "no_targets",
@@ -409,7 +409,7 @@
         "color": "#RRGGBB sRGB",
         "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
       },
-      "style_result_sha256": "7ab9f9eb22fb2a8db2101f9c23a84ed241a9d7d942a348c0b153f410b1be54ca"
+      "style_result_sha256": "eb0f09d64d5df5d1cbf04898473de3ad66b630a88cb8e814571a5a4d58c50b2a"
     },
     "artifacts": [],
     "source_refs": [],

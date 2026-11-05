@@ -137,7 +137,7 @@ def test_driver_explicit_selection_saves_style_result(driver, tmp_path):
     assert rec["selection"] == {"mode": "explicit", "sections": [f"{IMAGE}/sec_1_01"]}
     assert rec["counts"] == {"selected": 1, "ok": 1, "input_error": 0, "failed": 0, "save_failed": 0}
     assert {"git_commit", "git_dirty", "started_at", "ran_at", "duration_s", "config"} <= set(rec)
-    assert rec["config"]["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_section_tolerance": 0.02, "align_tolerance": 0.12}
+    assert rec["config"]["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_section_tolerance": 0.005, "align_tolerance": 0.12}
     [entry] = rec["sections"]
     assert (entry["image_id"], entry["section_key"], entry["status"], entry["result"]) == (IMAGE, "sec_1_01", "ok", f"{IMAGE}/style/sec_1_01.json")
     assert entry["inputs"]["section_image"]["path"] == f"{IMAGE}/sections/sec_1_01.png"  # 원본 섹션 이미지(인페인팅 결과 아님)

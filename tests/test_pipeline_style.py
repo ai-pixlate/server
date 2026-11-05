@@ -36,9 +36,9 @@ BLACK = (0, 0, 0)
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="module")
 def cfg():
-    # 계산식 검증용 — 기대값을 em_ratio 1.35로 손 계산했다. 기본값(잠정, #85)이 바뀌어도 계산식 테스트는 흔들리지 않게 고정한다.
-    # 기본값 자체는 test_default_config_is_approved_values가 본다
-    return with_style(cfgmod.load_config(), em_ratio=1.35)
+    # 계산식 검증용 — 기대값을 em_ratio 1.35 · align_section_tolerance 0.02로 손 계산했다. 기본값이 바뀌어도 계산식 테스트는
+    # 흔들리지 않게 고정한다. 기본값 자체는 test_default_config_is_approved_values가 본다
+    return with_style(cfgmod.load_config(), em_ratio=1.35, align_section_tolerance=0.02)
 
 
 def with_style(cfg, **over):
@@ -122,8 +122,8 @@ def expect_input_error(needle, fn):
 # 0. 설정 기본값
 # ---------------------------------------------------------------------------
 def test_default_config_is_approved_values():
-    # em_ratio 0.9는 잠정값(사용자 결정 2026-10-15, open-questions #85). align_section_tolerance 0.02는 잠정값(사용자 결정 2026-11-05)
-    assert cfgmod.load_config()["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_section_tolerance": 0.02,
+    # em_ratio 0.9는 잠정값(사용자 결정 2026-10-15, open-questions #85). align_section_tolerance 0.005는 실측 뒤 확정(사용자 결정 2026-11-05)
+    assert cfgmod.load_config()["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_section_tolerance": 0.005,
                                              "align_tolerance": 0.12}
 
 

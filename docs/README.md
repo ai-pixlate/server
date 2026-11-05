@@ -139,11 +139,11 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 
 ## 7. 2차 통합(PRD v3.5.10 · 11/6) 확정 명세 공개 현황
 
-`openapi.yaml`(명세 3.5.0)은 2차 확정 계약 공개본이다 — FE·AI가 타입·Mock·화면 개발에 쓴다. 표기 규칙은 `openapi.yaml` 머리말 「2차 통합 반영 표기」를 따른다. 이 표의 구현 상태는 develop 기준이며 서버 배포 완료를 뜻하지 않는다.
-운영 서버는 1.0.0 릴리즈 계약(명세 3.4.2) 기준이고, 2차 항목은 어느 서버(운영·dev 샌드박스)에도 아직 배포되지 않았다. 미결·3차 항목은 명세에 싣지 않는다(7.2·7.3).
+`openapi.yaml`(명세 3.5.10 — PRD v3.5.10 기준 · 2차 통합 API 계약)은 2차 확정 계약 공개본이다 — FE·AI가 타입·Mock·화면 개발에 쓴다. 표기 규칙은 `openapi.yaml` 머리말 「2차 통합 반영 표기」를 따른다. 이 표의 구현 상태는 develop 기준이며 서버 배포 완료를 뜻하지 않는다.
+운영 서버는 1.0.0 릴리즈 계약(명세 3.4.2) 기준이고, 2차 항목은 어느 서버(운영·dev 샌드박스)에도 아직 배포되지 않았다. 남은 계약 항목·3차 항목은 명세에 싣지 않는다(7.3·7.4). 전체 서버 구현 완료는 공개의 선행 조건이 아니다.
 /preview 행은 그 구현 PR(#108) 머지를 전제로 적었다.
 
-서버 상태 표기: `서버 구현 대기`(계약 확정, develop 서버 코드 없음) · `구현 완료·서버 배포 대기`(develop에 구현됨, 어느 서버에도 배포 안 됨) · `서버 배포·연동 확인 완료`(실제 서버 배포와 FE 연동까지 확인 — 지금 2차 항목 중 해당 없음) · `현행`(지금 운영 서버 동작, 3.4.2 계약) · `화면`(FE 동작).
+서버 상태 표기: `계약 확정·서버 구현 대기`(계약 확정, develop 서버 코드 없음) · `구현 완료·서버 배포 대기`(develop에 구현됨, 어느 서버에도 배포 안 됨) · `서버 배포·연동 확인 완료`(실제 서버 배포와 FE 연동까지 확인 — 지금 2차 항목 중 해당 없음) · `현행`(지금 운영 서버 동작, 3.4.2 계약) · `화면`(FE 동작). 구현 PR 안에서 남은 경로(`서버 미완료`·`미착수`)는 7.2에서 추적한다.
 
 ### 7.1 2차 공개 항목
 
@@ -151,59 +151,79 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 |---|---|---|---|---|
 | 번역문 같은 값 저장(no-op) | FE 합의 | blockPatch 「같은 값 저장」·예시 `sameValue`·`sameValueWhileRendering` | 구현 완료·서버 배포 대기 | #104 |
 | 저장 공통(처리 순서·멱등 키·422/409/503·`Idempotent-Replayed`·CORS 노출) | FE 11-03·11-04 | blockPatch 「저장 공통」·`EditIdempotencyKey` | 구현 완료·서버 배포 대기 | #105(블록)·#107(섹션) |
-| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 서버 구현 대기 | 미정 |
-| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing` / 서버 구현 대기: `not_render_target`·`check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
+| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 계약 확정·서버 구현 대기 | 미정 |
+| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing` / 계약 확정·서버 구현 대기: `not_render_target`·`check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
 | 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답·근거 없는 복원 409) | FE 11-03·PM | sectionPatch·`Section.revision`·`SectionPatch`·예시 `n3ExcludedInN5` | 구현 완료·서버 배포 대기 | #107 |
 | N5 복원 때 미리보기 시도 확보 | FE 11-03·PM | sectionPatch | 구현 완료·서버 배포 대기(하류 실행 없는 섹션은 서버 미완료) | #108 |
-| N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 서버 구현 대기 | 미정 |
+| N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 계약 확정·서버 구현 대기 | 미정 |
 | N5 섹션 Undo/Redo | FE 11-03 | sectionPatch | 화면 | — |
 | 실행 취소·재실행 — 전용 API 없음, 현재 revision으로 다시 저장 | PRD F-CFM-03 | blockPatch·예시 `changed` | 현행 | — |
-| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 서버 구현 대기 | 미정 |
+| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 계약 확정·서버 구현 대기 | 미정 |
 | 배치 화면 조작([+][−] 0.05·박스 중심·경계 안쪽 이동·스냅·Undo 50단계·계산식) | PM F-CFM-15·FE 계산식 동의 | blockPatch 「블록 배치」 | 화면 | — |
-| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 서버 구현 대기 | 미정 |
-| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 서버 구현 대기 | 미정 |
-| 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 서버 구현 대기 | 미정 |
-| 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 서버 구현 대기 | 미정 |
-| 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 서버 구현 대기 | 미정 |
-| 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 서버 구현 대기 | 미정 |
+| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 계약 확정·서버 구현 대기 | 미정 |
+| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 계약 확정·서버 구현 대기 | 미정 |
+| 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 계약 확정·서버 구현 대기 | 미정 |
+| 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 계약 확정·서버 구현 대기 | 미정 |
+| 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 계약 확정·서버 구현 대기 | 미정 |
+| 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 계약 확정·서버 구현 대기 | 미정 |
 | 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
 | 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |
 | 필수 확인 = `translation_failed`, `mandatory_term_unapplied` 제외, 블록·코드 단위 한 번 확인 | PRD F-CFM-09·PM 재확인 11-04 | ConfirmRequest | 현행 | — |
-| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 서버 구현 대기 | 미정 |
-| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 서버 구현 대기 | 미정 |
+| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 계약 확정·서버 구현 대기 | 미정 |
+| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기 | 미정 |
 | 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
-| N4 렌더 실패 섹션의 N5 원본 표시 | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
-| category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 서버 구현 대기 | 미정 |
-| N3 포함 섹션 판정(목록도 판정 전부) | PRD F-SEC-02·F-SEC-04 | `Section.verdicts`·`SectionList`·sectionList | 서버 구현 대기 | 미정 |
+| 표시 결과 없이 렌더 시도가 실패한 섹션의 N5 원본 표시(화면 표시 조건 — N4 렌더 실패 판별이 아니다. N4 판별·N6 출력은 P14·P15) | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
+| category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 계약 확정·서버 구현 대기 | 미정 |
+| N3 포함 섹션 판정(목록도 판정 전부) | PRD F-SEC-02·F-SEC-04 | `Section.verdicts`·`SectionList`·sectionList | 계약 확정·서버 구현 대기 | 미정 |
 | N3 원래 순서(`sectionOrder` 정렬)·섹션 카드 버튼 | PRD F-SEC-02·F-SEC-03 | `Section.sectionOrder`·`SectionPatch` | 현행(정렬·버튼은 화면) | — |
-| OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥ | PM 11-04·AI 11-04·11-05 | `JobPatch.regulatoryClass` | 서버 구현 대기(OTC 필드는 새 규제사전 작업, 백필은 대상 조사·실행 승인 뒤) | 미정(#103 계열) |
+| OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥ | PM 11-04·AI 11-04·11-05 | `JobPatch.regulatoryClass` | 계약 확정·서버 구현 대기(OTC 필드는 새 규제사전 작업, 백필은 대상 조사·실행 승인 뒤) | 미정(#103 계열) |
 | 작업 생성 시점·책임 동의, `consentId` 미사용 | PRD F-ACC-04 | jobCreate·consentCreate | 현행(동의 체크는 화면) | — |
-| 브랜드 생성 시점 스냅샷 | PM 11-04 | jobCreate | 서버 구현 대기 | 미정 |
+| 브랜드 생성 시점 스냅샷 | PM 11-04 | jobCreate | 계약 확정·서버 구현 대기 | 미정 |
 | `/blocks`의 `overflow`는 유지하되 넘침 판정에 쓰지 않음 | FE | `TextBlock.overflow` | 현행 | — |
 | `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문·지문 A·B·C 비교 | FE 11-04·11-05 | reviewPreview 「렌더 입력과 시도·결과」·응답 예시 6개·`PreviewRender*`·`TextBlock.sectionInputFingerprint`·blockList | 구현 완료·서버 배포 대기(#108 머지 전제). 서버 미완료 2건: ① 하류 실행 없는 N5 섹션의 미리보기 확보 ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록(블록 저장 500) | #108 |
-| 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 실행계획 BE 8번·R-18 | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 | 미착수 | 미정 |
+| `/preview` 키 제공 규칙 — `required` 키 항상, 상태별 null(외곽 8키·섹션 16키) | #100 계약안·FE 11-05 | `ReviewPreview` 「키 제공 규칙」 | 구현 완료·서버 배포 대기 | #108 |
+| 배치 요청의 `trans1` 필수(현재 공개안) — 생략 허용은 후속 협의(7.3) | FE 11-03 | `BlockPatch`·blockPatch 「블록 배치」·예시 `missingTrans1` | 현행(현행 서버도 `trans1` 필수) | — |
+| 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 실행계획 BE 8번·R-18 | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 | 미착수(7.2 ③) | 미정 |
 
-### 7.2 명세에 싣지 않은 미결 항목
+### 7.2 서버 미완료·의존 작업 추적
 
-- `trans1` 생략 허용(배치만 저장할 때) — 확정 전까지는 현재 `trans1`을 함께 보낸다.
-- `regulationVerdict`(금지·조건부 판정 구분)의 필드 이름·값 — 표시 방식(공통 `prohibited_expression` + 판정 구분)은 FE·PM 확정, 필드는 미정.
-- 검사 지문(요청 검증 지문·검사 유효성 지문)의 외부 필드·직렬화.
+응답 표현은 확정됐고 서버 처리만 남은 경로다. 공개 명세는 이 상태를 그대로 표시한다(reviewPreview 「구현 상태」·각 오퍼레이션 「2차 상태」).
+
+| # | 항목 | 지금 동작 | 영향 | 명세 위치 | 상태 |
+|---|---|---|---|---|---|
+| ① | 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 | 시도를 만들지 않아 `render.attempt = null`로 남는다 | 화면은 원본 + 미리보기 없음 | reviewPreview 「구현 상태」·sectionPatch | 서버 미완료(#108 범위) |
+| ② | 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 | /preview·/blocks는 `inputError` RENDER_INPUT_INVALID로 답하고 N5 복원도 성공하지만, 그 섹션의 블록 저장은 실패 시도를 남기지 못하고 500이며 자동 진행 처리도 그 섹션에서 오류로 멈춘다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다 | reviewPreview 「구현 상태」·blockPatch | 서버 미완료(#108 범위) |
+| ③ | 서버 HTML/Playwright 공통 렌더 연결 | 현행 Pillow 조판(`bundleId = null`, 자간 미적용) | FE 로컬 렌더와 서버 이미지가 다를 수 있다 — 넘침·최신 판정은 서버 값만 쓴다 | `PreviewRenderer` | 미착수 — 번들 반입(R-FE-6)·렌더러 전환 이전 작업 처리(PM-R0)에 의존 |
+
+### 7.3 남은 계약 항목 (명세에 싣지 않음)
+
+후속 협의
+- 배치 요청의 `trans1` 생략 허용 — 현재 공개안은 `trans1` 필수(배치만 바꿀 때도 현재 값을 보낸다. 빠지면 422).
+- `translation_failed` `taskId` 필수화 시점 — 2차 공개안은 선택 필드.
+
+필드 미확정
+- 조건부 규제 판정 구분 — 금지·조건부를 나누는 필드(`regulationVerdict` 후보)의 이름·값. 표시 방식(공통 `prohibited_expression` + 판정 구분)은 FE·PM 확정, 필드는 미정이라 2차 공개안에는 그 필드가 없다.
 - category leaf 검증 실패 응답 형식·적용 시점.
-- `consentId` 필드와 `POST /consents`의 제거 여부.
-- 업로드 실패로 남은 draft의 재개·취소 정책.
+- `displayTop`과 제외를 반영한 출력 위치의 분리(필드 추가 또는 의미 변경).
 - N3 단일 배열 응답.
+- `consentId` 필드와 `POST /consents`의 제거 여부.
+
+정책·처리 판단
+- P14 — N4 렌더 실패 섹션의 N6 원본 사용과 그 적용 차수.
+- P15 — 성공 이력이 없지만 N4 렌더 실패로 단정하지 않는 섹션의 확인·N6 출력(`render_failed` 판별 기준 포함). /preview의 「표시 결과 없음 + 시도 실패」는 화면 표시 조건이며 이 판별을 대신하지 않는다.
 - PM-R8 이후 처리 — 최초 판정 기록이 없는 직접 제외 섹션(지금은 409 `restore_basis_missing`).
 - PM-R0 — 렌더러 전환 이전 작업 처리(테스트 작업 정리 또는 차단)와 작업 단위 표시 필드.
-- P14 — N4 렌더 실패 섹션의 N6 원본 사용과 그 적용 차수.
-- P15 — 성공 이력이 없지만 N4 렌더 실패로 단정하지 않는 섹션의 확인·N6 출력(`render_failed` 판별 기준 포함).
-- F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
 - A13 — 중간 섹션 이미지 글자 잘림의 오류 표현과 출력 정책 연결.
-- `displayTop`과 제외를 반영한 출력 위치의 분리(필드 추가 또는 의미 변경).
-- 공통 렌더 번들 반입·버전 고정 방식(R-FE-6).
-- `/preview`의 `required` 목록·키 생략 규칙(#100 계약안).
-- `translation_failed` `taskId` 필수화 시점.
+- 업로드 실패로 남은 draft의 재개·취소 정책.
 
-### 7.3 3차(11/27)로 미룬 것
+FE 확인
+- F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
+
+서버 내부 계산·직렬화 (외부 계약에 영향 없음)
+- 규칙 검사 `inputKey`의 서버 내부 계산 — 의미 입력(고정 사전·용어집 선별 결과·규칙 버전 등)의 세부 표현과 직렬화·해시 방식, 기존 요청 검증 지문(`input_manifest_sha256`)과의 관계. 외부 계약(불투명 문자열·같은지만 비교·null 조건·배치·배율·revision 제외)은 확정이다(`BlockCheck`).
+- 공통 렌더 번들 반입·버전 고정 방식(R-FE-6) — 7.2 ③의 선행 조건.
+
+### 7.4 3차(11/27)로 미룬 것
 
 - 이미지 경계 이탈(Q-07) 판정 — 최종 결합 좌표계·`boundaryCheck`·확정 제한 ①~④·409 `image_boundary_exceeded`.
 - N6 최종 경계 판정 검증 인수조건(a~e)·관련 N6 오류 화면·N6 [중단]→N5 복귀.
@@ -213,7 +233,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - 시스템 자동 조정(F-TRN-04)·`systemAdjust`·시스템 조정이 있을 때 셀러가 명시한 기본값 보존.
 - OTC 종류 필수 선택(도입 뒤 임시 M020 새 적용 종료).
 
-### 7.4 문서 사이트
+### 7.5 문서 사이트
 
 - 배포 경로는 `.github/workflows/deploy-api-docs.yml`대로 둘뿐이다 — `develop`에서 수동 실행(workflow_dispatch), `api-tracking` 브랜치의 문서 변경 push(`docs/**`·워크플로 파일). 그 밖의 브랜치에서 수동 실행하면 배포 job을 건너뛴다. 배포 전 Redocly lint에서 명세 오류가 나면 멈춘다(경고는 통과).
 - 원격에 `api-tracking` 브랜치는 아직 없다. 그래서 이 명세가 `develop`에 머지돼도 사이트(https://ai-pixlate.github.io/server/)는 자동으로 바뀌지 않고, `develop`에서 수동 실행해야 갱신된다.

@@ -119,7 +119,7 @@
 
 | 자료 | 경로 | 소유 · 성격 |
 |---|---|---|
-| 설정 자료(정본) | `pipeline/data/style_defaults.json` — `defaults_version` `role-style@2026-10-12.1` | AI. 디자인 토큰(`type_tokens`, 출처 design_image)과 사용자 승인 매핑 · 보완값(`pipeline_mapping`, 출처 user_approved)을 나눠 담는다. 같은 값을 다른 파일에 따로 두지 않는다 |
+| 설정 자료(정본) | `pipeline/data/style_defaults.json` — `defaults_version` `role-style@2026-11-05.1`(정렬을 역할별 값으로, `schema_version` 2) | AI. 디자인 토큰(`type_tokens`, 출처 design_image)과 사용자 승인 매핑 · 보완값(`pipeline_mapping`, 출처 user_approved)을 나눠 담는다. 같은 값을 다른 파일에 따로 두지 않는다 |
 | 로더 · 검증 · 계산 | `pipeline/handoff/style_defaults.py` — `load_style_defaults` · `verify_fonts` · `resolve_block` · `render_inputs` · `RULE_VERSION`(`role-style-rule/1`) | AI. 정책 규칙(`bundle.py`)처럼 BE가 import해 쓰는 것을 전제로 한다. 조판 · 측정은 하지 않는다 |
 | 폰트 파일 | `pipeline/data/fonts/pretendard/` — `Pretendard-Regular.otf` · `Pretendard-SemiBold.otf` · `LICENSE.txt` | 공식 배포본 그대로 저장소에 포함(git checkout으로 배포). 검증 · 재현 도구 `pipeline/data/fonts/tools/fetch_fonts.py` |
 | 사례(입력 · 기대 결과) | `pipeline/samples/style_defaults/cases.json` — 10건(8종) | AI. 기대값은 손 계산(검증 대상 코드로 생성하지 않음) |
@@ -136,7 +136,8 @@
 | price | Heading / H3 | 24px | SemiBold(600) | −2% = −0.02em |
 | caution | Body / L | 16px | Regular(400) | −3% = −0.03em |
 
-공통(사용자 승인): 폰트 Pretendard · 기준 폭 375px · 기본 글자색 `#222222` · 기본 정렬 left · 행간 = 적용 크기 × 1.2.
+공통(사용자 승인): 폰트 Pretendard · 기준 폭 375px · 기본 글자색 `#222222` · 행간 = 적용 크기 × 1.2.
+기본 정렬(역할별, 사용자 결정 2026-11-05): title · price center, body · caption · caution left. 설정 자료의 `pipeline_mapping.align`은 역할 → 정렬 객체다(이전 형식의 공통 문자열 하나는 로더가 거부한다).
 
 | 파일 | 크기(byte) | SHA-256 | 메타데이터(실제 파일에서 읽음) |
 |---|---|---|---|
@@ -157,7 +158,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 | 입력 | 적용값 · 출처 |
 |---|---|
 | `is_excluded`가 false가 아님(라벨 · 로고 · 규제 제외 등) / 빈 원문 / 번역문 없음(NULL · 빈 문자열) | 조판하지 않음(`skip_reason` excluded · empty_source · no_translation). 기본값으로 되살리지 않는다 |
-| ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. 기존 함수는 단일 줄 · 동률 left도 `measured`로 분류하지만 실제 원본 정렬 판정과 기본 left를 구분해야 한다(`contract.md` 6.4 · #78) |
+| ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. ⑦은 섹션 기준으로 판정한 정렬만 값으로 내고(`align_basis` `section`), 판정하지 못하면 NULL이라 역할 기본 정렬로 채워진다(2026-11-05, `contract.md` 6.4 · #78). 이전 ⑦ 결과의 `default_single_line` · `default_tie` left는 원본 정렬 판정이 아니다 |
 | ⑦ 완료, 일부 NULL | NULL 항목만 역할 기본값 — 출처 `role_default` |
 | ⑦ 실패(style 객체 NULL) | 세 항목 모두 역할 기본값. 단계 상태는 `failed` 그대로(측정 성공으로 만들지 않음) |
 | 계약 위반(⑦ 완료인데 대상 블록 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값) | `StyleInputInvalid` — 기본값으로 덮지 않는다 |
@@ -174,7 +175,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 ```json
 {"id": 401, "render": true, "skip_reason": null, "style_stage": "failed", "measured": null, "measured_align_basis": null,
  "applied": {"type_token": "Heading / H2", "font_family": "Pretendard", "font_face": "SemiBold", "font_weight": 600,
-             "font_sha256": "c89bc430…", "font_size_px": 92.16, "font_color": "#222222", "align": "left",
+             "font_sha256": "c89bc430…", "font_size_px": 92.16, "font_color": "#222222", "align": "center",
              "letter_spacing_em": -0.015, "letter_spacing_px": -1.3824, "line_height_px": 110.592},
  "source": {"font_size_px": "role_default", "font_color": "role_default", "align": "role_default", "font_family": "role_config",
             "font_face": "role_config", "letter_spacing": "role_config", "line_height": "role_config"}}
@@ -225,10 +226,10 @@ python -m pytest tests/test_pipeline_style_defaults.py
 
 | 사례 | 확인하는 것 |
 |---|---|
-| 01_all_measured | 측정값 3개 유지 · bg_color 미사용 · default_single_line left는 측정값 |
+| 01_all_measured | 측정값 3개 유지 · bg_color 미사용 · `align_basis`(section)는 그대로 전달 |
 | 02_color_null | 글자색만 #222222(role_default) |
-| 03_align_null | 정렬만 left(role_default), default_tie left는 measured |
-| 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 단계 failed 유지 |
+| 03_align_null | 정렬만 caption 기본 left(role_default), 측정된 left는 measured |
+| 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 정렬 title · price center · caution left, 단계 failed 유지 |
 | 05_excluded_targets | 라벨 · 로고 · 빈 원문 · 번역 NULL/빈 문자열 → 조판 안 함. ⑦ 완료 · 세 항목 NULL → 모두 role_default |
 | 06a · 06b · 06c | 원본 폭 375 · 860 · 1080 — 860이면 title 73.38666666666667(반올림 없음) |
 | 07_fractional_measured | 측정 37.25 · 18.6 유지(배율 · em_ratio 미적용, 기본값보다 작아도 유지) |

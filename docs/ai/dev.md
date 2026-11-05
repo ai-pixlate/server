@@ -171,7 +171,7 @@ docs/ai/                     정본 문서
 
 D9와 5.24~5.32의 BE·AI 합의를 코드로 옮긴 경계다. 아래 표의 인계 함수는 **요청 dict → `StageReport`** 인터페이스이며, 호출자는 채택 전에 `pipeline.handoff.validate.validate_report(report, request)`로 검사한다(빈 목록 = 통과). 인계 함수는 예외를 밖으로 던지지 않고 실패도 보고로 돌려준다. BE가 이 인터페이스를 쓰는 단계와 단계 함수를 직접 부르는 단계는 다음 문단이 구분한다. 계약 예제(정상 · 생략 · 실패 · 부분 실패 29건)는 `pipeline/samples/handoff/`이며 `python -m pipeline.handoff.examples --out pipeline/samples/handoff`로 다시 만든다(테스트가 커밋본과 대조).
 
-BE의 실제 연결 지점: ③-1 · ⑧은 이 인계 함수(`run_judgment` · `run_translate`)를 `app/ai_adapters.py`에서 부르고, ⑥은 GPU 워커(`app/flows/gpu_worker.py`)가 `GpuInpaintRunner`(내부에서 `run_inpaint`)를 부른다. ①~③ · ④ · ⑤ · ⑦은 `app/ai_adapters.py`가 `analyze()` · `stages.label` · `stages.logo` · `stages.style`을 직접 부른다 — 아래 표의 `run_analyze` · `run_label` · `run_logo` · `run_style`은 BE가 쓰지 않는 인계 함수다. 번역문 검사(`run_text_check` · `run_translation_review` · 지문 · 집계, D12)는 BE에 연결하지 않았으며, 이 행들의 BE 요청 · 보고 형식은 AI 측 제안 · BE 미합의 · 연동 전 검토 대상이다(`be-handoff.md` 8.12).
+BE의 실제 연결 지점: ③-1 · ⑧은 이 인계 함수(`run_judgment` · `run_translate`)를 `app/ai_adapters.py`에서 부르고, ⑥은 GPU 워커(`app/flows/gpu_worker.py`)가 `GpuInpaintRunner`(내부에서 `run_inpaint`)를 부른다. ①~③ · ④ · ⑤ · ⑦은 `app/ai_adapters.py`가 `analyze()` · `stages.label` · `stages.logo` · `stages.style`을 직접 부른다 — 아래 표의 `run_analyze` · `run_label` · `run_logo` · `run_style`은 BE가 쓰지 않는 인계 함수다. 번역문 검사(`run_text_check` · `run_translation_review` · 지문 · 집계, D12)는 BE에 연결하지 않았으며, 아래 표는 현재 AI 내부 요청·보고 형식이다. 최신 BE–AI 채택 원칙은 `contract.md` 5.3, 외부 스키마·연결 상세는 `be-handoff.md` 8.12를 따른다. 고정 요청 manifest 검증을 현재 의미 입력의 check.inputKey 비교와 구분한다.
 
 | 단계 | 함수 | BE 공급 입력(요청 키) | 보고 payload · 산출물 |
 |---|---|---|---|

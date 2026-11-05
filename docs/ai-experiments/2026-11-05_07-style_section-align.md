@@ -91,6 +91,29 @@
   전체의 판정 불가 블록을 보면 caption center 45 · left 22 · right 6, body center 11 · left 8, title left 12 · center 11이다.
 - 여러 줄 블록은 사람 판정에서도 이전 규칙이 더 정확했다(26 → 46, 새로 틀림 40).
 
+### 역할별 기본 정렬 재검토(2026-11-05)
+
+정답 = 사람 판정(판단 불가 제외), 사람이 보지 않은 블록은 에이전트 라벨. 0.005 기준 판정 결과에 기본값만 바꿔 셈했다(평가 가능 426).
+
+| 역할 | 판정 불가 블록의 원본 정렬 | 기본 left / center 오류 | 전체 블록(⑦ 실패 시)의 원본 정렬 | 기본 left / center 오류 |
+|---|---|---|---|---|
+| caption | center 47 · left 22 · right 6 | 53 / 28 | center 122 · left 51 · right 18 | 140 / 69 |
+| body | center 11 · left 8 | 11 / 8 | left 61 · center 37 | 37 / 61 |
+| title | left 11 · center 9 | 9 / 11 | center 87 · left 45 | 87 / 45 |
+| caution | left 3 | 0 / 3 | left 4 · center 1 | 1 / 4 |
+| price | 표본 없음 | — | 표본 없음 | — |
+
+| 기본값 안 | 오류 / 426 | 1줄 | 여러 줄 |
+|---|---:|---:|---:|
+| title · price center, 나머지 left(D6) | 106 (24.9%) | 60 | 46 |
+| **caption도 center** | **81 (19.0%)** | 32 | 49 |
+| caption · body center | 78 (18.3%) | 27 | 51 |
+| title left + caption · body center | 76 (17.8%) | 31 | 45 |
+| 모두 center | 81 (19.0%) | 28 | 53 |
+
+- caption은 두 경우 모두 center가 크게 낫다. body · title은 판정 불가 블록에서 반대 값이 2 ~ 3건 낫지만 ⑦ 실패 시에는 현재 값이 크게 나아 유지한다.
+- 사용자가 caption만 center로 바꾸기로 했다(2026-11-05). GS-01 · GS-02 두 상세페이지에 한정된 근거다.
+
 ## 5. 판단
 
 **채택(허용 오차 0.005)** — 섹션 기준 판정은 이 표본에서 전체 오류를 줄였다(43.8% → 0.02에서 33.5%, 0.005에서 24.6%). 특히 1줄 블록(162 → 60 ~ 76)이
@@ -104,3 +127,5 @@
 
 2026-11-05 — `pipeline/config/default.toml` `style.align_section_tolerance` 0.02 → 0.005, `pipeline.md` 단계표 ⑦ · 3절 결정 열 · 7.7절,
 `contract.md` 6.4, `open-questions.md` #76 · 3절 G, `status.md` ⑦ 행. 여러 줄 블록의 줄 정보 사용 여부는 반영하지 않았다(규칙 변경 — 미정).
+2026-11-05 — caption 기본 정렬 left → center(`pipeline/data/style_defaults.json` `role-style@2026-11-05.2`, `pipeline.md` 7.7절,
+`contract.md` 6.4, `be-handoff.md` 6절, `integration-decisions.md` D11).

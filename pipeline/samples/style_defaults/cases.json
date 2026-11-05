@@ -1,6 +1,6 @@
 {
  "schema_version": "1",
- "defaults_version": "role-style@2026-11-05.1",
+ "defaults_version": "role-style@2026-11-05.2",
  "rule": "role-style-rule/1",
  "comparison": {
   "numbers": "절대 오차 1e-9 이내",
@@ -175,7 +175,7 @@
   },
   {
    "id": "03_align_null",
-   "title": "정렬만 NULL — 정렬만 역할 기본값. 측정된 left는 그대로",
+   "title": "정렬만 NULL — 정렬만 역할 기본값(caption center). 측정된 left는 그대로",
    "input": {
     "source_width_px": 1080,
     "section_height_px": 340,
@@ -236,7 +236,7 @@
       "font_sha256": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
       "font_size_px": 30,
       "font_color": "#555555",
-      "align": "left",
+      "align": "center",
       "letter_spacing_em": -0.01,
       "letter_spacing_px": -0.3,
       "line_height_px": 36.0

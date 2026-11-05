@@ -138,7 +138,7 @@ def test_null_fields_and_failed_style_use_defaults_with_role_face(font_calls):
     bg = png_bytes(1000, 400)
     res = typeset.render(bg, [_blk(1, {"font_color": None, "bg_color": None, "est_font_px": 30.5, "align": None}, role="caption"),
                               _blk(2, None, role="title", stage="failed")], _defaults())
-    assert res.blocks[1].applied == {"font_color": "#222222", "est_font_px": 30.5, "align": "left"}
+    assert res.blocks[1].applied == {"font_color": "#222222", "est_font_px": 30.5, "align": "center"}  # caption 역할 기본 정렬
     assert res.blocks[1].source == {"font_color": "role_default", "est_font_px": "measured", "align": "role_default"}
     assert res.blocks[2].applied["est_font_px"] == 32 * 1000 / 375
     sizes = {f.getname()[1]: s for _, s, f in font_calls["open"]}

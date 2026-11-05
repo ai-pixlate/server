@@ -119,7 +119,7 @@ def test_style_defaults_unreadable_or_font_mismatch_is_not_silently_ignored(monk
     # 대체 경로를 비우면 저장소 정본 — 지문은 설정 버전·SHA-256·폰트 SHA-256·규칙 버전(6.6 ⑤)
     monkeypatch.delenv("PIXLATE_STYLE_DEFAULTS")
     inputs = typeset.style_inputs()
-    assert inputs["style_defaults"]["version"] == "role-style@2026-11-05.1" and set(inputs) == {"style_defaults", "fonts", "rule"}
+    assert inputs["style_defaults"]["version"] == "role-style@2026-11-05.2" and set(inputs) == {"style_defaults", "fonts", "rule"}
 
 
 @pytest.mark.skipif(not __import__("os").getenv("PIXLATE_TEST_DATABASE_URL"), reason="PIXLATE_TEST_DATABASE_URL 없음")

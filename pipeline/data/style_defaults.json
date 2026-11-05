@@ -1,8 +1,8 @@
 {
   "schema_version": "2",
-  "defaults_version": "role-style@2026-11-05.1",
+  "defaults_version": "role-style@2026-11-05.2",
   "approval": {
-    "decision": "docs/ai/integration-decisions.md D11 · 역할별 기본 정렬(사용자 결정 2026-11-05, pipeline.md 7.7절)",
+    "decision": "docs/ai/integration-decisions.md D11 · 역할별 기본 정렬(사용자 결정 2026-11-05, 같은 날 caption center로 재검토, pipeline.md 7.7절)",
     "approved_by": "user",
     "approved_on": "2026-11-05",
     "pm_reply_recorded": false
@@ -26,7 +26,7 @@
     "align": {
       "title": "center",
       "body": "left",
-      "caption": "left",
+      "caption": "center",
       "price": "center",
       "caution": "left"
     },

@@ -119,7 +119,7 @@
 
 | 자료 | 경로 | 소유 · 성격 |
 |---|---|---|
-| 설정 자료(정본) | `pipeline/data/style_defaults.json` — `defaults_version` `role-style@2026-11-05.1`(정렬을 역할별 값으로, `schema_version` 2) | AI. 디자인 토큰(`type_tokens`, 출처 design_image)과 사용자 승인 매핑 · 보완값(`pipeline_mapping`, 출처 user_approved)을 나눠 담는다. 같은 값을 다른 파일에 따로 두지 않는다 |
+| 설정 자료(정본) | `pipeline/data/style_defaults.json` — `defaults_version` `role-style@2026-11-05.2`(정렬을 역할별 값으로, `schema_version` 2) | AI. 디자인 토큰(`type_tokens`, 출처 design_image)과 사용자 승인 매핑 · 보완값(`pipeline_mapping`, 출처 user_approved)을 나눠 담는다. 같은 값을 다른 파일에 따로 두지 않는다 |
 | 로더 · 검증 · 계산 | `pipeline/handoff/style_defaults.py` — `load_style_defaults` · `verify_fonts` · `resolve_block` · `render_inputs` · `RULE_VERSION`(`role-style-rule/1`) | AI. 정책 규칙(`bundle.py`)처럼 BE가 import해 쓰는 것을 전제로 한다. 조판 · 측정은 하지 않는다 |
 | 폰트 파일 | `pipeline/data/fonts/pretendard/` — `Pretendard-Regular.otf` · `Pretendard-SemiBold.otf` · `LICENSE.txt` | 공식 배포본 그대로 저장소에 포함(git checkout으로 배포). 검증 · 재현 도구 `pipeline/data/fonts/tools/fetch_fonts.py` |
 | 사례(입력 · 기대 결과) | `pipeline/samples/style_defaults/cases.json` — 10건(8종) | AI. 기대값은 손 계산(검증 대상 코드로 생성하지 않음) |
@@ -137,7 +137,7 @@
 | caution | Body / L | 16px | Regular(400) | −3% = −0.03em |
 
 공통(사용자 승인): 폰트 Pretendard · 기준 폭 375px · 기본 글자색 `#222222` · 행간 = 적용 크기 × 1.2.
-기본 정렬(역할별, 사용자 결정 2026-11-05): title · price center, body · caption · caution left. 설정 자료의 `pipeline_mapping.align`은 역할 → 정렬 객체다(이전 형식의 공통 문자열 하나는 로더가 거부한다).
+기본 정렬(역할별, 사용자 결정 2026-11-05): title · price · caption center, body · caution left. 설정 자료의 `pipeline_mapping.align`은 역할 → 정렬 객체다(이전 형식의 공통 문자열 하나는 로더가 거부한다).
 
 | 파일 | 크기(byte) | SHA-256 | 메타데이터(실제 파일에서 읽음) |
 |---|---|---|---|
@@ -228,7 +228,7 @@ python -m pytest tests/test_pipeline_style_defaults.py
 |---|---|
 | 01_all_measured | 측정값 3개 유지 · bg_color 미사용 · `align_basis`(section)는 그대로 전달 |
 | 02_color_null | 글자색만 #222222(role_default) |
-| 03_align_null | 정렬만 caption 기본 left(role_default), 측정된 left는 measured |
+| 03_align_null | 정렬만 caption 기본 center(role_default), 측정된 left는 measured |
 | 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 정렬 title · price center · caution left, 단계 failed 유지 |
 | 05_excluded_targets | 라벨 · 로고 · 빈 원문 · 번역 NULL/빈 문자열 → 조판 안 함. ⑦ 완료 · 세 항목 NULL → 모두 role_default |
 | 06a · 06b · 06c | 원본 폭 375 · 860 · 1080 — 860이면 title 73.38666666666667(반올림 없음) |

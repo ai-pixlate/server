@@ -60,7 +60,7 @@ def test_approved_table_matches_config(d):
     m = d.data.pipeline_mapping
     assert (m.font_family, m.reference_width_px, m.font_color, m.line_height_ratio) == ("Pretendard", 375, "#222222", 1.2)
     # 역할별 기본 정렬(사용자 결정 2026-11-05)
-    assert m.align == {"title": "center", "body": "left", "caption": "left", "price": "center", "caution": "left"}
+    assert m.align == {"title": "center", "body": "left", "caption": "center", "price": "center", "caution": "left"}
     for role, (token, px, weight, pct) in APPROVED.items():
         s = sd.role_spec(d, role)
         assert (s.type_token, s.base_px, s.face, s.letter_spacing_pct) == (token, px, weight, pct)
@@ -196,7 +196,7 @@ def test_cases_cover_required_scenarios():
     assert CASES["defaults_version"] == sd.load_style_defaults().version and CASES["rule"] == sd.RULE_VERSION
 
 
-@pytest.mark.parametrize("role, want", [("title", "center"), ("price", "center"), ("body", "left"), ("caption", "left"),
+@pytest.mark.parametrize("role, want", [("title", "center"), ("price", "center"), ("body", "left"), ("caption", "center"),
                                         ("caution", "left")])
 def test_null_align_uses_role_default(d, role, want):
     """판정하지 못한 정렬(NULL)은 역할별 기본 정렬로 채운다(F-STY-03 I69). 측정된 정렬은 역할과 무관하게 그대로다."""

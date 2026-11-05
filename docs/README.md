@@ -26,42 +26,24 @@ Swagger UI 자산은 `swagger-ui-dist@5.17.14` CDN(jsDelivr)에서 로드합니�
 
 ## 2. 문서 작업 흐름
 
-API 명세(`docs/openapi.yaml`)는 서버 코드와 분리해 **`feature/api-tracking` 브랜치**에서 관리합니다.
-여기에 머지되면 문서 사이트(https://ai-pixlate.github.io/server/)가 자동으로 갱신됩니다.
-
-| 브랜치 | 역할 |
-| --- | --- |
-| `feature/api-tracking` | **API 문서 전용 브랜치.** 머지되면 문서 사이트가 자동 배포됩니다. |
-| `docs/*` | 문서 작업 브랜치. `feature/api-tracking` 으로 PR 을 올립니다. |
-
-```bash
-git switch feature/api-tracking
-git pull
-git switch -c docs/add-xxx-endpoint
-
-# docs/openapi.yaml 수정 후
-git add docs/openapi.yaml
-git commit -m "docs(api): XXX 엔드포인트 추가"
-git push -u origin docs/add-xxx-endpoint
-```
-
-이후 GitHub 에서 `feature/api-tracking` 대상으로 PR 을 올리면 자동 검증이 돌고,
-어떤 엔드포인트가 추가/삭제됐는지 PR 코멘트로 요약됩니다.
+API 명세(`docs/openapi.yaml`)는 서버 코드와 같은 저장소에서 관리하며, 변경은 **`develop`으로 PR**을 올려 반영합니다(서버 구현 PR이 그 계약 문구를 함께 고치거나, 문서만 담은 PR).
+`develop`에 머지돼도 문서 사이트(https://ai-pixlate.github.io/server/)는 자동으로 바뀌지 않습니다 — 아래 수동 배포로 갱신합니다.
 
 ### 자동화 (GitHub Actions)
 
 | 워크플로 | 트리거 | 하는 일 |
 | --- | --- | --- |
-| [`api-docs-validate.yml`](../.github/workflows/api-docs-validate.yml) | `feature/api-tracking` 대상 PR / push | YAML 파싱 · Redocly lint · 추적 필드(`x-feature-id`, `x-release`) 점검 · PR 에 변경 엔드포인트 요약 코멘트 |
-| [`deploy-api-docs.yml`](../.github/workflows/deploy-api-docs.yml) | `feature/api-tracking` push (`docs/**`) | Swagger UI 를 GitHub Pages 로 배포 |
+| [`api-docs-validate.yml`](../.github/workflows/api-docs-validate.yml) | `develop`·`api-tracking` 대상 PR / push (`docs/**`) | YAML 파싱 · Redocly lint · PR 에 변경 엔드포인트 요약 코멘트 |
+| [`deploy-api-docs.yml`](../.github/workflows/deploy-api-docs.yml) | `develop` 수동 실행(workflow_dispatch) · `api-tracking` push (`docs/**`) | lint 뒤 Swagger UI 를 GitHub Pages 로 배포 |
 
-수동 배포가 필요하면 Actions → Deploy API Docs → Run workflow → Branch `feature/api-tracking` 으로 실행합니다.
+배포 경로는 이 둘뿐입니다. 그 밖의 브랜치(`release/*` 포함)에서 수동 실행하면 배포 job을 건너뜁니다.
+`develop`에서 배포: Actions → Deploy API Docs → Run workflow → Branch `develop`. 원격에 `api-tracking` 브랜치는 아직 없습니다.
 
-### 최초 1회 설정 (관리자)
+### 설정 (관리자)
 
-1. **Settings → Pages → Source** 를 `GitHub Actions` 로 지정
-2. **Settings → Environments → github-pages → Deployment branches** 에 `feature/api-tracking` 추가
-3. (권장) **Settings → Branches → Add rule** 로 `develop` 보호 — PR 필수 + `OpenAPI 검증` 체크 통과 필수
+1. **Settings → Pages → Source** = `GitHub Actions`
+2. **Settings → Environments → github-pages → Deployment branches** = `develop`·`api-tracking`만(워크플로 배포 조건과 같게)
+3. (권장) **Settings → Branches** 로 `develop` 보호 — PR 필수 + `OpenAPI 검증` 체크 통과 필수
 
 ### 추적 규약
 
@@ -155,22 +137,84 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - **📌조건부**: JOB-08 `resume` — PM 확정 후 계약 채움. (`PATCH /jobs/{jobId}` 는 jobPatch 로 확정·구현됨)
 - **verify 노드 분리**(N2 판정 vs N4 규제검증) — 오케스트레이션 §15-1 미결(스펙엔 영향 없음).
 
-## 7. 2차 통합(PRD v3.5.10 · 11/6) 계약 반영 현황
+## 7. 2차 통합(PRD v3.5.10 · 11/6) 확정 명세 공개 현황
 
-명세 표기 규칙은 `openapi.yaml` 머리말 「2차 통합 반영 표기」를 따른다. 명세에는 2차 확정 계약과 구현 상태만 싣는다. 이 표의 구현 상태는 develop 기준이며 서버 배포 완료를 뜻하지 않는다.
-3차(11/27) 예정 기능과 합의 전 후보는 명세에 넣지 않는다.
+`openapi.yaml`(명세 3.5.0)은 2차 확정 계약 공개본이다 — FE·AI가 타입·Mock·화면 개발에 쓴다. 표기 규칙은 `openapi.yaml` 머리말 「2차 통합 반영 표기」를 따른다. 이 표의 구현 상태는 develop 기준이며 서버 배포 완료를 뜻하지 않는다.
+운영 서버는 1.0.0 릴리즈 계약(명세 3.4.2) 기준이고, 2차 항목은 어느 서버(운영·dev 샌드박스)에도 아직 배포되지 않았다. 미결·3차 항목은 명세에 싣지 않는다(7.2·7.3).
+/preview 행은 그 구현 PR(#108) 머지를 전제로 적었다.
 
-| 항목 | 계약 | 명세 반영 | 구현 |
-|---|---|---|---|
-| 번역문 같은 값 저장(no-op) | 확정(FE) | blockPatch — develop 반영(#104) | 구현됨(#104) |
-| 저장 공통(처리 순서·멱등 키·422/409/503·재전송 헤더·CORS) | 확정(FE 11-03·11-04) | blockPatch 「저장 공통」 | 구현됨 — 블록 PATCH(#105), 섹션 PATCH(섹션 저장 PR) |
-| 409 구분(`error.code` + `details.reason`) | 확정(FE 11-04) | `Error.details` | 각 API 구현과 함께 |
-| 작업 생성 시점·책임 동의, `consentId` 미사용 | 확정 | jobCreate · consentCreate | 서버 현행(미저장). 화면 동의 체크는 FE |
-| 브랜드 생성 시점 스냅샷 | 확정(PM 11-04) | jobCreate | 구현 대기(담당 미확인) |
-| OTC 종류 규칙·임시 M020 | 정책 확정(PM 11-04) | `JobPatch.regulatoryClass` | 필드는 새 규제사전 작업(#103 계열) |
-| 재렌더 중 확정 허용·검사 중 확정 거절·검사 최종 실패 통과·미저장 번역문 확인창·넘침 비차단 | 확정(PM) | confirmReview | 재렌더 중 허용·넘침 비차단 = 현행, 검사 중 거절 = 규칙 검사 연결과 함께, 확인창 = FE |
-| 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답) | 확정(FE 11-03·PM) — 최초 판정 없는 섹션 복원은 PM-R8 결정 전까지 409 거절 | sectionPatch · `Section.revision` · `SectionPatch` | 구현됨(#107). N5 복원 때 미리보기 시도 확보 = 구현됨(/preview 렌더 입력 PR — 하류 실행 없는 섹션은 서버 미완료), 검사 시도 확보 = 규칙 검사 연결과 함께(구현 대기) |
-| 블록 배치 저장(정규화·CSV 5열) · 규칙 검사 상태 · `translation_failed` `taskId` · category leaf · N3 포함 섹션 판정 | 확정 | 각 구현 PR에서 그 오퍼레이션에 함께 반영 | 구현 예정 |
-| `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문 | 확정(FE 11-05) — 입력 상태 3조합(별도 상태 필드 없음)·입력/시도 독립 판단·`rendererId` 현행 문자열·`fontColor` 대문자 `#RRGGBB`·표시 결과 없을 때 화면 처리(이유 필드 없음) | reviewPreview 「렌더 입력과 시도·결과」·응답 예시 6개 · `PreviewRender*` · `TextBlock.sectionInputFingerprint` | 구현됨(/preview 렌더 입력 PR). 서버 미완료 2건: 하류 실행 없는 N5 섹션의 미리보기 확보, 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록(블록 저장 500) — 응답 표현은 FE 수용 |
-| 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 2차 범위(실행계획 BE 8번 · R-18) | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 명시 | 미착수(2차 의존 작업) |
-| `regulationVerdict` | 필드 안 FE 확인 중 | 미반영 — 확정되면 그 구현 PR에서 반영 | 구현 예정 |
+서버 상태 표기: `서버 구현 대기`(계약 확정, develop 서버 코드 없음) · `구현 완료·서버 배포 대기`(develop에 구현됨, 어느 서버에도 배포 안 됨) · `서버 배포·연동 확인 완료`(실제 서버 배포와 FE 연동까지 확인 — 지금 2차 항목 중 해당 없음) · `현행`(지금 운영 서버 동작, 3.4.2 계약) · `화면`(FE 동작).
+
+### 7.1 2차 공개 항목
+
+| 항목 | 계약 근거 | 명세 위치 | 서버 상태 | 구현 PR |
+|---|---|---|---|---|
+| 번역문 같은 값 저장(no-op) | FE 합의 | blockPatch 「같은 값 저장」·예시 `sameValue`·`sameValueWhileRendering` | 구현 완료·서버 배포 대기 | #104 |
+| 저장 공통(처리 순서·멱등 키·422/409/503·`Idempotent-Replayed`·CORS 노출) | FE 11-03·11-04 | blockPatch 「저장 공통」·`EditIdempotencyKey` | 구현 완료·서버 배포 대기 | #105(블록)·#107(섹션) |
+| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 서버 구현 대기 | 미정 |
+| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing` / 서버 구현 대기: `not_render_target`·`check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
+| 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답·근거 없는 복원 409) | FE 11-03·PM | sectionPatch·`Section.revision`·`SectionPatch`·예시 `n3ExcludedInN5` | 구현 완료·서버 배포 대기 | #107 |
+| N5 복원 때 미리보기 시도 확보 | FE 11-03·PM | sectionPatch | 구현 완료·서버 배포 대기(하류 실행 없는 섹션은 서버 미완료) | #108 |
+| N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 서버 구현 대기 | 미정 |
+| N5 섹션 Undo/Redo | FE 11-03 | sectionPatch | 화면 | — |
+| 실행 취소·재실행 — 전용 API 없음, 현재 revision으로 다시 저장 | PRD F-CFM-03 | blockPatch·예시 `changed` | 현행 | — |
+| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 서버 구현 대기 | 미정 |
+| 배치 화면 조작([+][−] 0.05·박스 중심·경계 안쪽 이동·스냅·Undo 50단계·계산식) | PM F-CFM-15·FE 계산식 동의 | blockPatch 「블록 배치」 | 화면 | — |
+| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 서버 구현 대기 | 미정 |
+| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 서버 구현 대기 | 미정 |
+| 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 서버 구현 대기 | 미정 |
+| 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 서버 구현 대기 | 미정 |
+| 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 서버 구현 대기 | 미정 |
+| 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 서버 구현 대기 | 미정 |
+| 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
+| 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |
+| 필수 확인 = `translation_failed`, `mandatory_term_unapplied` 제외, 블록·코드 단위 한 번 확인 | PRD F-CFM-09·PM 재확인 11-04 | ConfirmRequest | 현행 | — |
+| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 서버 구현 대기 | 미정 |
+| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 서버 구현 대기 | 미정 |
+| 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
+| N4 렌더 실패 섹션의 N5 원본 표시 | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
+| category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 서버 구현 대기 | 미정 |
+| N3 포함 섹션 판정(목록도 판정 전부) | PRD F-SEC-02·F-SEC-04 | `Section.verdicts`·`SectionList`·sectionList | 서버 구현 대기 | 미정 |
+| N3 원래 순서(`sectionOrder` 정렬)·섹션 카드 버튼 | PRD F-SEC-02·F-SEC-03 | `Section.sectionOrder`·`SectionPatch` | 현행(정렬·버튼은 화면) | — |
+| OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥ | PM 11-04·AI 11-04·11-05 | `JobPatch.regulatoryClass` | 서버 구현 대기(OTC 필드는 새 규제사전 작업, 백필은 대상 조사·실행 승인 뒤) | 미정(#103 계열) |
+| 작업 생성 시점·책임 동의, `consentId` 미사용 | PRD F-ACC-04 | jobCreate·consentCreate | 현행(동의 체크는 화면) | — |
+| 브랜드 생성 시점 스냅샷 | PM 11-04 | jobCreate | 서버 구현 대기 | 미정 |
+| `/blocks`의 `overflow`는 유지하되 넘침 판정에 쓰지 않음 | FE | `TextBlock.overflow` | 현행 | — |
+| `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문·지문 A·B·C 비교 | FE 11-04·11-05 | reviewPreview 「렌더 입력과 시도·결과」·응답 예시 6개·`PreviewRender*`·`TextBlock.sectionInputFingerprint`·blockList | 구현 완료·서버 배포 대기(#108 머지 전제). 서버 미완료 2건: ① 하류 실행 없는 N5 섹션의 미리보기 확보 ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록(블록 저장 500) | #108 |
+| 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 실행계획 BE 8번·R-18 | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 | 미착수 | 미정 |
+
+### 7.2 명세에 싣지 않은 미결 항목
+
+- `trans1` 생략 허용(배치만 저장할 때) — 확정 전까지는 현재 `trans1`을 함께 보낸다.
+- `regulationVerdict`(금지·조건부 판정 구분)의 필드 이름·값 — 표시 방식(공통 `prohibited_expression` + 판정 구분)은 FE·PM 확정, 필드는 미정.
+- 검사 지문(요청 검증 지문·검사 유효성 지문)의 외부 필드·직렬화.
+- category leaf 검증 실패 응답 형식·적용 시점.
+- `consentId` 필드와 `POST /consents`의 제거 여부.
+- 업로드 실패로 남은 draft의 재개·취소 정책.
+- N3 단일 배열 응답.
+- PM-R8 이후 처리 — 최초 판정 기록이 없는 직접 제외 섹션(지금은 409 `restore_basis_missing`).
+- PM-R0 — 렌더러 전환 이전 작업 처리(테스트 작업 정리 또는 차단)와 작업 단위 표시 필드.
+- P14 — N4 렌더 실패 섹션의 N6 원본 사용과 그 적용 차수.
+- P15 — 성공 이력이 없지만 N4 렌더 실패로 단정하지 않는 섹션의 확인·N6 출력(`render_failed` 판별 기준 포함).
+- F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
+- A13 — 중간 섹션 이미지 글자 잘림의 오류 표현과 출력 정책 연결.
+- `displayTop`과 제외를 반영한 출력 위치의 분리(필드 추가 또는 의미 변경).
+- 공통 렌더 번들 반입·버전 고정 방식(R-FE-6).
+- `/preview`의 `required` 목록·키 생략 규칙(#100 계약안).
+- `translation_failed` `taskId` 필수화 시점.
+
+### 7.3 3차(11/27)로 미룬 것
+
+- 이미지 경계 이탈(Q-07) 판정 — 최종 결합 좌표계·`boundaryCheck`·확정 제한 ①~④·409 `image_boundary_exceeded`.
+- N6 최종 경계 판정 검증 인수조건(a~e)·관련 N6 오류 화면·N6 [중단]→N5 복귀.
+- 검사 최종 실패·미해결 규제 경고의 확정 때 필수 확인(`check_failed` 신호·`inputKey` 확인 기준).
+- 실행 실패 섹션 확인(`acknowledgedSections`).
+- 번역문 LLM 규제 판정(F-TRN-03).
+- 시스템 자동 조정(F-TRN-04)·`systemAdjust`·시스템 조정이 있을 때 셀러가 명시한 기본값 보존.
+- OTC 종류 필수 선택(도입 뒤 임시 M020 새 적용 종료).
+
+### 7.4 문서 사이트
+
+- 배포 경로는 `.github/workflows/deploy-api-docs.yml`대로 둘뿐이다 — `develop`에서 수동 실행(workflow_dispatch), `api-tracking` 브랜치의 문서 변경 push(`docs/**`·워크플로 파일). 그 밖의 브랜치에서 수동 실행하면 배포 job을 건너뛴다. 배포 전 Redocly lint에서 명세 오류가 나면 멈춘다(경고는 통과).
+- 원격에 `api-tracking` 브랜치는 아직 없다. 그래서 이 명세가 `develop`에 머지돼도 사이트(https://ai-pixlate.github.io/server/)는 자동으로 바뀌지 않고, `develop`에서 수동 실행해야 갱신된다.
+- 「Try it out」: `servers`의 `https://api.pixate.example.com/v1`은 예시 주소라 Swagger 「Try it out」은 실제 서버를 호출하지 않는다. 실제 서버 주소는 아직 정하지 않았다.

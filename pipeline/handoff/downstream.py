@@ -36,7 +36,7 @@ from pipeline.stages import inpaint as inpaint_stage
 from pipeline.stages import label as label_stage
 from pipeline.stages import logo as logo_stage
 from pipeline.stages import style as style_stage
-from pipeline.types import LabelResult, LogoResult, MergeResult, Section, TextBlock
+from pipeline.types import STYLE_SCHEMA_VERSION, LabelResult, LogoResult, MergeResult, Section, TextBlock
 from pipeline.vlm import JudgeAssistant
 
 DOWNSTREAM_ADAPTER_VERSION = "downstream-handoff@2026-10-08.1"
@@ -388,7 +388,7 @@ def run_style(raw: Any, cfg: dict[str, Any]) -> StageReport:
     ident, req, bad = _begin(raw, "style", StyleRequest)
     if bad:
         return bad
-    impl = {"adapter": DOWNSTREAM_ADAPTER_VERSION, "style_schema": "1"}
+    impl = {"adapter": DOWNSTREAM_ADAPTER_VERSION, "style_schema": STYLE_SCHEMA_VERSION}
     try:
         style_stage.validate_config(cfg)
         sec, blocks = _section_inputs(req)
@@ -401,7 +401,7 @@ def run_style(raw: Any, cfg: dict[str, Any]) -> StageReport:
             "blocks": [b.model_dump(mode="json") for b in sorted(blocks, key=lambda b: b.block_order)],
             "label_result_sha256": req.label_result_sha256, "logo_result_sha256": req.logo_result_sha256,
             "logo_record_sha256": req.logo_record_sha256,
-            "config": {k: st[k] for k in ("method", "em_ratio", "align_tolerance")},
+            "config": {k: st[k] for k in ("method", "em_ratio", "align_section_tolerance", "align_tolerance")},
         })
         check_expected_manifest(ident, msha)
     except HandoffInputError as e:

@@ -126,7 +126,8 @@ def regroup(run: Path, feats: list[dict]) -> list[dict]:
                 for ln in b["source_lines"] for r in ln["regions"]]
         rows = merge.reading_lines(regs, cfg["merge"])
         blk = NS(bbox=NS(w=b["bbox"]["w"]), source_lines=[NS(regions=rr) for _, rr in rows])
-        align, basis, reason, _ = style.estimate_align(blk, cfg["style"]["align_tolerance"])
+        ln = style.estimate_line_align(blk, cfg["style"]["align_tolerance"])  # 당시 규칙(현재는 줄 진단 — 2026-11-05)
+        align, basis, reason = ln.align, ln.basis, ln.null_reason
         out.append({"gs": f["gs"], "id": f["id"], "src_lines": f["src_lines"], "regrouped_lines": len(rows),
                     "v101_align": f["applied_align"], "v101_basis": f["align_basis"] or f"null:{f['align_null_reason']}",
                     "regroup_align": align, "regroup_basis": basis or f"null:{reason}"})

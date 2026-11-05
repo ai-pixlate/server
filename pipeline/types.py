@@ -660,7 +660,7 @@ class InpaintResult(_Model):
 # 단독 개발 v1 명세(사용자 승인 2026-10-06). text_block.style JSON 계약(#14)이 아니다 — font_color · bg_color · est_font_px · align은
 # 개발용 측정값 이름이고, status · 사유 값은 운영 enum · 오류 코드가 아니다. TextBlock과 공통 SCHEMA_VERSION은 바꾸지 않는다.
 # ---------------------------------------------------------------------------
-STYLE_SCHEMA_VERSION = "1"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전
+STYLE_SCHEMA_VERSION = "2"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전. 2 = 섹션 기준 정렬(사용자 결정 2026-11-05)
 AlignValue = Literal["left", "center", "right"]
 ALIGN_VALUES: tuple[str, ...] = ("left", "center", "right")
 # [잠정] 블록 status = 영역 측정 상태(정렬 성공 여부와 별개 — align · align_basis · null_reasons로 판단)
@@ -672,12 +672,16 @@ StyleRegionStatus = Literal["measured", "color_failed", "blank_text"]
 StyleExcludedReason = Literal["product_label", "brand_logo"]
 # [잠정] single_class = crop 명도가 두 집단으로 나뉘지 않음(단색 포함) / border_tie = 두 집단의 외곽 접촉 수가 같음
 StyleColorError = Literal["single_class", "border_tie"]
-# [잠정] estimated = 허용 오차 안 후보 중 분산 최소가 하나 / default_single_line = 유효 줄 1개라 기본 좌정렬 /
-# default_tie = 후보 중 분산 최솟값 동률이라 기본 좌정렬(좌가 후보가 아니어도). 기본값 적용은 정렬 추정 성공이 아니다
-AlignBasis = Literal["estimated", "default_single_line", "default_tie"]
+# [잠정] section = 섹션 기준 판정에서 지지 수 최댓값인 정렬이 하나(1 이상)
+AlignBasis = Literal["section"]
+# [잠정] 줄 진단(이전 규칙, 판정에 쓰지 않음): estimated = 허용 오차 안 후보 중 분산 최소가 하나 / default_single_line = 유효 줄 1개라
+# 기본 좌정렬 / default_tie = 후보 중 분산 최솟값 동률이라 기본 좌정렬(좌가 후보가 아니어도)
+LineAlignBasis = Literal["estimated", "default_single_line", "default_tie"]
+# [잠정] 줄 진단의 정렬 None 사유: no_candidate = 허용 오차를 충족한 정렬 후보 없음 / no_text_lines = 비공백 영역이 있는 줄 없음
+LineAlignNullReason = Literal["no_candidate", "no_text_lines"]
 # [잠정] null 사유: excluded = 라벨 · 로고 제외 / no_text = 비공백 측정 대상 영역 없음 / no_valid_region = 유효한 영역 값 없음 /
-# no_candidate = 허용 오차를 충족한 정렬 후보 없음 / no_text_lines = 비공백 영역이 있는 줄 없음
-StyleNullReason = Literal["excluded", "no_text", "no_valid_region", "no_candidate", "no_text_lines"]
+# no_text_lines = 비공백 영역이 있는 줄 없음 / no_anchor = 어느 정렬도 지지가 없음 / align_tie = 지지 수 최댓값이 둘 이상
+StyleNullReason = Literal["excluded", "no_text", "no_valid_region", "no_text_lines", "no_anchor", "align_tie"]
 STYLE_VALUE_FIELDS: tuple[str, ...] = ("font_color", "bg_color", "est_font_px", "align")
 HEX_COLOR_PATTERN = r"^#[0-9A-F]{6}$"  # sRGB "#RRGGBB"(대문자)
 _SHA256_PATTERN = r"^[0-9a-f]{64}$"
@@ -729,10 +733,14 @@ class RegionStyle(_Model):
         return self
 
 
-class StyleAlignDiag(_Model):
-    """[잠정] 블록 정렬 진단. std는 모표준편차(ddof=0)의 실수 기록이며 판단에는 쓰지 않는다(판단은 분산의 정확 비교).
+class StyleLineAlignDiag(_Model):
+    """[잠정] 줄 진단 — 블록 안 줄 분산으로 정렬을 고르던 이전 규칙(v1)의 결과. 판정에는 쓰지 않고 섹션 기준 판정과의 비교용으로만 남긴다
+    (사용자 결정 2026-11-05). std는 모표준편차(ddof=0)의 실수 기록이며 판단은 분산의 정확 비교다.
     tolerance_px = 블록 bbox.w × style.align_tolerance. candidates = 허용 오차를 충족한 정렬(left → center → right 순)."""
 
+    align: AlignValue | None
+    basis: LineAlignBasis | None
+    null_reason: LineAlignNullReason | None
     std_left: float | None = Field(ge=0)  # 유효 줄 0개면 None
     std_center: float | None = Field(ge=0)
     std_right: float | None = Field(ge=0)
@@ -740,7 +748,7 @@ class StyleAlignDiag(_Model):
     candidates: list[AlignValue] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _consistent(self) -> "StyleAlignDiag":
+    def _consistent(self) -> "StyleLineAlignDiag":
         stds = (self.std_left, self.std_center, self.std_right)
         if None in stds and stds != (None, None, None):
             raise ValueError("세 std는 모두 있거나 모두 None이어야 한다")
@@ -748,7 +756,82 @@ class StyleAlignDiag(_Model):
             raise ValueError("유효 줄이 없으면 candidates는 비어 있어야 한다")
         if list(self.candidates) != [a for a in ALIGN_VALUES if a in self.candidates]:
             raise ValueError("candidates는 중복 없이 left → center → right 순이어야 한다")
+        if (self.align is None) != (self.basis is None) or (self.align is None) != (self.null_reason is not None):
+            raise ValueError("줄 진단은 align · basis가 함께 있거나, 둘 다 None이고 null_reason이 있어야 한다")
+        if (self.null_reason == "no_text_lines") != (stds == (None, None, None)):
+            raise ValueError("줄 진단 null_reason no_text_lines는 유효 줄이 없을 때(std None)만이다")
+        if self.null_reason == "no_candidate" and self.candidates:
+            raise ValueError("no_candidate면 candidates가 비어 있어야 한다")
+        if self.basis in ("default_single_line", "default_tie") and self.align != "left":
+            raise ValueError(f"{self.basis}이면 align은 left여야 한다")
+        if self.basis == "estimated" and self.align not in self.candidates:
+            raise ValueError("estimated면 align이 candidates 안에 있어야 한다")
+        if self.basis == "default_tie" and len(self.candidates) < 2:
+            raise ValueError("default_tie면 candidates가 둘 이상이어야 한다")
         return self
+
+
+class StyleAlignSupport(_Model):
+    """[잠정] 정렬별 지지 동료 블록(block_key, 섹션의 block_order 순). left · right = 왼쪽 · 오른쪽 끝, center = 중심이 허용 오차 안에서 맞는 동료."""
+
+    left: list[str] = Field(default_factory=list)
+    center: list[str] = Field(default_factory=list)
+    right: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _unique(self) -> "StyleAlignSupport":
+        for a in ALIGN_VALUES:
+            keys = getattr(self, a)
+            if len(set(keys)) != len(keys):
+                raise ValueError(f"지지 동료 {a}에 같은 block_key가 두 번 있다")
+        return self
+
+
+class StyleAlignScores(_Model):
+    """[잠정] 정렬별 지지 수 = 지지 동료 수(center는 섹션 중앙 일치면 +1)."""
+
+    left: int = Field(ge=0)
+    center: int = Field(ge=0)
+    right: int = Field(ge=0)
+
+
+class StyleAlignDiag(_Model):
+    """[잠정] 블록 정렬 진단 — 섹션 기준 판정(F-STY-03 E69, 사용자 결정 2026-11-05).
+    span = 블록의 비공백 영역 bbox 합집합의 가로 범위 [span_x1, span_x2)(비공백 영역이 없으면 None).
+    tolerance_px = 섹션 폭 × style.align_section_tolerance. section_center = |블록 중심 − 섹션 폭/2| ≤ 허용 오차.
+    support = 끝 · 중심이 맞는 동료(처리 대상이면서 비공백 영역이 있는 같은 섹션의 다른 블록). scores = 지지 수.
+    lines = 이전 규칙(블록 안 줄 분산)의 결과 — 판정에 쓰지 않는다."""
+
+    section_width: int = Field(gt=0)
+    tolerance_px: float = Field(ge=0)
+    span_x1: int | None = Field(ge=0)
+    span_x2: int | None = Field(ge=0)
+    section_center: bool
+    support: StyleAlignSupport
+    scores: StyleAlignScores
+    lines: StyleLineAlignDiag
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "StyleAlignDiag":
+        span = (self.span_x1, self.span_x2)
+        s = self.support
+        if None in span:
+            if span != (None, None):
+                raise ValueError("span_x1 · span_x2는 모두 있거나 모두 None이어야 한다")
+            if self.section_center or s.left or s.center or s.right:
+                raise ValueError("span이 없으면 section_center는 false이고 지지 동료가 없어야 한다")
+        elif not (self.span_x1 < self.span_x2 <= self.section_width):
+            raise ValueError(f"span [{self.span_x1}, {self.span_x2})는 0 ≤ x1 < x2 ≤ 섹션 폭 {self.section_width}이어야 한다")
+        want = (len(s.left), len(s.center) + int(self.section_center), len(s.right))
+        if (self.scores.left, self.scores.center, self.scores.right) != want:
+            raise ValueError(f"scores는 지지 동료 수(center는 섹션 중앙 일치 +1)와 같아야 한다: {want}")
+        return self
+
+    def winners(self) -> list[str]:
+        """지지 수 최댓값인 정렬(left → center → right 순). 최댓값이 0이면 빈 목록."""
+        sc = {a: getattr(self.scores, a) for a in ALIGN_VALUES}
+        top = max(sc.values())
+        return [a for a in ALIGN_VALUES if sc[a] == top] if top > 0 else []
 
 
 class StyleCounts(_Model):
@@ -804,7 +887,7 @@ class BlockStyle(_Model):
         if self.status != expected:
             raise ValueError(f"status {self.status} ≠ 영역 상태로 정해지는 {expected}")
         # 대표값 ↔ status: no_text는 세 값이 None(no_text) · 정렬 None(no_text_lines). ok · partial은 크기가 있고, 두 색은 measured 영역이
-        # 있을 때만 함께 있다(없으면 no_valid_region). 측정 대상 영역이 있으면 유효 줄도 있으므로 정렬 None 사유는 no_candidate뿐이다
+        # 있을 때만 함께 있다(없으면 no_valid_region). 측정 대상 영역이 있으면 span도 있으므로 정렬 None 사유는 no_anchor · align_tie뿐이다
         colors = (self.font_color, self.bg_color)
         r = self.null_reasons
         if self.status == "no_text":
@@ -819,21 +902,21 @@ class BlockStyle(_Model):
             if c.measured == 0 and (colors != (None, None) or r.get("font_color") != "no_valid_region"
                                     or r.get("bg_color") != "no_valid_region"):
                 raise ValueError("measured 영역이 없으면 두 대표색이 None이고 사유가 no_valid_region이어야 한다")
-            if self.align is None and r.get("align") != "no_candidate":
-                raise ValueError("측정 대상 영역이 있는 블록의 정렬 None 사유는 no_candidate여야 한다")
-        # 정렬 ↔ 진단: 기본값은 left, estimated는 후보 중 하나, no_candidate는 후보 없음, no_text_lines는 std 없음
+            if self.align is None and r.get("align") not in ("no_anchor", "align_tie"):
+                raise ValueError("측정 대상 영역이 있는 블록의 정렬 None 사유는 no_anchor · align_tie여야 한다")
+        # 정렬 ↔ 진단: section은 최댓값 정렬이 하나, no_anchor는 지지 0, align_tie는 최댓값 동률, no_text_lines는 span 없음
         d = self.align_diag
-        no_lines = d.std_left is None
-        if (r.get("align") == "no_text_lines") != no_lines:
-            raise ValueError("align 사유 no_text_lines는 유효 줄이 없을 때(std None)만이다")
-        if r.get("align") == "no_candidate" and d.candidates:
-            raise ValueError("no_candidate면 candidates가 비어 있어야 한다")
-        if self.align_basis in ("default_single_line", "default_tie") and self.align != "left":
-            raise ValueError(f"{self.align_basis}이면 align은 left여야 한다")
-        if self.align_basis == "estimated" and self.align not in d.candidates:
-            raise ValueError("estimated면 align이 candidates 안에 있어야 한다")
-        if self.align_basis == "default_tie" and len(d.candidates) < 2:
-            raise ValueError("default_tie면 candidates가 둘 이상이어야 한다")
+        if (r.get("align") == "no_text_lines") != (d.span_x1 is None):
+            raise ValueError("align 사유 no_text_lines는 span이 없을 때만이다")
+        if (d.span_x1 is None) != (d.lines.null_reason == "no_text_lines"):
+            raise ValueError("span이 없으면 줄 진단도 no_text_lines여야 한다(그 역도)")
+        winners = d.winners()
+        if self.align_basis == "section" and winners != [self.align]:
+            raise ValueError(f"section이면 지지 수 최댓값 정렬이 align 하나여야 한다: {winners}")
+        if r.get("align") == "no_anchor" and winners:
+            raise ValueError("no_anchor면 모든 지지 수가 0이어야 한다")
+        if r.get("align") == "align_tie" and len(winners) < 2:
+            raise ValueError("align_tie면 지지 수 최댓값 정렬이 둘 이상이어야 한다")
         return self
 
 
@@ -842,7 +925,8 @@ class StyleConfigSnapshot(_Model):
 
     method: Literal["otsu_border"]
     em_ratio: float
-    align_tolerance: float
+    align_section_tolerance: float
+    align_tolerance: float  # 줄 진단(이전 규칙) 전용 — 판정에 쓰지 않는다
 
 
 class StyleFingerprints(_Model):
@@ -873,3 +957,23 @@ class StyleResult(_Model):
         if len(set(keys)) != len(keys):
             raise ValueError("blocks에 같은 block_key가 두 번 있다")
         return v
+
+    @model_validator(mode="after")
+    def _align_peers(self) -> "StyleResult":
+        """지지 동료는 같은 섹션의 다른 비교 대상 블록(처리 대상 · span 있음)이고, 지지 관계는 대칭이다(i가 j를 지지하면 j도 i를)."""
+        diags = {b.block_key: b.align_diag for b in self.blocks if b.align_diag is not None and b.align_diag.span_x1 is not None}
+        order = {b.block_key: i for i, b in enumerate(self.blocks)}
+        for key, d in diags.items():
+            for a in ALIGN_VALUES:
+                peers = getattr(d.support, a)
+                if key in peers or any(p not in diags for p in peers):
+                    raise ValueError(f"{key}: 지지 동료 {a}는 자신이 아닌 비교 대상 블록이어야 한다 {peers}")
+                if peers != sorted(peers, key=order.__getitem__):
+                    raise ValueError(f"{key}: 지지 동료 {a}는 블록 순서여야 한다 {peers}")
+                if any(key not in getattr(diags[p].support, a) for p in peers):
+                    raise ValueError(f"{key}: 지지 동료 {a}의 관계가 대칭이 아니다 {peers}")
+        widths = {d.section_width for d in (b.align_diag for b in self.blocks) if d is not None}
+        tols = {d.tolerance_px for d in (b.align_diag for b in self.blocks) if d is not None}
+        if len(widths) > 1 or len(tols) > 1:
+            raise ValueError("섹션 안 블록의 section_width · tolerance_px는 같아야 한다")
+        return self

@@ -102,6 +102,11 @@ def _diff(a: dict, b: dict) -> set[str]:
     return {k for k in set(x) | set(y) if x.get(k) != y.get(k)}
 
 
+def _db_revisions() -> list[str]:
+    """시험 DB 의 alembic_version 행(SQL 로 직접 읽는다 — 시험 대상 도구와 같은 출처를 쓰지 않으려고 _q 로)."""
+    return [r["version_num"] for r in _q("SELECT version_num FROM alembic_version")]
+
+
 def _settle():
     """앞 시험이 남긴 활성 시도를 닫아 이 모듈의 각 시험이 빈 상태에서 시작하게 한다."""
     _q("UPDATE job_async_task SET status = 'cancelled', cancelled_at = now() WHERE status IN ('pending','running')")
@@ -111,11 +116,13 @@ def _settle():
 @needs_db_redis
 def test_legacy_output_format_unchanged(env, capsys):
     _settle()
+    revs = _db_revisions()  # 기대 revision 은 고정값이 아니라 시험 DB 의 실제 값(마이그레이션이 늘어도 출력 형식만 본다)
+    assert len(revs) == 1 and revs[0]
     assert sc.main([]) == 0
     lines = capsys.readouterr().out.splitlines()
     assert lines == [
         "redis queues: {'ocr': 0, 'cpu': 0, 'gpu': 0, 'celery': 0} | unacked: 0 | unacked_index: 0",
-        "db revision: 0008 | pending/running attempts: 0 | open handoffs: 0",
+        f"db revision: {revs[0]} | pending/running attempts: 0 | open handoffs: 0",
     ]
 
 
@@ -162,10 +169,12 @@ def test_gate_redis_failure_is_query_failure(env, capsys, monkeypatch):
 # ---- --db-revision ------------------------------------------------------------------------------------------
 @needs_db_redis
 def test_db_revision_reads_table_directly(env, capsys):
+    original = _db_revisions()  # 시작 때의 실제 값 — 끝나면 그대로 되돌린다
+    assert len(original) == 1
     assert sc.main(["--db-revision"]) == 0
-    assert capsys.readouterr().out.strip() == "0008"
-    _q("UPDATE alembic_version SET version_num = '0099_unknown_to_this_image'")
+    assert capsys.readouterr().out.strip() == original[0]
     try:
+        _q("UPDATE alembic_version SET version_num = '0099_unknown_to_this_image'")
         assert sc.main(["--db-revision"]) == 0  # 이 이미지의 Alembic 이 모르는 revision 도 그대로 읽는다
         assert capsys.readouterr().out.strip() == "0099_unknown_to_this_image"
         _q("INSERT INTO alembic_version (version_num) VALUES ('0100')")
@@ -174,7 +183,9 @@ def test_db_revision_reads_table_directly(env, capsys):
         assert sc.main(["--db-revision"]) == 1  # 행 0개
     finally:
         _q("DELETE FROM alembic_version")
-        _q("INSERT INTO alembic_version (version_num) VALUES ('0008')")
+        for v in original:
+            _q("INSERT INTO alembic_version (version_num) VALUES (:v)", v=v)
+    assert _db_revisions() == original
 
 
 # ---- --snapshot ----------------------------------------------------------------------------------------------

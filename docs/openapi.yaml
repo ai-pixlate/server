@@ -1022,7 +1022,7 @@ components:
       type: object
       required: [trans1, revision]
       additionalProperties: false
-      description: 'trans1(문자열)·revision(정수) 필수, 정의되지 않은 키는 받지 않는다. 타입을 바꾸지 않는다 — revision에 false·"0"·0.0, trans1에 숫자를 보내면 422 VALIDATION_ERROR(blockPatch 「저장 공통」 오류 분류)'
+      description: 'trans1(문자열)·revision(정수) 필수, 정의되지 않은 키는 받지 않는다. revision은 JSON 수 중 정수 값(0과 0.0은 같은 정수 0)이며, false·"0"·0.5처럼 정수 값이 아니면 422 VALIDATION_ERROR. trans1에 숫자를 보내도 422(blockPatch 「저장 공통」 오류 분류)'
       properties:
         trans1: { type: string, description: '수정 번역문' }
         revision: { type: integer, description: '현재 블록 revision. 불일치 시 409 REVISION_CONFLICT' }
@@ -2028,7 +2028,7 @@ paths:
           보관 24시간 — 기한이 지난 기록은 없는 것으로 보고 새 요청으로 처리한다(최초가 실제 변경이었으면 revision이 올라 409, no-op이었고 그 뒤 변경이 없으면 다시 no-op 200 — 두 번 적용되지 않는다).
           작업을 취소하면 그 작업의 기록을 지운다(응답에 번역문이 들어 있음).
         - **동시 재전송**: 작업 잠금으로 직렬화되므로 뒤 요청은 앞 요청이 커밋된 뒤 기록을 보고 최초 응답을 받는다.
-        - **오류 분류**: 요청 형식(본문·헤더만 보고 판단 — 타입(변환 없음: `revision` false·문자열·실수, `trans1` 숫자)·필수 필드 누락·`trans1` null·정의되지 않은 키·키 형식) → **422 VALIDATION_ERROR** `details.fields: [{loc, msg}]` /
+        - **오류 분류**: 요청 형식(본문·헤더만 보고 판단 — 타입(`revision`은 정수 값만 — 0·0.0은 같은 0, false·문자열·0.5는 422 / `trans1` 숫자는 422)·필수 필드 누락·`trans1` null·정의되지 않은 키·키 형식) → **422 VALIDATION_ERROR** `details.fields: [{loc, msg}]` /
           상태 거절(N5 아님) → **409 INVALID_STATE** `details.reason: job_not_editable`(FE 확정 409 구분 — `error.code` + `details.reason`). (참고: Error 스키마 enum 주석은 VALIDATION_ERROR를 400으로 적었지만 요청 형식 오류는 422로 낸다.)
         - **POST /jobs와 다른 점**: POST /jobs는 같은 키면 본문이 달라도 최초 응답을 돌려주고 처리 중이면 409 DUPLICATE다(Redis 기록).
           PATCH는 본문이 다르면 거절하고(다른 편집을 성공으로 오인하지 않게) 기록을 변경과 같은 트랜잭션에 둔다.

@@ -7,7 +7,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
@@ -88,11 +88,23 @@ def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db:
 # ── CFM-02: 셀 수정 (DB · 낙관적 잠금 · 저장 공통) ─────────────────
 class BlockUpdate(BaseModel):
     """요청 형식(계약 BlockPatch): trans1(문자열)·revision(정수) 필수, 정의되지 않은 키는 거절 — 어기면 422 VALIDATION_ERROR.
-    타입 변환을 하지 않는다(strict): revision false·"0"·0.0 이나 숫자 trans1 을 받아들이면 현재 revision 이 0 인 블록에 잘못된 요청이 저장될 수 있다."""
+    revision 은 OpenAPI `integer`(JSON 수 중 정수 값)와 같게 판단한다: 0·0.0 은 같은 정수 0, false·"0"·0.5 는 정수가 아니다.
+    문자열·불리언을 숫자로 바꾸지 않는다 — 바꾸면 현재 revision 이 0 인 블록에 잘못된 요청이 저장될 수 있다. trans1 도 숫자를 문자열로 바꾸지 않는다."""
     model_config = ConfigDict(extra="forbid")
 
     trans1: StrictStr
-    revision: StrictInt  # 낙관적 잠금: 현재 블록 revision과 일치해야 함
+    revision: int  # 낙관적 잠금: 현재 블록 revision과 일치해야 함
+
+    @field_validator("revision", mode="before")
+    @classmethod
+    def _integer_value(cls, v):
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            raise ValueError("revision must be an integer")
+        if isinstance(v, float):
+            if not v.is_integer():
+                raise ValueError("revision must be an integer")
+            return int(v)
+        return v
 
 
 _OP_BLOCK_PATCH = "block_patch"

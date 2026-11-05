@@ -887,13 +887,13 @@ _CUR = object()  # 요청에 현재 revision(0)을 넣는 자리
     ({"trans1": 123, "revision": _CUR}, "k-fmt"),               # trans1 숫자 — 문자열로 바꾸지 않는다
     ({"trans1": "x", "revision": False}, "k-fmt"),              # revision false — 0 으로 바꾸지 않는다
     ({"trans1": "x", "revision": "0"}, "k-fmt"),                # revision 문자열 — 0 으로 바꾸지 않는다
-    ({"trans1": "x", "revision": 0.0}, "k-fmt"),                # revision 실수
+    ({"trans1": "x", "revision": 0.5}, "k-fmt"),                # revision 정수가 아닌 수
     ({"trans1": "x", "revision": _CUR, "trans2": "y"}, "k-fmt"),  # 정의되지 않은 키
     ({"trans1": "x", "revision": _CUR}, "has space"),           # 키 형식
     ({"trans1": "x", "revision": _CUR}, "k" * 129),             # 키 길이
 ])
 def test_save_request_format_errors_are_422(env, body, key):
-    """요청 형식 오류는 422 VALIDATION_ERROR — 타입을 바꾸거나 기본값으로 채워 저장하지 않는다.
+    """요청 형식 오류는 422 VALIDATION_ERROR — 불리언·문자열을 숫자로 바꾸거나 기본값으로 채워 저장하지 않는다.
     블록의 현재 revision 을 0 으로 두어, false·"0" 이 0 으로 변환되면 실제로 저장되는 상황에서 거절을 확인한다(블록·수정 기록·멱등 기록 쓰기 없음)."""
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
@@ -909,6 +909,20 @@ def test_save_request_format_errors_are_422(env, body, key):
     # 같은 블록에 올바른 요청(revision 0)은 저장된다 — 위 거절이 revision 불일치 때문이 아니었다
     ok = _patch(c, job, b["id"], {"trans1": "x", "revision": 0}, key="k-ok")
     assert ok.status_code == 200 and ok.json()["block"]["revision"] == 1
+
+
+def test_save_revision_integer_value_float_is_accepted(env):
+    """OpenAPI integer 와 같게: revision 0.0 은 정수 0 이다 — 현재 revision 0 인 블록에 저장되고, 같은 키의 0 과 0.0 은 같은 요청이다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    _q("UPDATE text_block SET revision = 0 WHERE id = :b", b=b["id"])
+    r = _patch(c, job, b["id"], {"trans1": "Float rev", "revision": 0.0}, key="k-float")
+    assert r.status_code == 200, r.text
+    assert (r.json()["block"]["revision"], r.json()["block"]["trans1"]) == (1, "Float rev")
+    again = _patch(c, job, b["id"], {"trans1": "Float rev", "revision": 0}, key="k-float")
+    assert again.status_code == 200 and again.headers["Idempotent-Replayed"] == "true" and again.json() == r.json()
+    assert len(_edit_signals(b["id"])) == 1
 
 
 def _mutate_regulatory(raw):

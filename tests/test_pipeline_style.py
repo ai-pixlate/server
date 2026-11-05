@@ -22,8 +22,9 @@ from pipeline.stages.logo import sha256_json
 from pipeline.stages.style import StyleInputError
 from pipeline.types import (
     BBox, BlockStyle, LabelChecked, LabelDecision, LabelResult, Line, LogoDecision, LogoResult, MergeResult, OcrRegion, Section,
-    StyleResult, TextBlock,
+    StyleResult, StyleResultV1, TextBlock, parse_style_result,
 )
+from tests.style_fixtures import to_schema_v1
 
 IMAGE_ID = "IMG-01"
 KEY = "sec_1_01"
@@ -1061,6 +1062,73 @@ def test_result_rejects_inconsistent_peers(sample):
         d = r["blocks"][0]["align_diag"]
         d["support"]["left"], d["scores"]["left"] = left, 2
         invalid_result(r, needle)
+
+
+# ---------------------------------------------------------------------------
+# 8-1. 결과 버전 — 계산 당시 형식대로 검증(스키마 1 = 2026-11-05 이전, 2 = 현재). 이전 결과를 새 형식으로 바꾸지 않는다
+# ---------------------------------------------------------------------------
+def test_parse_current_result_is_schema_2(sample):
+    res = parse_style_result(sample["result"])
+    assert type(res) is StyleResult and res.schema_version == "2"
+
+
+def test_parse_schema_1_keeps_values_calculated_then(sample):
+    v1 = to_schema_v1(sample["result"])
+    res = parse_style_result(v1)
+    assert type(res) is StyleResultV1 and res.schema_version == "1"
+    # 계산 당시(이전 규칙)의 정렬 · 근거 그대로 — 새 근거(section)를 채우거나 새 판정으로 바꾸지 않는다
+    got = {b.block_key: (b.align, b.align_basis, b.null_reasons.get("align")) for b in res.blocks}
+    assert got == {"blk_001": ("left", "default_tie", None), "blk_002": ("left", "default_single_line", None),
+                   "blk_003": (None, None, "no_text_lines"), "blk_004": ("left", "estimated", None),
+                   "blk_005": ("left", "default_single_line", None), "blk_006": ("left", "default_single_line", None)}
+    assert res.model_dump(mode="json") == v1  # 검증만 하고 값 · 필드를 바꾸지 않는다
+    # 같은 블록의 현재 판정(스키마 2)은 다르다 — 섞이지 않는다
+    assert [b["align"] for b in sample["result"]["blocks"]] == ["left", None, None, "left", None, None]
+
+
+@pytest.mark.parametrize("version", ["3", "0", "", 1, None])
+def test_parse_rejects_unknown_version(sample, version):
+    d = copy.deepcopy(sample["result"])
+    d["schema_version"] = version
+    with pytest.raises(ValueError, match="알 수 없는 ⑦ 결과 버전"):
+        parse_style_result(d)
+
+
+def test_parse_rejects_missing_version_and_non_object(sample):
+    d = copy.deepcopy(sample["result"])
+    del d["schema_version"]  # 이전 형식도 버전을 항상 기록했다 — 없으면 추측하지 않는다
+    with pytest.raises(ValueError, match="알 수 없는 ⑦ 결과 버전 None"):
+        parse_style_result(d)
+    for bad in (None, [], "x"):
+        with pytest.raises(ValueError, match="객체가 아니다"):
+            parse_style_result(bad)
+
+
+def test_parse_rejects_structure_of_other_version(sample):
+    d = copy.deepcopy(sample["result"])
+    d["schema_version"] = "1"  # 현재 형식에 이전 버전 표시
+    with pytest.raises(ValidationError):
+        parse_style_result(d)
+    v1 = to_schema_v1(sample["result"])
+    v1["schema_version"] = "2"  # 이전 형식에 현재 버전 표시
+    with pytest.raises(ValidationError):
+        parse_style_result(v1)
+
+
+def test_parse_rejects_contradictory_schema_1(sample):
+    v1 = to_schema_v1(sample["result"])
+    bad = copy.deepcopy(v1)
+    bad["blocks"][1]["align"] = "center"  # default_single_line인데 left가 아님
+    with pytest.raises(ValidationError, match="default_single_line이면 align은 left여야 한다"):
+        parse_style_result(bad)
+    bad = copy.deepcopy(v1)
+    bad["blocks"][0]["align_basis"] = "section"  # 스키마 1에 없는 근거
+    with pytest.raises(ValidationError):
+        parse_style_result(bad)
+    bad = copy.deepcopy(v1)
+    bad["blocks"][0]["counts"]["measured"] = 0  # 영역 상태와 다른 집계
+    with pytest.raises(ValidationError):
+        parse_style_result(bad)
 
 
 # ---------------------------------------------------------------------------

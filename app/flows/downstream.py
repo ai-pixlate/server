@@ -466,7 +466,7 @@ def execute_style(attempt_id: int) -> dict[str, Any]:
 
 class StyleHandler:
     def adopt(self, db: Session, ctx: AdoptContext) -> AdoptOutcome:
-        from pipeline.types import StyleResult
+        from pipeline.types import parse_style_result
 
         h = ctx.handoff
         p = json_value(h["payload"])
@@ -479,7 +479,12 @@ class StyleHandler:
             if any(r["is_excluded"] is False for r in rows):
                 raise AdoptionRejected("처리 대상이 있는데 정상 생략", code="STYLE_RESULT_INVALID")
             return AdoptOutcome(status="done", skip_reason="no_targets")
-        res = StyleResult.model_validate(p["style"])
+        # 계산 당시 형식(schema_version)대로 검증하고 그때의 측정값을 그대로 채택한다 — 배포 전 계산된 스키마 1 결과도 살린다.
+        # 알 수 없는 버전 · 형식 위반은 거절(인계 rejected · 시도 failed → 스타일 실패 후속). 일시 오류로 다루지 않는다(반복 채택 방지)
+        try:
+            res = parse_style_result(p.get("style"))
+        except ValueError as e:  # pydantic ValidationError 포함
+            raise AdoptionRejected(f"⑦ 결과 형식 오류: {e}"[:1500], code="STYLE_RESULT_INVALID") from e
         by_key = {block_key(r["id"]): r for r in rows}
         keys = [b.block_key for b in res.blocks]
         if sorted(keys) != sorted(by_key):

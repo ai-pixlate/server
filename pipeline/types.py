@@ -15,7 +15,7 @@
 """
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
 
@@ -943,7 +943,7 @@ class StyleResult(_Model):
     """[잠정] ⑦ 섹션 하나의 결과 — ③의 모든 블록을 block_order 순으로 담는다. 원문 · 좌표 · ④⑤ 판정은 담지 않는다(바꾸지 않는다).
     섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다."""
 
-    schema_version: str = STYLE_SCHEMA_VERSION
+    schema_version: Literal["2"] = STYLE_SCHEMA_VERSION
     image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key + block_key + region_key
     section_key: str
     config: StyleConfigSnapshot
@@ -977,3 +977,158 @@ class StyleResult(_Model):
         if len(widths) > 1 or len(tols) > 1:
             raise ValueError("섹션 안 블록의 section_width · tolerance_px는 같아야 한다")
         return self
+
+
+# ---------------------------------------------------------------------------
+# ⑦ 결과 스키마 1 — 2026-11-05 이전 형식(블록 안 줄 분산 정렬)의 고정본. develop c980d13의 정의를 그대로 옮겼다.
+# 배포 전에 계산됐지만 아직 채택되지 않은 결과를 계산 당시 규칙대로 검증하는 데만 쓴다. 새 계산은 만들지 않는다.
+# 이전 결과에 새 정렬 근거(section)를 채우거나 새 형식으로 바꾸지 않는다 — parse_style_result.
+# ---------------------------------------------------------------------------
+# [잠정 · 스키마 1] estimated = 허용 오차 안 후보 중 분산 최소가 하나 / default_single_line = 유효 줄 1개라 기본 좌정렬 /
+# default_tie = 후보 중 분산 최솟값 동률이라 기본 좌정렬(좌가 후보가 아니어도)
+AlignBasisV1 = Literal["estimated", "default_single_line", "default_tie"]
+# [잠정 · 스키마 1] null 사유 — no_candidate = 허용 오차를 충족한 정렬 후보 없음
+StyleNullReasonV1 = Literal["excluded", "no_text", "no_valid_region", "no_candidate", "no_text_lines"]
+
+
+class StyleAlignDiagV1(_Model):
+    """[잠정] 블록 정렬 진단. std는 모표준편차(ddof=0)의 실수 기록이며 판단에는 쓰지 않는다(판단은 분산의 정확 비교).
+    tolerance_px = 블록 bbox.w × style.align_tolerance. candidates = 허용 오차를 충족한 정렬(left → center → right 순)."""
+
+    std_left: float | None = Field(ge=0)  # 유효 줄 0개면 None
+    std_center: float | None = Field(ge=0)
+    std_right: float | None = Field(ge=0)
+    tolerance_px: float = Field(ge=0)
+    candidates: list[AlignValue] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "StyleAlignDiagV1":
+        stds = (self.std_left, self.std_center, self.std_right)
+        if None in stds and stds != (None, None, None):
+            raise ValueError("세 std는 모두 있거나 모두 None이어야 한다")
+        if stds == (None, None, None) and self.candidates:
+            raise ValueError("유효 줄이 없으면 candidates는 비어 있어야 한다")
+        if list(self.candidates) != [a for a in ALIGN_VALUES if a in self.candidates]:
+            raise ValueError("candidates는 중복 없이 left → center → right 순이어야 한다")
+        return self
+
+
+class BlockStyleV1(_Model):
+    """[잠정] 블록 하나의 대표값과 근거. regions는 source_lines의 줄 순서 → 줄 안 영역 순서(제외 블록은 빈 목록).
+    null_reasons는 값이 None인 측정값 필드(STYLE_VALUE_FIELDS)마다 하나씩, None이 아닌 필드에는 없다."""
+
+    block_key: str
+    status: StyleBlockStatus
+    excluded_reason: StyleExcludedReason | None
+    font_color: str | None = Field(pattern=HEX_COLOR_PATTERN)
+    bg_color: str | None = Field(pattern=HEX_COLOR_PATTERN)
+    est_font_px: float | None = Field(gt=0)
+    align: AlignValue | None
+    align_basis: AlignBasisV1 | None
+    align_diag: StyleAlignDiagV1 | None
+    null_reasons: dict[str, StyleNullReasonV1] = Field(default_factory=dict)
+    counts: StyleCounts
+    regions: list[RegionStyle] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "BlockStyleV1":
+        values = {f: getattr(self, f) for f in STYLE_VALUE_FIELDS}
+        if set(self.null_reasons) != {f for f, v in values.items() if v is None}:
+            raise ValueError("null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
+        if (self.align is None) != (self.align_basis is None):
+            raise ValueError("align이 None이면 align_basis도 None이어야 한다(그 역도)")
+        c = self.counts
+        if self.status == "excluded":
+            if self.excluded_reason is None or self.regions or self.align_diag is not None:
+                raise ValueError("excluded는 excluded_reason이 있고 regions가 비어 있으며 align_diag가 None이어야 한다")
+            if any(v is not None for v in values.values()) or set(self.null_reasons.values()) != {"excluded"}:
+                raise ValueError("excluded는 모든 측정값이 None이고 사유가 excluded여야 한다")
+            if (c.measured, c.color_failed, c.blank_text) != (0, 0, 0):
+                raise ValueError("excluded의 measured · color_failed · blank_text는 0이어야 한다")
+            return self
+        if self.excluded_reason is not None or self.align_diag is None:
+            raise ValueError(f"{self.status}는 excluded_reason이 None이고 align_diag가 있어야 한다")
+        if c.measured + c.color_failed + c.blank_text != c.regions or len(self.regions) != c.regions:
+            raise ValueError("비제외 블록은 measured + color_failed + blank_text = regions = 영역 결과 수여야 한다")
+        got = {s: sum(r.status == s for r in self.regions) for s in ("measured", "color_failed", "blank_text")}
+        if got != {"measured": c.measured, "color_failed": c.color_failed, "blank_text": c.blank_text}:
+            raise ValueError("counts가 영역 결과의 상태 수와 다르다")
+        expected = "no_text" if c.measured + c.color_failed == 0 else ("partial" if c.color_failed else "ok")
+        if self.status != expected:
+            raise ValueError(f"status {self.status} ≠ 영역 상태로 정해지는 {expected}")
+        # 대표값 ↔ status: no_text는 세 값이 None(no_text) · 정렬 None(no_text_lines). ok · partial은 크기가 있고, 두 색은 measured 영역이
+        # 있을 때만 함께 있다(없으면 no_valid_region). 측정 대상 영역이 있으면 유효 줄도 있으므로 정렬 None 사유는 no_candidate뿐이다
+        colors = (self.font_color, self.bg_color)
+        r = self.null_reasons
+        if self.status == "no_text":
+            if any(v is not None for v in values.values()) or r != {"font_color": "no_text", "bg_color": "no_text",
+                                                                    "est_font_px": "no_text", "align": "no_text_lines"}:
+                raise ValueError("no_text는 측정값이 모두 None이고 사유가 no_text · 정렬 no_text_lines여야 한다")
+        else:
+            if self.est_font_px is None:
+                raise ValueError(f"{self.status}이면 est_font_px가 있어야 한다")
+            if c.measured > 0 and None in colors:
+                raise ValueError("measured 영역이 있으면 두 대표색이 있어야 한다")
+            if c.measured == 0 and (colors != (None, None) or r.get("font_color") != "no_valid_region"
+                                    or r.get("bg_color") != "no_valid_region"):
+                raise ValueError("measured 영역이 없으면 두 대표색이 None이고 사유가 no_valid_region이어야 한다")
+            if self.align is None and r.get("align") != "no_candidate":
+                raise ValueError("측정 대상 영역이 있는 블록의 정렬 None 사유는 no_candidate여야 한다")
+        # 정렬 ↔ 진단: 기본값은 left, estimated는 후보 중 하나, no_candidate는 후보 없음, no_text_lines는 std 없음
+        d = self.align_diag
+        no_lines = d.std_left is None
+        if (r.get("align") == "no_text_lines") != no_lines:
+            raise ValueError("align 사유 no_text_lines는 유효 줄이 없을 때(std None)만이다")
+        if r.get("align") == "no_candidate" and d.candidates:
+            raise ValueError("no_candidate면 candidates가 비어 있어야 한다")
+        if self.align_basis in ("default_single_line", "default_tie") and self.align != "left":
+            raise ValueError(f"{self.align_basis}이면 align은 left여야 한다")
+        if self.align_basis == "estimated" and self.align not in d.candidates:
+            raise ValueError("estimated면 align이 candidates 안에 있어야 한다")
+        if self.align_basis == "default_tie" and len(d.candidates) < 2:
+            raise ValueError("default_tie면 candidates가 둘 이상이어야 한다")
+        return self
+
+
+class StyleConfigSnapshotV1(_Model):
+    """[잠정] 추출에 쓴 [style] 설정 값."""
+
+    method: Literal["otsu_border"]
+    em_ratio: float
+    align_tolerance: float
+
+
+class StyleResultV1(_Model):
+    """[잠정] ⑦ 섹션 하나의 결과 — ③의 모든 블록을 block_order 순으로 담는다. 원문 · 좌표 · ④⑤ 판정은 담지 않는다(바꾸지 않는다).
+    섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다."""
+
+    schema_version: Literal["1"]
+    image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key + block_key + region_key
+    section_key: str
+    config: StyleConfigSnapshotV1
+    input_fingerprints: StyleFingerprints
+    blocks: list[BlockStyleV1]
+
+    @field_validator("blocks")
+    @classmethod
+    def _unique_blocks(cls, v: list[BlockStyleV1]) -> list[BlockStyleV1]:
+        keys = [b.block_key for b in v]
+        if len(set(keys)) != len(keys):
+            raise ValueError("blocks에 같은 block_key가 두 번 있다")
+        return v
+
+
+STYLE_RESULT_MODELS: dict[str, type[_Model]] = {"1": StyleResultV1, "2": StyleResult}
+
+
+def parse_style_result(data: Any) -> "StyleResult | StyleResultV1":
+    """⑦ 결과 JSON을 계산 당시 형식(schema_version)대로 검증한다 — 1 = 2026-11-05 이전(블록 안 줄 정렬), 2 = 섹션 기준 정렬.
+    버전이 없거나 알 수 없으면 거부한다(ValueError). 형식 안의 모순은 pydantic ValidationError(ValueError의 하위)로 거부한다.
+    이전 결과를 새 형식으로 바꾸거나 새 정렬 근거를 채우지 않는다."""
+    if not isinstance(data, dict):
+        raise ValueError(f"⑦ 결과가 객체가 아니다: {type(data).__name__}")
+    v = data.get("schema_version")
+    model = STYLE_RESULT_MODELS.get(v) if isinstance(v, str) else None
+    if model is None:
+        raise ValueError(f"알 수 없는 ⑦ 결과 버전 {v!r} — 지원 {sorted(STYLE_RESULT_MODELS)}")
+    return model.model_validate(data)  # type: ignore[return-value]

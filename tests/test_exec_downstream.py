@@ -925,6 +925,203 @@ def test_save_revision_integer_value_float_is_accepted(env):
     assert len(_edit_signals(b["id"])) == 1
 
 
+# ---- 섹션 제외·복원 PATCH(계약 sectionPatch): revision·같은 상태 no-op·복원 사유·전체 Section·멱등 -----------------
+def _spatch(c, job, sid, body, key=None):
+    return c.patch(f"/v1/jobs/{job}/sections/{sid}", json=body, headers={"Idempotency-Key": key} if key else {})
+
+
+def _srow(sid):
+    return _q("SELECT bucket, exclusion_reason, excluded_stage, revision, warning_badge, original_verdict, updated_at FROM section WHERE id = :s",
+              s=sid)[0]
+
+
+def _sdetail(c, job, sid):
+    d = c.get(f"/v1/jobs/{job}/sections/{sid}").json()
+    d.pop("contentFindings", None)
+    return d
+
+
+def _included(ids):
+    return [r["id"] for r in _q("SELECT id FROM section WHERE job_id = :j AND bucket = 'include' ORDER BY section_order, id", j=ids["job"])]
+
+
+def test_section_patch_full_section_revision_and_restore_to_original(env):
+    """직접 제외 → 복원: 응답은 상세와 같은 전체 Section, revision 은 실제 변경 때만 +1, 최초 판정이 포함이면 사유 없음. 판정·배지 그대로."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    before = _sdetail(c, job, sid)
+    assert before["revision"] == 0 and before["bucket"] == "include"
+    r = _spatch(c, job, sid, {"action": "exclude", "revision": 0})
+    assert r.status_code == 200, r.text
+    ex = r.json()
+    assert (ex["bucket"], ex["exclusionReason"], ex["excludedStage"], ex["revision"]) == ("exclude", "user_manual", "N3", 1)
+    assert ex == _sdetail(c, job, sid)  # 상세와 같은 모양·값(전체 Section)
+    listed = c.get(f"/v1/jobs/{job}/sections").json()
+    assert [x["revision"] for x in listed["exclude"] if x["id"] == sid] == [1]  # 목록도 revision 을 싣는다
+    back = _spatch(c, job, sid, {"action": "restore", "revision": 1}).json()
+    assert (back["bucket"], back["exclusionReason"], back["excludedStage"], back["revision"]) == ("include", None, None, 2)
+    assert (back["verdicts"], back["warningBadge"]) == (before["verdicts"], before["warningBadge"])
+
+
+def test_section_restore_reasons_for_auto_and_restored_once(env):
+    """자동 제외의 복원 = restored_by_user. 그 섹션(최초 판정 제외)을 다시 직접 제외한 뒤 복원해도 restored_by_user(제외 전 상태)."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    _q("UPDATE section SET bucket = 'exclude', exclusion_reason = 'auto_regulatory', excluded_stage = NULL, "
+       "original_verdict = jsonb_set(original_verdict, '{bucket}', '\"exclude\"') WHERE id = :s", s=sid)
+    r1 = _spatch(c, job, sid, {"action": "restore", "revision": 0}).json()
+    assert (r1["bucket"], r1["exclusionReason"], r1["revision"]) == ("include", "restored_by_user", 1)
+    _spatch(c, job, sid, {"action": "exclude", "revision": 1})
+    r2 = _spatch(c, job, sid, {"action": "restore", "revision": 2}).json()
+    assert (r2["bucket"], r2["exclusionReason"], r2["revision"]) == ("include", "restored_by_user", 3)
+    assert _srow(sid)["original_verdict"]["bucket"] == "exclude"  # 최초 판정 기록은 그대로
+
+
+def test_section_same_state_is_noop_and_stale_revision_conflicts_first(env):
+    """같은 상태 요청 = 200 변경 없음(revision·사유·단계 그대로). 오래된 revision 은 같은 상태 요청이어도 먼저 409 REVISION_CONFLICT."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    _spatch(c, job, sid, {"action": "exclude", "revision": 0})
+    row = _srow(sid)
+    again = _spatch(c, job, sid, {"action": "exclude", "revision": 1})
+    assert again.status_code == 200 and again.json()["revision"] == 1 and _srow(sid) == row
+    other = _included(ids)[0]
+    inc = _spatch(c, job, other, {"action": "restore", "revision": 0})
+    assert inc.status_code == 200 and inc.json()["revision"] == 0 and inc.json()["exclusionReason"] is None
+    stale = _spatch(c, job, sid, {"action": "exclude", "revision": 0})  # 같은 상태지만 오래된 revision
+    assert stale.status_code == 409, stale.text
+    err = stale.json()["error"]
+    assert err["code"] == "REVISION_CONFLICT" and err["details"]["current"] == _sdetail(c, job, sid) and _srow(sid) == row
+
+
+def test_section_restore_without_original_verdict_is_refused(env):
+    """PM-R8: 최초 판정 기록이 없는 직접 제외 섹션을 실제로 복원해야 하면 409 restore_basis_missing — 섹션·revision·멱등 성공 기록 쓰기 없음.
+    이미 포함된 섹션의 restore 는 근거가 없어도 200 변경 없음."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    a, b = _included(ids)[:2]
+    _spatch(c, job, a, {"action": "exclude", "revision": 0})
+    for ov in ("NULL", "'{\"schema_version\": \"1\"}'::jsonb"):  # 기록 없음 · bucket 없는 기록
+        _q(f"UPDATE section SET original_verdict = {ov} WHERE id = :s", s=a)
+        row = _srow(a)
+        r = _spatch(c, job, a, {"action": "restore", "revision": 1}, key=f"k-r8-{len(ov)}")
+        assert r.status_code == 409, r.text
+        assert r.json()["error"]["code"] == "INVALID_STATE" and r.json()["error"]["details"] == {"reason": "restore_basis_missing"}
+        assert _srow(a) == row and _idem_rows(job) == []
+    _q("UPDATE section SET original_verdict = NULL WHERE id = :s", s=b)
+    ok = _spatch(c, job, b, {"action": "restore", "revision": 0}, key="k-r8-noop")
+    assert ok.status_code == 200 and ok.json()["revision"] == 0 and ok.json()["bucket"] == "include"
+
+
+def test_section_state_rejections(env):
+    """N5 에서 N3 제외 섹션 복원 = 409 n3_excluded_section(같은 상태 판정보다 먼저). N3·N5 가 아니면 409 job_not_editable."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    _spatch(c, job, sid, {"action": "exclude", "revision": 0})  # N3 에서 제외
+    c.post(f"/v1/jobs/{job}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    r = _spatch(c, job, sid, {"action": "restore", "revision": 1})
+    assert r.status_code == 409 and r.json()["error"]["details"] == {"reason": "n3_excluded_section"}
+    assert _srow(sid)["revision"] == 1
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    late = _spatch(c, job, _included(ids)[0], {"action": "exclude", "revision": 0})
+    assert late.status_code == 409 and late.json()["error"]["details"] == {"reason": "job_not_editable"}
+
+
+def test_section_idempotency_replay_conflicts_and_key_needs_revision(env):
+    """블록 PATCH 와 같은 멱등: 같은 요청 재전송 = 최초 응답(1회 적용), 같은 키의 다른 action·revision·섹션 = 409 DUPLICATE,
+    no-op 응답도 재전송, 키가 있는데 revision 이 없으면 422(쓰기 없음)."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    a, b = _included(ids)[:2]
+    r1 = _spatch(c, job, a, {"action": "exclude", "revision": 0}, key="s-1")
+    r2 = _spatch(c, job, a, {"action": "exclude", "revision": 0}, key="s-1")
+    assert r1.status_code == r2.status_code == 200 and r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert _srow(a)["revision"] == 1
+    for body, sid in (({"action": "restore", "revision": 0}, a), ({"action": "exclude", "revision": 1}, a), ({"action": "exclude", "revision": 0}, b)):
+        d = _spatch(c, job, sid, body, key="s-1")
+        assert d.status_code == 409 and d.json()["error"]["details"] == {"reason": "idempotency_key_reused"}, (body, sid, d.text)
+    assert _srow(a)["revision"] == 1 and _srow(b)["revision"] == 0
+    n1 = _spatch(c, job, b, {"action": "restore", "revision": 0}, key="s-noop")
+    _spatch(c, job, b, {"action": "exclude", "revision": 0}, key="s-other")
+    n2 = _spatch(c, job, b, {"action": "restore", "revision": 0}, key="s-noop")
+    assert n2.headers["Idempotent-Replayed"] == "true" and n2.json() == n1.json() and _srow(b)["bucket"] == "exclude"
+    row = _srow(a)
+    nk = _spatch(c, job, a, {"action": "restore"}, key="s-norev")
+    assert nk.status_code == 422 and nk.json()["error"]["code"] == "VALIDATION_ERROR" and _srow(a) == row
+    assert "s-norev" not in [x["idem_key"] for x in _idem_rows(job)]
+    # 키 없는 요청의 revision 생략은 호환 기간 동작 — 충돌 검사 없이 처리된다
+    assert _spatch(c, job, a, {"action": "restore"}).status_code == 200
+
+
+def test_section_expired_key_replay_of_first_request_conflicts(env):
+    """만료된 키로 최초 요청을 다시 보내면 새 요청으로 처리되고 revision 이 막는다:
+    A(제외, rev 0→1) → B(복원, rev 1→2) → A 기록 만료 → A·rev 0 재전송 = 409 REVISION_CONFLICT, 상태·사유·revision 그대로, 성공 기록 새로 없음."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    first = {"action": "exclude", "revision": 0}
+    assert _spatch(c, job, sid, first, key="key-A").json()["revision"] == 1
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="key-B").json()["revision"] == 2
+    _q("UPDATE edit_idempotency SET expires_at = now() - interval '1 second' WHERE job_id = :j AND idem_key = 'key-A'", j=job)
+    row = _srow(sid)
+    rec_before = _q("SELECT idem_key, request_sha256, created_at, expires_at FROM edit_idempotency WHERE job_id = :j ORDER BY idem_key", j=job)
+    r = _spatch(c, job, sid, first, key="key-A")
+    assert r.status_code == 409, r.text
+    assert r.json()["error"]["code"] == "REVISION_CONFLICT" and "Idempotent-Replayed" not in r.headers
+    assert r.json()["error"]["details"]["current"]["revision"] == 2
+    after = _srow(sid)
+    assert (after["bucket"], after["exclusion_reason"], after["revision"]) == ("include", None, 2) and after == row
+    assert _q("SELECT idem_key, request_sha256, created_at, expires_at FROM edit_idempotency WHERE job_id = :j ORDER BY idem_key", j=job) == rec_before
+
+
+@pytest.mark.parametrize("body", [
+    {},                                          # action 누락 — 기본값으로 제외하지 않는다
+    {"action": "delete", "revision": 0},         # 잘못된 action
+    {"action": "exclude", "revision": 0, "x": 1},  # 정의되지 않은 키
+    {"action": "exclude", "revision": False},
+    {"action": "exclude", "revision": "0"},
+    {"action": "exclude", "revision": 0.5},
+    {"action": "exclude", "revision": None},
+])
+def test_section_request_format_errors_are_422(env, body):
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    row = _srow(sid)
+    r = _spatch(c, job, sid, body, key="s-fmt")
+    assert r.status_code == 422, r.text
+    assert _srow(sid) == row and _idem_rows(job) == []
+
+
+def test_section_revision_integer_float_and_lock_timeout(env, monkeypatch):
+    """revision 0.0 은 0 과 같다. 작업 행 잠금을 한도 안에 못 얻으면 503(쓰기 없음), 같은 요청으로 다시 보내면 한 번 적용된다."""
+    from app import db as app_db
+
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    a, b = _included(ids)[:2]
+    assert _spatch(c, job, a, {"action": "exclude", "revision": 0.0}).json()["revision"] == 1
+    monkeypatch.setenv("PIXLATE_EDIT_LOCK_TIMEOUT_MS", "200")
+    holder = app_db.engine.connect()
+    tx = holder.begin()
+    holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})
+    try:
+        busy = _spatch(c, job, b, {"action": "exclude", "revision": 0}, key="s-busy")
+    finally:
+        tx.rollback()
+        holder.close()
+    assert busy.status_code == 503 and busy.json()["error"]["retryable"] is True
+    assert _srow(b)["revision"] == 0 and _idem_rows(job) == []
+    ok = _spatch(c, job, b, {"action": "exclude", "revision": 0}, key="s-busy")
+    assert ok.status_code == 200 and ok.json()["revision"] == 1 and "Idempotent-Replayed" not in ok.headers
+
+
 def _mutate_regulatory(raw):
     raw["blocks"][1]["source_ko"] = "피부 치료 효과와 주름 개선"
 

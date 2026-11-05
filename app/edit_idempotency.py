@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from contextlib import contextmanager
 from typing import Any
 
 from sqlalchemy import text
@@ -64,3 +65,60 @@ def delete_for_job(db: Session, job_id: int) -> None:
 
 def purge_expired(db: Session) -> int:
     return db.execute(text("DELETE FROM edit_idempotency WHERE expires_at <= now()")).rowcount or 0
+
+
+# ---- 블록·섹션 PATCH 공통(라우터가 같은 처리 순서를 쓰게) --------------------------------------------------------
+LOCK_NOT_AVAILABLE = "55P03"  # PostgreSQL lock_not_available(lock_timeout 초과)
+
+
+def integer_value(v):
+    """OpenAPI `integer`와 같은 판단 — 정수 값인 JSON 수만(0·0.0은 같은 0). 불리언·문자열·0.5·null 은 ValueError(→ 422)."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        raise ValueError("must be an integer")
+    if isinstance(v, float):
+        if not v.is_integer():
+            raise ValueError("must be an integer")
+        return int(v)
+    return v
+
+
+def busy_error():
+    from fastapi import HTTPException
+
+    return HTTPException(status_code=503, detail={"code": "SERVICE_UNAVAILABLE", "message": "job is busy — retry with the same request"})
+
+
+@contextmanager
+def lock_window(db: Session):
+    """이 블록 안의 잠금 대기를 lock_timeout_ms 로 제한한다. 넘으면 트랜잭션을 정리(rollback)하고 503(retryable).
+    블록이 정상으로 끝나면 원래 한도로 되돌린다(잠금을 얻은 뒤의 처리는 기존 한도)."""
+    from sqlalchemy.exc import DBAPIError
+
+    orig = db.execute(text("SELECT current_setting('lock_timeout')")).scalar()
+    db.execute(text("SELECT set_config('lock_timeout', :v, true)"), {"v": f"{lock_timeout_ms()}ms"})
+    try:
+        yield
+    except DBAPIError as e:
+        db.rollback()
+        if getattr(e.orig, "sqlstate", None) == LOCK_NOT_AVAILABLE:
+            raise busy_error() from e
+        raise
+    db.execute(text("SELECT set_config('lock_timeout', :v, true)"), {"v": orig})
+
+
+def replay_or_reject(db: Session, *, seller_id: int, job_id: int, operation: str, key: str | None, sha: str):
+    """키가 있고 기한 안의 기록이 있으면: 같은 요청 → 최초 응답(재전송 헤더), 다른 요청 → 409 DUPLICATE. 그 밖엔 None(계속 처리).
+    호출자가 작업 행을 잠그고 작업 상태를 확인한 뒤 부른다(재전송이 소유·상태 검사를 건너뛰지 않게)."""
+    if key is None:
+        return None
+    prev = lookup(db, seller_id=seller_id, job_id=job_id, operation=operation, key=key)
+    if prev is None:
+        return None
+    db.rollback()
+    from fastapi import HTTPException
+    from fastapi.responses import JSONResponse
+
+    if prev["request_sha256"] != sha:
+        raise HTTPException(status_code=409, detail={"code": "DUPLICATE", "message": "Idempotency-Key was used for a different request",
+                                                     "reason": "idempotency_key_reused"})
+    return JSONResponse(prev["response"], status_code=prev["status_code"], headers={REPLAYED_HEADER: "true"})

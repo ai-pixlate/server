@@ -331,7 +331,7 @@ def test_unreadable_style_defaults_render_fails_n5_opens_save_blocked(env, monke
 
 
 def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
-    """F1 작업 15 재현(합성): ⑦ 완료인데 한 블록의 align 만 NULL → 그 항목만 승인 기본값(left), 글자색·크기는 측정값 유지.
+    """F1 작업 15 재현(합성): ⑦ 완료인데 한 블록의 align 만 NULL → 그 항목만 역할별 승인 기본값, 글자색·크기는 측정값 유지.
     미리보기·최종 렌더 모두 성공하고 저장까지 된다. text_block.style 은 그대로(측정값을 덮지 않는다)."""
     ids = _to_n3(env)
     c = ids["c"]
@@ -352,7 +352,9 @@ def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
     assert pv["status"] == "done", pv["error_code"]
     rb = pv["payload"]["render"]["blocks"][str(blk["id"])]
     assert rb["source"] == {"font_color": "measured", "est_font_px": "measured", "align": "role_default"}
-    assert rb["applied"]["align"] == "left"  # 승인값(pipeline_mapping.align)
+    from pipeline.handoff.style_defaults import load_style_defaults
+    role = _q("SELECT role FROM text_block WHERE id = :b", b=blk["id"])[0]["role"]
+    assert rb["applied"]["align"] == load_style_defaults().data.pipeline_mapping.align[role]  # 역할별 승인값(pipeline_mapping.align)
     assert rb["applied"]["font_color"] == before["font_color"] and rb["applied"]["est_font_px"] == before["est_font_px"]
     assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
     env["q"].drain()

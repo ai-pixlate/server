@@ -1,6 +1,6 @@
 {
  "schema_version": "1",
- "defaults_version": "role-style@2026-10-12.1",
+ "defaults_version": "role-style@2026-11-05.1",
  "rule": "role-style-rule/1",
  "comparison": {
   "numbers": "절대 오차 1e-9 이내",
@@ -10,7 +10,7 @@
  "cases": [
   {
    "id": "01_all_measured",
-   "title": "추출값 모두 정상 — 측정값 유지, bg_color 미사용, 단일 줄 left 근거 보존",
+   "title": "추출값 모두 정상 — 측정값 유지, bg_color 미사용, 측정 정렬 근거(section) 보존",
    "input": {
     "source_width_px": 1080,
     "section_height_px": 340,
@@ -28,7 +28,7 @@
        "align": "center"
       },
       "style_stage": "done",
-      "align_basis": "estimated",
+      "align_basis": "section",
       "box": {
        "x": 40,
        "y": 40,
@@ -49,7 +49,7 @@
        "align": "left"
       },
       "style_stage": "done",
-      "align_basis": "default_single_line",
+      "align_basis": "section",
       "box": {
        "x": 40,
        "y": 180,
@@ -134,7 +134,7 @@
        "align": "right"
       },
       "style_stage": "done",
-      "align_basis": "estimated",
+      "align_basis": "section",
       "box": {
        "x": 40,
        "y": 40,
@@ -175,7 +175,7 @@
   },
   {
    "id": "03_align_null",
-   "title": "정렬만 NULL — 정렬만 역할 기본값. 추출 단계의 동률 left는 측정값으로 유지",
+   "title": "정렬만 NULL — 정렬만 역할 기본값. 측정된 left는 그대로",
    "input": {
     "source_width_px": 1080,
     "section_height_px": 340,
@@ -193,7 +193,7 @@
        "align": null
       },
       "style_stage": "done",
-      "align_basis": "no_candidate",
+      "align_basis": null,
       "box": {
        "x": 40,
        "y": 40,
@@ -214,7 +214,7 @@
        "align": "left"
       },
       "style_stage": "done",
-      "align_basis": "default_tie",
+      "align_basis": "section",
       "box": {
        "x": 40,
        "y": 180,
@@ -281,7 +281,7 @@
   },
   {
    "id": "04_style_failed",
-   "title": "⑦ 스타일 단계 실패 — 세 항목 모두 역할 기본값, 단계 실패 유지",
+   "title": "⑦ 스타일 단계 실패 — 세 항목 모두 역할 기본값, 단계 실패 유지 (정렬은 역할별: title · price center)",
    "input": {
     "source_width_px": 1080,
     "section_height_px": 480,
@@ -345,7 +345,7 @@
       "font_sha256": "c89bc43027dc7cde5726e96223376f8eec09302b2fc1f8147fd5b57cfc376118",
       "font_size_px": 92.16,
       "font_color": "#222222",
-      "align": "left",
+      "align": "center",
       "letter_spacing_em": -0.015,
       "letter_spacing_px": -1.3824,
       "line_height_px": 110.592
@@ -371,7 +371,7 @@
       "font_sha256": "c89bc43027dc7cde5726e96223376f8eec09302b2fc1f8147fd5b57cfc376118",
       "font_size_px": 69.12,
       "font_color": "#222222",
-      "align": "left",
+      "align": "center",
       "letter_spacing_em": -0.02,
       "letter_spacing_px": -1.3824,
       "line_height_px": 82.944
@@ -524,7 +524,7 @@
        "align": null
       },
       "style_stage": "done",
-      "align_basis": "no_text_lines",
+      "align_basis": null,
       "box": {
        "x": 40,
        "y": 740,
@@ -1109,7 +1109,7 @@
        "align": "right"
       },
       "style_stage": "done",
-      "align_basis": "estimated",
+      "align_basis": "section",
       "box": {
        "x": 40,
        "y": 40,
@@ -1130,7 +1130,7 @@
        "align": "center"
       },
       "style_stage": "done",
-      "align_basis": "estimated",
+      "align_basis": "section",
       "box": {
        "x": 40,
        "y": 180,

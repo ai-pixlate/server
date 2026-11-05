@@ -70,7 +70,7 @@ def test_typeset_null_measurements_use_approved_defaults_only_for_null_fields():
     # F1 작업 15 재현(합성): ⑦ 완료, align 만 NULL → align 만 승인 기본값, 측정된 글자색·크기는 그대로
     res = typeset.render(bg, [_blk(1, {"font_color": "#424B55", "bg_color": "#FEFFFF", "est_font_px": 70.2, "align": None}, role="title")],
                          _defaults())
-    assert res.blocks[1].applied == {"font_color": "#424B55", "est_font_px": 70.2, "align": "left"}
+    assert res.blocks[1].applied == {"font_color": "#424B55", "est_font_px": 70.2, "align": "center"}  # title 역할 기본 정렬
     assert res.blocks[1].source == {"font_color": "measured", "est_font_px": "measured", "align": "role_default"}
     # 측정값 3개가 모두 있으면 기본값과 다르더라도 그대로(덮지 않는다)
     res = typeset.render(bg, [_blk(2, {"font_color": "#C2CA6B", "bg_color": None, "est_font_px": 9.5, "align": "right"}, role="title")],
@@ -82,7 +82,7 @@ def test_typeset_null_measurements_use_approved_defaults_only_for_null_fields():
 def test_typeset_style_stage_failed_uses_all_defaults_scaled_by_source_width():
     # ⑦ 실패(style 객체 NULL) → 세 항목 모두 승인 기본값. 크기 = 기준 크기 × 원본 폭 / 기준 폭(반올림 없음, be-handoff 6.3)
     res = typeset.render(png_bytes(1000, 400), [_blk(1, None, role="title", stage="failed")], _defaults())
-    assert res.blocks[1].applied == {"font_color": "#222222", "est_font_px": 32 * 1000 / 375, "align": "left"}
+    assert res.blocks[1].applied == {"font_color": "#222222", "est_font_px": 32 * 1000 / 375, "align": "center"}
     assert set(res.blocks[1].source.values()) == {"role_default"}
 
 
@@ -119,7 +119,7 @@ def test_style_defaults_unreadable_or_font_mismatch_is_not_silently_ignored(monk
     # 대체 경로를 비우면 저장소 정본 — 지문은 설정 버전·SHA-256·폰트 SHA-256·규칙 버전(6.6 ⑤)
     monkeypatch.delenv("PIXLATE_STYLE_DEFAULTS")
     inputs = typeset.style_inputs()
-    assert inputs["style_defaults"]["version"] == "role-style@2026-10-12.1" and set(inputs) == {"style_defaults", "fonts", "rule"}
+    assert inputs["style_defaults"]["version"] == "role-style@2026-11-05.1" and set(inputs) == {"style_defaults", "fonts", "rule"}
 
 
 @pytest.mark.skipif(not __import__("os").getenv("PIXLATE_TEST_DATABASE_URL"), reason="PIXLATE_TEST_DATABASE_URL 없음")

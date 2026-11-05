@@ -62,6 +62,7 @@ app.add_middleware(
     allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Idempotent-Replayed"],  # 저장 재전송 표시(계약 blockPatch 「저장 공통」) — 교차 출처에서도 읽히게
 )
 
 

@@ -707,6 +707,210 @@ def test_block_patch_empty_string_on_null_is_an_edit(env):
     assert _edit_signals(target) == [{"before_text": None, "after_text": ""}]
 
 
+# ---- 저장 공통(계약 blockPatch 「저장 공통」): 멱등 키·처리 순서·오류 구분 ------------------------------------------
+def _patch(c, job, bid, body, key=None):
+    return c.patch(f"/v1/jobs/{job}/blocks/{bid}", json=body, headers={"Idempotency-Key": key} if key else {})
+
+
+def _idem_rows(job):
+    return _q("SELECT operation, idem_key, status_code FROM edit_idempotency WHERE job_id = :j ORDER BY idem_key", j=job)
+
+
+def _first_two(c, job):
+    bs = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]]
+    return bs[0], bs[1]
+
+
+def test_save_replay_same_request_applies_once(env):
+    """같은 키·같은 요청 재전송 = 최초 응답 그대로 + Idempotent-Replayed: true, 두 번 적용하지 않는다(revision 다시 비교 안 함)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    body = {"trans1": "Visibly smoother skin", "revision": b["revision"]}
+    r1 = _patch(c, job, b["id"], body, key="k-1")
+    assert r1.status_code == 200 and "Idempotent-Replayed" not in r1.headers
+    n_preview = _preview_count(job)
+    r2 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json=body, headers={"Idempotency-Key": "k-1", "Origin": "https://fe.example"})
+    assert r2.status_code == 200 and r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert "idempotent-replayed" in r2.headers.get("access-control-expose-headers", "").lower()  # 교차 출처에서도 읽힌다
+    assert _q("SELECT revision FROM text_block WHERE id = :b", b=b["id"])[0]["revision"] == b["revision"] + 1
+    assert len(_edit_signals(b["id"])) == 1 and _preview_count(job) == n_preview
+    assert _idem_rows(job) == [{"operation": "block_patch", "idem_key": "k-1", "status_code": 200}]
+
+
+def test_save_same_key_different_body_or_target_is_rejected(env):
+    """같은 키로 본문이 다르거나 대상 블록이 다르면 409 DUPLICATE(idempotency_key_reused) — 최초 응답을 재사용하지 않고 아무것도 적용하지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, other = _first_two(c, job)
+    r1 = _patch(c, job, b["id"], {"trans1": "First", "revision": b["revision"]}, key="k-2")
+    assert r1.status_code == 200
+    diff_body = _patch(c, job, b["id"], {"trans1": "Second", "revision": b["revision"] + 1}, key="k-2")
+    diff_target = _patch(c, job, other["id"], {"trans1": "First", "revision": b["revision"]}, key="k-2")
+    for r in (diff_body, diff_target):
+        assert r.status_code == 409, r.text
+        err = r.json()["error"]
+        assert err["code"] == "DUPLICATE" and err["details"] == {"reason": "idempotency_key_reused"} and "Idempotent-Replayed" not in r.headers
+    assert _q("SELECT trans_1, revision FROM text_block WHERE id = :b", b=b["id"])[0] == {"trans_1": "First", "revision": b["revision"] + 1}
+    assert _q("SELECT trans_1, revision FROM text_block WHERE id = :b", b=other["id"])[0] == {"trans_1": other["trans1"], "revision": other["revision"]}
+    # 같은 본문이라도 revision 이 다르면 다른 요청이다
+    stale_rev = _patch(c, job, b["id"], {"trans1": "First", "revision": b["revision"] + 1}, key="k-2")
+    assert stale_rev.status_code == 409 and stale_rev.json()["error"]["code"] == "DUPLICATE"
+
+
+def test_save_noop_response_is_recorded_and_replayed(env):
+    """no-op 200 도 기록한다. 그 뒤 다른 저장으로 값이 바뀌어도 같은 키 재전송은 최초(no-op) 응답을 돌려주고 아무것도 되돌리지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    same = {"trans1": b["trans1"], "revision": b["revision"]}
+    r1 = _patch(c, job, b["id"], same, key="k-noop")
+    assert r1.status_code == 200 and r1.json()["rerenderTaskId"] is None
+    assert _idem_rows(job) == [{"operation": "block_patch", "idem_key": "k-noop", "status_code": 200}]
+    assert _patch(c, job, b["id"], {"trans1": "Changed later", "revision": b["revision"]}, key="k-other").status_code == 200
+    r2 = _patch(c, job, b["id"], same, key="k-noop")
+    assert r2.status_code == 200 and r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=b["id"])[0]["trans_1"] == "Changed later"
+
+
+def test_save_concurrent_same_request_applies_once(env):
+    """같은 키 동시 요청: 작업 행 잠금으로 직렬화 — 하나만 적용되고 다른 하나는 최초 응답 재전송."""
+    from app import db as app_db
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    body = {"trans1": "Concurrent", "revision": b["revision"]}
+    results = []
+    holder = app_db.engine.connect()
+    tx = holder.begin()
+    holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})  # 두 요청을 같은 시점에 막아 둔다
+    from app.main import app
+
+    def go():
+        cl = TestClient(app)  # 스레드마다 따로(같은 판매자 토큰)
+        cl.headers["Authorization"] = c.headers["Authorization"]
+        results.append(_patch(cl, job, b["id"], body, key="k-c"))
+
+    ts = [threading.Thread(target=go) for _ in range(2)]
+    for t in ts:
+        t.start()
+    threading.Event().wait(0.5)
+    tx.commit()
+    holder.close()
+    for t in ts:
+        t.join(timeout=30)
+    assert sorted(r.status_code for r in results) == [200, 200]
+    assert sorted(r.headers.get("Idempotent-Replayed", "no") for r in results) == ["no", "true"]
+    assert results[0].json() == results[1].json()
+    assert _q("SELECT revision FROM text_block WHERE id = :b", b=b["id"])[0]["revision"] == b["revision"] + 1
+    assert len(_edit_signals(b["id"])) == 1
+
+
+def test_save_expired_record_is_a_new_request(env):
+    """보관 기한이 지난 기록은 없는 것으로 본다 — 같은 키 재전송은 새 요청으로 처리되고 revision 이 두 번째 방어선이 된다."""
+    from app import recovery
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, other = _first_two(c, job)
+    body = {"trans1": "Applied once", "revision": b["revision"]}
+    assert _patch(c, job, b["id"], body, key="k-exp").status_code == 200
+    noop = {"trans1": other["trans1"], "revision": other["revision"]}
+    assert _patch(c, job, other["id"], noop, key="k-exp-noop").status_code == 200
+    _q("UPDATE edit_idempotency SET expires_at = now() - interval '1 second' WHERE job_id = :j", j=job)
+    again = _patch(c, job, b["id"], body, key="k-exp")
+    assert again.status_code == 409 and again.json()["error"]["code"] == "REVISION_CONFLICT"  # 두 번 적용되지 않음
+    noop_again = _patch(c, job, other["id"], noop, key="k-exp-noop")
+    assert noop_again.status_code == 200 and "Idempotent-Replayed" not in noop_again.headers and noop_again.json()["rerenderTaskId"] is None
+    assert len(_edit_signals(b["id"])) == 1
+    # 만료 뒤 새로 처리한 성공 응답(no-op)은 같은 키로 다시 기록된다. 정리 주기는 지난 기록만 지운다
+    assert [r["idem_key"] for r in _idem_rows(job)] == ["k-exp", "k-exp-noop"]
+    recovery.sweep()
+    assert [r["idem_key"] for r in _idem_rows(job)] == ["k-exp-noop"]
+
+
+def test_save_after_cancel_and_other_seller_do_not_replay(env):
+    """재전송도 소유·작업 상태 검사를 건너뛰지 않는다: 다른 판매자 = 404, 취소한 작업 = 409 INVALID_STATE. 취소는 그 작업의 기록을 지운다."""
+    from app import db as app_db
+    from app.main import app
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    body = {"trans1": "Before cancel", "revision": b["revision"]}
+    assert _patch(c, job, b["id"], body, key="k-own").status_code == 200
+    with app_db.engine.begin() as conn:
+        stranger = seed_job(conn)
+    sc = TestClient(app)
+    sc.headers["Authorization"] = "Bearer " + sc.post("/v1/auth/login", json={"email": stranger["email"], "password": "x"}).json()["accessToken"]
+    assert _patch(sc, job, b["id"], body, key="k-own").status_code == 404
+    assert c.delete(f"/v1/jobs/{job}").status_code == 200
+    assert _idem_rows(job) == []
+    late = _patch(c, job, b["id"], body, key="k-own")
+    assert late.status_code == 409 and late.json()["error"]["code"] == "INVALID_STATE" and "Idempotent-Replayed" not in late.headers
+    assert late.json()["error"]["details"] == {"reason": "job_not_editable"}
+
+
+def test_save_lock_timeout_returns_retryable_503(env, monkeypatch):
+    """작업 행 잠금을 한도 안에 얻지 못하면 트랜잭션을 정리하고 503 SERVICE_UNAVAILABLE(retryable). 같은 요청으로 다시 보내면 한 번만 적용된다."""
+    from app import db as app_db
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    monkeypatch.setenv("PIXLATE_EDIT_LOCK_TIMEOUT_MS", "200")
+    body = {"trans1": "After busy", "revision": b["revision"]}
+    holder = app_db.engine.connect()
+    tx = holder.begin()
+    holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})
+    try:
+        busy = _patch(c, job, b["id"], body, key="k-busy")
+    finally:
+        tx.rollback()
+        holder.close()
+    assert busy.status_code == 503, busy.text
+    assert busy.json()["error"]["code"] == "SERVICE_UNAVAILABLE" and busy.json()["error"]["retryable"] is True
+    assert _idem_rows(job) == [] and _edit_signals(b["id"]) == []
+    ok = _patch(c, job, b["id"], body, key="k-busy")
+    assert ok.status_code == 200 and "Idempotent-Replayed" not in ok.headers
+    assert _q("SELECT revision FROM text_block WHERE id = :b", b=b["id"])[0]["revision"] == b["revision"] + 1
+
+
+_CUR = object()  # 요청에 현재 revision(0)을 넣는 자리
+
+
+@pytest.mark.parametrize("body,key", [
+    ({"revision": _CUR}, "k-fmt"),                              # trans1 누락
+    ({"trans1": "x"}, "k-fmt"),                                 # revision 누락
+    ({"trans1": None, "revision": _CUR}, "k-fmt"),              # trans1 null
+    ({"trans1": 123, "revision": _CUR}, "k-fmt"),               # trans1 숫자 — 문자열로 바꾸지 않는다
+    ({"trans1": "x", "revision": False}, "k-fmt"),              # revision false — 0 으로 바꾸지 않는다
+    ({"trans1": "x", "revision": "0"}, "k-fmt"),                # revision 문자열 — 0 으로 바꾸지 않는다
+    ({"trans1": "x", "revision": 0.0}, "k-fmt"),                # revision 실수
+    ({"trans1": "x", "revision": _CUR, "trans2": "y"}, "k-fmt"),  # 정의되지 않은 키
+    ({"trans1": "x", "revision": _CUR}, "has space"),           # 키 형식
+    ({"trans1": "x", "revision": _CUR}, "k" * 129),             # 키 길이
+])
+def test_save_request_format_errors_are_422(env, body, key):
+    """요청 형식 오류는 422 VALIDATION_ERROR — 타입을 바꾸거나 기본값으로 채워 저장하지 않는다.
+    블록의 현재 revision 을 0 으로 두어, false·"0" 이 0 으로 변환되면 실제로 저장되는 상황에서 거절을 확인한다(블록·수정 기록·멱등 기록 쓰기 없음)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    _q("UPDATE text_block SET revision = 0 WHERE id = :b", b=b["id"])
+    before = _q("SELECT trans_1, revision, block_status, updated_at FROM text_block WHERE id = :b", b=b["id"])
+    sent = {k: (0 if v is _CUR else v) for k, v in body.items()}
+    r = _patch(c, job, b["id"], sent, key=key)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert _q("SELECT trans_1, revision, block_status, updated_at FROM text_block WHERE id = :b", b=b["id"]) == before
+    assert _idem_rows(job) == [] and _edit_signals(b["id"]) == []
+    # 같은 블록에 올바른 요청(revision 0)은 저장된다 — 위 거절이 revision 불일치 때문이 아니었다
+    ok = _patch(c, job, b["id"], {"trans1": "x", "revision": 0}, key="k-ok")
+    assert ok.status_code == 200 and ok.json()["block"]["revision"] == 1
+
+
 def _mutate_regulatory(raw):
     raw["blocks"][1]["source_ko"] = "피부 치료 효과와 주름 개선"
 

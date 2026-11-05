@@ -74,6 +74,7 @@ def cancel_job(db: Session, job_id: int, seller_id: int) -> dict[str, Any] | Non
         "DELETE FROM edit_signal WHERE job_id = :j",
         "DELETE FROM job_keyword WHERE job_id = :j",
         "DELETE FROM event_log WHERE job_id = :j",
+        "DELETE FROM edit_idempotency WHERE job_id = :j",  # 저장 재전송 기록(응답에 번역문이 들어 있음)
         "UPDATE job_async_task SET error_message = NULL WHERE job_id = :j AND error_message IS NOT NULL",
         "UPDATE job SET product_name = NULL, product_code = NULL WHERE id = :j",
     ):

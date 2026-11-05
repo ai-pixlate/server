@@ -1663,14 +1663,26 @@ def test_preview_renderer_mismatch_and_missing(env, monkeypatch):
     blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b.get("trans1")][0]
     t1 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]}).json()["rerenderTaskId"]
     monkeypatch.setattr(typeset, "RENDERER_VERSION", NEW_RENDERER)
-    env["q"].drain()
+    from app import tasks
+
+    assert env["q"].messages == [("app.tasks.run_preview", [t1])]
+    env["q"].messages.clear()
+    tasks.run_preview(t1)  # t1 만 실행하고, 그 뒤 등록되는 시도는 아직 실행하지 않는다
+    env["q"].drain(skip={"app.tasks.run_preview"})
     a = _attempt(t1)
     assert (a["status"], a["error_code"]) == ("failed", "INPUT_CHANGED") and "렌더러" in a["error_message"]
-    assert _item(c, job, t1)["retryable"] is False
+    sid = blk["sectionId"]
+    # 렌더러가 바뀌어 현재 입력 지문이 달라졌으므로 진행 처리가 현재 렌더러로 새 시도 하나를 등록한다(입력 변경 재렌더 — 재시도 한도 미사용)
+    auto = _q("SELECT id, supersedes_task_id, retry_origin, input_manifest FROM job_async_task "
+              "WHERE stage = 'preview' AND unit_id = :s AND is_current", s=sid)[0]
+    assert (auto["supersedes_task_id"], auto["retry_origin"]) == (t1, "auto") and auto["input_manifest"]["renderer"] == NEW_RENDERER
     n = _preview_count(job)
-    r = c.post(f"/v1/jobs/{job}/tasks/{t1}/retry")
+    r = c.post(f"/v1/jobs/{job}/tasks/{t1}/retry")  # 옛 렌더러 시도는 다시 시도하지 않는다
     assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
     assert _preview_count(job) == n and env["q"].messages == [] and _attempt(t1) == a
+    tasks.run_preview(auto["id"])
+    env["q"].drain()
+    assert _attempt(auto["id"])["status"] == "done"
     blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["id"] == blk["id"]][0]
     t2 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care.", "revision": blk["revision"]}).json()["rerenderTaskId"]
     env["q"].drain()
@@ -2255,3 +2267,96 @@ def test_n5_restore_during_translation_retry_is_not_secured_at_restore(env):
     env["q"].drain()
     cur = _cur_preview(sid)
     assert cur["id"] != pv0["id"] and cur["status"] == "done" and _pvs(c, job, sid)["render"]["isCurrent"] is True
+
+
+def _progress_now(run_id, sid):
+    """진행 처리를 한 번 직접 부른다(대표 실행을 잠근 트랜잭션 — 실제 호출과 같은 조건)."""
+    from app import db as app_db
+    from app.flows import downstream
+
+    with app_db.SessionLocal() as db:
+        execution.lock_task(db, run_id)
+        made = downstream.progress(db, run_id, sid)
+        db.commit()
+    return made
+
+
+def test_n5_restore_after_failed_preview_gets_one_new_preview_once_translation_is_adopted(env, monkeypatch):
+    """이전 미리보기 실패 → 제외 → 번역 재시도 중 복원(그 시점엔 미확보) → 바뀐 번역 채택 → 진행 처리가 새 미리보기 하나를 등록 → 채택.
+    같은 입력의 최종 실패에서는 진행 처리가 새 시도를 만들지 않고, 중복 호출에서도 시도는 하나만 생긴다."""
+    from app import tasks
+    from app.flows import downstream
+
+    ids, target = _to_n5(env, fail_first=True)
+    c, job = ids["c"], ids["job"]
+    sid = _q("SELECT section_id FROM text_block WHERE id = :b", b=target)[0]["section_id"]
+    run_id = _q("SELECT parent_task_id FROM job_async_task WHERE id = :t", t=_cur_preview(sid)["id"])[0]["parent_task_id"]
+    others = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["sectionId"] == sid and b["trans1"] and b["id"] != target]
+    assert others, "번역 실패 블록과 같은 섹션에 번역된 블록이 있어야 한다"
+    # ① 이전 미리보기 실패(같은 섹션의 다른 블록 저장 → 재렌더 실패)
+    real_render = downstream._render_section
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    o = others[0]
+    c.patch(f"/v1/jobs/{job}/blocks/{o['id']}", json={"trans1": "Saved before failure", "revision": o["revision"]})
+    env["q"].drain()
+    failed = _cur_preview(sid)
+    assert failed["status"] == "failed"
+    monkeypatch.setattr(downstream, "_render_section", real_render)
+    assert _progress_now(run_id, sid) == []  # 같은 입력의 최종 실패 — 진행 처리가 새로 만들지 않는다(실패·재시도 횟수 보존)
+    assert _cur_preview(sid) == failed
+    # ② 제외 → 번역 재시도 → 재시도 진행 중 복원(⑧ 미완료라 복원 시점에는 미리보기를 만들지 않는다)
+    rev = _srow(sid)["revision"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": rev}).status_code == 200
+    ai_adapters.set_adapters(translator=FakeTranslator())
+    tr = _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s AND is_current", j=job, s=sid)[0]
+    assert c.post(f"/v1/jobs/{job}/tasks/{tr['id']}/retry").status_code == 200
+    n0 = _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "restore", "revision": rev + 1}).status_code == 200
+    assert _preview_count(job) == n0 and _cur_preview(sid) == failed
+    # ③ 바뀐 번역 채택(미리보기 실행은 아직 하지 않는다) → 진행 처리가 새 미리보기 하나를 등록
+    sent = env["q"].drain(skip={"app.tasks.run_preview"})
+    assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=target)[0]["trans_1"].startswith("EN ")
+    new = _cur_preview(sid)
+    assert _preview_count(job) == n0 + 1 and new["status"] == "pending"
+    assert (new["supersedes_task_id"], new["retry_count"], new["retry_origin"]) == (failed["id"], failed["retry_count"], "auto")
+    assert new["input_fingerprint"] != failed["input_fingerprint"] == _attempt(failed["id"])["input_fingerprint"]
+    assert [a for n, a in sent if n == "app.tasks.run_preview"] == [[new["id"]]]
+    assert _pvs(c, job, sid)["inputFingerprint"] == new["input_fingerprint"]
+    # ④ 진행 처리 중복 호출 — 시도는 하나뿐
+    assert _progress_now(run_id, sid) == [] and _progress_now(run_id, sid) == []
+    assert _preview_count(job) == n0 + 1 and _cur_preview(sid)["id"] == new["id"]
+    # ⑤ 새 미리보기 실행·채택
+    tasks.run_preview(new["id"])
+    env["q"].drain()
+    assert _attempt(new["id"])["status"] == "done" and _preview_count(job) == n0 + 1
+    s = _pvs(c, job, sid)
+    assert s["render"]["isCurrent"] is True and s["render"]["result"]["taskId"] == new["id"]
+    assert _progress_now(run_id, sid) == []  # 최신 입력의 완료 시도 — 더 만들지 않는다
+
+
+def test_progress_does_not_resume_cancelled_run_for_changed_input(env):
+    """취소·종료된 실행은 재개하지 않는다: 실행이 진행 중이 아니면 입력이 바뀌어도 진행 처리가 미리보기를 만들지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    run_id = _q("SELECT parent_task_id FROM job_async_task WHERE id = :t", t=_cur_preview(sid)["id"])[0]["parent_task_id"]
+    _q("UPDATE text_block SET trans_1 = 'Changed after run closed', revision = revision + 1 WHERE id = :b", b=b["id"])
+    _q("UPDATE job_async_task SET status = 'cancelled', cancelled_at = now(), finished_at = now() WHERE id = :r", r=run_id)
+    n0 = _preview_count(job)
+    assert _progress_now(run_id, sid) == [] and _preview_count(job) == n0
+
+
+def test_n5_restore_with_unreadable_box_succeeds_without_attempt(env):
+    """적용 박스를 읽을 수 없는 섹션의 복원은 200(섹션 상태는 바뀜)이고 미리보기 시도는 만들지 않는다 — /preview 는 RENDER_INPUT_INVALID."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 0}).status_code == 200
+    _q("UPDATE text_block SET bbox = NULL WHERE id = :b", b=b["id"])
+    n0, cur0 = _preview_count(job), _cur_preview(sid)
+    r = _spatch(c, job, sid, {"action": "restore", "revision": 1})
+    assert r.status_code == 200 and r.json()["bucket"] == "include"
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    assert _pvs(c, job, sid)["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}

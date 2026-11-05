@@ -1046,12 +1046,16 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if not _final(pv):
             all_ready = False
             continue
-        # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다
+        # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다.
+        # 현재 시도가 완료든 최종 실패든 지문이 다를 때만 — 같은 입력의 최종 실패는 그대로 둔다(실패 상태·재시도 횟수 보존).
+        # 실행이 진행 중일 때만 여기까지 온다(위 run status 검사) — 취소·종료된 실행은 재개하지 않는다
         m = _render_inputs(db, run_id, sid)
-        if fingerprint(m) != pv["input_fingerprint"] and pv["status"] == "done":
+        if fingerprint(m) != pv["input_fingerprint"]:
             pv_row = execution.lock_task(db, pv["id"])
-            ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),
-                                                supersedes=pv_row, retry_origin="auto", count_retry=False))
+            if pv_row["is_current"] and pv_row["status"] in ("done", "failed"):  # 잠근 뒤 다시 확인 — 중복 호출에서 한 건만
+                ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
+                                                    target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
+                                                    count_retry=False))
     job = db.execute(text("SELECT id, status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
     if job["current_step"] == "N4":
         if blocking and not ids and job["status"] == "processing":
@@ -1080,7 +1084,13 @@ def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int
         text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
         {"r": run["id"], "s": section_id},
     ).mappings().first()
-    m = _render_inputs(db, run["id"], section_id)
+    try:
+        m = _render_inputs(db, run["id"], section_id)
+    except RenderInputInvalid as e:
+        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고 시도만 확보하지 않는다(/preview 가 RENDER_INPUT_INVALID 로 보인다).
+        # 시도를 실패로 기록하는 처리는 미완료 항목(PR #108 본문)
+        log.warning("복원 섹션 %s 미리보기 미확보 — %s", section_id, e)
+        return None
     if cur is None:
         return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
                                         max_retry=MAX_RETRY["preview"])

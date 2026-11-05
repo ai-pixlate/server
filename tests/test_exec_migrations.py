@@ -364,5 +364,35 @@ def test_full_downgrade_and_upgrade_roundtrip():
         command.upgrade(alembic_config(), "head")
         eng = create_engine(u)
         with eng.connect() as c:
+            assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0010"
+        eng.dispose()
+
+
+# ---- 0010: 편집 저장 멱등 기록 ------------------------------------------------------------------------------------
+def test_0010_upgrade_from_existing_0008_db_and_back():
+    """0008 까지 쓰던 DB(작업 행 있음)에서 head 로 올리면 기존 행은 그대로 두고 edit_idempotency 만 생긴다. 되돌리면 표만 지운다."""
+    from alembic.script import ScriptDirectory
+
+    assert ScriptDirectory.from_config(alembic_config()).get_heads() == ["0010"]  # 단일 head
+    with fresh_database("0008") as u:
+        eng = create_engine(u)
+        with eng.begin() as c:
+            ids = seed_job(c)
+        command.upgrade(alembic_config(), "head")
+        with eng.begin() as c:
+            assert c.execute(text("SELECT count(*) FROM job WHERE id = :j"), {"j": ids["job"]}).scalar() == 1
+            c.execute(text("INSERT INTO edit_idempotency (seller_id, job_id, operation, idem_key, request_sha256, status_code, response, expires_at) "
+                           "VALUES (:s, :j, 'block_patch', 'k', :h, 200, '{}'::jsonb, now() + interval '1 day')"),
+                      {"s": ids["seller"], "j": ids["job"], "h": "0" * 64})
+        with pytest.raises(Exception):  # 2xx 만 기록
+            with eng.begin() as c:
+                c.execute(text("INSERT INTO edit_idempotency (seller_id, job_id, operation, idem_key, request_sha256, status_code, response, expires_at) "
+                               "VALUES (:s, :j, 'block_patch', 'k2', :h, 409, '{}'::jsonb, now())"), {"s": ids["seller"], "j": ids["job"], "h": "0" * 64})
+        with eng.begin() as c:
+            c.execute(text("DELETE FROM job WHERE id = :j"), {"j": ids["job"]})  # 작업 행을 지우면 기록도 지워진다
+            assert c.execute(text("SELECT count(*) FROM edit_idempotency")).scalar() == 0
+        command.downgrade(alembic_config(), "0008")
+        with eng.connect() as c:
+            assert c.execute(text("SELECT to_regclass('edit_idempotency')")).scalar() is None
             assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0008"
         eng.dispose()

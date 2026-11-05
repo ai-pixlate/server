@@ -169,6 +169,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 브랜드 생성 시점 스냅샷 | 확정(PM 11-04) | jobCreate | 구현 대기(담당 미확인) |
 | OTC 종류 규칙·임시 M020 | 정책 확정(PM 11-04) | `JobPatch.regulatoryClass` | 필드는 새 규제사전 작업(#103 계열) |
 | 재렌더 중 확정 허용·검사 중 확정 거절·검사 최종 실패 통과·미저장 번역문 확인창·넘침 비차단 | 확정(PM) | confirmReview | 재렌더 중 허용·넘침 비차단 = 현행, 검사 중 거절 = 규칙 검사 연결과 함께, 확인창 = FE |
-| 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답) | 확정(FE 11-03·PM) — 최초 판정 없는 섹션 복원은 PM-R8 결정 전까지 409 거절 | sectionPatch · `Section.revision` · `SectionPatch` | 구현됨(섹션 저장 PR). N5 복원 때 렌더·검사 확보는 /preview·검사 연결과 함께(구현 대기) |
+| 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답) | 확정(FE 11-03·PM) — 최초 판정 없는 섹션 복원은 PM-R8 결정 전까지 409 거절 | sectionPatch · `Section.revision` · `SectionPatch` | 구현됨(#107). N5 복원 때 미리보기 시도 확보 = 구현됨(/preview 렌더 입력 PR — 하류 실행 없는 섹션은 서버 미완료), 검사 시도 확보 = 규칙 검사 연결과 함께(구현 대기) |
 | 블록 배치 저장(정규화·CSV 5열) · 규칙 검사 상태 · `translation_failed` `taskId` · category leaf · N3 포함 섹션 판정 | 확정 | 각 구현 PR에서 그 오퍼레이션에 함께 반영 | 구현 예정 |
-| `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문, `regulationVerdict` | 필드 안 FE 확인 중 | 미반영 — 확정되면 그 구현 PR에서 반영 | 구현 예정 |
+| `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문 | 확정(FE 11-05) — 입력 상태 3조합(별도 상태 필드 없음)·입력/시도 독립 판단·`rendererId` 현행 문자열·`fontColor` 대문자 `#RRGGBB`·표시 결과 없을 때 화면 처리(이유 필드 없음) | reviewPreview 「렌더 입력과 시도·결과」·응답 예시 6개 · `PreviewRender*` · `TextBlock.sectionInputFingerprint` | 구현됨(/preview 렌더 입력 PR). 서버 미완료 2건: 하류 실행 없는 N5 섹션의 미리보기 확보, 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록(블록 저장 500) — 응답 표현은 FE 수용 |
+| 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 2차 범위(실행계획 BE 8번 · R-18) | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 명시 | 미착수(2차 의존 작업) |
+| `regulationVerdict` | 필드 안 FE 확인 중 | 미반영 — 확정되면 그 구현 PR에서 반영 | 구현 예정 |

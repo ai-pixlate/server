@@ -83,7 +83,7 @@ class RenderBlock:
     id: int
     role: str
     text: str
-    box: dict[str, int]
+    box: dict[str, float]  # 섹션 로컬 원본 px — 저장값 그대로(소수 허용, 절삭하지 않는다)
     style: dict[str, Any] | None  # ⑦ 측정값(4키) 또는 None(⑦ 실패·미실행)
     style_stage: str  # 섹션의 ⑦ 단계 결과(done | failed)
     source_ko: str | None  # 원문(빈 원문은 조판하지 않는다 — resolve_block 규칙)

@@ -6,10 +6,8 @@ CFM-01(블록 표·signals)·CFM-02(셀 수정·낙관적 잠금·재렌더)·CF
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from sqlalchemy import text
-from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from app import edit_idempotency as idem
@@ -98,21 +96,10 @@ class BlockUpdate(BaseModel):
     @field_validator("revision", mode="before")
     @classmethod
     def _integer_value(cls, v):
-        if isinstance(v, bool) or not isinstance(v, (int, float)):
-            raise ValueError("revision must be an integer")
-        if isinstance(v, float):
-            if not v.is_integer():
-                raise ValueError("revision must be an integer")
-            return int(v)
-        return v
+        return idem.integer_value(v)
 
 
 _OP_BLOCK_PATCH = "block_patch"
-_LOCK_NOT_AVAILABLE = "55P03"  # PostgreSQL lock_not_available(lock_timeout 초과)
-
-
-def _lock_timed_out(e: DBAPIError) -> bool:
-    return getattr(e.orig, "sqlstate", None) == _LOCK_NOT_AVAILABLE
 
 
 @router.patch("/jobs/{job_id}/blocks/{block_id}", summary="API-CFM-02 번역문 셀 수정 (DB·낙관적 잠금·멱등)")
@@ -136,21 +123,11 @@ def update_block(
 
     _require_job_owned(db, job_id, seller_id)
     sha = idem.request_sha256(_OP_BLOCK_PATCH, {"jobId": job_id, "blockId": block_id}, body.model_dump())
-    orig_lock_timeout = db.execute(text("SELECT current_setting('lock_timeout')")).scalar()
-    try:
-        db.execute(text("SELECT set_config('lock_timeout', :v, true)"), {"v": f"{idem.lock_timeout_ms()}ms"})
+    with idem.lock_window(db):  # 잠금 대기 한도 초과 → 트랜잭션 정리 후 503
         job = execution.lock_job(db, job_id)
         if job["current_step"] != "N5" or job["status"] != "review":
             raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "번역문은 N5 검수 중에만 수정한다",
                                                          "reason": "job_not_editable"})
-        if idempotency_key is not None:
-            prev = idem.lookup(db, seller_id=seller_id, job_id=job_id, operation=_OP_BLOCK_PATCH, key=idempotency_key)
-            if prev is not None:
-                db.rollback()
-                if prev["request_sha256"] != sha:
-                    raise HTTPException(status_code=409, detail={"code": "DUPLICATE", "message": "Idempotency-Key was used for a different request",
-                                                                 "reason": "idempotency_key_reused"})
-                return JSONResponse(prev["response"], status_code=prev["status_code"], headers={idem.REPLAYED_HEADER: "true"})
         cur = db.execute(
             text(
                 "SELECT tb.revision, tb.trans_1, tb.section_id, tb.is_excluded FROM text_block tb JOIN section s ON s.id = tb.section_id "
@@ -158,12 +135,9 @@ def update_block(
             ),
             {"b": block_id, "j": job_id},
         ).mappings().first()
-        db.execute(text("SELECT set_config('lock_timeout', :v, true)"), {"v": orig_lock_timeout})  # 잠금을 얻은 뒤엔 원래 한도로
-    except DBAPIError as e:
-        db.rollback()
-        if _lock_timed_out(e):
-            raise HTTPException(status_code=503, detail={"code": "SERVICE_UNAVAILABLE", "message": "job is busy — retry with the same request"}) from e
-        raise
+    replayed = idem.replay_or_reject(db, seller_id=seller_id, job_id=job_id, operation=_OP_BLOCK_PATCH, key=idempotency_key, sha=sha)
+    if replayed is not None:
+        return replayed
     if not cur:
         db.rollback()
         raise HTTPException(status_code=404, detail="block not found")

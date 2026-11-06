@@ -194,6 +194,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ① | 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 | 시도를 만들지 않아 `render.attempt = null`로 남는다 | 화면은 원본 + 미리보기 없음 | reviewPreview 「구현 상태」·sectionPatch | 서버 미완료(#108 범위) |
 | ② | 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 | /preview·/blocks는 `inputError` RENDER_INPUT_INVALID로 답하고 N5 복원도 성공하지만, 그 섹션의 블록 저장은 실패 시도를 남기지 못하고 500이며 자동 진행 처리도 그 섹션에서 오류로 멈춘다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다 | reviewPreview 「구현 상태」·blockPatch | 서버 미완료(#108 범위) |
 | ③ | 서버 HTML/Playwright 공통 렌더 연결 | 현행 Pillow 조판(`bundleId = null`, 자간 미적용) | FE 로컬 렌더와 서버 이미지가 다를 수 있다 — 넘침·최신 판정은 서버 값만 쓴다 | `PreviewRenderer` | 미착수 — 번들 반입(R-FE-6)·렌더러 전환 이전 작업 처리(PM-R0)에 의존 |
+| ④ | 훼손된 저장값이 `/blocks`에 그대로 나가는 문제 | `bbox`·`auto_adjust`의 저장값이 형식에 맞지 않으면(문자열·불리언 좌표, 객체가 아닌 조정값) `/blocks`가 검사 없이 200으로 돌려줘 `TextBlock` 스키마에 어긋난다. /preview는 같은 데이터를 `inputError`로 알린다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다. 이를 허용하도록 스키마를 넓히지 않는다 | `TextBlock` | 미해결 — 처리 방침 미정 |
+| ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 
@@ -218,6 +220,9 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 
 FE 확인
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
+- HTTP `error.code` 정리 — 서버가 15종 밖 코드(`JOB_NOT_FOUND`·`ARTIFACT_NOT_FOUND`·`INVALID_INPUT` 등)를 낸다. 권장안: 서버를 15종과 `details.reason`으로 맞춘다. FE 확인 전이라 명세·서버 모두 그대로다.
+- 작업 취소 응답 — 명세는 204 본문 없음, 서버는 200 `{jobId, status}`다. 권장안: 서버의 200 응답을 계약으로 삼는다. FE 확인 전이라 명세·서버 모두 그대로다.
+- `isExcluded = null` 처리 — 명세는 null을 false로 취급하지 않는다고 적지만, FE 어댑터는 null을 편집 가능으로 처리한다. FE가 확인할 항목이다.
 
 서버 내부 계산·직렬화 (외부 계약에 영향 없음)
 - 규칙 검사 `inputKey`의 서버 내부 계산 — 의미 입력(고정 사전·용어집 선별 결과·규칙 버전 등)의 세부 표현과 직렬화·해시 방식, 기존 요청 검증 지문(`input_manifest_sha256`)과의 관계. 외부 계약(불투명 문자열·같은지만 비교·null 조건·배치·배율·revision 제외)은 확정이다(`BlockCheck`).
@@ -238,3 +243,26 @@ FE 확인
 - 배포 경로는 `.github/workflows/deploy-api-docs.yml`대로 둘뿐이다 — `develop`에서 수동 실행(workflow_dispatch), `api-tracking` 브랜치의 문서 변경 push(`docs/**`·워크플로 파일). 그 밖의 브랜치에서 수동 실행하면 배포 job을 건너뛴다. 배포 전 Redocly lint에서 명세 오류가 나면 멈춘다(경고는 통과).
 - 원격에 `api-tracking` 브랜치는 아직 없다. 그래서 이 명세가 `develop`에 머지돼도 사이트(https://ai-pixlate.github.io/server/)는 자동으로 바뀌지 않고, `develop`에서 수동 실행해야 갱신된다.
 - 「Try it out」: `servers`의 `https://api.pixate.example.com/v1`은 예시 주소라 Swagger 「Try it out」은 실제 서버를 호출하지 않는다. 실제 서버 주소는 아직 정하지 않았다.
+
+### 7.6 3.5.10 보정 이력
+
+버전은 3.5.10을 유지한다. 서버의 지금 동작을 그대로 설명하도록 명세의 오기와 누락을 고친 문서 보정이다. 서버 코드·DB는 바꾸지 않았고, 새 구현이나 서버 배포를 뜻하지 않는다. 서버 쪽 문제를 해결한 것도 아니다 — 남은 항목은 7.2 ④⑤와 7.3 「FE 확인」에서 추적한다.
+
+| 날짜 | 대상 | 변경 | 이유 |
+|---|---|---|---|
+| 2026-11-06 | deliverableList `components[].retryAction` | enum의 문자열 `'null'` → 실제 null | 서버의 정상 응답 null을 명세가 거절했다 |
+| 2026-11-06 | `TextBlock.isExcluded` | `boolean` → `boolean \| null`, 세 값의 의미 명시 | 판정 전 null은 마이그레이션 0007의 의도된 동작이다 |
+| 2026-11-06 | `TextBlock.bbox` | 신규 `BlockBbox`(`number`) 사용. 섹션 `bbox`는 `Bbox`(정수) 유지 | 서버가 블록 좌표를 저장값 그대로 주므로 소수가 올 수 있다. /preview `box`·`LayoutBox`도 이미 `number`다 |
+| 2026-11-06 | jobCreate 500·503 | 기존 `Error` 스키마로 문서화, 예시 추가 | 서버가 이미 내는 응답이다 |
+
+FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.bbox`다.
+
+**응답 대조 기록** — 로컬 시험(develop d517ed3)이 받은 응답을 보정한 명세의 응답 스키마로 검사한 결과다. 응답 1,126건 중 적합 1,117건, 남은 불일치 9건이다.
+
+| 남은 불일치 | 건수 | 상태 |
+|---|---|---|
+| 스키마 불일치 — 15종 밖 오류 코드(`JOB_NOT_FOUND` 2, `ARTIFACT_NOT_FOUND` 1) | 3 | FE 회신 대기(7.3) |
+| 미문서화 HTTP 상태 — 작업 취소 200 | 3 | FE 회신 대기(7.3) |
+| 스키마 불일치 — 시험이 일부러 훼손한 데이터(`bbox` 2, `autoAdjust` 1) | 3 | 미해결(7.2 ④) |
+
+이 대조는 호출한 응답의 스키마 적합성만 본다. /preview 59건 통과도 전체 계약·화면 검증 완료를 뜻하지 않는다. 명세 오퍼레이션 62개 중 시험이 부른 것은 27개이고, 실제 서버와 FE 연동은 이 대조에 포함되지 않는다.

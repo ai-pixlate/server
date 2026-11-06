@@ -33,6 +33,7 @@ info:
       - 그 밖에 `현행` = 지금 운영 서버 동작과 같다(3.4.2 계약), `화면` = FE 동작, `서버 미완료`·`미착수` = 구현 PR 안에서 남은 경로(`docs/README.md` 7.2에서 추적).
     - /preview 렌더 입력·지문·시도/결과는 그 구현 PR(#108) 머지를 전제로 `구현 완료·서버 배포 대기`로 적는다.
     - 합의 전 후보·미결은 싣지 않는다. 확정되면 그때 추가한다(남은 계약 항목은 `docs/README.md` 7.3, 서버 미완료·의존 작업 추적은 7.2).
+    - 3.5.10 공개 뒤 서버 실제 응답에 맞춘 보정은 버전을 올리지 않고 `docs/README.md` 7.6 「3.5.10 보정 이력」에 남긴다.
     - `[PRD v3.5.10 · 계약 확정(FE 11-05)]` = FE가 필드 설계를 BE에 맡긴 /preview 렌더 입력·지문·시도/결과다. BE 계약안을 FE가 11-05에 수용해 확정했다.
     - 3차(11/27) 예정 기능(최종 이미지 경계 판정 Q-07과 그 응답 필드 `boundaryCheck`, 확정 때 추가 확인 절차, LLM 규제 판정, 시스템 자동 조정 등)은 이 명세에 넣지 않는다 — 2차 연결에 필요한 필드가 아니다.
 
@@ -597,6 +598,16 @@ components:
         y: { type: integer }
         w: { type: integer }
         h: { type: integer }
+    BlockBbox:
+      type: object
+      description: >
+        블록 원본 박스 {x,y,w,h} — 섹션 로컬 원본 px(섹션 왼쪽 위 = 0,0). 저장값을 자르거나 반올림하지 않고 그대로 주므로 소수일 수 있다(현행).
+        섹션 `bbox`(`Bbox`)는 정수다. 적용 박스는 /preview `renderInput.blocks[].box`에서 읽는다.
+      properties:
+        x: { type: number }
+        y: { type: number }
+        w: { type: number }
+        h: { type: number }
 
     # ===== Auth =====
     LoginRequest:
@@ -1075,14 +1086,20 @@ components:
     # ===== N5 Blocks / Preview =====
     TextBlock:
       type: object
-      description: 'ERD text_block. isExcluded는 파생(role=product_label). 번역 실패는 signals[].code=translation_failed.'
+      description: 'ERD text_block. isExcluded는 라벨·로고 판정의 파생값(아래 필드 설명). 번역 실패는 signals[].code=translation_failed.'
       properties:
         id: { type: integer, format: int64 }
         sectionId: { type: integer, format: int64 }
         displayTop: { type: [integer, 'null'], description: '소속 섹션 displayTop 복사(파생)' }
         blockOrder: { type: integer }
         role: { $ref: '#/components/schemas/BlockRole' }
-        isExcluded: { type: boolean, description: '파생 (role=product_label)' }
+        isExcluded:
+          type: [boolean, 'null']
+          description: >
+            라벨·로고 판정의 파생값 — DB가 `is_product_label OR is_brand_logo`의 3값 논리로 계산한다(마이그레이션 0007 · 현행).
+            `true` = 제품 라벨 또는 브랜드 로고로 판정돼 번역 대상이 아니다.
+            `false` = 라벨도 로고도 아니라고 판정돼 번역 대상이다.
+            `null` = 아직 판정 전이라 제외 여부를 모른다(N4 라벨·로고 판정 전 등). `false`로 취급하지 않는다.
         sourceKo: { type: [string, 'null'] }
         trans1: { type: [string, 'null'] }
         trans2: { type: [string, 'null'], description: '9월 null' }
@@ -1091,7 +1108,7 @@ components:
           description: >
             「사용자수정」 표시(F-CFM-02a). `edited`는 번역문이 바뀐 저장에서만 된다.
             [PRD v3.5.10 · 합의(PM) · 계약 확정·서버 구현 대기] 배치(박스·글자 배율)만 바꾼 저장은 이 값을 바꾸지 않는다(blockPatch 「블록 배치」).
-        bbox: { oneOf: [ { $ref: '#/components/schemas/Bbox' }, { type: 'null' } ] }
+        bbox: { oneOf: [ { $ref: '#/components/schemas/BlockBbox' }, { type: 'null' } ] }
         charCount: { type: [integer, 'null'] }
         charLimit: { type: [integer, 'null'], description: '항상 필드 포함, 상한 없으면 null' }
         overflow:
@@ -1491,7 +1508,10 @@ components:
               isGenerated: { type: boolean }
               isActive: { type: boolean, description: '1.0.0 은 html·psd 를 만들지 않으므로 false' }
               failedCount: { type: integer }
-              retryAction: { type: [string, 'null'], enum: [render, export, 'null'] }
+              retryAction:
+                type: [string, 'null']
+                enum: [render, export, null]
+                description: '재시도 동작. null = 지정된 재시도 동작 없음. 현행 서버는 항상 null을 준다.'
     ValidationDetail:
       type: object
       description: '규격 검증 항목별 (deliverable.validation_result). 9월 포맷·색공간만, 용량 passed=null.'
@@ -1931,7 +1951,7 @@ paths:
 
         - 계약 확정·서버 구현 대기: category leaf만 허용(`categoryId`) · 브랜드 생성 시점 스냅샷
 
-        - 현행: 호출 시점·책임 동의(`consentId` 미사용 — 동의 체크는 화면)
+        - 현행: 호출 시점·책임 동의(`consentId` 미사용 — 동의 체크는 화면) · 500·503 오류 응답
 
 
         draft 생성 (A3 draft-first). brandId만으로 빈 draft를 만들고 jobId 반환.
@@ -1974,6 +1994,33 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '500':
+          description: >
+            `INTERNAL_ERROR`(현행). `retryable`은 서버 기본값 `true`, `details`는 null이다. 커밋 중 오류면 작업이 만들어졌는지 응답만으로는 모른다.
+            다시 보낼 때는 **같은 `Idempotency-Key`** 를 쓴다 — 저장됐으면 최초 201을 재전송하고, 커밋 전 실패로 키가 지워졌으면 새로 만들며(201), 미확정이면 409 DUPLICATE다.
+            새 키나 키 없는 요청으로 자동 재시도하지 않는다(중복 위험).
+            카테고리 매핑 충돌은 데이터·설정 오류라 `retryable`이 `true`여도 고칠 때까지 같은 500이다. 이때 작업은 만들어지지 않는다.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                internalError:
+                  summary: '(가상 traceId) 처리되지 않은 서버 오류 — 커밋 결과 불명 포함'
+                  value: { error: { code: INTERNAL_ERROR, message: 'internal server error', retryable: true, details: null, traceId: '7d9f3b0c5a1e4c2f8b6d0e1f2a3b4c5d' } }
+                categoryMappingInconsistent:
+                  summary: '(가상 traceId) 카테고리 매핑 충돌 — 재시도로 해결되지 않는다'
+                  value: { error: { code: INTERNAL_ERROR, message: 'category mapping is inconsistent', retryable: true, details: null, traceId: '2c1e8a7f6b5d4c3e9a0b1c2d3e4f5a6b' } }
+        '503':
+          description: >
+            `SERVICE_UNAVAILABLE`(현행). `retryable: true`, `details: null`. `Idempotency-Key`를 받은 요청에서 멱등 저장소(Redis)를 쓸 수 없을 때만 나며, 작업을 만들지 않는다.
+            저장소가 회복된 뒤 같은 키로 다시 보낸다. 키 없는 요청은 저장소를 쓰지 않으므로 이 응답이 나지 않는다.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                idempotencyStoreUnavailable:
+                  summary: '(가상 traceId) 멱등 저장소 사용 불가'
+                  value: { error: { code: SERVICE_UNAVAILABLE, message: 'idempotency store unavailable', retryable: true, details: null, traceId: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d' } }
   /jobs/{jobId}:
     parameters:
       - $ref: '#/components/parameters/JobId'
@@ -2541,6 +2588,18 @@ paths:
                         layoutAdjust: { box: { x: 27.5, y: 211.05, w: 546, h: 50.4 }, fontScale: 1.05 },
                         sectionInputFingerprint: '1e63cd666daef3dfea54103f162faf5c06e711cc17a00b24a294289ebd3df51d',
                         check: { state: settled, inputKey: 'c3e85b395960bf0d665223f9cf44efe893b460ab06a782ba07808565ed62d559' } }
+                beforeLabelLogoJudgement:
+                  summary: '(가상 값) 라벨·로고 판정 전 블록 — isExcluded null'
+                  value:
+                    - { id: 303, sectionId: 12, displayTop: 0, blockOrder: 3, role: body, isExcluded: null, sourceKo: '저자극 포뮬러', trans1: null,
+                        trans2: null, blockStatus: machine, bbox: { x: 40, y: 280, w: 520, h: 48 }, charCount: null, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 0, sectionInputFingerprint: null }
+                fractionalBbox:
+                  summary: '(가상 값) 소수 좌표 bbox — 저장값 그대로'
+                  value:
+                    - { id: 304, sectionId: 12, displayTop: 0, blockOrder: 4, role: body, isExcluded: false, sourceKo: '비건 인증', trans1: 'Vegan certified',
+                        trans2: null, blockStatus: machine, bbox: { x: 60.5, y: 340, w: 435, h: 38 }, charCount: 15, charLimit: null, overflow: false, autoAdjust: null,
+                        signals: [], alternativeExpression: null, revision: 1 }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/blocks/{blockId}:
     parameters:

@@ -1,8 +1,10 @@
 """⑦ 스타일 추출 — 단독 개발 v1, 핵심 계산(2026-10-06). pipeline.md 단계표 ⑦, contract.md 1.3 · 2장.
 
-정본(확정): `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 × em_ratio(개발계획 1.35 → 잠정 0.9, open-questions #85). 정렬 = 블록 안 줄들의 좌 · 중앙 · 우 분산 비교,
-허용 오차 블록 폭 12%. **원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리 · 굵기는 추출하지 않는다[개발계획 2.1, 4.1, 6장].
+정본(확정): `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 × em_ratio(개발계획 1.35 → 잠정 0.9, open-questions #85).
+**원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리 · 굵기는 추출하지 않는다[개발계획 2.1, 4.1, 6장].
 라벨 · 로고 블록은 스타일 추출에서 제외한다[계약 1.3].
+정렬 = 같은 섹션 안 블록 위치로 판정한다(기획 F-STY-03 E69, 사용자 결정 2026-11-05 — 개발계획 6장의 "블록 안 줄 분산 · 블록 폭 12%"를
+대체하며 상위 문서 수정은 open-questions 3절). 판정하지 못하면 None이고 렌더에서 역할별 기본 정렬을 쓴다(F-STY-03 I69).
 
 단독 개발 v1 명세(사용자 승인 2026-10-06 — 운영 text_block.style 계약(#14) · BE 연동 계약이 아니다):
 - 처리 대상 = ④ `is_product_label=false` 그리고 ⑤ `is_brand_logo=false`. ④ true → ⑤ product_label/null(정상 생략)이고 제외 사유
@@ -16,10 +18,15 @@
 - 영역 크기: est_font_px = float(bbox.h × Fraction(str(em_ratio))), 정수 반올림 없음.
 - 블록 대표: 크기 = 유효 영역 크기의 중앙값(짝수면 가운데 두 값의 평균). 글자색 · 배경색은 독립 집계 — 유효 영역 정수 RGB의 채널별
   중앙값(반올림하지 않음)에 sRGB 유클리드 제곱 거리가 가장 가까운 실제 영역 색, 동률은 source_lines의 영역 순서. 가중치 · Lab 없음.
-- 정렬: 공백 영역만 있는 줄은 빼고, 나머지 줄은 비공백 영역 bbox 합집합의 왼쪽 x · 중앙 x + w/2 · 오른쪽 x + w. 모분산(ddof=0)과
-  (블록 bbox.w × Fraction(str(align_tolerance)))²를 Fraction으로 정확히 비교. 유효 줄 0개 → None(no_text_lines), 1개 → left
-  (default_single_line), 여러 줄 → 후보 중 분산 최소(estimated), 최솟값 동률 → left(default_tie, left가 후보 밖이어도), 후보 없음 → None
-  (no_candidate). std 실수는 진단 기록일 뿐 판단에 쓰지 않는다.
+- 정렬(섹션 기준, 사용자 결정 2026-11-05): 블록 span = 비공백 영역 bbox 합집합의 가로 범위 [x1, x2), 중심 = (x1 + x2) / 2.
+  비교 대상(동료) = 같은 섹션의 처리 대상 블록 중 span이 있는 다른 블록(라벨 · 로고 · 비공백 영역 없는 블록 제외).
+  허용 오차 = 섹션 폭 × Fraction(str(align_section_tolerance)). 지지 수: left = x1이 맞는 동료 수, right = x2가 맞는 동료 수,
+  center = 중심이 맞는 동료 수 + (블록 중심이 섹션 폭/2와 맞으면 1). "맞는다" = 차이 ≤ 허용 오차(경계 포함, Fraction으로 정확히 비교).
+  최댓값이 하나이고 1 이상 → 그 정렬(section), 모두 0 → None(no_anchor), 최댓값 동률 → None(align_tie), span 없음 → None(no_text_lines).
+- 줄 진단(이전 규칙, 판정에 쓰지 않음 — 비교용): 공백 영역만 있는 줄은 빼고, 나머지 줄은 비공백 영역 bbox 합집합의 왼쪽 x · 중앙
+  x + w/2 · 오른쪽 x + w. 모분산(ddof=0)과 (블록 bbox.w × Fraction(str(align_tolerance)))²를 Fraction으로 정확히 비교. 유효 줄 0개 →
+  None(no_text_lines), 1개 → left(default_single_line), 여러 줄 → 후보 중 분산 최소(estimated), 최솟값 동률 → left(default_tie, left가
+  후보 밖이어도), 후보 없음 → None(no_candidate). std 실수는 진단 기록일 뿐 판단에 쓰지 않는다.
 - 섹션 입력 오류(설정 · 식별자(섹션 안 block_key · line_key · region_key 중복 포함) · 판정 · 지문 · 이미지 크기 · 경계 밖 bbox ·
   측정 대상의 면적 0 bbox · bbox ≠ poly 외접 사각형 · 설정 × 실제 높이 · 폭이 float 범위 초과)는
   결과 없이 StyleInputError — 문제를 모아 한 번에 보고한다. bbox를 자르거나 보정하지 않는다.
@@ -47,9 +54,12 @@ from pipeline.types import (
     RegionStyle,
     Section,
     StyleAlignDiag,
+    StyleAlignScores,
+    StyleAlignSupport,
     StyleConfigSnapshot,
     StyleCounts,
     StyleFingerprints,
+    StyleLineAlignDiag,
     StyleOtsuDiag,
     StyleResult,
     TextBlock,
@@ -75,7 +85,7 @@ def validate_config(cfg: dict[str, Any]) -> None:
     if not isinstance(cfg, dict) or not isinstance(cfg.get("style"), dict):
         raise StyleInputError("config에 [style] 표가 없다")
     st = cfg["style"]
-    missing = [k for k in ("method", "em_ratio", "align_tolerance") if k not in st]
+    missing = [k for k in ("method", "em_ratio", "align_section_tolerance", "align_tolerance") if k not in st]
     if missing:
         raise StyleInputError("잘못된 [style] 설정: 없는 키 " + ", ".join(f"style.{k}" for k in missing))
     errors: list[str] = []
@@ -83,8 +93,9 @@ def validate_config(cfg: dict[str, Any]) -> None:
         errors.append(f"style.method={st['method']!r} — {METHODS} 중 하나")
     if not (_is_number(st["em_ratio"]) and st["em_ratio"] > 0):
         errors.append(f"style.em_ratio={st['em_ratio']!r} — 0보다 큰 유한 실수(bool 불가)")
-    if not (_is_number(st["align_tolerance"]) and st["align_tolerance"] >= 0):
-        errors.append(f"style.align_tolerance={st['align_tolerance']!r} — 0 이상 유한 실수(bool 불가)")
+    for k in ("align_section_tolerance", "align_tolerance"):
+        if not (_is_number(st[k]) and st[k] >= 0):
+            errors.append(f"style.{k}={st[k]!r} — 0 이상 유한 실수(bool 불가)")
     if errors:
         raise StyleInputError("잘못된 [style] 설정: " + "; ".join(errors))
 
@@ -232,9 +243,12 @@ def validate_inputs(
         raise StyleInputError(f"{where}: " + "; ".join(problems))
 
     # 설정 × 실제 크기가 결과의 float로 표현되는지(유한 설정값이라도 곱이 float 범위를 넘을 수 있다). 상한을 새로 두지 않고 표현 가능 여부만 본다.
-    # 크기 = 측정 대상 영역 높이 × em_ratio(블록 중앙값은 영역 값 사이라 따로 보지 않는다), 허용 오차 = 비제외 블록 폭 × align_tolerance
+    # 크기 = 측정 대상 영역 높이 × em_ratio(블록 중앙값은 영역 값 사이라 따로 보지 않는다), 허용 오차 = 섹션 폭 × align_section_tolerance ·
+    # 비제외 블록 폭 × align_tolerance(줄 진단)
     st = cfg["style"]
     em, tol = exact_ratio(st["em_ratio"]), exact_ratio(st["align_tolerance"])
+    if not _float_representable(W * exact_ratio(st["align_section_tolerance"])):
+        raise StyleInputError(f"{where}: 섹션 폭 {W} × style.align_section_tolerance={st['align_section_tolerance']!r}가 float 범위를 넘는다")
     for b in merged.blocks:
         if excluded[b.block_key] is not None:
             continue
@@ -365,8 +379,8 @@ def _population_variance(values: list[Fraction]) -> Fraction:
     return sum(((v - mean) ** 2 for v in values), Fraction(0)) / n
 
 
-def estimate_align(block: TextBlock, align_tolerance: float) -> tuple[str | None, str | None, str | None, StyleAlignDiag]:
-    """블록 정렬 → (align, align_basis, null 사유, 진단). 공백 영역만 있는 줄은 빼고 나머지 줄은 비공백 영역 bbox 합집합을 쓴다."""
+def estimate_line_align(block: TextBlock, align_tolerance: float) -> StyleLineAlignDiag:
+    """줄 진단(이전 규칙 — 판정에 쓰지 않는다). 공백 영역만 있는 줄은 빼고 나머지 줄은 비공백 영역 bbox 합집합을 쓴다."""
     tol_px = block.bbox.w * exact_ratio(align_tolerance)
     limit = tol_px * tol_px
     coords: dict[str, list[Fraction]] = {a: [] for a in ALIGN_VALUES}
@@ -381,21 +395,64 @@ def estimate_align(block: TextBlock, align_tolerance: float) -> tuple[str | None
         coords["right"].append(Fraction(x1))
     n_lines = len(coords["left"])
     if n_lines == 0:
-        diag = StyleAlignDiag(std_left=None, std_center=None, std_right=None, tolerance_px=float(tol_px), candidates=[])
-        return None, None, "no_text_lines", diag
+        return StyleLineAlignDiag(align=None, basis=None, null_reason="no_text_lines", std_left=None, std_center=None, std_right=None,
+                                  tolerance_px=float(tol_px), candidates=[])
     var = {a: _population_variance(coords[a]) for a in ALIGN_VALUES}
     candidates = [a for a in ALIGN_VALUES if var[a] <= limit]
-    diag = StyleAlignDiag(std_left=math.sqrt(var["left"]), std_center=math.sqrt(var["center"]), std_right=math.sqrt(var["right"]),
-                          tolerance_px=float(tol_px), candidates=candidates)
+    common = dict(std_left=math.sqrt(var["left"]), std_center=math.sqrt(var["center"]), std_right=math.sqrt(var["right"]),
+                  tolerance_px=float(tol_px), candidates=candidates)
     if n_lines == 1:
-        return "left", "default_single_line", None, diag
+        return StyleLineAlignDiag(align="left", basis="default_single_line", null_reason=None, **common)
     if not candidates:
-        return None, None, "no_candidate", diag
+        return StyleLineAlignDiag(align=None, basis=None, null_reason="no_candidate", **common)
     best = min(var[a] for a in candidates)
     winners = [a for a in candidates if var[a] == best]
     if len(winners) > 1:
-        return "left", "default_tie", None, diag
-    return winners[0], "estimated", None, diag
+        return StyleLineAlignDiag(align="left", basis="default_tie", null_reason=None, **common)
+    return StyleLineAlignDiag(align=winners[0], basis="estimated", null_reason=None, **common)
+
+
+def block_span(block: TextBlock) -> tuple[int, int] | None:
+    """블록의 비공백 영역 bbox 합집합의 가로 범위 [x1, x2). 비공백 영역이 없으면 None."""
+    boxes = [r.bbox for ln in block.source_lines for r in ln.regions if not _is_blank(r.text)]
+    if not boxes:
+        return None
+    return min(b.x for b in boxes), max(b.x2 for b in boxes)
+
+
+def section_align(spans: dict[str, tuple[int, int] | None], width: int, align_section_tolerance: float
+                  ) -> dict[str, tuple[str | None, str | None, str | None, dict[str, Any]]]:
+    """섹션 기준 정렬. spans = 처리 대상 블록의 block_key → span(None = 비공백 영역 없음), 블록 순서대로.
+    반환: block_key → (align, align_basis, null 사유, 진단 필드). 비교는 2배 정수 · Fraction으로 정확히 한다."""
+    tol = width * exact_ratio(align_section_tolerance)
+    peers = [(k, s) for k, s in spans.items() if s is not None]
+    out: dict[str, tuple[str | None, str | None, str | None, dict[str, Any]]] = {}
+    for key, span in spans.items():
+        base = {"section_width": width, "tolerance_px": float(tol)}
+        if span is None:
+            diag = {**base, "span_x1": None, "span_x2": None, "section_center": False,
+                    "support": StyleAlignSupport(), "scores": StyleAlignScores(left=0, center=0, right=0)}
+            out[key] = (None, None, "no_text_lines", diag)
+            continue
+        x1, x2 = span
+        support = StyleAlignSupport(
+            left=[k for k, (a1, _) in peers if k != key and abs(x1 - a1) <= tol],
+            center=[k for k, (a1, a2) in peers if k != key and abs((x1 + x2) - (a1 + a2)) <= 2 * tol],
+            right=[k for k, (_, a2) in peers if k != key and abs(x2 - a2) <= tol],
+        )
+        centered = abs((x1 + x2) - width) <= 2 * tol
+        scores = StyleAlignScores(left=len(support.left), center=len(support.center) + int(centered), right=len(support.right))
+        diag = {**base, "span_x1": x1, "span_x2": x2, "section_center": centered, "support": support, "scores": scores}
+        sc = {a: getattr(scores, a) for a in ALIGN_VALUES}
+        top = max(sc.values())
+        winners = [a for a in ALIGN_VALUES if sc[a] == top]
+        if top == 0:
+            out[key] = (None, None, "no_anchor", diag)
+        elif len(winners) > 1:
+            out[key] = (None, None, "align_tie", diag)
+        else:
+            out[key] = (winners[0], "section", None, diag)
+    return out
 
 
 def _excluded_block(block: TextBlock, reason: str) -> BlockStyle:
@@ -408,7 +465,9 @@ def _excluded_block(block: TextBlock, reason: str) -> BlockStyle:
     )
 
 
-def _block_style(block: TextBlock, image: np.ndarray, em_ratio: float, align_tolerance: float) -> BlockStyle:
+def _block_style(block: TextBlock, image: np.ndarray, em_ratio: float, align_tolerance: float,
+                 section: tuple[str | None, str | None, str | None, dict[str, Any]]) -> BlockStyle:
+    """section = section_align의 이 블록 결과(정렬 · 근거 · null 사유 · 진단 필드)."""
     regions: list[RegionStyle] = []
     fonts: list[tuple[int, int, int]] = []
     bgs: list[tuple[int, int, int]] = []
@@ -434,7 +493,8 @@ def _block_style(block: TextBlock, image: np.ndarray, em_ratio: float, align_tol
     counts = StyleCounts(regions=len(regions), measured=sum(r.status == "measured" for r in regions),
                          color_failed=sum(r.status == "color_failed" for r in regions),
                          blank_text=sum(r.status == "blank_text" for r in regions))
-    align, basis, align_reason, align_diag = estimate_align(block, align_tolerance)
+    align, basis, align_reason, diag_fields = section
+    align_diag = StyleAlignDiag(**diag_fields, lines=estimate_line_align(block, align_tolerance))
     null_reasons: dict[str, str] = {}
     if not sizes:
         status = "no_text"
@@ -467,13 +527,18 @@ def extract(
         raise StyleInputError(f"{image_id}/{section.section_key}: 섹션 이미지는 (H, W, 3) uint8 RGB 배열이어야 한다 — {desc}")
     excluded, fps = validate_inputs(image_id, section, (image.shape[1], image.shape[0]), merged, label, logo, logo_record, cfg)
     st = cfg["style"]
+    ordered = sorted(merged.blocks, key=lambda b: (b.block_order, b.block_key))
+    aligns = section_align({b.block_key: block_span(b) for b in ordered if not excluded[b.block_key]}, section.width,
+                           st["align_section_tolerance"])
     blocks: list[BlockStyle] = []
-    for b in sorted(merged.blocks, key=lambda b: (b.block_order, b.block_key)):
+    for b in ordered:
         reason = excluded[b.block_key]
-        blocks.append(_excluded_block(b, reason) if reason else _block_style(b, image, st["em_ratio"], st["align_tolerance"]))
+        blocks.append(_excluded_block(b, reason) if reason else
+                      _block_style(b, image, st["em_ratio"], st["align_tolerance"], aligns[b.block_key]))
     return StyleResult(
         image_id=image_id, section_key=section.section_key,
-        config=StyleConfigSnapshot(method=st["method"], em_ratio=st["em_ratio"], align_tolerance=st["align_tolerance"]),
+        config=StyleConfigSnapshot(method=st["method"], em_ratio=st["em_ratio"], align_section_tolerance=st["align_section_tolerance"],
+                                   align_tolerance=st["align_tolerance"]),
         input_fingerprints=fps, blocks=blocks,
     )
 

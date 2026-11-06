@@ -114,7 +114,8 @@ kill_grace_s = 5               # 시간 초과 후 종료 요청 → 이 시간 
 [style]                        # ⑦ 스타일 추출
 method = "otsu_border"
 em_ratio = 0.9                 # 잠정값(사용자 결정 2026-10-15, open-questions #85). 개발계획 6장 1.35는 OCR bbox가 em보다 커서 약 1.5배 과대
-align_tolerance = 0.12
+align_section_tolerance = 0.005 # 섹션 기준 정렬 허용 오차(섹션 폭 비율). 확정(사용자 결정 2026-11-05, 실측 docs/ai-experiments/2026-11-05_07-style_section-align.md)
+align_tolerance = 0.12         # 줄 진단(이전 규칙) 전용 — 판정에 쓰지 않는다
 
 [translate]                    # ⑧ 로컬라이징 번역
 model = "gemini-3.8-flash"

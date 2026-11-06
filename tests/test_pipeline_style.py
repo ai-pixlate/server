@@ -22,8 +22,9 @@ from pipeline.stages.logo import sha256_json
 from pipeline.stages.style import StyleInputError
 from pipeline.types import (
     BBox, BlockStyle, LabelChecked, LabelDecision, LabelResult, Line, LogoDecision, LogoResult, MergeResult, OcrRegion, Section,
-    TextBlock,
+    StyleResult, StyleResultV1, TextBlock, parse_style_result,
 )
+from tests.style_fixtures import to_schema_v1
 
 IMAGE_ID = "IMG-01"
 KEY = "sec_1_01"
@@ -36,9 +37,9 @@ BLACK = (0, 0, 0)
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="module")
 def cfg():
-    # 계산식 검증용 — 기대값을 em_ratio 1.35로 손 계산했다. 기본값(잠정, #85)이 바뀌어도 계산식 테스트는 흔들리지 않게 고정한다.
-    # 기본값 자체는 test_default_config_is_approved_values가 본다
-    return with_style(cfgmod.load_config(), em_ratio=1.35)
+    # 계산식 검증용 — 기대값을 em_ratio 1.35 · align_section_tolerance 0.02로 손 계산했다. 기본값이 바뀌어도 계산식 테스트는
+    # 흔들리지 않게 고정한다. 기본값 자체는 test_default_config_is_approved_values가 본다
+    return with_style(cfgmod.load_config(), em_ratio=1.35, align_section_tolerance=0.02)
 
 
 def with_style(cfg, **over):
@@ -122,8 +123,9 @@ def expect_input_error(needle, fn):
 # 0. 설정 기본값
 # ---------------------------------------------------------------------------
 def test_default_config_is_approved_values():
-    # em_ratio 0.9는 잠정값(사용자 결정 2026-10-15, open-questions #85)
-    assert cfgmod.load_config()["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_tolerance": 0.12}
+    # em_ratio 0.9는 잠정값(사용자 결정 2026-10-15, open-questions #85). align_section_tolerance 0.005는 실측 뒤 확정(사용자 결정 2026-11-05)
+    assert cfgmod.load_config()["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_section_tolerance": 0.005,
+                                             "align_tolerance": 0.12}
 
 
 # ---------------------------------------------------------------------------
@@ -370,7 +372,108 @@ def test_size_includes_color_failed_and_excludes_blank_and_excluded(cfg):
 
 
 # ---------------------------------------------------------------------------
-# 5. 정렬 — 흰 바탕 · 영역 가운데 검정 1픽셀(색 측정 성공), 줄 높이 5, 줄 간격 8
+# 5. 정렬(섹션 기준) — 블록마다 한 줄 · 영역 하나, 흰 바탕 · 영역 가운데 검정 1픽셀. 기본 허용 = 섹션 폭 × 0.02
+# ---------------------------------------------------------------------------
+T = "가"
+
+
+def section_case(spans, cfg, *, W=200, H=120, excl=None):
+    """spans[i] = 블록 i+1의 비공백 영역 (x0, x1). text가 공백이면 (x0, x1, " ")."""
+    img = canvas(W, H)
+    blocks = []
+    for i, sp in enumerate(spans):
+        x0, x1, text = (*sp, T) if len(sp) == 2 else sp
+        r = R(f"reg_{i + 1:04d}", x0, 8 * i, x1 - x0, 5, text=text)
+        if text.strip():
+            ink(img, r)
+        blocks.append(B(i + 1, L(f"line_{i + 1:03d}", r)))
+    return ex(img, bundle(blocks, excl, W=W, H=H), cfg).blocks
+
+
+def aligned(blocks):
+    return [(b.align, b.align_basis, b.null_reasons.get("align")) for b in blocks]
+
+
+def test_section_center_single_block_and_boundary(cfg):
+    # 섹션 폭 200 → 허용 4. 블록 [80,120] 중심 100 = 섹션 중앙 → center 지지 1(섹션 중앙만)
+    blk, = section_case([(80, 120)], cfg)
+    assert aligned([blk]) == [("center", "section", None)]
+    d = blk.align_diag
+    assert (d.section_width, d.tolerance_px, d.span_x1, d.span_x2, d.section_center) == (200, 4.0, 80, 120, True)
+    assert d.scores.model_dump() == {"left": 0, "center": 1, "right": 0} and d.support.model_dump() == {"left": [], "center": [], "right": []}
+    # 중심 96 → 차이 4(경계, 포함) / 중심 95.5 → 차이 4.5(밖) → 지지 없음
+    assert aligned(section_case([(72, 120)], cfg)) == [("center", "section", None)]
+    assert aligned(section_case([(71, 120)], cfg)) == [(None, None, "no_anchor")]
+
+
+def test_section_single_off_center_block_is_not_judged(cfg):
+    # 한 줄 블록 하나가 섹션 왼쪽에 있으면 근거 없음 → None(no_anchor) — 렌더에서 역할별 기본 정렬. 이전 규칙(줄 진단)은 left 기본값
+    blk, = section_case([(10, 50)], cfg)
+    assert aligned([blk]) == [(None, None, "no_anchor")]
+    assert blk.status == "ok" and blk.font_color == "#000000"
+    assert (blk.align_diag.lines.align, blk.align_diag.lines.basis) == ("left", "default_single_line")
+
+
+def test_section_left_peers(cfg):
+    # 왼쪽 10 · 10 · 12 → 서로 허용 4 안. 중심 30 · 65 · 46, 오른쪽 50 · 120 · 80은 맞지 않고 섹션 중앙(100)도 아니다
+    blocks = section_case([(10, 50), (10, 120), (12, 80)], cfg)
+    assert aligned(blocks) == [("left", "section", None)] * 3
+    assert blocks[0].align_diag.support.left == ["blk_002", "blk_003"] and blocks[2].align_diag.support.left == ["blk_001", "blk_002"]
+    assert [b.align_diag.scores.model_dump() for b in blocks] == [{"left": 2, "center": 0, "right": 0}] * 3
+
+
+def test_section_right_peers(cfg):
+    blocks = section_case([(100, 190), (150, 190)], cfg)  # 오른쪽 190 공유, 왼쪽 · 중심(145 · 170)은 다름
+    assert aligned(blocks) == [("right", "section", None)] * 2
+
+
+def test_section_tie_is_not_judged_and_section_center_breaks_tie(cfg):
+    # 같은 범위 두 블록: 왼쪽 · 중심 · 오른쪽이 모두 맞아 1 · 1 · 1 동률 → None(align_tie)
+    assert aligned(section_case([(20, 60), (20, 60)], cfg)) == [(None, None, "align_tie")] * 2
+    # 같은 범위가 섹션 중앙이면 center만 +1 → 1 · 2 · 1 → center
+    blocks = section_case([(80, 120), (80, 120)], cfg)
+    assert aligned(blocks) == [("center", "section", None)] * 2
+    assert blocks[0].align_diag.scores.model_dump() == {"left": 1, "center": 2, "right": 1}
+
+
+def test_section_two_columns_center_within_column(cfg):
+    # 2단: 왼쪽 칸 [20,80] · [35,65](중심 50), 오른쪽 칸 [120,180] · [135,165](중심 150). 칸 안 중심이 맞아 모두 center
+    blocks = section_case([(20, 80), (35, 65), (120, 180), (135, 165)], cfg)
+    assert aligned(blocks) == [("center", "section", None)] * 4
+    assert [b.align_diag.support.center for b in blocks] == [["blk_002"], ["blk_001"], ["blk_004"], ["blk_003"]]
+    assert not any(b.align_diag.section_center for b in blocks)
+
+
+def test_section_peer_boundary_is_exact_not_float(cfg):
+    # 폭 400 × 0.0725 → 정확한 허용 29. 부동소수 400 × 0.0725 = 28.999999999999996이면 경계가 빠진다.
+    # [0,10] · [29,40]: 왼쪽 차 29(경계) · 중심 5 ↔ 34.5(29.5) · 오른쪽 30 → left
+    c = with_style(cfg, align_section_tolerance=0.0725)
+    assert aligned(section_case([(0, 10), (29, 40)], c, W=400)) == [("left", "section", None)] * 2
+    assert aligned(section_case([(0, 10), (30, 40)], c, W=400)) == [(None, None, "no_anchor")] * 2
+
+
+def test_section_excluded_and_no_text_blocks_are_not_peers(cfg):
+    # 대상 [10,50] · 라벨 [10,60] · 로고 [10,70] · 공백만 [10,80] → 왼쪽이 같아도 동료가 아니다
+    blocks = section_case([(10, 50), (10, 60), (10, 70), (10, 80, " ")], cfg, excl={"blk_002": "label", "blk_003": "logo"})
+    assert [b.status for b in blocks] == ["ok", "excluded", "excluded", "no_text"]
+    assert aligned([blocks[0], blocks[3]]) == [(None, None, "no_anchor"), (None, None, "no_text_lines")]
+    assert blocks[0].align_diag.support.left == [] and blocks[3].align_diag.span_x1 is None
+
+
+def test_section_span_uses_non_blank_regions_only(cfg):
+    # 블록 1 = 글자 [80,120] + 공백 [0,200] → span [80,120](섹션 중앙). 공백 영역을 넣으면 [0,200]이라 왼쪽이 블록 2와 맞았을 것
+    img = canvas(200, 120)
+    a, blank, b = R("reg_0001", 80, 0, 40, 5), R("reg_0002", 0, 8, 200, 5, text=" "), R("reg_0003", 0, 16, 30, 5)
+    ink(img, a)
+    ink(img, b)
+    res = ex(img, bundle([B(1, L("line_001", a), L("line_002", blank)), B(2, L("line_003", b))], W=200, H=120), cfg)
+    d = res.blocks[0].align_diag
+    assert (d.span_x1, d.span_x2, res.blocks[0].align) == (80, 120, "center")
+    assert d.support.left == [] and res.blocks[1].align is None
+
+
+# ---------------------------------------------------------------------------
+# 5-1. 줄 진단(이전 규칙 — 판정에 쓰지 않음) — 흰 바탕 · 영역 가운데 검정 1픽셀, 줄 높이 5, 줄 간격 8
 # ---------------------------------------------------------------------------
 def align_block(spans, cfg, *, W=220, H=120):
     """spans[i] = 줄 i의 [(x0, x1, text), ...]. 공백이 아닌 영역에 잉크를 찍는다."""
@@ -388,89 +491,92 @@ def align_block(spans, cfg, *, W=220, H=120):
     return ex(img, bundle([B(1, *lines)], W=W, H=H), cfg).blocks[0]
 
 
-T = "가"
+def line_diag(spans, cfg, **kw):
+    return align_block(spans, cfg, **kw).align_diag.lines
 
 
-def test_align_left_unique(cfg):
+def test_line_diag_left_unique(cfg):
     # 줄 [10,50] [10,70] [10,30], 블록 폭 60 → 허용 7.2(분산 51.84). 왼쪽 분산 0 · 중앙 {30,40,20} 200/3 · 오른쪽 {50,70,30} 800/3
     blk = align_block([[(10, 50, T)], [(10, 70, T)], [(10, 30, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates) == ("left", "estimated", ["left"])
-    assert blk.align_diag.tolerance_px == 7.2
-    assert blk.align_diag.std_left == 0.0
-    assert blk.align_diag.std_center == pytest.approx(math.sqrt(200 / 3))
-    assert blk.align_diag.std_right == pytest.approx(math.sqrt(800 / 3))
-    assert blk.status == "ok" and "align" not in blk.null_reasons
+    d = blk.align_diag.lines
+    assert (d.align, d.basis, d.null_reason, d.candidates) == ("left", "estimated", None, ["left"])
+    assert d.tolerance_px == 7.2
+    assert d.std_left == 0.0
+    assert d.std_center == pytest.approx(math.sqrt(200 / 3))
+    assert d.std_right == pytest.approx(math.sqrt(800 / 3))
+    # 줄 진단은 판정에 쓰지 않는다 — 섹션(폭 220)에 블록 하나, 중심 40 → 근거 없음
+    assert blk.status == "ok" and (blk.align, blk.null_reasons["align"]) == (None, "no_anchor")
 
 
-def test_align_center_unique(cfg):
+def test_line_diag_center_unique(cfg):
     # 가운데 100: [80,120] [90,110] [85,115], 폭 40 → 허용 4.8(23.04). 좌 · 우 분산 50/3 ≤ 23.04 → 후보, 중앙 0 → 중앙
-    blk = align_block([[(80, 120, T)], [(90, 110, T)], [(85, 115, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates) == ("center", "estimated", ["left", "center", "right"])
+    d = line_diag([[(80, 120, T)], [(90, 110, T)], [(85, 115, T)]], cfg)
+    assert (d.align, d.basis, d.candidates) == ("center", "estimated", ["left", "center", "right"])
 
 
-def test_align_right_unique(cfg):
+def test_line_diag_right_unique(cfg):
     # 오른쪽 150: [110,150] [90,150] [130,150], 폭 60 → 51.84. 오른쪽 0 · 중앙 200/3 · 왼쪽 800/3
-    blk = align_block([[(110, 150, T)], [(90, 150, T)], [(130, 150, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates) == ("right", "estimated", ["right"])
+    d = line_diag([[(110, 150, T)], [(90, 150, T)], [(130, 150, T)]], cfg)
+    assert (d.align, d.basis, d.candidates) == ("right", "estimated", ["right"])
 
 
-def test_align_tolerance_boundary_inclusive_and_outside(cfg):
+def test_line_diag_tolerance_boundary_inclusive_and_outside(cfg):
     # 폭 100 → 허용 12(분산 144). [0,40] [24,100]: 왼쪽 차 24 → 분산 144(경계, 포함) · 중앙 20↔62 → 441 · 오른쪽 40↔100 → 900
-    blk = align_block([[(0, 40, T)], [(24, 100, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates, blk.align_diag.std_left) == ("left", "estimated", ["left"], 12.0)
+    d = line_diag([[(0, 40, T)], [(24, 100, T)]], cfg)
+    assert (d.align, d.basis, d.candidates, d.std_left) == ("left", "estimated", ["left"], 12.0)
     # 한 칸 밖: [25,100] → 왼쪽 156.25 · 중앙 42.5²/4 = 451.5625 · 오른쪽 900 → 후보 없음
-    blk = align_block([[(0, 40, T)], [(25, 100, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.null_reasons["align"], blk.align_diag.candidates) == (None, None, "no_candidate", [])
+    d = line_diag([[(0, 40, T)], [(25, 100, T)]], cfg)
+    assert (d.align, d.basis, d.null_reason, d.candidates) == (None, None, "no_candidate", [])
 
 
-def test_align_boundary_is_exact_not_float(cfg):
+def test_line_diag_boundary_is_exact_not_float(cfg):
     # align_tolerance 0.29, 폭 100 → 정확한 허용 29(분산 841). 부동소수 100 × 0.29 = 28.999999999999996이면 경계가 빠진다.
     # [0,40] [58,100]: 왼쪽 차 58 → 841(경계) · 오른쪽 차 60 → 900 · 중앙 20↔79 → 870.25
-    blk = align_block([[(0, 40, T)], [(58, 100, T)]], with_style(cfg, align_tolerance=0.29))
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates) == ("left", "estimated", ["left"])
+    d = line_diag([[(0, 40, T)], [(58, 100, T)]], with_style(cfg, align_tolerance=0.29))
+    assert (d.align, d.basis, d.candidates) == ("left", "estimated", ["left"])
 
 
-def test_align_no_candidate_but_status_ok(cfg):
+def test_line_diag_no_candidate_but_status_ok(cfg):
     # [0,10] [100,190], 폭 190 → 22.8(519.84). 왼쪽 2500 · 중앙 5↔145 4900 · 오른쪽 8100
     blk = align_block([[(0, 10, T)], [(100, 190, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.null_reasons, blk.align_diag.candidates) == (None, None, {"align": "no_candidate"}, [])
+    d = blk.align_diag.lines
+    assert (d.align, d.basis, d.null_reason, d.candidates) == (None, None, "no_candidate", [])
     assert blk.status == "ok" and blk.font_color == "#000000" and blk.est_font_px == 6.75  # 높이 5 × 1.35
 
 
-def test_align_single_line_default(cfg):
-    blk = align_block([[(30, 60, T)]], cfg)
-    assert (blk.align, blk.align_basis) == ("left", "default_single_line")
-    assert blk.align_diag.model_dump() == {"std_left": 0.0, "std_center": 0.0, "std_right": 0.0, "tolerance_px": 3.6,
-                                           "candidates": ["left", "center", "right"]}
+def test_line_diag_single_line_default(cfg):
+    d = line_diag([[(30, 60, T)]], cfg)
+    assert d.model_dump() == {"align": "left", "basis": "default_single_line", "null_reason": None, "std_left": 0.0, "std_center": 0.0,
+                              "std_right": 0.0, "tolerance_px": 3.6, "candidates": ["left", "center", "right"]}
 
 
-def test_align_tie_default_left(cfg):
-    blk = align_block([[(50, 60, T)], [(50, 60, T)]], cfg)  # 같은 두 줄 → 세 분산 모두 0
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates) == ("left", "default_tie", ["left", "center", "right"])
+def test_line_diag_tie_default_left(cfg):
+    d = line_diag([[(50, 60, T)], [(50, 60, T)]], cfg)  # 같은 두 줄 → 세 분산 모두 0
+    assert (d.align, d.basis, d.candidates) == ("left", "default_tie", ["left", "center", "right"])
 
 
-def test_align_tie_default_left_even_if_left_not_candidate(cfg):
+def test_line_diag_tie_default_left_even_if_left_not_candidate(cfg):
     # [12,30] [0,34]: 왼쪽 차 12 → 36 · 중앙 21↔17 → 4 · 오른쪽 30↔34 → 4. 폭 34 → 4.08(16.6464)
     # 후보 = 중앙 · 오른쪽, 최솟값 동률 → left(default_tie), left는 후보 밖
-    blk = align_block([[(12, 30, T)], [(0, 34, T)]], cfg)
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates) == ("left", "default_tie", ["center", "right"])
+    d = line_diag([[(12, 30, T)], [(0, 34, T)]], cfg)
+    assert (d.align, d.basis, d.candidates) == ("left", "default_tie", ["center", "right"])
 
 
-def test_align_excludes_blank_only_line_and_uses_block_bbox_width(cfg):
+def test_line_diag_excludes_blank_only_line_and_uses_block_bbox_width(cfg):
     # 줄 1 [0,40] · 줄 2 [0,20] · 줄 3 공백만 [100,140]. 공백 줄 제외 → 왼쪽 0 · 중앙 20↔10 → 25 · 오른쪽 40↔20 → 100
     # 허용 오차는 TextBlock.bbox.w = 140(공백 영역 포함) × 0.12 = 16.8 → 셋 다 후보, 왼쪽 최소 하나
     blk = align_block([[(0, 40, T)], [(0, 20, T)], [(100, 140, " ")]], cfg)
-    assert (blk.align, blk.align_basis) == ("left", "estimated")
-    assert blk.align_diag.model_dump() == {"std_left": 0.0, "std_center": 5.0, "std_right": 10.0, "tolerance_px": 16.8,
-                                           "candidates": ["left", "center", "right"]}
+    assert blk.align_diag.lines.model_dump() == {"align": "left", "basis": "estimated", "null_reason": None, "std_left": 0.0,
+                                                 "std_center": 5.0, "std_right": 10.0, "tolerance_px": 16.8,
+                                                 "candidates": ["left", "center", "right"]}
     assert blk.counts.model_dump() == {"regions": 3, "measured": 2, "color_failed": 0, "blank_text": 1}
 
 
-def test_align_mixed_line_uses_non_blank_union(cfg):
+def test_line_diag_mixed_line_uses_non_blank_union(cfg):
     # 줄 1 = 글자 [0,10] + 공백 [100,140](줄 bbox는 [0,140]) · 줄 2 = 글자 [0,10]. 비공백 합집합이면 두 줄 같음 → 동률
-    blk = align_block([[(0, 10, T), (100, 140, " ")], [(0, 10, T)]], cfg)
-    assert (blk.align, blk.align_basis) == ("left", "default_tie")
-    assert (blk.align_diag.std_left, blk.align_diag.std_center, blk.align_diag.std_right) == (0.0, 0.0, 0.0)
+    d = line_diag([[(0, 10, T), (100, 140, " ")], [(0, 10, T)]], cfg)
+    assert (d.align, d.basis) == ("left", "default_tie")
+    assert (d.std_left, d.std_center, d.std_right) == (0.0, 0.0, 0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -483,8 +589,11 @@ def test_no_text_block(cfg):
     assert blk.status == "no_text"
     assert (blk.font_color, blk.bg_color, blk.est_font_px, blk.align, blk.align_basis) == (None,) * 5
     assert blk.null_reasons == {"font_color": "no_text", "bg_color": "no_text", "est_font_px": "no_text", "align": "no_text_lines"}
-    assert blk.align_diag.model_dump() == {"std_left": None, "std_center": None, "std_right": None, "tolerance_px": 3.0,
-                                           "candidates": []}  # 폭 25 × 0.12
+    assert blk.align_diag.model_dump() == {
+        "section_width": 64, "tolerance_px": 1.28, "span_x1": None, "span_x2": None, "section_center": False,  # 섹션 폭 64 × 0.02
+        "support": {"left": [], "center": [], "right": []}, "scores": {"left": 0, "center": 0, "right": 0},
+        "lines": {"align": None, "basis": None, "null_reason": "no_text_lines", "std_left": None, "std_center": None, "std_right": None,
+                  "tolerance_px": 3.0, "candidates": []}}  # 블록 폭 25 × 0.12
     assert blk.counts.model_dump() == {"regions": 2, "measured": 0, "color_failed": 0, "blank_text": 2}
     assert [r.status for r in blk.regions] == ["blank_text", "blank_text"]
 
@@ -497,10 +606,10 @@ def test_partial_some_and_all_color_failed(cfg):
     blk = ex(img, bundle([B(1, L("line_001", good, bad))]), cfg).blocks[0]
     assert (blk.status, blk.font_color, blk.bg_color, blk.est_font_px) == ("partial", "#000000", "#FFFFFF", 4.05)
     assert blk.counts.model_dump() == {"regions": 2, "measured": 1, "color_failed": 1, "blank_text": 0}
-    assert blk.null_reasons == {}
+    assert blk.null_reasons == {"align": "no_anchor"}  # 섹션에 블록 하나 · 중앙 아님 → 정렬 근거 없음(색 실패와 무관)
     blk = ex(canvas(), bundle([B(1, L("line_001", R("reg_0001", 0, 0, 3, 3), R("reg_0002", 10, 0, 3, 2)))]), cfg).blocks[0]
     assert (blk.status, blk.font_color, blk.bg_color, blk.est_font_px) == ("partial", None, None, 3.375)  # (81/20 + 54/20)/2 = 27/8
-    assert blk.null_reasons == {"font_color": "no_valid_region", "bg_color": "no_valid_region"}
+    assert blk.null_reasons == {"font_color": "no_valid_region", "bg_color": "no_valid_region", "align": "no_anchor"}
     assert blk.counts.model_dump() == {"regions": 2, "measured": 0, "color_failed": 2, "blank_text": 0}
 
 
@@ -538,8 +647,8 @@ def test_result_order_and_identity(cfg):
     assert [b.block_key for b in res.blocks] == ["blk_001", "blk_002"]
     assert [(r.line_key, r.region_key) for r in res.blocks[0].regions] == [("line_001", "reg_0002"), ("line_001", "reg_0001")]
     assert [(r.line_key, r.region_key) for r in res.blocks[1].regions] == [("line_002", "reg_0003"), ("line_003", "reg_0004")]
-    assert (res.image_id, res.section_key, res.schema_version) == (IMAGE_ID, KEY, "1")
-    assert res.config.model_dump() == {"method": "otsu_border", "em_ratio": 1.35, "align_tolerance": 0.12}
+    assert (res.image_id, res.section_key, res.schema_version) == (IMAGE_ID, KEY, "2")
+    assert res.config.model_dump() == {"method": "otsu_border", "em_ratio": 1.35, "align_section_tolerance": 0.02, "align_tolerance": 0.12}
 
 
 # ---------------------------------------------------------------------------
@@ -733,6 +842,10 @@ def test_zero_area_target_rejected_but_skipped_allowed(cfg):
     ({"align_tolerance": float("nan")}, "style.align_tolerance=nan"),
     ({"align_tolerance": float("-inf")}, "style.align_tolerance=-inf"),
     ({"align_tolerance": -0.01}, "style.align_tolerance=-0.01"),
+    ({"align_section_tolerance": True}, "style.align_section_tolerance=True"),
+    ({"align_section_tolerance": float("nan")}, "style.align_section_tolerance=nan"),
+    ({"align_section_tolerance": -0.01}, "style.align_section_tolerance=-0.01"),
+    ({"align_section_tolerance": "0.02"}, "style.align_section_tolerance='0.02'"),
 ])
 def test_invalid_config_values(cfg, style_over, needle):
     expect_input_error(needle, lambda: run_base(cfg, cfg_=with_style(cfg, **style_over)))
@@ -743,14 +856,23 @@ def test_missing_config(cfg):
     del c["style"]["em_ratio"]
     expect_input_error("없는 키 style.em_ratio", lambda: run_base(cfg, cfg_=c))
     c = copy.deepcopy(cfg)
+    del c["style"]["align_section_tolerance"]
+    expect_input_error("없는 키 style.align_section_tolerance", lambda: run_base(cfg, cfg_=c))
+    c = copy.deepcopy(cfg)
     del c["style"]
     expect_input_error("config에 [style] 표가 없다", lambda: run_base(cfg, cfg_=c))
 
 
 def test_zero_align_tolerance_is_valid(cfg):
-    blk = align_block([[(10, 20, T)], [(10, 30, T)]], with_style(cfg, align_tolerance=0))
+    d = line_diag([[(10, 20, T)], [(10, 30, T)]], with_style(cfg, align_tolerance=0))
     # 허용 0: 왼쪽 분산 0 ≤ 0만 후보
-    assert (blk.align, blk.align_basis, blk.align_diag.candidates, blk.align_diag.tolerance_px) == ("left", "estimated", ["left"], 0.0)
+    assert (d.align, d.basis, d.candidates, d.tolerance_px) == ("left", "estimated", ["left"], 0.0)
+
+
+def test_zero_align_section_tolerance_is_valid(cfg):
+    # 허용 0: 정확히 같은 왼쪽만 맞는다(중심 · 오른쪽은 다름)
+    blocks = section_case([(10, 50), (10, 60)], with_style(cfg, align_section_tolerance=0))
+    assert aligned(blocks) == [("left", "section", None)] * 2 and blocks[0].align_diag.tolerance_px == 0.0
 
 
 def test_empty_image_id(cfg):
@@ -788,31 +910,42 @@ def test_align_tolerance_huge_but_representable_is_not_rejected(cfg):
     ink(img, r)
     blocks = [B(1, L("line_001", r)), B(2, L("line_002", R("reg_0002", 10, 0, 40, 3))), B(3, L("line_003", R("reg_0003", 0, 10, 60, 3)))]
     res = run_base(cfg, blocks=blocks, img=img, cfg_=with_style(cfg, align_tolerance=1e308))
-    assert res.blocks[0].align_diag.tolerance_px == 1e308 and res.blocks[0].status == "ok"
+    assert res.blocks[0].align_diag.lines.tolerance_px == 1e308 and res.blocks[0].status == "ok"
+
+
+def test_align_section_tolerance_overflow_with_section_width(cfg):
+    # 섹션 폭 64 × 1e308 > float 최대 / 64 × 1e306은 표현 가능(모든 차이가 허용 안 → 동률 · 섹션 중앙 판정과 무관하게 결과는 유효)
+    expect_input_error("섹션 폭 64 × style.align_section_tolerance=1e+308",
+                       lambda: run_base(cfg, cfg_=with_style(cfg, align_section_tolerance=1e308)))
+    img = canvas()
+    ink(img, base_blocks()[0].source_lines[0].regions[0])
+    res = run_base(cfg, img=img, cfg_=with_style(cfg, align_section_tolerance=1e306))
+    assert res.blocks[0].align_diag.tolerance_px == 6.4e307 and res.blocks[0].align == "center"  # 동료 없음 · 섹션 중앙만 지지
 
 
 # ---------------------------------------------------------------------------
 # 8. 결과 타입 — 모순을 거부한다
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="module")
-def sample_blocks():
+def sample():
+    # 섹션 폭 64 → 허용 1.28. blk_001 [10,13] · blk_004 [10,60]은 왼쪽이 맞아 left, blk_002 [40,43]은 근거 없음,
+    # blk_005 · blk_006은 같은 범위 [50,53]이라 동률. 줄 진단: blk_001 같은 두 줄 → default_tie, blk_002 한 줄, blk_004 왼쪽 10 고정
     cfg = cfgmod.load_config()
     img = canvas()
-    a = R("reg_0001", 0, 0, 3, 3)
-    b = R("reg_0002", 0, 8, 3, 3)
-    ink(img, a)
-    ink(img, b)
-    ok_two = B(1, L("line_001", a), L("line_002", b))  # 같은 두 줄 → default_tie
-    single = R("reg_0003", 20, 0, 3, 3)
-    ink(img, single)
-    ok_one = B(2, L("line_003", single))
-    no_text = B(3, L("line_004", R("reg_0004", 40, 0, 5, 5, text=" ")))
-    left_a, left_b = R("reg_0005", 10, 20, 30, 5), R("reg_0006", 10, 30, 50, 5)  # 왼쪽 10 고정 → estimated left
-    ink(img, left_a)
-    ink(img, left_b)
-    est = B(4, L("line_005", left_a), L("line_006", left_b))
-    res = ex(img, bundle([ok_two, ok_one, no_text, est]), cfg)
-    return {b.block_key: b.model_dump(mode="json") for b in res.blocks}
+    regs = {n: R(f"reg_{n:04d}", *xywh) for n, xywh in {1: (10, 0, 3, 3), 2: (10, 8, 3, 3), 3: (40, 0, 3, 3), 5: (10, 20, 30, 5),
+                                                          6: (10, 30, 50, 5), 7: (50, 40, 3, 3), 8: (50, 44, 3, 3)}.items()}
+    for r in regs.values():
+        ink(img, r)
+    blocks = [B(1, L("line_001", regs[1]), L("line_002", regs[2])), B(2, L("line_003", regs[3])),
+              B(3, L("line_004", R("reg_0004", 45, 0, 5, 5, text=" "))), B(4, L("line_005", regs[5]), L("line_006", regs[6])),
+              B(5, L("line_007", regs[7])), B(6, L("line_008", regs[8]))]
+    res = ex(img, bundle(blocks), cfg)
+    return {"blocks": {b.block_key: b.model_dump(mode="json") for b in res.blocks}, "result": res.model_dump(mode="json")}
+
+
+@pytest.fixture
+def sample_blocks(sample):
+    return copy.deepcopy(sample["blocks"])
 
 
 def invalid(data, needle):
@@ -820,21 +953,31 @@ def invalid(data, needle):
         BlockStyle.model_validate(data)
 
 
+def invalid_result(data, needle):
+    with pytest.raises(ValidationError, match=re.escape(needle)):
+        StyleResult.model_validate(data)
+
+
 def test_sample_blocks_are_valid(sample_blocks):
     s = sample_blocks
-    assert (s["blk_001"]["status"], s["blk_001"]["align_basis"]) == ("ok", "default_tie")
-    assert (s["blk_002"]["align_basis"], s["blk_003"]["status"], s["blk_004"]["align_basis"]) == (
-        "default_single_line", "no_text", "estimated")
-    # 왼쪽 10 · 10 → 0, 중앙 25 · 35 → 25, 오른쪽 40 · 60 → 100, 폭 50 → 허용 6(36) → 후보 left · center, 최소 left
-    assert s["blk_004"]["align"] == "left" and s["blk_004"]["align_diag"]["candidates"] == ["left", "center"]
+    assert [(s[k]["status"], s[k]["align"], s[k]["align_basis"], s[k]["null_reasons"].get("align")) for k in sorted(s)] == [
+        ("ok", "left", "section", None), ("ok", None, None, "no_anchor"), ("no_text", None, None, "no_text_lines"),
+        ("ok", "left", "section", None), ("ok", None, None, "align_tie"), ("ok", None, None, "align_tie")]
+    assert s["blk_001"]["align_diag"]["support"] == {"left": ["blk_004"], "center": [], "right": []}
+    assert s["blk_005"]["align_diag"]["scores"] == {"left": 1, "center": 1, "right": 1}
+    lines = {k: (s[k]["align_diag"]["lines"]["align"], s[k]["align_diag"]["lines"]["basis"]) for k in ("blk_001", "blk_002", "blk_004")}
+    assert lines == {"blk_001": ("left", "default_tie"), "blk_002": ("left", "default_single_line"), "blk_004": ("left", "estimated")}
+    # 줄 진단 blk_004: 왼쪽 10 · 10 → 0, 중앙 25 · 35 → 25, 오른쪽 40 · 60 → 100, 폭 50 → 허용 6(36) → 후보 left · center, 최소 left
+    assert s["blk_004"]["align_diag"]["lines"]["candidates"] == ["left", "center"]
 
 
 def test_type_rejects_ok_with_null_values(sample_blocks):
     d = copy.deepcopy(sample_blocks["blk_002"])
-    d.update(font_color=None, bg_color=None, null_reasons={"font_color": "no_valid_region", "bg_color": "no_valid_region"})
+    d.update(font_color=None, bg_color=None, null_reasons={"font_color": "no_valid_region", "bg_color": "no_valid_region",
+                                                           "align": "no_anchor"})
     invalid(d, "measured 영역이 있으면 두 대표색이 있어야 한다")
     d = copy.deepcopy(sample_blocks["blk_002"])
-    d.update(est_font_px=None, null_reasons={"est_font_px": "no_valid_region"})
+    d.update(est_font_px=None, null_reasons={"est_font_px": "no_valid_region", "align": "no_anchor"})
     invalid(d, "ok이면 est_font_px가 있어야 한다")
 
 
@@ -849,31 +992,50 @@ def test_type_rejects_counts_mismatch(sample_blocks):
 
 
 def test_type_rejects_null_reasons_mismatch(sample_blocks):
-    d = copy.deepcopy(sample_blocks["blk_002"])
-    d["null_reasons"] = {"align": "no_candidate"}  # align은 left인데 사유가 있다
+    d = copy.deepcopy(sample_blocks["blk_001"])
+    d["null_reasons"] = {"align": "no_anchor"}  # align은 left인데 사유가 있다
     invalid(d, "null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
     d = copy.deepcopy(sample_blocks["blk_003"])
     del d["null_reasons"]["est_font_px"]
     invalid(d, "null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
 
 
-def test_type_rejects_default_align_not_left(sample_blocks):
-    for key in ("blk_001", "blk_002"):
-        d = copy.deepcopy(sample_blocks[key])
-        d["align"] = "center"
-        invalid(d, "이면 align은 left여야 한다")
+def test_type_rejects_section_align_not_unique_winner(sample_blocks):
+    d = sample_blocks["blk_001"]
+    d["align"] = "center"
+    invalid(d, "section이면 지지 수 최댓값 정렬이 align 하나여야 한다")
+    d = sample_blocks["blk_005"]  # 동률인데 하나를 골랐다
+    d.update(align="left", align_basis="section", null_reasons={})
+    invalid(d, "section이면 지지 수 최댓값 정렬이 align 하나여야 한다")
 
 
-def test_type_rejects_estimated_outside_candidates(sample_blocks):
+def test_type_rejects_null_align_reason_against_scores(sample_blocks):
+    for reason, needle in (("no_anchor", "no_anchor면 모든 지지 수가 0이어야 한다"),
+                           ("align_tie", "align_tie면 지지 수 최댓값 정렬이 둘 이상이어야 한다")):
+        d = copy.deepcopy(sample_blocks["blk_001"])
+        d.update(align=None, align_basis=None, null_reasons={"align": reason})
+        invalid(d, needle)
+
+
+def test_type_rejects_scores_not_matching_support(sample_blocks):
+    d = sample_blocks["blk_001"]
+    d["align_diag"]["scores"]["left"] = 2
+    invalid(d, "scores는 지지 동료 수(center는 섹션 중앙 일치 +1)와 같아야 한다")
+
+
+def test_type_rejects_line_diag_contradictions(sample_blocks):
+    d = copy.deepcopy(sample_blocks["blk_001"])
+    d["align_diag"]["lines"]["align"] = "center"
+    invalid(d, "default_tie이면 align은 left여야 한다")
     d = copy.deepcopy(sample_blocks["blk_004"])
-    d["align"] = "right"
+    d["align_diag"]["lines"]["align"] = "right"
     invalid(d, "estimated면 align이 candidates 안에 있어야 한다")
 
 
 def test_type_rejects_align_null_basis_mismatch(sample_blocks):
-    d = copy.deepcopy(sample_blocks["blk_004"])
+    d = sample_blocks["blk_004"]
     d["align"] = None
-    d["null_reasons"] = {"align": "no_candidate"}
+    d["null_reasons"] = {"align": "no_anchor"}
     invalid(d, "align이 None이면 align_basis도 None이어야 한다")
 
 
@@ -883,11 +1045,90 @@ def test_type_rejects_no_text_contradictions(sample_blocks):
     del d["null_reasons"]["est_font_px"]
     invalid(d, "no_text는 측정값이 모두 None")
     d = copy.deepcopy(sample_blocks["blk_003"])
-    d["align_diag"].update(std_left=0.0, std_center=0.0, std_right=0.0)
-    invalid(d, "align 사유 no_text_lines는 유효 줄이 없을 때(std None)만이다")
+    d["align_diag"].update(span_x1=45, span_x2=50)
+    invalid(d, "align 사유 no_text_lines는 span이 없을 때만이다")
     d = copy.deepcopy(sample_blocks["blk_003"])
-    d["null_reasons"]["align"] = "no_candidate"
+    d["null_reasons"]["align"] = "no_anchor"
     invalid(d, "no_text는 측정값이 모두 None이고 사유가 no_text · 정렬 no_text_lines여야 한다")
+
+
+def test_result_rejects_inconsistent_peers(sample):
+    StyleResult.model_validate(sample["result"])
+    for left, needle in ((["blk_002", "blk_004"], "관계가 대칭이 아니다"),  # blk_002는 blk_001을 지지하지 않는다
+                         (["blk_001", "blk_004"], "자신이 아닌 비교 대상 블록이어야"),
+                         (["blk_003", "blk_004"], "자신이 아닌 비교 대상 블록이어야"),  # 비공백 영역 없는 블록은 동료가 아니다
+                         (["blk_004", "blk_002"], "블록 순서여야")):
+        r = copy.deepcopy(sample["result"])
+        d = r["blocks"][0]["align_diag"]
+        d["support"]["left"], d["scores"]["left"] = left, 2
+        invalid_result(r, needle)
+
+
+# ---------------------------------------------------------------------------
+# 8-1. 결과 버전 — 계산 당시 형식대로 검증(스키마 1 = 2026-11-05 이전, 2 = 현재). 이전 결과를 새 형식으로 바꾸지 않는다
+# ---------------------------------------------------------------------------
+def test_parse_current_result_is_schema_2(sample):
+    res = parse_style_result(sample["result"])
+    assert type(res) is StyleResult and res.schema_version == "2"
+
+
+def test_parse_schema_1_keeps_values_calculated_then(sample):
+    v1 = to_schema_v1(sample["result"])
+    res = parse_style_result(v1)
+    assert type(res) is StyleResultV1 and res.schema_version == "1"
+    # 계산 당시(이전 규칙)의 정렬 · 근거 그대로 — 새 근거(section)를 채우거나 새 판정으로 바꾸지 않는다
+    got = {b.block_key: (b.align, b.align_basis, b.null_reasons.get("align")) for b in res.blocks}
+    assert got == {"blk_001": ("left", "default_tie", None), "blk_002": ("left", "default_single_line", None),
+                   "blk_003": (None, None, "no_text_lines"), "blk_004": ("left", "estimated", None),
+                   "blk_005": ("left", "default_single_line", None), "blk_006": ("left", "default_single_line", None)}
+    assert res.model_dump(mode="json") == v1  # 검증만 하고 값 · 필드를 바꾸지 않는다
+    # 같은 블록의 현재 판정(스키마 2)은 다르다 — 섞이지 않는다
+    assert [b["align"] for b in sample["result"]["blocks"]] == ["left", None, None, "left", None, None]
+
+
+@pytest.mark.parametrize("version", ["3", "0", "", 1, None])
+def test_parse_rejects_unknown_version(sample, version):
+    d = copy.deepcopy(sample["result"])
+    d["schema_version"] = version
+    with pytest.raises(ValueError, match="알 수 없는 ⑦ 결과 버전"):
+        parse_style_result(d)
+
+
+def test_parse_rejects_missing_version_and_non_object(sample):
+    d = copy.deepcopy(sample["result"])
+    del d["schema_version"]  # 이전 형식도 버전을 항상 기록했다 — 없으면 추측하지 않는다
+    with pytest.raises(ValueError, match="알 수 없는 ⑦ 결과 버전 None"):
+        parse_style_result(d)
+    for bad in (None, [], "x"):
+        with pytest.raises(ValueError, match="객체가 아니다"):
+            parse_style_result(bad)
+
+
+def test_parse_rejects_structure_of_other_version(sample):
+    d = copy.deepcopy(sample["result"])
+    d["schema_version"] = "1"  # 현재 형식에 이전 버전 표시
+    with pytest.raises(ValidationError):
+        parse_style_result(d)
+    v1 = to_schema_v1(sample["result"])
+    v1["schema_version"] = "2"  # 이전 형식에 현재 버전 표시
+    with pytest.raises(ValidationError):
+        parse_style_result(v1)
+
+
+def test_parse_rejects_contradictory_schema_1(sample):
+    v1 = to_schema_v1(sample["result"])
+    bad = copy.deepcopy(v1)
+    bad["blocks"][1]["align"] = "center"  # default_single_line인데 left가 아님
+    with pytest.raises(ValidationError, match="default_single_line이면 align은 left여야 한다"):
+        parse_style_result(bad)
+    bad = copy.deepcopy(v1)
+    bad["blocks"][0]["align_basis"] = "section"  # 스키마 1에 없는 근거
+    with pytest.raises(ValidationError):
+        parse_style_result(bad)
+    bad = copy.deepcopy(v1)
+    bad["blocks"][0]["counts"]["measured"] = 0  # 영역 상태와 다른 집계
+    with pytest.raises(ValidationError):
+        parse_style_result(bad)
 
 
 # ---------------------------------------------------------------------------

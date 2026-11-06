@@ -255,7 +255,7 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 
 FE는 PATCH의 사용자 조정 객체에 편집한 필드만 넣는다(본문의 필수 필드는 별도). 박스만 바꾸면 배율을 생략하고, 둘 다 바꾸면 한 편집으로 원자 저장한다. 생략·null과 3차 명시적 기본값의 차이는 `contract.md` 6.5를 따른다. 브라우저 측정 기준은 AI–FE 합의이며, Pillow 임시 보정 없는 2차 전환은 지연·검수 차질 시 별도 판단하는 BE 권고다. [BE–AI §4.2·4.3]
 
-외부 8필드·fontFace·공통 모듈/번들 전달 상세는 후보이며 #14·#78·#87·#89에서 계속 관리한다. Q-07은 공통 조판의 2차 적용과 구분한 3차 범위로 `contract.md` 6.6·#88을 참조한다. AI–FE 측정 규칙을 BE가 별도 알고리즘으로 재정의하지 않는다. [BE–AI §4.3·4.4]
+2차 `/preview`의 필수 스타일 8개와 `PreviewInputError`는 공개 계약으로 확정됐고 입력 오류 처리는 구현 완료·서버 배포 대기다(계약 6.7). 다른 경로의 스키마·fontFace·공통 모듈 소유/번들 전달은 미정이며 #14·#78·#87·#89에서 계속 관리한다. Q-07은 공통 조판의 2차 적용과 구분한 3차 범위로 `contract.md` 6.6·#88을 참조한다. AI–FE 측정 규칙을 BE가 별도 알고리즘으로 재정의하지 않는다. [BE–AI §4.3·4.4]
 
 ## 7. Linux CPU OCR 수정 인계(2026-10-12)
 
@@ -326,7 +326,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 ### 8.5 검수 확정
 
 - N5 수정 후 검사가 도는 동안 확정 버튼을 비활성으로 두고, 서버도 확정 요청 시 job 잠금 아래에서 블록별 `checks_settled`(활성 검사 기준)를 확인해 false면 거절한다. 검사 채택도 같은 job 잠금 순서를 따른다. 확정이 하류 실행을 닫은 뒤 도착한 검사 결과는 거절한다. 공개 상태별 버튼·409 응답은 8.10을 따른다.
-- 2차 규칙 검사 최종 실패는 안내 후 별도 확인 없이 진행한다. 포함 섹션의 번역 실패 경고 확인과 구분하며, 이 2차 응답을 LLM 검사 계약으로 확대하지 않는다. `checks_settled`는 처리 종료 여부일 뿐 문제없음이나 확정 허용이 아니다.
+- 2차 규칙 검사 최종 실패는 안내 후 별도 확인 없이 진행한다. 포함 섹션의 번역 실패 경고 확인과 구분하며, 2차 서버 연결은 구현 대기다. 3차 LLM 검사 실패의 확인 절차는 별도 합의 대상이다(#81). `checks_settled`는 처리 종료 여부일 뿐 문제없음이나 확정 허용이 아니다.
 
 ### 8.6 실패 · 재시도
 
@@ -364,7 +364,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - `condition_unverifiable`: 확인할 조건(`unverified_conditions`)을 포함한 조건부 경고로 보인다. 같은 블록 · 같은 사전 항목(`external_id`)의 조건부 경고가 이미 있으면 하나만 보인다.
 - `insufficient_evidence` · `insufficient_context`의 표시는 12월 계획에서 정한다(미결).
 - 사전 기록만 근거인 risk(`basis_summary=dictionary_only`)를 법규 위반 확정처럼 표시하지 않는다.
-- regulated·conditional 매칭의 원판정값·사전 ID·span과 강제 용어 신호 `type=mandatory_term_unapplied`를 보존한다. 이 신호는 `producer=glossary_validation`이 소유·교체한다. 단일 규제 신호 후보에서도 조건을 구분해야 한다. Notion A9의 강제 용어 미적용 제외 제안은 PM 미승인이며 2차 ConfirmRequest의 실제 확인 범위와 구분한다(`contract.md` 7.1). [BE–AI §3.3 A9]
+- regulated·conditional 매칭의 원판정값·사전 ID·span과 강제 용어 신호 `type=mandatory_term_unapplied`를 보존한다. 이 신호는 `producer=glossary_validation`이 소유·교체한다. 2차 공개 코드는 금지·조건부 모두 `prohibited_expression`으로 FE·PM 확정이며 판정 구분 필드의 이름·값은 미정이다. Notion A9의 강제 용어 미적용 제외 제안은 PM 미승인이며 2차 ConfirmRequest의 실제 확인 범위와 구분한다(`contract.md` 7.1). [BE–AI §3.3 A9]
 - 공개 상태·확정 거절 응답은 8.10, 추가 신호 코드·warningKey는 #82를 따른다. AI 집계값을 경고 코드 · 확정 정책으로 직접 연결하지 않는다.
 
 ### 8.12 남은 연결 계약

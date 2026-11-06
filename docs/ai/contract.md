@@ -80,7 +80,7 @@
 | `is_product_label` | 제품 용기·패키지에 인쇄된 텍스트 여부 |
 | `is_brand_logo` | 브랜드명 전체 일치에 따른 로고 판정 여부 |
 | `is_excluded` | DB가 두 판정 플래그의 OR로 자동계산 (2.4) |
-| `style` | 처리 대상 블록의 측정값 `font_color` · `bg_color` · `est_font_px` · `align` 4키를 보존한다. 적용 스타일과 `align_basis`는 분리한다(6.7). 외부 전달 스키마·호환 상세는 #14·#78 [BE–AI §4.1] |
+| `style` | 처리 대상 블록의 측정값 `font_color` · `bg_color` · `est_font_px` · `align` 4키를 보존한다. 적용 스타일과 `align_basis`는 분리한다(6.7). 2차 미리보기 이외 경로의 전달 스키마·호환 상세는 #14·#78 [BE–AI §4.1] |
 | `trans_1` | 의미와 문맥을 보존한 번역문 |
 | `overflow` | 현재 배치 영역의 폭 또는 높이 초과 여부 (6.2) |
 | `auto_adjust` | 사용자 배치 영역 조정값 (6.1) |
@@ -307,7 +307,7 @@ is_product_label OR is_brand_logo
 
 - **구성**: 규칙 검사 `text_check`(영어 금지 표현 재대조 · 강제 용어)와 번역문 LLM 규제 판정 `translation_review`는 독립된 검사다. 서로의 결과를 입력으로 받거나 지우지 않으며 번역문 · 사용자 수정문 · `section_verdict` · `content_findings`를 바꾸지 않는다. 섹션 단위 시도 · 블록별 결과이며 자동 번역 직후와 번역문 수정 뒤 같은 경로를 쓴다. [통합 D12]
 - **통합 시점 · 활성 검사**: AI는 두 검사를 모두 제공한다. stage 이름 허용과 실제 실행 활성화는 분리하며, 2차에는 stage 허용을 검토하고 LLM 실제 연결은 3차(11/27) 제안으로 공동 일정 확인이 남는다. [BE–AI §3.1 A7] 이번 실행에서 돌릴 검사(활성 검사)는 BE가 명시하며 실행 상태 none에서 추정하지 않는다. 비활성 검사의 과거 결과는 현재 경고로 쓰지 않는다. [통합 D12]
-- **흐름 · 표시**: 자동 번역 직후 검사는 N4에서 끝난 뒤 N5로 넘어가고, 최종 실패면 실패 안내와 함께 N5로 진행한다. N5 수정 후 검사 중에는 확정을 거절한다. 2차 규칙 검사 최종 실패는 안내 후 추가 확인 없이 진행하는 계약이다(서버 구현 대기). 이는 번역 실패 경고 확인과 다르다. 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호이며 화면에 출처 · 불일치 안내를 두지 않는다(내부 구분은 유지). 검사 실패 블록은 「⚠ 검사하지 못했습니다」로 표시한다. `condition_unverifiable`은 확인할 조건을 포함한 조건부 경고로 보이며 같은 블록 · 같은 사전 항목의 조건부 경고와 중복 표시하지 않는다. `insufficient_evidence` · `insufficient_context`의 표시는 미결(12월 계획)이다. [통합 D12]
+- **흐름 · 표시**: 자동 번역 직후 검사는 N4에서 끝난 뒤 N5로 넘어가고, 최종 실패면 실패 안내와 함께 N5로 진행한다. N5 수정 후 검사 중에는 확정을 거절한다. 2차 규칙 검사 최종 실패는 안내 후 추가 확인 없이 진행하는 계약이다(서버 구현 대기). 포함 섹션의 번역 실패 경고는 확인 대상이다. Notion §3.4·D12의 검사 실패 ‘확인 후 진행’은 이전 결정으로 보존하며, 3차 LLM 검사 실패 시 확인 절차는 별도 합의 대상이다(#81). 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호이며 화면에 출처 · 불일치 안내를 두지 않는다(내부 구분은 유지). 검사 실패 블록은 「⚠ 검사하지 못했습니다」로 표시한다. `condition_unverifiable`은 확인할 조건을 포함한 조건부 경고로 보이며 같은 블록 · 같은 사전 항목의 조건부 경고와 중복 표시하지 않는다. `insufficient_evidence` · `insufficient_context`의 표시는 미결(12월 계획)이다. [통합 D12]
 - **입력**: `targets[{block_key, revision, text, is_product_label, is_brand_logo}]`는 검사 대상(라벨 · 로고 false · false, 비공백 원문 · 번역문), `context[{block_key, revision, is_product_label, is_brand_logo}]`는 대상 밖 섹션 블록(번역문 없음, 라벨 · 로고는 2.4 완료 조합)이다. 섹션 블록 키는 두 목록의 합집합에 정확히 한 번 나온다. 라벨 · 로고 값은 BE 공급 계약 후보이며 누락을 false로 추정하지 않는다. 이웃 섹션은 넣지 않는다. [통합 D12]
 - **항목**: 검사 항목 = 적용 분류의 regulated · conditional 전체(문자열 매칭과 무관). 참고 항목 = 적용 분류의 allowed(판정 대상 아님 · 다른 항목의 위험이나 규칙 경고를 해제하지 않음 · risk 근거 불가). 적용 분류 밖 항목은 ID만 기록한다. [통합 D12]
 - **판단 조합**: (대상 × 검사 항목) 쌍마다 판정 1건. [통합 D12]
@@ -388,10 +388,10 @@ is_product_label OR is_brand_logo
 ### 6.5 사용자 조정과 자동 조정의 경계
 
 - 사용자 영역·글자 배율은 시스템 자동 조정과 구분한다. 손잡이는 영역만, `[+][−]`는 영역과 글자 크기를 함께 변경한다. 사용자 배율 기본값 1.0은 동의됐으며 자동 축소 −10% 기준을 사용자 배율에 적용하지 않는다. [조판 D-07] [조판 협의 2·3-1절]
-- 사용자 배율은 유한한 양의 절대 배율이고 수치 상한 없이 섹션 경계로 제한한다. 증감 0.05·Undo 50단계는 BE 회신상 PM 확정이다. 확대 기준점·박스 증감식·소수 정규화 상세는 #87에 남는다. Undo는 과거 revision 복원이 아니라 최신 revision으로 과거 값을 다시 저장하는 편집이다. [BE–AI §4.2]
-- FE는 기존 블록 PATCH의 사용자 조정 객체 안에 실제 편집한 필드만 보낸다. 현재 2차 OpenAPI에서 본문의 필수 `trans1`·`revision`은 별도로 전송한다. 박스와 절대 배율을 함께 바꾸면 같은 revision의 한 편집으로 원자적으로 저장하고, 박스만 바꾸면 배율을 생략한다. 필드 생략은 보존, 사용자 조정 객체 null은 사용자 조정만 해제, 부분 bbox/fontScale 변경은 다른 사용자 필드를 보존한다. 사용자 수정·해제가 원본 bbox·AI 기준값·시스템 조정값을 지우지 않는다. 2차 `layoutAdjust`의 요청 형식·거절 응답은 OpenAPI에 정의됐고 서버 구현은 대기 중이다. 3차 내부 필드·구 `auto_adjust` 이관과 추가 오류 계약은 #87에서 관리한다. [BE–AI §4.2 FE-13]
-- 저장 → 재렌더 → 완료 확인 → 최신 적용값·preview·넘침·경계 판정 조회를 연결한다. 저장 응답은 최신 revision·실제 적용값·출처와 재렌더 등록 여부를 구분한다. `rerenderTaskId`는 필수 nullable이며 null은 이 요청이 새 재렌더 작업을 만들지 않았다는 뜻이다. 기존 진행 작업의 추적은 계속한다. 저장 응답만으로 렌더 완료나 넘침 해소로 표시하지 않는다. [BE–AI §4.2 Q-05]
-- 시스템 조정이 없는 2차에서는 배율 1·원본 bbox를 사용자 조정 null로 정규화할 수 있다. 시스템 조정이 있는 3차에는 사용자가 명시한 1·원본 bbox도 해당 필드의 사용자 override로 보존한다. null 이후 우선순위·합성·정규화 구현 상세는 BE·FE가 정한다. 시스템 조정 자체의 생성 입력·버전·재사용/무효화/재계산 조건은 렌더 결과 최신성과 구분해 관리하며 세부 필드·시점은 미정이다. [BE–AI §4.2] [합의 관리표 9.1.3]
+- 사용자 배율은 유한한 양의 절대 배율이고 수치 상한 없이 섹션 경계로 제한한다. 증감 0.05·Undo 50단계는 BE 회신상 PM 확정이다. 2차 공개 계약에서 FE는 박스 중심을 고정하고 폭·높이에 새 배율/기존 배율을 곱한다. 경계를 넘으면 크기를 유지해 섹션 안으로 옮기고, 다음 확대가 섹션보다 크면 `[+]`, 다음 배율이 0 이하면 `[−]`를 비활성화한다. Undo는 과거 revision 복원이 아니라 최신 revision으로 과거 값을 다시 저장하는 편집이다. [BE–AI §4.2]
+- FE는 기존 블록 PATCH의 사용자 조정 객체 안에 실제 편집한 필드만 보낸다. 현재 2차 OpenAPI에서 본문의 필수 `trans1`·`revision`은 별도로 전송한다. 박스와 절대 배율을 함께 바꾸면 같은 revision의 한 편집으로 원자적으로 저장하고, 박스만 바꾸면 배율을 생략한다. 필드 생략은 보존, 사용자 조정 객체 null은 사용자 조정만 해제, 안쪽 `box`·`fontScale`의 null은 해당 필드만 해제한다. `box`를 보내면 좌표 전체가 필요하며 일부 좌표만 보내거나 빈 조정 객체를 보내면 422다. 사용자 수정·해제가 원본 bbox·AI 기준값·시스템 조정값을 지우지 않는다. 2차 `layoutAdjust`의 요청 형식·거절 응답은 OpenAPI에 정의됐고 서버 구현은 대기 중이다. 3차 내부 필드·구 `auto_adjust` 이관과 추가 오류 계약은 #87에서 관리한다. [BE–AI §4.2 FE-13]
+- 저장 → 재렌더 → 완료 확인 → 최신 적용값·preview·넘침·경계 판정 조회를 연결한다. Notion §4.2는 저장 결과의 최신 revision·실제 적용값·출처와 재렌더 등록 여부를 구분한다. 2차 OpenAPI에서는 PATCH 응답의 블록과 재렌더 등록 여부를 확인하고 실제 적용값은 `/preview`의 `renderInput`에서 읽는다. `rerenderTaskId`는 필수 nullable이며 null은 이 요청이 새 재렌더 작업을 만들지 않았다는 뜻이다. 기존 진행 작업의 추적은 계속한다. 저장 응답만으로 렌더 완료나 넘침 해소로 표시하지 않는다. [BE–AI §4.2 Q-05]
+- 2차 저장·응답에서는 배율 1.0이면 `fontScale`만, 원본 bbox와 같으면 `box`만 null로 정규화한다. 두 필드 모두 조정이 없을 때만 `layoutAdjust`가 null이다. 시스템 조정이 있는 3차에는 사용자가 명시한 1·원본 bbox도 해당 필드의 사용자 override로 보존한다. 3차의 사용자·시스템 조정 합성 우선순위(null 해제 후 적용 포함)는 미정이다. 시스템 조정 자체의 생성 입력·버전·재사용/무효화/재계산 조건은 미정이며 렌더 결과 최신성과 구분해 관리한다. [BE–AI §4.2] [합의 관리표 9.1.3]
 
 ### 6.6 이미지 경계 이탈과 출력 제한 — Q-07, 3차 범위
 
@@ -404,9 +404,9 @@ is_product_label OR is_brand_logo
 ### 6.7 BE 입력 구성과 공통 스타일 계산
 
 - AI–FE 조판 합의(6.2·6.4)는 측정·줄바꿈·폰트 기준을 소유한다. BE는 AI 출력과 저장값·출처로 입력을 구성하고 FE·서버 공통 계산이 최종 적용값을 한 번 산출한다. AI `resolve_block.applied.font_size_px`는 사용자 배율 적용 전 측정값 또는 역할 기본값이다. 최종 글자 px = 기준 px × 절대 배율, 행간 px = 최종 글자 px × 1.2, 자간 px = letterSpacingEm × 최종 글자 px이다. 조정 bbox는 이미 섹션 로컬 절대 좌표이므로 다시 배율을 곱하지 않는다. [BE–AI §4.1 A1·A2·A3]
-- 최소 전달 필드 `fontFamily`, `fontWeight`, `fontSizePx`, `fontScale`, `fontColor`, `align`, `letterSpacingEm`, `lineHeightRatio`는 **후보**다. 공통 모듈 소유·외부 스키마·소수 직렬화는 미정이다. 폰트 face·파일 SHA·설정 버전은 공통 bundle manifest로 식별 가능해야 하며 별도 블록별 fontFace 필드는 미정이다. 정렬은 left/center/right, 색은 대문자 `#RRGGBB` 기준이며 유효하지 않은 입력을 기본값으로 숨기지 않는다. API 정규화·오류 매핑은 별도다. [BE–AI §4.1]
+- 2차 `/preview`의 `renderInput`에서 블록별 `style`의 필수 필드 `fontFamily`, `fontWeight`, `fontSizePx`, `fontScale`, `fontColor`, `align`, `letterSpacingEm`, `lineHeightRatio`는 모두 null 없이 전달한다(OpenAPI 공개 계약 확정). 공통 계산 모듈의 소유·번들 전달 방식과 다른 경로의 스키마·소수 직렬화는 미정이다. 폰트 face·파일 SHA·설정 버전은 공통 bundle manifest로 식별 가능해야 하며 별도 블록별 fontFace 필드는 미정이다. 정렬은 left/center/right, 색은 대문자 `#RRGGBB` 기준이며 유효하지 않은 입력을 기본값으로 숨기지 않는다. 소문자 색 등 형식 밖의 측정값은 자동 보정하지 않고 `STYLE_RESULT_INVALID`로 처리한다. [BE–AI §4.1]
 - `bundleId`는 공통 HTML/CSS·계산·측정·폰트의 호환성, `rendererId`는 서버 브라우저/환경·출력 배율·측정 규칙의 결과 최신성을 식별한다. 렌더/측정에 영향을 주는 변경은 지문을 바꾼다. 기존 역할 기본값 버전을 측정 버전으로 대신하지 않으며 식별 문자열·배포 생성 방식은 미정이다. [BE–AI §4.3 A6]
-- `STYLE_RESULT_INVALID`·`STYLE_DEFAULTS_UNAPPROVED`는 유지한다. BE 입력 구성의 bbox·배율·사용자/시스템 값·폰트/bundle 참조 오류는 `RENDER_INPUT_INVALID`로 구분하는 안을 AI가 채택했다. 브라우저 실행·측정·산출 실패와 분리하며 API 매핑·재시도 상세는 미정이다. [BE–AI §4.3 A8]
+- 2차 `PreviewInputError`는 공개 계약 확정, 입력 오류 처리는 **구현 완료·서버 배포 대기**다. 섹션별 `inputError`에 `code`와 `blockIds`(섹션 자료 문제면 빈 배열)를 반환하고 `renderInput`·`inputFingerprint`는 null로 둔다. 여러 오류가 겹치면 승인 설정·폰트 자산 문제(`STYLE_DEFAULTS_UNAPPROVED`), 적용 박스 형식·크기·경계 또는 섹션 자료 문제(`RENDER_INPUT_INVALID`), ⑦ 상태·역할·스타일 형식 위반(`STYLE_RESULT_INVALID`) 순서로 하나를 반환한다. 입력 준비 중에는 오류를 표시하지 않는다. 입력 오류는 같은 입력으로 재시도해도 해소되지 않아 입력·자료를 고쳐야 한다. [OpenAPI · PreviewInputError](../openapi.yaml) [BE–AI §4.3 A8]
 - 측정 함수·규칙별 기대 사례는 AI, 공통 HTML/CSS와 연결은 FE, Playwright·폰트 준비 확인·함수 호출·채택·저장/API는 BE 책임이다. 서버에서 별도 측정 알고리즘을 만들지 않는다. 브라우저 측정 기준은 AI–FE 합의(6.2, Q-01·Q-06)다. Pillow 임시 보정 없이 2차 HTML/CSS 전환에서 해결하는 것은 BE 권고이며, 전환이 지연되거나 검수 업무에 차질이 생기면 별도로 판단한다. 파일·번들 경계와 적용은 #89에서 관리한다. `width_overflow`의 폭·높이 포괄 의미를 유지하는 호환안을 우선 검토하며, 신호명·필드/타입·FE 문구·축별 상세 정보는 BE–FE 미정이다. [BE–AI §4.3 PR #96 후속]
 
 ## 7. 확인 필요 신호와 재검증 [계약 7장]
@@ -454,7 +454,7 @@ is_product_label OR is_brand_logo
 - `detected_in`: `source` | `translation`. `detected_by`: `rule` | `llm`.
 - 사유·조문·대체표현을 `section_verdict`에서 조회할 수 있으면 중복 저장하지 않는다.
 - producer는 결과 소유 단위다: `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). [통합 D12]
-- 규칙의 regulated·conditional 매칭은 `type=regulatory`로 보존하며 `dictionary_verdict_status`·사전 ID·span을 유지한다. 매칭을 위반 확정으로 표시하지 않는다. 단일 `prohibited_expression` 신호 후보는 원래 조건을 구분할 수 있어야 하며 코드·제목·정책은 BE·FE·PM 소유다. 강제 용어 미적용은 `type=mandatory_term_unapplied`이며 `producer=glossary_validation`이 소유·교체한다. A9의 확정 전 확인 대상 제외 제안은 Notion에서 PM 미승인이다. 이 제안과 별도로 OpenAPI의 2차 ConfirmRequest는 포함 섹션의 `translation_failed`만 필수 확인 대상으로 명시한다. 강제 용어 근거는 보존한다. [BE–AI §3.3 A9]
+- 규칙의 regulated·conditional 매칭은 `type=regulatory`로 보존하며 `dictionary_verdict_status`·사전 ID·span을 유지한다. 매칭을 위반 확정으로 표시하지 않는다. Notion A9에 따라 내부 원판정·조건·근거를 보존한다. 2차 공개 신호는 금지·조건부 모두 `prohibited_expression`으로 FE·PM 확정이며, 두 판정을 구별할 공개 필드의 이름·값은 미정이다. 강제 용어 미적용은 `type=mandatory_term_unapplied`이며 `producer=glossary_validation`이 소유·교체한다. A9의 확정 전 확인 대상 제외 제안은 Notion에서 PM 미승인이다. 이 제안과 별도로 OpenAPI의 2차 ConfirmRequest는 포함 섹션의 `translation_failed`만 필수 확인 대상으로 명시한다. 강제 용어 근거는 보존한다. [BE–AI §3.3 A9]
 - producer별 소유·교체 원칙은 BE–AI 채택이다. 아래 LLM 예제의 추가 필드(`judgment` · `undetermined_reason` · `location_key`)와 위치 네 필드의 null 표현은 AI 내부 형식이며 외부 저장/API 스키마는 공동 확정 전이다. [통합 D12] [BE–AI §3.3]
 - `translation_llm_review` 항목은 `detected_by: "llm"`이며 `judgment`(risk · undetermined) · `undetermined_reason` · `location_key`를 더 갖는다. no_risk는 항목을 만들지 않는다. 위치마다 1건이고 위치 없는 undetermined는 `problem_text` · `start` · `end` · `location_key` 네 필드가 모두 null인 1건이다(네 필드는 모두 있거나 모두 null). `location_key`는 한 보고의 블록 결과 안에서만 유일하므로 시도와 함께 식별한다. 근거 ID는 원본 `external_id`로 받으며 DB id 변환은 BE가 한다. [통합 D12]
 
@@ -537,7 +537,7 @@ AnalyzeError(code, retryable, message, source_image_id)
 - 함수 키↔DB 컬럼 매핑 → `db-map.md`
 - 미확정 사항 → `open-questions.md`. 원본 10.2 항목(제품명/효능 구분, 판정 항목 목록·경계, 규제·채널 정책 데이터, `section_verdict` 허용값 매핑, RAG 프롬프트) [계약 10장]에 더해 이 요약에서 드러난 **계약 공백**(2026-09-18 8건 · 2026-09-28 ③-1 관련 추가):
   - 섹션 `range`는 추가하지 않는 것으로 합의됨. 상위 원문 반영은 `open-questions.md` 3절 (1.1 · 3.1) [통합 D3]
-  - 측정 style 보존과 구분한 외부 전달 스키마·호환 상세 (6.7, #14·#78)
+  - 측정 style 보존과 구분한 2차 미리보기 이외 경로의 전달 스키마·호환 상세 (6.7, #14·#78)
   - 출력 분할용 절단 가능 지점(섹션 경계·블록 여백 좌표)의 함수·필드·JSON 구조 — 개발계획 3.1에 AI 제공으로 되어 있으나 원본 계약에 없음
   - 라벨·로고 판정 변경 시 오래된 결과 차단은 D2에서 대표 실행·현재 시도 원칙 확정. 잠금·입력 유효성·재사용 등 구현 상세는 #16·#64와 11장 참조. [통합 D2]
   - 정책 계약(`section_verdict` 매핑)의 담당 (4.2)

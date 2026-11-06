@@ -307,7 +307,7 @@ is_product_label OR is_brand_logo
 
 - **구성**: 규칙 검사 `text_check`(영어 금지 표현 재대조 · 강제 용어)와 번역문 LLM 규제 판정 `translation_review`는 독립된 검사다. 서로의 결과를 입력으로 받거나 지우지 않으며 번역문 · 사용자 수정문 · `section_verdict` · `content_findings`를 바꾸지 않는다. 섹션 단위 시도 · 블록별 결과이며 자동 번역 직후와 번역문 수정 뒤 같은 경로를 쓴다. [통합 D12]
 - **통합 시점 · 활성 검사**: AI는 두 검사를 모두 제공한다. stage 이름 허용과 실제 실행 활성화는 분리하며, 2차에는 stage 허용을 검토하고 LLM 실제 연결은 3차(11/27) 제안으로 공동 일정 확인이 남는다. [BE–AI §3.1 A7] 이번 실행에서 돌릴 검사(활성 검사)는 BE가 명시하며 실행 상태 none에서 추정하지 않는다. 비활성 검사의 과거 결과는 현재 경고로 쓰지 않는다. [통합 D12]
-- **흐름 · 표시**: 자동 번역 직후 검사는 N4에서 끝난 뒤 N5로 넘어가고, 최종 실패면 실패 안내와 함께 N5로 진행한다. N5 수정 후 검사 중에는 확정을 거절한다. 종료 뒤 미해결 경고 · 검사 실패는 확인받고 진행한다. 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호이며 화면에 출처 · 불일치 안내를 두지 않는다(내부 구분은 유지). 검사 실패 블록은 「⚠ 검사하지 못했습니다」 · 확정 시 확인 대상이다. `condition_unverifiable`은 확인할 조건을 포함한 조건부 경고로 보이며 같은 블록 · 같은 사전 항목의 조건부 경고와 중복 표시하지 않는다. `insufficient_evidence` · `insufficient_context`의 표시는 미결(12월 계획)이다. [통합 D12]
+- **흐름 · 표시**: 자동 번역 직후 검사는 N4에서 끝난 뒤 N5로 넘어가고, 최종 실패면 실패 안내와 함께 N5로 진행한다. N5 수정 후 검사 중에는 확정을 거절한다. 2차 규칙 검사 최종 실패는 안내 후 추가 확인 없이 진행하는 계약이다(서버 구현 대기). 이는 번역 실패 경고 확인과 다르다. 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호이며 화면에 출처 · 불일치 안내를 두지 않는다(내부 구분은 유지). 검사 실패 블록은 「⚠ 검사하지 못했습니다」로 표시한다. `condition_unverifiable`은 확인할 조건을 포함한 조건부 경고로 보이며 같은 블록 · 같은 사전 항목의 조건부 경고와 중복 표시하지 않는다. `insufficient_evidence` · `insufficient_context`의 표시는 미결(12월 계획)이다. [통합 D12]
 - **입력**: `targets[{block_key, revision, text, is_product_label, is_brand_logo}]`는 검사 대상(라벨 · 로고 false · false, 비공백 원문 · 번역문), `context[{block_key, revision, is_product_label, is_brand_logo}]`는 대상 밖 섹션 블록(번역문 없음, 라벨 · 로고는 2.4 완료 조합)이다. 섹션 블록 키는 두 목록의 합집합에 정확히 한 번 나온다. 라벨 · 로고 값은 BE 공급 계약 후보이며 누락을 false로 추정하지 않는다. 이웃 섹션은 넣지 않는다. [통합 D12]
 - **항목**: 검사 항목 = 적용 분류의 regulated · conditional 전체(문자열 매칭과 무관). 참고 항목 = 적용 분류의 allowed(판정 대상 아님 · 다른 항목의 위험이나 규칙 경고를 해제하지 않음 · risk 근거 불가). 적용 분류 밖 항목은 ID만 기록한다. [통합 D12]
 - **판단 조합**: (대상 × 검사 항목) 쌍마다 판정 1건. [통합 D12]
@@ -333,11 +333,11 @@ is_product_label OR is_brand_logo
 | 출력 한도로 응답 잘림 | `response_invalid` · false(같은 설정 재시도 불가) | 있음 | 위와 같음 + 분할 `status=output_truncated` |
 
 - **호출 · 검증 · 집계 무결성**: API 키는 실제 모델 호출 직전에만 확인하므로 호출이 없는 처리(대상 0개 skipped · 검사 항목 0개 completed · 입력 상한 초과)는 키 없이 보고한다. 채택 전 검증기는 규칙 검사에서 원문 기준 적용 대상 강제 용어가 빠짐없이 검사됐는지 확인하고 같은 입력으로 다시 계산한 결과와 전체를 대조한다. LLM 판정에서는 각 판정의 `chunk_index`가 그 블록 · 항목을 포함한 검증된 분할을 가리키는지 확인한다. 결과 종류별 payload 허용 필드(공통 `section_key` · `scope` · `context_sha256` · `supplied_items` · `chunks` + completed `blocks` · `result_sha256` / skipped `blocks` / 입력 상한 초과 `size` / 호출 · 응답 실패 `non_adoptable_diagnostics`)와 블록 · 판정 · 위치 · 분할 필드를 고정해 실패 보고의 판정 · flag를 거절한다. 집계는 넘겨받은 결과의 `block_key`(LLM 실패는 `scope.target_keys`)를 집계 대상 블록과 대조한다 — 섹션 단위 지문은 블록끼리 공유하므로 지문만으로 블록을 가리지 못한다. [통합 D12]
-- **요청 검증과 유효성**: `StageReport.input_manifest_sha256`와 `expected_input_manifest_sha256`는 revision을 포함한 고정 요청·시도 검증에 유지한다. 현재 검사 결과의 유효성은 별도 `check.inputKey`로 판단한다(AI 채택, 필드·정규화·저장·기존 결과 호환은 공동 확정 전). 저장 revision 자체, bbox·fontScale·layout/style·렌더 버전과 `active_checks`는 검사별 의미 키에서 제외한다. `active_checks`는 실행·집계 구성이다. 비교할 입력이 없거나 불명확한 과거 결과를 유효하다고 추정하지 않는다. [BE–AI §2 A4]
+- **요청 검증과 유효성**: `StageReport.input_manifest_sha256`와 `expected_input_manifest_sha256`는 revision을 포함한 고정 요청·시도 검증에 유지한다. 현재 검사 결과의 유효성은 별도 `check.inputKey`로 판단한다(AI 채택; 2차 공개 키는 불투명 문자열로 동등성만 비교하며, 내부 계산·저장·기존 결과 호환은 별도). 저장 revision 자체, bbox·fontScale·layout/style·렌더 버전과 `active_checks`는 검사별 의미 키에서 제외한다. `active_checks`는 실행·집계 구성이다. 비교할 입력이 없거나 불명확한 과거 결과를 유효하다고 추정하지 않는다. [BE–AI §2 A4]
 - **검사별 의미 입력**: 규칙 검사는 블록 ID·원문/번역문 해시·실제 소비 국가/규제 분류·고정 규제 행·선별 강제 용어·매칭/구현 버전을 포함한다. 현재 `TextCheckRequest`에 없는 `target_lang`을 새 입력으로 만들지 않는다. LLM은 실제 소비 국가·대상 언어·적용 분류와 블록 의미 입력에 섹션 전체 문맥(순서·역할·원문·대상 번역문·대상/비대상·라벨/로고), 실제 소비 규제/참고 행, 모델·프롬프트 SHA·구현 버전·분할 상한을 포함한다. LLM이 공급받지 않은 용어집은 포함하지 않는다. 변경된 버전·행을 소비하는 검사만 무효화하며 고정 묶음을 최신 DB로 교체해 비교하지 않는다. [BE–AI §2.2]
 - **채택**: 블록별 의미 키가 같아도 섹션 보고를 부분 채택하지 않는다. 고정 요청 검증, 현재 시도·lease·실행 세대·job 잠금·취소/확정 보호와 의미 입력 동등성이 모두 필요하며 불일치하면 보고 전체를 거절한다. 거절 자체는 재등록이 아니다. 유효 시도·lease·활성 검사·미완료/미취소 조건에서 별도 등록한다. 실제 사용량은 채택과 독립적으로 취급한다(9.2). [BE–AI §2.3·6]
 - **규칙 검사 범위**: `text_check`의 `complete`는 검사 범위 완결성(영어 패턴 없는 항목 0건 ∧ unverifiable 용어 0건)이다. 영어 패턴 부재와 #77 unverifiable은 불완전 상태로 유지하며 LLM 판정으로 완료 처리하지 않는다. [통합 D12]
-- **집계**: 검사 항목에 대해서만 rule(detected · not_detected · not_checked · unavailable) × llm(risk · no_risk · undetermined · unavailable) 두 축을 둔다. detected는 겹침 억제 이후 유효 검출이다. 검사별 `run_state`는 BE 작업 상태(none · pending · running · done · skipped · failed · cancelled)를 그대로 쓰고 freshness(current · stale · not_comparable) · scope(규칙 full · partial · unknown / LLM items · empty · unknown)를 둔다. 비활성 검사의 축 값은 `inactive`이고 상태는 null이다. `checks_settled`는 **활성 검사**가 모두 run_state ∈ {done, skipped, failed} ∧ current일 때만 참이다(현재 입력의 최종 실패 · 정상 생략은 종료, none · pending · running · cancelled · stale · 비교 불가는 미완료). 처리 종료 여부일 뿐 문제없음 · 확정 허용이 아니다. 집계값을 API 경고 코드 · 확정 정책으로 자동 승격하지 않는다. [통합 D12]
+- **집계**: 검사 항목에 대해서만 rule(detected · not_detected · not_checked · unavailable) × llm(risk · no_risk · undetermined · unavailable) 두 축을 둔다. detected는 겹침 억제 이후 유효 검출이다. 검사별 `run_state`는 BE 작업 상태(none · pending · running · done · skipped · failed · cancelled)를 그대로 쓰고 freshness(current · stale · not_comparable) · scope(규칙 full · partial · unknown / LLM items · empty · unknown)를 둔다. 비활성 검사의 축 값은 `inactive`이고 상태는 null이다. `checks_settled`는 **활성 검사**가 모두 run_state ∈ {done, skipped, failed} ∧ current일 때만 참이다(현재 입력의 최종 실패 · 정상 생략은 종료, none · pending · running · cancelled · stale · 비교 불가는 미완료). 처리 종료 여부일 뿐 문제없음 · 확정 허용이 아니다. 내부 상태의 공개 5상태 대응은 BE 회신상 OpenAPI 반영(합의 관리표 §9.1.2)이다. 2차 규칙 검사의 공개 상태와 확정 거절 응답·구현 여부는 `be-handoff.md` 8.10을 따른다. 내부 집계값을 API 경고 코드로 쓰지 않는다. [통합 D12]
 
 ## 6. 조판·렌더와 레이아웃 조정 [계약 6장]
 
@@ -389,8 +389,8 @@ is_product_label OR is_brand_logo
 
 - 사용자 영역·글자 배율은 시스템 자동 조정과 구분한다. 손잡이는 영역만, `[+][−]`는 영역과 글자 크기를 함께 변경한다. 사용자 배율 기본값 1.0은 동의됐으며 자동 축소 −10% 기준을 사용자 배율에 적용하지 않는다. [조판 D-07] [조판 협의 2·3-1절]
 - 사용자 배율은 유한한 양의 절대 배율이고 수치 상한 없이 섹션 경계로 제한한다. 증감 0.05·Undo 50단계는 BE 회신상 PM 확정이다. 확대 기준점·박스 증감식·소수 정규화 상세는 #87에 남는다. Undo는 과거 revision 복원이 아니라 최신 revision으로 과거 값을 다시 저장하는 편집이다. [BE–AI §4.2]
-- 기존 블록 PATCH를 확장해 같은 편집의 bbox·절대 배율을 원자적으로 저장하고 revision을 관리한다. 필드 생략은 보존, 사용자 조정 객체 null은 사용자 조정만 해제, 부분 bbox/fontScale 변경은 다른 사용자 필드를 보존한다. 사용자 수정·해제가 원본 bbox·AI 기준값·시스템 조정값을 지우지 않는다. 내부 필드·구 `auto_adjust` 이관과 오류 응답은 #87의 미정 계약이다. [BE–AI §4.2 FE-13]
-- 저장 → 재렌더 → 완료 확인 → 최신 적용값·preview·넘침·경계 판정 조회를 연결한다. 저장 응답은 최신 revision·실제 적용값·출처와 재렌더 등록 여부를 구분한다. `rerenderTaskId`는 필수 nullable이며 null 조건·조회/완료 표현은 BE 계약에서 정한다. 저장 응답만으로 렌더 완료나 넘침 해소로 표시하지 않는다. [BE–AI §4.2 Q-05]
+- FE는 기존 블록 PATCH에 실제 편집한 필드만 보낸다. 박스와 절대 배율을 함께 바꾸면 같은 revision의 한 편집으로 원자적으로 저장하고, 박스만 바꾸면 배율을 생략한다. 필드 생략은 보존, 사용자 조정 객체 null은 사용자 조정만 해제, 부분 bbox/fontScale 변경은 다른 사용자 필드를 보존한다. 사용자 수정·해제가 원본 bbox·AI 기준값·시스템 조정값을 지우지 않는다. 내부 필드·구 `auto_adjust` 이관과 오류 응답은 #87의 미정 계약이다. [BE–AI §4.2 FE-13]
+- 저장 → 재렌더 → 완료 확인 → 최신 적용값·preview·넘침·경계 판정 조회를 연결한다. 저장 응답은 최신 revision·실제 적용값·출처와 재렌더 등록 여부를 구분한다. `rerenderTaskId`는 필수 nullable이며 null은 이 요청이 새 재렌더 작업을 만들지 않았다는 뜻이다. 기존 진행 작업의 추적은 계속한다. 저장 응답만으로 렌더 완료나 넘침 해소로 표시하지 않는다. [BE–AI §4.2 Q-05]
 - 시스템 조정이 없는 2차에서는 배율 1·원본 bbox를 사용자 조정 null로 정규화할 수 있다. 시스템 조정이 있는 3차에는 사용자가 명시한 1·원본 bbox도 해당 필드의 사용자 override로 보존한다. null 이후 우선순위·합성·정규화 구현 상세는 BE·FE가 정한다. 시스템 조정 자체의 생성 입력·버전·재사용/무효화/재계산 조건은 렌더 결과 최신성과 구분해 관리하며 세부 필드·시점은 미정이다. [BE–AI §4.2] [합의 관리표 9.1.3]
 
 ### 6.6 이미지 경계 이탈과 출력 제한 — Q-07, 3차 범위
@@ -407,7 +407,7 @@ is_product_label OR is_brand_logo
 - 최소 전달 필드 `fontFamily`, `fontWeight`, `fontSizePx`, `fontScale`, `fontColor`, `align`, `letterSpacingEm`, `lineHeightRatio`는 **후보**다. 공통 모듈 소유·외부 스키마·소수 직렬화는 미정이다. 폰트 face·파일 SHA·설정 버전은 공통 bundle manifest로 식별 가능해야 하며 별도 블록별 fontFace 필드는 미정이다. 정렬은 left/center/right, 색은 대문자 `#RRGGBB` 기준이며 유효하지 않은 입력을 기본값으로 숨기지 않는다. API 정규화·오류 매핑은 별도다. [BE–AI §4.1]
 - `bundleId`는 공통 HTML/CSS·계산·측정·폰트의 호환성, `rendererId`는 서버 브라우저/환경·출력 배율·측정 규칙의 결과 최신성을 식별한다. 렌더/측정에 영향을 주는 변경은 지문을 바꾼다. 기존 역할 기본값 버전을 측정 버전으로 대신하지 않으며 식별 문자열·배포 생성 방식은 미정이다. [BE–AI §4.3 A6]
 - `STYLE_RESULT_INVALID`·`STYLE_DEFAULTS_UNAPPROVED`는 유지한다. BE 입력 구성의 bbox·배율·사용자/시스템 값·폰트/bundle 참조 오류는 `RENDER_INPUT_INVALID`로 구분하는 안을 AI가 채택했다. 브라우저 실행·측정·산출 실패와 분리하며 API 매핑·재시도 상세는 미정이다. [BE–AI §4.3 A8]
-- 측정 함수·규칙별 기대 사례는 AI, 공통 HTML/CSS와 연결은 FE, Playwright·폰트 준비 확인·함수 호출·채택·저장/API는 BE 책임이다. 서버에서 별도 측정 알고리즘을 만들지 않는다. 파일·번들 경계와 적용은 #89에서 계속 관리하며 구형 Pillow 임시 보정 없이 2차 전환에서 다룬다. `width_overflow`의 폭·높이 포괄 의미를 유지하는 호환안을 우선 검토하며, 신호명·필드/타입·FE 문구·축별 상세 정보는 BE–FE 미정이다. [BE–AI §4.3 PR #96 후속]
+- 측정 함수·규칙별 기대 사례는 AI, 공통 HTML/CSS와 연결은 FE, Playwright·폰트 준비 확인·함수 호출·채택·저장/API는 BE 책임이다. 서버에서 별도 측정 알고리즘을 만들지 않는다. 브라우저 측정 기준은 AI–FE 합의(6.2, Q-01·Q-06)다. Pillow 임시 보정 없이 2차 HTML/CSS 전환에서 해결하는 것은 BE 권고이며, 전환이 지연되거나 검수 업무에 차질이 생기면 별도로 판단한다. 파일·번들 경계와 적용은 #89에서 관리한다. `width_overflow`의 폭·높이 포괄 의미를 유지하는 호환안을 우선 검토하며, 신호명·필드/타입·FE 문구·축별 상세 정보는 BE–FE 미정이다. [BE–AI §4.3 PR #96 후속]
 
 ## 7. 확인 필요 신호와 재검증 [계약 7장]
 
@@ -454,7 +454,7 @@ is_product_label OR is_brand_logo
 - `detected_in`: `source` | `translation`. `detected_by`: `rule` | `llm`.
 - 사유·조문·대체표현을 `section_verdict`에서 조회할 수 있으면 중복 저장하지 않는다.
 - producer는 결과 소유 단위다: `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). [통합 D12]
-- 규칙의 regulated·conditional 매칭은 `type=regulatory`로 보존하며 `dictionary_verdict_status`·사전 ID·span을 유지한다. 매칭을 위반 확정으로 표시하지 않는다. 단일 `prohibited_expression` 신호 후보는 원래 조건을 구분할 수 있어야 하며 코드·제목·정책은 BE·FE·PM 소유다. `mandatory_term_unapplied`는 별도 producer로 유지하고 확정 확인 대상에서 제외하는 안은 PM 미승인이다. [BE–AI §3.3 A9]
+- 규칙의 regulated·conditional 매칭은 `type=regulatory`로 보존하며 `dictionary_verdict_status`·사전 ID·span을 유지한다. 매칭을 위반 확정으로 표시하지 않는다. 단일 `prohibited_expression` 신호 후보는 원래 조건을 구분할 수 있어야 하며 코드·제목·정책은 BE·FE·PM 소유다. 강제 용어 미적용은 `type=mandatory_term_unapplied`이며 `producer=glossary_validation`이 소유·교체한다. A9의 확정 전 확인 대상 제외 제안은 Notion에서 PM 미승인이다. 이 제안과 별도로 OpenAPI의 2차 ConfirmRequest는 포함 섹션의 `translation_failed`만 필수 확인 대상으로 명시한다. 강제 용어 근거는 보존한다. [BE–AI §3.3 A9]
 - producer별 소유·교체 원칙은 BE–AI 채택이다. 아래 LLM 예제의 추가 필드(`judgment` · `undetermined_reason` · `location_key`)와 위치 네 필드의 null 표현은 AI 내부 형식이며 외부 저장/API 스키마는 공동 확정 전이다. [통합 D12] [BE–AI §3.3]
 - `translation_llm_review` 항목은 `detected_by: "llm"`이며 `judgment`(risk · undetermined) · `undetermined_reason` · `location_key`를 더 갖는다. no_risk는 항목을 만들지 않는다. 위치마다 1건이고 위치 없는 undetermined는 `problem_text` · `start` · `end` · `location_key` 네 필드가 모두 null인 1건이다(네 필드는 모두 있거나 모두 null). `location_key`는 한 보고의 블록 결과 안에서만 유일하므로 시도와 함께 식별한다. 근거 ID는 원본 `external_id`로 받으며 DB id 변환은 BE가 한다. [통합 D12]
 
@@ -507,7 +507,7 @@ AnalyzeError(code, retryable, message, source_image_id)
 | 제외 섹션 재포함 | 유효한 결과 재사용, 미실행 하류 단계는 최초 실행 |
 | 정책 변경 | AI 섹션 판정 결과 재사용, 정책 결과 재계산 |
 | 번역문 수정 | 규제·용어 검증 **및** 렌더 갱신 |
-| 배치 영역 수정 | 렌더 갱신 |
+| N5 박스·배율만 수정 | 렌더만 갱신. 일반 검사 유효성은 검사별 의미 키, 새 등록은 별도 조건(5.3) [BE–AI §2·3.2] |
 | 라벨·로고 판정 변경 | 처리 대상 재계산, 영향받는 스타일·인페인팅·번역·렌더 결과 갱신. 통합에서는 실행 대표 행·현재 시도로 오래된 결과를 차단하며 블록 revision을 실행 ID로 쓰지 않는다. 구체 연결·검증은 11장과 #16·#64의 구현 전 명세 [통합 D2] |
 | 입력·모델·프롬프트·용어집·판정 항목 정의 변경 | 관련 단계 캐시 유효성 재판단 |
 
@@ -565,7 +565,7 @@ AnalyzeError(code, retryable, message, source_image_id)
 
 ### 11.1 검수 확정·출력·중단과 삭제
 
-- N5는 미해결 규제 경고·재검사 실패·제외하지 않은 실행 실패·빈 번역을 확인받고 확정할 수 있다. 빈 번역이나 대체 결과를 계산 성공으로 바꾸지 않는다. N6 저장·완료는 최종 렌더 성공이 필요하고 Q-07의 3차 채택 조건은 6.6을 따르며 내보내기 일부 실패는 성공분과 실패 안내를 제공한다. [통합 D9]
+- N5의 2차 필수 경고 확인은 포함 섹션의 번역 실패에 적용한다. 규칙 검사 최종 실패는 안내하되 추가 확인 없이 진행한다(5.3). 빈 번역이나 대체 결과를 계산 성공으로 바꾸지 않는다. N6 저장·완료는 최종 렌더 성공이 필요하고 Q-07의 3차 채택 조건은 6.6을 따르며 내보내기 일부 실패는 성공분과 실패 안내를 제공한다. [통합 D9]
 - 오류 화면 중단은 N2→N1, N4→N3이며 입력·버킷을 유지한다. 전체 취소는 콘텐츠 삭제 동작이며 중단과 구분한다. [통합 D9]
 - 작업이 존재하는 동안 원본·산출물·판정 근거를 보존하고 자동 만료하지 않는다. 전체 취소 시 이미지/문구가 담긴 DB·S3·audit 상세·인계 payload·GPU 자료를 삭제한다. 콘텐츠 없는 행위자·시각·대상 감사 기록만 남기고, 늦은 실행/업로드가 삭제 자료를 다시 남기지 않게 한다. 9장의 일반 보존보다 이 삭제 규칙이 우선한다. [통합 D9]
 - 스타일은 측정값과 역할 기본값의 적용값을 분리한다. 역할 기본값은 D11 사용자 승인값이고 설정 자료 정본은 `pipeline/data/style_defaults.json`이다. 이 밖의 값을 임의로 추가하지 않는다. [통합 D9] [통합 D11]

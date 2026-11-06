@@ -321,7 +321,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 - 블록 조회 때 `check_aggregate.aggregate_block_checks(block_key=…, check_item_ids=review.check_item_ids(bundle, 분류, 국가), active_checks=…, rule=…, llm=…)`를 부른다. 활성 검사에는 `CheckInput(run_state, attempt_manifest_sha256, current_manifest_sha256, block_result, failed_scope)`를 **반드시** 주고(시도가 없으면 `run_state='none'` — 누락된 검사로 미완료), 비활성 검사는 `None`을 준다(넘겨도 읽지 않으며 축 값은 `inactive`). `run_state`는 현재 시도의 `job_async_task.status`를 그대로(pending · running), 채택 완료는 done, 정상 생략은 skipped, 더 재시도하지 않기로 정한 최종 실패는 failed, 시도가 없으면 none. `attempt_manifest_sha256`은 시도에 고정한 지문, `current_manifest_sha256`은 현재 입력으로 다시 만든 지문이다.
 - 적용 예: 규칙 검사만 활성일 때 `aggregate_block_checks(block_key="blk_1", check_item_ids=ids, active_checks=("rule",), rule=CheckInput("done", fp, fp, rule_block), llm=None)` → 규칙이 현재 입력으로 끝났으므로 `checks_settled=true`, LLM 축은 `inactive`. 두 검사가 활성(`active_checks=("rule", "llm")`)일 때 LLM이 `CheckInput("running", fp, fp)`면 false. 사례는 `tests/test_pipeline_translation_review.py`.
-- 집계 결과는 상태 · 두 축 정보다. 표시 등급은 PM 결정으로 확정됐다 — 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호다(8.11). 신호 코드 · API 필드 · `basis_summary` 표시 방식 등 코드 · API · 표시 구현만 BE · FE 조정 사항이다(`open-questions.md` #82). AI 집계값을 API 경고 코드나 확정 정책으로 바로 연결하지 않는다.
+- 집계 결과는 상태 · 두 축 정보다. 표시 등급은 PM 결정으로 확정됐다 — 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호다(8.11). 2차에서 금지·조건부 판정에 쓰는 공통 공개 코드 `prohibited_expression`은 FE·PM 확정이다. BE·FE가 조정할 범위는 추가 신호 코드, 금지·조건부 판정 구분 필드의 이름·값, `basis_summary` 등의 표시 방식이다(`open-questions.md` #82). AI 집계값을 API 경고 코드나 확정 정책으로 바로 연결하지 않는다.
 
 ### 8.5 검수 확정
 

@@ -35,7 +35,8 @@ def _seller_by_id(db: Session, seller_id: int):
 def login(body: LoginRequest, db: Session = Depends(get_db)):
     email = body.email.strip().lower()
     if not email:
-        raise HTTPException(status_code=400, detail={"code": "INVALID_INPUT", "message": "email is required"})
+        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "email is required",
+                                                    "fields": [{"loc": ["body", "email"], "msg": "email is required"}]})
 
     r = db.execute(
         text("SELECT id, email FROM seller WHERE email = :e"), {"e": email},

@@ -2,14 +2,16 @@
 
 실제 전달본 검증은 GLOSSARY_XLSX_DIR(glossary_certification*.xlsx 등 3개가 있는 폴더)이
 있을 때만 돈다. 건수는 이번 전달본(2026-09-28)의 검증값이며 로더의 고정 규칙이 아니다.
+문구 v3 555행 파일 검증은 GLOSSARY_V3_PHRASE_XLSX(파일 경로)가 있을 때만 돈다. 건수는 그 파일의 검증값이다.
 """
 import datetime as dt
 import glob
+import hashlib
 import os
 
 import pytest
 
-from app.glossary_ingest import SPECS, main, validate_files
+from app.glossary_ingest import PHRASE_REVIEW_COLUMNS, SPECS, main, validate_files
 from tests.glossary_fixtures import base_row, write_book
 
 
@@ -136,6 +138,59 @@ def test_missing_column_is_an_error(tmp_path):
     assert "대표여부" in _issue_columns(vr) and vr.records == []
 
 
+# ── 문구 입력 헤더(라벨·대표여부) ──────────────────────────────────────
+
+def test_phrase_without_review_columns_stores_null(tmp_path):
+    vr = _validate(tmp_path, "phrase", [base_row("phrase", 1), base_row("phrase", 2, 적재여부="N")],
+                   drop_columns=PHRASE_REVIEW_COLUMNS)
+    assert vr.issues == []
+    rec = vr.records[0]
+    assert rec["label"] is None and rec["representative"] is None  # 다른 값으로 추정해 채우지 않는다
+    assert rec["load_flag"] == "Y" and rec["term_target"] == "phrase english 1"
+    assert vr.files[0].excluded == {"구역=A·적재여부=N": 1}
+
+
+@pytest.mark.parametrize("over,column", [
+    ({"적재여부": "예"}, "적재여부"),
+    ({"구역": "C", "적재여부": "Y"}, "적재여부"),
+    ({"enforcement": "필수"}, "enforcement"),
+    ({"source_ko": "  "}, "source_ko"),
+    ({"target_text": None}, "target_text"),
+    ({"version": None}, "version"),
+    ({"verified_at": "9월 18일"}, "verified_at"),
+    ({"term_kind": "certification"}, "term_kind"),
+])
+def test_phrase_without_review_columns_keeps_other_checks(tmp_path, over, column):
+    vr = _validate(tmp_path, "phrase", [base_row("phrase", 1), base_row("phrase", 2, **over)],
+                   drop_columns=PHRASE_REVIEW_COLUMNS)
+    assert column in _issue_columns(vr)
+
+
+def test_phrase_load_flag_stays_required_without_review_columns(tmp_path):
+    vr = _validate(tmp_path, "phrase", [base_row("phrase", 1)], drop_columns=(*PHRASE_REVIEW_COLUMNS, "적재여부"))
+    assert _issue_columns(vr) == ["적재여부"] and vr.records == []
+
+
+@pytest.mark.parametrize("dropped,missing", [("라벨", "라벨"), ("대표여부", "대표여부")])
+def test_phrase_with_one_review_column_is_an_error(tmp_path, dropped, missing):
+    vr = _validate(tmp_path, "phrase", [base_row("phrase", 1)], drop_columns=(dropped,))
+    assert _issue_columns(vr) == [missing] and vr.records == []
+
+
+def test_phrase_with_review_columns_keeps_values_and_checks(tmp_path):
+    vr = _validate(tmp_path, "phrase", [base_row("phrase", 1, 대표여부="대안")])
+    assert vr.issues == []
+    assert vr.records[0]["label"] == "라벨1" and vr.records[0]["representative"] == "대안"
+
+
+@pytest.mark.parametrize("kind", ["certification", "ingredient"])
+def test_other_kinds_are_not_affected_by_phrase_header_rule(tmp_path, kind):
+    vr = _validate(tmp_path, kind, [base_row(kind, 1)])
+    assert vr.issues == [] and vr.records[0]["label"] is None and vr.records[0]["representative"] is None
+    vr = _validate(tmp_path, kind, [base_row(kind, 1)], drop_columns=("note",))
+    assert _issue_columns(vr) == ["note"] and vr.records == []
+
+
 def test_duplicate_id_and_natural_key_across_files(tmp_path):
     cert = write_book(tmp_path / "c.xlsx", "certification", [
         base_row("certification", 1), base_row("certification", 1, source_ko="다른 말"),
@@ -201,3 +256,29 @@ def test_real_delivery_2026_09_28():
     assert recs["GL-M038"]["term_target"] == "for oily/combination skin"
     assert recs["GL-M039"]["term_target"] == "protects against UVA/UVB rays"
     assert all(r["verified_at"] is None for r in recs.values())
+
+
+V3_PHRASE_SHA256 = "db4f5b74e2e59904f6e749ca25cd84d0190e65ba4603d74c7e95efb882ecb753"
+
+
+def _real_v3_phrase():
+    p = os.getenv("GLOSSARY_V3_PHRASE_XLSX")
+    return p if p and os.path.exists(p) else None
+
+
+@pytest.mark.skipif(_real_v3_phrase() is None, reason="GLOSSARY_V3_PHRASE_XLSX 없음")
+def test_real_v3_phrase_file_passes_validation():
+    path = _real_v3_phrase()
+    with open(path, "rb") as f:
+        assert hashlib.sha256(f.read()).hexdigest() == V3_PHRASE_SHA256
+    vr = validate_files({"phrase": path})
+    assert vr.issues == []
+    f = vr.files[0]
+    assert f.total_rows == 555 and len(f.records) == 555 and f.excluded == {}
+    cats: dict[str, int] = {}
+    for r in f.records:
+        cats[r["internal_category"]] = cats.get(r["internal_category"], 0) + 1
+    assert cats == {"G01": 62, "G02": 31, "G03": 54, "G04": 62, "G05": 46, "G06": 86,
+                    "G07": 62, "G08": 46, "G09": 35, "G10": 53, "G11": 18}
+    assert all(r["label"] is None and r["representative"] is None for r in f.records)
+    assert all(r["enforcement"] == "reference" and r["verified_at"] == dt.date(2026, 10, 28) for r in f.records)

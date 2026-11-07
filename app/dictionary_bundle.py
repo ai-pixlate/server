@@ -1,6 +1,6 @@
 """분석 실행의 고정 사전 묶음 — DB 적재본에서 한 번 만들고 실행 내내 바꾸지 않는다(D5, contract.md 9.1).
 
-- 일관된 읽기: 규제·현지 행과 근거를 REPEATABLE READ 한 트랜잭션에서 읽는다.
+- 일관된 읽기: 규제·현지 행과 근거를 REPEATABLE READ 한 트랜잭션에서 읽는다. 교체로 빠진 행(retired_at)은 읽지 않는다.
 - 원본 ID(external_id) ↔ DB PK 와 당시 내용을 묶음에 고정한다. AI 는 원본 ID 를 돌려주고 BE 는 이 묶음으로 PK·근거를 찾는다.
 - 서비스 판정값(verdict_status)과 원값(source_verdict_status)을 함께 싣고, 원값 누락을 추정 복원하지 않는다.
 - 대체 표현은 DB 문자열 그대로 싣는다(문자열→배열 변환 규칙 미확정, #71 — 나누지 않는다).
@@ -151,7 +151,7 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
                 reg_rows = [dict(r) for r in conn.execute(
                     text(
                         "SELECT * FROM expression_dictionary WHERE dict_type = 'regulatory' AND target_country = :c "
-                        "AND regulatory_class = ANY(:cls) ORDER BY external_id"
+                        "AND regulatory_class = ANY(:cls) AND retired_at IS NULL ORDER BY external_id"
                     ),
                     {"c": target_country, "cls": applied},
                 ).mappings().all()]
@@ -162,7 +162,7 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
                     local_rows = [dict(r) for r in conn.execute(
                         text(
                             "SELECT * FROM expression_dictionary WHERE dict_type = 'local' AND target_country = :c "
-                            "AND regulatory_class = :lc ORDER BY external_id"
+                            "AND regulatory_class = :lc AND retired_at IS NULL ORDER BY external_id"
                         ),
                         {"c": target_country, "lc": LOCAL_CLASS},
                     ).mappings().all()]

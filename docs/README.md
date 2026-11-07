@@ -151,17 +151,17 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 |---|---|---|---|---|
 | 번역문 같은 값 저장(no-op) | FE 합의 | blockPatch 「같은 값 저장」·예시 `sameValue`·`sameValueWhileRendering` | 구현 완료·서버 배포 대기 | #104 |
 | 저장 공통(처리 순서·멱등 키·422/409/503·`Idempotent-Replayed`·CORS 노출) | FE 11-03·11-04 | blockPatch 「저장 공통」·`EditIdempotencyKey` | 구현 완료·서버 배포 대기 | #105(블록)·#107(섹션) |
-| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 계약 확정·서버 구현 대기 | 미정 |
-| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing` / 계약 확정·서버 구현 대기: `not_render_target`·`check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
+| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
+| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing`·`not_render_target` / 계약 확정·서버 구현 대기: `check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
 | 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답·근거 없는 복원 409) | FE 11-03·PM | sectionPatch·`Section.revision`·`SectionPatch`·예시 `n3ExcludedInN5` | 구현 완료·서버 배포 대기 | #107 |
 | N5 복원 때 미리보기 시도 확보 | FE 11-03·PM | sectionPatch | 구현 완료·서버 배포 대기(하류 실행 없는 섹션은 서버 미완료) | #108 |
 | N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 계약 확정·서버 구현 대기 | 미정 |
 | N5 섹션 Undo/Redo | FE 11-03 | sectionPatch | 화면 | — |
 | 실행 취소·재실행 — 전용 API 없음, 현재 revision으로 다시 저장 | PRD F-CFM-03 | blockPatch·예시 `changed` | 현행 | — |
-| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 계약 확정·서버 구현 대기 | 미정 |
+| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
 | 배치 화면 조작([+][−] 0.05·박스 중심·경계 안쪽 이동·스냅·Undo 50단계·계산식) | PM F-CFM-15·FE 계산식 동의 | blockPatch 「블록 배치」 | 화면 | — |
-| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 계약 확정·서버 구현 대기 | 미정 |
-| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 계약 확정·서버 구현 대기 | 미정 |
+| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
+| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
 | 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 계약 확정·서버 구현 대기 | 미정 |
 | 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 계약 확정·서버 구현 대기 | 미정 |
 | 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 계약 확정·서버 구현 대기 | 미정 |
@@ -194,7 +194,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ① | 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 | 시도를 만들지 않아 `render.attempt = null`로 남는다 | 화면은 원본 + 미리보기 없음 | reviewPreview 「구현 상태」·sectionPatch | 서버 미완료(#108 범위) |
 | ② | 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 | /preview·/blocks는 `inputError` RENDER_INPUT_INVALID로 답하고 N5 복원도 성공하지만, 그 섹션의 블록 저장은 실패 시도를 남기지 못하고 500이며 자동 진행 처리도 그 섹션에서 오류로 멈춘다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다 | reviewPreview 「구현 상태」·blockPatch | 서버 미완료(#108 범위) |
 | ③ | 서버 HTML/Playwright 공통 렌더 연결 | 현행 Pillow 조판(`bundleId = null`, 자간 미적용) | FE 로컬 렌더와 서버 이미지가 다를 수 있다 — 넘침·최신 판정은 서버 값만 쓴다 | `PreviewRenderer` | 미착수 — 번들 반입(R-FE-6)·렌더러 전환 이전 작업 처리(PM-R0)에 의존 |
-| ④ | 훼손된 저장값이 `/blocks`에 그대로 나가는 문제 | `bbox`·`auto_adjust`의 저장값이 형식에 맞지 않으면(문자열·불리언 좌표, 객체가 아닌 조정값) `/blocks`가 검사 없이 200으로 돌려줘 `TextBlock` 스키마에 어긋난다. /preview는 같은 데이터를 `inputError`로 알린다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다. 이를 허용하도록 스키마를 넓히지 않는다 | `TextBlock` | 미해결 — 처리 방침 미정 |
+| ④ | 훼손된 저장값이 `/blocks`에 그대로 나가는 문제 | `bbox` 저장값이 형식에 맞지 않으면(문자열·불리언 좌표) `/blocks`가 검사 없이 200으로 돌려줘 `TextBlock` 스키마에 어긋난다. /preview는 같은 데이터를 `inputError`로 알린다. 형식이 맞지 않는 조정값은 블록 배치 구현 이후 `layoutAdjust`·`autoAdjust`를 null로 내고 원본을 저장소에 보존한다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다. 이를 허용하도록 스키마를 넓히지 않는다 | `TextBlock` | 미해결 — 처리 방침 미정 |
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
@@ -217,6 +217,10 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - PM-R0 — 렌더러 전환 이전 작업 처리(테스트 작업 정리 또는 차단)와 작업 단위 표시 필드.
 - A13 — 중간 섹션 이미지 글자 잘림의 오류 표현과 출력 정책 연결.
 - 업로드 실패로 남은 draft의 재개·취소 정책.
+- 출처 불명 기존 배치 박스(`updated_by` 없는 `layout_bbox` 등) — 출처를 정하지 않고 저장값을 보존하며 이전처럼 그 박스로 그린다. `layoutAdjust`·content.csv에는 셀러 조정으로 나오지 않는다. 셀러가 박스를 명시적으로 해제하면(`layoutAdjust: null`·`box: null`·원본 bbox 전송) 계약대로 원본 bbox로 그리며, legacy 값은 지우지 않는다. 편집 시작값은 합의대로 /preview `renderInput`의 적용 박스다. Undo는 이전 적용 박스를 명시적으로 보내면 화면은 복원되지만 셀러 조정으로 저장된다 — legacy 저장 상태 그대로의 복원은 아니다. 첫 해제는 응답의 `layoutAdjust`가 null → null로 같아 보여도 적용 박스가 바뀌므로 revision·재렌더가 생긴다. 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모르며, 정리 방침은 미정이다.
+- 글자 픽셀이 섹션 안에 없는 렌더 — 그리기가 끝났으면 지금은 넘침으로 채택한다(서버는 내부 기록만 남긴다). 실패로 볼지는 PM 확인 전이다. 실패로 정하면 N6에서는 고칠 경로가 없다(N6→N5 복귀는 3차, 7.4).
+- 렌더러 예외로 그리지 못하는 배율로 확정한 작업 — 최종 렌더가 실패하고 산출물을 만들지 않는다. 재시도해도 같은 입력이고, 2차에서는 전체 취소 외에 고칠 경로가 없다. 미리보기 실패의 `retryable: true`도 같은 입력이면 결과가 같다.
+- 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`가 `auto_adjust`를 읽는다. 열 이름뿐 아니라 저장 모양도 바뀌어 이름 교체만으로 해결되지 않는다. AI 담당 확인이 필요하다.
 
 FE 확인
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
@@ -264,5 +268,7 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 | 스키마 불일치 — 15종 밖 오류 코드(`JOB_NOT_FOUND` 2, `ARTIFACT_NOT_FOUND` 1) | 3 | FE 회신 대기(7.3) |
 | 미문서화 HTTP 상태 — 작업 취소 200 | 3 | FE 회신 대기(7.3) |
 | 스키마 불일치 — 시험이 일부러 훼손한 데이터(`bbox` 2, `autoAdjust` 1) | 3 | 미해결(7.2 ④) |
+
+블록 배치 구현 후 같은 시험으로 다시 대조한 결과(develop 2489762 기준)는 응답 1,126건 중 적합 1,118건, 불일치 8건이다. 훼손 데이터의 `autoAdjust` 1건이 빠졌고 나머지는 그대로다. 훼손된 `bbox` 2건은 미해결이다.
 
 이 대조는 호출한 응답의 스키마 적합성만 본다. /preview 59건 통과도 전체 계약·화면 검증 완료를 뜻하지 않는다. 명세 오퍼레이션 62개 중 시험이 부른 것은 27개이고, 실제 서버와 FE 연동은 이 대조에 포함되지 않는다.

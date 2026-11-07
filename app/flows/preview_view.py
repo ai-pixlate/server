@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 STYLE_DEFAULTS_UNAPPROVED = "STYLE_DEFAULTS_UNAPPROVED"
 STYLE_RESULT_INVALID = "STYLE_RESULT_INVALID"
 RENDER_INPUT_INVALID = "RENDER_INPUT_INVALID"
-# fontScale: 셀러 배율 저장 칸이 아직 없다(blockPatch 「블록 배치」 — 별도 작업). 계약상 배율이 없으면 1.0
+# fontScale: 셀러 배율(고정 입력의 font_scale). 계약상 배율이 없으면 1.0
 DEFAULT_FONT_SCALE = 1.0
 _INPUT_STAGES = ("inpaint", "style", "translate")  # ⑨ 시도를 만들 수 있는 조건(downstream.progress 와 같다)
 
@@ -129,7 +129,7 @@ def section_input(ctx: PreviewContext, sid: int) -> dict[str, Any]:
         blocks.append({
             "blockId": r["id"], "revision": r["revision"], "text": r["trans_1"], "box": dict(b["box"]),
             "style": {"fontFamily": a["font_family"], "fontWeight": a["font_weight"], "fontSizePx": a["font_size_px"],
-                      "fontScale": DEFAULT_FONT_SCALE, "fontColor": a["font_color"], "align": a["align"],
+                      "fontScale": b.get("font_scale", DEFAULT_FONT_SCALE), "fontColor": a["font_color"], "align": a["align"],
                       "letterSpacingEm": a["letter_spacing_em"], "lineHeightRatio": mapping.line_height_ratio},
         })
     if bad_box:

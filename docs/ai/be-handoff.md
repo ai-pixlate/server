@@ -17,11 +17,11 @@
 
 - **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 #71 결정 전까지 **나누지 않은 원문 문자열**(없으면 빈 배열) — AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
 - **정책 규칙**: DB에 없다. 저장소 운영 규칙 `pipeline/data/policy_rules.json`(AI 소유, `policy@2026-10-08.1`)을 분석 시작 때 읽어 묶음에 고정하고 지문(`policy_rules_sha256`)도 보존한다. `PIXLATE_POLICY_RULES`는 실험용 대체 경로다. `overrides`가 있거나 `combination→otc`·`unknown→cosmetic`(D8)과 다르면 거부한다. 규제 행 조회 분류는 규칙의 `applied_classes`(`common` 포함)를 따른다.
-- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 표현 지시는 #71 확정 전(`ALTERNATIVES_SPLIT=False`)에는 만들지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
+- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 인증↔문구 충돌의 블록별 제외·최종 프롬프트 공급 관계·기록/지문은 `contract.md` 5.1.1을 따르며 후속 필드·저장 구조는 BE 최소 구현안 대기다. [BE–AI §3.5] 표현 지시는 #71 확정 전(`ALTERNATIVES_SPLIT=False`)에는 만들지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 검사 연결(8절) — 규칙 검사(`run_text_check`) · LLM 판정(`run_translation_review`) 모두 BE 연동 때 일괄 검토 후 연결(시점 · 순서 미정, D12 보완 2). GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
+- **남은 것**: 번역문 검사 연결(8절) — 문구 2차 첫 활성화의 규칙 검사 연결·검증 필수 조건은 8절과 계약 5.1.1을 따르며, LLM 연결 일정은 별도 협의. GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -292,13 +292,15 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 규칙 검사 `run_text_check`와 LLM 규제 판정 `run_translation_review`의 계약은 `contract.md` 5.3·7.1이다. `[BE–AI §n]`의 출처·결정일은 [결정 색인 7절](integration-decisions.md#7-beai-기술-계약-동기화-근거)에서 추적한다. 요청 지문과 검사 의미 키의 분리, 활성 검사 명시, producer 소유·채택/확정 보호는 채택 원칙이며 DB·API 필드와 라우팅·배포 상세까지 확정된 것은 아니다. AI 내부 함수 구현과 BE 연결을 구분하며 구현 현황은 `status.md`, 남은 결정은 #82·#83을 따른다. [BE–AI §2·3]
 
+문구 2차 첫 활성화에는 `run_text_check`의 BE 연결·검증이 필수다. 성분·인증 교체는 검사 연결과 병행하거나 먼저 진행할 수 있다. 2026-11-07 회신의 서비스 연결 전 상태와 dev 검증·운영 별도 승인 구분을 유지한다. 범위·선행 조건 정본은 [계약 5.1.1](contract.md#511-용어집-2차-첫-활성화와-3차-범위)이다. [BE–AI §3.5]
+
 ### 8.1 요청 구성
 
 - 두 검사 모두 섹션 단위 시도이며 대상은 섹션의 검사 가능한 블록 전체(포함 섹션 · `is_excluded=false` · 비공백 원문 · 비공백 현재 `trans_1`)다. 의미 입력 변경은 검사별로 판단하되 섹션 보고를 부분 채택하지 않는다(`contract.md` 5.3).
 - `text_check`: 기존 형식(`targets[{block_key, revision, text}]` · 묶음 · 용어). 묶음은 그 분석 실행의 고정 묶음, 용어는 ⑧ 공급과 같은 선별 규칙.
 - `translation_review`: `targets`에 라벨 · 로고 값을, 대상 밖 섹션 블록은 `context[{block_key, revision, is_product_label, is_brand_logo}]`로 준다. 라벨 · 로고는 **BE 공급 계약 후보** — DB 값을 그대로 주며 누락을 false로 채우지 않는다. 대상 밖 블록의 번역문은 주지 않는다(대상 밖인데 번역문이 있으면 BE 불변식 위반).
 - 등록 때 `review_manifest(request, cfg)` · `text_check_manifest(request)`로 지문을 계산해 `expected_input_manifest_sha256`과 시도의 고정 지문에 둔다.
-- **활성 검사 구성**: 실행(작업)마다 이번에 돌릴 검사를 정해 등록 · 집계에 같은 값을 쓴다 — 규칙 검사만 `("rule",)` 또는 두 검사 `("rule", "llm")`. stage 허용과 실제 활성화는 분리한다. 2차 stage 허용 검토·3차(11/27) LLM 실제 연결 제안은 공동 일정 확인 대상이다. [BE–AI §3.1 A7] 비활성 검사는 등록하지 않는다. 구성을 어디에 둘지(설정 · 실행 행 등)는 BE가 정한다. 새 API 필드 · DB 스키마는 AI가 정하지 않는다.
+- **활성 검사 구성**: 실행(작업)마다 이번에 돌릴 검사를 정해 등록 · 집계에 같은 값을 쓴다 — 규칙 검사만 `("rule",)` 또는 두 검사 `("rule", "llm")`. stage 허용과 실제 활성화는 분리한다. 문구 2차 첫 활성화에 규칙 검사 연결·검증은 필수이며(계약 5.1.1), 3차(11/27) LLM 실제 연결 제안은 공동 일정 확인 대상이다. [BE–AI §3.1 A7] 비활성 검사는 등록하지 않는다. 구성을 어디에 둘지(설정 · 실행 행 등)는 BE가 정한다. 새 API 필드 · DB 스키마는 AI가 정하지 않는다.
 
 ### 8.2 등록 위치
 

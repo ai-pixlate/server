@@ -25,6 +25,8 @@ DB 접속은 DATABASE_URL 환경변수(plan·load). 접속 정보는 출력하�
   (target_lang, internal_category, term_ko)가 바뀜(번호 재사용) · 같은 자연키에 다른 원본 ID ·
   원본 ID 없는 기존 행과 자연키가 겹침 · 이미 적재된 ID가 이번 파일에서 적재 제외로 바뀜.
 - 이번 파일에 없는 기존 행은 지우지 않고 건수만 보고한다.
+- 활성에서 제외된 행(retired_at, 인증·성분 교체 CLI `app.glossary_replace`가 표시)은 건수에 넣지 않는다. 그 원본 ID가
+  파일에 다시 있으면 내용·version과 무관하게 중단한다(자동 재활성화 없음). 자연키 UNIQUE는 그대로 적용된다.
 - 같은 ID의 한국어·카테고리 정정(오타 수정 포함)도 막는다. 로더로는 반영되지 않으며 별도 검토 절차가 필요하다.
 - B1 제한(2026-11-06 승인, 계약 규칙이 아니라 이번 구현의 제한): 문구에서 version 이 올라 갱신할 때 라벨·대표여부의
   값→NULL 또는 NULL→값 전환이 필요하면 자동 변환하지 않고 중단한다. 입력 값과 현재 저장 값만 비교하며 입력 형식 이력은 없다.
@@ -380,9 +382,9 @@ def _require_schema(conn: Connection) -> None:
             "WHERE table_schema = current_schema() AND table_name = 'glossary'"
         ))
     }
-    missing = [c for c in DB_FIELDS if c not in cols]
+    missing = [c for c in (*DB_FIELDS, "retired_at") if c not in cols]
     if missing:
-        raise SystemExit(f"glossary 에 열이 없음 {missing} — 마이그레이션 0005 를 먼저 적용")
+        raise SystemExit(f"glossary 에 열이 없음 {missing} — 마이그레이션 0005·0012 를 먼저 적용")
 
 
 def _review_null_transitions(cur, rec: dict[str, Any]) -> list[str]:
@@ -395,7 +397,7 @@ def _review_null_transitions(cur, rec: dict[str, Any]) -> list[str]:
 
 def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
     plan = DbPlan()
-    existing = conn.execute(text(f"SELECT id, {', '.join(DB_FIELDS)} FROM glossary")).mappings().all()
+    existing = conn.execute(text(f"SELECT id, retired_at, {', '.join(DB_FIELDS)} FROM glossary")).mappings().all()
     by_ext = {r["external_id"]: r for r in existing if r["external_id"] is not None}
     by_key = {tuple(r[k] for k in NATURAL_KEY): r for r in existing}
 
@@ -410,6 +412,9 @@ def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
 
             key = tuple(rec[k] for k in NATURAL_KEY)
             cur = by_ext.get(eid)
+            if cur is not None and cur["retired_at"] is not None:
+                fail(f"활성에서 제외된 원본 ID — 자동으로 되살리지 않음 DB id={cur['id']}")
+                continue
             if cur is not None:
                 cur_key = tuple(cur[k] for k in NATURAL_KEY)
                 if cur_key != key:
@@ -443,12 +448,12 @@ def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
     # 이미 적재된 ID가 이번 파일에서 적재 제외로 바뀐 경우(강등)
     for f in vr.files:
         for eid, reason in f.excluded_ids.items():
-            if eid in by_ext:
+            if eid in by_ext and by_ext[eid]["retired_at"] is None:
                 plan.issues.append(Issue(f.kind, None, eid, None,
                                          f"DB에 적재된 행이 이번 파일에서 적재 제외({reason})로 바뀜 — 처리 방식 결정 필요"))
     prefixes = tuple(SPECS[f.kind].id_prefix for f in vr.files)
-    plan.db_only = sum(1 for eid in by_ext if eid.startswith(prefixes) and eid not in incoming_ids
-                       and not any(eid in f.excluded_ids for f in vr.files))
+    plan.db_only = sum(1 for eid, r in by_ext.items() if r["retired_at"] is None and eid.startswith(prefixes)
+                       and eid not in incoming_ids and not any(eid in f.excluded_ids for f in vr.files))
     return plan
 
 

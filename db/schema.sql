@@ -284,7 +284,7 @@ CREATE TABLE text_block (
   overflow BOOLEAN NOT NULL DEFAULT false,
   compliance_flags JSONB NULL,
   ocr_confidence NUMERIC(5,4) NULL,
-  auto_adjust JSONB NULL,
+  layout_adjust JSONB NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   revision INTEGER NOT NULL DEFAULT 0
 );

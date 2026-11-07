@@ -1277,9 +1277,9 @@ def test_export_csv_cells_neutralized_same_in_csv_and_zip(env, monkeypatch):
     assert alone == zipped  # 개별 CSV 와 zip 안 CSV 는 같은 처리·같은 바이트
     assert alone.startswith(b"\xef\xbb\xbf")
     rows = list(_csv.reader(_io.StringIO(alone.decode("utf-8-sig"))))
-    assert rows[0] == ["sectionId", "blockOrder", "role", "sourceKo", "trans1"]
-    assert rows[1][3:] == ["'=SUM(1,2)", '\'=HYPERLINK("http://example.invalid","x")']
-    assert rows[2][3:] == ["건조하고, \"당기는\"\n피부", "'-10% off"]  # 구분자·따옴표·줄바꿈은 원문 그대로
+    assert rows[0] == ["sectionId", "blockOrder", "role", "sourceKo", "trans1", "layout_x", "layout_y", "layout_w", "layout_h", "font_scale"]
+    assert rows[1][3:5] == ["'=SUM(1,2)", '\'=HYPERLINK("http://example.invalid","x")']
+    assert rows[2][3:5] == ["건조하고, \"당기는\"\n피부", "'-10% off"]  # 구분자·따옴표·줄바꿈은 원문 그대로
     # DB 원문·번역문은 바꾸지 않는다
     assert _q("SELECT source_ko, trans_1 FROM text_block WHERE id = :b", b=a)[0] == {
         "source_ko": "=SUM(1,2)", "trans_1": '=HYPERLINK("http://example.invalid","x")'}
@@ -1967,7 +1967,8 @@ def test_preview_input_errors_are_classified_without_inventing_input(env, monkey
     prev = _pvs(c, job, sid)
     w = prev["renderInput"]["section"]["width"]
     for bad in ({"x": -5, "y": 0, "w": 10, "h": 10}, {"x": 0, "y": 0, "w": 0, "h": 10}, {"x": w - 5, "y": 0, "w": 10, "h": 10}):
-        _q("UPDATE text_block SET auto_adjust = CAST(:a AS jsonb) WHERE id = :b", a=json.dumps({"layout_bbox": bad}), b=b["id"])
+        _q("UPDATE text_block SET layout_adjust = CAST(:a AS jsonb) WHERE id = :b",
+           a=json.dumps({"schema_version": 2, "user": {"layout_bbox": bad, "font_scale": None}, "system": None}), b=b["id"])
         s = _pvs(c, job, sid)
         assert _input_state(s) == "error"
         assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}, bad
@@ -1975,7 +1976,7 @@ def test_preview_input_errors_are_classified_without_inventing_input(env, monkey
         assert s["render"]["result"]["taskId"] == prev["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
         assert s["render"]["result"]["overflow"] is None and s["renderedUrl"] == prev["renderedUrl"]
         assert {x["sectionInputFingerprint"] for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == sid} == {None}
-    _q("UPDATE text_block SET auto_adjust = NULL WHERE id = :b", b=b["id"])
+    _q("UPDATE text_block SET layout_adjust = NULL WHERE id = :b", b=b["id"])
     assert _pvs(c, job, sid)["inputFingerprint"] == prev["inputFingerprint"]
     style = _q("SELECT style FROM text_block WHERE id = :b", b=b["id"])[0]["style"]
     _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b",
@@ -2166,16 +2167,16 @@ def test_preview_unreadable_bbox_is_render_input_invalid_not_500(env):
     before = {s["id"]: s for s in _pv(c, job)["sections"]}
     others = {k: v["inputFingerprint"] for k, v in before.items() if k != sid}
     assert others
-    orig = _q("SELECT bbox, auto_adjust FROM text_block WHERE id = :b", b=b["id"])[0]
+    orig = _q("SELECT bbox, layout_adjust FROM text_block WHERE id = :b", b=b["id"])[0]
     bb = orig["bbox"]
     cases = [
         ("bbox", None),
         ("bbox", {k: v for k, v in bb.items() if k != "w"}),
         ("bbox", {**bb, "x": str(bb["x"])}),
         ("bbox", {**bb, "y": True}),
-        ("auto_adjust", ["layout_bbox"]),
-        ("auto_adjust", {"layout_bbox": {"x": 1, "y": 1, "w": 5}}),
-        ("auto_adjust", {"layout_bbox": "0,0,5,5"}),
+        ("layout_adjust", ["layout_bbox"]),
+        ("layout_adjust", {"layout_bbox": {"x": 1, "y": 1, "w": 5}}),
+        ("layout_adjust", {"layout_bbox": "0,0,5,5"}),
     ]
     for col, val in cases:
         _q(f"UPDATE text_block SET {col} = CAST(:v AS jsonb) WHERE id = :b", v=None if val is None else json.dumps(val), b=b["id"])
@@ -2191,8 +2192,8 @@ def test_preview_unreadable_bbox_is_render_input_invalid_not_500(env):
         assert bl.status_code == 200, (col, val, bl.text)
         fps = {x["sectionId"]: x["sectionInputFingerprint"] for x in bl.json()}
         assert fps[sid] is None and {k: fps[k] for k in others} == others
-        _q("UPDATE text_block SET bbox = CAST(:bb AS jsonb), auto_adjust = CAST(:aa AS jsonb) WHERE id = :b", bb=json.dumps(bb),
-           aa=None if orig["auto_adjust"] is None else json.dumps(orig["auto_adjust"]), b=b["id"])
+        _q("UPDATE text_block SET bbox = CAST(:bb AS jsonb), layout_adjust = CAST(:aa AS jsonb) WHERE id = :b", bb=json.dumps(bb),
+           aa=None if orig["layout_adjust"] is None else json.dumps(orig["layout_adjust"]), b=b["id"])
     assert _pvs(c, job, sid)["inputFingerprint"] == before[sid]["inputFingerprint"]
     sbox = _q("SELECT bbox FROM section WHERE id = :s", s=sid)[0]["bbox"]
     for sql in ("UPDATE section SET bbox = NULL WHERE id = :s", "UPDATE section SET bbox = bbox - 'w' WHERE id = :s"):

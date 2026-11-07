@@ -1,6 +1,7 @@
 """조판 렌더 — 배경(⑥ 결과 또는 원본) 위에 번역문을 블록 배치 영역에 그린다(⑨ 미리보기·N6 최종 렌더 공통).
 
-- 배치 영역: text_block.auto_adjust.layout_bbox 가 있으면 그것, 없으면 원본 bbox(contract.md 6.1). 섹션 로컬 px.
+- 배치 영역: 셀러 조정 박스(text_block.layout_adjust.user)가 있으면 그것, 없으면 원본 bbox(contract.md 6.1). 섹션 로컬 px.
+- 셀러 배율: 최종 글자 크기 = 적용 크기 × font_scale(절대 배율, 기준 크기에 한 번만 곱한다). 줄 높이도 최종 크기 기준.
 - 스타일: ⑦ 측정값(font_color · est_font_px · align)을 쓰고, 측정 NULL·⑦ 실패는 **승인된 역할별 기본값**으로 채운다(D9-3·D11).
   기본값은 사용자 승인 설정 자료(pipeline/data/style_defaults.json, `PIXLATE_STYLE_DEFAULTS` 로 대체 경로)와 같은 폰트 파일을
   `pipeline.handoff.style_defaults` 로 읽고 검증해 쓴다(be-handoff 6.6 ①②⑤⑥). 적용 규칙은 그 모듈의 `resolve_block`
@@ -87,6 +88,7 @@ class RenderBlock:
     style: dict[str, Any] | None  # ⑦ 측정값(4키) 또는 None(⑦ 실패·미실행)
     style_stage: str  # 섹션의 ⑦ 단계 결과(done | failed)
     source_ko: str | None  # 원문(빈 원문은 조판하지 않는다 — resolve_block 규칙)
+    font_scale: float = 1.0  # 셀러 절대 배율 — 고정 입력 값 그대로. 미리보기·최종 렌더 공통
 
 
 @dataclass
@@ -95,6 +97,7 @@ class BlockRender:
     applied: dict[str, Any]
     source: dict[str, str]
     lines: int
+    ink_visible: bool = True  # 글자 픽셀이 섹션 안에 있는가(기록용 — 판정에 쓰지 않는다)
 
 
 @dataclass
@@ -124,12 +127,17 @@ def resolve_style(b: RenderBlock, defaults: RoleDefaults, source_width_px: int) 
 
 def _font(defaults: RoleDefaults, role: str, px: float) -> ImageFont.FreeTypeFont:
     """역할 굵기의 승인 OTF(load_role_defaults 가 검증한 파일)를 적용 크기로 연다. 크기는 반올림하지 않는다(1px 미만만 1px).
-    검증 뒤 파일을 열 수 없으면 StyleDefaultsUnavailable — 다른 폰트로 넘어가지 않는다."""
+    검증 뒤 파일을 열 수 없으면 StyleDefaultsUnavailable — 다른 폰트로 넘어가지 않는다.
+    파일은 열리는데 크기 때문에 열 수 없으면 자료 문제가 아니다 — OSError 그대로 올려 호출자의 렌더 실패 경로로 보낸다."""
     path = sd.font_path(defaults.data, sd.role_spec(defaults.data, role).face)
     try:
         return ImageFont.truetype(str(path), size=max(1.0, float(px)))
     except OSError as e:
-        raise StyleDefaultsUnavailable(f"승인 폰트 파일을 열 수 없다({path}): {e}") from e
+        try:
+            ImageFont.truetype(str(path), size=1.0)
+        except OSError:
+            raise StyleDefaultsUnavailable(f"승인 폰트 파일을 열 수 없다({path}): {e}") from e
+        raise
 
 
 def _rgb(hex_color: str) -> tuple[int, int, int]:
@@ -159,6 +167,15 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, font, max_w: int) -> tuple[list[
     return lines, too_wide
 
 
+def _has_visible_ink(size: tuple[int, int], placed: list[tuple[float, float, str]], font) -> bool:
+    """그린 글자의 픽셀이 섹션 안에 있는가. 배경색·글자색과 무관하게 따로 그려 본다. 넘친 블록에만 쓴다 — 안 넘치면 박스 안에 있다."""
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    for x, y, line in placed:
+        draw.text((x, y), line, font=font, fill=255)
+    return mask.getbbox() is not None
+
+
 def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefaults) -> RenderResult:
     """섹션 배경 위에 블록을 그린다. 원본 폭(기본 크기 환산 기준)은 섹션 배경 폭 = 섹션 bbox.w(MVP 섹션은 원본 전체 폭)."""
     with Image.open(io.BytesIO(background_png)) as im:
@@ -170,12 +187,18 @@ def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefau
         if resolved is None:
             continue
         applied, source = resolved
-        font = _font(defaults, b.role, float(applied["est_font_px"]))
+        px = float(applied["est_font_px"]) * b.font_scale
+        if b.font_scale != 1:  # 렌더 기록에 남긴다. 배율이 없는 블록의 기록은 그대로
+            applied = {**applied, "font_scale": b.font_scale}
+        # 섹션보다 큰 글자도 그리고 넘침으로 판정한다(생략 분기 없음). 그릴 수 없을 만큼 크면 Pillow·FreeType 이 예외를 낸다
+        # (DecompressionBombError·OSError) — 삼키지 않는다. 호출자의 렌더 실패 경로가 받는다
+        font = _font(defaults, b.role, px)
         bx = b.box
         lines, too_wide = _wrap(draw, b.text, font, max(1, bx["w"]))
-        line_h = float(applied["est_font_px"]) * LINE_SPACING
+        line_h = px * LINE_SPACING
         total_h = line_h * len(lines)
         y = bx["y"]
+        placed = []
         for line in lines:
             lw = draw.textlength(line, font=font)
             if applied["align"] == "center":
@@ -185,8 +208,12 @@ def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefau
             else:
                 x = bx["x"]
             draw.text((x, y), line, font=font, fill=_rgb(applied["font_color"]))
+            placed.append((x, y, line))
             y += line_h
-        out.blocks[b.id] = BlockRender(overflow=bool(too_wide or total_h > bx["h"]), applied=applied, source=source, lines=len(lines))
+        overflow = bool(too_wide or total_h > bx["h"])
+        # 그리기는 끝났는데 글자 픽셀이 섹션 안에 없으면 기록만 한다. 실패로 볼지는 PM 확인 전이라 판정을 바꾸지 않는다(넘침)
+        ink = _has_visible_ink(img.size, placed, font) if overflow else True
+        out.blocks[b.id] = BlockRender(overflow=overflow, applied=applied, source=source, lines=len(lines), ink_visible=ink)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     out.png = buf.getvalue()

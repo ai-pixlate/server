@@ -51,8 +51,9 @@ def _client() -> TestClient:
 def test_string_detail_mapped_to_code():
     r = _client().get("/str404")
     assert r.status_code == 404
-    assert r.json()["error"]["code"] == "JOB_NOT_FOUND"
+    assert r.json()["error"]["code"] == "NOT_FOUND"
     assert r.json()["error"]["message"] == "job not found"
+    assert r.json()["error"]["details"] == {"reason": "job_not_found"}
 
 
 def test_dict_detail_keeps_extra_fields():
@@ -88,7 +89,8 @@ def test_every_error_has_contract_shape():
     for r in (c.get("/str404"), c.get("/dict409"), c.get("/code409"), c.post("/validate", json={}), c.get("/boom"),
               c.get("/nested409"), c.get("/retry503")):
         _contract_shape(r.json()["error"])
-    assert c.get("/str404").json()["error"]["details"] is None
+    assert c.get("/str404").json()["error"]["details"] == {"reason": "job_not_found"}
+    assert c.get("/boom").json()["error"]["details"] is None
 
 
 def test_retryable_defaults_and_explicit_value():

@@ -184,6 +184,9 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | `/preview` 키 제공 규칙 — `required` 키 항상, 상태별 null(외곽 8키·섹션 16키) | #100 계약안·FE 11-05 | `ReviewPreview` 「키 제공 규칙」 | 구현 완료·서버 배포 대기 | #108 |
 | 배치 요청의 `trans1` 필수(현재 공개안) — 생략 허용은 후속 협의(7.3) | FE 11-03 | `BlockPatch`·blockPatch 「블록 배치」·예시 `missingTrans1` | 현행(현행 서버도 `trans1` 필수) | — |
 | 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 실행계획 BE 8번·R-18 | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 | 미착수(7.2 ③) | 미정 |
+| HTTP `error.code` 15종 정리 — 서버 코드 11개를 공통 코드와 `details.reason`·`details.fields`로 변환(7.7) | FE 11-06 | `Error.details` | 구현 완료·서버 배포 대기 | `fix/int2-error-cancel-contract` |
+| 작업 취소 200 `{jobId, status}`·반복 취소 200·없는 작업/남의 작업 404 | FE 11-06 | jobCancel | 현행(서버 변경 없음, 명세·시험 보완) | `fix/int2-error-cancel-contract` |
+| `isExcluded` true·false·null 구분, null만으로 새 편집 차단 정책을 만들지 않음 | FE 11-06 | `TextBlock.isExcluded` | 현행 | — |
 
 ### 7.2 서버 미완료·의존 작업 추적
 
@@ -196,6 +199,9 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ③ | 서버 HTML/Playwright 공통 렌더 연결 | 현행 Pillow 조판(`bundleId = null`, 자간 미적용) | FE 로컬 렌더와 서버 이미지가 다를 수 있다 — 넘침·최신 판정은 서버 값만 쓴다 | `PreviewRenderer` | 미착수 — 번들 반입(R-FE-6)·렌더러 전환 이전 작업 처리(PM-R0)에 의존 |
 | ④ | 훼손된 저장값이 `/blocks`에 그대로 나가는 문제 | `bbox`·`auto_adjust`의 저장값이 형식에 맞지 않으면(문자열·불리언 좌표, 객체가 아닌 조정값) `/blocks`가 검사 없이 200으로 돌려줘 `TextBlock` 스키마에 어긋난다. /preview는 같은 데이터를 `inputError`로 알린다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다. 이를 허용하도록 스키마를 넓히지 않는다 | `TextBlock` | 미해결 — 처리 방침 미정 |
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
+| ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
+| ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
+| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 2개다(예: brandCreate) | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 
@@ -220,9 +226,18 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 
 FE 확인
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
-- HTTP `error.code` 정리 — 서버가 15종 밖 코드(`JOB_NOT_FOUND`·`ARTIFACT_NOT_FOUND`·`INVALID_INPUT` 등)를 낸다. 권장안: 서버를 15종과 `details.reason`으로 맞춘다. FE 확인 전이라 명세·서버 모두 그대로다.
-- 작업 취소 응답 — 명세는 204 본문 없음, 서버는 200 `{jobId, status}`다. 권장안: 서버의 200 응답을 계약으로 삼는다. FE 확인 전이라 명세·서버 모두 그대로다.
-- `isExcluded = null` 처리 — 명세는 null을 false로 취급하지 않는다고 적지만, FE 어댑터는 null을 편집 가능으로 처리한다. FE가 확인할 항목이다.
+
+FE 구현 (계약은 11-06 확정, 구현은 미완료)
+- 생성 타입·수동 타입·Mock 갱신과 오류 처리 회귀 시험.
+- 작업 취소 Mock을 200으로 맞추고 반복 취소도 200으로 처리.
+- N5 어댑터의 `dto.isExcluded ?? false` 제거와 null 보존.
+- `POST /jobs` 생성 결과 불명 처리 — 동일 키·동일 본문 유지, 지속되는 409에서 새 키 자동 발급 금지, 키 없는 불명 요청 자동 재전송 금지, 모든 500 일괄 자동 재시도 금지.
+
+통합 검증
+- N5에서 `isExcluded = null`이 나오는 경로와 실제 저장 허용 조건.
+
+미확인
+- 저장소 밖 스크립트·모니터링이 이전 오류 코드 값에 기대는지.
 
 서버 내부 계산·직렬화 (외부 계약에 영향 없음)
 - 규칙 검사 `inputKey`의 서버 내부 계산 — 의미 입력(고정 사전·용어집 선별 결과·규칙 버전 등)의 세부 표현과 직렬화·해시 방식, 기존 요청 검증 지문(`input_manifest_sha256`)과의 관계. 외부 계약(불투명 문자열·같은지만 비교·null 조건·배치·배율·revision 제외)은 확정이다(`BlockCheck`).
@@ -246,7 +261,7 @@ FE 확인
 
 ### 7.6 3.5.10 보정 이력
 
-버전은 3.5.10을 유지한다. 서버의 지금 동작을 그대로 설명하도록 명세의 오기와 누락을 고친 문서 보정이다. 서버 코드·DB는 바꾸지 않았고, 새 구현이나 서버 배포를 뜻하지 않는다. 서버 쪽 문제를 해결한 것도 아니다 — 남은 항목은 7.2 ④⑤와 7.3 「FE 확인」에서 추적한다.
+버전은 3.5.10을 유지한다. 서버의 지금 동작을 그대로 설명하도록 명세의 오기와 누락을 고친 문서 보정이다. 서버 코드·DB는 바꾸지 않았고, 새 구현이나 서버 배포를 뜻하지 않는다. 서버 쪽 문제를 해결한 것도 아니다 — 남은 항목은 7.2 ④⑤와 7.3에서 추적한다. 오류 코드·작업 취소는 FE 회신 뒤 서버와 명세를 고쳤다(7.7).
 
 | 날짜 | 대상 | 변경 | 이유 |
 |---|---|---|---|
@@ -261,8 +276,42 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 
 | 남은 불일치 | 건수 | 상태 |
 |---|---|---|
-| 스키마 불일치 — 15종 밖 오류 코드(`JOB_NOT_FOUND` 2, `ARTIFACT_NOT_FOUND` 1) | 3 | FE 회신 대기(7.3) |
-| 미문서화 HTTP 상태 — 작업 취소 200 | 3 | FE 회신 대기(7.3) |
+| 스키마 불일치 — 15종 밖 오류 코드(`JOB_NOT_FOUND` 2, `ARTIFACT_NOT_FOUND` 1) | 3 | 7.7 재대조에서 0건 |
+| 미문서화 HTTP 상태 — 작업 취소 200 | 3 | 7.7 재대조에서 0건 |
 | 스키마 불일치 — 시험이 일부러 훼손한 데이터(`bbox` 2, `autoAdjust` 1) | 3 | 미해결(7.2 ④) |
 
 이 대조는 호출한 응답의 스키마 적합성만 본다. /preview 59건 통과도 전체 계약·화면 검증 완료를 뜻하지 않는다. 명세 오퍼레이션 62개 중 시험이 부른 것은 27개이고, 실제 서버와 FE 연동은 이 대조에 포함되지 않는다.
+
+### 7.7 3.5.10 오류 코드·작업 취소 보완
+
+버전은 3.5.10을 유지한다. FE 회신(11-06)으로 확정한 매핑을 명세에 싣고 서버를 같은 계약으로 고쳤다. 이 PR이 머지돼도 공개 명세 갱신과 실제 서버 배포는 별개이며, 실제 서버에 배포될 때까지 운영 응답은 이전 코드다.
+
+| 이전 서버 코드 | HTTP | `error.code` | `details` |
+|---|---|---|---|
+| `JOB_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: job_not_found` |
+| `BRAND_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: brand_not_found` |
+| `SECTION_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: section_not_found` |
+| `BLOCK_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: block_not_found` |
+| `LOGO_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: logo_not_found` |
+| `SOURCE_IMAGE_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: source_image_not_found` |
+| `ARTIFACT_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: artifact_not_found` |
+| `SELLER_NOT_FOUND` | 404 | `NOT_FOUND` | `reason: seller_not_found` |
+| `INVALID_INPUT` | 400 | `VALIDATION_ERROR` | `fields: [{loc, msg}]` |
+| `INVALID_TOKEN` | 401 | `UNAUTHORIZED` | `reason: invalid_token` |
+| `RETRY_LIMIT_EXCEEDED` | 409 | `RETRY_NOT_ALLOWED` | `reason: retry_limit_exceeded` |
+
+- HTTP 상태·`message`·`retryable`·`traceId`와 기존 `details`는 유지한다.
+- 이미 `NOT_FOUND`로 나가던 경로(작업 생성의 브랜드, `PATCH /jobs/{jobId}`, 원본 순서 변경)에도 같은 `reason`을 붙였다. 없는 task는 합의된 사유가 없어 `reason` 없이 둔다.
+- 없는 리소스와 남의 리소스의 응답은 `traceId`를 빼고 같다. `reason`은 리소스 종류만 나타낸다.
+- `authMe`·`authRefresh`에 404(`seller_not_found`)를 문서화했다. 서버가 이미 내던 응답이다.
+- 현행 실행의 재시도 한도 초과는 전에도 `RETRY_NOT_ALLOWED`였고 `reason`을 더하지 않았다. `retry_limit_exceeded`는 0008 이전 실행 행에서만 나온다.
+
+**응답 대조 기록** — 7.6과 같은 8개 시험 파일을 이 브랜치(develop 2489762 기준)에서 다시 실행한 결과다. 응답 1,126건 중 적합 1,123건, 불일치 3건이다.
+
+| 항목 | 7.6 | 재대조 | 상태 |
+|---|---|---|---|
+| 15종 밖 오류 코드 | 3 | 0 | 서버·명세 변경 후 측정값. 서버 배포 전 |
+| 미문서화 작업 취소 200 | 3 | 0 | 명세 변경 후 측정값 |
+| 훼손 데이터(`bbox` 2, `autoAdjust` 1) | 3 | 3 | 미해결(7.2 ④) |
+
+이 대조는 시험이 호출한 응답의 스키마 적합성만 본다. 오류 정합성 전체가 해결됐다는 뜻이 아니다 — 7.2 ④⑤⑥⑦⑧이 남아 있고, FE 구현과 실제 서버·FE 연동은 이 대조에 포함되지 않는다.

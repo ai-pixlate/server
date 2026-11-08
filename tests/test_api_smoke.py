@@ -78,7 +78,8 @@ def test_brand_missing_name_is_validation_error():
 def test_unknown_brand_is_standard_404():
     r = client.get("/v1/brands/99999999", headers=_auth())
     assert r.status_code == 404
-    assert r.json()["error"]["code"] == "BRAND_NOT_FOUND"
+    assert r.json()["error"]["code"] == "NOT_FOUND"
+    assert r.json()["error"]["details"] == {"reason": "brand_not_found"}
 
 
 def test_cross_seller_isolation():

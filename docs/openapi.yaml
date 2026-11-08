@@ -468,6 +468,12 @@ components:
                 이후 새로 제안하는 사유는 일괄 승인이 아니라 따로 확인한다.
                 `details.reason`이 없는 INVALID_STATE(현행)는 FE가 일반 상태 오류로 처리한다.
                 요청 형식 오류(422 VALIDATION_ERROR)와 업무 검증 실패(400 VALIDATION_ERROR)는 둘 다 `details.fields: [{loc, msg}]`.
+                (서버 미완료: 400 중 `productName` 누락·원본 순서 변경·JSON 객체가 아닌 본문에는 아직 `details.fields`가 없다. 내보내기 구성 오류는 `details.unsupported`다 — `docs/README.md` 7.2 ⑥)
+                [PRD v3.5.10 · 계약 확정(FE 11-06) · 구현 완료·서버 배포 대기] **404·401·재시도 사유** — HTTP 상태와 `message`는 그대로이고 `error.code`는 15종만 쓴다.
+                NOT_FOUND `details.reason`: `job_not_found` · `brand_not_found` · `section_not_found` · `block_not_found` · `logo_not_found` · `source_image_not_found` · `artifact_not_found` · `seller_not_found`.
+                reason은 리소스 종류만 나타낸다 — 없는 리소스와 남의 리소스는 같은 응답이다(존재 은닉). 없는 task의 NOT_FOUND와 정의되지 않은 경로의 404에는 reason이 없다.
+                UNAUTHORIZED `invalid_token` → 토큰 형식·서명 오류(토큰 없음은 reason 없음).
+                RETRY_NOT_ALLOWED `retry_limit_exceeded` → 재시도 한도 초과(0008 이전 실행 행). 현행 실행의 한도 초과는 reason 없는 RETRY_NOT_ALLOWED다.
             traceId: { type: string, description: '서버 추적 ID' }
     AcceptedTask:
       type: object
@@ -1101,6 +1107,7 @@ components:
             `true` = 제품 라벨 또는 브랜드 로고로 판정돼 번역 대상이 아니다.
             `false` = 라벨도 로고도 아니라고 판정돼 번역 대상이다.
             `null` = 아직 판정 전이라 제외 여부를 모른다(N4 라벨·로고 판정 전 등). `false`로 취급하지 않는다.
+            [계약 확정(FE 11-06)] 세 값을 구분해 보존한다. `null`만으로 새로운 편집 차단 정책을 만들지 않는다.
         sourceKo: { type: [string, 'null'] }
         trans1: { type: [string, 'null'] }
         trans2: { type: [string, 'null'], description: '9월 null' }
@@ -1610,6 +1617,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/TokenResponse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /auth/logout:
     post:
       tags: [G1 Auth]
@@ -1635,6 +1643,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Seller' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /consents:
     post:
       tags: [G1 Auth]
@@ -2075,9 +2084,22 @@ paths:
       operationId: jobCancel
       x-screen: 'S0'
       x-source: API-JOB-04
-      description: '본문 없음. status=archived + 종속 리소스 정리(DELETE) + audit_log. 🟢9월.'
+      description: >
+        status=archived + 종속 리소스 정리(DELETE) + audit_log. 🟢9월.
+        [PRD v3.5.10 · 계약 확정(FE 11-06) · 현행] 응답은 200 `{jobId, status}`다. 이미 취소한 작업을 다시 취소해도 같은 200이다.
+        없는 작업과 남의 작업은 404 NOT_FOUND `job_not_found`로 구분하지 않는다(존재 은닉).
       responses:
-        '204': { description: '취소됨' }
+        '200':
+          description: '취소됨(반복 취소 포함)'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jobId, status]
+                properties:
+                  jobId: { type: integer, format: int64 }
+                  status: { type: string, enum: [archived] }
+              example: { jobId: 501, status: archived }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/tasks:
     parameters:

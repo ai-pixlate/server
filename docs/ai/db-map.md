@@ -133,6 +133,7 @@ finding별 복수 사전·근거·문자 구간은 audit_log.detail 대응 배�
 |---|---|---|
 | `brand.name_ko` · `brand.name_en` | 로고 제외 비교 대상 브랜드명 | [계약 2.3] |
 | `glossary.id` | 번역 입력 용어의 참조. `compliance_flags.glossary_id`가 참조 | [계약 5.1, 7.1] |
+| `glossary.retired_at` | 값이 있으면 활성에서 제외된 행. 공급에서 빠지고 행과 PK 는 남는다. BE 내부 표시 | BE 스키마 |
 | (`enforcement`) | 번역 입력에 함께 전달되는 **값**. DB 컬럼 존재 여부는 계약만으로 확인 불가 — 컬럼으로 전제하지 않는다 | [계약 5.1] |
 | `expression_dictionary` | BE가 DB 적재본으로 실행 묶음을 만들며 원본 ID(external_id)→내부 PK와 당시 내용을 고정한다. 결과 저장은 실행 묶음 기준이며 최신 DB 변경만으로 거절·재실행하지 않는다. AI는 사전 참조로 원본 ID를 반환한다. 필드별 공급·형식·변환은 #71의 구현 전 명세 | [통합 D5] |
 | `expression_dictionary.source_verdict_status` | 원본 판정값. 서비스 verdict_status와 구분하며 없으면 추정 복원하지 않는다. AI 미지원 값은 공급 전 거부(적재 허용과 별개) | [통합 D5] |

@@ -369,7 +369,8 @@ CREATE TABLE glossary (
   version INTEGER NULL,
   load_flag VARCHAR(4) NULL,
   label VARCHAR(100) NULL,
-  representative VARCHAR(10) NULL
+  representative VARCHAR(10) NULL,
+  retired_at TIMESTAMPTZ NULL
 );
 
 ALTER TABLE source_image ADD CONSTRAINT PK_SOURCE_IMAGE PRIMARY KEY (

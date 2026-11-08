@@ -567,7 +567,7 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
     selection = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats}
     rows = db.execute(
         text("SELECT id, term_ko, term_target, enforcement, internal_category, version FROM glossary "
-             "WHERE target_lang = :l AND internal_category = ANY(:c) ORDER BY id"),
+             "WHERE target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL ORDER BY id"),
         {"l": lang, "c": cats},
     ).mappings().all()
     return select_glossary([dict(r) for r in rows], targets, selection), selection

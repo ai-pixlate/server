@@ -11,7 +11,9 @@ DB 접속은 DATABASE_URL 환경변수(plan·load). 접속 정보는 출력하�
 - 대상: 인증·성분은 구역=A, 문구는 구역=A 이고 적재여부=Y. 나머지는 적재하지 않고 사유별로 센다.
   구역은 파일별 안내 시트에 적힌 값만 허용한다(인증 A·B·C · 성분 A·C · 문구 A·C·보류·이관).
   원본 ID 형식·중복은 제외 행까지 모든 데이터 행에서 검사하고, 나머지 값 검사는 적재 대상 행에만 한다.
-- 저장 열: 공통 16열 + 문구 3열(적재여부·라벨·대표여부). 열 이름으로 찾고, 그 외 열은 읽지 않는다.
+- 저장 열: 공통 16열 + 문구 적재여부. 문구의 라벨·대표여부는 두 열이 모두 있으면 읽고(현행 검증), 모두 없으면 NULL 로 둔다
+  (데이터 담당·PM 전달 2026-10-30: 문구 저장 열은 17열, 라벨·대표여부는 검토용). 다른 값으로 추정해 채우지 않는다.
+  한 열만 있으면 파일 오류. 열 이름으로 찾고, 그 외 열은 읽지 않는다.
 - 값은 원본 그대로 저장한다. 바꾸는 것은 두 가지뿐:
   enforcement 강제→enforced · 참고→reference, 카테고리 'Sunscreens & Tanning'→'Sunscreens & Tanning Products'.
   target_text 의 '; '(대안)·'/'(표현 일부)는 나누지 않는다. 빈 숫자 칸은 0이 아니라 NULL.
@@ -23,7 +25,11 @@ DB 접속은 DATABASE_URL 환경변수(plan·load). 접속 정보는 출력하�
   (target_lang, internal_category, term_ko)가 바뀜(번호 재사용) · 같은 자연키에 다른 원본 ID ·
   원본 ID 없는 기존 행과 자연키가 겹침 · 이미 적재된 ID가 이번 파일에서 적재 제외로 바뀜.
 - 이번 파일에 없는 기존 행은 지우지 않고 건수만 보고한다.
+- 활성에서 제외된 행(retired_at, 인증·성분 교체 CLI `app.glossary_replace`가 표시)은 건수에 넣지 않는다. 그 원본 ID가
+  파일에 다시 있으면 내용·version과 무관하게 중단한다(자동 재활성화 없음). 자연키 UNIQUE는 그대로 적용된다.
 - 같은 ID의 한국어·카테고리 정정(오타 수정 포함)도 막는다. 로더로는 반영되지 않으며 별도 검토 절차가 필요하다.
+- B1 제한(2026-11-06 승인, 계약 규칙이 아니라 이번 구현의 제한): 문구에서 version 이 올라 갱신할 때 라벨·대표여부의
+  값→NULL 또는 NULL→값 전환이 필요하면 자동 변환하지 않고 중단한다. 입력 값과 현재 저장 값만 비교하며 입력 형식 이력은 없다.
 
 plan 은 읽기 전용 트랜잭션으로 조회만 하고 명시적 쓰기 차단 잠금을 잡지 않는다. load 는 쓰기를 막는 잠금을 잡은 뒤
 DB 비교를 처음부터 다시 한다(plan 이후 DB가 바뀌었을 수 있다).
@@ -70,6 +76,8 @@ COMMON_COLUMNS = [
     "verified_at", "source", "note", "version",
 ]
 PHRASE_COLUMNS = ["적재여부", "라벨", "대표여부"]
+PHRASE_REVIEW_COLUMNS = ("라벨", "대표여부")  # 두 열이 모두 없으면 허용, 한 열만 있으면 오류
+PHRASE_REVIEW_DB_FIELDS = ("label", "representative")
 
 ENFORCEMENT = {"강제": "enforced", "참고": "reference"}
 CATEGORY_ALIAS = {"Sunscreens & Tanning": "Sunscreens & Tanning Products"}
@@ -204,6 +212,8 @@ def parse_file(kind: str, path: str, issues: list[Issue]) -> ParsedFile:
         it = wb[spec.sheet].iter_rows(values_only=True)
         header = [None if h is None else str(h).strip() for h in next(it, ())]
         wanted = COMMON_COLUMNS + (PHRASE_COLUMNS if spec.phrase else [])
+        if spec.phrase and not any(c in header for c in PHRASE_REVIEW_COLUMNS):
+            wanted = [c for c in wanted if c not in PHRASE_REVIEW_COLUMNS]
         idx: dict[str, int] = {}
         for col in wanted:
             positions = [i for i, h in enumerate(header) if h == col]
@@ -309,12 +319,15 @@ def _parse_row(pf, spec, label, row_no, cell, id_pattern, issues) -> None:
 
     if spec.phrase:
         rec["load_flag"] = load_flag
-        take("라벨", "label", lambda v: _text(v, True))
-        rep = cell["대표여부"]
-        if rep in REPRESENTATIVE:
-            rec["representative"] = rep
+        if "라벨" in cell:
+            take("라벨", "label", lambda v: _text(v, True))
+            rep = cell["대표여부"]
+            if rep in REPRESENTATIVE:
+                rec["representative"] = rep
+            else:
+                err("대표여부", f"대표/대안 이 아님({rep!r})")
         else:
-            err("대표여부", f"대표/대안 이 아님({rep!r})")
+            rec["label"] = rec["representative"] = None
     else:
         rec["load_flag"] = rec["label"] = rec["representative"] = None
 
@@ -369,14 +382,22 @@ def _require_schema(conn: Connection) -> None:
             "WHERE table_schema = current_schema() AND table_name = 'glossary'"
         ))
     }
-    missing = [c for c in DB_FIELDS if c not in cols]
+    missing = [c for c in (*DB_FIELDS, "retired_at") if c not in cols]
     if missing:
-        raise SystemExit(f"glossary 에 열이 없음 {missing} — 마이그레이션 0005 를 먼저 적용")
+        raise SystemExit(f"glossary 에 열이 없음 {missing} — 마이그레이션 0005·0012 를 먼저 적용")
+
+
+def _review_null_transitions(cur, rec: dict[str, Any]) -> list[str]:
+    """B1 제한: 갱신에 값→NULL 또는 NULL→값 전환이 필요한 라벨·대표여부 열. 현재 저장 값과 입력 값만 본다."""
+    return [
+        f"{c}({'값→NULL' if rec[c] is None else 'NULL→값'})"
+        for c in PHRASE_REVIEW_DB_FIELDS if (cur[c] is None) != (rec[c] is None)
+    ]
 
 
 def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
     plan = DbPlan()
-    existing = conn.execute(text(f"SELECT id, {', '.join(DB_FIELDS)} FROM glossary")).mappings().all()
+    existing = conn.execute(text(f"SELECT id, retired_at, {', '.join(DB_FIELDS)} FROM glossary")).mappings().all()
     by_ext = {r["external_id"]: r for r in existing if r["external_id"] is not None}
     by_key = {tuple(r[k] for k in NATURAL_KEY): r for r in existing}
 
@@ -391,6 +412,9 @@ def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
 
             key = tuple(rec[k] for k in NATURAL_KEY)
             cur = by_ext.get(eid)
+            if cur is not None and cur["retired_at"] is not None:
+                fail(f"활성에서 제외된 원본 ID — 자동으로 되살리지 않음 DB id={cur['id']}")
+                continue
             if cur is not None:
                 cur_key = tuple(cur[k] for k in NATURAL_KEY)
                 if cur_key != key:
@@ -406,7 +430,11 @@ def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
                     changed = [k for k in DB_FIELDS if cur[k] != rec[k]]
                     fail(f"같은 version({cur_v})인데 내용이 다름 {changed}")
                 else:
-                    plan.updates.append({**rec, "id": cur["id"]})
+                    blocked = _review_null_transitions(cur, rec) if SPECS[f.kind].phrase else []
+                    if blocked:
+                        fail(f"갱신에 {', '.join(blocked)} 전환이 필요함 — B1 제한으로 자동 변환하지 않음 DB id={cur['id']}")
+                    else:
+                        plan.updates.append({**rec, "id": cur["id"]})
                 continue
             other = by_key.get(key)
             if other is not None:
@@ -420,12 +448,12 @@ def build_plan(conn: Connection, vr: ValidationResult) -> DbPlan:
     # 이미 적재된 ID가 이번 파일에서 적재 제외로 바뀐 경우(강등)
     for f in vr.files:
         for eid, reason in f.excluded_ids.items():
-            if eid in by_ext:
+            if eid in by_ext and by_ext[eid]["retired_at"] is None:
                 plan.issues.append(Issue(f.kind, None, eid, None,
                                          f"DB에 적재된 행이 이번 파일에서 적재 제외({reason})로 바뀜 — 처리 방식 결정 필요"))
     prefixes = tuple(SPECS[f.kind].id_prefix for f in vr.files)
-    plan.db_only = sum(1 for eid in by_ext if eid.startswith(prefixes) and eid not in incoming_ids
-                       and not any(eid in f.excluded_ids for f in vr.files))
+    plan.db_only = sum(1 for eid, r in by_ext.items() if r["retired_at"] is None and eid.startswith(prefixes)
+                       and eid not in incoming_ids and not any(eid in f.excluded_ids for f in vr.files))
     return plan
 
 

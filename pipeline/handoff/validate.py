@@ -294,8 +294,7 @@ def _text_check(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> l
         text = t["text"]
         # 원문에서 적용 대상인 강제 용어(공급과 같은 선별 규칙)가 빠짐없이 검사됐는지 — 결과 · flag를 함께 지운 보고를 거절한다
         try:
-            applicable = {e.glossary_id for e in glossary_rules.select(
-                [(k, src_of[k])], [glossary_rules.Entry(x.glossary_id, x.term_ko, x.term_target, x.enforcement) for x in terms_in])}
+            applicable = tc.applicable_enforced_ids(k, src_of[k], terms_in)  # 검사와 같은 함수(강제 용어만으로 선별)
         except glossary_rules.GlossaryDataError as e:
             p.append(f"{k}: 강제 용어 적용 대상을 다시 계산할 수 없다(completed로 받을 수 없음): {e}")
             continue

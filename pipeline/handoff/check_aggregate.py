@@ -40,8 +40,10 @@ class CheckInput:
     failed_scope는 LLM 실패 보고 payload의 scope(있으면) — 범위만 알려 주며 판정은 아니다."""
 
     run_state: str
-    attempt_manifest_sha256: str | None = None  # BE가 시도에 고정한 지문
-    current_manifest_sha256: str | None = None  # 현재 입력으로 다시 계산한 지문
+    # 두 값은 같은지만 비교한다. 현재 결과 유효성에는 블록별 의미 입력 키(규칙 검사 `translation.text_check_input_keys`)를 넣는다 —
+    # 저장 revision이 든 요청 지문(`text_check_manifest`)을 넣으면 배치만 바뀐 저장에도 stale이 된다(contract 5.3)
+    attempt_manifest_sha256: str | None = None  # 시도가 검사한 입력의 키(BE가 등록 때 고정)
+    current_manifest_sha256: str | None = None  # 현재 입력으로 다시 계산한 키
     block_result: dict[str, Any] | None = None
     failed_scope: dict[str, Any] | None = None
 

@@ -11,7 +11,8 @@
 - 용어는 BE가 `pipeline.glossary` 규칙으로 이번 대상 블록에서 선별해 고정한 목록을 그대로 쓴다(AI는 다시 검색 · 거르지 않음, 통합 D10).
   용어 공급 실패는 빈 용어 목록과 다르다: 번역하지 않고 failed(input_invalid).
 번역문 검사(`run_text_check`): 블록별 현재 revision 문구의 영어 규제 재대조 · 강제 용어. 번역 계산과 별개 논리 작업이다(5.32).
-`text_check_manifest`는 실행 없이 입력 지문을 계산한다(BE 유효성 판단용). 번역문 LLM 규제 판정은 `handoff/review.py`의 독립 단계다.
+`text_check_manifest`는 실행 없이 고정 요청 지문을 계산한다(요청 · 시도 검증용, revision 포함). 현재 결과 유효성은 블록별 의미 입력 키
+`text_check_input_keys`로 판단한다. 번역문 LLM 규제 판정은 `handoff/review.py`의 독립 단계다.
 """
 from __future__ import annotations
 
@@ -288,7 +289,9 @@ def _text_check_inputs(req: TextCheckRequest) -> tuple[CheckedBundle, dict[str, 
 
 
 def text_check_manifest(raw: Any) -> tuple[dict[str, Any], str]:
-    """실행 없이 규칙 검사의 입력 지문을 계산한다. BE가 등록 때 고정하고 조회 때 현재 입력의 지문과 비교한다(유효성 판단).
+    """실행 없이 규칙 검사의 고정 요청 지문을 계산한다(저장 revision 포함 · 섹션 단위). BE가 등록 때 고정해
+    `expected_input_manifest_sha256`으로 보내고, 보고의 요청 · 시도 정합성 검증(`validate_report`)에 쓴다.
+    현재 결과 유효성(`check.inputKey`)에는 쓰지 않는다 — 배치만 바뀐 저장에도 값이 바뀐다. 그 판단은 블록별 `text_check_input_keys`로 한다.
     요청 · 묶음이 잘못되면 ValueError. expected 지문은 대조하지 않는다."""
     try:
         req = TextCheckRequest.model_validate(raw)

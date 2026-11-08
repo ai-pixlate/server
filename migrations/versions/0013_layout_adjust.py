@@ -22,6 +22,7 @@ downgrade 복원 범위:
 | user | {schema_version: "1", layout_bbox, font_scale, updated_by: "user", updated_at} 중 값이 있는 키 | 이전 서버 코드는 배율을 적용하지 않는다. schema_version 은 "1" 표기로 복원 |
 | system 만 | {font_scale, line_break_applied} | schema_version·updated_by·updated_at 표기는 복원 안 됨 |
 | 둘 이상 | user 가 있으면 위 형태 + 나머지를 system·legacy 키로 보존 | 이전 코드는 보존 키를 쓰지 않는다. 다시 올리면 출처 불명으로 분류 |
+| legacy + 셀러 배율만 | 위 형태(layout_bbox 없음) + legacy 키 | 이전 코드는 legacy 박스 대신 원본 bbox 로 그린다. 다시 올려도 legacy 박스는 돌아오지 않는다 |
 | legacy + 셀러의 명시적 해제 | {legacy, legacy_released} | 이전 코드도 원본 bbox 로 그린다. 다시 올리면 출처 불명으로 분류(그 값에는 layout_bbox 가 없어 원본 bbox) |
 
 배포: 열 이름이 바뀌므로 이전 서버 코드와 호환되지 않는다. 서버 코드 전환과 함께 적용하고, 롤백도 이전 코드 복귀와 함께 한다.

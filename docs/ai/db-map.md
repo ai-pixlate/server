@@ -71,11 +71,11 @@ PRD 관련 조항에서는 auto_local·auto_local_failed를 확인했다. 아래
 | `is_product_label` | 제품 라벨 판정. `NULL`/`false`/`true` | [계약 2.2, 2.4] |
 | `is_brand_logo` | 로고 판정. NULL은 미판정이며 라벨 true일 때는 비교 생략 완료. 정상 조합은 contract.md 2.4 | [계약 2.3, 2.4] [통합 D1] |
 | `is_excluded` | 자동계산 `is_product_label OR is_brand_logo`(SQL 3값). 앱이 직접 쓰지 않음. migrations 0007에서 0003의 IS TRUE식을 바로잡았다 | [계약 2.4] [통합 D1] [migrations 0007] |
-| `style` | 처리 대상 블록의 ⑦ 측정 대표값 `{font_color, bg_color, est_font_px, align}`, 측정 불가는 명시적 NULL. 라벨·로고 블록과 ⑦ 실패는 객체 NULL. 역할 기본값 적용값은 렌더 기록(인계 payload)에만 남기고 style을 덮지 않는다 | [계약 1.2, 2장] [통합 D9] |
+| `style` | 처리 대상 블록의 ⑦ 측정 대표값 `{font_color, bg_color, est_font_px, align}`, 측정 불가는 명시적 NULL. 라벨·로고 블록과 ⑦ 실패는 객체 NULL. 역할 기본값 적용값은 렌더 기록(인계 payload)에 남기고 style을 덮지 않는다. align_basis 별도 저장·전달·지문 보존 방향이며 저장 키·외부 매핑은 #78, 기존 NULL 근거는 추정하지 않음 | [계약 1.2, 2장] [통합 D9] [BE–AI §4.1] |
 | `trans_1` | 번역문 | [계약 2장, 5.1] |
 | `overflow` | 최신 렌더 기준 폭·높이 초과 여부 | [계약 6.2] |
-| `auto_adjust` | 사용자 배치 영역 조정 JSON (`layout_bbox`) | [계약 6.1] |
-| `compliance_flags` | 현재 revision에 유효한 확인 필요 근거 JSON. producer별 소유 — `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). LLM 판정 전체(no_risk 포함) · 검사 범위 · 공급 스냅샷은 이 컬럼이 아니라 채택 인계 payload · `audit_log.detail`에 둔다. `translation_llm_review` producer와 이 보존 위치는 AI 측 제안 · BE 미합의 · 연동 전 검토 대상 | [계약 7.1] [통합 D12] [사용자 결정 2026-10-22] |
+| `auto_adjust` | 기존 사용자 배치 JSON(`layout_bbox`). 최신 사용자/시스템 구분은 `contract.md` 6.1·6.5이며 layout_adjust 내부 필드·구 컬럼 이관은 #87. 원본·AI 기준값·시스템 값 보존 | [계약 6.1] [BE–AI §4.2] |
+| `compliance_flags` | 검사별 의미 입력이 현재와 같은 확인 필요 근거 JSON. revision은 출처·감사 정보이며 단독 유효성 조건이 아님(`contract.md` 5.3·7.2). producer별 소유 — `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). LLM 판정 전체(no_risk 포함) · 검사 범위 · 공급 스냅샷은 이 컬럼이 아니라 채택 인계 payload · `audit_log.detail`에 둔다. producer 소유·입력 키·채택 보호는 BE–AI 채택, 외부 필드·저장 연결 상세는 `be-handoff.md` 8절 | [계약 7.1] [통합 D12] [BE–AI §2·3] |
 | `revision` | 번역문 또는 배치 영역 변경 시 증가 | [계약 6.3] |
 | `block_status` | `'edited'`가 `user_edited`에 대응 | [계약 0장, 7장] |
 

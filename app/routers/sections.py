@@ -117,10 +117,9 @@ class SectionAction(BaseModel):
 @router.get("/jobs/{job_id}/sections", summary="API-SEC-01 섹션 목록(버킷·배지) (DB)")
 def list_sections(job_id: int, bucket: Optional[SectionBucket] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     _require_job_owned(db, job_id, seller_id)
+    # 계약 sectionList(PRD v3.5.10 F-SEC-02 J74④ · F-SEC-04 J76⑤): 버킷과 관계없이 섹션마다 저장된 판정 전부를
+    # 상세(SEC-02)와 같은 정렬·필드로 싣는다. 조회만 한다 — 판정을 새로 만들거나 고치지 않는다
     secs = [_public(x) for x in _sections(db, job_id)]
-    for x in secs:  # 계약 sectionList: 제외 버킷=판정 목록 전부, 포함=썸네일만(판정 목록은 상세 SEC-02 에서)
-        if x["bucket"] != "exclude":
-            x["verdicts"] = []
     if bucket is not None:
         return [x for x in secs if x["bucket"] == bucket.value]
     return {

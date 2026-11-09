@@ -1,7 +1,8 @@
 # 규제사전·현지부적합 사전 적재 (expression_dictionary)
 
 데이터팀 규제사전(`regulation_dict*.xlsx` — 전달본마다 파일명이 다르다, 4절)·현지부적합 사전(`locale_unsuitable_dict.xlsx`)을 RDS `expression_dictionary`·
-`expression_dictionary_evidence`에 넣는 방법입니다. 스키마는 Alembic `0006`, 적재는 `python -m app.dictionary_ingest`가 합니다.
+`expression_dictionary_evidence`에 넣는 방법입니다. 스키마는 Alembic `0006`·`0009`, 적재는 `python -m app.dictionary_ingest`가 합니다.
+v12 시드(2026-10-30 최종)의 전체 교체는 **6-2절**을 따른다.
 
 ## 1. 무엇이 바뀌나
 
@@ -9,8 +10,9 @@
 | --- | --- |
 | 마이그레이션 `0006` | `expression_dictionary`: `UNIQUE(external_id)` · `UNIQUE(dict_type, target_country, regulatory_class, source_expression)` · `CHECK dict_type IN ('regulatory','local','channel')` · dict_type별 `verdict_status` CHECK · `exclusion_context`·`keep_context` TEXT · `source_verdict_status` VARCHAR(20)(판정 원값) 추가 |
 | | `expression_dictionary_evidence`: `external_id` VARCHAR(32)(원본 근거 ID) · `UNIQUE(dictionary_id, external_id)` · 부분 UNIQUE 인덱스 `uq_expr_evidence_primary`(사전 항목당 대표 근거 최대 1건) |
+| 마이그레이션 `0009` | OTC 종류 마스터 `master_otc_monograph`(US: M020 선크림 · M006 여드름 · M032 비듬·지루성 피부염·건선 · M016 피부보호제, 한국어·영문 짧은 이름) · `expression_dictionary.monograph_key` VARCHAR(16)(외래키 `(target_country, monograph_key)` → 마스터) · `ck_expr_dict_monograph_key`(규제 행: common 비움 · cosmetic/otc 채움, **NOT VALID** — 마이그레이션 시점의 기존 행 일괄 검사만 미루고, 새 INSERT 와 기존 행의 모든 UPDATE 에는 적용된다. 교체의 `retired_at` UPDATE 는 빠진 행 조건으로, 남는 행 UPDATE 는 파일의 열쇠로 통과한다) · `retired_at` TIMESTAMPTZ(교체로 빠진 행, 지우지 않음) · 항목 ID·내용 키 UNIQUE 를 `retired_at IS NULL` 부분 UNIQUE 인덱스로 변경 |
 | 로더 | `app/dictionary_ingest.py` — `validate`(파일만) · `plan`(DB 조회·비교만, 읽기 전용 트랜잭션·명시적 쓰기 차단 잠금 없음) · `load`(잠금 후 비교를 다시 하고 사전·근거를 한 트랜잭션으로 적재) |
-| API·앱 코드 | 이번 적재 로더 외에 API·워커의 사전 조회 로직 변경은 없다. 마이그레이션 DDL 잠금과 운영에서의 실제 사용 여부는 적용 전에 확인한다 |
+| API·앱 코드 | 고정 사전 묶음(`app/dictionary_bundle.py`)은 `retired_at IS NULL` 행만 읽는다(0009). 열쇠 기반 조회(작동흐름 §3-3, R1)는 아직 없다 — 묶음은 지금처럼 분류(`applied_classes`)로만 고른다. 그 밖의 API·워커 사전 조회 로직 변경은 없다. 마이그레이션 DDL 잠금과 운영에서의 실제 사용 여부는 적용 전에 확인한다 |
 
 제약의 근거: 계약 정본 v1.3 §1-1·§4-1, `CHECK_enum_허용값_v3.4.1`, `ERD_수정문_v3.4.2` E4·M6·M7(0001이 제약 없는 SQL_Preview로 만들어져 빠져 있던 것).
 dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` / `local → irrelevant·needs_fix·cultural` / `channel → policy`.
@@ -33,6 +35,7 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 | reason | 같은 이름 | |
 | **verified_at (본문)** | **`confirmed_date`** | 필수 |
 | evidence_id · evidence_source_type · evidence_article · evidence_url | (근거 테이블) | 「근거」 탭 대표 근거 행과 같은지 검사 |
+| **monograph_key** | **`monograph_key`** | OTC 종류 열쇠. common 은 비움, cosmetic·otc 는 필수, 값은 국가 선택지(US 4개) 안 — 0009부터 필수 열 |
 | internal_category · confidence · source · version | 저장 안 함 | 검사는 한다 — 아래 3절 |
 
 ### 「근거」 탭 → `expression_dictionary_evidence` (규제 항목마다 대표 근거 1건)
@@ -68,6 +71,9 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
   - 대체 표현: `allowed`는 비어야 하고, `conditional`·`rewritable`은 채워져야 한다.
   - 대표 근거: 「근거」 탭에 있고, `is_primary=Y`이며 `rg_id`에 그 항목이 있고, 그 항목을 가리키는 대표가 정확히 1건, source_type·article·url 이 규제사전 행과 같아야 한다. 근거 ID 접두어(WL·GD·MN·MP)와 source_type 이 맞아야 하고, `시장 관행`은 allowed 행에만.
   - 근거 탭의 필수값(evidence_id·source_type·quote·url·verified_at)은 **적재할 대표 근거 행**에서 검사한다. 근거 ID 형식·중복은 탭 전체에서 검사한다.
+  - OTC 종류 열쇠(0009): common 에 열쇠가 있거나, cosmetic·otc 에 열쇠가 없거나, 값이 그 국가의 선택지 밖(오타 `M02O` 포함)이면 오류. plan·load 는 DB 마스터에 그 열쇠가 있는지도 본다.
+  - 배지 대상(allowed 가 아닌 행)은 대표 근거 **조문**이 행과 근거 양쪽에 있어야 한다(URL 은 위 필수값). 시드 값이 맞는 것과 별개로 잘못된 후속 파일을 거부하기 위한 규칙이다.
+  - 같이 켜질 수 있는 두 행(작업 열쇠 없음·각 열쇠마다 common + cosmetic(열쇠 다름) + otc(열쇠 같음))에서 금지·조건부 행과 allowed 행에 **같은 검출 문자열**(NFKC·대소문자·공백·하이픈 무시)이 있으면 오류. 부분 문자열은 오류가 아니다(RG-044 ⊃ RG-042).
   - 현지부적합 필수: id · 항목 · 패턴 · 판정 · 두 맥락 · 셀러 문장 · verified_at.
 - 재적재
   - 사전: 같은 `external_id`는 내부 PK를 유지한다. 모든 열이 같으면 변경 없음, 다르면 갱신(9/8 "ON CONFLICT DO UPDATE" 합의). 정규화 값은 같고 원값(`source_verdict_status`)만 바뀌어도 갱신이다.
@@ -77,6 +83,11 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
   - 원본 근거 ID 가 없는 기존 대표 근거가 있으면 오류(연결 방법 결정 필요).
   - 적재 직후(커밋 전) 규제 항목마다 대표 근거가 정확히 1건이고 파일과 같은지, 현지 항목은 근거가 없는지 검사한다.
   - 파일에 없는 기존 행은 지우지 않고 "이번 파일에 없는 기존 행(유지)"로 센다.
+  - 비교 대상은 `retired_at IS NULL` 행뿐이다.
+- 교체(`plan|load --replace --regulatory`, 0009) — 10-27 결정 "기존 규제사전을 v12 26행으로 교체"
+  - 파일 국가의 규제 행 중 **파일에 없는 행**과 **같은 ID인데 dict_type·국가·분류가 바뀐 행**은 삭제하지 않고 `retired_at`을 찍는다. 분류가 바뀐 항목은 같은 ID로 새 행(새 PK)을 넣는다. 나머지는 보통 재적재와 같다(PK 유지·갱신).
+  - 빠진 행과 그 근거 연결이 남으므로 `section_verdict.dictionary_id`·`compliance_flags.dictionary_id`가 가리키는 과거 행이 사라지지 않는다.
+  - 현지부적합 행은 교체하지 않는다. 커밋 전에 "파일 국가의 살아 있는 규제 행 = 파일 항목"을 다시 확인하고, 하나라도 어긋나면 빠짐 표시까지 전체 롤백한다.
 
 ### 제한
 
@@ -92,6 +103,7 @@ dict_type별 판정 허용값: `regulatory → regulated·conditional·allowed` 
 | --- | --- |
 | `regulation_dict.xlsx` (2026-09-28) | **적재 불가.** 「근거」 탭 대표 근거 `MN-001·002·003·004·006·007·008`의 필수 `verified_at`이 비어 otc 10행(RG-003·011·012·013·014·015·016·020·021·022)이 거부된다. 로더는 날짜를 채우지 않는다 |
 | `regulation_dict_20260930.xlsx` (정정본, sha256 `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be`) | 데이터팀이 구글 시트 원본에서 MN 10행 `verified_at`을 `2026-09-18`로 채우고 전달본 「근거」 탭에 반영(원천 탭과 일치 확인). **로컬 validate 통과** — 규제 16(regulated 10·conditional 4·allowed 2) · 대표 근거 16(원본 13종) · 현지 8(irrelevant 5·needs_fix 3) · rewritable 원값 2(RG-008·030). **RDS 적재 완료(2026-09-30)** — 아래 적재 기록 |
+| `규제사전_v12_시드_2026-10-30_최종.xlsx` (sha256 `472ee17586ba88007eb5be68c506aa1ed8d4bee94c407f6755c303da034c4cee`) | **v12 최종(PM 10-30 확정). 0009 로더 validate 통과** — 규제 26(regulated 19·conditional 4·allowed 3) · 분류 common 11·cosmetic 4(M006 1·M032 2·M020 1)·otc 11(M020 10·M032 1) · 대표 근거 26(원본 23종) · RG-030 없음 · `⚠ 미해결` RG-021·022(PM 승인 원본 유지, D18 — 번역 지시에서 제외). **RDS 미적재** — 6-2절 |
 | 정정본에 아직 남은 것 | ① RG-021·022 대체 표현이 여전히 `[§ M020.80 시험 결과값]`(데이터팀은 `SPF [value]` · `Broad Spectrum SPF [value]`로 바꾸기로 회신). 적재는 가능하나 **번역 사용 준비 완료가 아니다.** `[value]`로 바뀌어도 검증된 상품별 수치로 치환해야 하는 미완성 템플릿이며, 로더의 `⚠ 미해결`은 한국어만 감지하므로 경고가 사라졌다고 사용 가능한 것이 아니다 ② `WL-003·006`, `GD-001·004·007·008` `verified_at` 빈칸 — 이번 적재 항목의 대표 근거가 아니어서 영향 없음 |
 
 ### 적재 기록 — 2026-09-30 RDS
@@ -129,7 +141,7 @@ python -m app.dictionary_ingest validate --regulatory "C:\경로\regulation_dict
 | 환경변수 | 쓰는 테스트 |
 | --- | --- |
 | `GLOSSARY_TEST_DATABASE_URL` | `tests/test_dictionary_db.py`(용어집 DB 테스트와 같은 변수) — 테스트마다 전용 DB를 만들고 지운다. `DATABASE_URL`만 있으면 실행하지 않는다. 운영 주소인지 자동 판별하지 않으므로 운영 DB를 지정하지 않는다 |
-| `DICT_XLSX_DIR` | 실제 전달본 검증 — 아래 파일을 **이 이름 그대로** 둔 폴더. 파일이 없는 테스트는 건너뛴다(`locale_unsuitable_dict.xlsx`는 두 경우 공통으로 필요)<br>· `regulation_dict.xlsx`(9/28 원본): 대표 근거 날짜 누락으로 validate 가 거부하는지(회귀) — `tests/test_dictionary_ingest.py`<br>· `regulation_dict_20260930.xlsx`(9/30 정정본): validate 통과(규제 16·대표 근거 16·현지 8) — `tests/test_dictionary_ingest.py`. 전용 DB에 두 번 적재해 사전 24·대표 근거 16, 두 번째는 변경 없음, 판정 원값 `rewritable` 2행(RG-008·030) — `tests/test_dictionary_db.py`(`GLOSSARY_TEST_DATABASE_URL` 필요) |
+| `DICT_XLSX_DIR` | 실제 전달본 검증 — 아래 파일을 **이 이름 그대로** 둔 폴더. 파일이 없는 테스트는 건너뛴다<br>· `규제사전_v12_시드_2026-10-30_최종.xlsx`: validate 통과(26행 · 대표 근거 26(원본 23) · 분류:열쇠 분포 · `⚠ 미해결` RG-021·022) — `tests/test_dictionary_ingest.py`. 열쇠 없는 기존 행(RG-008·030)이 있는 전용 DB에 `--replace` 두 번(빠짐 2 · 삽입 26 → 변경 없음 26, `VALIDATE CONSTRAINT` 통과) — `tests/test_dictionary_db.py`(`GLOSSARY_TEST_DATABASE_URL` 필요)<br>· `regulation_dict.xlsx`(9/28) · `regulation_dict_20260930.xlsx`(9/30, 함께 `locale_unsuitable_dict.xlsx` 필요): 0009 이후 `monograph_key` 열이 없어 거부되는지만 본다 — `tests/test_dictionary_ingest.py` |
 
 ## 6. EC2 → RDS 적용 (Linux Bash) — 4절의 날짜 보완 후
 
@@ -306,6 +318,32 @@ dict_recheck
   `alembic downgrade 0005`는 추가한 열(현지 맥락·판정 원값·근거 원본 ID)과 그 값을 지운다. 적재한 행을 지우는 것은 영구 삭제이고
   `section_verdict.dictionary_id`·`compliance_flags.dictionary_id`가 PK 를 참조할 수 있으므로 기본 복구 절차가 아니다.
 
+## 6-2. v12 전체 교체 (0009) — 6절 A~G 를 따르되 아래만 다르다
+
+아직 실행하지 않았다. 대상 DB(dev / 운영)와 시점은 BE가 정한다(B5). 실행 전에 반드시 그 DB에서 `plan --replace`를 돌려 결과를 기록한다.
+
+> **배포 차단 조건 — 운영 DB의 v12 교체(E-4)는 열쇠 기반 조회(R1)가 병합·검증된 뒤에만 실행한다.**
+> 지금 고정 사전 묶음은 분류로만 행을 고르므로, 운영 DB에 v12가 들어가는 순간 그 조회 로직으로 판정에 쓰인다(OTC 작업에 모든 otc 행이 켜지고 cosmetic 행의 열쇠 해제가 적용되지 않는다).
+> 코드 병합(0009 · 로더)과 운영 적재·활성화는 분리한다. PR 병합이나 파일 검증 통과만으로 운영 교체를 진행하지 않는다.
+> **dev 우선:** E-3 · E-4 · F(`plan --replace` · `load --replace` · 재비교 · `VALIDATE CONSTRAINT`)는 dev 또는 운영 스냅샷 복원본에서 먼저 실행하고, 결과(로그 · PK 지문 · 빠진 행 목록)를 검토한 뒤 **운영 반영은 별도 승인**을 받는다.
+> 실제 9/30 적재본의 교체 경로(빠짐 표시 UPDATE · 남는 행 UPDATE 가 열쇠 CHECK 를 통과하는지)는 그 검증 DB에서 먼저 확인한다.
+
+| 단계 | 6절과 다른 점 |
+| --- | --- |
+| A. 사전 확인 | 버전표가 `[('0008',)]` 인지 본다(0009 는 0008 다음). 사전 행 분포·근거 수를 기록한다 |
+| A-2. 백업 | 스냅샷 이름 `pixlate-db-before-0009-<날짜>` |
+| B. 이미지 | `alembic heads` 가 `0009 (head)` |
+| C. SQL 보기 | `alembic upgrade 0008:0009 --sql` |
+| D. 마이그레이션 | `alembic upgrade 0009` → `alembic_version` 이 `0009`. 마이그레이션은 기존 행 값을 바꾸지 않는다(열쇠 CHECK 는 NOT VALID — 이후 UPDATE 에는 적용) |
+| E-1. 파일 | `규제사전_v12_시드_2026-10-30_최종.xlsx` 한 개(sha256 `472ee17586ba88007eb5be68c506aa1ed8d4bee94c407f6755c303da034c4cee`). 현지부적합은 바뀌지 않았으면 함께 넣지 않는다 |
+| E-2. 설정 | `FILES="--regulatory /input/규제사전_v12_시드_2026-10-30_최종.xlsx"`, 그리고 `dict()` 를 `dict() { ingest $DB -v "$IN":/input:ro $IMG python -m app.dictionary_ingest "$1" --replace $FILES; }` 로 바꾼다(`dict_check` 의 validate 줄은 `dict()` 를 쓰지 않으므로 `--replace` 없이 그대로) |
+| E-3. plan --replace | `교체로 빠짐(retired_at, 행 보존) N: …` 목록을 기록한다. 기대: 9/30 적재본 중 v12에서 빠진 RG-030(파일에 없음)과 같은 번호로 분류가 바뀐 행(RG-008 등, 9/30본에 있던 것만) — **목록이 예상과 다르면 load 하지 않는다** |
+| E-4. load --replace | **운영 DB는 R1 병합·검증 후에만.** `결과: 적재 완료 — 교체로 빠짐 N · 사전 삽입 … · 갱신 …` 과 PK 지문을 기록 |
+| F. 재비교 | `plan --replace` 가 `교체로 빠짐 … 0` · `변경 없음 26` · 대표 근거 `변경 없음 26`. 그다음 열쇠 CHECK 전체 검사: `ALTER TABLE expression_dictionary VALIDATE CONSTRAINT ck_expr_dict_monograph_key` (살아 있는 규제 행이 모두 v12 행이면 통과) |
+| G. 복구 | 빠진 행은 남아 있다. 되돌리려면 새 행을 빼고 빠진 행의 `retired_at` 을 지우는 전진 수정 또는 A-2 스냅샷 복원. `downgrade 0008` 은 빠진 행이 있으면 멈춘다 |
+
+**DB 교체 완료 ≠ 열쇠 기반 판정 완료.** 열쇠 기반 조회(R1)와 F-TRN-03 판정 입력(분류·셀러 열쇠)을 붙이고 검증하기 전에는 운영 DB에 v12를 넣지 않는다(위 배포 차단 조건).
+
 ## 7. 이번에 하지 않은 것
 
 | 항목 | 상태 |
@@ -316,3 +354,6 @@ dict_recheck
 | 판정 엔진(리터럴 매칭)·프롬프트 주입 | 모델팀 |
 | 적재 기록 DB 테이블(파일 해시·실행 이력) | 후속 — 지금은 S3 원본 + 로그 파일 |
 | `source_expression` NOT NULL | 후속 검토 |
+| 열쇠 기반 조회(작동흐름 §3-3)를 판정·번역문 검사·프롬프트·용어집 후보 검사에 적용, 묶음 버전 기록(R1) | BE·AI 후속 |
+| OTC 종류 마스터 조회 API(N1 ③ 화면) | 후속 — 지금은 마스터 테이블과 시드만 |
+| regulated 행의 대체 표현이 조건부 표현(시험 결과 전제)인지 검사(작동흐름 §3-3) | 후속 — 문장 판별 기준 필요 |

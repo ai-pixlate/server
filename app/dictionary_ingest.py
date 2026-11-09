@@ -3,6 +3,7 @@
     python -m app.dictionary_ingest validate --regulatory regulation_dict.xlsx --local locale_unsuitable_dict.xlsx
     python -m app.dictionary_ingest plan     ...   # DB와 비교만(읽기 전용, 명시적 쓰기 차단 잠금 없음)
     python -m app.dictionary_ingest load     ...   # 잠금 후 비교를 다시 하고 사전·근거를 한 트랜잭션으로 적재
+    python -m app.dictionary_ingest plan|load --replace --regulatory ...   # 규제사전 전체 교체(아래 '교체')
 
 파일은 명시한 경로만 읽는다(하나 이상). 원본은 수정하지 않는다. DB 접속은 DATABASE_URL(plan·load).
 
@@ -22,6 +23,13 @@
   근거 탭의 필수값(evidence_id·source_type·quote·url·verified_at)은 적재할 대표 근거 행에서 검사한다.
   근거 verified_at 은 검사만 하고 저장하지 않는다(근거 테이블에 열이 없음). 시장 관행은 allowed 행에만.
 - 대체 표현에 한국어가 남은 행은 적재하되 '미해결 — 프롬프트 사용 불가'로 따로 보고한다.
+- monograph_key(OTC 종류 열쇠, 작동흐름 §1-3 · §3-3, F-TRN-07): common 은 비우고 cosmetic · otc 는 채운다.
+  값은 그 국가의 OTC 종류 선택지(MONOGRAPH_KEYS = 마스터 master_otc_monograph 시드)에 있어야 한다.
+  plan · load 는 DB 마스터에도 있는지 다시 본다.
+- 배지 대상(allowed 가 아닌 행)은 대표 근거의 URL 과 조문이 모두 있어야 한다(URL 은 위 근거 필수값).
+- 한 작업에 같이 켜질 수 있는 두 행에서 금지·조건부 행과 allowed 행에 같은 검출 문자열이 있으면 오류.
+  작업 열쇠(없음 · 국가의 각 열쇠)마다 켜지는 행 = common + cosmetic(열쇠가 다른 행) + otc(열쇠가 같은 행).
+  비교는 NFKC · 대소문자 무시 · 공백과 하이픈 제거.
 
 현지부적합 → expression_dictionary (dict_type=local, target_country=US, regulatory_class=common)
 - common = 미국 작업의 모든 규제 분류에 공통 적용. 국가 범위를 없애는 뜻이 아니다.
@@ -37,6 +45,13 @@
   이전 대표 연결은 삭제하지 않고 비대표(is_primary=false)로 남긴다. 근거 내용의 변경 이력은 관리하지 않는다
   (같은 연결의 내용이 바뀌면 그 행을 갱신한다). 적재 후 규제 항목마다 대표 근거가 정확히 1건인지 검사.
 - 파일에 없는 기존 행은 지우지 않고 건수만 보고한다.
+- 비교 대상은 retired_at IS NULL 인 행뿐이다(교체로 빠진 행은 읽지 않는다).
+
+교체(--replace, 규제사전만 · 10-27 결정 "v12 26행으로 전체 교체"):
+- 파일 국가의 규제 행 중 파일에 없는 행과, 같은 ID 인데 dict_type·국가·규제 분류가 바뀐 행은 지우지 않고
+  retired_at 을 찍어 뺀다. 분류가 바뀐 항목은 같은 ID 로 새 행(새 PK)을 넣는다. 나머지는 보통 적재와 같다.
+- 빠진 행과 그 근거 연결은 남으므로 과거 판정(section_verdict.dictionary_id)이 가리키는 행이 사라지지 않는다.
+- plan --replace 로 빠질 행 목록을 먼저 확인한다. 현지부적합 행은 교체하지 않는다.
 - 제한: DB에 version 을 저장하지 않으므로 옛 파일로 최신 내용을 덮어쓰는 것을 막지 못한다.
   출력되는 파일 SHA-256 은 파일 식별용이지 역행 방지 장치가 아니다. 적재한 원본 파일과 실행 기록을 보관한다.
 """
@@ -49,6 +64,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Optional
@@ -68,7 +84,7 @@ REG_COLUMNS = [
     "id", "dict_type", "target_country", "regulatory_class", "source_expression",
     "variant_expressions.ko", "variant_expressions.en", "alternative_expression", "verdict_status", "reason",
     "evidence_id", "evidence_source_type", "evidence_article", "evidence_url", "verified_at",
-    "internal_category", "confidence", "source", "version",
+    "internal_category", "confidence", "source", "version", "monograph_key",
 ]
 EVIDENCE_COLUMNS = ["evidence_id", "rg_id", "source_type", "company", "issued_at", "quote", "article", "url",
                     "is_primary", "verified_at"]
@@ -81,18 +97,22 @@ LOCAL_VERDICTS = ("irrelevant", "needs_fix", "cultural")
 EVIDENCE_TYPES = {"WL": "Warning Letter", "GD": "FDA 공식 문서", "MN": "OTC 모노그래프", "MP": "시장 관행"}
 MARKET_PRACTICE = "시장 관행"
 LOCAL_COUNTRY, LOCAL_CLASS = "US", "common"
+# 국가별 OTC 종류 열쇠 — 마이그레이션 0009 의 master_otc_monograph 시드와 같아야 한다
+MONOGRAPH_KEYS = {"US": ("M020", "M006", "M032", "M016")}
+KEYED_CLASSES = ("cosmetic", "otc")  # 열쇠를 반드시 채우는 분류. common 은 비운다
 
 DICT_FIELDS = [
     "external_id", "dict_type", "target_country", "regulatory_class", "source_expression", "variant_ko",
     "forbidden_en", "verdict_status", "alternative_expression", "reason", "confirmed_date",
-    "exclusion_context", "keep_context", "source_verdict_status",
+    "exclusion_context", "keep_context", "source_verdict_status", "monograph_key",
 ]
 SCOPE_KEY = ("dict_type", "target_country", "regulatory_class")
 CONTENT_KEY = SCOPE_KEY + ("source_expression",)
 EVIDENCE_FIELDS = ["evidence_source_type", "evidence_document", "evidence_quote", "evidence_article",
                    "evidence_url", "is_primary"]
 VARCHAR_LIMITS = {"external_id": 32, "dict_type": 20, "target_country": 8, "regulatory_class": 30,
-                  "source_expression": 300, "verdict_status": 20, "source_verdict_status": 20}
+                  "source_expression": 300, "verdict_status": 20, "source_verdict_status": 20,
+                  "monograph_key": 16}
 HANGUL = re.compile(r"[가-힣]")
 
 
@@ -275,6 +295,16 @@ def parse_regulatory(path: str, issues: list[Issue]) -> DictFile:
         r.take(rec, cell, "regulatory_class", "regulatory_class", lambda v: _text(v, True))
         if rec.get("regulatory_class") not in (None, *DICT_CLASSES):
             r.err("regulatory_class", f"{'·'.join(DICT_CLASSES)} 가 아님({rec['regulatory_class']!r})")
+        r.take(rec, cell, "monograph_key", "monograph_key", lambda v: _text(v, False))
+        cls, key = rec.get("regulatory_class"), rec.get("monograph_key")
+        if cls == "common" and key is not None:
+            r.err("monograph_key", f"common 행은 열쇠를 비운다({key!r})")
+        elif cls in KEYED_CLASSES and "monograph_key" in rec and key is None:
+            r.err("monograph_key", f"{cls} 행은 OTC 종류 열쇠가 있어야 한다")
+        country = rec.get("target_country")
+        if key is not None and country is not None and key not in MONOGRAPH_KEYS.get(country, ()):
+            r.err("monograph_key", f"{country} 의 OTC 종류 열쇠가 아님({key!r}) — "
+                                   f"{'·'.join(MONOGRAPH_KEYS.get(country, ())) or '선택지 없음'}")
         r.take(rec, cell, "source_expression", "source_expression", lambda v: _text(v, True))
         r.take(rec, cell, "variant_expressions.ko", "variant_ko", lambda v: _split(v, True))
         r.take(rec, cell, "variant_expressions.en", "forbidden_en", lambda v: _split(v, True))
@@ -322,6 +352,9 @@ def parse_regulatory(path: str, issues: list[Issue]) -> DictFile:
                 r.err("evidence_source_type", f"{ev_id} 는 {prefix_type} 이어야 함({ec['source_type']!r})")
             if ec["source_type"] == MARKET_PRACTICE and status != "allowed":
                 r.err("evidence_source_type", "시장 관행 근거는 allowed 행에만 쓸 수 있다")
+            if status in REG_VERDICTS and status != "allowed" and (_blank(cell["evidence_article"])
+                                                                   or _blank(ec["article"])):
+                r.err("evidence_article", "배지 대상(allowed 가 아닌 행)은 대표 근거 조문이 있어야 한다")
             if ev_id not in ev_checked:
                 er = _Row(ev_label, ev_row, ev_id, issues)
                 got = {"external_id": ev_id, "evidence_document": None, "is_primary": True}
@@ -381,6 +414,7 @@ def parse_local(path: str, issues: list[Issue]) -> DictFile:
         rec: dict[str, Any] = {
             "external_id": eid, "dict_type": "local", "target_country": LOCAL_COUNTRY,
             "regulatory_class": LOCAL_CLASS, "forbidden_en": None, "alternative_expression": None,
+            "monograph_key": None,
         }
         r.take(rec, cell, "항목", "source_expression", lambda v: _text(v, True))
         r.take(rec, cell, "패턴", "variant_ko", lambda v: _split(v, True))
@@ -397,6 +431,39 @@ def parse_local(path: str, issues: list[Issue]) -> DictFile:
             df.records.append(rec)
             df.rows.append(row_no)
     return df
+
+
+def _match_key(s: str) -> str:
+    return re.sub(r"[\s\-]+", "", unicodedata.normalize("NFKC", s)).casefold()
+
+
+def coactive_overlaps(records: list[dict[str, Any]]) -> list[Issue]:
+    """같이 켜질 수 있는 금지·조건부 행과 allowed 행이 같은 검출 문자열을 가지면 오류(작동흐름 §3-3)."""
+    issues: list[Issue] = []
+    seen: set[tuple] = set()
+    reg = [r for r in records if r["dict_type"] == "regulatory"]
+    for country in sorted({r["target_country"] for r in reg}):
+        rows = [r for r in reg if r["target_country"] == country]
+        for job_key in (None, *MONOGRAPH_KEYS.get(country, ())):
+            active = [r for r in rows if r["regulatory_class"] == "common"
+                      or (r["regulatory_class"] == "cosmetic" and r["monograph_key"] != job_key)
+                      or (r["regulatory_class"] == "otc" and r["monograph_key"] == job_key)]
+            strings: dict[str, list[dict]] = defaultdict(list)
+            for r in active:
+                for s in {_match_key(x) for x in (r["variant_ko"] or []) + (r["forbidden_en"] or [])}:
+                    strings[s].append(r)
+            for s, hits in strings.items():
+                allowed = [h["external_id"] for h in hits if h["verdict_status"] == "allowed"]
+                blocking = [h["external_id"] for h in hits if h["verdict_status"] != "allowed"]
+                for a in allowed:
+                    for b in blocking:
+                        if (a, b, s) in seen:
+                            continue
+                        seen.add((a, b, s))
+                        issues.append(Issue("전체", None, b, "variant_expressions",
+                                            f"{a}(allowed)와 같이 켜지는데 같은 검출 문자열 {s!r} — "
+                                            f"작업 열쇠 {job_key or '없음'}({country})"))
+    return issues
 
 
 def validate_files(regulatory: Optional[str], local: Optional[str]) -> DictValidation:
@@ -418,6 +485,7 @@ def validate_files(regulatory: Optional[str], local: Optional[str]) -> DictValid
     for key, where in by_key.items():
         if len(where) > 1:
             issues.append(Issue("전체", None, None, None, f"내용 키 중복 {key}: {where}"))
+    issues.extend(coactive_overlaps([r for f in files for r in f.records]))
     return DictValidation(files, issues)
 
 
@@ -433,6 +501,7 @@ class DictPlan:
     ev_update: list[dict] = field(default_factory=list)
     ev_demote: list[int] = field(default_factory=list)  # 근거 행 id
     ev_unchanged: int = 0
+    retire: list[dict] = field(default_factory=list)  # --replace: {id, external_id, why}
     issues: list[Issue] = field(default_factory=list)
 
 
@@ -441,22 +510,49 @@ def _json_list(v):
 
 
 def _db_dict_rows(conn: Connection):
-    return conn.execute(text(f"SELECT id, {', '.join(DICT_FIELDS)} FROM expression_dictionary")).mappings().all()
+    """교체로 빠지지 않은(retired_at IS NULL) 사전 행."""
+    return conn.execute(text(
+        f"SELECT id, {', '.join(DICT_FIELDS)} FROM expression_dictionary WHERE retired_at IS NULL")).mappings().all()
 
 
 def _require_schema(conn: Connection) -> None:
     cols = {(r[0], r[1]) for r in conn.execute(text(
         "SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = current_schema() "
-        "AND table_name IN ('expression_dictionary', 'expression_dictionary_evidence')"))}
-    need = [("expression_dictionary", c) for c in DICT_FIELDS] + [("expression_dictionary_evidence", "external_id")]
+        "AND table_name IN ('expression_dictionary', 'expression_dictionary_evidence', 'master_otc_monograph')"))}
+    need = ([("expression_dictionary", c) for c in DICT_FIELDS + ["retired_at"]]
+            + [("expression_dictionary_evidence", "external_id"), ("master_otc_monograph", "monograph_key")])
     missing = [f"{t}.{c}" for t, c in need if (t, c) not in cols]
     if missing:
-        raise SystemExit(f"열이 없음 {missing} — 마이그레이션 0006 을 먼저 적용")
+        raise SystemExit(f"열이 없음 {missing} — 마이그레이션 0009 를 먼저 적용")
 
 
-def build_plan(conn: Connection, vr: DictValidation) -> DictPlan:
+def _retire_targets(existing, vr: DictValidation) -> dict[int, str]:
+    """--replace: 빼낼 기존 규제 행 PK → 이유. 파일 국가의 규제 행만 본다."""
+    incoming = {r["external_id"]: r for r in vr.records if r["dict_type"] == "regulatory"}
+    countries = {r["target_country"] for r in incoming.values()}
+    out = {}
+    for cur in existing:
+        if cur["dict_type"] != "regulatory" or cur["target_country"] not in countries:
+            continue
+        rec = incoming.get(cur["external_id"])
+        if rec is None:
+            out[cur["id"]] = "파일에 없음"
+        elif tuple(cur[k] for k in SCOPE_KEY) != tuple(rec[k] for k in SCOPE_KEY):
+            out[cur["id"]] = (f"분류 변경 {cur['regulatory_class']} → {rec['regulatory_class']}"
+                              if cur["regulatory_class"] != rec["regulatory_class"] else "범위 변경")
+    return out
+
+
+def build_plan(conn: Connection, vr: DictValidation, replace: bool = False) -> DictPlan:
     plan = DictPlan()
     existing = _db_dict_rows(conn)
+    if replace:
+        retiring = _retire_targets(existing, vr)
+        plan.retire = [{"id": r["id"], "external_id": r["external_id"], "why": retiring[r["id"]]}
+                       for r in existing if r["id"] in retiring]
+        existing = [r for r in existing if r["id"] not in retiring]
+    master = {(r[0], r[1]) for r in conn.execute(text(
+        "SELECT country_code, monograph_key FROM master_otc_monograph"))}
     by_ext = {r["external_id"]: r for r in existing}
     by_key = {tuple(r[k] for k in CONTENT_KEY): r for r in existing}
     ev_rows = conn.execute(text(
@@ -475,10 +571,14 @@ def build_plan(conn: Connection, vr: DictValidation) -> DictPlan:
             def fail(msg):
                 plan.issues.append(Issue(f.kind, row, eid, None, msg))
 
+            if rec["monograph_key"] is not None and (rec["target_country"], rec["monograph_key"]) not in master:
+                fail(f"DB OTC 종류 마스터에 없는 열쇠({rec['target_country']}, {rec['monograph_key']})")
+                continue
             cur = by_ext.get(eid)
             if cur is not None:
                 if tuple(cur[k] for k in SCOPE_KEY) != tuple(rec[k] for k in SCOPE_KEY):
-                    fail(f"같은 항목 ID인데 dict_type·국가·규제 분류가 바뀜(번호 재사용 의심) DB id={cur['id']}")
+                    fail(f"같은 항목 ID인데 dict_type·국가·규제 분류가 바뀜(번호 재사용 의심) DB id={cur['id']}"
+                         + ("" if replace or rec["dict_type"] != "regulatory" else " — 규제사전 교체는 --replace"))
                     continue
                 other = by_key.get(tuple(rec[k] for k in CONTENT_KEY))
                 if other is not None and other["id"] != cur["id"]:
@@ -527,6 +627,12 @@ def _dict_params(rec: dict) -> dict:
 
 
 def apply_plan(conn: Connection, plan: DictPlan) -> None:
+    # 교체로 빠지는 행을 먼저(항목 ID · 내용 키 부분 UNIQUE 는 retired_at IS NULL 인 행만 본다)
+    if plan.retire:
+        res = conn.execute(text("UPDATE expression_dictionary SET retired_at = now() "
+                                "WHERE id = ANY(:ids) AND retired_at IS NULL"), {"ids": [r["id"] for r in plan.retire]})
+        if res.rowcount != len(plan.retire):
+            raise RuntimeError(f"교체 대상 {len(plan.retire)}행 중 {res.rowcount}행만 빠짐 — 비교 후 DB가 바뀜")
     cols = ", ".join(DICT_FIELDS)
     vals = ", ".join(f"CAST(:{c} AS jsonb)" if c in ("variant_ko", "forbidden_en") else f":{c}" for c in DICT_FIELDS)
     if plan.inserts:
@@ -547,7 +653,7 @@ def apply_plan(conn: Connection, plan: DictPlan) -> None:
         conn.execute(text(f"UPDATE expression_dictionary_evidence SET {ev_sets} WHERE id = :id"), plan.ev_update)
     if plan.ev_insert:
         ids = dict(conn.execute(text(
-            "SELECT external_id, id FROM expression_dictionary WHERE external_id = ANY(:e)"),
+            "SELECT external_id, id FROM expression_dictionary WHERE external_id = ANY(:e) AND retired_at IS NULL"),
             {"e": [r["dict_external_id"] for r in plan.ev_insert]}).all())
         cols = ["dictionary_id", "external_id"] + EVIDENCE_FIELDS
         conn.execute(
@@ -557,11 +663,19 @@ def apply_plan(conn: Connection, plan: DictPlan) -> None:
               "dictionary_id": ids[r["dict_external_id"]]} for r in plan.ev_insert])
 
 
-def verify_loaded(conn: Connection, vr: DictValidation) -> list[Issue]:
+def verify_loaded(conn: Connection, vr: DictValidation, replace: bool = False) -> list[Issue]:
     """커밋 전: 이번 파일의 항목이 파일 값 그대로 있고, 규제 항목은 대표 근거가 정확히 1건(파일과 같은 것),
-    현지 항목은 근거가 없는지 확인한다."""
+    현지 항목은 근거가 없는지 확인한다. --replace 면 파일 국가의 규제 행이 파일 항목뿐인지도 본다."""
     issues = []
-    db = {r["external_id"]: r for r in _db_dict_rows(conn)}
+    rows = _db_dict_rows(conn)
+    db = {r["external_id"]: r for r in rows}
+    if replace:
+        want = {r["external_id"] for r in vr.records if r["dict_type"] == "regulatory"}
+        countries = {r["target_country"] for r in vr.records if r["dict_type"] == "regulatory"}
+        extra = sorted(r["external_id"] for r in rows if r["dict_type"] == "regulatory"
+                       and r["target_country"] in countries and r["external_id"] not in want)
+        if extra:
+            issues.append(Issue("검증", None, None, None, f"교체 후에도 파일에 없는 규제 행이 남음: {extra}"))
     ev = defaultdict(list)
     for e in conn.execute(text(
             "SELECT dictionary_id, external_id, " + ", ".join(EVIDENCE_FIELDS) + " FROM expression_dictionary_evidence"
@@ -588,11 +702,12 @@ def verify_loaded(conn: Connection, vr: DictValidation) -> list[Issue]:
 def fingerprint(conn: Connection, vr: DictValidation) -> tuple[int, int, str]:
     """이번 파일 항목의 (항목 ID:사전 PK)와 대표 근거 (항목 ID/근거 ID:근거 PK)의 md5."""
     ids = [r["external_id"] for r in vr.records]
-    d = conn.execute(text("SELECT external_id, id FROM expression_dictionary WHERE external_id = ANY(:i)"),
-                     {"i": ids}).all()
+    d = conn.execute(text("SELECT external_id, id FROM expression_dictionary "
+                          "WHERE external_id = ANY(:i) AND retired_at IS NULL"), {"i": ids}).all()
     e = conn.execute(text(
         "SELECT d.external_id, v.external_id, v.id FROM expression_dictionary_evidence v "
-        "JOIN expression_dictionary d ON d.id = v.dictionary_id WHERE d.external_id = ANY(:i) AND v.is_primary"),
+        "JOIN expression_dictionary d ON d.id = v.dictionary_id "
+        "WHERE d.external_id = ANY(:i) AND d.retired_at IS NULL AND v.is_primary"),
         {"i": ids}).all()
     joined = ",".join(f"{a}:{b}" for a, b in sorted(d)) + "|" + ",".join(f"{a}/{b}:{c}" for a, b, c in sorted(e))
     return len(d), len(e), hashlib.md5(joined.encode("utf-8")).hexdigest()
@@ -612,6 +727,8 @@ def print_summary(vr: DictValidation) -> None:
                   f" · 「규제사전」 탭에 없는 항목만 가리키는 근거 행 {f.evidence_skipped}개는 읽지 않음")
             print(f"    rewritable→regulated {len(f.converted)}행: {', '.join(f.converted) or '없음'}"
                   f" · version 분포 {dict(sorted(f.versions.items()))}")
+            keys = Counter(f"{r['regulatory_class']}:{r['monograph_key'] or '-'}" for r in f.records)
+            print(f"    분류:열쇠 {dict(sorted(keys.items()))}")
             if f.unresolved:
                 print(f"    ⚠ 미해결 — 대체 표현에 한국어가 남음(프롬프트 사용 불가, 데이터 정정 필요): "
                       f"{', '.join(f.unresolved)}")
@@ -623,10 +740,14 @@ def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -
                    help="validate=파일만 검사(DB 없음) · plan=DB와 비교만(읽기 전용) · load=적재")
     p.add_argument("--regulatory", metavar="XLSX", help="「규제사전」·「근거」 탭이 있는 파일")
     p.add_argument("--local", metavar="XLSX", help="「01_현지부적합사전」 탭이 있는 파일")
+    p.add_argument("--replace", action="store_true",
+                   help="plan·load: 파일 국가의 규제사전을 이 파일로 교체(빠지는 행은 retired_at 으로 보존)")
     p.add_argument("--max-errors", type=int, default=50)
     args = p.parse_args(argv)
     if not (args.regulatory or args.local):
         p.error("--regulatory / --local 중 하나 이상 필요")
+    if args.replace and (args.mode == "validate" or not args.regulatory):
+        p.error("--replace 는 plan·load 에서 --regulatory 와 함께 쓴다")
 
     vr = validate_files(args.regulatory, args.local)
     print_summary(vr)
@@ -654,8 +775,11 @@ def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -
                     conn.execute(text("SET LOCAL lock_timeout = '10s'"))
                     conn.execute(text("LOCK TABLE expression_dictionary, expression_dictionary_evidence "
                                       "IN SHARE ROW EXCLUSIVE MODE"))
-                plan = build_plan(conn, vr)
-                print("== DB 비교 ==")
+                plan = build_plan(conn, vr, replace=args.replace)
+                print("== DB 비교 ==" + (" (규제사전 교체)" if args.replace else ""))
+                if args.replace:
+                    print(f"- 교체로 빠짐(retired_at, 행 보존) {len(plan.retire)}: "
+                          + (", ".join(f"{r['external_id']}({r['why']})" for r in plan.retire) or "없음"))
                 print(f"- 사전: 삽입 {len(plan.inserts)} · 갱신 {len(plan.updates)} · 변경 없음 {plan.unchanged}"
                       f" · 이번 파일에 없는 기존 행(유지) {plan.db_only}")
                 print(f"- 대표 근거: 삽입 {len(plan.ev_insert)} · 갱신 {len(plan.ev_update)} · 변경 없음 {plan.ev_unchanged}"
@@ -678,7 +802,7 @@ def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -
                     print(f"DB 오류: {str(e.orig).splitlines()[0]}")
                     print("결과: 실패 — DB가 거부, 사전·근거 전체 롤백")
                     return 1
-                post = verify_loaded(conn, vr)
+                post = verify_loaded(conn, vr, replace=args.replace)
                 if post:
                     print_issues(post, args.max_errors)
                     trans.rollback()
@@ -687,7 +811,7 @@ def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -
                 n, m, digest = fingerprint(conn, vr)
                 trans.commit()
                 print(f"- 이번 파일 항목 중 DB에 있는 행 {n}/{len(vr.records)} · 대표 근거 {m} · PK 지문 {digest}")
-                print(f"결과: 적재 완료 — 사전 삽입 {len(plan.inserts)} · 갱신 {len(plan.updates)}"
+                print(f"결과: 적재 완료 — 교체로 빠짐 {len(plan.retire)} · 사전 삽입 {len(plan.inserts)} · 갱신 {len(plan.updates)}"
                       f" · 대표 근거 삽입 {len(plan.ev_insert)} · 갱신 {len(plan.ev_update)}"
                       f" · 대표 해제 {len(plan.ev_demote)}")
                 return 0

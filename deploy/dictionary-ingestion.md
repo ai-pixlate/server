@@ -316,3 +316,31 @@ dict_recheck
 | 판정 엔진(리터럴 매칭)·프롬프트 주입 | 모델팀 |
 | 적재 기록 DB 테이블(파일 해시·실행 이력) | 후속 — 지금은 S3 원본 + 로그 파일 |
 | `source_expression` NOT NULL | 후속 검토 |
+
+## 8. 현지부적합 v9 형식 · 최종 사전 전체 교체 (2026-11-09, 마이그레이션 0014)
+
+### v9 형식(`python -m app.dictionary_ingest … --local 현지부적합_v9.xlsx`)
+- 탭 `현지부적합_국가`(→ `dict_type=local`) · `현지부적합_채널`(→ `channel`), 1행 안내문 · 2행 헤더. 형식은 탭 이름으로 고른다(v8 `01_현지부적합사전` 그대로 지원).
+- `상태` 가 `적재 · 3차` 인 행만 적재한다. 적재할 채널 행은 `구역` 이 A 로 시작해야 한다(B 3행이 섞이면 오류).
+- 판정은 파일 값 그대로(`must_fix` · `needs_check` · `policy`). 옛 enum 으로 바꾸지 않는다. 0014 가 CHECK 에 두 값을 더했다.
+- `site_key` → `expression_dictionary.site_key`: **전달 파일 원값 보존**(채널 `amazon`, 국가 빈칸). 판매 사이트 마스터 계약 · 조회 규칙을 확정한 것이 아니다(DA-5, 3차).
+- `판단 근거` → `expression_dictionary.judgment_basis`. 맥락 2열은 채널 행도 받는다.
+- 채널 행의 규정 원문 · `evidence_article` · `evidence_url` → 근거 표 대표 근거 1행. **새 내부 저장 규칙:** `evidence_source_type = 'channel_policy'`,
+  근거 `external_id` = 사전 항목 ID(`CH-01` 등 — 파일에 근거 ID 가 없다), `evidence_document` NULL. 국가 행에 이 세 열 값이 있으면 버리지 않고 오류.
+- 저장하지 않는 열: `구역` · `상태` · `kr_freq` · `kr_corpus`(데이터 지정 검토용 · 근거용). 원본 파일을 보관한다.
+- **적재 ≠ 서비스 판정.** 현재 분석 묶음(`app/dictionary_bundle.py`)은 v9 현지 판정값을 `skipped` 로 두고(현지 묶음 `unavailable`) 채널 행은 조회하지 않는다. 현지 · 채널 판정은 3차.
+
+### 카테고리 v3(`app/category_load.py`)
+- `02_표시카테고리` 148행 → 노드 200(대 10 · 중 54 · 소 136, 리프 148) · 매핑 148. 파일 순서 = id 순(FE 형제 순서).
+- 리프에만 `category_master.code`(표시 코드, 0014) — 재적재 대조 키. FE 는 DB id 를 쓴다. `amazon_node` 는 비적재(README 03 시트).
+
+### 전체 교체 CLI(`python -m app.dictionary_full_reload plan|apply|status|restore`)
+- 다섯 표(`glossary` · `expression_dictionary` · 근거 · `category_master` · `category_mapping`)의 행을 모두 지우고 최종본만 넣는다. 파일 6개의 SHA-256 은 코드에 고정.
+- plan: 명세(현재 다섯 표의 전체 행 · 작업 참조 · PK 최대값)를 저장소 `seed/dictionary-full-reload/<RUN_ID>/spec.json` 에 덮어쓰기 금지로 저장 · 되읽어 확인. DB 쓰기 없음.
+  작업이 카테고리를 가리키거나(FK `ON DELETE SET NULL`) DB 가 이미 최종본이면 중단.
+- apply: 명세 해시 · 코드 SHA · 대상 · 파일 대조 → 다섯 표 `ACCESS EXCLUSIVE` + `job` · `section_verdict` · `text_block` `SHARE` 잠금 → 현재 행 · 작업 참조 · PK 를 명세와
+  다시 대조(다르면 쓰기 없이 중단) → `DELETE`(시퀀스 유지) → 기존 로더로 삽입 → 커밋 전 전체 저장값 · 원본 ID 집합 · 최종본 밖 행 0 · 새 PK 최소값 > 옛 PK 최대값 ·
+  판정이 가리키던 옛 사전 PK 와 겹침 없음 확인 → 감사 1행 → 커밋. 어느 단계든 실패하면 전체 롤백.
+- restore: DB 가 적용 결과와 같을 때만 명세의 적용 전 행을 원래 PK 그대로 되돌린다(판정이 가리키던 사전 PK 복구). 시퀀스는 되돌리지 않는다.
+- 종료 코드: 0 완료 · 1 중단(변경 없음) · 2 환경 · 3 완료 불명 · 4 DB 완료 · 결과 파일 미완료.
+- 롤백된 시도도 시퀀스 번호를 쓴다(PK 사이에 빈 번호가 생긴다 — 재사용이 아니다).

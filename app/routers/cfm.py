@@ -334,9 +334,25 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
     }
 
 
+_INT64_MAX = 2**63 - 1
+
+
 class Ack(BaseModel):
+    """확인 항목(계약 ConfirmRequest.acknowledgedWarnings[]). 정의되지 않은 키는 지금처럼 무시한다(화면 신호 전부를 보내도 된다).
+    taskId — translation_failed 확인 기준(선택). 타입·범위는 기존 task ID 스키마(`integer`, `format: int64`)를 따른다:
+    정수 값인 JSON 수만, int64 범위 밖은 422. 최솟값은 스키마에 없어 형식 오류로 만들지 않는다(0·음수는 현재 시도와 맞지 않아 outdated).
+    생략은 지금처럼 {blockId, code}로만 판정한다. 명시적 null 은 422 — 요청 스키마가 nullable 이 아니다(생략과 구분한다)."""
     blockId: int
     code: str
+    taskId: Optional[int] = None
+
+    @field_validator("taskId", mode="before")
+    @classmethod
+    def _task_id(cls, v):  # 키를 보냈을 때만 불린다(생략은 기본값 None 그대로)
+        v = idem.integer_value(v)  # null·불리언·문자열·0.5 → ValueError
+        if not -_INT64_MAX - 1 <= v <= _INT64_MAX:
+            raise ValueError("must be a 64-bit integer")
+        return v
 
 
 class ConfirmBody(BaseModel):

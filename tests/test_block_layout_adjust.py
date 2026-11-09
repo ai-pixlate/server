@@ -791,6 +791,35 @@ def test_explicit_clear_replays_with_same_key(env):
     assert _patch(c, job, b["id"], _body(b, layoutAdjust={"box": None}), key="clear-1").status_code == 409  # 같은 키의 다른 요청
 
 
+def test_first_clear_then_latest_noop_stale_conflict_and_keyed_replay(env):
+    """첫 해제 뒤 같은 해제를 다시 보내는 세 경우(FE 11-09 확정): 최신 revision 은 no-op, 키 없는 오래된 revision 은 충돌,
+    같은 멱등 키의 같은 요청은 최초 성공 응답 재전송. 어느 경우도 새 렌더 시도·저장 변경이 없다."""
+    c, job, b, _, _ = _legacy_setup(env)
+    sid = b["sectionId"]
+    old_body = _body(b, layoutAdjust=None)
+    first = _patch(c, job, b["id"], old_body, key="first-clear")
+    assert first.status_code == 200, first.text
+    out = first.json()
+    assert out["block"]["layoutAdjust"] is None and out["block"]["revision"] == b["revision"] + 1  # null → null 이어도 revision 증가
+    assert out["rerenderTaskId"] is not None
+    n, raw = _attempts(sid), _raw_adjust(b["id"])
+
+    latest = _patch(c, job, b["id"], _body(out["block"], layoutAdjust=None))  # 1) 최신 revision 으로 같은 해제
+    assert latest.status_code == 200 and latest.json()["rerenderTaskId"] is None
+    assert latest.json()["block"]["revision"] == out["block"]["revision"]
+
+    stale = _patch(c, job, b["id"], old_body)  # 2) 멱등 키 없는 오래된 revision
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "REVISION_CONFLICT"
+    assert stale.json()["error"]["details"]["current"]["revision"] == out["block"]["revision"]
+
+    replay = _patch(c, job, b["id"], old_body, key="first-clear")  # 3) 같은 키·같은 요청 재전송
+    assert replay.status_code == 200 and replay.headers.get("Idempotent-Replayed") == "true"
+    assert replay.json() == out  # 최초 성공 응답 그대로(rerenderTaskId 포함)
+
+    assert _attempts(sid) == n and _raw_adjust(b["id"]) == raw
+    assert _block(c, job, b["id"])["revision"] == out["block"]["revision"]
+
+
 @pytest.mark.parametrize("value", [{"note": "x"}, {"layout_bbox": None}], ids=["no-box-key", "null-box"])
 def test_clear_is_noop_when_legacy_does_not_affect_placement(env, value):
     c, job, b, _, _ = _legacy_setup(env, value)

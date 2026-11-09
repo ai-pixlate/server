@@ -162,6 +162,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 배치 화면 조작([+][−] 0.05·박스 중심·경계 안쪽 이동·스냅·Undo 50단계·계산식) | PM F-CFM-15·FE 계산식 동의 | blockPatch 「블록 배치」 | 화면 | — |
 | 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
 | content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
+| 기존 배치 박스(출처 불명) — 보존·그 박스로 렌더, 해제 = 원본 bbox(`layoutAdjust` null → null이어도 revision+1·재렌더), Undo = 이전 적용 박스를 셀러 조정으로 저장, 해제 재전송 3경우 | FE 11-09 | blockPatch 「블록 배치」 | 구현 완료·서버 배포 대기(FE 구현·dev 연동 검증 전) | `feature/block-layout-adjust` |
+| 글자 픽셀이 섹션 안에 없는 렌더도 넘침으로 채택(2차 기존 규칙 유지, 서버 내부 관측 기록만), 렌더러 예외는 기존 실패 경로 | PM 11-09 | `LayoutAdjustPatch.fontScale` | 구현 완료·서버 배포 대기(PM 전제인 N5 미리보기 갱신·넘침 표시의 FE 연동 확인 전) | `feature/block-layout-adjust` |
 | 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 계약 확정·서버 구현 대기 | 미정 |
 | 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 계약 확정·서버 구현 대기 | 미정 |
 | 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 계약 확정·서버 구현 대기 | 미정 |
@@ -223,8 +225,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - PM-R0 — 렌더러 전환 이전 작업 처리(테스트 작업 정리 또는 차단)와 작업 단위 표시 필드.
 - A13 — 중간 섹션 이미지 글자 잘림의 오류 표현과 출력 정책 연결.
 - 업로드 실패로 남은 draft의 재개·취소 정책.
-- 출처 불명 기존 배치 박스(`updated_by` 없는 `layout_bbox` 등) — 출처를 정하지 않고 저장값을 보존하며 이전처럼 그 박스로 그린다. `layoutAdjust`·content.csv에는 셀러 조정으로 나오지 않는다. 셀러가 박스를 명시적으로 해제하면(`layoutAdjust: null`·`box: null`·원본 bbox 전송) 계약대로 원본 bbox로 그리며, legacy 값은 지우지 않는다. 편집 시작값은 합의대로 /preview `renderInput`의 적용 박스다. Undo는 이전 적용 박스를 명시적으로 보내면 화면은 복원되지만 셀러 조정으로 저장된다 — legacy 저장 상태 그대로의 복원은 아니다. 첫 해제는 응답의 `layoutAdjust`가 null → null로 같아 보여도 적용 박스가 바뀌므로 revision·재렌더가 생긴다. 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모르며, 정리 방침은 미정이다. 0012로 되돌리면 legacy 위에 배율만 저장한 행은 이전 서버 코드가 legacy 박스 대신 원본 bbox로 그리고, 다시 올려도 그 박스는 돌아오지 않는다(되돌리기 한계, `migrations/versions/0013_layout_adjust.py`).
-- 글자 픽셀이 섹션 안에 없는 렌더 — 그리기가 끝났으면 지금은 넘침으로 채택한다(서버는 내부 기록만 남긴다). 실패로 볼지는 PM 확인 전이다. 실패로 정하면 N6에서는 고칠 경로가 없다(N6→N5 복귀는 3차, 7.4).
+- 출처 불명 기존 배치 박스의 실제 존재 여부(DB 미조회)와 데이터 정리 방침 — 처리 의미는 7.1(FE 11-09 확정). 0012로 되돌리면 legacy 위에 배율만 저장한 행은 이전 서버 코드가 legacy 박스 대신 원본 bbox로 그리고, 다시 올려도 그 박스는 돌아오지 않는다(되돌리기 한계, `migrations/versions/0013_layout_adjust.py`).
 - 렌더러 예외로 그리지 못하는 배율로 확정한 작업 — 최종 렌더가 실패하고 산출물을 만들지 않는다. 재시도해도 같은 입력이고, 2차에서는 전체 취소 외에 고칠 경로가 없다. 미리보기 실패의 `retryable: true`도 같은 입력이면 결과가 같다.
 - 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`가 `auto_adjust`를 읽는다. 열 이름뿐 아니라 저장 모양도 바뀌어 이름 교체만으로 해결되지 않는다. AI 담당 확인이 필요하다.
 
@@ -250,6 +251,7 @@ FE 구현 (계약은 11-06 확정, 구현은 미완료)
 ### 7.4 3차(11/27)로 미룬 것
 
 - 이미지 경계 이탈(Q-07) 판정 — 최종 결합 좌표계·`boundaryCheck`·확정 제한 ①~④·409 `image_boundary_exceeded`.
+- 글자 픽셀 손실(전부·일부) 판정 — 2차는 넘침으로 채택한다(7.1, PM 11-09). 지금은 섹션별 이미지 안에 글자를 그린 뒤 N6에서 세로로 합치므로 섹션 경계를 벗어난 픽셀은 잘리고 옆 섹션으로 이어지지 않는다. 3차에 중간 섹션 이미지의 글자 손실 검출·방지와 최종 합성 이미지 경계 판정을 구현·검증한다. 서버의 내부 관측 기록(글자 픽셀 보임 여부)은 3차 판정 구현이나 안전성 검증 완료가 아니다.
 - N6 최종 경계 판정 검증 인수조건(a~e)·관련 N6 오류 화면·N6 [중단]→N5 복귀.
 - 검사 최종 실패·미해결 규제 경고의 확정 때 필수 확인(`check_failed` 신호·`inputKey` 확인 기준).
 - 실행 실패 섹션 확인(`acknowledgedSections`).

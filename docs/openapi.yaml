@@ -1179,7 +1179,7 @@ components:
           exclusiveMinimum: 0
           description: >
             기준 글자 크기 대비 **절대 배율**(직전 배율에 곱하지 않는다). null = 배율 해제(적용값 1.0). 상한 없음(PRD J109③).
-            섹션보다 큰 글자도 그리고 넘침으로 판정한다. 렌더러가 예외로 그리지 못하면 저장은 200이고 그 렌더 시도가 failed다(미리보기 `PREVIEW_UNEXPECTED`, 최종 렌더 `RENDER_UNEXPECTED`). 그리기는 끝났는데 글자 픽셀이 섹션 안에 없는 경우의 처리는 PM 확인 전이다(현재 넘침).
+            섹션보다 큰 글자도 그리고 넘침으로 판정한다. 렌더러가 예외로 그리지 못하면 저장은 200이고 그 렌더 시도가 failed다(미리보기 `PREVIEW_UNEXPECTED`, 최종 렌더 `RENDER_UNEXPECTED`). 그리기는 끝났는데 글자 픽셀이 섹션 안에 없어도 넘침으로 채택한다(PM 11-09 — 2차는 기존 규칙 유지, 셀러는 N5 미리보기·넘침 표시로 확인. 픽셀 손실 판정은 3차 Q-07).
             1.0을 보내면 null과 같은 상태로 저장한다(2차 정규화 — FE 수용·AI 동의 11-04).
     LayoutBox:
       type: object
@@ -2721,6 +2721,12 @@ paths:
           `box`와 `fontScale`은 따로 판단한다(한 필드만 기본값이면 그 필드만 정규화). 같은 상태를 한 모양으로 저장해 같은 값 판정·content.csv 빈칸·Undo가 어긋나지 않게 한다.
           적용값은 정규화와 별개로 배율 1.0·원본 bbox다. FE는 null을 적용 배율 1.0·원본 bbox로 해석하고, Undo/Redo도 정규화된 서버 상태를 쓰며, 실제로 바꾼 필드만 싣는다(안쪽 생략 = 그 값 유지).
         - 원본 `bbox`는 바뀌지 않는다. 적용 박스 = 셀러 박스, 없으면 원본 bbox / 적용 배율 = 셀러 배율, 없으면 1.0. FE는 적용값을 /preview `renderInput`에서 읽는다.
+        - **[PRD v3.5.10 · 계약 확정(FE 11-09) · 구현 완료·서버 배포 대기] 기존 배치 박스(출처 불명)**: 이전 데이터에 출처를 확인할 수 없는 배치 박스가 있으면 셀러 조정으로 보지 않고 보존하며
+          이전처럼 그 박스로 그린다 — `layoutAdjust`는 null이고 적용 박스(/preview `renderInput`)는 원본 bbox와 다를 수 있다. 편집 시작값은 이 적용 박스다.
+          해제(`layoutAdjust: null`·`box: null`·원본 bbox 전송)는 원본 bbox로 그린다. `layoutAdjust`가 null → null로 같아도 적용 박스가 바뀌므로 revision+1·재렌더 시도이며 정상 변경이다.
+          FE는 응답 `block.revision`을 정본으로 쓰고, `rerenderTaskId`가 있으면 그 작업을 추적한 뒤 /blocks·/preview를 다시 읽는다.
+          Undo는 이전 적용 박스를 `box`로 명시해 보내 화면을 되돌린다. 그 박스는 셀러 조정으로 저장된다(`layoutAdjust.box`·content.csv에 나온다). 처음의 출처·저장 상태는 복원하지 않으며 이를 위한 API도 없다.
+          해제 뒤 다시 보내는 경우: 최신 revision으로 같은 해제 = 변경 없음(no-op) / 멱등 키 없이 이전 revision = 409 REVISION_CONFLICT / 같은 Idempotency-Key·같은 본문 재전송 = 최초 성공 응답.
 
         - **화면 조작(PM 확정 F-CFM-15) · 화면**: 손잡이 끌기 = `box` 크기만(배율 그대로) / 영역 옮기기 = `box` 위치만 /
           [+][−] = 지금 영역·지금 배율에서 `box`와 `fontScale`을 함께 — FE가 새 절대값 둘을 계산해 한 요청으로 보낸다. 서버는 [+][−]를 해석하거나 박스를 다시 계산하지 않는다.
@@ -2764,7 +2770,7 @@ paths:
                 summary: '(가상 값 · 구현 완료·서버 배포 대기) 배율만 해제(첫 [+]의 Undo 등) — 박스 조정은 유지'
                 value: { revision: 8, trans1: 'Strengthens the moisture barrier', layoutAdjust: { fontScale: null } }
               clearAll:
-                summary: '(가상 값 · 계약 확정·서버 구현 대기) 셀러 조정 전부 해제'
+                summary: '(가상 값 · 구현 완료·서버 배포 대기) 셀러 조정 전부 해제'
                 value: { revision: 9, trans1: 'Strengthens the moisture barrier', layoutAdjust: null }
               translationAndLayout:
                 summary: '(가상 값 · 구현 완료·서버 배포 대기) 번역문과 배치를 한 요청으로 — revision 한 번 증가, 재렌더 시도 하나'

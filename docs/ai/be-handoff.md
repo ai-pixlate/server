@@ -300,6 +300,8 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - `text_check`: 기존 형식(`targets[{block_key, revision, text}]` · 묶음 · 용어). 묶음은 그 분석 실행의 고정 묶음, 용어는 ⑧ 공급과 같은 선별 규칙.
 - `translation_review`: `targets`에 라벨 · 로고 값을, 대상 밖 섹션 블록은 `context[{block_key, revision, is_product_label, is_brand_logo}]`로 준다. 라벨 · 로고는 **BE 공급 계약 후보** — DB 값을 그대로 주며 누락을 false로 채우지 않는다. 대상 밖 블록의 번역문은 주지 않는다(대상 밖인데 번역문이 있으면 BE 불변식 위반).
 - 등록 때 `review_manifest(request, cfg)` · `text_check_manifest(request)`로 지문을 계산해 `expected_input_manifest_sha256`과 시도의 고정 지문에 둔다.
+- 현재 결과 유효성(`check.inputKey`)은 규칙 검사 요청과 같은 형식으로 `text_check_input_keys(request)`를 불러 블록별 키를 얻는다(revision·배치 제외). 등록 때의 키와 조회·채택·확정 때 현재 입력으로 다시 만든 키를 블록마다 비교한다. 저장 위치·필드는 BE가 정한다. 키가 같아도 lease·현재 시도·취소/확정 보호를 생략하지 않으며 섹션 보고는 부분 채택하지 않는다.
+- 용어집 공급(`select_glossary`)은 인증↔문구 충돌 예외를 쓰려면 `gl.Entry`에 DB `term_kind`를 넘긴다. 넘기지 않으면 기존 동작(충돌 시 공급 실패)이다. 블록별 공급 관계(`gl.select_by_block`)를 번역 요청까지 전달하는 형식은 미정이다(`contract.md` 5.1.1).
 - **활성 검사 구성**: 실행(작업)마다 이번에 돌릴 검사를 정해 등록 · 집계에 같은 값을 쓴다 — 규칙 검사만 `("rule",)` 또는 두 검사 `("rule", "llm")`. stage 허용과 실제 활성화는 분리한다. 문구 2차 첫 활성화에 규칙 검사 연결·검증은 필수이며(계약 5.1.1), 3차(11/27) LLM 실제 연결 제안은 공동 일정 확인 대상이다. [BE–AI §3.1 A7] 비활성 검사는 등록하지 않는다. 구성을 어디에 둘지(설정 · 실행 행 등)는 BE가 정한다. 새 API 필드 · DB 스키마는 AI가 정하지 않는다.
 
 ### 8.2 등록 위치
@@ -317,7 +319,7 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 ### 8.4 조회 · 집계
 
-아래 `CheckInput` 예제는 현재 AI 내부 함수 형식이다. BE 연결에서는 `contract.md` 5.3의 의미 입력 키를 조회·집계·확정·경고 확인 식별에 일관되게 적용해야 하며, 현행 manifest 인자를 새 의미 키 구현 완료로 보지 않는다. [BE–AI §2·3]
+아래 `CheckInput` 예제는 현재 AI 내부 함수 형식이다. BE 연결에서는 `contract.md` 5.3의 의미 입력 키를 조회·집계·확정·경고 확인 식별에 일관되게 적용해야 하며, 현행 manifest 인자를 새 의미 키 구현 완료로 보지 않는다. `CheckInput`의 두 지문 값에는 같은지만 비교하므로 블록별 의미 키(`text_check_input_keys`)를 넣는다. [BE–AI §2·3]
 
 - `done + current`인 검사에는 해당 블록 결과가 있어야 한다. 결과 기록이 없으면 정상 성공으로 간주하지 않고 저장·집계 무결성 문제로 구분한다. 별도 상태로 표현할지 채택 불변식 오류로 처리할지는 미정이며 새 상태값을 여기서 정하지 않는다. [BE–AI §3.4]
 

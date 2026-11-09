@@ -11,7 +11,8 @@
 - 용어는 BE가 `pipeline.glossary` 규칙으로 이번 대상 블록에서 선별해 고정한 목록을 그대로 쓴다(AI는 다시 검색 · 거르지 않음, 통합 D10).
   용어 공급 실패는 빈 용어 목록과 다르다: 번역하지 않고 failed(input_invalid).
 번역문 검사(`run_text_check`): 블록별 현재 revision 문구의 영어 규제 재대조 · 강제 용어. 번역 계산과 별개 논리 작업이다(5.32).
-`text_check_manifest`는 실행 없이 입력 지문을 계산한다(BE 유효성 판단용). 번역문 LLM 규제 판정은 `handoff/review.py`의 독립 단계다.
+`text_check_manifest`는 실행 없이 고정 요청 지문을 계산한다(요청 · 시도 검증용, revision 포함). 현재 결과 유효성은 블록별 의미 입력 키
+`text_check_input_keys`로 판단한다. 번역문 LLM 규제 판정은 `handoff/review.py`의 독립 단계다.
 """
 from __future__ import annotations
 
@@ -35,7 +36,7 @@ from pipeline.handoff.envelope import (
     manifest_of,
     parse_identity,
 )
-from pipeline.matching import MATCH_RULES_VERSION, MatchConflictError
+from pipeline.matching import MATCH_RULES_VERSION, MatchConflictError, normalize
 from pipeline.stages import text_check
 from pipeline.stages import translate as tr
 from pipeline.types import TextBlock
@@ -288,7 +289,9 @@ def _text_check_inputs(req: TextCheckRequest) -> tuple[CheckedBundle, dict[str, 
 
 
 def text_check_manifest(raw: Any) -> tuple[dict[str, Any], str]:
-    """실행 없이 규칙 검사의 입력 지문을 계산한다. BE가 등록 때 고정하고 조회 때 현재 입력의 지문과 비교한다(유효성 판단).
+    """실행 없이 규칙 검사의 고정 요청 지문을 계산한다(저장 revision 포함 · 섹션 단위). BE가 등록 때 고정해
+    `expected_input_manifest_sha256`으로 보내고, 보고의 요청 · 시도 정합성 검증(`validate_report`)에 쓴다.
+    현재 결과 유효성(`check.inputKey`)에는 쓰지 않는다 — 배치만 바뀐 저장에도 값이 바뀐다. 그 판단은 블록별 `text_check_input_keys`로 한다.
     요청 · 묶음이 잘못되면 ValueError. expected 지문은 대조하지 않는다."""
     try:
         req = TextCheckRequest.model_validate(raw)
@@ -296,6 +299,82 @@ def text_check_manifest(raw: Any) -> tuple[dict[str, Any], str]:
     except (ValidationError, BundleError, HandoffInputError) as e:
         raise ValueError(str(e)) from e
     return manifest, msha
+
+
+# ---------------------------------------------------------------------------
+# 검사 결과의 현재 유효성 — 블록별 의미 입력 키 [contract.md 5.3 · BE–AI §2 A4 · check.inputKey AI 채택(2026-11-03)]
+# ---------------------------------------------------------------------------
+# 키 재료의 구성 · 이 어댑터의 검사 의미(대상 · 플래그 · placeholder_leaks 계산)를 바꾸면 올린다. 번역 어댑터 버전과 별개다
+TEXT_CHECK_INPUT_KEY_VERSION = "text-check-input-key@2026-11-08.1"
+
+
+def _input_key_material(req: TextCheckRequest) -> dict[str, dict[str, Any]]:
+    """대상 블록마다 그 블록 검사가 실제로 소비하는 의미 입력. 저장 revision · 배치 · 배율 · 스타일 · 렌더 · 다른 블록 문구는 넣지 않는다.
+    용어 공급이 실패했거나 데이터가 잘못돼도 키는 만든다(검사는 실패하지만 그 실패가 현재 입력의 것인지 비교할 수 있어야 한다)."""
+    cb = check_bundle(req.bundle, target_country=req.target_country, types=load_type_map())
+    blocks = _blocks(req.blocks, req.section_key)
+    by_key = {b.block_key: b for b in blocks}
+    keys = [t.block_key for t in req.targets]
+    if len(set(keys)) != len(keys) or set(keys) - set(by_key):
+        raise HandoffInputError("검사 대상 블록 중복 또는 섹션에 없는 블록")
+    applied = cb.applied_classes(req.regulatory_class)
+    regulation = [{"external_id": r.external_id, "verdict_status": r.verdict_status, "variant_en": list(r.variant_en)}
+                  for r in cb.regulation.values() if r.regulatory_class in applied]
+    supply_error: str | None = None
+    terms: list[text_check.GlossaryTerm] = []
+    if req.glossary.status != "ok":
+        supply_error = f"용어 공급 실패: {req.glossary.reason or '사유 없음'}"
+    else:
+        try:
+            terms = [text_check.GlossaryTerm(t.glossary_id, t.term_ko, t.term_target, t.enforcement) for t in _glossary(req.glossary)]
+        except HandoffInputError as e:
+            supply_error = str(e)
+    common = {"key_version": TEXT_CHECK_INPUT_KEY_VERSION, "target_country": req.target_country,
+              "regulatory_class": req.regulatory_class, "applied_classes": applied, "regulation": regulation,
+              "placeholder_tokens": sorted(template_tokens(cb)),
+              "rules": {"match": MATCH_RULES_VERSION, "terms": text_check.TERM_RULES_VERSION,
+                        "glossary_select": glossary_rules.SELECT_RULES_VERSION}}
+    out: dict[str, dict[str, Any]] = {}
+    for t in req.targets:
+        src = by_key[t.block_key].source_ko
+        enforced: list[dict[str, Any]] | None = None
+        block_error = supply_error
+        if supply_error is None:
+            try:
+                ids = text_check.applicable_enforced_ids(t.block_key, src, terms)
+                enforced = [{"glossary_id": x.glossary_id, "term_ko": x.term_ko, "term_target": x.term_target}
+                            for x in terms if x.glossary_id in ids]
+            except glossary_rules.GlossaryDataError as e:
+                # 강제 용어끼리의 미해결 충돌 — 검사는 실패한다. 블록 원문에 정규화 원문이 들어 있는 강제 용어만 키에 넣는다(블록 국소)
+                norm, _ = normalize(src, "ko")
+                prep = glossary_rules.Prepared(glossary_rules.Entry(x.glossary_id, x.term_ko, x.term_target, x.enforcement)
+                                               for x in terms if x.enforcement == "enforced")
+                enforced = [{"glossary_id": x.glossary_id, "term_ko": x.term_ko, "term_target": x.term_target}
+                            for x in prep.entries if prep.norm[x.glossary_id] in norm]
+                block_error = f"강제 용어 적용 대상 판단 불가: {e}"
+        out[t.block_key] = {**common, "block_key": t.block_key, "source_sha256": sha256_text(src),
+                            "text_sha256": sha256_text(t.text), "enforced_terms": enforced, "enforced_terms_error": block_error}
+    return out
+
+
+def text_check_input_key_material(raw: Any) -> dict[str, dict[str, Any]]:
+    """`text_check_input_keys`가 해시하는 블록별 재료(감사 · 디버깅용). 요청 · 묶음이 잘못되면 ValueError."""
+    try:
+        return _input_key_material(TextCheckRequest.model_validate(raw))
+    except (ValidationError, BundleError, HandoffInputError) as e:
+        raise ValueError(str(e)) from e
+
+
+def text_check_input_keys(raw: Any) -> dict[str, str]:
+    """규칙 검사 결과의 현재 유효성을 판단하는 블록별 의미 입력 키(불투명 문자열 — 같은지만 비교한다). 실행 없이 계산한다.
+
+    - 고정 요청 · 시도 검증(`text_check_manifest` · `expected_input_manifest_sha256` · `validate_report`)과 별개다. 그 검증과 lease ·
+      현재 시도 · 취소/확정 보호를 대신하지 않는다. 블록별 키는 섹션 보고의 부분 채택을 허용하지 않는다.
+    - 포함: 블록 키 · 원문/번역문 해시 · 국가 · 선택/적용 규제 분류 · 적용 분류의 고정 규제 행(ID · 판정값 · 영어 패턴) · 묶음의
+      자리표시자 토큰 · 그 블록에 적용되는 강제 용어 · 매칭/용어/선별 규칙 버전 · 키 버전. 제외: 저장 revision · 배치 · 배율 · 스타일 ·
+      렌더 · 다른 블록 문구 · 참고 용어 · `active_checks`.
+    - 외부 저장 · 전달 형식(필드명 · 타입 · 저장 위치)은 BE와의 연결 계약에서 정한다(`be-handoff.md` 8.12)."""
+    return {k: sha256_canonical(m) for k, m in text_check_input_key_material(raw).items()}
 
 
 def run_text_check(raw: Any, cfg: dict[str, Any] | None = None) -> StageReport:

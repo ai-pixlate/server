@@ -15,8 +15,9 @@
   (진단 · 이력용, 현재 유효한 판정 아님). 출력 잘림은 response_invalid + retryable=false(같은 설정 재시도로 풀리지 않음) — 일시적인
   호출 장애(model_call_failed, 재시도 후보)와 구분한다.
 - 결과는 문제없음 · 경고 등급 · 확정 허용을 뜻하지 않는다. 신호 코드 · 표시 · 확인 정책은 BE · FE가 정한다.
-유효성 — `review_manifest(request, cfg)`는 실행 없이 입력 지문을 계산한다. BE는 등록 때 이 값을 expected_input_manifest_sha256으로
-고정하고, 조회 때 현재 DB와 그 분석 실행의 고정 묶음으로 다시 만든 요청의 지문과 비교한다(최신 DB 사전으로 바꾸지 않는다).
+요청 지문 — `review_manifest(request, cfg)`는 실행 없이 고정 요청 지문(revision 포함)을 계산한다. BE가 등록 때
+expected_input_manifest_sha256으로 고정해 요청 · 시도 정합성 검증에 쓴다(최신 DB 사전으로 바꾸지 않는다). 현재 결과 유효성(`check.inputKey`)에는
+쓰지 않는다 — 배치만 바뀐 저장에도 값이 바뀐다. LLM 판정의 블록별 의미 입력 키(섹션 문맥 포함) 함수는 아직 없다.
 """
 from __future__ import annotations
 

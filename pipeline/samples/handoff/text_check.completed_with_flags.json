@@ -582,8 +582,8 @@
       "rules": {
         "adapter": "translate-handoff@2026-10-08.1",
         "match_rules": "match@2026-10-08.1",
-        "term_rules": "term-check@2026-10-11.1",
-        "glossary_select": "glossary-select@2026-10-11.1"
+        "term_rules": "term-check@2026-11-08.1",
+        "glossary_select": "glossary-select@2026-11-08.1"
       },
       "bundle": {
         "bundle_id": "bundle-synthetic-1",
@@ -633,7 +633,7 @@
         ]
       }
     },
-    "input_manifest_sha256": "27a1399dacbc1f6daa1670a1467f68d345abd717c7e1d252a20f1ba287633c29",
+    "input_manifest_sha256": "236480a398c786eb78f319fb6c2c7b9ba5b5b92e57a291eb44143f80b5d7b8ac",
     "outcome": "completed",
     "target_count": 2,
     "skip_reason": null,
@@ -688,8 +688,8 @@
           "complete": true,
           "rules": {
             "match": "match@2026-10-08.1",
-            "terms": "term-check@2026-10-11.1",
-            "glossary_select": "glossary-select@2026-10-11.1"
+            "terms": "term-check@2026-11-08.1",
+            "glossary_select": "glossary-select@2026-11-08.1"
           },
           "text_sha256": "40ee64327aea603f89151b8cd8d95003d550431189aeed30703d6704b2f50ef7",
           "placeholder_leaks": []
@@ -748,14 +748,14 @@
           "complete": true,
           "rules": {
             "match": "match@2026-10-08.1",
-            "terms": "term-check@2026-10-11.1",
-            "glossary_select": "glossary-select@2026-10-11.1"
+            "terms": "term-check@2026-11-08.1",
+            "glossary_select": "glossary-select@2026-11-08.1"
           },
           "text_sha256": "51e927323b12ef12743a78b3f703138d0aa85924a5e92bcb71d865add6df21e3",
           "placeholder_leaks": []
         }
       ],
-      "result_sha256": "8190eebd610a6869bf380cb8eb549c0e85b7c7b2a369b4b8ae8dd380c451eb98"
+      "result_sha256": "be8016d75b56ac88c99731dc86418d8b4f011d810aa9b32a620cf7dd1ddeea2e"
     },
     "artifacts": [],
     "source_refs": [],
@@ -763,8 +763,8 @@
     "implementation": {
       "adapter": "translate-handoff@2026-10-08.1",
       "match_rules": "match@2026-10-08.1",
-      "term_rules": "term-check@2026-10-11.1",
-      "glossary_select": "glossary-select@2026-10-11.1"
+      "term_rules": "term-check@2026-11-08.1",
+      "glossary_select": "glossary-select@2026-11-08.1"
     },
     "diagnostics": {}
   },

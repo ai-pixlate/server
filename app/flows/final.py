@@ -212,6 +212,7 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
             files[("render_image", f"sec_{s['section_id']}")] = res.png
             renders[str(s["section_id"])] = {"width": res.width, "height": res.height,
                                              "overflow": {str(k): v.overflow for k, v in res.blocks.items()},
+                                             "ink_visible": {str(k): v.ink_visible for k, v in res.blocks.items()},
                                              "applied": {str(k): {"values": v.applied, "source": v.source} for k, v in res.blocks.items()}}
         # 원본별로 포함 섹션을 세로로 쌓은 산출물 이미지(contract 3.3). 파일 처리는 채택 트랜잭션 밖(워커)에서 한다
         stacks: dict[str, Any] = {}

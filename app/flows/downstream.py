@@ -24,7 +24,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import ai_adapters, artifacts, execution, typeset
+from app import ai_adapters, artifacts, execution, layout_adjust, typeset
 from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
 from app.flows import common
@@ -130,7 +130,7 @@ def _clear_previous(db: Session, section_ids: list[int]) -> None:
     """이전(중단된) 하류 실행이 남긴 파생값을 지운다. N3 단계라 사용자 번역 수정은 없다."""
     db.execute(
         text(
-            "UPDATE text_block SET revision = revision + CASE WHEN trans_1 IS NOT NULL OR auto_adjust IS NOT NULL THEN 1 ELSE 0 END, "
+            "UPDATE text_block SET revision = revision + CASE WHEN trans_1 IS NOT NULL OR layout_adjust IS NOT NULL THEN 1 ELSE 0 END, "
             "is_product_label = NULL, is_brand_logo = NULL, style = NULL, trans_1 = NULL, char_count = NULL, overflow = false, "
             "compliance_flags = NULL, block_status = 'machine', updated_at = now() WHERE section_id = ANY(:ids)"
         ),
@@ -850,15 +850,9 @@ class RenderInputInvalid(ValueError):
 
 
 def _applied_box(r: dict[str, Any]) -> dict[str, Any] | None:
-    """적용 박스 = 배치 조정 박스(auto_adjust.layout_bbox)가 있으면 그것, 없으면 원본 bbox. 저장값 그대로(절삭 없음).
+    """적용 박스 = 셀러 조정 박스(layout_adjust.user)가 있으면 그것, 없으면 원본 bbox. 저장값 그대로(절삭 없음).
     형식이 맞지 않으면 None(호출자가 RenderInputInvalid 로 모은다). 범위(섹션 안·양의 크기) 검사는 여기서 하지 않는다."""
-    adj = json_value(r["auto_adjust"])
-    if adj is not None and not isinstance(adj, dict):
-        return None
-    lb = (adj or {}).get("layout_bbox")
-    if lb is not None and not isinstance(lb, dict):
-        return None
-    box = lb or json_value(r["bbox"])
+    box = layout_adjust.parse(r["layout_adjust"]).placement_source(json_value(r["bbox"]))
     if not isinstance(box, dict):
         return None
     out = {}
@@ -891,8 +885,13 @@ def _render_inputs(db: Session, run_id: int, sid: int, *, style_defaults: dict[s
         if box is None:
             bad.append(r["id"])
             continue
-        blocks.append({"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),
-                       "box": box, "style_sha256": stable_hash(json_value(r["style"]))})
+        block = {"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),
+                 "box": box, "style_sha256": stable_hash(json_value(r["style"]))}
+        # 셀러 배율은 있을 때만 싣는다 — 조정하지 않은 블록의 입력·지문은 배치 저장 전과 같다
+        scale = layout_adjust.parse(r["layout_adjust"]).applied_scale
+        if scale != 1:
+            block["font_scale"] = scale
+        blocks.append(block)
     if bad:
         raise RenderInputInvalid(bad)
     bg_sha = db.execute(text("SELECT sha256 FROM task_artifact WHERE verified_key = :k OR source_ref->>'key' = :k LIMIT 1"),
@@ -922,7 +921,7 @@ def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, 
         raise AdoptionRejected("스타일 기본값 자료가 고정 입력과 다르다", code="INPUT_CHANGED")
     defaults = typeset.load_role_defaults()
     rbs = [typeset.RenderBlock(id=b["block_id"], role=b["role"], text=texts[b["block_id"]], box=b["box"], style=styles[b["block_id"]],
-                               style_stage=m.get("style_stage"), source_ko=sources[b["block_id"]])
+                               style_stage=m.get("style_stage"), source_ko=sources[b["block_id"]], font_scale=b.get("font_scale", 1.0))
            for b in m["blocks"]]
     return typeset.render(data, rbs, defaults)
 
@@ -951,7 +950,8 @@ def execute_preview(attempt_id: int) -> dict[str, Any]:
                        impl_version=typeset.RENDERER_VERSION,
                        payload={"render": {"width": res.width, "height": res.height,
                                            "blocks": {str(k): {"overflow": v.overflow, "applied": v.applied, "source": v.source,
-                                                               "lines": v.lines} for k, v in res.blocks.items()}}},
+                                                               "lines": v.lines, "ink_visible": v.ink_visible}
+                                                      for k, v in res.blocks.items()}}},
                        artifacts=[ArtifactSpec(kind="render_image", part_key=section_key(m["section_id"]), data=res.png)])
         return report(attempt_id, submit(lease, env, {("render_image", section_key(m["section_id"])): res.png}))
 

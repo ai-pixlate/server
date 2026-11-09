@@ -83,6 +83,14 @@ def test_brand_prompt_conditions_name_substitution():
     assert "둘 다 있을 때만" in line and "하나라도 없으면" in line and "제품명 · 브랜드명" in line
 
 
+def test_brand_prompt_keeps_enforced_terms_and_instructions_first():
+    """브랜드명 치환의 예외는 기본 "제품명 · 브랜드명" 규칙에만 걸리고, 강제 용어 · 표현 지시의 우선순위는 그대로라고 적혀 있어야 한다."""
+    para = next(p for p in tr.brand_prompt().split("\n\n") if p.startswith("브랜드명 치환이 앞서는 것은"))
+    assert '"제품명 · 브랜드명" 규칙 하나뿐' in para
+    assert "브랜드명 치환을 포함한 `brand`의 모든 값은 용어 목록의 `enforced` 용어와 표현 지시보다 앞서지 않" in para
+    assert "위 브랜드명 치환을 빼면" not in tr.brand_prompt()
+
+
 @pytest.mark.parametrize("kwargs", [{"keywords": "보습"}, {"keywords": None}, {"keywords": ["보습", 3]}, {"overview": 1},
                                     {"name_en": ["FakeBrand"]}])
 def test_brand_type_errors(kwargs):

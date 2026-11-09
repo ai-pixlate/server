@@ -86,7 +86,8 @@ CREATE TABLE category_master (
   name VARCHAR(200) NOT NULL,
   amazon_node VARCHAR(200) NULL,
   is_leaf BOOLEAN NOT NULL DEFAULT false,
-  path VARCHAR(500) NULL
+  path VARCHAR(500) NULL,
+  code VARCHAR(20) NULL
 );
 
 CREATE TABLE edit_signal (
@@ -216,7 +217,9 @@ CREATE TABLE expression_dictionary (
   confirmed_date DATE NULL,
   exclusion_context TEXT NULL,
   keep_context TEXT NULL,
-  source_verdict_status VARCHAR(20) NULL
+  source_verdict_status VARCHAR(20) NULL,
+  site_key VARCHAR(40) NULL,
+  judgment_basis TEXT NULL
 );
 
 CREATE TABLE validation_rule (
@@ -530,6 +533,7 @@ ALTER TABLE glossary ADD CONSTRAINT ck_glossary_enforcement CHECK (enforcement I
 ALTER TABLE expression_dictionary ADD CONSTRAINT uq_expr_dict_external_id UNIQUE (external_id);
 ALTER TABLE expression_dictionary ADD CONSTRAINT uq_expr_dict_content UNIQUE (dict_type, target_country, regulatory_class, source_expression);
 ALTER TABLE expression_dictionary ADD CONSTRAINT ck_expr_dict_dict_type CHECK (dict_type IN ('regulatory', 'local', 'channel'));
-ALTER TABLE expression_dictionary ADD CONSTRAINT ck_expr_dict_verdict_status CHECK ((dict_type = 'regulatory' AND verdict_status IN ('regulated', 'conditional', 'allowed')) OR (dict_type = 'local' AND verdict_status IN ('irrelevant', 'needs_fix', 'cultural')) OR (dict_type = 'channel' AND verdict_status = 'policy'));
+ALTER TABLE expression_dictionary ADD CONSTRAINT ck_expr_dict_verdict_status CHECK ((dict_type = 'regulatory' AND verdict_status IN ('regulated', 'conditional', 'allowed')) OR (dict_type = 'local' AND verdict_status IN ('irrelevant', 'needs_fix', 'cultural', 'must_fix', 'needs_check')) OR (dict_type = 'channel' AND verdict_status = 'policy'));
 ALTER TABLE expression_dictionary_evidence ADD CONSTRAINT uq_expr_evidence_link UNIQUE (dictionary_id, external_id);
 CREATE UNIQUE INDEX uq_expr_evidence_primary ON expression_dictionary_evidence (dictionary_id) WHERE is_primary;
+CREATE UNIQUE INDEX uq_category_master_code ON category_master (code) WHERE code IS NOT NULL;

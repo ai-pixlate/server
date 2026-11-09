@@ -74,7 +74,7 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
     sent = [i for ins in handoff_env["llm"].instructions for i in ins]
     assert [(i["matched_text"], i["alternatives"]) for i in sent] == [("가짜완화", ["the look of calm", "calming look"])]
     assert supply["bundle_sha256"] and supply["glossary_sha256"]
-    assert supply["glossary_selection"] == {"rules": "glossary-select@2026-10-11.1", "target_lang": "en", "categories": ["common"]}
+    assert supply["glossary_selection"] == {"rules": "glossary-select@2026-11-08.1", "target_lang": "en", "categories": ["common"]}
     # BE가 대상 블록에서 고른 용어만 실제 모델 입력까지 간다 — 섹션 1은 '크림'만, 섹션 2는 없음(다른 분류 '문구' 제외)
     gls = [g for _, g in handoff_env["llm"].seen]
     assert [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}] in gls and [] in gls

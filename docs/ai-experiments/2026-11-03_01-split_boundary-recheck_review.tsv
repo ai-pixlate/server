@@ -1,0 +1,82 @@
+n	image	y	datasets	line_cut	paragraph_split	note
+0	GS-01_002	1976	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+1	GS-01_002	2929	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+2	GS-01_002	3188	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+3	GS-01_002	5808	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+4	GS-01_002	6774	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+5	GS-01_002	10194	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+6	GS-01_002	10671	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+7	GS-01_002	12962	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+8	GS-01_002	13985	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+9	GS-01_002	15441	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+10	GS-01_002	17461	baseline-v1.0.1,fixed-v1	no	no	"위 사진(빈 텍스트 영역으로 검출) · 아래 소제목 ""Test"". 사진과 제목 사이 여백"
+11	GS-01_002	19350	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+12	GS-01_002	20497	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+13	GS-01_002	22303	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+14	GS-01_002	24460	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+15	GS-01_002	25308	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+16	GS-01_002	27375	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+17	GS-01_002	29174	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+18	GS-01_002	30057	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+19	GS-01_002	30882	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+20	GS-01_002	31869	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+21	GS-01_002	33684	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+22	GS-01_002	36365	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+23	GS-02_001	458	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+24	GS-02_001	957	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+25	GS-02_001	3526	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+26	GS-02_004	3470	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+27	GS-02_006	586	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+28	GS-02_006	1900	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+29	GS-02_007	230	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+30	GS-02_007	2687	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+31	GS-02_008	2419	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+32	GS-02_008	3551	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+33	GS-02_008	3995	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+34	GS-02_008	7072	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+35	GS-02_008	8756	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+36	GS-02_009	1319	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+37	GS-02_009	3930	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+38	GS-02_009	4798	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+39	GS-02_009	5005	baseline-v1.0.1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+40	GS-02_009	6299	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+41	GS-02_009	6552	baseline-v1.0.1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+42	GS-02_009	8077	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+43	GS-02_009	9667	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+44	GS-02_010	235	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+45	GS-02_010	2392	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+46	GS-02_011	306	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+47	GS-02_011	2621	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+48	GS-02_013	1565	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+49	GS-02_014	370	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+50	GS-02_014	1794	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+51	GS-02_014	2891	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+52	GS-02_014	4333	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+53	GS-02_014	6129	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+54	GS-02_014	8834	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+55	GS-02_014	9200	baseline-v1.0.1,fixed-v1	no	yes	"두 줄 제목 ""문제성 모공*,주름 / 간편하게 관리""의 줄 사이(위 줄 잉크 끝과 아래 줄 첫 잉크 행 9200 사이). 글자 획 절단 없음(9199행 잉크 0). 그라데이션 띠 안 제목 분리 — open-questions #29"
+56	GS-02_014	10738	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+57	GS-02_014	14010	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+58	GS-02_014	14443	baseline-v1.0.1,fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+59	GS-02_014	15185	baseline-v1.0.1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+60	GS-03_002	2671	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+61	GS-03_002	3912	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+62	GS-03_002	5311	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+63	GS-03_002	8167	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+64	GS-03_002	10229	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+65	GS-03_002	13004	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+66	GS-03_008	959	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+67	GS-03_010	343	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+68	GS-03_010	1919	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+69	GS-03_014	1239	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+70	GS-03_014	1675	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+71	GS-03_018	369	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+72	GS-03_018	797	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+73	GS-03_018	1647	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+74	GS-03_018	2341	fixed-v1	no	no	FAQ 답 말풍선 아래 꼬리 그래픽 근처. 글자 없음
+75	GS-03_018	2741	fixed-v1	no	no	FAQ 답 말풍선과 다음 질문 말풍선 사이. 경계 위 행 표준편차 6.05는 말풍선 꼬리 그래픽
+76	GS-03_018	4045	fixed-v1	no	no	FAQ 말풍선 사이
+77	GS-03_018	4499	fixed-v1	no	no	FAQ 말풍선 사이
+78	GS-03_018	7493	fixed-v1	no	no	노란 띠 안 경계(① 5차 실측 기록상 VLM 오절단 사례). 글자 없음 — 의미 경계 오판은 이 조사 범위 밖
+79	GS-03_018	7736	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음
+80	GS-03_018	9155	fixed-v1	no	no	여백 · 배경 위 경계. 경계 위아래 글자 획 없음

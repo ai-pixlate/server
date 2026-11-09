@@ -493,7 +493,7 @@ def test_text_check_contained_enforced_term_not_flagged(generated):
     b = next(x for x in rep.payload["blocks"] if x["block_key"] == key)
     assert b["terms"] == [{"glossary_id": "2", "status": "applied"}]
     assert not any(f["type"] == "mandatory_term_unapplied" for f in b["flags"])
-    assert rep.implementation["glossary_select"] == "glossary-select@2026-10-11.1"
+    assert rep.implementation["glossary_select"] == "glossary-select@2026-11-08.1"
 
 
 def test_text_check_normalized_conflict_fails_not_passes(generated):

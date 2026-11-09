@@ -42,7 +42,7 @@ def purge_window_h() -> int:
 
 
 def sweep() -> dict[str, Any]:
-    stats = {"redispatched": 0, "adoptions": 0, "expired": 0, "cancelled": 0, "progressed": 0, "purged_jobs": 0, "locked": False,
+    stats = {"redispatched": 0, "adoptions": 0, "expired": 0, "cancelled": 0, "progressed": 0, "purged_jobs": 0, "purged_edit_idempotency": 0, "locked": False,
              "_adopt_sent": set()}
     conn = app_db.engine.connect()
     try:
@@ -56,6 +56,7 @@ def sweep() -> dict[str, Any]:
             _pending(stats)
             _stuck_runs(stats)
             _purge_archived(stats)
+            _purge_edit_idempotency(stats)
             stats.pop("_adopt_sent", None)
         finally:
             conn.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": LOCK_KEY})
@@ -181,6 +182,18 @@ def _stuck_runs(stats: dict[str, Any]) -> None:
         finally:
             db.close()
         execution.dispatch(ids)
+
+
+def _purge_edit_idempotency(stats: dict[str, Any]) -> None:
+    """보관 기한(24시간)이 지난 편집 저장 멱등 기록을 지운다. 조회는 기한을 보므로 지우기 전에도 재전송에 쓰이지 않는다."""
+    from app.edit_idempotency import purge_expired
+
+    db = app_db.SessionLocal()
+    try:
+        stats["purged_edit_idempotency"] = purge_expired(db)
+        db.commit()
+    finally:
+        db.close()
 
 
 def _purge_archived(stats: dict[str, Any]) -> None:

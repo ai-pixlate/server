@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import re
 import threading
 
 import pytest
@@ -331,7 +332,7 @@ def test_unreadable_style_defaults_render_fails_n5_opens_save_blocked(env, monke
 
 
 def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
-    """F1 작업 15 재현(합성): ⑦ 완료인데 한 블록의 align 만 NULL → 그 항목만 승인 기본값(left), 글자색·크기는 측정값 유지.
+    """F1 작업 15 재현(합성): ⑦ 완료인데 한 블록의 align 만 NULL → 그 항목만 역할별 승인 기본값, 글자색·크기는 측정값 유지.
     미리보기·최종 렌더 모두 성공하고 저장까지 된다. text_block.style 은 그대로(측정값을 덮지 않는다)."""
     ids = _to_n3(env)
     c = ids["c"]
@@ -352,7 +353,9 @@ def test_align_only_missing_uses_approved_default_in_preview_and_final(env):
     assert pv["status"] == "done", pv["error_code"]
     rb = pv["payload"]["render"]["blocks"][str(blk["id"])]
     assert rb["source"] == {"font_color": "measured", "est_font_px": "measured", "align": "role_default"}
-    assert rb["applied"]["align"] == "left"  # 승인값(pipeline_mapping.align)
+    from pipeline.handoff.style_defaults import load_style_defaults
+    role = _q("SELECT role FROM text_block WHERE id = :b", b=blk["id"])[0]["role"]
+    assert rb["applied"]["align"] == load_style_defaults().data.pipeline_mapping.align[role]  # 역할별 승인값(pipeline_mapping.align)
     assert rb["applied"]["font_color"] == before["font_color"] and rb["applied"]["est_font_px"] == before["est_font_px"]
     assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
     env["q"].drain()
@@ -634,6 +637,492 @@ def test_block_patch_returns_full_block_and_conflict_current(env):  # D
     assert err["code"] == "REVISION_CONFLICT" and err["details"]["current"]["id"] == b["id"]
     assert err["details"]["current"]["revision"] == b["revision"] + 1 and err["details"]["current"]["trans1"] == "Edited"
     assert set(b) <= set(err["details"]["current"])
+
+
+def _edit_signals(block_id):
+    return _q("SELECT before_text, after_text FROM edit_signal WHERE text_block_id = :b ORDER BY id", b=block_id)
+
+
+def test_block_patch_same_value_is_noop(env):
+    """같은 값 저장(계약 blockPatch 「같은 값 저장」): revision·blockStatus·edit_signal·재렌더 그대로, 전체 TextBlock + rerenderTaskId null."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]][0]
+    cols = "SELECT trans_1, block_status, revision, char_count, updated_at FROM text_block WHERE id = :b"
+    n_preview, before_db = _preview_count(job), _q(cols, b=b["id"])
+    r = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"]})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert "rerenderTaskId" in body and body["rerenderTaskId"] is None
+    assert body["block"] == b  # 목록(CFM-01)과 같은 전체 TextBlock, 값 그대로
+    assert _q(cols, b=b["id"]) == before_db
+    assert _edit_signals(b["id"]) == [] and _preview_count(job) == n_preview and env["q"].messages == []
+    # 같은 값을 다시 보내도 같다(revision 이 그대로라 연속 no-op 이 가능하다)
+    again = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"]})
+    assert again.status_code == 200 and again.json() == body
+    # 다른 값 저장은 기존 동작 그대로
+    ch = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"] + " now", "revision": b["revision"]})
+    assert ch.status_code == 200 and ch.json()["rerenderTaskId"]
+    assert (ch.json()["block"]["revision"], ch.json()["block"]["blockStatus"]) == (b["revision"] + 1, "edited")
+    assert _edit_signals(b["id"]) == [{"before_text": b["trans1"], "after_text": b["trans1"] + " now"}]
+
+
+def test_block_patch_same_value_keeps_running_rerender(env):
+    """진행 중 재렌더가 있을 때 같은 값 저장: 새 task 없음, 진행 중 시도를 취소·대체하지 않는다(실행 권한 유지)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]][0]
+    r1 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Visibly smoother skin", "revision": b["revision"]}).json()
+    t1, rev = r1["rerenderTaskId"], r1["block"]["revision"]
+    lease = execution.acquire(t1, "slow-renderer")  # 재렌더 실행 중
+    assert lease is not None
+    n_preview = _preview_count(job)
+    r2 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Visibly smoother skin", "revision": rev})
+    assert r2.status_code == 200 and r2.json()["rerenderTaskId"] is None
+    assert r2.json()["block"]["revision"] == rev and _preview_count(job) == n_preview
+    st = _q("SELECT status, is_current FROM job_async_task WHERE id = :t", t=t1)[0]
+    assert st == {"status": "running", "is_current": True} and execution.heartbeat(lease) is True  # 권한 그대로
+    assert len(_edit_signals(b["id"])) == 1  # 첫 수정 기록만
+
+
+def test_block_patch_same_value_checks_come_first(env):
+    """같은 값이어도 revision 불일치는 409 REVISION_CONFLICT, N5 가 아니면 409 INVALID_STATE(기존 검사가 먼저)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]][0]
+    stale = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"] + 7})
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "REVISION_CONFLICT"
+    assert stale.json()["error"]["details"]["current"]["revision"] == b["revision"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    late = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": b["trans1"], "revision": b["revision"]})
+    assert late.status_code == 409 and late.json()["error"]["code"] == "INVALID_STATE"
+
+
+def test_block_patch_empty_string_on_null_is_an_edit(env):
+    """번역문이 없는(NULL) 칸에 빈 문자열 저장은 같은 값이 아니다 — 기존대로 수정(edited·revision+1·기록·재렌더)."""
+    ids, target = _to_n5(env, fail_first=True)
+    c, job = ids["c"], ids["job"]
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["id"] == target][0]
+    assert b["trans1"] is None
+    r = c.patch(f"/v1/jobs/{job}/blocks/{target}", json={"trans1": "", "revision": b["revision"]})
+    assert r.status_code == 200 and r.json()["rerenderTaskId"]
+    assert (r.json()["block"]["revision"], r.json()["block"]["blockStatus"], r.json()["block"]["trans1"]) == (b["revision"] + 1, "edited", "")
+    assert _edit_signals(target) == [{"before_text": None, "after_text": ""}]
+
+
+# ---- 저장 공통(계약 blockPatch 「저장 공통」): 멱등 키·처리 순서·오류 구분 ------------------------------------------
+def _patch(c, job, bid, body, key=None):
+    return c.patch(f"/v1/jobs/{job}/blocks/{bid}", json=body, headers={"Idempotency-Key": key} if key else {})
+
+
+def _idem_rows(job):
+    return _q("SELECT operation, idem_key, status_code FROM edit_idempotency WHERE job_id = :j ORDER BY idem_key", j=job)
+
+
+def _first_two(c, job):
+    bs = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["trans1"]]
+    return bs[0], bs[1]
+
+
+def test_save_replay_same_request_applies_once(env):
+    """같은 키·같은 요청 재전송 = 최초 응답 그대로 + Idempotent-Replayed: true, 두 번 적용하지 않는다(revision 다시 비교 안 함)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    body = {"trans1": "Visibly smoother skin", "revision": b["revision"]}
+    r1 = _patch(c, job, b["id"], body, key="k-1")
+    assert r1.status_code == 200 and "Idempotent-Replayed" not in r1.headers
+    n_preview = _preview_count(job)
+    r2 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json=body, headers={"Idempotency-Key": "k-1", "Origin": "https://fe.example"})
+    assert r2.status_code == 200 and r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert "idempotent-replayed" in r2.headers.get("access-control-expose-headers", "").lower()  # 교차 출처에서도 읽힌다
+    assert _q("SELECT revision FROM text_block WHERE id = :b", b=b["id"])[0]["revision"] == b["revision"] + 1
+    assert len(_edit_signals(b["id"])) == 1 and _preview_count(job) == n_preview
+    assert _idem_rows(job) == [{"operation": "block_patch", "idem_key": "k-1", "status_code": 200}]
+
+
+def test_save_same_key_different_body_or_target_is_rejected(env):
+    """같은 키로 본문이 다르거나 대상 블록이 다르면 409 DUPLICATE(idempotency_key_reused) — 최초 응답을 재사용하지 않고 아무것도 적용하지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, other = _first_two(c, job)
+    r1 = _patch(c, job, b["id"], {"trans1": "First", "revision": b["revision"]}, key="k-2")
+    assert r1.status_code == 200
+    diff_body = _patch(c, job, b["id"], {"trans1": "Second", "revision": b["revision"] + 1}, key="k-2")
+    diff_target = _patch(c, job, other["id"], {"trans1": "First", "revision": b["revision"]}, key="k-2")
+    for r in (diff_body, diff_target):
+        assert r.status_code == 409, r.text
+        err = r.json()["error"]
+        assert err["code"] == "DUPLICATE" and err["details"] == {"reason": "idempotency_key_reused"} and "Idempotent-Replayed" not in r.headers
+    assert _q("SELECT trans_1, revision FROM text_block WHERE id = :b", b=b["id"])[0] == {"trans_1": "First", "revision": b["revision"] + 1}
+    assert _q("SELECT trans_1, revision FROM text_block WHERE id = :b", b=other["id"])[0] == {"trans_1": other["trans1"], "revision": other["revision"]}
+    # 같은 본문이라도 revision 이 다르면 다른 요청이다
+    stale_rev = _patch(c, job, b["id"], {"trans1": "First", "revision": b["revision"] + 1}, key="k-2")
+    assert stale_rev.status_code == 409 and stale_rev.json()["error"]["code"] == "DUPLICATE"
+
+
+def test_save_noop_response_is_recorded_and_replayed(env):
+    """no-op 200 도 기록한다. 그 뒤 다른 저장으로 값이 바뀌어도 같은 키 재전송은 최초(no-op) 응답을 돌려주고 아무것도 되돌리지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    same = {"trans1": b["trans1"], "revision": b["revision"]}
+    r1 = _patch(c, job, b["id"], same, key="k-noop")
+    assert r1.status_code == 200 and r1.json()["rerenderTaskId"] is None
+    assert _idem_rows(job) == [{"operation": "block_patch", "idem_key": "k-noop", "status_code": 200}]
+    assert _patch(c, job, b["id"], {"trans1": "Changed later", "revision": b["revision"]}, key="k-other").status_code == 200
+    r2 = _patch(c, job, b["id"], same, key="k-noop")
+    assert r2.status_code == 200 and r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=b["id"])[0]["trans_1"] == "Changed later"
+
+
+def test_save_concurrent_same_request_applies_once(env):
+    """같은 키 동시 요청: 작업 행 잠금으로 직렬화 — 하나만 적용되고 다른 하나는 최초 응답 재전송."""
+    from app import db as app_db
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    body = {"trans1": "Concurrent", "revision": b["revision"]}
+    results = []
+    holder = app_db.engine.connect()
+    tx = holder.begin()
+    holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})  # 두 요청을 같은 시점에 막아 둔다
+    from app.main import app
+
+    def go():
+        cl = TestClient(app)  # 스레드마다 따로(같은 판매자 토큰)
+        cl.headers["Authorization"] = c.headers["Authorization"]
+        results.append(_patch(cl, job, b["id"], body, key="k-c"))
+
+    ts = [threading.Thread(target=go) for _ in range(2)]
+    for t in ts:
+        t.start()
+    threading.Event().wait(0.5)
+    tx.commit()
+    holder.close()
+    for t in ts:
+        t.join(timeout=30)
+    assert sorted(r.status_code for r in results) == [200, 200]
+    assert sorted(r.headers.get("Idempotent-Replayed", "no") for r in results) == ["no", "true"]
+    assert results[0].json() == results[1].json()
+    assert _q("SELECT revision FROM text_block WHERE id = :b", b=b["id"])[0]["revision"] == b["revision"] + 1
+    assert len(_edit_signals(b["id"])) == 1
+
+
+def test_save_expired_record_is_a_new_request(env):
+    """보관 기한이 지난 기록은 없는 것으로 본다 — 같은 키 재전송은 새 요청으로 처리되고 revision 이 두 번째 방어선이 된다."""
+    from app import recovery
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, other = _first_two(c, job)
+    body = {"trans1": "Applied once", "revision": b["revision"]}
+    assert _patch(c, job, b["id"], body, key="k-exp").status_code == 200
+    noop = {"trans1": other["trans1"], "revision": other["revision"]}
+    assert _patch(c, job, other["id"], noop, key="k-exp-noop").status_code == 200
+    _q("UPDATE edit_idempotency SET expires_at = now() - interval '1 second' WHERE job_id = :j", j=job)
+    again = _patch(c, job, b["id"], body, key="k-exp")
+    assert again.status_code == 409 and again.json()["error"]["code"] == "REVISION_CONFLICT"  # 두 번 적용되지 않음
+    noop_again = _patch(c, job, other["id"], noop, key="k-exp-noop")
+    assert noop_again.status_code == 200 and "Idempotent-Replayed" not in noop_again.headers and noop_again.json()["rerenderTaskId"] is None
+    assert len(_edit_signals(b["id"])) == 1
+    # 만료 뒤 새로 처리한 성공 응답(no-op)은 같은 키로 다시 기록된다. 정리 주기는 지난 기록만 지운다
+    assert [r["idem_key"] for r in _idem_rows(job)] == ["k-exp", "k-exp-noop"]
+    recovery.sweep()
+    assert [r["idem_key"] for r in _idem_rows(job)] == ["k-exp-noop"]
+
+
+def test_save_after_cancel_and_other_seller_do_not_replay(env):
+    """재전송도 소유·작업 상태 검사를 건너뛰지 않는다: 다른 판매자 = 404, 취소한 작업 = 409 INVALID_STATE. 취소는 그 작업의 기록을 지운다."""
+    from app import db as app_db
+    from app.main import app
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    body = {"trans1": "Before cancel", "revision": b["revision"]}
+    assert _patch(c, job, b["id"], body, key="k-own").status_code == 200
+    with app_db.engine.begin() as conn:
+        stranger = seed_job(conn)
+    sc = TestClient(app)
+    sc.headers["Authorization"] = "Bearer " + sc.post("/v1/auth/login", json={"email": stranger["email"], "password": "x"}).json()["accessToken"]
+    assert _patch(sc, job, b["id"], body, key="k-own").status_code == 404
+    assert c.delete(f"/v1/jobs/{job}").status_code == 200
+    assert _idem_rows(job) == []
+    late = _patch(c, job, b["id"], body, key="k-own")
+    assert late.status_code == 409 and late.json()["error"]["code"] == "INVALID_STATE" and "Idempotent-Replayed" not in late.headers
+    assert late.json()["error"]["details"] == {"reason": "job_not_editable"}
+
+
+def test_save_lock_timeout_returns_retryable_503(env, monkeypatch):
+    """작업 행 잠금을 한도 안에 얻지 못하면 트랜잭션을 정리하고 503 SERVICE_UNAVAILABLE(retryable). 같은 요청으로 다시 보내면 한 번만 적용된다."""
+    from app import db as app_db
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    monkeypatch.setenv("PIXLATE_EDIT_LOCK_TIMEOUT_MS", "200")
+    body = {"trans1": "After busy", "revision": b["revision"]}
+    holder = app_db.engine.connect()
+    tx = holder.begin()
+    holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})
+    try:
+        busy = _patch(c, job, b["id"], body, key="k-busy")
+    finally:
+        tx.rollback()
+        holder.close()
+    assert busy.status_code == 503, busy.text
+    assert busy.json()["error"]["code"] == "SERVICE_UNAVAILABLE" and busy.json()["error"]["retryable"] is True
+    assert _idem_rows(job) == [] and _edit_signals(b["id"]) == []
+    ok = _patch(c, job, b["id"], body, key="k-busy")
+    assert ok.status_code == 200 and "Idempotent-Replayed" not in ok.headers
+    assert _q("SELECT revision FROM text_block WHERE id = :b", b=b["id"])[0]["revision"] == b["revision"] + 1
+
+
+_CUR = object()  # 요청에 현재 revision(0)을 넣는 자리
+
+
+@pytest.mark.parametrize("body,key", [
+    ({"revision": _CUR}, "k-fmt"),                              # trans1 누락
+    ({"trans1": "x"}, "k-fmt"),                                 # revision 누락
+    ({"trans1": None, "revision": _CUR}, "k-fmt"),              # trans1 null
+    ({"trans1": 123, "revision": _CUR}, "k-fmt"),               # trans1 숫자 — 문자열로 바꾸지 않는다
+    ({"trans1": "x", "revision": False}, "k-fmt"),              # revision false — 0 으로 바꾸지 않는다
+    ({"trans1": "x", "revision": "0"}, "k-fmt"),                # revision 문자열 — 0 으로 바꾸지 않는다
+    ({"trans1": "x", "revision": 0.5}, "k-fmt"),                # revision 정수가 아닌 수
+    ({"trans1": "x", "revision": _CUR, "trans2": "y"}, "k-fmt"),  # 정의되지 않은 키
+    ({"trans1": "x", "revision": _CUR}, "has space"),           # 키 형식
+    ({"trans1": "x", "revision": _CUR}, "k" * 129),             # 키 길이
+])
+def test_save_request_format_errors_are_422(env, body, key):
+    """요청 형식 오류는 422 VALIDATION_ERROR — 불리언·문자열을 숫자로 바꾸거나 기본값으로 채워 저장하지 않는다.
+    블록의 현재 revision 을 0 으로 두어, false·"0" 이 0 으로 변환되면 실제로 저장되는 상황에서 거절을 확인한다(블록·수정 기록·멱등 기록 쓰기 없음)."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    _q("UPDATE text_block SET revision = 0 WHERE id = :b", b=b["id"])
+    before = _q("SELECT trans_1, revision, block_status, updated_at FROM text_block WHERE id = :b", b=b["id"])
+    sent = {k: (0 if v is _CUR else v) for k, v in body.items()}
+    r = _patch(c, job, b["id"], sent, key=key)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert _q("SELECT trans_1, revision, block_status, updated_at FROM text_block WHERE id = :b", b=b["id"]) == before
+    assert _idem_rows(job) == [] and _edit_signals(b["id"]) == []
+    # 같은 블록에 올바른 요청(revision 0)은 저장된다 — 위 거절이 revision 불일치 때문이 아니었다
+    ok = _patch(c, job, b["id"], {"trans1": "x", "revision": 0}, key="k-ok")
+    assert ok.status_code == 200 and ok.json()["block"]["revision"] == 1
+
+
+def test_save_revision_integer_value_float_is_accepted(env):
+    """OpenAPI integer 와 같게: revision 0.0 은 정수 0 이다 — 현재 revision 0 인 블록에 저장되고, 같은 키의 0 과 0.0 은 같은 요청이다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b, _ = _first_two(c, job)
+    _q("UPDATE text_block SET revision = 0 WHERE id = :b", b=b["id"])
+    r = _patch(c, job, b["id"], {"trans1": "Float rev", "revision": 0.0}, key="k-float")
+    assert r.status_code == 200, r.text
+    assert (r.json()["block"]["revision"], r.json()["block"]["trans1"]) == (1, "Float rev")
+    again = _patch(c, job, b["id"], {"trans1": "Float rev", "revision": 0}, key="k-float")
+    assert again.status_code == 200 and again.headers["Idempotent-Replayed"] == "true" and again.json() == r.json()
+    assert len(_edit_signals(b["id"])) == 1
+
+
+# ---- 섹션 제외·복원 PATCH(계약 sectionPatch): revision·같은 상태 no-op·복원 사유·전체 Section·멱등 -----------------
+def _spatch(c, job, sid, body, key=None):
+    return c.patch(f"/v1/jobs/{job}/sections/{sid}", json=body, headers={"Idempotency-Key": key} if key else {})
+
+
+def _srow(sid):
+    return _q("SELECT bucket, exclusion_reason, excluded_stage, revision, warning_badge, original_verdict, updated_at FROM section WHERE id = :s",
+              s=sid)[0]
+
+
+def _sdetail(c, job, sid):
+    d = c.get(f"/v1/jobs/{job}/sections/{sid}").json()
+    d.pop("contentFindings", None)
+    return d
+
+
+def _included(ids):
+    return [r["id"] for r in _q("SELECT id FROM section WHERE job_id = :j AND bucket = 'include' ORDER BY section_order, id", j=ids["job"])]
+
+
+def test_section_patch_full_section_revision_and_restore_to_original(env):
+    """직접 제외 → 복원: 응답은 상세와 같은 전체 Section, revision 은 실제 변경 때만 +1, 최초 판정이 포함이면 사유 없음. 판정·배지 그대로."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    before = _sdetail(c, job, sid)
+    assert before["revision"] == 0 and before["bucket"] == "include"
+    r = _spatch(c, job, sid, {"action": "exclude", "revision": 0})
+    assert r.status_code == 200, r.text
+    ex = r.json()
+    assert (ex["bucket"], ex["exclusionReason"], ex["excludedStage"], ex["revision"]) == ("exclude", "user_manual", "N3", 1)
+    assert ex == _sdetail(c, job, sid)  # 상세와 같은 모양·값(전체 Section)
+    listed = c.get(f"/v1/jobs/{job}/sections").json()
+    assert [x["revision"] for x in listed["exclude"] if x["id"] == sid] == [1]  # 목록도 revision 을 싣는다
+    back = _spatch(c, job, sid, {"action": "restore", "revision": 1}).json()
+    assert (back["bucket"], back["exclusionReason"], back["excludedStage"], back["revision"]) == ("include", None, None, 2)
+    assert (back["verdicts"], back["warningBadge"]) == (before["verdicts"], before["warningBadge"])
+
+
+def test_section_restore_reasons_for_auto_and_restored_once(env):
+    """자동 제외의 복원 = restored_by_user. 그 섹션(최초 판정 제외)을 다시 직접 제외한 뒤 복원해도 restored_by_user(제외 전 상태)."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    _q("UPDATE section SET bucket = 'exclude', exclusion_reason = 'auto_regulatory', excluded_stage = NULL, "
+       "original_verdict = jsonb_set(original_verdict, '{bucket}', '\"exclude\"') WHERE id = :s", s=sid)
+    r1 = _spatch(c, job, sid, {"action": "restore", "revision": 0}).json()
+    assert (r1["bucket"], r1["exclusionReason"], r1["revision"]) == ("include", "restored_by_user", 1)
+    _spatch(c, job, sid, {"action": "exclude", "revision": 1})
+    r2 = _spatch(c, job, sid, {"action": "restore", "revision": 2}).json()
+    assert (r2["bucket"], r2["exclusionReason"], r2["revision"]) == ("include", "restored_by_user", 3)
+    assert _srow(sid)["original_verdict"]["bucket"] == "exclude"  # 최초 판정 기록은 그대로
+
+
+def test_section_same_state_is_noop_and_stale_revision_conflicts_first(env):
+    """같은 상태 요청 = 200 변경 없음(revision·사유·단계 그대로). 오래된 revision 은 같은 상태 요청이어도 먼저 409 REVISION_CONFLICT."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    _spatch(c, job, sid, {"action": "exclude", "revision": 0})
+    row = _srow(sid)
+    again = _spatch(c, job, sid, {"action": "exclude", "revision": 1})
+    assert again.status_code == 200 and again.json()["revision"] == 1 and _srow(sid) == row
+    other = _included(ids)[0]
+    inc = _spatch(c, job, other, {"action": "restore", "revision": 0})
+    assert inc.status_code == 200 and inc.json()["revision"] == 0 and inc.json()["exclusionReason"] is None
+    stale = _spatch(c, job, sid, {"action": "exclude", "revision": 0})  # 같은 상태지만 오래된 revision
+    assert stale.status_code == 409, stale.text
+    err = stale.json()["error"]
+    assert err["code"] == "REVISION_CONFLICT" and err["details"]["current"] == _sdetail(c, job, sid) and _srow(sid) == row
+
+
+def test_section_restore_without_original_verdict_is_refused(env):
+    """PM-R8: 최초 판정 기록이 없는 직접 제외 섹션을 실제로 복원해야 하면 409 restore_basis_missing — 섹션·revision·멱등 성공 기록 쓰기 없음.
+    이미 포함된 섹션의 restore 는 근거가 없어도 200 변경 없음."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    a, b = _included(ids)[:2]
+    _spatch(c, job, a, {"action": "exclude", "revision": 0})
+    for ov in ("NULL", "'{\"schema_version\": \"1\"}'::jsonb"):  # 기록 없음 · bucket 없는 기록
+        _q(f"UPDATE section SET original_verdict = {ov} WHERE id = :s", s=a)
+        row = _srow(a)
+        r = _spatch(c, job, a, {"action": "restore", "revision": 1}, key=f"k-r8-{len(ov)}")
+        assert r.status_code == 409, r.text
+        assert r.json()["error"]["code"] == "INVALID_STATE" and r.json()["error"]["details"] == {"reason": "restore_basis_missing"}
+        assert _srow(a) == row and _idem_rows(job) == []
+    _q("UPDATE section SET original_verdict = NULL WHERE id = :s", s=b)
+    ok = _spatch(c, job, b, {"action": "restore", "revision": 0}, key="k-r8-noop")
+    assert ok.status_code == 200 and ok.json()["revision"] == 0 and ok.json()["bucket"] == "include"
+
+
+def test_section_state_rejections(env):
+    """N5 에서 N3 제외 섹션 복원 = 409 n3_excluded_section(같은 상태 판정보다 먼저). N3·N5 가 아니면 409 job_not_editable."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    _spatch(c, job, sid, {"action": "exclude", "revision": 0})  # N3 에서 제외
+    c.post(f"/v1/jobs/{job}/sections/proceed")
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    r = _spatch(c, job, sid, {"action": "restore", "revision": 1})
+    assert r.status_code == 409 and r.json()["error"]["details"] == {"reason": "n3_excluded_section"}
+    assert _srow(sid)["revision"] == 1
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    late = _spatch(c, job, _included(ids)[0], {"action": "exclude", "revision": 0})
+    assert late.status_code == 409 and late.json()["error"]["details"] == {"reason": "job_not_editable"}
+
+
+def test_section_idempotency_replay_conflicts_and_key_needs_revision(env):
+    """블록 PATCH 와 같은 멱등: 같은 요청 재전송 = 최초 응답(1회 적용), 같은 키의 다른 action·revision·섹션 = 409 DUPLICATE,
+    no-op 응답도 재전송, 키가 있는데 revision 이 없으면 422(쓰기 없음)."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    a, b = _included(ids)[:2]
+    r1 = _spatch(c, job, a, {"action": "exclude", "revision": 0}, key="s-1")
+    r2 = _spatch(c, job, a, {"action": "exclude", "revision": 0}, key="s-1")
+    assert r1.status_code == r2.status_code == 200 and r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert _srow(a)["revision"] == 1
+    for body, sid in (({"action": "restore", "revision": 0}, a), ({"action": "exclude", "revision": 1}, a), ({"action": "exclude", "revision": 0}, b)):
+        d = _spatch(c, job, sid, body, key="s-1")
+        assert d.status_code == 409 and d.json()["error"]["details"] == {"reason": "idempotency_key_reused"}, (body, sid, d.text)
+    assert _srow(a)["revision"] == 1 and _srow(b)["revision"] == 0
+    n1 = _spatch(c, job, b, {"action": "restore", "revision": 0}, key="s-noop")
+    _spatch(c, job, b, {"action": "exclude", "revision": 0}, key="s-other")
+    n2 = _spatch(c, job, b, {"action": "restore", "revision": 0}, key="s-noop")
+    assert n2.headers["Idempotent-Replayed"] == "true" and n2.json() == n1.json() and _srow(b)["bucket"] == "exclude"
+    row = _srow(a)
+    nk = _spatch(c, job, a, {"action": "restore"}, key="s-norev")
+    assert nk.status_code == 422 and nk.json()["error"]["code"] == "VALIDATION_ERROR" and _srow(a) == row
+    assert "s-norev" not in [x["idem_key"] for x in _idem_rows(job)]
+    # 키 없는 요청의 revision 생략은 호환 기간 동작 — 충돌 검사 없이 처리된다
+    assert _spatch(c, job, a, {"action": "restore"}).status_code == 200
+
+
+def test_section_expired_key_replay_of_first_request_conflicts(env):
+    """만료된 키로 최초 요청을 다시 보내면 새 요청으로 처리되고 revision 이 막는다:
+    A(제외, rev 0→1) → B(복원, rev 1→2) → A 기록 만료 → A·rev 0 재전송 = 409 REVISION_CONFLICT, 상태·사유·revision 그대로, 성공 기록 새로 없음."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    first = {"action": "exclude", "revision": 0}
+    assert _spatch(c, job, sid, first, key="key-A").json()["revision"] == 1
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="key-B").json()["revision"] == 2
+    _q("UPDATE edit_idempotency SET expires_at = now() - interval '1 second' WHERE job_id = :j AND idem_key = 'key-A'", j=job)
+    row = _srow(sid)
+    rec_before = _q("SELECT idem_key, request_sha256, created_at, expires_at FROM edit_idempotency WHERE job_id = :j ORDER BY idem_key", j=job)
+    r = _spatch(c, job, sid, first, key="key-A")
+    assert r.status_code == 409, r.text
+    assert r.json()["error"]["code"] == "REVISION_CONFLICT" and "Idempotent-Replayed" not in r.headers
+    assert r.json()["error"]["details"]["current"]["revision"] == 2
+    after = _srow(sid)
+    assert (after["bucket"], after["exclusion_reason"], after["revision"]) == ("include", None, 2) and after == row
+    assert _q("SELECT idem_key, request_sha256, created_at, expires_at FROM edit_idempotency WHERE job_id = :j ORDER BY idem_key", j=job) == rec_before
+
+
+@pytest.mark.parametrize("body", [
+    {},                                          # action 누락 — 기본값으로 제외하지 않는다
+    {"action": "delete", "revision": 0},         # 잘못된 action
+    {"action": "exclude", "revision": 0, "x": 1},  # 정의되지 않은 키
+    {"action": "exclude", "revision": False},
+    {"action": "exclude", "revision": "0"},
+    {"action": "exclude", "revision": 0.5},
+    {"action": "exclude", "revision": None},
+])
+def test_section_request_format_errors_are_422(env, body):
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    sid = _included(ids)[0]
+    row = _srow(sid)
+    r = _spatch(c, job, sid, body, key="s-fmt")
+    assert r.status_code == 422, r.text
+    assert _srow(sid) == row and _idem_rows(job) == []
+
+
+def test_section_revision_integer_float_and_lock_timeout(env, monkeypatch):
+    """revision 0.0 은 0 과 같다. 작업 행 잠금을 한도 안에 못 얻으면 503(쓰기 없음), 같은 요청으로 다시 보내면 한 번 적용된다."""
+    from app import db as app_db
+
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    a, b = _included(ids)[:2]
+    assert _spatch(c, job, a, {"action": "exclude", "revision": 0.0}).json()["revision"] == 1
+    monkeypatch.setenv("PIXLATE_EDIT_LOCK_TIMEOUT_MS", "200")
+    holder = app_db.engine.connect()
+    tx = holder.begin()
+    holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})
+    try:
+        busy = _spatch(c, job, b, {"action": "exclude", "revision": 0}, key="s-busy")
+    finally:
+        tx.rollback()
+        holder.close()
+    assert busy.status_code == 503 and busy.json()["error"]["retryable"] is True
+    assert _srow(b)["revision"] == 0 and _idem_rows(job) == []
+    ok = _spatch(c, job, b, {"action": "exclude", "revision": 0}, key="s-busy")
+    assert ok.status_code == 200 and ok.json()["revision"] == 1 and "Idempotent-Replayed" not in ok.headers
 
 
 def _mutate_regulatory(raw):
@@ -1177,20 +1666,32 @@ def test_preview_renderer_mismatch_and_missing(env, monkeypatch):
     blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b.get("trans1")][0]
     t1 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]}).json()["rerenderTaskId"]
     monkeypatch.setattr(typeset, "RENDERER_VERSION", NEW_RENDERER)
-    env["q"].drain()
+    from app import tasks
+
+    assert env["q"].messages == [("app.tasks.run_preview", [t1])]
+    env["q"].messages.clear()
+    tasks.run_preview(t1)  # t1 만 실행하고, 그 뒤 등록되는 시도는 아직 실행하지 않는다
+    env["q"].drain(skip={"app.tasks.run_preview"})
     a = _attempt(t1)
     assert (a["status"], a["error_code"]) == ("failed", "INPUT_CHANGED") and "렌더러" in a["error_message"]
-    assert _item(c, job, t1)["retryable"] is False
+    sid = blk["sectionId"]
+    # 렌더러가 바뀌어 현재 입력 지문이 달라졌으므로 진행 처리가 현재 렌더러로 새 시도 하나를 등록한다(입력 변경 재렌더 — 재시도 한도 미사용)
+    auto = _q("SELECT id, supersedes_task_id, retry_origin, input_manifest FROM job_async_task "
+              "WHERE stage = 'preview' AND unit_id = :s AND is_current", s=sid)[0]
+    assert (auto["supersedes_task_id"], auto["retry_origin"]) == (t1, "auto") and auto["input_manifest"]["renderer"] == NEW_RENDERER
     n = _preview_count(job)
-    r = c.post(f"/v1/jobs/{job}/tasks/{t1}/retry")
+    r = c.post(f"/v1/jobs/{job}/tasks/{t1}/retry")  # 옛 렌더러 시도는 다시 시도하지 않는다
     assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
     assert _preview_count(job) == n and env["q"].messages == [] and _attempt(t1) == a
+    tasks.run_preview(auto["id"])
+    env["q"].drain()
+    assert _attempt(auto["id"])["status"] == "done"
     blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["id"] == blk["id"]][0]
     t2 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care.", "revision": blk["revision"]}).json()["rerenderTaskId"]
     env["q"].drain()
     assert _attempt(t2)["status"] == "done"  # 새 고정 입력(현재 렌더러)
     real = downstream._render_inputs
-    monkeypatch.setattr(downstream, "_render_inputs", lambda db, run_id, sid: {k: v for k, v in real(db, run_id, sid).items() if k != "renderer"})
+    monkeypatch.setattr(downstream, "_render_inputs", lambda db, run_id, sid, **kw: {k: v for k, v in real(db, run_id, sid, **kw).items() if k != "renderer"})
     blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["id"] == blk["id"]][0]
     t3 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care!", "revision": blk["revision"]}).json()["rerenderTaskId"]
     env["q"].drain()
@@ -1252,3 +1753,650 @@ def test_recovery_lease_expiry_skips_old_renderer_and_keeps_other_job(env, monke
     assert _final_counts(a_ids["job"]) == {"runs": 1, "attempts": 1}
     assert _item(a_ids["c"], a_ids["job"], a_att)["retryable"] is False
     env["q"].messages.clear()
+
+
+# ── /preview 공통 렌더 입력·지문·시도/결과(계약 ReviewPreview — PRD v3.5.10 BE 계약안) · N5 복원 렌더 확보 ─────────────────
+STYLE8 = {"fontFamily", "fontWeight", "fontSizePx", "fontScale", "fontColor", "align", "letterSpacingEm", "lineHeightRatio"}
+
+
+def _pv(c, job):
+    r = c.get(f"/v1/jobs/{job}/preview")
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def _pvs(c, job, sid):
+    return [s for s in _pv(c, job)["sections"] if s["id"] == sid][0]
+
+
+def _input_state(s):
+    """FE 11-05 확정 조합: 제외 = 네 필드 null / 정상 = 입력·지문 있음·오류 null / 오류 = 입력·지문 null·오류 있음 / 준비 중 = 셋 다 null.
+    일부만 있는 조합은 정상 응답이 아니다. 포함 섹션의 render 는 입력 상태와 상관없이 항상 있다."""
+    ri, fp, er = s["renderInput"], s["inputFingerprint"], s["inputError"]
+    if s["bucket"] != "include":
+        assert (ri, fp, er, s["render"]) == (None, None, None, None), s
+        return "excluded"
+    assert s["render"] is not None and set(s["render"]) == {"attempt", "result", "isCurrent"}, s
+    r = s["render"]
+    assert r["isCurrent"] == (r["result"] is not None and fp is not None and r["result"]["inputFingerprint"] == fp)
+    assert (s["renderedUrl"] is None) == (r["result"] is None)
+    if r["result"] is not None and not r["isCurrent"]:
+        assert r["result"]["overflow"] is None  # 최신이 아닌 결과의 넘침은 내지 않는다
+    if ri is not None and fp is not None and er is None:
+        return "ready"
+    if ri is None and fp is None and er is not None:
+        return "error"
+    assert (ri, fp, er) == (None, None, None), f"일부 필드만 있는 조합: {s}"
+    return "preparing"
+
+
+def _cur_preview(sid):
+    return _q("SELECT id, status, error_code, retry_count, retry_origin, supersedes_task_id, input_fingerprint FROM job_async_task "
+              "WHERE stage = 'preview' AND unit_id = :s AND is_current", s=sid)[0]
+
+
+def _image_key(sid):
+    return _q("SELECT render_image_key FROM section WHERE id = :s", s=sid)[0]["render_image_key"]
+
+
+def _text_block(c, job):
+    return [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["trans1"]][0]
+
+
+def _db_marks(job):
+    return _q("SELECT (SELECT count(*) FROM job_async_task WHERE job_id = :j) AS tasks, (SELECT count(*) FROM task_handoff WHERE job_id = :j) AS h, "
+              "(SELECT max(updated_at) FROM section WHERE job_id = :j) AS s, (SELECT max(tb.updated_at) FROM text_block tb "
+              "JOIN section s ON s.id = tb.section_id WHERE s.job_id = :j) AS b, (SELECT updated_at FROM job WHERE id = :j) AS jb", j=job)[0]
+
+
+def _render_boom(*a, **k):
+    from app import typeset
+
+    raise typeset.StyleDefaultsUnavailable("시험: 렌더 실패")
+
+
+def test_preview_render_input_fingerprint_current_result_and_blocks(env):
+    """포함 섹션: 공통 렌더 입력(style 8키·저장 박스·번역문·revision), 지문 = 현재 ⑨ 시도의 고정 입력 지문, 현재 시도·표시 결과·최신,
+    넘침은 결과의 측정값. /blocks sectionInputFingerprint 가 같은 계산. 조회는 쓰지 않는다. 렌더러 = 현행 Pillow·번들 없음."""
+    from app import typeset
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    marks = _db_marks(job)
+    pv = _pv(c, job)
+    assert _db_marks(job) == marks  # 조회만 — 시도·인계·섹션·블록·작업 행이 바뀌지 않는다
+    assert pv["renderer"] == {"rendererId": typeset.RENDERER_VERSION, "bundleId": None}
+    assert re.fullmatch(r"pillow-typeset/2\+pillow-\S+", pv["renderer"]["rendererId"])  # 현행 문자열(FE는 파싱하지 않음)
+    blocks = c.get(f"/v1/jobs/{job}/blocks").json()
+    assert pv["sections"]
+    for s in pv["sections"]:
+        cur = _cur_preview(s["id"])
+        assert _input_state(s) == "ready"
+        assert s["bucket"] == "include" and s["inputError"] is None and s["revision"] == 0
+        assert s["inputFingerprint"] == cur["input_fingerprint"]
+        r = s["render"]
+        assert r["attempt"] == {"taskId": cur["id"], "status": "done", "errorCode": None, "retryable": False}
+        assert r["isCurrent"] is True
+        assert (r["result"]["taskId"], r["result"]["inputFingerprint"], r["result"]["rendererId"]) == (
+            cur["id"], cur["input_fingerprint"], typeset.RENDERER_VERSION)
+        assert s["renderedUrl"] == f"https://presigned.test/{_image_key(s['id'])}"
+        ri = s["renderInput"]
+        assert ri["section"]["id"] == s["id"] and ri["section"]["height"] == s["height"]
+        assert ri["section"]["background"]["source"] in ("inpaint", "original")
+        assert ri["section"]["background"]["url"].startswith("https://presigned.test/")
+        want = [b for b in blocks if b["sectionId"] == s["id"] and b["isExcluded"] is False and (b["trans1"] or "").strip()
+                and (b["sourceKo"] or "").strip()]
+        assert [(x["blockId"], x["revision"], x["text"]) for x in ri["blocks"]] == [(b["id"], b["revision"], b["trans1"]) for b in want]
+        assert set(r["result"]["overflow"]) == {str(b["id"]) for b in want}
+        for x in ri["blocks"]:
+            st = x["style"]
+            assert set(st) == STYLE8 and st["fontScale"] == 1.0 and st["fontFamily"] == "Pretendard" and st["lineHeightRatio"] == 1.2
+            assert st["fontWeight"] in (400, 600) and st["fontSizePx"] > 0 and st["align"] in ("left", "center", "right")
+            assert re.fullmatch(r"#[0-9A-F]{6}", st["fontColor"])  # 대문자 #RRGGBB(FE 11-05)
+            assert set(x["box"]) == {"x", "y", "w", "h"}
+        assert {b["sectionInputFingerprint"] for b in blocks if b["sectionId"] == s["id"]} == {s["inputFingerprint"]}
+
+
+def test_preview_new_attempt_pending_then_failed_keeps_adopted_previous_result(env, monkeypatch):
+    """저장 직후: 현재 시도 = 새 시도(pending), 표시 결과 = 이전 채택 결과(최신 아님·넘침 null), 이미지 그대로, 지문 = 새 시도 입력.
+    새 시도가 실패해도 이전 성공 이미지를 결과로 유지한다."""
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    old = _pvs(c, job, b["sectionId"])
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Edited text", "revision": b["revision"]}).json()["rerenderTaskId"]
+    s = _pvs(c, job, b["sectionId"])
+    assert (s["render"]["attempt"]["taskId"], s["render"]["attempt"]["status"]) == (t, "pending")
+    assert s["render"]["result"] == {**old["render"]["result"], "overflow": None} and s["render"]["isCurrent"] is False
+    assert s["renderedUrl"] == old["renderedUrl"]
+    assert s["inputFingerprint"] == _attempt(t)["input_fingerprint"] != old["inputFingerprint"]
+    assert [x["text"] for x in s["renderInput"]["blocks"] if x["blockId"] == b["id"]] == ["Edited text"]
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    env["q"].drain()
+    s = _pvs(c, job, b["sectionId"])
+    att = s["render"]["attempt"]
+    assert (att["taskId"], att["status"], att["errorCode"]) == (t, "failed", "STYLE_DEFAULTS_UNAPPROVED")
+    assert s["render"]["result"]["taskId"] == old["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
+    assert s["render"]["result"]["overflow"] is None and s["renderedUrl"] == old["renderedUrl"]
+
+
+def test_preview_result_is_the_adopted_record_of_the_current_image(env, monkeypatch):
+    """표시 결과는 지금 이미지 키를 만든 채택 기록이다 — 최신 성공 시도가 아니다. 채택되지 않은 성공 보고·모르는 키·
+    현재 분석에 연결되지 않은 하류 실행이면 근거 없음(result·renderedUrl null). 현재 시도는 따로 그대로 낸다."""
+    from app import execution as ex
+    from app.flows import preview_view
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    first = _pvs(c, job, sid)["render"]["result"]["taskId"]
+    first_key = _image_key(sid)
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Second text", "revision": b["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"]["taskId"] == t and s["render"]["isCurrent"] is True
+    second_key = _image_key(sid)
+    assert second_key != first_key
+    # (1) 이미지 키가 이전 채택 결과를 가리키면 그 기록(최신 성공 t 가 아니다) — 최신 아님, 넘침 null
+    _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=first_key, s=sid)
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"]["taskId"] == first and s["render"]["isCurrent"] is False and s["render"]["result"]["overflow"] is None
+    assert s["renderedUrl"] == f"https://presigned.test/{first_key}" and s["render"]["attempt"]["taskId"] == t
+    # (2) 채택되지 않은 성공 보고(인계 verified, 산출물 verified)의 키 → 근거 없음
+    a = _attempt(t)
+    hid = _q("INSERT INTO task_handoff (task_id, job_id, lease_epoch, contract_version, impl_version, input_fingerprint, outcome, target_count, "
+             "payload, manifest_sha256, state) VALUES (:t, :j, 999, 'test', 'pillow-typeset/test', :fp, 'done', 0, '{}'::jsonb, :fp, 'verified') "
+             "RETURNING id", t=t, j=job, fp=a["input_fingerprint"])[0]["id"]
+    _q("INSERT INTO task_artifact (handoff_id, job_id, kind, part_key, verified_key, byte_size, sha256, media_type, width, height, state) "
+       "VALUES (:h, :j, 'render_image', :pk, 'verified/test/unadopted.png', 1, :sha, 'image/png', 1, 1, 'verified')",
+       h=hid, j=job, pk=f"sec_{sid}", sha="0" * 64)
+    for key in ("verified/test/unadopted.png", "legacy/before-execution-records.png"):  # (3) 실행 기록에 없는 키
+        _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=key, s=sid)
+        s = _pvs(c, job, sid)
+        assert s["render"]["result"] is None and s["renderedUrl"] is None and s["render"]["isCurrent"] is False, key
+        assert s["render"]["attempt"]["taskId"] == t and s["inputFingerprint"] == a["input_fingerprint"]
+    # (4) 현재 분석에 연결되지 않은 하류 실행(이전 실행) → 그 실행의 결과·입력을 쓰지 않는다
+    _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=second_key, s=sid)
+    assert _pvs(c, job, sid)["render"]["result"]["taskId"] == t
+    real = ex.latest_run
+
+    def other_analysis(db, job_id, kind):
+        run = real(db, job_id, kind)
+        return {**run, "run_scope": {**run["run_scope"], "analysis_task_id": -1}} if run else run
+
+    monkeypatch.setattr(preview_view.execution, "latest_run", other_analysis)
+    s = _pvs(c, job, sid)
+    assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
+    assert s["renderInput"] is None and s["inputFingerprint"] is None and s["inputError"] is None
+
+
+def test_preview_excluded_section_nulls_and_zero_target_blocks(env):
+    """N5 제외 섹션 = renderInput·inputFingerprint·render null(renderedUrl 현행 그대로). 렌더 대상 블록 0개 = blocks [] · 넘침 {}."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    secs = [s["id"] for s in _pv(c, job)["sections"]]
+    assert len(secs) >= 2
+    a, z = secs[0], secs[1]
+    url = _pvs(c, job, a)["renderedUrl"]
+    assert _spatch(c, job, a, {"action": "exclude", "revision": 0}).status_code == 200
+    s = _pvs(c, job, a)
+    assert _input_state(s) == "excluded"
+    assert (s["bucket"], s["revision"], s["renderInput"], s["inputFingerprint"], s["inputError"], s["render"]) == (
+        "exclude", 1, None, None, None, None)
+    assert s["renderedUrl"] == url
+    assert {b["sectionInputFingerprint"] for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["sectionId"] == a} == {None}
+    for b in [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == z and x["trans1"]]:
+        assert c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "", "revision": b["revision"]}).status_code == 200
+    env["q"].drain()
+    s = _pvs(c, job, z)
+    assert s["renderInput"]["blocks"] == [] and s["render"]["isCurrent"] is True and s["render"]["result"]["overflow"] == {}
+
+
+def test_preview_input_errors_are_classified_without_inventing_input(env, monkeypatch, tmp_path):
+    """입력 구성 실패: renderInput·inputFingerprint null, inputError 3코드(박스 → RENDER_INPUT_INVALID, ⑦ 결과 계약 위반 →
+    STYLE_RESULT_INVALID, 승인 자료 사용 불가 → STYLE_DEFAULTS_UNAPPROVED). 이전 결과는 최신 아님으로 남는다."""
+    import json
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    prev = _pvs(c, job, sid)
+    w = prev["renderInput"]["section"]["width"]
+    for bad in ({"x": -5, "y": 0, "w": 10, "h": 10}, {"x": 0, "y": 0, "w": 0, "h": 10}, {"x": w - 5, "y": 0, "w": 10, "h": 10}):
+        _q("UPDATE text_block SET auto_adjust = CAST(:a AS jsonb) WHERE id = :b", a=json.dumps({"layout_bbox": bad}), b=b["id"])
+        s = _pvs(c, job, sid)
+        assert _input_state(s) == "error"
+        assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}, bad
+        assert s["renderInput"] is None and s["inputFingerprint"] is None
+        assert s["render"]["result"]["taskId"] == prev["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
+        assert s["render"]["result"]["overflow"] is None and s["renderedUrl"] == prev["renderedUrl"]
+        assert {x["sectionInputFingerprint"] for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == sid} == {None}
+    _q("UPDATE text_block SET auto_adjust = NULL WHERE id = :b", b=b["id"])
+    assert _pvs(c, job, sid)["inputFingerprint"] == prev["inputFingerprint"]
+    style = _q("SELECT style FROM text_block WHERE id = :b", b=b["id"])[0]["style"]
+    _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b",
+       s=json.dumps({"font_color": "red", "bg_color": None, "est_font_px": None, "align": None}), b=b["id"])
+    s = _pvs(c, job, sid)
+    assert s["inputError"] == {"code": "STYLE_RESULT_INVALID", "blockIds": [b["id"]]} and s["renderInput"] is None
+    # 소문자 색은 고쳐 쓰지 않는다 — 대문자 #RRGGBB 만 정상 입력(FE 11-05)
+    _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b",
+       s=json.dumps({"font_color": "#ff0000", "bg_color": None, "est_font_px": None, "align": None}), b=b["id"])
+    s = _pvs(c, job, sid)
+    assert _input_state(s) == "error" and s["inputError"] == {"code": "STYLE_RESULT_INVALID", "blockIds": [b["id"]]}
+    _q("UPDATE text_block SET style = CAST(:s AS jsonb) WHERE id = :b", s=json.dumps(style) if style is not None else None, b=b["id"])
+    assert _pvs(c, job, sid)["inputFingerprint"] == prev["inputFingerprint"]
+    monkeypatch.setenv("PIXLATE_STYLE_DEFAULTS", str(tmp_path / "missing-style-defaults.json"))
+    for s in _pv(c, job)["sections"]:
+        assert s["inputError"] == {"code": "STYLE_DEFAULTS_UNAPPROVED", "blockIds": []} and s["inputFingerprint"] is None
+        assert s["render"]["isCurrent"] is False and s["render"]["result"] is not None
+
+
+def test_render_input_box_number_forms_and_fingerprint_compat(env):
+    """지문 직렬화(JCS): 10 과 10.0 은 같은 "10" — 정수 좌표를 소수 표기로 저장해도 지문·최신성이 그대로다. 소수 좌표는 절삭하지 않아
+    지문이 바뀌고(이전 절삭 방식이면 바뀌지 않아 최신으로 잘못 보였다), 새 시도가 소수 박스 그대로 그려 채택된다."""
+    from app import db as app_db
+    from app.flows import downstream
+    from app.manifest import canonical_json, fingerprint
+
+    base = {"box": {"x": 10, "y": 20, "w": 30, "h": 40}}
+    floats = {"box": {"x": 10.0, "y": 20.0, "w": 30.0, "h": 40.0}}
+    assert canonical_json(floats) == canonical_json(base) == '{"box":{"h":40,"w":30,"x":10,"y":20}}'
+    assert fingerprint(floats) == fingerprint(base) != fingerprint({"box": {**base["box"], "w": 29.5}})
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    s0 = _pvs(c, job, sid)
+    assert s0["render"]["isCurrent"] is True
+    bb = _q("SELECT bbox FROM text_block WHERE id = :b", b=b["id"])[0]["bbox"]
+    assert all(isinstance(bb[k], int) for k in ("x", "y", "w", "h"))
+    _q("UPDATE text_block SET bbox = jsonb_build_object('x', (bbox->>'x')::numeric + 0.0, 'y', (bbox->>'y')::numeric + 0.0, "
+       "'w', (bbox->>'w')::numeric + 0.0, 'h', (bbox->>'h')::numeric + 0.0) WHERE id = :b", b=b["id"])
+    stored = _q("SELECT bbox::text AS t, bbox FROM text_block WHERE id = :b", b=b["id"])[0]
+    assert ".0" in stored["t"] and all(isinstance(stored["bbox"][k], float) for k in ("x", "y", "w", "h"))  # 실제 저장·읽기 표현이 10.0
+    s1 = _pvs(c, job, sid)
+    assert s1["inputFingerprint"] == s0["inputFingerprint"] and s1["render"]["isCurrent"] is True
+    # 절삭하면 원래 정수로 돌아가는 소수(x + 0.5) — 절삭 방식은 이 변경을 지문에서 놓친다
+    _q("UPDATE text_block SET bbox = jsonb_set(bbox, '{x}', to_jsonb((bbox->>'x')::numeric + 0.5)) WHERE id = :b", b=b["id"])
+    s2 = _pvs(c, job, sid)
+    assert s2["inputError"] is None, s2["inputError"]
+    assert s2["inputFingerprint"] != s0["inputFingerprint"] and s2["render"]["isCurrent"] is False
+    assert [x["box"]["x"] for x in s2["renderInput"]["blocks"] if x["blockId"] == b["id"]] == [bb["x"] + 0.5]
+    run = _q("SELECT parent_task_id FROM job_async_task WHERE id = :t", t=_cur_preview(sid)["id"])[0]["parent_task_id"]
+    with app_db.SessionLocal() as db:  # 이전 절삭 방식이었다면 지문이 그대로라 이전 결과를 최신으로 보였다
+        m = downstream._render_inputs(db, run, sid)
+        trunc = {**m, "blocks": [{**x, "box": {k: int(v) for k, v in x["box"].items()}} for x in m["blocks"]]}
+        assert fingerprint(m) == s2["inputFingerprint"] and fingerprint(trunc) == s0["inputFingerprint"]
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Float box", "revision": b["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    a = _attempt(t)
+    assert a["status"] == "done"
+    man = _q("SELECT input_manifest FROM job_async_task WHERE id = :t", t=t)[0]["input_manifest"]
+    assert [x["box"]["x"] for x in man["blocks"] if x["block_id"] == b["id"]] == [bb["x"] + 0.5]
+    s3_ = _pvs(c, job, sid)
+    assert s3_["render"]["isCurrent"] is True and s3_["inputFingerprint"] == a["input_fingerprint"] == s3_["render"]["result"]["inputFingerprint"]
+
+
+def test_preview_is_one_snapshot_while_save_and_adoption_commit(env, monkeypatch):
+    """조회 도중 다른 연결에서 저장(번역문·revision)과 이미지 교체가 커밋돼도 그 응답은 조회 시작 시점 값 하나로 만든다."""
+    from app import db as app_db
+    from app.flows import preview_view
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    before = _pvs(c, job, sid)
+    real = preview_view.section_input
+    fired = []
+
+    def mid(ctx, s):
+        if not fired:
+            fired.append(s)
+            with app_db.engine.begin() as other:
+                other.execute(text("UPDATE text_block SET trans_1 = 'Changed meanwhile', revision = revision + 1 WHERE id = :b"), {"b": b["id"]})
+                other.execute(text("UPDATE section SET render_image_key = 'verified/test/meanwhile.png' WHERE id = :s"), {"s": sid})
+        return real(ctx, s)
+
+    monkeypatch.setattr(preview_view, "section_input", mid)
+    assert _pvs(c, job, sid) == before and fired
+    after = _pvs(c, job, sid)  # 다음 조회에는 반영된다
+    assert after["inputFingerprint"] != before["inputFingerprint"] and after["render"]["result"] is None and after["renderedUrl"] is None
+
+
+def test_preview_during_n4_input_preparation_is_not_a_style_error(env):
+    """N4: ⑥⑦⑧ 이 끝나지 않아 입력을 만들 수 없는 섹션 = 입력 준비 중(세 필드 모두 null, FE 11-05 확정). 스타일 오류로 내지 않는다."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+    for s in _pv(c, job)["sections"]:
+        assert _input_state(s) == "preparing"
+        assert (s["renderInput"], s["inputFingerprint"], s["inputError"]) == (None, None, None)
+        assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
+    assert {b["sectionInputFingerprint"] for b in c.get(f"/v1/jobs/{job}/blocks").json()} == {None}
+
+
+def test_n5_restore_reuses_valid_attempt_and_preserves_same_input_failure(env, monkeypatch):
+    """N5 복원: 현재 입력과 지문이 같은 시도(완료·최종 실패·대기)는 재사용 — 새 시도·전송 없음, 실패 상태·재시도 횟수 보존."""
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    cur0, n0 = _cur_preview(sid), _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 0}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 1}).status_code == 200
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    real_render = downstream._render_section
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Fails twice", "revision": b["revision"]}).json()["rerenderTaskId"]
+    env["q"].drain()
+    r = c.post(f"/v1/jobs/{job}/tasks/{t}/retry")
+    assert r.status_code in (200, 202), r.text
+    env["q"].drain()
+    failed = _cur_preview(sid)
+    assert failed["status"] == "failed" and failed["retry_count"] == 1
+    n1 = _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 2}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 3}).status_code == 200
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n1, failed, [])
+    monkeypatch.setattr(downstream, "_render_section", real_render)
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["id"] == b["id"]][0]
+    t2 = c.patch(f"/v1/jobs/{job}/blocks/{b['id']}", json={"trans1": "Pending now", "revision": b["revision"]}).json()["rerenderTaskId"]
+    sent = list(env["q"].messages)
+    n2 = _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 4}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 5}).status_code == 200
+    assert _preview_count(job) == n2 and _cur_preview(sid)["id"] == t2 and _cur_preview(sid)["status"] == "pending"
+    assert env["q"].messages == sent
+    env["q"].drain()
+    assert _pvs(c, job, sid)["render"]["isCurrent"] is True
+
+
+def test_n5_restore_creates_attempt_only_when_input_changed_not_on_replay_or_rejection(env):
+    """제외 중 입력이 바뀐 섹션의 복원 = 입력 변경 재렌더 1건(이전 시도 대체·재시도 횟수 그대로·커밋 뒤 전송).
+    거절(오래된 revision·복원 근거 없음)과 같은 요청 재전송은 시도를 만들지 않는다."""
+    import json
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 0}).status_code == 200
+    # 시도를 만들지 않는 입력 변경(번역 재시도 성공과 같은 효과)
+    _q("UPDATE text_block SET trans_1 = 'Changed while excluded', revision = revision + 1 WHERE id = :b", b=b["id"])
+    cur0, n0 = _cur_preview(sid), _preview_count(job)
+    stale = _spatch(c, job, sid, {"action": "restore", "revision": 0}, key="rs-stale")
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "REVISION_CONFLICT"
+    ov = _srow(sid)["original_verdict"]
+    _q("UPDATE section SET original_verdict = NULL WHERE id = :s", s=sid)
+    nb = _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="rs-nobasis")
+    assert nb.status_code == 409 and nb.json()["error"]["details"] == {"reason": "restore_basis_missing"}
+    _q("UPDATE section SET original_verdict = CAST(:v AS jsonb) WHERE id = :s", v=json.dumps(ov), s=sid)
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    r1 = _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="rs-1")
+    assert r1.status_code == 200, r1.text
+    cur1 = _cur_preview(sid)
+    assert _preview_count(job) == n0 + 1 and cur1["status"] == "pending"
+    assert (cur1["supersedes_task_id"], cur1["retry_count"], cur1["retry_origin"]) == (cur0["id"], cur0["retry_count"], "user")
+    assert env["q"].messages == [("app.tasks.run_preview", [cur1["id"]])]
+    r2 = _spatch(c, job, sid, {"action": "restore", "revision": 1}, key="rs-1")
+    assert r2.headers["Idempotent-Replayed"] == "true" and r2.json() == r1.json()
+    assert _preview_count(job) == n0 + 1 and len(env["q"].messages) == 1
+    env["q"].drain()
+    s = _pvs(c, job, sid)
+    assert s["render"]["isCurrent"] is True and s["render"]["result"]["taskId"] == cur1["id"]
+
+
+def test_preview_unreadable_bbox_is_render_input_invalid_not_500(env):
+    """적용 박스를 읽을 수 없는 블록(bbox NULL·좌표 키 누락·수가 아닌 값·배치 조정값 형식 오류)과 섹션 크기 없음:
+    /preview·/blocks 는 200, 그 섹션만 RENDER_INPUT_INVALID·지문 null(비교 불가), 다른 섹션은 그대로."""
+    import json
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    before = {s["id"]: s for s in _pv(c, job)["sections"]}
+    others = {k: v["inputFingerprint"] for k, v in before.items() if k != sid}
+    assert others
+    orig = _q("SELECT bbox, auto_adjust FROM text_block WHERE id = :b", b=b["id"])[0]
+    bb = orig["bbox"]
+    cases = [
+        ("bbox", None),
+        ("bbox", {k: v for k, v in bb.items() if k != "w"}),
+        ("bbox", {**bb, "x": str(bb["x"])}),
+        ("bbox", {**bb, "y": True}),
+        ("auto_adjust", ["layout_bbox"]),
+        ("auto_adjust", {"layout_bbox": {"x": 1, "y": 1, "w": 5}}),
+        ("auto_adjust", {"layout_bbox": "0,0,5,5"}),
+    ]
+    for col, val in cases:
+        _q(f"UPDATE text_block SET {col} = CAST(:v AS jsonb) WHERE id = :b", v=None if val is None else json.dumps(val), b=b["id"])
+        r = c.get(f"/v1/jobs/{job}/preview")
+        assert r.status_code == 200, (col, val, r.text)
+        secs = {s["id"]: s for s in r.json()["sections"]}
+        s = secs[sid]
+        assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}, (col, val)
+        assert s["renderInput"] is None and s["inputFingerprint"] is None and s["render"]["isCurrent"] is False
+        assert s["render"]["result"]["taskId"] == before[sid]["render"]["result"]["taskId"]
+        assert {k: secs[k]["inputFingerprint"] for k in others} == others
+        bl = c.get(f"/v1/jobs/{job}/blocks")
+        assert bl.status_code == 200, (col, val, bl.text)
+        fps = {x["sectionId"]: x["sectionInputFingerprint"] for x in bl.json()}
+        assert fps[sid] is None and {k: fps[k] for k in others} == others
+        _q("UPDATE text_block SET bbox = CAST(:bb AS jsonb), auto_adjust = CAST(:aa AS jsonb) WHERE id = :b", bb=json.dumps(bb),
+           aa=None if orig["auto_adjust"] is None else json.dumps(orig["auto_adjust"]), b=b["id"])
+    assert _pvs(c, job, sid)["inputFingerprint"] == before[sid]["inputFingerprint"]
+    sbox = _q("SELECT bbox FROM section WHERE id = :s", s=sid)[0]["bbox"]
+    for sql in ("UPDATE section SET bbox = NULL WHERE id = :s", "UPDATE section SET bbox = bbox - 'w' WHERE id = :s"):
+        _q(sql, s=sid)
+        s = _pvs(c, job, sid)
+        assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": []} and s["inputFingerprint"] is None, sql
+        assert c.get(f"/v1/jobs/{job}/blocks").status_code == 200
+        _q("UPDATE section SET bbox = CAST(:v AS jsonb) WHERE id = :s", v=json.dumps(sbox), s=sid)
+
+
+def test_unlinked_image_keys_are_classified_and_never_current(env, monkeypatch):
+    """이미지 키는 있지만 채택 기록에 연결하지 못하는 경우를 구분한다(레거시·이전 실행·N6 최종 렌더·알 수 없음).
+    어느 경우든 result·renderedUrl null — 근거 없는 이미지를 최신 결과로 인정하지 않는다."""
+    from app import db as app_db
+    from app import execution as ex
+    from app.flows import preview_view as pvw
+
+    logged = []  # 로거 설정(다른 시험의 전파 설정)에 기대지 않고 호출 자체를 본다
+    monkeypatch.setattr(pvw.log, "warning", lambda msg, *a: logged.append(msg % a))
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    key = _image_key(sid)
+
+    def reason():
+        with app_db.SessionLocal() as db:
+            return pvw.unlinked_reason(pvw.PreviewContext(db, job), sid, _image_key(sid))
+
+    _q("UPDATE section SET render_image_key = 'legacy/unknown.png' WHERE id = :s", s=sid)
+    assert reason() == pvw.UNLINKED_UNKNOWN
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"] is None and s["renderedUrl"] is None
+    assert any(f"섹션 {sid}" in m and "unknown" in m for m in logged), logged
+    _q("UPDATE section SET render_image_key = :k WHERE id = :s", k=key, s=sid)
+    real = ex.latest_run
+    monkeypatch.setattr(pvw.execution, "latest_run",
+                        lambda db, j, kind: (lambda r: {**r, "run_scope": {**r["run_scope"], "analysis_task_id": -1}} if r else r)(real(db, j, kind)))
+    assert reason() == pvw.UNLINKED_PREVIOUS_RUN and _pvs(c, job, sid)["renderedUrl"] is None
+    monkeypatch.setattr(pvw.execution, "latest_run", lambda db, j, kind: None)  # 실행 기록 이전 방식(하류 실행 기록 없음)
+    assert reason() == pvw.UNLINKED_LEGACY
+    s = _pvs(c, job, sid)
+    assert s["render"] == {"attempt": None, "result": None, "isCurrent": False} and s["renderedUrl"] is None
+    monkeypatch.setattr(pvw.execution, "latest_run", real)
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    assert _image_key(sid) != key  # N6 최종 렌더가 섹션 이미지를 최종 이미지로 바꿨다
+    assert reason() == pvw.UNLINKED_FINAL_RENDER
+    s = _pvs(c, job, sid)
+    assert s["render"]["result"] is None and s["renderedUrl"] is None
+
+
+def test_n5_restore_creates_exactly_one_attempt_when_current_is_missing_or_cancelled(env):
+    """현재 미리보기 시도가 없거나(기록 없음) 취소됐으면 복원 때 새 시도가 정확히 하나 생기고 커밋 뒤 한 번 전송된다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    secs = [s["id"] for s in _pv(c, job)["sections"]]
+    a, z = secs[0], secs[1]
+    # 취소된 현재 시도(대기 중 시도가 취소된 채 남음 — 완료 시도는 DB 가드가 상태 변경을 막는다) → 대체하는 새 시도 1건
+    blk = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["sectionId"] == a and x["trans1"]][0]
+    c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Will be cancelled", "revision": blk["revision"]})
+    env["q"].messages.clear()
+    assert _spatch(c, job, a, {"action": "exclude", "revision": 0}).status_code == 200
+    cur = _cur_preview(a)
+    assert cur["status"] == "pending"
+    _q("UPDATE job_async_task SET status = 'cancelled', finished_at = now() WHERE id = :t", t=cur["id"])
+    n0 = _preview_count(job)
+    assert _spatch(c, job, a, {"action": "restore", "revision": 1}, key="r-cancelled").status_code == 200
+    new = _cur_preview(a)
+    assert _preview_count(job) == n0 + 1 and new["supersedes_task_id"] == cur["id"] and new["status"] == "pending"
+    assert env["q"].messages == [("app.tasks.run_preview", [new["id"]])]
+    assert _spatch(c, job, a, {"action": "restore", "revision": 1}, key="r-cancelled").headers["Idempotent-Replayed"] == "true"
+    assert _preview_count(job) == n0 + 1 and len(env["q"].messages) == 1
+    env["q"].drain()
+    # 현재 시도 없음(미리보기 시도 기록이 없는 섹션) → 첫 시도 1건
+    assert _spatch(c, job, z, {"action": "exclude", "revision": 0}).status_code == 200
+    _q("DELETE FROM job_async_task WHERE stage = 'preview' AND unit_id = :s", s=z)
+    n1 = _preview_count(job)
+    assert _spatch(c, job, z, {"action": "restore", "revision": 1}).status_code == 200
+    first = _cur_preview(z)
+    assert _preview_count(job) == n1 + 1 and first["supersedes_task_id"] is None and first["retry_count"] == 0
+    assert env["q"].messages == [("app.tasks.run_preview", [first["id"]])]
+    env["q"].drain()
+    assert _pvs(c, job, a)["render"]["isCurrent"] is True
+    assert _attempt(first["id"])["status"] == "done"
+
+
+def test_n5_restore_during_translation_retry_is_not_secured_at_restore(env):
+    """미확보 경로 기록: 번역 재시도가 진행 중(⑧ 미완료)인 섹션을 복원하면 그 시점에는 미리보기 시도를 만들지 않는다.
+    번역이 끝나면 기존 진행 규칙(progress)이 이전 성공 미리보기의 입력 변경을 보고 다시 그린다 — 이 경로는 이전 시도가 done 일 때만 닫힌다."""
+    ids, target = _to_n5(env, fail_first=True)
+    c, job = ids["c"], ids["job"]
+    sid = _q("SELECT section_id FROM text_block WHERE id = :b", b=target)[0]["section_id"]
+    tr = _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s AND is_current", j=job, s=sid)[0]
+    pv0 = _cur_preview(sid)
+    assert pv0["status"] == "done"
+    rev = _srow(sid)["revision"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": rev}).status_code == 200
+    ai_adapters.set_adapters(translator=FakeTranslator())
+    assert c.post(f"/v1/jobs/{job}/tasks/{tr['id']}/retry").status_code == 200
+    n0 = _preview_count(job)
+    sent = list(env["q"].messages)
+    assert _spatch(c, job, sid, {"action": "restore", "revision": rev + 1}).status_code == 200
+    assert _preview_count(job) == n0 and _cur_preview(sid) == pv0 and env["q"].messages == sent  # 복원 시점 미확보
+    assert _pvs(c, job, sid)["renderInput"] is None  # 입력 준비 중(번역 재시도) — N5 에서도 생기는 조합
+    env["q"].drain()
+    cur = _cur_preview(sid)
+    assert cur["id"] != pv0["id"] and cur["status"] == "done" and _pvs(c, job, sid)["render"]["isCurrent"] is True
+
+
+def _progress_now(run_id, sid):
+    """진행 처리를 한 번 직접 부른다(대표 실행을 잠근 트랜잭션 — 실제 호출과 같은 조건)."""
+    from app import db as app_db
+    from app.flows import downstream
+
+    with app_db.SessionLocal() as db:
+        execution.lock_task(db, run_id)
+        made = downstream.progress(db, run_id, sid)
+        db.commit()
+    return made
+
+
+def test_n5_restore_after_failed_preview_gets_one_new_preview_once_translation_is_adopted(env, monkeypatch):
+    """이전 미리보기 실패 → 제외 → 번역 재시도 중 복원(그 시점엔 미확보) → 바뀐 번역 채택 → 진행 처리가 새 미리보기 하나를 등록 → 채택.
+    같은 입력의 최종 실패에서는 진행 처리가 새 시도를 만들지 않고, 중복 호출에서도 시도는 하나만 생긴다."""
+    from app import tasks
+    from app.flows import downstream
+
+    ids, target = _to_n5(env, fail_first=True)
+    c, job = ids["c"], ids["job"]
+    sid = _q("SELECT section_id FROM text_block WHERE id = :b", b=target)[0]["section_id"]
+    run_id = _q("SELECT parent_task_id FROM job_async_task WHERE id = :t", t=_cur_preview(sid)["id"])[0]["parent_task_id"]
+    others = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b["sectionId"] == sid and b["trans1"] and b["id"] != target]
+    assert others, "번역 실패 블록과 같은 섹션에 번역된 블록이 있어야 한다"
+    # ① 이전 미리보기 실패(같은 섹션의 다른 블록 저장 → 재렌더 실패)
+    real_render = downstream._render_section
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    o = others[0]
+    c.patch(f"/v1/jobs/{job}/blocks/{o['id']}", json={"trans1": "Saved before failure", "revision": o["revision"]})
+    env["q"].drain()
+    failed = _cur_preview(sid)
+    assert failed["status"] == "failed"
+    monkeypatch.setattr(downstream, "_render_section", real_render)
+    assert _progress_now(run_id, sid) == []  # 같은 입력의 최종 실패 — 진행 처리가 새로 만들지 않는다(실패·재시도 횟수 보존)
+    assert _cur_preview(sid) == failed
+    # ② 제외 → 번역 재시도 → 재시도 진행 중 복원(⑧ 미완료라 복원 시점에는 미리보기를 만들지 않는다)
+    rev = _srow(sid)["revision"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": rev}).status_code == 200
+    ai_adapters.set_adapters(translator=FakeTranslator())
+    tr = _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s AND is_current", j=job, s=sid)[0]
+    assert c.post(f"/v1/jobs/{job}/tasks/{tr['id']}/retry").status_code == 200
+    n0 = _preview_count(job)
+    assert _spatch(c, job, sid, {"action": "restore", "revision": rev + 1}).status_code == 200
+    assert _preview_count(job) == n0 and _cur_preview(sid) == failed
+    # 입력 준비 중(번역 재시도 진행)이어도 렌더 시도 상태는 따로 낸다 — 실패를 표시하고, 이전 결과는 최신 아님·넘침 없음
+    s = _pvs(c, job, sid)
+    assert _input_state(s) == "preparing"
+    assert s["render"]["attempt"]["taskId"] == failed["id"] and s["render"]["attempt"]["status"] == "failed"
+    assert s["render"]["isCurrent"] is False
+    # ③ 바뀐 번역 채택(미리보기 실행은 아직 하지 않는다) → 진행 처리가 새 미리보기 하나를 등록
+    sent = env["q"].drain(skip={"app.tasks.run_preview"})
+    assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=target)[0]["trans_1"].startswith("EN ")
+    new = _cur_preview(sid)
+    assert _preview_count(job) == n0 + 1 and new["status"] == "pending"
+    assert (new["supersedes_task_id"], new["retry_count"], new["retry_origin"]) == (failed["id"], failed["retry_count"], "auto")
+    assert new["input_fingerprint"] != failed["input_fingerprint"] == _attempt(failed["id"])["input_fingerprint"]
+    assert [a for n, a in sent if n == "app.tasks.run_preview"] == [[new["id"]]]
+    assert _pvs(c, job, sid)["inputFingerprint"] == new["input_fingerprint"]
+    # ④ 진행 처리 중복 호출 — 시도는 하나뿐
+    assert _progress_now(run_id, sid) == [] and _progress_now(run_id, sid) == []
+    assert _preview_count(job) == n0 + 1 and _cur_preview(sid)["id"] == new["id"]
+    # ⑤ 새 미리보기 실행·채택
+    tasks.run_preview(new["id"])
+    env["q"].drain()
+    assert _attempt(new["id"])["status"] == "done" and _preview_count(job) == n0 + 1
+    s = _pvs(c, job, sid)
+    assert s["render"]["isCurrent"] is True and s["render"]["result"]["taskId"] == new["id"]
+    assert _progress_now(run_id, sid) == []  # 최신 입력의 완료 시도 — 더 만들지 않는다
+
+
+def test_progress_does_not_resume_cancelled_run_for_changed_input(env):
+    """취소·종료된 실행은 재개하지 않는다: 실행이 진행 중이 아니면 입력이 바뀌어도 진행 처리가 미리보기를 만들지 않는다."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    run_id = _q("SELECT parent_task_id FROM job_async_task WHERE id = :t", t=_cur_preview(sid)["id"])[0]["parent_task_id"]
+    _q("UPDATE text_block SET trans_1 = 'Changed after run closed', revision = revision + 1 WHERE id = :b", b=b["id"])
+    _q("UPDATE job_async_task SET status = 'cancelled', cancelled_at = now(), finished_at = now() WHERE id = :r", r=run_id)
+    n0 = _preview_count(job)
+    assert _progress_now(run_id, sid) == [] and _preview_count(job) == n0
+
+
+def test_n5_restore_with_unreadable_box_succeeds_without_attempt(env):
+    """적용 박스를 읽을 수 없는 섹션의 복원은 200(섹션 상태는 바뀜)이고 미리보기 시도는 만들지 않는다 — /preview 는 RENDER_INPUT_INVALID."""
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b = _text_block(c, job)
+    sid = b["sectionId"]
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 0}).status_code == 200
+    _q("UPDATE text_block SET bbox = NULL WHERE id = :b", b=b["id"])
+    n0, cur0 = _preview_count(job), _cur_preview(sid)
+    r = _spatch(c, job, sid, {"action": "restore", "revision": 1})
+    assert r.status_code == 200 and r.json()["bucket"] == "include"
+    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    assert _pvs(c, job, sid)["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}

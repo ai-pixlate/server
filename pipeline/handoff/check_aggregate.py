@@ -8,8 +8,10 @@
 - 실행 상태 `run_state`는 BE 작업 상태를 그대로 받는다: none(현재 시도 없음) · pending · running(현재 시도의 job_async_task.status)
   · done(outcome completed 채택) · skipped(done + skip_reason=no_targets) · failed(BE가 더 재시도하지 않기로 정한 최종 실패) · cancelled.
   자동 재시도는 새 현재 시도의 pending으로 들어온다.
-- freshness: BE가 시도에 고정한 입력 지문과, 현재 입력으로 다시 계산한 지문(`review_manifest` · `text_check_manifest`)을 비교한다.
-  current · stale · not_comparable(시도 없음 · 지문 없음). 실패도 지문이 다르면 stale이다.
+- freshness: 블록별 의미 입력 키를 비교한다 — BE가 시도 등록 때 고정한 그 블록의 키와, 현재 입력으로 다시 계산한 키(규칙 검사
+  `translation.text_check_input_keys`). 같은지만 본다. current · stale · not_comparable(시도 없음 · 키 없음). 실패도 키가 다르면 stale이다.
+  저장 revision이 든 요청 지문(`text_check_manifest` · `review_manifest`)은 고정 요청 · 시도 검증용이라 여기에 넣지 않는다 — 배치만
+  바뀐 저장에도 stale이 된다. LLM 판정의 블록별 의미 키 함수는 아직 없다.
 - 섹션 단위 지문은 같은 섹션의 블록이 공유하므로 지문 일치만으로 블록을 가리지 못한다. 넘겨받은 결과의 block_key(LLM 실패는 scope의
   target_keys)가 집계 대상 블록과 다르면 AggregateError다.
 - 활성 검사(`active_checks`): 이 실행에서 **돌리기로 한** 검사를 BE가 명시한다(예: 규칙 검사만 `("rule",)` · 두 검사
@@ -40,8 +42,10 @@ class CheckInput:
     failed_scope는 LLM 실패 보고 payload의 scope(있으면) — 범위만 알려 주며 판정은 아니다."""
 
     run_state: str
-    attempt_manifest_sha256: str | None = None  # BE가 시도에 고정한 지문
-    current_manifest_sha256: str | None = None  # 현재 입력으로 다시 계산한 지문
+    # 두 값은 같은지만 비교한다. 현재 결과 유효성에는 블록별 의미 입력 키(규칙 검사 `translation.text_check_input_keys`)를 넣는다 —
+    # 저장 revision이 든 요청 지문(`text_check_manifest`)을 넣으면 배치만 바뀐 저장에도 stale이 된다(contract 5.3)
+    attempt_manifest_sha256: str | None = None  # 시도가 검사한 입력의 키(BE가 등록 때 고정)
+    current_manifest_sha256: str | None = None  # 현재 입력으로 다시 계산한 키
     block_result: dict[str, Any] | None = None
     failed_scope: dict[str, Any] | None = None
 

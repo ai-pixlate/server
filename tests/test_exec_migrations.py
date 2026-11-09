@@ -358,11 +358,72 @@ def test_job_delete_cascades_everything(conn):
         assert conn.execute(text(f"SELECT count(*) FROM {table} WHERE job_id = :j"), {"j": ids["job"]}).scalar() == 0
 
 
+def _repo_head() -> str:
+    """저장소 마이그레이션의 head — 정확히 하나여야 한다(갈라지면 시험이 먼저 실패)."""
+    from alembic.script import ScriptDirectory
+
+    heads = ScriptDirectory.from_config(alembic_config()).get_heads()
+    assert len(heads) == 1, heads
+    return heads[0]
+
+
 def test_full_downgrade_and_upgrade_roundtrip():
     with fresh_database() as u:
         command.downgrade(alembic_config(), "0006")
         command.upgrade(alembic_config(), "head")
         eng = create_engine(u)
         with eng.connect() as c:
+            assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == _repo_head()
+        eng.dispose()
+
+
+# ---- 0010: 편집 저장 멱등 기록 ------------------------------------------------------------------------------------
+def test_0010_upgrade_from_existing_0008_db_and_back():
+    """0008 까지 쓰던 DB(작업 행 있음)에서 head 로 올리면 기존 행은 그대로 두고 edit_idempotency 만 생긴다. 되돌리면 표만 지운다."""
+    _repo_head()  # 단일 head
+    with fresh_database("0008") as u:
+        eng = create_engine(u)
+        with eng.begin() as c:
+            ids = seed_job(c)
+        command.upgrade(alembic_config(), "head")
+        with eng.begin() as c:
+            assert c.execute(text("SELECT count(*) FROM job WHERE id = :j"), {"j": ids["job"]}).scalar() == 1
+            c.execute(text("INSERT INTO edit_idempotency (seller_id, job_id, operation, idem_key, request_sha256, status_code, response, expires_at) "
+                           "VALUES (:s, :j, 'block_patch', 'k', :h, 200, '{}'::jsonb, now() + interval '1 day')"),
+                      {"s": ids["seller"], "j": ids["job"], "h": "0" * 64})
+        with pytest.raises(Exception):  # 2xx 만 기록
+            with eng.begin() as c:
+                c.execute(text("INSERT INTO edit_idempotency (seller_id, job_id, operation, idem_key, request_sha256, status_code, response, expires_at) "
+                               "VALUES (:s, :j, 'block_patch', 'k2', :h, 409, '{}'::jsonb, now())"), {"s": ids["seller"], "j": ids["job"], "h": "0" * 64})
+        with eng.begin() as c:
+            c.execute(text("DELETE FROM job WHERE id = :j"), {"j": ids["job"]})  # 작업 행을 지우면 기록도 지워진다
+            assert c.execute(text("SELECT count(*) FROM edit_idempotency")).scalar() == 0
+        command.downgrade(alembic_config(), "0008")
+        with eng.connect() as c:
+            assert c.execute(text("SELECT to_regclass('edit_idempotency')")).scalar() is None
             assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0008"
+        eng.dispose()
+
+
+# ---- 0011: 섹션 revision ------------------------------------------------------------------------------------------
+def test_0011_section_revision_from_existing_0010_db_and_back():
+    """0010 까지 쓰던 DB(섹션 행 있음)에서 올리면 기존 섹션 revision = 0(다른 값 그대로), 음수는 막는다. 되돌리면 열만 지운다."""
+    with fresh_database("0010") as u:
+        eng = create_engine(u)
+        with eng.begin() as c:
+            ids = seed_job(c)
+            c.execute(text("INSERT INTO section (job_id, source_image_id, section_order, bucket, exclusion_reason) "
+                           "VALUES (:j, 0, 1, 'exclude', 'user_manual')"), {"j": ids["job"]})
+        command.upgrade(alembic_config(), "0011")
+        with eng.begin() as c:
+            row = c.execute(text("SELECT revision, bucket, exclusion_reason FROM section WHERE job_id = :j"), {"j": ids["job"]}).mappings().one()
+            assert dict(row) == {"revision": 0, "bucket": "exclude", "exclusion_reason": "user_manual"}
+        with pytest.raises(IntegrityError):
+            with eng.begin() as c:
+                c.execute(text("UPDATE section SET revision = -1 WHERE job_id = :j"), {"j": ids["job"]})
+        command.downgrade(alembic_config(), "0010")
+        with eng.connect() as c:
+            cols = {r[0] for r in c.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name = 'section'"))}
+            assert "revision" not in cols
+            assert c.execute(text("SELECT count(*) FROM section WHERE job_id = :j"), {"j": ids["job"]}).scalar() == 1
         eng.dispose()

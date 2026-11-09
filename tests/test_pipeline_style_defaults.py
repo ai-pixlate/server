@@ -58,7 +58,9 @@ needs_fonts = pytest.mark.skipif(not _fonts_placed(sd.load_style_defaults()),
 # ---------------------------------------------------------------------------
 def test_approved_table_matches_config(d):
     m = d.data.pipeline_mapping
-    assert (m.font_family, m.reference_width_px, m.font_color, m.align, m.line_height_ratio) == ("Pretendard", 375, "#222222", "left", 1.2)
+    assert (m.font_family, m.reference_width_px, m.font_color, m.line_height_ratio) == ("Pretendard", 375, "#222222", 1.2)
+    # 역할별 기본 정렬(사용자 결정 2026-11-05)
+    assert m.align == {"title": "center", "body": "left", "caption": "center", "price": "center", "caution": "left"}
     for role, (token, px, weight, pct) in APPROVED.items():
         s = sd.role_spec(d, role)
         assert (s.type_token, s.base_px, s.face, s.letter_spacing_pct) == (token, px, weight, pct)
@@ -77,6 +79,11 @@ def test_provenance_is_separated(d):
     (lambda r: r["pipeline_mapping"]["roles"].pop("caution"), "5종"),
     (lambda r: r["pipeline_mapping"]["roles"].update(label="Body / M"), "5종"),
     (lambda r: r["pipeline_mapping"]["roles"].update(title="Heading / H1"), "type_tokens에 없다"),
+    (lambda r: r["pipeline_mapping"]["align"].pop("price"), "5종"),
+    (lambda r: r["pipeline_mapping"]["align"].update(label="left"), "5종"),
+    (lambda r: r["pipeline_mapping"]["align"].update(title="middle"), "align"),
+    (lambda r: r["pipeline_mapping"].update(align="left"), "align"),  # 이전 형식(공통 값 하나)
+    (lambda r: r.update(schema_version="1"), "schema_version"),
     (lambda r: r["fonts"]["faces"].pop("SemiBold"), "폰트 파일"),
     (lambda r: r["pipeline_mapping"].update(font_color="#222"), "font_color"),
     (lambda r: r["pipeline_mapping"].update(reference_width_px=0), "reference_width_px"),
@@ -187,6 +194,17 @@ def test_cases_cover_required_scenarios():
         assert any(i.startswith(prefix) for i in ids), prefix
     assert {c["input"]["source_width_px"] for c in CASES["cases"]} >= {375, 860, 1080}
     assert CASES["defaults_version"] == sd.load_style_defaults().version and CASES["rule"] == sd.RULE_VERSION
+
+
+@pytest.mark.parametrize("role, want", [("title", "center"), ("price", "center"), ("body", "left"), ("caption", "center"),
+                                        ("caution", "left")])
+def test_null_align_uses_role_default(d, role, want):
+    """판정하지 못한 정렬(NULL)은 역할별 기본 정렬로 채운다(F-STY-03 I69). 측정된 정렬은 역할과 무관하게 그대로다."""
+    style = {"font_color": "#000000", "bg_color": None, "est_font_px": 20, "align": None}
+    r = sd.resolve_block(sd.BlockInput(1, role, False, "원문", "Text", style, "done"), 1080, d)
+    assert (r.applied["align"], r.source["align"]) == (want, "role_default")
+    r = sd.resolve_block(sd.BlockInput(1, role, False, "원문", "Text", {**style, "align": "right"}, "done"), 1080, d)
+    assert (r.applied["align"], r.source["align"]) == ("right", "measured")
 
 
 def test_measured_size_never_rescaled(d):

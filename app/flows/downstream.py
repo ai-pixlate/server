@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import math
 import re
 import tempfile
 from pathlib import Path
@@ -466,7 +467,7 @@ def execute_style(attempt_id: int) -> dict[str, Any]:
 
 class StyleHandler:
     def adopt(self, db: Session, ctx: AdoptContext) -> AdoptOutcome:
-        from pipeline.types import StyleResult
+        from pipeline.types import parse_style_result
 
         h = ctx.handoff
         p = json_value(h["payload"])
@@ -479,7 +480,12 @@ class StyleHandler:
             if any(r["is_excluded"] is False for r in rows):
                 raise AdoptionRejected("처리 대상이 있는데 정상 생략", code="STYLE_RESULT_INVALID")
             return AdoptOutcome(status="done", skip_reason="no_targets")
-        res = StyleResult.model_validate(p["style"])
+        # 계산 당시 형식(schema_version)대로 검증하고 그때의 측정값을 그대로 채택한다 — 배포 전 계산된 스키마 1 결과도 살린다.
+        # 알 수 없는 버전 · 형식 위반은 거절(인계 rejected · 시도 failed → 스타일 실패 후속). 일시 오류로 다루지 않는다(반복 채택 방지)
+        try:
+            res = parse_style_result(p.get("style"))
+        except ValueError as e:  # pydantic ValidationError 포함
+            raise AdoptionRejected(f"⑦ 결과 형식 오류: {e}"[:1500], code="STYLE_RESULT_INVALID") from e
         by_key = {block_key(r["id"]): r for r in rows}
         keys = [b.block_key for b in res.blocks]
         if sorted(keys) != sorted(by_key):
@@ -563,7 +569,7 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
     selection = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats}
     rows = db.execute(
         text("SELECT id, term_ko, term_target, enforcement, internal_category, version FROM glossary "
-             "WHERE target_lang = :l AND internal_category = ANY(:c) ORDER BY id"),
+             "WHERE target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL ORDER BY id"),
         {"l": lang, "c": cats},
     ).mappings().all()
     return select_glossary([dict(r) for r in rows], targets, selection), selection
@@ -842,7 +848,41 @@ class InpaintHandler:
 # ---------------------------------------------------------------------------------------------------------
 # ⑨ 초기 미리보기
 # ---------------------------------------------------------------------------------------------------------
-def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
+class RenderInputInvalid(ValueError):
+    """렌더 대상 블록의 적용 박스를 읽을 수 없다(bbox NULL·좌표 키 누락·수가 아닌 값, 배치 조정값 형식 오류).
+    고정 입력을 만들지 않는다 — 임의 값으로 채우거나 KeyError 로 흘리지 않는다(/preview `inputError` RENDER_INPUT_INVALID)."""
+    code = "RENDER_INPUT_INVALID"
+
+    def __init__(self, block_ids: list[int]):
+        super().__init__(f"적용 박스를 읽을 수 없는 블록 {block_ids}")
+        self.block_ids = sorted(block_ids)
+
+
+def _applied_box(r: dict[str, Any]) -> dict[str, Any] | None:
+    """적용 박스 = 배치 조정 박스(auto_adjust.layout_bbox)가 있으면 그것, 없으면 원본 bbox. 저장값 그대로(절삭 없음).
+    형식이 맞지 않으면 None(호출자가 RenderInputInvalid 로 모은다). 범위(섹션 안·양의 크기) 검사는 여기서 하지 않는다."""
+    adj = json_value(r["auto_adjust"])
+    if adj is not None and not isinstance(adj, dict):
+        return None
+    lb = (adj or {}).get("layout_bbox")
+    if lb is not None and not isinstance(lb, dict):
+        return None
+    box = lb or json_value(r["bbox"])
+    if not isinstance(box, dict):
+        return None
+    out = {}
+    for k in ("x", "y", "w", "h"):
+        v = box.get(k)
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+            return None
+        out[k] = v
+    return out
+
+
+def _render_inputs(db: Session, run_id: int, sid: int, *, style_defaults: dict[str, Any] | None = None) -> dict[str, Any]:
+    """⑨ 고정 입력(미리보기 시도·최종 렌더·/preview `inputFingerprint` 공통). 지문 = `fingerprint(이 값)`.
+    박스는 저장값 그대로 싣는다(소수 절삭 없음 — 계약 PreviewRenderBlock.box). 정수 값은 JCS 직렬화에서 10 과 10.0 이 같은 "10" 이라
+    정수 좌표 블록의 지문은 절삭하던 때와 같다. style_defaults 는 한 요청에서 여러 섹션을 만들 때 한 번 읽은 값을 넘긴다."""
     sec = _section_row(db, sid)
     rows = _block_rows(db, sid)
     inp = db.execute(
@@ -850,16 +890,20 @@ def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
         {"r": run_id, "s": sid},
     ).scalar()
     bg_key = sec["inpaint_image_url"] if inp == "done" and sec["inpaint_image_url"] else sec["image_key"]
-    blocks = []
+    blocks, bad = [], []
     for r in rows:
         if r["is_excluded"] is not False or not (r["source_ko"] or "").strip() or not (r["trans_1"] or "").strip():
             # 라벨·로고·빈 원문·번역 없음(실패 칸 NULL·빈 문자열·공백만)은 그리지 않는다 — resolve_block 의 조판 제외 규칙
             # (be-handoff 6.3)과 같게 둬야 미리보기 채택의 대상 블록 집합이 렌더 결과와 맞는다
             continue
-        adj = json_value(r["auto_adjust"]) or {}
-        box = adj.get("layout_bbox") or json_value(r["bbox"])
+        box = _applied_box(r)
+        if box is None:
+            bad.append(r["id"])
+            continue
         blocks.append({"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),
-                       "box": {k: int(box[k]) for k in ("x", "y", "w", "h")}, "style_sha256": stable_hash(json_value(r["style"]))})
+                       "box": box, "style_sha256": stable_hash(json_value(r["style"]))})
+    if bad:
+        raise RenderInputInvalid(bad)
     bg_sha = db.execute(text("SELECT sha256 FROM task_artifact WHERE verified_key = :k OR source_ref->>'key' = :k LIMIT 1"),
                         {"k": bg_key}).scalar()
     # 섹션의 ⑦ 단계 결과 — 기본값 적용 규칙(6.3)이 done / failed 를 나눈다(style 값만으로 판단하지 않는다)
@@ -870,7 +914,7 @@ def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
     return {"stage": "preview", "section_id": sid, "background": {"key": bg_key, "sha256": bg_sha,
                                                                     "source": "inpaint" if bg_key != sec["image_key"] else "original"},
             "blocks": blocks, "style_stage": style_stage, "renderer": typeset.RENDERER_VERSION,
-            "style_defaults": typeset.style_inputs()}
+            "style_defaults": typeset.style_inputs() if style_defaults is None else style_defaults}
 
 
 def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, Any],
@@ -1016,12 +1060,16 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if not _final(pv):
             all_ready = False
             continue
-        # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다
+        # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다.
+        # 현재 시도가 완료든 최종 실패든 지문이 다를 때만 — 같은 입력의 최종 실패는 그대로 둔다(실패 상태·재시도 횟수 보존).
+        # 실행이 진행 중일 때만 여기까지 온다(위 run status 검사) — 취소·종료된 실행은 재개하지 않는다
         m = _render_inputs(db, run_id, sid)
-        if fingerprint(m) != pv["input_fingerprint"] and pv["status"] == "done":
+        if fingerprint(m) != pv["input_fingerprint"]:
             pv_row = execution.lock_task(db, pv["id"])
-            ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),
-                                                supersedes=pv_row, retry_origin="auto", count_retry=False))
+            if pv_row["is_current"] and pv_row["status"] in ("done", "failed"):  # 잠근 뒤 다시 확인 — 중복 호출에서 한 건만
+                ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
+                                                    target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
+                                                    count_retry=False))
     job = db.execute(text("SELECT id, status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
     if job["current_step"] == "N4":
         if blocking and not ids and job["status"] == "processing":
@@ -1029,6 +1077,45 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         elif all_ready and not ids:
             set_job_state(db, job["id"], status="review", step="N5", ufs="reviewing")
     return ids
+
+
+def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int | None:
+    """N5 섹션 복원 뒤: 그 섹션의 현재 입력에 유효한 ⑨ 시도가 있으면 그대로 쓰고, 없을 때만 새로 만든다(호출자가 커밋·dispatch).
+    - 현재 시도의 입력 지문이 지금 입력과 같으면 대기·실행 중·완료·**최종 실패** 어느 것이든 새로 만들지 않는다 —
+      같은 입력의 실패 상태와 재시도 횟수(retry_count)를 보존한다(재시도는 셀러가 /tasks/{taskId}/retry 로).
+    - 지문이 다르거나 현재 시도가 취소됐으면 입력 변경 재렌더(rerender_section 과 같은 방식 — 재시도 한도를 쓰지 않음),
+      현재 시도가 없으면 첫 시도를 만든다.
+    - ⑥⑦⑧ 이 끝나지 않았거나 진행 중인 하류 실행이 없으면 만들지 않는다(입력을 만들 수 없음).
+    제외는 기존 시도를 취소하지 않으므로 보통은 재사용된다."""
+    run = execution.active_run(db, job_id, "downstream")
+    if run is None:
+        return None
+    run = execution.lock_task(db, run["id"])
+    by = {(a["stage"], a["unit_id"]): a for a in execution.current_attempts(db, run["id"])}
+    if not all(_final(by.get((st, section_id))) for st in ("inpaint", "style", "translate")):
+        return None
+    cur = db.execute(
+        text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
+        {"r": run["id"], "s": section_id},
+    ).mappings().first()
+    try:
+        m = _render_inputs(db, run["id"], section_id)
+    except RenderInputInvalid as e:
+        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고 시도만 확보하지 않는다(/preview 가 RENDER_INPUT_INVALID 로 보인다).
+        # 시도를 실패로 기록하는 처리는 미완료 항목(PR #108 본문)
+        log.warning("복원 섹션 %s 미리보기 미확보 — %s", section_id, e)
+        return None
+    if cur is None:
+        return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
+                                        max_retry=MAX_RETRY["preview"])
+    cur = dict(cur)
+    if cur["status"] in ("pending", "running", "done", "failed") and cur["input_fingerprint"] == fingerprint(m):
+        return None  # 현재 입력의 유효한 시도 — 재사용
+    if cur["status"] in ("pending", "running"):
+        db.execute(text("UPDATE job_async_task SET status = 'cancelled', finished_at = now(), lease_epoch = lease_epoch + 1, "
+                        "lease_token_hash = NULL, lease_expires_at = NULL WHERE id = :t"), {"t": cur["id"]})
+    return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
+                                    supersedes=cur, retry_origin="user", count_retry=False)
 
 
 def rerender_section(db: Session, job_id: int, section_id: int) -> int | None:

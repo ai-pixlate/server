@@ -72,6 +72,15 @@ def test_partial_brand_sends_only_present_keys():
     assert prompt.endswith(tr.brand_prompt())
     _, _, (_, payload) = _run(tr.BrandContext(keywords=("수분",)))
     assert payload["brand"] == {"keywords": ["수분"]}
+    # 영문명 없이 한글명만 — 허용 입력이며, 치환 조건은 보충 프롬프트가 정한다(아래 시험)
+    _, _, (_, payload) = _run(tr.BrandContext(name_ko="가짜브랜드", name_en=" "))
+    assert payload["brand"] == {"name_ko": "가짜브랜드"}
+
+
+def test_brand_prompt_conditions_name_substitution():
+    """영문명 치환은 `name_ko` · `name_en`이 둘 다 있을 때만이고, 없으면 기본 브랜드명 규칙으로 돌아간다고 적혀 있어야 한다."""
+    line = next(l for l in tr.brand_prompt().splitlines() if l.startswith("- `name_ko`"))
+    assert "둘 다 있을 때만" in line and "하나라도 없으면" in line and "제품명 · 브랜드명" in line
 
 
 @pytest.mark.parametrize("kwargs", [{"keywords": "보습"}, {"keywords": None}, {"keywords": ["보습", 3]}, {"overview": 1},

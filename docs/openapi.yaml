@@ -60,16 +60,17 @@ info:
       만료: 비활성 7일 · 최초 로그인 후 최대 30일(PM 11-09). **활동 = 로그인과 유효한 refresh 성공뿐**이고 다른 API 요청은 활동이 아니다(시연용 허용 — 실제 사용자 조작을 재는 정책과 다르며 운영 영구 정책이 아니다).
       access 수명은 서버 설정 `JWT_TTL`(초)이 정하고 **설정이 없을 때 기본 15분**이다(배포 환경 값 확인 전에는 「항상 15분」이 아니다). 어느 값이든 세션의 30일 기한을 넘지 않는다. 세션 없는 이전 형식 access(세션 도입 전 발급)는 401 `UNAUTHORIZED`(`invalid_token`) — 배포 뒤 기존 로그인은 다시 로그인한다.
       세션 저장소 장애는 인증 만료와 구분해 503 `SERVICE_UNAVAILABLE`(`retryable: true`, `details: null` — 사유 없음, FE 11-10 합의: 안내만, 자동 반복 없음)이다. 저장소 데이터가 유실되면 전원 다시 로그인한다.
-    - **소셜 로그인(카카오·Google)** [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전 — **지금 어느 서버에서도 호출할 수 없다**(develop에 경로 없음 → 404)]
+    - **소셜 로그인(카카오·Google)** [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전 — develop 코드에 아직 이 경로가 없다. 배포 서버의 상태는 이 문서가 확인한 것이 아니다]
       흐름: `POST /auth/social/{provider}/start` → 응답의 `authorizeUrl`로 이동 → 제공자가 FE 콜백 `/login/callback/{provider}`로 돌려보냄
       → FE가 `POST /auth/social {provider, code, state}` → access(본문) + refresh(쿠키 `pxl_refresh` — 「로그인 세션」과 같은 세션) → M1. 별도 가입 단계 없음(첫 로그인에 계정 생성).
       계정은 제공자 + 회원번호로 구분한다. 같은 이메일이어도 제공자가 다르면 다른 계정이다.
-      **명세 공개는 그 환경에서 로그인 API를 쓸 수 있다는 뜻이 아니다.** 서버 구현·배포 전이거나 그 환경에서 소셜 로그인을 켜지 않았으면(의도적 비활성) 두 엔드포인트 모두 404다(사용자 11-10).
+      **명세 공개는 그 환경에서 로그인 API를 쓸 수 있다는 뜻이 아니다.** 구현된 서버에서 그 환경의 소셜 로그인을 켜지 않았으면(의도적 비활성) 두 엔드포인트 모두 404다(사용자 11-10).
       켰지만 필수 설정이 빠졌거나 잘못됐으면 404로 숨기지 않는다 — 503 `SERVICE_UNAVAILABLE`(`details: null`) + 서버 내부 오류 기록(사용자 11-10).
       공개 오류 응답에는 비밀·키·설정 이름·값·내부 원인을 싣지 않는다(`message`는 일반 문구).
       완료 요청(`POST /auth/social`)은 **같은 인가 코드로 다시 보내지 않는다.** 실패·유실·시간 초과면 start부터 새로 시작한다(코드가 이미 제공자에게 쓰였을 수 있다).
-      **FE 동작에 필요한 보장**(값과 관계없이 유지): ① 로그인 시도 수명이 지나면 완료는 401 `state_invalid`(처음부터 다시 로그인).
+      **공개 계약의 FE 보장**(서버 내부 값과 관계없이 유지. C 구현 예정 — 구현·시험 전에는 서버가 지키는 것이 아니다): ① 로그인 시도 수명이 지나면 완료는 401 `state_invalid`(처음부터 다시 로그인).
       ② 409 `login_in_progress`는 끝없이 이어지지 않는다 — 서버 점유 상한이 지나면 그 시도는 `state_invalid`. ③ 점유 상한 뒤 늦게 끝난 제공자 응답은 세션을 만들지 않고 성공을 돌려주지 않는다.
+      한 브라우저 한 세션 교체와 로그아웃 뒤 늦게 끝난 완료의 차단도 같은 상태(계약 확정 · C 구현 예정)다. 서버가 이를 지키는 방법(원자 처리 등)은 공개 계약이 아니다.
       **서버 내부 설정값(공개 계약 아님)**: 로그인 시도 수명(C 초기 기본값 10분)·시도 점유 상한(C 초기 기본값 60초). 실제 제공자 인가 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증하며 바뀔 수 있다.
       FE는 이 값을 대기 시간으로 쓰지 않는다 — 기다림은 FE 자신의 요청 timeout·대기 종료 처리로 끝낸다(refresh의 대기 2초·잠금 10초와도 별개).
       개발용 이메일 간이 로그인(`authLogin`)은 환경별 FE 전환·검증 뒤 끈다(환경마다 따로).
@@ -1785,7 +1786,7 @@ paths:
       x-screen: 'G1'
       x-source: API-AUTH-06
       description: >
-        [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전 — 지금은 어느 서버에서도 404] 공통 규칙 「소셜 로그인」을 따른다.
+        [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] 공통 규칙 「소셜 로그인」을 따른다.
         로그인 시도를 만들고 제공자 인가 주소를 돌려준다. 바디 없음. FE는 `authorizeUrl`로 이동만 한다(`window.location.assign`, 값을 고치지 않는다).
         서버는 시도마다 state · PKCE(S256, verifier는 서버 보관) · (Google) nonce를 만들고, 이 브라우저에 로그인 시도 쿠키(HttpOnly, Path=/auth, 수명 = 서버의 로그인 시도 수명)를 둔다 — FE는 이 쿠키를 읽거나 만들지 않는다.
         `authorizeUrl`의 `redirect_uri`는 환경별 FE 콜백 주소(`<FE 오리진>/login/callback/{provider}`)이며, 콘솔 등록 값·토큰 교환 값과 같다.
@@ -1829,7 +1830,7 @@ paths:
                   value:
                     error: { code: UNAUTHORIZED, message: 'origin not allowed', retryable: false, details: { reason: origin_not_allowed }, traceId: 'example-trace-0101' }
         '404':
-          description: '`NOT_FOUND`(`details: null`) — 모르는 provider, 서버 구현·배포 전, 또는 이 환경에서 그 제공자를 켜지 않음(의도적 비활성 — 사용자 11-10). 설정 오류는 404가 아니라 503.'
+          description: '`NOT_FOUND`(`details: null`) — 모르는 provider, 또는 이 환경에서 그 제공자를 켜지 않음(의도적 비활성 — 사용자 11-10). 설정 오류는 404가 아니라 503.'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -1856,7 +1857,7 @@ paths:
       x-screen: 'G1'
       x-source: API-AUTH-06
       description: >
-        [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전 — 지금은 어느 서버에서도 404] 공통 규칙 「소셜 로그인」을 따른다.
+        [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] 공통 규칙 「소셜 로그인」을 따른다.
         FE 콜백 페이지가 제공자에게서 받은 `code`·`state`를 그대로 넘긴다. **한 시도에 한 번만** 보낸다.
         `access_denied` 등 제공자 오류로 돌아온 경우에는 이 API를 부르지 않는다(G1에서 취소·재시도 안내).
         서버: 로그인 시도 쿠키·state 확인 → 시도 점유(한 번만) → 코드 교환(PKCE · redirect_uri 같은 값)
@@ -1928,7 +1929,7 @@ paths:
                   value:
                     error: { code: UNAUTHORIZED, message: 'origin not allowed', retryable: false, details: { reason: origin_not_allowed }, traceId: 'example-trace-0113' }
         '404':
-          description: '`NOT_FOUND`(`details: null`) — 모르는 provider, 서버 구현·배포 전, 또는 이 환경에서 그 제공자를 켜지 않음(의도적 비활성 — 사용자 11-10). 설정 오류는 503.'
+          description: '`NOT_FOUND`(`details: null`) — 모르는 provider, 또는 이 환경에서 그 제공자를 켜지 않음(의도적 비활성 — 사용자 11-10). 설정 오류는 503.'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }

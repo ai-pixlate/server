@@ -189,7 +189,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | `/preview` 키 제공 규칙 — `required` 키 항상, 상태별 null(외곽 8키·섹션 16키) | #100 계약안·FE 11-05 | `ReviewPreview` 「키 제공 규칙」 | 구현 완료·서버 배포 대기 | #108 |
 | 배치 요청의 `trans1` 필수(현재 공개안) — 생략 허용은 후속 협의(7.3) | FE 11-03 | `BlockPatch`·blockPatch 「블록 배치」·예시 `missingTrans1` | 현행(현행 서버도 `trans1` 필수) | — |
 | 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 실행계획 BE 8번·R-18 | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 | 미착수(7.2 ③) | 미정 |
-| 소셜 로그인(카카오·Google) — start·완료, 자동 가입, 제공자+회원번호 식별, FE 콜백 `/login/callback/{provider}`, PKCE·state·nonce 서버 관리, 한 브라우저 한 세션 교체, 완료 응답 = `LoginResponse`(신규·기존 같은 모양), 오류 `error.code` + `details.reason` (`UNAUTHORIZED`: `state_invalid`·`provider_auth_failed`·`origin_not_allowed` / `DUPLICATE`: `login_in_progress` / `SERVICE_UNAVAILABLE`: `provider_unavailable` 또는 사유 없음), 완료 요청은 같은 코드로 재전송하지 않음, 의도적 비활성 404 · 켰지만 필수 설정 오류 503(공개 오류에 비밀·설정값 없음). **FE 보장과 서버 내부 값 구분:** 시도 수명(C 초기 기본값 10분)·점유 상한(C 초기 기본값 60초)은 서버 설정이며 공개 계약이 아니다 — 명세에는 「수명이 지나면 `state_invalid`」「409는 끝없이 이어지지 않음」「상한 뒤 늦은 제공자 응답은 세션을 만들지 않음」만 싣는다. FE 대기 종료는 FE 요청 timeout | PRD F-ACC-05 · PM 11-09·11-10 · FE F-A 회신 · FE 기술 확인 회신 11-10(F6·start·F7) · 사용자 11-10(U6, 10분·60초 초기 기본값 채택) | 공통 규칙 「소셜 로그인」·authSocialStart·authSocial·`Error.details`·`SocialStartResponse`·`SocialLoginRequest`·`LoginResponse` | 계약 확정·서버 구현 대기(C 예정 · 서버 배포 전 — **지금은 어느 서버에서도 호출할 수 없다**, develop에 경로 없음 → 404). 10분·60초는 실제 제공자 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증 | `fix/auth-social-contract`(명세) → C 구현 PR 미정 |
+| 소셜 로그인(카카오·Google) — start·완료, 자동 가입, 제공자+회원번호 식별, FE 콜백 `/login/callback/{provider}`, PKCE·state·nonce 서버 관리, 한 브라우저 한 세션 교체, 완료 응답 = `LoginResponse`(신규·기존 같은 모양), 오류 `error.code` + `details.reason` (`UNAUTHORIZED`: `state_invalid`·`provider_auth_failed`·`origin_not_allowed` / `DUPLICATE`: `login_in_progress` / `SERVICE_UNAVAILABLE`: `provider_unavailable` 또는 사유 없음), 완료 요청은 같은 코드로 재전송하지 않음, 의도적 비활성 404 · 켰지만 필수 설정 오류 503(공개 오류에 비밀·설정값 없음). **FE 보장과 서버 내부 값 구분:** 시도 수명(C 초기 기본값 10분)·점유 상한(C 초기 기본값 60초)은 서버 설정이며 공개 계약이 아니다 — 명세에는 「수명이 지나면 `state_invalid`」「409는 끝없이 이어지지 않음」「상한 뒤 늦은 제공자 응답은 세션을 만들지 않음」만 싣는다. FE 대기 종료는 FE 요청 timeout | PRD F-ACC-05 · PM 11-09·11-10 · FE F-A 회신 · FE 기술 확인 회신 11-10(F6·start·F7) · 사용자 11-10(U6, 10분·60초 초기 기본값 채택) | 공통 규칙 「소셜 로그인」·authSocialStart·authSocial·`Error.details`·`SocialStartResponse`·`SocialLoginRequest`·`LoginResponse` | 계약 확정·서버 구현 대기(C 예정 · 서버 배포 전 — develop 코드에 경로 없음, 배포 서버는 확인하지 않음). 공개 계약(요청·응답·오류·FE 보장)과 C 구현 예정인 서버 보장(브라우저 세션 교체·로그아웃 뒤 늦은 완료 차단·점유 만료·늦은 제공자 응답)을 구분 — 서버 보장은 C 구현·시험 전. 10분·60초는 실제 제공자 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증 | `fix/auth-social-contract`(명세) → C 구현 PR 미정 |
 | HTTP `error.code` 15종 정리 — 서버 코드 11개를 공통 코드와 `details.reason`·`details.fields`로 변환(7.7) | FE 11-06 | `Error.details` | 구현 완료·서버 배포 대기 | `fix/int2-error-cancel-contract` |
 | 작업 취소 200 `{jobId, status}`·반복 취소 200·없는 작업/남의 작업 404 | FE 11-06 | jobCancel | 현행(서버 변경 없음, 명세·시험 보완) | `fix/int2-error-cancel-contract` |
 | `isExcluded` true·false·null 구분, null만으로 새 편집 차단 정책을 만들지 않음 | FE 11-06 | `TextBlock.isExcluded` | 현행 | — |
@@ -207,7 +207,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 | ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
 | ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
-| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 3개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
+| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 63개 중 6개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가 · authLogout(로그인 세션) · authSocialStart·authSocial(소셜 로그인)). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 
@@ -234,7 +234,6 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`가 `auto_adjust`를 읽는다. 열 이름뿐 아니라 저장 모양도 바뀌어 이름 교체만으로 해결되지 않는다. AI 담당 확인이 필요하다.
 
 FE 확인
-- 검증할 수 없는 refresh 쿠키만 있는 로그아웃 — BE 안: 401 `UNAUTHORIZED` + `refresh_invalid` + refresh 쿠키 삭제(세션은 폐기하지 않음), FE는 「로그아웃 대기」 해제·G1, 로그아웃 성공으로 기록하지 않음. FE 회신 대기. 현행 B 동작은 401 `invalid_token`·무변경이다(authLogout 「미결」).
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
 
 FE 구현 (계약은 11-06 확정, 구현은 미완료)

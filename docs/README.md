@@ -229,7 +229,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - 업로드 실패로 남은 draft의 재개·취소 정책.
 - 출처 불명 기존 배치 박스의 실제 존재 여부(DB 미조회)와 데이터 정리 방침 — 처리 의미는 7.1(FE 11-09 확정). 0012로 되돌리면 legacy 위에 배율만 저장한 행은 이전 서버 코드가 legacy 박스 대신 원본 bbox로 그리고, 다시 올려도 그 박스는 돌아오지 않는다(되돌리기 한계, `migrations/versions/0013_layout_adjust.py`).
 - 렌더러 예외로 그리지 못하는 배율로 확정한 작업 — 최종 렌더가 실패하고 산출물을 만들지 않는다. 재시도해도 같은 입력이고, 2차에서는 전체 취소 외에 고칠 경로가 없다. 미리보기 실패의 `retryable: true`도 같은 입력이면 결과가 같다.
-- 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`가 `auto_adjust`를 읽는다. 열 이름뿐 아니라 저장 모양도 바뀌어 이름 교체만으로 해결되지 않는다. AI 담당 확인이 필요하다.
+- 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`의 `auto_adjust` 읽기: **도구·문서 대응 완료**(#121, develop `e5908b4`). 두 도구가 `layout_adjust`와 이전 보존본의 `auto_adjust`를 모두 읽는다(`typeset_overflow_probe.applied_layout`, 운영 렌더 입력과 같은 해석). DB 적용·서버 배포·FE 연동 완료를 뜻하지 않는다.
 
 FE 확인
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.

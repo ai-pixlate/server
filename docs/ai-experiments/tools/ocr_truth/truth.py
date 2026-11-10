@@ -480,6 +480,23 @@ def cmd_freeze(args) -> int:
     return 0
 
 
+def cmd_serve_text(args) -> int:
+    from text_review import Workspace, handler_class
+    workspace = Workspace(args.inventory, args.frozen, args.drafts, args.image_root)
+    print(json.dumps(workspace.listing()['progress'], ensure_ascii=False))
+    if args.check_only:
+        return 0
+    server = ThreadingHTTPServer(('127.0.0.1', args.port), handler_class(Handler, workspace, HERE, now))
+    print(f'OCR Text v2 검수: http://127.0.0.1:{server.server_port}/', flush=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="truth.py", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -499,6 +516,14 @@ def main(argv: list[str] | None = None) -> int:
     sp.set_defaults(fn=cmd_check)
     sub.add_parser("status").set_defaults(fn=cmd_status)
     sub.add_parser("freeze").set_defaults(fn=cmd_freeze)
+    sp = sub.add_parser('serve-text', help='v2 텍스트 전용 작업 공간(동결 기능 없음)')
+    sp.add_argument('--inventory', type=Path, required=True)
+    sp.add_argument('--frozen', type=Path, required=True)
+    sp.add_argument('--drafts', type=Path, required=True, help='별도 .cache 하위 임시 저장 폴더')
+    sp.add_argument('--image-root', type=Path, help='입력 이미지가 있는 저장소(다른 PC 경로 연결)')
+    sp.add_argument('--port', type=int, default=8766)
+    sp.add_argument('--check-only', action='store_true')
+    sp.set_defaults(fn=cmd_serve_text)
     args = p.parse_args(argv)
     return args.fn(args)
 

@@ -105,6 +105,27 @@ def required_acks(db: Session, job_id: int, acknowledged: list[dict[str, Any]]) 
     return [{"blockId": b, "code": c} for b, c in sorted(keep)]
 
 
+def outdated_acks(db: Session, job_id: int, acknowledged: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """확인 기준 taskId 가 지금 그 경고를 만든 현재 시도와 다른 확인 항목(계약 ConfirmRequest 「확인 기준 taskId」).
+    - 대조 대상은 required_acks 와 같다(필수 확인 코드·포함 섹션 블록). 그 밖의 항목의 taskId 는 보지 않는다.
+    - taskId 를 생략한 항목은 지금처럼 {blockId, code}로만 판정한다 — 여기서 보지 않는다(명시적 null 은 요청 검증에서 422).
+    - 기준은 경고 신호의 taskId(translation_failed = 그 블록을 실패시킨 현재 번역 시도)다. 블록 revision 은 보지 않는다 —
+      배치만 저장해 revision 이 올라도 같은 실패 시도에 대한 확인은 유효하다.
+    - 같은 블록·코드를 여러 번 보냈으면 하나라도 다르면 outdated(낡은 화면의 확인을 성공으로 쓰지 않는다).
+    호출 전에 확인 집합(unresolved_warnings == required_acks)이 같은지 먼저 본다."""
+    inc = _include_block_ids(db, job_id)
+    current = {(b, s["code"]): s["taskId"] for b, ss in block_signals(db, job_id).items() if b in inc for s in ss
+               if s["code"] in REQUIRED_ACK_CODES}
+    stale = set()
+    for a in acknowledged:
+        key = (int(a["blockId"]), a["code"])
+        if a.get("taskId") is None or a["code"] not in REQUIRED_ACK_CODES or key[0] not in inc:
+            continue
+        if key not in current or current[key] != a["taskId"]:
+            stale.add(key)
+    return [{"blockId": b, "code": c} for b, c in sorted(stale)]
+
+
 # ---------------------------------------------------------------------------------------------------------
 # 확정
 # ---------------------------------------------------------------------------------------------------------
@@ -127,7 +148,11 @@ def confirm(db: Session, job_id: int, seller_id: int, acknowledged: list[dict[st
     want = unresolved_warnings(db, job_id)
     got = required_acks(db, job_id, acknowledged)
     if want != got:  # 필수 경고가 빠졌거나, 이미 해소된 필수 경고를 확인한 경우(낡은 화면) — 거절
-        raise ConfirmRejected(409, "INVALID_STATE", "확인한 경고가 현재 미해결 경고와 다르다", {"warnings": want})
+        raise ConfirmRejected(409, "INVALID_STATE", "확인한 경고가 현재 미해결 경고와 다르다",
+                              {"reason": "acknowledgement_mismatch", "warnings": want})
+    if outdated_acks(db, job_id, acknowledged):  # 집합은 같지만 확인 기준(taskId)이 지금 실패 시도와 다르다 — 재조회 후 다시 확인
+        raise ConfirmRejected(409, "INVALID_STATE", "확인 기준이 현재 실패 시도와 다르다",
+                              {"reason": "acknowledgement_outdated", "warnings": want})
     if run is not None:
         # 하류 실행 종료: 진행 중 재렌더는 취소, 실행은 done(N5 결과 확정)
         db.execute(

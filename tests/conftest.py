@@ -34,6 +34,22 @@ def _block_real_s3(monkeypatch):
         yield blocked
 
 
+@pytest.fixture(autouse=True)
+def _block_real_oauth_providers():
+    """소셜 로그인(C): 시험은 실제 카카오·Google 을 부르지 않는다 — 제공자 HTTP 를 「부르면 실패」로 막는다(시험이 대역을 끼우면 그쪽이 우선)."""
+    import httpx
+
+    from app import social_auth
+
+    def _blocked(request):
+        raise AssertionError(f"실제 OAuth 제공자 호출 차단: {request.url.host}")
+
+    social_auth.set_transport(httpx.MockTransport(_blocked))
+    yield
+    social_auth.set_transport(None)
+    social_auth.clock_ms = lambda: None
+
+
 @pytest.fixture(autouse=True, scope="session")
 def _auth_session_store():
     from app import auth_sessions

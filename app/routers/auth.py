@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import auth_sessions
+from app import auth_sessions, social_auth
 from app.db import get_db
 from app.errors import error_body
 from app.security import active_session, get_current_seller, issue_access, session_unavailable, verify_signature
@@ -224,10 +224,17 @@ def logout(request: Request, response: Response, x_requested_with: str = Header(
     if cookie.kind == "invalid" and bearer.kind != "live":
         raise _logout_rejected("refresh cookie is unverifiable")
     live = [c.session for c in (bearer, cookie) if c.kind == "live"]
+    bind = request.cookies.get(social_auth.BIND_COOKIE)
     try:
+        # 소셜 로그인 결속(C): 로그아웃 시각 기록 · 진행 중 시도 무효 · 그 결속으로 만든 현재 세션 폐기 — 늦게 끝나는 로그인 완료가 세션을 만들지 않게
+        bind_revoked = social_auth.logout_binding(bind, *social_auth.binding_ttls())
         auth_sessions.revoke(*[x.sid for x in live])
     except auth_sessions.Unavailable:
         raise session_unavailable()
+    if bind_revoked:
+        log.info("auth.logout_binding_session_revoked")
+    if social_auth.valid_binding(bind):
+        response.delete_cookie(social_auth.BIND_COOKIE, path=_cookie_path(), secure=_cookie_secure(), httponly=True, samesite="strict")
     if len({x.sid for x in live}) == 2:
         log.warning("auth.logout_session_mismatch same_seller=%s", live[0].seller_id == live[1].seller_id)
     log.info("auth.logout bearer=%s cookie=%s revoked=%d", bearer.kind, cookie.kind, len({x.sid for x in live}))

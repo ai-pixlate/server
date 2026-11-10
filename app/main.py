@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.errors import install_error_handlers
 from app.routers import (
     auth,
+    auth_social,
     brands,
     cfm,
     finalize,
@@ -77,5 +78,5 @@ def health():
 
 
 # 도메인별 라우터 등록 (모두 /v1 접두어)
-for module in (auth, brands, master, jobs, source_images, sections, cfm, finalize, library):
+for module in (auth, auth_social, brands, master, jobs, source_images, sections, cfm, finalize, library):
     app.include_router(module.router, prefix=API_PREFIX)

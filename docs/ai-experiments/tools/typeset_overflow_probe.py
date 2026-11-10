@@ -12,6 +12,16 @@
 (`app.typeset.resolve_style` · `_font` · `_wrap` · `LINE_SPACING`)로 다시 배치하고, 기록된 overflow(text_block · 미리보기 payload ·
 최종 렌더 payload)와 대조한다. 같은 크기 · 같은 영역으로 원문(한글)도 배치해 대조군으로 쓴다.
 
+배치 영역 · 글자 크기(`applied_layout`): 운영 렌더 입력(`app.flows.downstream._applied_box` · `_render_inputs`)과 같은 공통 해석
+`app.layout_adjust.parse` → `placement_source(bbox)` · `applied_scale`을 쓴다. 적용 박스는 저장값 그대로(정수 절삭 없음), 글자 크기는
+적용 크기 × 셀러 절대 배율(`app.typeset.render`와 같음). 배율이 1이 아닐 때만 행에 `font_scale`을 남긴다(배율 없는 블록의 출력은 그대로).
+- PR #116(마이그레이션 0013) 뒤 보존본: `text_block.layout_adjust`. 셀러 조정(user)만 적용하고, 출처 불명 이전 값(legacy)은 이전 서버
+  규칙대로, 자동 조정(system)은 렌더에 적용하지 않는다.
+- 그 전 보존본: `text_block.auto_adjust`. 값 전체를 legacy로 읽는다 — 그 회차를 그린 이전 서버의 규칙(형식이 맞는 `layout_bbox`면
+  그 박스, 없으면 원본 bbox, 배율 미적용)과 같다. 2026-11-05(`1d59984`) 전 회차의 렌더는 박스를 정수로 절삭했으나 지금까지의 보존본
+  좌표는 모두 정수라 결과가 같다.
+- 적용 박스를 읽을 수 없으면(운영 렌더는 RENDER_INPUT_INVALID로 그 섹션을 그리지 않는다) 임의 값으로 채우지 않고 멈춘다.
+
 분류(블록당 1개, 번역문 기준):
 - fit     : 넘침 아님
 - width   : 한 단어의 진행 폭이 영역 폭보다 넓다 — 글자가 실제로 영역 밖
@@ -40,6 +50,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
+from app import layout_adjust as la  # noqa: E402
 from app import typeset as t  # noqa: E402
 
 GROUPS = ("GS-01", "GS-02")
@@ -47,6 +58,16 @@ EDGE = 0.03
 CENTER_TOL = 0.02
 NARROW = 0.8
 SHIFT_MIN = 0.02
+
+
+def applied_layout(b: dict) -> tuple[dict, float]:
+    """보존된 text_block 행 → 렌더가 쓰는 (적용 박스, 셀러 절대 배율). 해석 규칙은 모듈 머리말 「배치 영역 · 글자 크기」."""
+    raw = b["layout_adjust"] if "layout_adjust" in b else b["auto_adjust"]
+    state = la.parse(raw)
+    box = state.placement_source(b["bbox"])
+    if not isinstance(box, dict) or not all(la.is_number(box.get(k)) for k in la.BOX_KEYS):
+        raise ValueError(f"text_block {b['id']}: 적용 박스를 읽을 수 없다(운영 렌더는 RENDER_INPUT_INVALID) — 임의 값으로 채우지 않는다")
+    return {k: box[k] for k in la.BOX_KEYS}, state.applied_scale
 
 
 def _layout(draw, text, font, box, align, px):
@@ -97,12 +118,11 @@ def collect(run: Path) -> list[dict]:
             if b["is_excluded"] is not False or not (b["source_ko"] or "").strip() or not (b["trans_1"] or "").strip():
                 continue
             W = secs[b["section_id"]]["bbox"]["w"]
-            box = (b["auto_adjust"] or {}).get("layout_bbox") or b["bbox"]
-            box = {k: int(box[k]) for k in ("x", "y", "w", "h")}
+            box, scale = applied_layout(b)
             rb = t.RenderBlock(id=b["id"], role=b["role"], text=b["trans_1"], box=box, style=b["style"],
-                               style_stage=style_stage.get(b["section_id"]), source_ko=b["source_ko"])
+                               style_stage=style_stage.get(b["section_id"]), source_ko=b["source_ko"], font_scale=scale)
             applied, source = t.resolve_style(rb, defaults, W)
-            px = float(applied["est_font_px"])
+            px = float(applied["est_font_px"]) * scale
             font = t._font(defaults, b["role"], px)
             tr = _layout(draw, b["trans_1"], font, box, applied["align"], px)
             src = _layout(draw, b["source_ko"], font, box, applied["align"], px)
@@ -111,7 +131,8 @@ def collect(run: Path) -> list[dict]:
             rows.append({
                 "gs": g, "id": b["id"], "section_id": b["section_id"], "role": b["role"],
                 "src_lines": len(b["source_lines"] or []), "tr_lines": tr["lines"], "same_text": b["trans_1"].strip() == b["source_ko"].strip(),
-                "box": box, "section_w": W, "font_px": px, "align": applied["align"], "align_source": source["align"],
+                "box": box, "section_w": W, "font_px": px, **({"font_scale": scale} if scale != 1 else {}),
+                "align": applied["align"], "align_source": source["align"],
                 "db_overflow": b["overflow"], "preview_overflow": (rec.get(b["id"]) or {}).get("overflow"),
                 "preview_lines": (rec.get(b["id"]) or {}).get("lines"), "final_overflow": final.get(b["id"]),
                 "re_overflow": tr["overflow"], "cls": _classify(tr, box), "src_overflow": src["overflow"], "src_cls": _classify(src, box),

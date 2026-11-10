@@ -153,7 +153,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 번역문 같은 값 저장(no-op) | FE 합의 | blockPatch 「같은 값 저장」·예시 `sameValue`·`sameValueWhileRendering` | 구현 완료·서버 배포 대기 | #104 |
 | 저장 공통(처리 순서·멱등 키·422/409/503·`Idempotent-Replayed`·CORS 노출) | FE 11-03·11-04 | blockPatch 「저장 공통」·`EditIdempotencyKey` | 구현 완료·서버 배포 대기 | #105(블록)·#107(섹션) |
 | 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
-| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing`·`not_render_target` / 계약 확정·서버 구현 대기: `check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
+| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing`·`not_render_target` / 구현 완료·서버 배포 대기(`feature/confirm-ack-task-id`): `acknowledgement_mismatch`·`acknowledgement_outdated` / 계약 확정·서버 구현 대기: `check_not_settled` | #105·#107 / 미정 |
 | 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답·근거 없는 복원 409) | FE 11-03·PM | sectionPatch·`Section.revision`·`SectionPatch`·예시 `n3ExcludedInN5` | 구현 완료·서버 배포 대기 | #107 |
 | N5 복원 때 미리보기 시도 확보 | FE 11-03·PM | sectionPatch | 구현 완료·서버 배포 대기(하류 실행 없는 섹션은 서버 미완료) | #108 |
 | N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 계약 확정·서버 구현 대기 | 미정 |
@@ -172,8 +172,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
 | 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |
 | 필수 확인 = `translation_failed`, `mandatory_term_unapplied` 제외, 블록·코드 단위 한 번 확인 | PRD F-CFM-09·PM 재확인 11-04 | ConfirmRequest | 현행 | — |
-| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 계약 확정·서버 구현 대기 | 미정 |
-| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기 | 미정 |
+| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 구현 완료·서버 배포 대기(생략 = 기존 판정, 명시적 null = 422) | `feature/confirm-ack-task-id` |
+| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기(대상·action 이름·revision 의미 미정) | 미정 |
 | 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
 | 표시 결과 없이 렌더 시도가 실패한 섹션의 N5 원본 표시(화면 표시 조건 — N4 렌더 실패 판별이 아니다. N4 판별·N6 출력은 P14·P15) | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
 | category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 계약 확정·서버 구현 대기 | 미정 |
@@ -207,7 +207,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 | ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
 | ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
-| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 2개다(예: brandCreate) | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
+| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 3개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 

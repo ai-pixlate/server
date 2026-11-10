@@ -85,16 +85,34 @@ def _calls(ids: dict) -> list[tuple[str, str, str, dict]]:
     ]
 
 
-def test_social_b_token_cannot_change_confirm_or_cancel_a_resources(env):
+@pytest.fixture
+def no_real_s3(monkeypatch):
+    """이 시험은 실제 S3 를 부르지 않는다 — 부르면 실패. (처음 판은 A 의 로고를 API 로 올려, 로컬 AWS 자격이 있는 PC 에서
+    실제 버킷에 시험 객체를 남겼다. 로고 행은 SQL 로 만들고 저장 호출은 막는다.)"""
+    from app import s3
+
+    calls = []
+
+    def blocked(*a, **k):
+        calls.append(a)
+        raise AssertionError('시험 중 실제 S3 호출')
+
+    monkeypatch.setattr(s3, 'upload_fileobj', blocked)
+    monkeypatch.setattr(s3, 'delete_object', blocked)
+    yield calls
+    assert calls == []
+
+
+def test_social_b_token_cannot_change_confirm_or_cancel_a_resources(env, no_real_s3):
     ids, _ = _to_n5(env)
     a, job = ids["c"], ids["job"]
     seller_a = _q("SELECT seller_id FROM job WHERE id = :j", j=job)[0]["seller_id"]
     email_a = _q("SELECT email FROM seller WHERE id = :s", s=seller_a)[0]["email"]
     brand = a.get(f"/v1/jobs/{job}").json()["brandId"]
-    logo = a.post(f"/v1/brands/{brand}/logos", files={"file": ("a.png", sample_png(), "image/png")})
-    assert logo.status_code == 201, logo.text
+    logo_id = _q("INSERT INTO brand_logo (brand_id, logo_key, format, order_no) VALUES (:b, :k, 'png', 1) RETURNING id",
+                 b=brand, k=f"logos/{brand}/ownership-test-not-uploaded.png")[0]["id"]  # 저장소에 올리지 않는 시험용 행
     blk = _text_block(a, job)
-    ids.update(section=blk["sectionId"], block=blk["id"], brand=brand, logo=logo.json()["id"],
+    ids.update(section=blk["sectionId"], block=blk["id"], brand=brand, logo=logo_id,
                task=_q("SELECT id FROM job_async_task WHERE job_id = :j ORDER BY id LIMIT 1", j=job)[0]["id"],
                image=_q("SELECT id FROM source_image WHERE job_id = :j ORDER BY id LIMIT 1", j=job)[0]["id"])
     env["q"].drain()

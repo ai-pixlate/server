@@ -46,7 +46,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
     inpaint_lama.py          ⑥ LaMa 어댑터(`InpaintModel` 구현, iopaint 1.6.0 재현 · GPU · FP32). torch는 함수 안에서만 import
     inpaint_proc.py          ⑥ 모델 전용 자식 프로세스(spawn) — 시간 제한 · 강제 중단(`SubprocessInpaintModel`, 기본 팩토리가 사용)
     style.py                 ⑦ 스타일 추출(`pipeline.md` 7.7절, 핵심 계산 및 원본 섹션 이미지 읽기)
-    translate.py             ⑧ 로컬라이징 번역 — 섹션 1회 호출 · 블록별 결과(3.2절)
+    translate.py             ⑧ 로컬라이징 번역 — 섹션 1회 호출 · 블록별 결과(3.2절). 선택 입력 `BrandContext`(브랜드 · 키워드)는 값이 있을 때만 페이로드 `brand` · 보충 프롬프트를 붙인다 — 인계 연결 전(`open-questions.md` #90)
     text_check.py            번역문 검사 — 규제 표현 영어 재대조 · 강제 용어(규칙 기반, 3.2절)
     translation_review.py    번역문 LLM 규제 판정 — 번역기와 독립(D12, `pipeline.md` 7.8절) · 분할 · 응답 검증
   matching.py                통합 매칭 · 겹침 억제 규칙(5.23, `match@2026-10-08.1`) — 운영 인계가 쓴다. 개발용 ③-1a 검출은 그대로

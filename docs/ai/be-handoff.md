@@ -236,7 +236,7 @@ python -m pytest tests/test_pipeline_style_defaults.py
 | 08_wrap_overflow | `\n` 2줄 · 높이 48 = 넘침 아님 · 47 = 넘침 · 긴 단어 폭 넘침 · 빈 줄 유지 |
 
 BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
-- 사례 입력을 `text_block` 행(`is_excluded` · `source_ko` · `trans_1` · `style` · `role` · `bbox`/`layout_bbox`)과 섹션의 ⑦ 시도 상태로 만들고 미리보기 → N5 → 최종 렌더를 돌린다.
+- 사례 입력을 `text_block` 행(`is_excluded` · `source_ko` · `trans_1` · `style` · `role` · `bbox`/`layout_adjust`(구 `auto_adjust` — 적용 박스 해석은 `contract.md` 6.1))과 섹션의 ⑦ 시도 상태로 만들고 미리보기 → N5 → 최종 렌더를 돌린다.
 - 미리보기 payload와 최종 렌더 `renders[*].applied`가 사례의 `applied` · `source`와 같다. `text_block.style`은 렌더 전후 같다.
 - ⑦ 실패 섹션도 미리보기 · 최종 렌더가 성공하고, N5 표시가 없으며(D9-3) ⑦ 시도는 failed로 남는다.
 - 설정 자료 · 폰트 파일 · 규칙 버전 중 하나를 바꾸면 고정 입력 대조에서 `INPUT_CHANGED`.

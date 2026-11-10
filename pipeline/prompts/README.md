@@ -11,6 +11,7 @@
 | `label.md` | ④ 제품 라벨 판정 — 블록별 `is_product_label` boolean만. 입력 JSON(블록 ID · 원문 · `box_2d`)과 섹션 이미지(긴 변 1024)는 프롬프트 뒤에 따로 보낸다. 경계 사례: 혼합 블록 true · 패키지 밖 제품명 · 문서 글자는 이름 · 문서라는 이유로 true 아님 · 애매하면 true(`docs/ai/pipeline.md` 7.4절, open-questions #66) | 초안 v1 (2026-09-29, 소수 표본 · 1차 실측에 사용. 판정 품질 확정 아님) |
 | `translation_review.md` | ⑧ 번역문 LLM 규제 판정 — 번역기와 독립. 섹션 문맥 안의 대상(`t1` …) × 검사 항목(`r1` …)마다 `judgment`(risk · no_risk · undetermined) · `mention` · 위치(quote · anchor) · 공급 근거 ID만. 근거 밖 법규 · URL · 상품 사실 생성 금지, 입력 안 지시문은 데이터. 입력 JSON은 프롬프트 뒤에 따로 보낸다(`pipeline/stages/translation_review.py`) | 초안 v1 (2026-10-12, 실측 전 · AI 선행 구현. BE 연결 시점 · 순서 미정 — BE 연동 전 일괄 검토, `docs/ai/be-handoff.md` 8.12) |
 | `translate.md` | ⑧ 로컬라이징 번역 — 섹션 문맥 안의 대상 블록(`t1` …)만 번역, 용어(BE 공급) · 표현 지시(고정 묶음의 대체 표현) 적용, 원문 수치 유지 · 자리표시자 생성 금지, 번역 불가 블록은 명시적 실패. 입력 JSON은 프롬프트 뒤에 따로 보낸다(`pipeline/stages/translate.py`) | 초안 v1 (2026-10-08, 실측 전. 확정은 #11 기술검증 후) |
+| `translate_brand.md` | ⑧ 번역 보충 — `translate.md` 뒤에 붙는다. 브랜드 · 키워드 값이 하나라도 있을 때만(설정 키 없음, 경로는 `pipeline/stages/translate.py`의 `BRAND_PROMPT_PATH`). 페이로드 `brand`(한글명 · 등록 영문명 · 개요 · 핵심 고객층 · 키워드, 값 있는 키만)의 쓰임: 브랜드 한글명 → 등록 영문명 그대로, 개요 · 고객층 → 어조 · 표현 수위만(내용 추가 금지), 키워드 → 원문에 있을 때 일관된 표현(끼워 넣기 금지). 값이 없으면 붙지 않아 중립 톤이고 모델 입력이 바뀌지 않는다. 인계 공급은 BE 확인 전(`docs/ai/open-questions.md` #90) | 초안 (2026-11-08, 실측 전 · 가짜 모델 검증만) |
 
 - 파일 이름은 config의 `*.prompt_path`와 맞춘다.
 - 프롬프트를 바꾸면 실행 기록(`run.json`)에 파일 해시가 남는다. 버전 관리는 git이 한다.

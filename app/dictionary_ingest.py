@@ -6,7 +6,8 @@
 
 파일은 명시한 경로만 읽는다(하나 이상). 원본은 수정하지 않는다. DB 접속은 DATABASE_URL(plan·load).
 
-읽는 탭(데이터팀 00_읽는법): 규제사전 파일은 「규제사전」·「근거」, 현지부적합 파일은 「01_현지부적합사전」.
+읽는 탭(데이터팀 00_읽는법): 규제사전 파일은 「규제사전」·「근거」, 현지부적합 파일은 「01_현지부적합사전」(v8 이전 형식)
+또는 「현지부적합_국가」·「현지부적합_채널」(v9 형식, 1행 안내문 · 2행 헤더). 형식은 탭 이름으로 고른다.
 
 규제사전 → expression_dictionary (dict_type=regulatory)
 - 필수(●) 열이 비면 오류. 시트 전용 열은 저장하지 않지만 규칙은 검사한다:
@@ -29,6 +30,19 @@
   exclusion_context/keep_context · 셀러 문장→reason · verified_at→confirmed_date. 근거 행은 없다.
 - 판단 근거·kr_freq·kr_corpus 는 이번 DB 적재에서 제외하고 원본 파일로 보존한다
   (DB만으로 판정의 내부 배경을 복원할 수 없다).
+
+현지부적합 v9 → expression_dictionary (2026-11-09, 적재 지원만 — 서비스 판정 · 분석 묶음 · API enum 은 3차)
+- 국가 탭 → dict_type=local, 채널 탭 → dict_type=channel. 둘 다 target_country=US · regulatory_class=common(파일에 열 없음).
+- `상태` 가 「적재 · 3차」 인 행만 적재한다. 그 밖의 행(채널 B 구역 등)은 읽기만 하고 넣지 않는다(건수 보고).
+  채널 행을 적재하려면 `구역` 이 A 로 시작해야 한다(B 행이 섞이지 않게 이중 확인).
+- 판정은 파일 값 그대로 저장한다(국가 must_fix · needs_check, 채널 policy). 옛 enum 으로 바꾸지 않는다. 원값도 source_verdict_status.
+- 항목 → source_expression · 패턴 → variant_ko · 제외하는/제외하지 않는 맥락 → exclusion_context/keep_context(채널 행도 받는다)
+  · 셀러 문장 → reason · 판단 근거 → judgment_basis · verified_at → confirmed_date.
+- site_key → site_key: 전달 파일 원값 보존(채널 amazon, 국가 빈칸). 판매 사이트 마스터 계약 · 조회 규칙을 확정한 것이 아니다.
+- 채널 행의 규정 원문 · evidence_article · evidence_url → 근거 표 대표 근거 1행. **새 내부 저장 규칙:**
+  evidence_source_type='channel_policy', 근거 external_id = 사전 항목 ID(CH-01 등 — 파일에 근거 ID 가 없다), evidence_document NULL.
+  국가 행은 이 세 열이 비어 있어야 한다(값이 있으면 버리지 않고 오류).
+- 저장하지 않는 열: 구역 · 상태 · kr_freq · kr_corpus(데이터 지정 검토용 · 근거용). 원본 파일을 보관한다.
 
 재적재(같은 external_id):
 - 사전: 내부 PK 유지. 모든 열이 같으면 변경 없음, 다르면 갱신. 같은 ID의 dict_type·국가·규제 분류가
@@ -64,6 +78,7 @@ from app.glossary_ingest import CellError, Issue, _blank, _date, _text, print_is
 REG_SHEET = "규제사전"
 EVIDENCE_SHEET = "근거"
 LOCAL_SHEET = "01_현지부적합사전"
+V9_COUNTRY_SHEET, V9_CHANNEL_SHEET = "현지부적합_국가", "현지부적합_채널"
 
 REG_COLUMNS = [
     "id", "dict_type", "target_country", "regulatory_class", "source_expression",
@@ -74,10 +89,16 @@ REG_COLUMNS = [
 EVIDENCE_COLUMNS = ["evidence_id", "rg_id", "source_type", "company", "issued_at", "quote", "article", "url",
                     "is_primary", "verified_at"]
 LOCAL_COLUMNS = ["id", "항목", "패턴", "판정", "제외하는 맥락", "제외하지 않는 맥락", "셀러 문장", "verified_at"]
+V9_COLUMNS = ["id", "항목", "패턴", "판정", "site_key", "구역", "제외하는 맥락", "제외하지 않는 맥락", "셀러 문장", "판단 근거",
+              "규정 원문", "evidence_article", "evidence_url", "상태", "kr_freq", "kr_corpus", "verified_at"]
 
 DICT_CLASSES = ("cosmetic", "otc", "common")  # 계약 정본 §4-1: 사전 행의 적용 분류
 REG_VERDICTS = ("regulated", "conditional", "rewritable", "allowed")  # 시트 값. rewritable → regulated
 LOCAL_VERDICTS = ("irrelevant", "needs_fix", "cultural")
+V9_LOCAL_VERDICTS = ("must_fix", "needs_check")  # v9 국가 판정(파일 값 그대로)
+V9_CHANNEL_VERDICT = "policy"
+V9_LOAD_STATUS = "적재 · 3차"
+CHANNEL_EVIDENCE_TYPE = "channel_policy"  # 새 내부 저장 규칙(파일 값 아님) — 채널 규정 원문을 근거 표에 둘 때의 출처 종류
 # 원천 탭별 근거 ID 접두어와 source_type (00_읽는법 '원천 탭 공통 규칙')
 EVIDENCE_TYPES = {"WL": "Warning Letter", "GD": "FDA 공식 문서", "MN": "OTC 모노그래프", "MP": "시장 관행"}
 MARKET_PRACTICE = "시장 관행"
@@ -86,14 +107,14 @@ LOCAL_COUNTRY, LOCAL_CLASS = "US", "common"
 DICT_FIELDS = [
     "external_id", "dict_type", "target_country", "regulatory_class", "source_expression", "variant_ko",
     "forbidden_en", "verdict_status", "alternative_expression", "reason", "confirmed_date",
-    "exclusion_context", "keep_context", "source_verdict_status",
+    "exclusion_context", "keep_context", "source_verdict_status", "site_key", "judgment_basis",
 ]
 SCOPE_KEY = ("dict_type", "target_country", "regulatory_class")
 CONTENT_KEY = SCOPE_KEY + ("source_expression",)
 EVIDENCE_FIELDS = ["evidence_source_type", "evidence_document", "evidence_quote", "evidence_article",
                    "evidence_url", "is_primary"]
 VARCHAR_LIMITS = {"external_id": 32, "dict_type": 20, "target_country": 8, "regulatory_class": 30,
-                  "source_expression": 300, "verdict_status": 20, "source_verdict_status": 20}
+                  "source_expression": 300, "verdict_status": 20, "source_verdict_status": 20, "site_key": 40}
 HANGUL = re.compile(r"[가-힣]")
 
 
@@ -110,6 +131,8 @@ class DictFile:
     unresolved: list[str] = field(default_factory=list)  # 대체 표현에 한국어가 남은 항목
     versions: Counter = field(default_factory=Counter)
     evidence_skipped: int = 0  # 「규제사전」 탭에 없는 RG(보류·백업 등)만 가리키는 근거 행
+    form: str = ""  # local 파일 형식: v8 | v9
+    not_loaded: list[tuple[str, str]] = field(default_factory=list)  # v9: 적재 대상이 아닌 행 (id, 상태)
 
 
 @dataclass
@@ -173,26 +196,28 @@ def _required_date(v: Any) -> dt.date:
     return d
 
 
-def _read_sheet(wb, sheet: str, wanted: list[str], label: str, issues: list[Issue]):
-    """(열 → 위치, [(엑셀 행, 셀 dict)]) 또는 열 오류 시 None."""
+def _read_sheet(wb, sheet: str, wanted: list[str], label: str, issues: list[Issue], header_row: int = 1):
+    """(열 → 위치, [(엑셀 행, 셀 dict)]) 또는 열 오류 시 None. header_row 앞의 행(안내문)은 읽지 않는다."""
     if sheet not in wb.sheetnames:
         issues.append(Issue(label, None, None, None, f"시트 '{sheet}' 없음"))
         return None
     it = wb[sheet].iter_rows(values_only=True)
+    for _ in range(header_row - 1):
+        next(it, None)
     header = [None if h is None else str(h).strip() for h in next(it, ())]
     idx: dict[str, int] = {}
     ok = True
     for col in wanted:
         pos = [i for i, h in enumerate(header) if h == col]
         if len(pos) != 1:
-            issues.append(Issue(label, 1, None, col, "필수 열 없음" if not pos else "같은 이름의 열이 여러 개"))
+            issues.append(Issue(label, header_row, None, col, "필수 열 없음" if not pos else "같은 이름의 열이 여러 개"))
             ok = False
         else:
             idx[col] = pos[0]
     if not ok:
         return None
     out = []
-    for row_no, row in enumerate(it, start=2):
+    for row_no, row in enumerate(it, start=header_row + 1):
         if all(_blank(v) for v in row):
             continue
         out.append((row_no, {c: (row[i] if i < len(row) else None) for c, i in idx.items()}))
@@ -276,7 +301,8 @@ def parse_regulatory(path: str, issues: list[Issue]) -> DictFile:
         r = _Row(reg_label, row_no, eid, issues)
         if eid is None or not re.match(r"^RG-\d+$", eid):
             r.err("id", f"RG-숫자 형식이 아님({raw!r})")
-        rec: dict[str, Any] = {"external_id": eid, "exclusion_context": None, "keep_context": None}
+        rec: dict[str, Any] = {"external_id": eid, "exclusion_context": None, "keep_context": None,
+                               "site_key": None, "judgment_basis": None}
         r.take(rec, cell, "dict_type", "dict_type", lambda v: _text(v, True))
         if rec.get("dict_type") not in (None, "regulatory"):
             r.err("dict_type", f"이 탭은 regulatory 만 허용({rec['dict_type']!r})")
@@ -374,9 +400,21 @@ def parse_local(path: str, issues: list[Issue]) -> DictFile:
         issues.append(Issue(label, None, None, None, f"파일을 열 수 없음: {e}"))
         return df
     try:
-        rows = _read_sheet(wb, LOCAL_SHEET, LOCAL_COLUMNS, f"{label}/{LOCAL_SHEET}", issues)
+        if LOCAL_SHEET not in wb.sheetnames and V9_COUNTRY_SHEET in wb.sheetnames:
+            df.form = "v9"
+            country = _read_sheet(wb, V9_COUNTRY_SHEET, V9_COLUMNS, f"{label}/{V9_COUNTRY_SHEET}", issues, header_row=2)
+            channel = _read_sheet(wb, V9_CHANNEL_SHEET, V9_COLUMNS, f"{label}/{V9_CHANNEL_SHEET}", issues, header_row=2)
+            rows = None
+        else:
+            df.form = "v8"
+            rows = _read_sheet(wb, LOCAL_SHEET, LOCAL_COLUMNS, f"{label}/{LOCAL_SHEET}", issues)
     finally:
         wb.close()
+    if df.form == "v9":
+        if country is not None and channel is not None:
+            _parse_v9_rows(df, f"{label}/{V9_COUNTRY_SHEET}", country, "local", issues)
+            _parse_v9_rows(df, f"{label}/{V9_CHANNEL_SHEET}", channel, "channel", issues)
+        return df
     if rows is None:
         return df
     lbl = f"{label}/{LOCAL_SHEET}"
@@ -390,6 +428,7 @@ def parse_local(path: str, issues: list[Issue]) -> DictFile:
         rec: dict[str, Any] = {
             "external_id": eid, "dict_type": "local", "target_country": LOCAL_COUNTRY,
             "regulatory_class": LOCAL_CLASS, "forbidden_en": None, "alternative_expression": None,
+            "site_key": None, "judgment_basis": None,  # v8 형식에는 판매 사이트 키가 없고 판단 근거는 적재하지 않았다
         }
         r.take(rec, cell, "항목", "source_expression", lambda v: _text(v, True))
         r.take(rec, cell, "패턴", "variant_ko", lambda v: _split(v, True))
@@ -406,6 +445,72 @@ def parse_local(path: str, issues: list[Issue]) -> DictFile:
             df.records.append(rec)
             df.rows.append(row_no)
     return df
+
+
+def _parse_v9_rows(df: DictFile, lbl: str, rows, dict_type: str, issues: list[Issue]) -> None:
+    """v9 탭 하나. 국가 탭은 dict_type=local, 채널 탭은 channel. 「적재 · 3차」 행만 적재 대상."""
+    channel = dict_type == "channel"
+    pattern = r"^CH-\d+$" if channel else r"^LC-\d+$"
+    for row_no, cell in rows:
+        df.total_rows += 1
+        raw = cell["id"]
+        eid = raw if isinstance(raw, str) else None
+        r = _Row(lbl, row_no, eid, issues)
+        if eid is None or not re.match(pattern, eid):
+            r.err("id", f"{pattern[1:3]}-숫자 형식이 아님({raw!r})")
+        status = cell["상태"]
+        if _blank(status):
+            r.err("상태", "필수값이 비어 있음")
+            r.finish()
+            continue
+        if status != V9_LOAD_STATUS:
+            if r.finish():
+                df.not_loaded.append((eid, str(status)))
+            continue
+        rec: dict[str, Any] = {
+            "external_id": eid, "dict_type": dict_type, "target_country": LOCAL_COUNTRY,
+            "regulatory_class": LOCAL_CLASS, "forbidden_en": None, "alternative_expression": None,
+        }
+        r.take(rec, cell, "항목", "source_expression", lambda v: _text(v, True))
+        r.take(rec, cell, "패턴", "variant_ko", lambda v: _split(v, True))
+        r.take(rec, cell, "판정", "verdict_status", lambda v: _text(v, True))
+        allowed = (V9_CHANNEL_VERDICT,) if channel else V9_LOCAL_VERDICTS
+        if rec.get("verdict_status") not in (None, *allowed):
+            r.err("판정", f"{'·'.join(allowed)} 가 아님({rec['verdict_status']!r}) — 다른 값으로 바꾸지 않음")
+        rec["source_verdict_status"] = rec.get("verdict_status")
+        r.take(rec, cell, "제외하는 맥락", "exclusion_context", lambda v: _text(v, True))
+        r.take(rec, cell, "제외하지 않는 맥락", "keep_context", lambda v: _text(v, True))
+        r.take(rec, cell, "셀러 문장", "reason", lambda v: _text(v, True))
+        r.take(rec, cell, "판단 근거", "judgment_basis", lambda v: _text(v, True))
+        r.take(rec, cell, "verified_at", "confirmed_date", _required_date)
+        r.take(rec, cell, "site_key", "site_key", lambda v: _text(v, channel))
+        evidence = None
+        if channel:
+            zone = cell["구역"]
+            if not isinstance(zone, str) or not zone.strip().startswith("A"):
+                r.err("구역", f"적재 대상 채널 행은 A 구역이어야 함({zone!r})")
+            evidence = {"external_id": eid, "evidence_source_type": CHANNEL_EVIDENCE_TYPE, "evidence_document": None,
+                        "is_primary": True}
+            r.take(evidence, cell, "규정 원문", "evidence_quote", lambda v: _text(v, True))
+            r.take(evidence, cell, "evidence_article", "evidence_article", lambda v: _text(v, True))
+            r.take(evidence, cell, "evidence_url", "evidence_url", lambda v: _text(v, True))
+        else:
+            if rec.get("site_key") is not None:
+                r.err("site_key", "국가 행은 비어 있어야 함(모든 미국 작업 적용)")
+            for col in ("구역", "규정 원문", "evidence_article", "evidence_url"):
+                if not _blank(cell[col]):
+                    r.err(col, "국가 행에 값이 있음 — 저장할 곳이 없어 버리지 않고 멈춤")
+        _limits(r, rec)
+        if evidence is not None:
+            for k, limit in (("evidence_article", 300), ("evidence_url", 500)):
+                v = evidence.get(k)
+                if isinstance(v, str) and len(v) > limit:
+                    r.err(k, f"{limit}자 초과({len(v)}자)")
+        if r.finish():
+            df.records.append(rec)
+            df.rows.append(row_no)
+            if evidence is not None:
+                df.evidence[eid] = evidence
 
 
 def validate_files(regulatory: Optional[str], local: Optional[str]) -> DictValidation:
@@ -460,7 +565,7 @@ def _require_schema(conn: Connection) -> None:
     need = [("expression_dictionary", c) for c in DICT_FIELDS] + [("expression_dictionary_evidence", "external_id")]
     missing = [f"{t}.{c}" for t, c in need if (t, c) not in cols]
     if missing:
-        raise SystemExit(f"열이 없음 {missing} — 마이그레이션 0006 을 먼저 적용")
+        raise SystemExit(f"열이 없음 {missing} — 마이그레이션 0006 · 0014 를 먼저 적용")
 
 
 def build_plan(conn: Connection, vr: DictValidation) -> DictPlan:
@@ -523,7 +628,7 @@ def build_plan(conn: Connection, vr: DictValidation) -> DictPlan:
             else:
                 plan.ev_update.append({**want, "id": match["id"]})
 
-    kinds = {f.kind for f in vr.files}
+    kinds = {rec["dict_type"] for rec in vr.records} | {f.kind for f in vr.files}
     plan.db_only = sum(1 for r in existing if r["dict_type"] in kinds and r["external_id"] not in incoming)
     return plan
 
@@ -624,6 +729,11 @@ def print_summary(vr: DictValidation) -> None:
             if f.unresolved:
                 print(f"    ⚠ 미해결 — 대체 표현에 한국어가 남음(프롬프트 사용 불가, 데이터 정정 필요): "
                       f"{', '.join(f.unresolved)}")
+        if f.kind == "local":
+            types = Counter(r["dict_type"] for r in f.records)
+            print(f"    형식 {f.form} · dict_type {dict(types)} · 근거 {len(f.evidence)}건"
+                  + (f" · 적재 대상 아님 {len(f.not_loaded)}행: {', '.join(f'{i}({s})' for i, s in f.not_loaded)}"
+                     if f.not_loaded else ""))
 
 
 def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -> int:
@@ -631,7 +741,7 @@ def main(argv: Optional[list[str]] = None, database_url: Optional[str] = None) -
     p.add_argument("mode", choices=["validate", "plan", "load"],
                    help="validate=파일만 검사(DB 없음) · plan=DB와 비교만(읽기 전용) · load=적재")
     p.add_argument("--regulatory", metavar="XLSX", help="「규제사전」·「근거」 탭이 있는 파일")
-    p.add_argument("--local", metavar="XLSX", help="「01_현지부적합사전」 탭이 있는 파일")
+    p.add_argument("--local", metavar="XLSX", help="「01_현지부적합사전」(v8) 또는 「현지부적합_국가」·「현지부적합_채널」(v9) 탭이 있는 파일")
     p.add_argument("--max-errors", type=int, default=50)
     args = p.parse_args(argv)
     if not (args.regulatory or args.local):

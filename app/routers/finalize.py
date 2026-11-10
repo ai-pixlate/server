@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import s3
+from app import layout_adjust, s3
 from app.db import get_db
 from app.schemas import ArtifactType
 from app.security import get_current_seller
@@ -233,7 +233,7 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     if "csv" in wanted:
         blocks = db.execute(
             text(
-                "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1 "
+                "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1, tb.layout_adjust "
                 "FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
                 "WHERE s.job_id = :j AND s.bucket = 'include' AND " + VISIBLE + " ORDER BY tb.section_id, tb.block_order, tb.id"
             ),
@@ -241,9 +241,12 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
         ).mappings().all()
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1"])
+        w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1", "layout_x", "layout_y", "layout_w", "layout_h", "font_scale"])
         for b in blocks:
-            w.writerow([b["section_id"], b["block_order"], b["role"], _csv_cell(b["source_ko"]), _csv_cell(b["trans_1"])])
+            # 배치 5열 = 셀러 조정값, 조정하지 않은 항목은 빈칸. 값은 소수 그대로, 수식 주입 방어는 모든 열에 같게
+            adj = layout_adjust.csv_values(layout_adjust.parse(b["layout_adjust"]))
+            w.writerow([b["section_id"], b["block_order"], b["role"], _csv_cell(b["source_ko"]), _csv_cell(b["trans_1"]),
+                        *[_csv_cell(None if v is None else str(v)) for v in adj]])
         data = buf.getvalue().encode("utf-8-sig")  # 엑셀 한글 대비
         created["csv"] = _store_artifact(db, job_id, "csv", "content.csv", data, "text/csv")
         parts["csv"] = ("content.csv", data)

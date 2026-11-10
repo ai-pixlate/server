@@ -8,6 +8,10 @@
 - `char_limit`로 축약하지 않는다. RG-021/022 같은 템플릿 대체 표현은 번역 지시로 보내지 않는다(원문 수치 유지, D9).
 - 번역 단계는 검사하지 않는다. 규제 표현 영어 재대조 · 강제 용어는 `text_check`, 번역문 LLM 규제 판정은 `translation_review`가 번역과
   독립된 단계로 한다(사용자 결정 2026-10-12). 검사 실패 · 재시도는 번역 재생성으로 이어지지 않는다.
+- 브랜드 · 키워드(선택, `BrandContext`): 브랜드 한글명 · 영문명 · 개요 · 핵심 고객층과 작업 핵심 키워드를 페이로드 `brand`로 싣고
+  보충 프롬프트(`BRAND_PROMPT_PATH`)를 기본 프롬프트 뒤에 붙인다 [PRD F-TRN-02b · F-BRD-01 · 03 · 05 · F-SRC-06]. 값이 하나도 없으면
+  `brand`도 보충 프롬프트도 넣지 않는다 — 중립 톤이며 모델 입력이 기존과 같다. 인계 요청(`handoff.translation`)의 공급 필드 · 형식 · 시점은
+  BE 확인 전이라 아직 연결하지 않았다(`open-questions.md` #90).
 """
 from __future__ import annotations
 
@@ -23,6 +27,7 @@ from pipeline.vlm import GeminiTranslateAssistant, JudgeAssistant, VlmError, sha
 REPO_ROOT = Path(__file__).resolve().parents[2]
 API_KEY_ENV = "GEMINI_API_KEY"
 TRANSLATE_IMPL_VERSION = "translate@2026-10-08.1"
+BRAND_PROMPT_PATH = "pipeline/prompts/translate_brand.md"  # 브랜드 · 키워드 값이 있을 때만 translate.prompt_path 뒤에 붙는 보충 규칙(#90)
 
 
 class TranslateResponseError(VlmError):
@@ -55,6 +60,65 @@ class Instruction:
     external_id: str
     matched_text: str
     alternatives: tuple[str, ...]
+
+
+def _clean(v: Any, name: str) -> str | None:
+    if v is None:
+        return None
+    if not isinstance(v, str):
+        raise ValueError(f"브랜드 입력 {name}은 문자열 또는 None이어야 한다")
+    return v.strip() or None
+
+
+@dataclass(frozen=True)
+class BrandContext:
+    """⑧ 번역의 브랜드 · 키워드 입력(모두 선택). 공백뿐인 값은 없는 값으로 본다 — 비어 있으면 경고 없이 중립 톤[PRD F-TRN-02b].
+    키워드는 앞뒤 공백을 지우고 빈 값 · 같은 값 중복을 뺀 입력 순서를 유지한다."""
+
+    name_ko: str | None = None
+    name_en: str | None = None
+    overview: str | None = None
+    core_audience: str | None = None
+    keywords: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        for name in ("name_ko", "name_en", "overview", "core_audience"):
+            object.__setattr__(self, name, _clean(getattr(self, name), name))
+        if isinstance(self.keywords, str) or not isinstance(self.keywords, (list, tuple)):
+            raise ValueError("브랜드 입력 keywords는 문자열의 목록이어야 한다")
+        kws: list[str] = []
+        for i, k in enumerate(self.keywords):
+            c = _clean(k, f"keywords[{i}]")
+            if c is not None and c not in kws:
+                kws.append(c)
+        object.__setattr__(self, "keywords", tuple(kws))
+
+    def payload(self) -> dict[str, Any] | None:
+        """모델 페이로드의 `brand` — 값이 있는 키만. 하나도 없으면 None(페이로드에 `brand`를 넣지 않는다)."""
+        out: dict[str, Any] = {k: getattr(self, k) for k in ("name_ko", "name_en", "overview", "core_audience")
+                               if getattr(self, k) is not None}
+        if self.keywords:
+            out["keywords"] = list(self.keywords)
+        return out or None
+
+
+def brand_prompt() -> str:
+    """브랜드 보충 프롬프트 원문. 읽을 수 없거나 비어 있으면 ValueError."""
+    p = REPO_ROOT / BRAND_PROMPT_PATH
+    try:
+        text = p.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
+        raise ValueError(f"브랜드 보충 프롬프트를 읽을 수 없다 {p} ({e.__class__.__name__})") from e
+    if not text.strip():
+        raise ValueError(f"브랜드 보충 프롬프트가 비어 있다 {p}")
+    return text
+
+
+def effective_prompt(prompt: str, brand: BrandContext | None) -> str:
+    """실제로 보낼 프롬프트. 브랜드 값이 있을 때만 보충 프롬프트를 뒤에 붙인다 — 없으면 기본 프롬프트 그대로."""
+    if brand is None or brand.payload() is None:
+        return prompt
+    return prompt.rstrip("\n") + "\n\n" + brand_prompt()
 
 
 @dataclass
@@ -115,8 +179,10 @@ def default_assistant(cfg: dict[str, Any]) -> GeminiTranslateAssistant:
 
 
 def build_payload(context: list[ContextBlock], targets: list[str], terms: list[Term], instructions: list[Instruction],
-                  target_lang: str, target_country: str) -> tuple[dict[str, Any], dict[str, str]]:
-    """반환: (페이로드, 임시 id → block_key). 블록 원문 순서 그대로. 대상 블록에만 id를 붙인다."""
+                  target_lang: str, target_country: str, brand: BrandContext | None = None
+                  ) -> tuple[dict[str, Any], dict[str, str]]:
+    """반환: (페이로드, 임시 id → block_key). 블록 원문 순서 그대로. 대상 블록에만 id를 붙인다.
+    브랜드 값이 있으면 `brand`를 덧붙인다(없으면 키 자체가 없다 — 기존 페이로드와 같다)."""
     ordered = sorted(context, key=lambda b: (b.block_order, b.block_key))
     tids = {k: f"t{i + 1}" for i, k in enumerate(k for k in (b.block_key for b in ordered) if k in set(targets))}
     blocks = []
@@ -132,6 +198,9 @@ def build_payload(context: list[ContextBlock], targets: list[str], terms: list[T
         "instructions": [{"id": tids[i.block_key], "matched_text": i.matched_text, "alternatives": list(i.alternatives)}
                          for i in instructions],
     }
+    bp = brand.payload() if brand is not None else None
+    if bp is not None:
+        payload["brand"] = bp
     return payload, {v: k for k, v in tids.items()}
 
 
@@ -181,10 +250,12 @@ def parse_response(text: str, sent_ids: list[str]) -> dict[str, dict[str, Any]]:
 
 def translate_section(context: list[ContextBlock], targets: list[str], terms: list[Term], instructions: list[Instruction],
                       cfg: dict[str, Any], *, target_lang: str, target_country: str, prompt: str, llm: JudgeAssistant,
-                      placeholder_tokens: set[str]) -> tuple[list[BlockOutcome], dict[str, Any]]:
-    """대상 블록마다 BlockOutcome 1개(대상 순서 = 원문 순서). 호출 · 구조 실패는 VlmError로 올린다(호출자가 대상 전체 실패로 기록)."""
+                      placeholder_tokens: set[str], brand: BrandContext | None = None) -> tuple[list[BlockOutcome], dict[str, Any]]:
+    """대상 블록마다 BlockOutcome 1개(대상 순서 = 원문 순서). 호출 · 구조 실패는 VlmError로 올린다(호출자가 대상 전체 실패로 기록).
+    `brand` 값이 있으면 페이로드 `brand`와 보충 프롬프트가 붙는다. 보충 프롬프트를 읽을 수 없으면 호출 전에 ValueError."""
     by_key = {b.block_key: b for b in context}
-    payload, ids = build_payload(context, targets, terms, instructions, target_lang, target_country)
+    prompt = effective_prompt(prompt, brand)
+    payload, ids = build_payload(context, targets, terms, instructions, target_lang, target_country, brand)
     ptext = json.dumps(payload, ensure_ascii=False, indent=2)
     diag: dict[str, Any] = {"payload_sha256": sha256_text(ptext), "prompt_sha256": sha256_text(prompt), "model": model_config(cfg)}
     reply = llm(prompt, ptext, None)

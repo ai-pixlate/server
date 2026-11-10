@@ -151,17 +151,19 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 |---|---|---|---|---|
 | 번역문 같은 값 저장(no-op) | FE 합의 | blockPatch 「같은 값 저장」·예시 `sameValue`·`sameValueWhileRendering` | 구현 완료·서버 배포 대기 | #104 |
 | 저장 공통(처리 순서·멱등 키·422/409/503·`Idempotent-Replayed`·CORS 노출) | FE 11-03·11-04 | blockPatch 「저장 공통」·`EditIdempotencyKey` | 구현 완료·서버 배포 대기 | #105(블록)·#107(섹션) |
-| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 계약 확정·서버 구현 대기 | 미정 |
-| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing` / 계약 확정·서버 구현 대기: `not_render_target`·`check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
+| 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
+| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing`·`not_render_target` / 구현 완료·서버 배포 대기(`feature/confirm-ack-task-id`): `acknowledgement_mismatch`·`acknowledgement_outdated` / 계약 확정·서버 구현 대기: `check_not_settled` | #105·#107 / 미정 |
 | 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답·근거 없는 복원 409) | FE 11-03·PM | sectionPatch·`Section.revision`·`SectionPatch`·예시 `n3ExcludedInN5` | 구현 완료·서버 배포 대기 | #107 |
 | N5 복원 때 미리보기 시도 확보 | FE 11-03·PM | sectionPatch | 구현 완료·서버 배포 대기(하류 실행 없는 섹션은 서버 미완료) | #108 |
 | N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 계약 확정·서버 구현 대기 | 미정 |
 | N5 섹션 Undo/Redo | FE 11-03 | sectionPatch | 화면 | — |
 | 실행 취소·재실행 — 전용 API 없음, 현재 revision으로 다시 저장 | PRD F-CFM-03 | blockPatch·예시 `changed` | 현행 | — |
-| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 계약 확정·서버 구현 대기 | 미정 |
+| 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
 | 배치 화면 조작([+][−] 0.05·박스 중심·경계 안쪽 이동·스냅·Undo 50단계·계산식) | PM F-CFM-15·FE 계산식 동의 | blockPatch 「블록 배치」 | 화면 | — |
-| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 계약 확정·서버 구현 대기 | 미정 |
-| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 계약 확정·서버 구현 대기 | 미정 |
+| 배치만 바꾼 저장은 「사용자수정」이 아님 | PM | `TextBlock.blockStatus` | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
+| content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
+| 기존 배치 박스(출처 불명) — 보존·그 박스로 렌더, 해제 = 원본 bbox(`layoutAdjust` null → null이어도 revision+1·재렌더), Undo = 이전 적용 박스를 셀러 조정으로 저장, 해제 재전송 3경우 | FE 11-09 | blockPatch 「블록 배치」 | 구현 완료·서버 배포 대기(FE 구현·dev 연동 검증 전) | `feature/block-layout-adjust` |
+| 글자 픽셀이 섹션 안에 없는 렌더도 넘침으로 채택(2차 기존 규칙 유지, 서버 내부 관측 기록만), 렌더러 예외는 기존 실패 경로 | PM 11-09 | `LayoutAdjustPatch.fontScale` | 구현 완료·서버 배포 대기(PM 전제인 N5 미리보기 갱신·넘침 표시의 FE 연동 확인 전) | `feature/block-layout-adjust` |
 | 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 계약 확정·서버 구현 대기 | 미정 |
 | 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 계약 확정·서버 구현 대기 | 미정 |
 | 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 계약 확정·서버 구현 대기 | 미정 |
@@ -169,8 +171,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
 | 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |
 | 필수 확인 = `translation_failed`, `mandatory_term_unapplied` 제외, 블록·코드 단위 한 번 확인 | PRD F-CFM-09·PM 재확인 11-04 | ConfirmRequest | 현행 | — |
-| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 계약 확정·서버 구현 대기 | 미정 |
-| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기 | 미정 |
+| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 구현 완료·서버 배포 대기(생략 = 기존 판정, 명시적 null = 422) | `feature/confirm-ack-task-id` |
+| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기(대상·action 이름·revision 의미 미정) | 미정 |
 | 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
 | 표시 결과 없이 렌더 시도가 실패한 섹션의 N5 원본 표시(화면 표시 조건 — N4 렌더 실패 판별이 아니다. N4 판별·N6 출력은 P14·P15) | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
 | category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 계약 확정·서버 구현 대기 | 미정 |
@@ -197,11 +199,11 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ① | 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 | 시도를 만들지 않아 `render.attempt = null`로 남는다 | 화면은 원본 + 미리보기 없음 | reviewPreview 「구현 상태」·sectionPatch | 서버 미완료(#108 범위) |
 | ② | 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 | /preview·/blocks는 `inputError` RENDER_INPUT_INVALID로 답하고 N5 복원도 성공하지만, 그 섹션의 블록 저장은 실패 시도를 남기지 못하고 500이며 자동 진행 처리도 그 섹션에서 오류로 멈춘다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다 | reviewPreview 「구현 상태」·blockPatch | 서버 미완료(#108 범위) |
 | ③ | 서버 HTML/Playwright 공통 렌더 연결 | 현행 Pillow 조판(`bundleId = null`, 자간 미적용) | FE 로컬 렌더와 서버 이미지가 다를 수 있다 — 넘침·최신 판정은 서버 값만 쓴다 | `PreviewRenderer` | 미착수 — 번들 반입(R-FE-6)·렌더러 전환 이전 작업 처리(PM-R0)에 의존 |
-| ④ | 훼손된 저장값이 `/blocks`에 그대로 나가는 문제 | `bbox`·`auto_adjust`의 저장값이 형식에 맞지 않으면(문자열·불리언 좌표, 객체가 아닌 조정값) `/blocks`가 검사 없이 200으로 돌려줘 `TextBlock` 스키마에 어긋난다. /preview는 같은 데이터를 `inputError`로 알린다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다. 이를 허용하도록 스키마를 넓히지 않는다 | `TextBlock` | 미해결 — 처리 방침 미정 |
+| ④ | 훼손된 저장값이 `/blocks`에 그대로 나가는 문제 | `bbox` 저장값이 형식에 맞지 않으면(문자열·불리언 좌표) `/blocks`가 검사 없이 200으로 돌려줘 `TextBlock` 스키마에 어긋난다. /preview는 같은 데이터를 `inputError`로 알린다. 형식이 맞지 않는 조정값은 블록 배치 구현 이후 `layoutAdjust`·`autoAdjust`를 null로 내고 원본을 저장소에 보존한다 | 그런 데이터가 실제로 있는지는 DB를 조회하지 않아 모른다. 이를 허용하도록 스키마를 넓히지 않는다 | `TextBlock` | 미해결 — 처리 방침 미정 |
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 | ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
 | ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
-| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 2개다(예: brandCreate) | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
+| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 3개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 
@@ -223,6 +225,9 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - PM-R0 — 렌더러 전환 이전 작업 처리(테스트 작업 정리 또는 차단)와 작업 단위 표시 필드.
 - A13 — 중간 섹션 이미지 글자 잘림의 오류 표현과 출력 정책 연결.
 - 업로드 실패로 남은 draft의 재개·취소 정책.
+- 출처 불명 기존 배치 박스의 실제 존재 여부(DB 미조회)와 데이터 정리 방침 — 처리 의미는 7.1(FE 11-09 확정). 0012로 되돌리면 legacy 위에 배율만 저장한 행은 이전 서버 코드가 legacy 박스 대신 원본 bbox로 그리고, 다시 올려도 그 박스는 돌아오지 않는다(되돌리기 한계, `migrations/versions/0013_layout_adjust.py`).
+- 렌더러 예외로 그리지 못하는 배율로 확정한 작업 — 최종 렌더가 실패하고 산출물을 만들지 않는다. 재시도해도 같은 입력이고, 2차에서는 전체 취소 외에 고칠 경로가 없다. 미리보기 실패의 `retryable: true`도 같은 입력이면 결과가 같다.
+- 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`가 `auto_adjust`를 읽는다. 열 이름뿐 아니라 저장 모양도 바뀌어 이름 교체만으로 해결되지 않는다. AI 담당 확인이 필요하다.
 
 FE 확인
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.
@@ -246,6 +251,7 @@ FE 구현 (계약은 11-06 확정, 구현은 미완료)
 ### 7.4 3차(11/27)로 미룬 것
 
 - 이미지 경계 이탈(Q-07) 판정 — 최종 결합 좌표계·`boundaryCheck`·확정 제한 ①~④·409 `image_boundary_exceeded`.
+- 글자 픽셀 손실(전부·일부) 판정 — 2차는 넘침으로 채택한다(7.1, PM 11-09). 지금은 섹션별 이미지 안에 글자를 그린 뒤 N6에서 세로로 합치므로 섹션 경계를 벗어난 픽셀은 잘리고 옆 섹션으로 이어지지 않는다. 3차에 중간 섹션 이미지의 글자 손실 검출·방지와 최종 합성 이미지 경계 판정을 구현·검증한다. 서버의 내부 관측 기록(글자 픽셀 보임 여부)은 3차 판정 구현이나 안전성 검증 완료가 아니다.
 - N6 최종 경계 판정 검증 인수조건(a~e)·관련 N6 오류 화면·N6 [중단]→N5 복귀.
 - 검사 최종 실패·미해결 규제 경고의 확정 때 필수 확인(`check_failed` 신호·`inputKey` 확인 기준).
 - 실행 실패 섹션 확인(`acknowledgedSections`).
@@ -279,6 +285,8 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 | 스키마 불일치 — 15종 밖 오류 코드(`JOB_NOT_FOUND` 2, `ARTIFACT_NOT_FOUND` 1) | 3 | 7.7 재대조에서 0건 |
 | 미문서화 HTTP 상태 — 작업 취소 200 | 3 | 7.7 재대조에서 0건 |
 | 스키마 불일치 — 시험이 일부러 훼손한 데이터(`bbox` 2, `autoAdjust` 1) | 3 | 미해결(7.2 ④) |
+
+블록 배치 브랜치만으로 같은 시험을 다시 대조한 결과(develop 2489762 기준, 7.7 반영 전)는 응답 1,126건 중 적합 1,118건, 불일치 8건이었다. 7.7과 합친 통합 상태의 결과는 7.7 끝의 「통합 대조 기록」이다.
 
 이 대조는 호출한 응답의 스키마 적합성만 본다. /preview 59건 통과도 전체 계약·화면 검증 완료를 뜻하지 않는다. 명세 오퍼레이션 62개 중 시험이 부른 것은 27개이고, 실제 서버와 FE 연동은 이 대조에 포함되지 않는다.
 
@@ -315,3 +323,15 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 | 훼손 데이터(`bbox` 2, `autoAdjust` 1) | 3 | 3 | 미해결(7.2 ④) |
 
 이 대조는 시험이 호출한 응답의 스키마 적합성만 본다. 오류 정합성 전체가 해결됐다는 뜻이 아니다 — 7.2 ④⑤⑥⑦⑧이 남아 있고, FE 구현과 실제 서버·FE 연동은 이 대조에 포함되지 않는다.
+
+**통합 대조 기록 (11-08)** — 7.7이 반영된 develop `ddc8043`에 블록 배치 브랜치를 병합한 커밋 `cedb608`과, 추가 시험 `tests/test_layout_adjust_upgrade_path.py`를 포함한 작업 트리에서 로컬 전체 시험을 한 번 실행하고 받은 응답을 명세 스키마로 검사했다. 그 뒤 병합한 develop `1b1edf1`(#110)은 `docs/ai/`만 바꿔 로컬 시험을 다시 돌리지 않았다. 최종 커밋은 CI로 확인한다.
+
+| 범위 | 응답 | 적합 | 불일치 | 내용 |
+|---|---|---|---|---|
+| 7.6과 같은 8개 시험 파일 | 1,126 | 1,124 | 2 | 훼손 `bbox` 2(7.2 ④) |
+| 전체 시험 | 2,110 | 2,106 | 4 | 훼손 `bbox` 2(7.2 ④), 미문서화 `brandCreate` 422 1(7.2 ⑧), 없는 경로 시험 호출 1 |
+
+- 15종 밖 오류 코드·미문서화 작업 취소 200·훼손 `autoAdjust`는 0건이다.
+- 전체 시험은 2,279건 통과, 10건 실패, 49건 건너뜀이다(용어집 시험 DB 지정). 실패 10건은 블록 배치가 없는 트리에서도 같다: `google` 모듈 없음 4, `test_sample_generator_is_reproducible` 1(원인 미확인), 용어집 다른 DB 위치 시험 4, `test_dictionary_db`의 head 고정값(`"0006"`) 1.
+- 마이그레이션 head는 `0013` 하나다. 기존 데이터가 있는 0012에서 올리고, API로 legacy 보존·명시적 해제·셀러 조정을 거쳐 되돌린 뒤 다시 올리는 경로는 `tests/test_layout_adjust_upgrade_path.py`가 일회용 시험 DB에서 확인한다.
+- 실제 DB 적용, 서버 배포, FE 연동은 이 기록에 포함되지 않는다.

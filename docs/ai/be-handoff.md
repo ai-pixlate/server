@@ -15,13 +15,13 @@
 | ⑧ | `pipeline.handoff.translation.run_translate` | `HandoffTranslator` → `TranslateOutcome`. 공급은 `context["handoff"]` | `validate_report` + 기존 채택 검사 |
 | ⑥ | `pipeline.handoff.gpu.GpuInpaintRunner` (GPU 측) | `BeControlClient`(AI `ControlClient` 구현), 등록은 `WorkerControl.register_report`, 요청 구성은 `inpaint_stage_request` 공용 | 업로드 해시·시도·세대 대조 → 산출물 고정 → 고정 사본으로 `validate_report(local_paths, allowed_root)` → 채택 |
 
-- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 #71 결정 전까지 **나누지 않은 원문 문자열**(없으면 빈 배열) — AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
+- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 저장 묶음에 DB 원문 문자열 그대로 두고, AI 인계 때 #71 구분 규칙(2026-11-03 데이터 담당 확인 — `;`로 나누고 조각 앞뒤 공백은 지운다, 빈 조각은 위반)으로 나눈 **배열**(없으면 빈 배열)을 보낸다. 규칙 위반 값은 적재 검증(`dictionary_ingest`)과 묶음 생성(`REGULATORY_DICT_INVALID`)에서 막는다. 그 전에 고정된 묶음에 위반 값이 있으면 예외 없이 나누지 않은 원문 문자열로 보내고 그 행은 ⑧ 표현 지시를 만들지 않는다(시도 생성 · 실행 · 재시도에서 사전 오류로 멈추지 않는다). 묶음 스키마는 바꾸지 않았으므로 이미 분석한 묶음도 다음 AI 호출부터 배열로 간다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
 - **정책 규칙**: DB에 없다. 저장소 운영 규칙 `pipeline/data/policy_rules.json`(AI 소유, `policy@2026-10-08.1`)을 분석 시작 때 읽어 묶음에 고정하고 지문(`policy_rules_sha256`)도 보존한다. `PIXLATE_POLICY_RULES`는 실험용 대체 경로다. `overrides`가 있거나 `combination→otc`·`unknown→cosmetic`(D8)과 다르면 거부한다. 규제 행 조회 분류는 규칙의 `applied_classes`(`common` 포함)를 따른다.
-- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 인증↔문구 충돌의 블록별 제외·최종 프롬프트 공급 관계·기록/지문은 `contract.md` 5.1.1을 따르며 후속 필드·저장 구조는 BE 최소 구현안 대기다. [BE–AI §3.5] 표현 지시는 #71 확정 전(`ALTERNATIVES_SPLIT=False`)에는 만들지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
+- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 인증↔문구 충돌의 블록별 제외·최종 프롬프트 공급 관계·기록/지문은 `contract.md` 5.1.1을 따르며 후속 필드·저장 구조는 BE 최소 구현안 대기다. [BE–AI §3.5] 표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(`regulated`) 규제 판정의 매칭을 이번 대상 블록에 한해 `{block_key, external_id, matched_text}`로 넘기고, 자리표시자 템플릿 대체 표현은 넘기지 않는다(D9). 판정 단계에서 억제된 매칭(audit `overlaps`의 `kind=suppressed` — 포함 · 허용 표현 감쌈 등)은 판정의 매칭이 아니므로 지시하지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`. 표현 지시 활성화 뒤 만든 시도는 `supply.instructions_rule`(`INSTRUCTIONS_RULE`)을 함께 고정한다. 이 키가 없는 시도(활성화 전에 만든 대기 시도)는 지시 없이 공급을 다시 만들어 대조 · 실행한다 — 배포 때문에 `INPUT_CHANGED`가 나지 않고, 실패 후 자동 재시도 · 사용자 재시도(`translate_retry_plan`)로 새 공급을 만드는 시도부터 지시가 들어간다. 리스 만료 복구 재시도는 이전 고정 입력을 그대로 쓰므로 지시가 붙지 않는다.
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 검사 연결(8절) — 문구 2차 첫 활성화의 규칙 검사 연결·검증 필수 조건은 8절과 계약 5.1.1을 따르며, LLM 연결 일정은 별도 협의. GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
+- **남은 것**: 번역문 검사 연결(8절) — 문구 2차 첫 활성화의 규칙 검사 연결·검증 필수 조건은 8절과 계약 5.1.1을 따르며, LLM 연결 일정은 별도 협의. GPU 제어 HTTP 바인딩. #71 대체 표현 배열 변환 · ⑧ 표현 지시는 PR #97 코드(BE 코드 재검토 통과, 구분 규칙은 2026-11-03 데이터 담당 확인)이며, 활성화는 규제사전 전달 · DB 적재 · BE 환경 테스트 · 머지 승인 대기다.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -107,7 +107,7 @@
 
 ## 5. 함께 확인할 것
 
-0절 「남은 것」과 [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)의 AI 요청(대상 섹션 지정·근거 배열·검증기 경로·정리 상태·예제 재생성의 Unicode 버전 의존)을 따른다. ⑧ 대체 표현 구분자(#71)는 임시 공급 규칙으로 연결했으며 결정되면 변환·공급만 바꾼다. 용어집 공급은 D10 선별로 교체했다(2026-10-11).
+0절 「남은 것」과 [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)의 AI 요청(대상 섹션 지정·근거 배열·검증기 경로·정리 상태·예제 재생성의 Unicode 버전 의존)을 따른다. ⑧ 대체 표현 구분자(#71)는 2026-11-03 사용자 결정에 따라 변환·공급을 바꿨다(0절). 용어집 공급은 D10 선별로 교체했다(2026-10-11).
 
 ## 6. 역할별 스타일 기본값 — BE 렌더 연결 인계(2026-10-12, D11)
 

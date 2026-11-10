@@ -578,12 +578,14 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
 def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
     """표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(regulated) 규제 판정의 매칭을 이번 대상 블록에 한해 넘긴다.
     대체 표현 본문은 AI가 고정 묶음에서 꺼낸다(#71 구분 규칙으로 나눈 배열). 템플릿 대체 표현(RG-021/022 등)은 원문 수치
-    유지라 넘기지 않는다(D9-2)."""
+    유지라 넘기지 않는다(D9-2). 판정 단계에서 억제된 매칭(overlaps kind=suppressed — contained · allowed_wrap 등)은 판정의
+    매칭이 아니므로 지시하지 않는다(audit matches 에는 억제된 원시 매칭도 남아 있다)."""
     det = json_value(db.execute(
         text("SELECT detail FROM audit_log WHERE action_type = :a AND target_type = 'section' AND target_id = :s ORDER BY id DESC LIMIT 1"),
         {"a": common.ACT_ANALYSIS_ADOPTED, "s": sid},
     ).scalar()) or {}
     refs = entries_by_ref(bundle)
+    suppressed = {o["match_key"] for o in det.get("overlaps", []) if o.get("kind") == "suppressed" and o.get("match_key")}
     out: list[dict[str, Any]] = []
     for v in det.get("verdicts", []):
         e = refs.get(v["dictionary_ref"])
@@ -593,6 +595,8 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
         if not isinstance(alts, list) or not alts or any(_PLACEHOLDER.search(a) for a in alts):
             continue  # 구분 규칙 위반(원문 문자열) · 대체 표현 없음 · 템플릿은 지시하지 않는다
         for m in det.get("matches", []):
+            if m.get("match_key") in suppressed:
+                continue
             if m["snapshot_key"] == v["dictionary_ref"] and m["finding_key"] == v["finding_key"] and m["block_id"] in target_ids:
                 item = {"block_key": block_key(m["block_id"]), "external_id": v["dictionary_ref"], "matched_text": m["matched_text"]}
                 if item not in out:

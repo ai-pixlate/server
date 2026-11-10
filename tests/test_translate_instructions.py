@@ -72,6 +72,32 @@ def test_split_rule_violation_in_stored_bundle_skips_instruction_without_error()
     assert rg["RG-6"].has_alternative and rg["RG-1"].alternatives_split == ["calm", "soothing"]
 
 
+def test_suppressed_matches_give_no_instructions():
+    """판정 단계에서 억제된 매칭(overlaps kind=suppressed)은 audit matches 에 남아도 지시하지 않는다(PR #97 BE 시험 5번)."""
+    b = _be_bundle()
+    b["regulatory"]["entries"] = [
+        _entry("RG-2", "regulatory", "cosmetic", "콜라겐 생성", ["콜라겐 생성", "콜라겐 생성 촉진"], "regulated", alt="supports skin"),
+        _entry("RG-9", "regulatory", "common", "콜라겐 생성 케어", ["콜라겐 생성 케어"], "allowed"),
+    ]
+
+    def m(key, ref, block, text):
+        return {"match_key": key, "snapshot_key": ref, "finding_key": "f1", "block_id": block, "matched_text": text}
+
+    detail = {
+        "verdicts": [{"dictionary_ref": "RG-2", "verdict_status": "regulated", "finding_key": "f1"}],
+        "matches": [m("m1", "RG-2", 10, "콜라겐 생성 촉진"),
+                    m("m2", "RG-2", 10, "콜라겐 생성"),  # 같은 블록의 더 긴 매칭 안에 포함(contained)
+                    m("m3", "RG-2", 11, "콜라겐 생성")],  # 다른 블록의 허용 표현 '콜라겐 생성 케어'가 감쌈(allowed_wrap)
+        "overlaps": [{"kind": "suppressed", "match_key": "m2", "rule": "contained", "by": ["m1"]},
+                     {"kind": "suppressed", "match_key": "m3", "rule": "allowed_wrap", "by": ["RG-9"]},
+                     {"kind": "unlinked_candidate", "match_key": "m9"}],
+    }
+    out = ds._translate_instructions(_Db(detail), 1, TARGETS, b)
+    assert out == [{"block_key": "blk_10", "external_id": "RG-2", "matched_text": "콜라겐 생성 촉진"}]
+    # overlaps 가 없는(억제 없음) 기록은 기존과 같다
+    assert len(ds._translate_instructions(_Db({**detail, "overlaps": []}), 1, TARGETS, b)) == 3
+
+
 def test_no_adopted_analysis_detail_gives_no_instructions():
     assert ds._translate_instructions(_Db(None), 1, TARGETS, _bundle()) == []
 

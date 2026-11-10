@@ -10,7 +10,7 @@
 - refresh·logout 은 Origin 허용 목록(PIXLATE_AUTH_ORIGINS) 정확 일치를 먼저 본다. 누락·null·목록 밖·설정 없음 → 401 origin_not_allowed.
 - refresh = 쿠키의 refresh 로만(바디·Bearer 아님, CSRF 헤더 X-Requested-With 필수). 성공만 활동 시각을 갱신한다.
   거절 응답은 Set-Cookie 를 보내지 않는다(늦게 도착한 거절이 새 쿠키를 지우지 않게).
-- 로그아웃 = 검증된 자격(Bearer·쿠키)이 가리키는 세션만 폐기 + 쿠키 삭제 → 204. 판정은 logout() 설명.
+- 로그아웃 = 요청의 자격이 가리키는 살아 있는 세션만 폐기 + 쿠키 삭제 → 204(끝낼 세션이 없어도 204). 판정은 logout() 설명.
 
 계정 식별(0015): 간이 로그인은 `auth_provider = 'local'` 계정만 찾고 만든다. 소셜 계정(카카오·Google — 제공자 + 회원번호로 식별)은
 이메일이 같아도 이 경로로 찾지 않는다. 이메일만으로 소셜 계정의 토큰을 받는 길을 막기 위해서다(PRD v3.5.10 F-ACC-05 ④).
@@ -161,46 +161,66 @@ def refresh(request: Request, response: Response, x_requested_with: str = Header
     return {"accessToken": issue_access(rot.session, r["email"])}
 
 
-def _bearer_session(request: Request):
-    """로그아웃용 Bearer 판정 → (세션 | None). 없으면 (None). 서명·형식 오류면 401(아무것도 바꾸지 않는다).
-    서명이 맞으면 exp 가 지났어도 그 sid 를 본다 — access 만료 상태에서도 로그아웃할 수 있게(BE 구현 선택)."""
+def _bearer_credential(request: Request) -> auth_sessions.Credential:
+    """로그아웃용 Bearer 분류(만료 시각은 보지 않는다 — access 만료 상태에서도 로그아웃할 수 있게).
+    absent = Authorization 없음 / invalid = 형식·서명 오류, 세션과 판매자 불일치 /
+    ended = 서명은 맞지만 세션이 이미 끝났거나 세션 없는 이전 형식 / live = 살아 있는 세션. 저장소 장애는 503."""
     auth = request.headers.get("authorization") or ""
     if not auth:
-        return None
+        return auth_sessions.Credential("absent")
     scheme, _, token = auth.partition(" ")
     if scheme.lower() != "bearer" or not token:
-        raise HTTPException(status_code=401, detail={"code": "INVALID_TOKEN", "message": "malformed token"})
-    payload = verify_signature(token)
+        return auth_sessions.Credential("invalid")
     try:
-        return active_session(payload)
-    except HTTPException as e:
-        if e.status_code == 503:
-            raise
-        return None  # 세션이 이미 없거나 판매자가 다르다 — 이 자격으로 폐기할 세션 없음
+        payload = verify_signature(token)
+    except HTTPException:
+        return auth_sessions.Credential("invalid")
+    sid = payload.get("sid")
+    if not isinstance(sid, str):
+        return auth_sessions.Credential("ended")  # 세션 도입 전 형식 — 끝낼 세션이 없다
+    try:
+        s = auth_sessions.get_active(sid)
+    except auth_sessions.Unavailable:
+        raise session_unavailable()
+    if s is None:
+        return auth_sessions.Credential("ended")
+    if s.seller_id != int(payload["sub"]):
+        return auth_sessions.Credential("invalid")
+    return auth_sessions.Credential("live", s)
+
+
+def _logout_rejected(message: str) -> HTTPException:
+    # 검증할 수 없는 자격 — 아무것도 바꾸지 않는다(쿠키 삭제도 없음). FE 는 Authorization 없이 한 번 다시 보낸다.
+    return HTTPException(status_code=401, detail={"code": "INVALID_TOKEN", "message": message})
 
 
 @router.post("/auth/logout", summary="API-AUTH-03 로그아웃/세션 폐기", status_code=204)
 def logout(request: Request, response: Response, x_requested_with: str = Header(..., alias="X-Requested-With")):
-    """검증된 자격이 가리키는 세션만 폐기 + 쿠키 삭제 → 204.
-    - 검증된 Bearer: 서명이 맞고 세션이 살아 있음(만료된 access 도 서명이 맞으면 인정 — BE 구현 선택)
-    - 검증된 쿠키: 그 세션의 현재 또는 직전 refresh
-    - 둘이 다른 세션이면 둘 다 폐기(다른 계정 — PM 11-10 확정 / 같은 계정 — BE 구현 선택). 계정의 다른 세션은 건드리지 않는다.
-    - Bearer 서명·형식 오류: 401, 아무것도 바꾸지 않는다. 검증된 자격이 하나도 없으면 401(쿠키 삭제 없음)."""
+    """요청의 자격이 가리키는 **살아 있는 세션만** 폐기하고 refresh 쿠키를 지운다 → 204.
+    판정(FE 11-10 회신 반영):
+    - Bearer·쿠키를 각각 absent / invalid / ended / live 로 분류한다(쿠키는 서명이 맞으면 세대와 관계없이 그 세션을 식별).
+    - Bearer 가 invalid(형식·서명 오류) → 401 invalid_token, 아무것도 바꾸지 않음(쿠키가 유효해도 — FE 는 Authorization 없이 재요청).
+    - 쿠키가 invalid 이고 Bearer 로 끝낼 살아 있는 세션도 없음 → 401 invalid_token, 아무것도 바꾸지 않음.
+    - 그 밖: live 세션을 모두 폐기(다른 계정이면 둘 다 — PM 11-10). 끝낼 세션이 없어도(이미 종료·자격 없음) 정상 재로그아웃으로 보고 204.
+    - Origin·CSRF 실패(401 origin_not_allowed·422)와 저장소 장애(503)는 204 로 바꾸지 않는다. 계정의 다른 브라우저·기기 세션은 건드리지 않는다."""
     _require_allowed_origin(request)
-    by_bearer = _bearer_session(request)
+    bearer = _bearer_credential(request)
+    if bearer.kind == "invalid":
+        raise _logout_rejected("bearer token is malformed or unverifiable")
     try:
-        by_cookie = auth_sessions.match_refresh(request.cookies.get(REFRESH_COOKIE))
+        cookie = auth_sessions.identify_refresh(request.cookies.get(REFRESH_COOKIE))
     except auth_sessions.Unavailable:
         raise session_unavailable()
-    if by_bearer is None and by_cookie is None:
-        raise HTTPException(status_code=401, detail={"code": "UNAUTHORIZED", "message": "no valid session to log out"})
-    sids = [s.sid for s in (by_bearer, by_cookie) if s is not None]
+    if cookie.kind == "invalid" and bearer.kind != "live":
+        raise _logout_rejected("refresh cookie is unverifiable")
+    live = [c.session for c in (bearer, cookie) if c.kind == "live"]
     try:
-        auth_sessions.revoke(*sids)
+        auth_sessions.revoke(*[x.sid for x in live])
     except auth_sessions.Unavailable:
         raise session_unavailable()
-    if by_bearer is not None and by_cookie is not None and by_bearer.sid != by_cookie.sid:
-        log.warning("auth.logout_session_mismatch same_seller=%s", by_bearer.seller_id == by_cookie.seller_id)
+    if len({x.sid for x in live}) == 2:
+        log.warning("auth.logout_session_mismatch same_seller=%s", live[0].seller_id == live[1].seller_id)
+    log.info("auth.logout bearer=%s cookie=%s revoked=%d", bearer.kind, cookie.kind, len({x.sid for x in live}))
     _clear_refresh_cookie(response)
     response.status_code = 204
     return response

@@ -368,8 +368,26 @@ def test_logout_with_expired_access_still_works(client, clock, rds):
 
 
 def test_logout_cookie_only(client, clock, rds):
+    """계약(FE 요청·사용자 11-10): 브라우저 재시작 뒤 access 가 없어도 유효한 refresh 쿠키만으로 로그아웃한다.
+    세대별(현재·직전·더 오래된) 식별은 test_logout_cookie_generations_identify_the_session."""
     s = _login(client, _email())
-    assert _logout(client, cookie=s["cookie"]).status_code == 204 and _rec(rds, s["cookie"]) == {}
+    r = _logout(client, cookie=s["cookie"])
+    assert r.status_code == 204 and _cleared(r) and _rec(rds, s["cookie"]) == {}
+    assert _refresh(client, s["cookie"]).status_code == 401 and _me(client, s["access"]).status_code == 401
+
+
+@pytest.mark.parametrize("headers,status,reason", [
+    ({"X-Requested-With": "XMLHttpRequest"}, 401, "origin_not_allowed"),  # Origin 없음
+    ({"X-Requested-With": "XMLHttpRequest", "Origin": "https://evil.test"}, 401, "origin_not_allowed"),
+    ({"Origin": "https://fe.pixlate.test"}, 422, None),  # CSRF 헤더 없음
+])
+def test_cookie_only_logout_keeps_origin_and_csrf_checks(client, clock, rds, headers, status, reason):
+    s = _login(client, _email())
+    r = client.post("/v1/auth/logout", headers={**headers, "Cookie": f"pxl_refresh={s['cookie']}"})
+    assert r.status_code == status and _set_cookies(r) == []
+    if reason:
+        assert _reason(r) == reason
+    assert _rec(rds, s["cookie"])  # 폐기하지 않았다
 
 
 def test_logout_forged_bearer_changes_nothing(client, clock, rds):
@@ -384,23 +402,86 @@ def test_logout_verified_bearer_with_unverified_cookie(client, clock, rds):
     """쿠키가 다른 세션의 sid 를 담았지만 비밀이 틀리다 — Bearer 세션만 폐기, 그 다른 세션은 건드리지 않는다."""
     a, other = _login(client, _email()), _login(client, _email())
     r = _logout(client, a["access"], _forge(_sid(other["cookie"])))
-    assert r.status_code == 204
+    assert r.status_code == 204 and _cleared(r)  # 그 세션 폐기 + 쿠키 삭제 + 204(사용자 11-10 확정)
     assert _rec(rds, a["cookie"]) == {} and _rec(rds, other["cookie"]) and _me(client, other["access"]).status_code == 200
 
 
-@pytest.mark.parametrize("case", ["nothing", "legacy-token", "revoked-session"])
-def test_logout_without_verified_credentials_is_401(client, clock, rds, case):
+@pytest.mark.parametrize("authorization", ["Basic abc", "Bearer ", "Bearer not.a.jwt", "Bearer abc"])
+def test_logout_unverifiable_bearer_is_not_treated_as_no_credentials(client, clock, rds, authorization):
+    """검증할 수 없는 자격(형식·서명 오류)은 「자격 없음」(204)으로 보지 않는다 — 401 invalid_token, 쿠키·세션 그대로."""
+    s = _login(client, _email())
+    r = client.post("/v1/auth/logout", headers={**CSRF, "Authorization": authorization})
+    assert r.status_code == 401 and _reason(r) == "invalid_token" and _set_cookies(r) == []
+    assert _rec(rds, s["cookie"])
+
+
+@pytest.mark.parametrize("case", ["nothing", "legacy-token", "revoked-session", "expired-session-cookie"])
+def test_logout_with_nothing_left_to_end_is_204(client, clock, rds, case):
+    """끝낼 세션이 없는 정상 재로그아웃(이미 종료·자격 없음) → 204 + 쿠키 삭제(FE 11-10 제안 반영). 다른 세션은 그대로."""
     from app.security import create_token
 
     s = _login(client, _email())
+    other = _login(client, _email())
     if case == "nothing":
         r = _logout(client)
     elif case == "legacy-token":
-        r = _logout(client, create_token(s["seller"], None))  # 세션 없는 이전 형식
+        r = _logout(client, create_token(s["seller"], None))  # 세션 없는 이전 형식(서명은 맞음)
+    elif case == "revoked-session":
+        assert _logout(client, s["access"], s["cookie"]).status_code == 204
+        r = _logout(client, s["access"], s["cookie"])  # 응답을 잃어 같은 자격으로 다시 보냄
     else:
-        _logout(client, s["access"], s["cookie"])
-        r = _logout(client, s["access"], s["cookie"])
-    assert r.status_code == 401 and r.json()["error"]["code"] == "UNAUTHORIZED" and _set_cookies(r) == []
+        clock.t += 7 * DAY  # 비활성 만료
+        r = _logout(client, cookie=s["cookie"])
+    assert r.status_code == 204 and _cleared(r), case
+    assert _rec(rds, other["cookie"])  # 다른 세션 레코드는 그대로(시계를 옮긴 경우도 키는 남아 있다)
+
+
+def test_logout_cookie_generations_identify_the_session(client, clock, rds):
+    """서명이 맞으면 세대와 관계없이 그 세션을 찾아 폐기한다 — 현재·직전·더 오래된 세대. 다른 세션은 건드리지 않는다."""
+    other = _login(client, _email())
+    for back in (0, 1, 2, 3):  # 0 = 현재, 1 = 직전, 2·3 = 더 오래된 세대
+        s = _login(client, _email())
+        cookies = [s["cookie"]]
+        for _ in range(3):
+            cookies.append(_refresh_cookie(_refresh(client, cookies[-1])))
+            clock.t += 60
+        presented = cookies[-1 - back]
+        assert _gen(presented) == 4 - back
+        r = _logout(client, cookie=presented)  # Bearer 없이 그 쿠키만
+        assert r.status_code == 204 and _cleared(r), back
+        assert _rec(rds, cookies[-1]) == {}, back  # 세션 폐기
+        assert _refresh(client, cookies[-1]).status_code == 401
+    assert _me(client, other["access"]).status_code == 200
+
+
+@pytest.mark.parametrize("label", ["임의 값", "세대 변조", "다른 세션 sid 로 옮김"])
+def test_logout_unverifiable_cookie_only_is_401_and_touches_nothing(client, clock, rds, label):
+    """검증할 수 없는 쿠키만으로는 로그아웃 완료로 보지 않는다(204 아님) — 401 invalid_token, 어떤 세션도 폐기하지 않음."""
+    a, b = _login(client, _email()), _login(client, _email())
+    a2 = _refresh_cookie(_refresh(client, a["cookie"]))
+    clock.t += 60
+    sid, gen, sig = a2.split(".")
+    token = {"임의 값": _forge(sid), "세대 변조": f"{sid}.1.{sig}", "다른 세션 sid 로 옮김": f"{_sid(b['cookie'])}.1.{sig}"}[label]
+    before_a, before_b = _rec(rds, a2), _rec(rds, b["cookie"])
+    r = _logout(client, cookie=token)
+    assert r.status_code == 401 and _reason(r) == "invalid_token" and _set_cookies(r) == []
+    assert _rec(rds, a2) == before_a and _rec(rds, b["cookie"]) == before_b
+
+
+def test_logout_mixed_old_and_new_credentials(client, clock, rds):
+    """이미 끝난 세션의 Bearer + 새 로그인의 살아 있는 쿠키 → 쿠키 세션만 폐기, 204.
+    세션 없는 이전 형식 Bearer + 살아 있는 쿠키 → 쿠키 세션 폐기, 204."""
+    from app.security import create_token
+
+    old = _login(client, _email())
+    assert _logout(client, old["access"], old["cookie"]).status_code == 204
+    new = _login(client, _email())
+    assert _logout(client, old["access"], new["cookie"]).status_code == 204
+    assert _rec(rds, new["cookie"]) == {}
+
+    n2 = _login(client, _email())
+    assert _logout(client, create_token(n2["seller"], None), n2["cookie"]).status_code == 204
+    assert _rec(rds, n2["cookie"]) == {}
 
 
 def test_logout_requires_csrf_header(client, clock, rds):
@@ -484,11 +565,46 @@ def test_session_store_outage_is_503_not_auth_failure(client, clock, rds):
                   client.post("/v1/auth/login", json={"email": _email(), "password": "x"})):
             e = r.json()["error"]
             assert r.status_code == 503 and e["code"] == "SERVICE_UNAVAILABLE" and e["retryable"] is True, r.text
-            assert e["details"] is None  # 새 사유(auth_store_unavailable)는 FE 확인 전이라 붙이지 않는다
+            assert e["details"] is None  # FE 11-10 합의: 저장소 장애 503 은 사유 없음
             assert _set_cookies(r) == []
     finally:
         auth_sessions.set_client(rds)
     assert _me(client, s["access"]).status_code == 200 and _rec(rds, s["cookie"])  # 장애가 세션을 바꾸지 않았다
+    # 이 시험의 실패 시점 = 회전 전(저장소 연결 실패 — Lua 가 실행되지 않음). 이때만 서버 상태가 그대로라 같은 쿠키로 나중에 갱신된다.
+    # 회전 뒤 실패는 test_refresh_503_after_rotation_ran_is_like_a_lost_response.
+    assert _refresh(client, s["cookie"]).status_code == 200
+
+
+def test_refresh_503_after_rotation_ran_is_like_a_lost_response(client, clock, rds):
+    """회전 스크립트는 저장소에서 실행됐는데 응답을 잃어 503 이 난 경우 — 서버는 이미 회전했다(세션 종료는 아니지만 같은 쿠키로 복구되지 않을 수 있다).
+    브라우저 쿠키는 직전 세대 → 30초 안 `refresh_rotated`(세션 그대로), 그 뒤 `refresh_reused`(세션 종료). 응답 유실과 같은 한계."""
+    from app import auth_sessions
+
+    s = _login(client, _email())
+    auth_sessions.set_client(_FailingEval(rds, ran=True, script=auth_sessions._ROTATE))
+    try:
+        r = _refresh(client, s["cookie"])
+    finally:
+        auth_sessions.set_client(rds)
+    assert r.status_code == 503 and r.json()["error"]["code"] == "SERVICE_UNAVAILABLE" and _set_cookies(r) == []
+    assert _rec(rds, s["cookie"])["gen"] == "2"  # 회전은 일어났다
+    clock.t += 10
+    assert _reason(_refresh(client, s["cookie"])) == "refresh_rotated" and _rec(rds, s["cookie"])
+    clock.t += 30
+    assert _reason(_refresh(client, s["cookie"])) == "refresh_reused" and _rec(rds, s["cookie"]) == {}
+
+
+def test_rotated_replies_never_end_the_session(client, clock, rds):
+    """FE 11-10: `refresh_rotated` 복구 한도를 넘으면 FE 는 자동 재시도를 멈추고 G1 로 가지만, 서버 세션이 무효화된 것은 아니다.
+    유예 안에서 직전 쿠키를 여러 번 보내도(FE 한도 2회를 넘겨도) 세션은 그대로이고, 새 쿠키를 가진 곳은 계속 갱신된다."""
+    s = _login(client, _email())
+    new = _refresh_cookie(_refresh(client, s["cookie"]))
+    for _ in range(3):
+        clock.t += 5
+        r = _refresh(client, s["cookie"])
+        assert r.status_code == 401 and _reason(r) == "refresh_rotated" and _set_cookies(r) == []
+    assert _rec(rds, new)  # 세션 그대로
+    assert _refresh(client, new).status_code == 200
 
 
 # ═════════════════════════════════════════════════════════════════════════════════════════════════
@@ -613,7 +729,8 @@ def test_tampered_generation_or_moved_token_changes_nothing(client, clock, rds):
     for why, token in cases.items():
         r = _refresh(client, token)
         assert r.status_code == 401 and _reason(r) == "refresh_invalid" and _set_cookies(r) == [], why
-        assert _logout(client, cookie=token).status_code == 401, why  # 로그아웃 자격으로도 인정하지 않는다
+        rl = _logout(client, cookie=token)  # 로그아웃 자격으로도 인정하지 않는다 — 204 아님, 아무것도 안 바꿈
+        assert rl.status_code == 401 and _reason(rl) == "invalid_token", why
     assert _rec(rds, a2) == before_a and _rec(rds, b_cur) == before_b
 
 
@@ -711,17 +828,17 @@ def test_concurrent_relogin_with_same_cookie_leaves_two_new_sessions(client, clo
 
 
 class _FailingEval:
-    """세션 생성 스크립트에서만 실패를 흉내 낸다. ran=True 면 실제로 실행한 뒤 응답을 잃은 경우."""
+    """정한 스크립트에서만 실패를 흉내 낸다(기본 = 세션 생성). ran=True 면 실제로 실행한 뒤 응답을 잃은 경우."""
 
-    def __init__(self, real, ran: bool):
-        self.real, self.ran = real, ran
+    def __init__(self, real, ran: bool, script=None):
+        self.real, self.ran, self.script = real, ran, script
 
     def eval(self, script, *a):
         import redis
 
         from app import auth_sessions
 
-        if script == auth_sessions._CREATE_REPLACING:
+        if script == (self.script or auth_sessions._CREATE_REPLACING):
             if self.ran:
                 self.real.eval(script, *a)
             raise redis.ConnectionError("시험: 응답 유실" if self.ran else "시험: 연결 실패")

@@ -80,6 +80,17 @@ class Session:
 
 
 @dataclass(frozen=True)
+class Credential:
+    """로그아웃용 자격 분류.
+    absent  = 요청에 없음
+    invalid = 형식·서명이 틀림(변조·임의 값·키 교체 전 값 등) — 어떤 세션도 가리킨다고 보지 않는다
+    ended   = 서버가 발급한 값이지만 그 세션은 이미 끝남(폐기·만료) 또는 세션이 없는 이전 형식
+    live    = 살아 있는 세션을 가리킴"""
+    kind: str
+    session: Optional[Session] = None
+
+
+@dataclass(frozen=True)
 class Rotation:
     status: str                       # ok | rotated | reused | invalid | expired
     session: Optional[Session] = None
@@ -265,6 +276,19 @@ def match_refresh(refresh_token: Optional[str]) -> Optional[Session]:
     if cur is not None and gen in (int(_s(cur)), int(_s(cur)) - 1):
         return get_active(sid)
     return None
+
+
+def identify_refresh(refresh_token: Optional[str]) -> Credential:
+    """로그아웃용 쿠키 분류. 서명이 맞으면 **세대와 관계없이** 그 세션을 가리킨다고 본다
+    (현재·직전·더 오래된 세대 모두 — 서명에 sid·세대가 묶여 있어 다른 세션을 가리킬 수 없다). 활동·회전은 바꾸지 않는다.
+    서명이 틀리면 invalid(Redis 를 보지 않는다). 저장소 장애는 Unavailable."""
+    if not refresh_token:
+        return Credential("absent")
+    parsed = parse_refresh(refresh_token)
+    if parsed is None:
+        return Credential("invalid")
+    s = get_active(parsed[0])
+    return Credential("live", s) if s is not None else Credential("ended")
 
 
 def revoke(*sids: str) -> int:

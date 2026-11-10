@@ -1,8 +1,11 @@
 """AUTH — 인증/셀러 (API-AUTH-01~05, 🟢9월).
 
 간이 인증(JWT HS256). 로그인은 이메일로 셀러를 find-or-create 후 토큰 발급한다.
-비밀번호는 간이 인증이라 검증하지 않는다(seller 테이블에 비번 컬럼 없음 — 실제 인증은
-Cognito 예정). refresh/me는 Bearer 토큰의 seller_id를 사용.
+비밀번호는 간이 인증이라 검증하지 않는다(seller 테이블에 비번 컬럼 없음). 정식 이메일 로그인이 아니다.
+refresh/me는 Bearer 토큰의 seller_id를 사용.
+
+계정 식별(0015): 간이 로그인은 `auth_provider = 'local'` 계정만 찾고 만든다. 소셜 계정(카카오·Google — 제공자 + 회원번호로 식별)은
+이메일이 같아도 이 경로로 찾지 않는다. 이메일만으로 소셜 계정의 토큰을 받는 길을 막기 위해서다(PRD v3.5.10 F-ACC-05 ④).
 """
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -38,14 +41,14 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "email is required",
                                                     "fields": [{"loc": ["body", "email"], "msg": "email is required"}]})
 
-    r = db.execute(
-        text("SELECT id, email FROM seller WHERE email = :e"), {"e": email},
+    r = db.execute(  # local 계정만 — 같은 이메일의 소셜 계정은 고르지 않는다(같은 이메일 local 이 여럿일 때의 선택은 이 변경 전과 같음)
+        text("SELECT id, email FROM seller WHERE auth_provider = 'local' AND email = :e"), {"e": email},
     ).mappings().first()
     if not r:  # 간이 인증: 최초 로그인 시 셀러 자동 생성(개발 편의)
         r = db.execute(
             text(
-                "INSERT INTO seller (cognito_sub, email, account_type) "
-                "VALUES (:sub, :e, 'individual') RETURNING id, email"
+                "INSERT INTO seller (cognito_sub, email, account_type, auth_provider) "
+                "VALUES (:sub, :e, 'individual', 'local') RETURNING id, email"
             ),
             {"sub": f"local:{email}", "e": email},
         ).mappings().one()

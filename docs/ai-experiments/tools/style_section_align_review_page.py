@@ -17,6 +17,7 @@
 
 렌더(참고): 섹션마다 인페인트 배경 위에 운영 조판 `app.typeset.render`로 두 번 그린다 — 이전(v1.0.1 적용 정렬)과 수정 후(새 적용 정렬).
 두 렌더는 정렬만 다르고 글자색 · 크기 · 배치 영역 · 번역문은 같다(DB 보존본 값). 저장된 v1.0.1 렌더 이미지는 쓰지 않는다.
+배치 영역 · 셀러 배율은 `typeset_overflow_probe.applied_layout`으로 읽는다(`layout_adjust` · 이전 보존본의 `auto_adjust` 모두, 운영 렌더 입력과 같은 해석).
 
 검수 대상: 정렬이 바뀐 블록 전부 + 바뀌지 않았지만 에이전트 라벨과 다른 블록 전부. 순서는 (GS, id)의 SHA-256으로 섞는다.
 표시 원칙: 렌더 · 적용 정렬 · 에이전트 라벨 · 판정 근거 · 구분(바뀜 / 그대로)은 "참고 보기"를 켤 때만 보인다(기본 꺼짐). 미리 선택된 값은 없다.
@@ -57,6 +58,7 @@ def pick(rows: list[dict]) -> list[dict]:
 
 def page(a: argparse.Namespace) -> int:
     from app import typeset as t
+    from typeset_overflow_probe import applied_layout
 
     if a.out.exists():
         print(f"출력 폴더가 이미 있다 — 덮어쓰지 않는다: {a.out}", file=sys.stderr)
@@ -85,15 +87,14 @@ def page(a: argparse.Namespace) -> int:
         sec, blocks, stage = section_inputs(g, sid)
         rbs, boxes = [], {}
         for b in blocks:
-            box = (b["auto_adjust"] or {}).get("layout_bbox") or b["bbox"]
-            box = {k: int(box[k]) for k in ("x", "y", "w", "h")}
+            box, scale = applied_layout(b)  # 운영 렌더 입력과 같은 적용 박스 · 셀러 배율(typeset_overflow_probe 머리말)
             boxes[b["id"]] = box
             style = copy.deepcopy(b["style"])
             r = by_id.get((g, b["id"]))
             if style is not None and r is not None:
                 style["align"] = r[f"{which}_applied"]  # 정렬만 바꾼다(측정값 자리 — 기본값 해석을 거치지 않게 적용값을 그대로)
             rbs.append(t.RenderBlock(id=b["id"], role=b["role"], text=b["trans_1"], box=box, style=style, style_stage=stage,
-                                     source_ko=b["source_ko"]))
+                                     source_ko=b["source_ko"], font_scale=scale))
         res = t.render(obj(sec["inpaint_image_url"]), rbs, defaults)
         return Image.open(io.BytesIO(res.png)).convert("RGB"), boxes
 

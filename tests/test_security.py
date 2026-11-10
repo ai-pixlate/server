@@ -1,4 +1,4 @@
-"""간이 인증(JWT) 단위 테스트 — DB 불필요."""
+"""access 토큰(JWT)·요청 인증 단위 테스트 — DB 불필요(세션 저장소는 conftest 의 Redis 또는 대역)."""
 import pytest
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
@@ -45,6 +45,38 @@ def test_get_current_seller_missing_credentials():
 
 
 def test_get_current_seller_from_bearer():
-    tok = s.create_token(42, "x@y.com")
-    cred = HTTPAuthorizationCredentials(scheme="Bearer", credentials=tok)
+    from app import auth_sessions
+
+    session, _, _ = auth_sessions.create(42)
+    cred = HTTPAuthorizationCredentials(scheme="Bearer", credentials=s.issue_access(session, "x@y.com"))
     assert s.get_current_seller(cred) == 42
+
+
+def test_token_without_session_is_rejected():
+    """세션 도입 전 형식(sid 없음)은 서명이 맞아도 거절 — 배포 뒤 기존 로그인은 다시 로그인한다."""
+    cred = HTTPAuthorizationCredentials(scheme="Bearer", credentials=s.create_token(42, "x@y.com"))
+    with pytest.raises(HTTPException) as e:
+        s.get_current_seller(cred)
+    assert (e.value.status_code, e.value.detail["code"], e.value.detail["message"]) == (401, "INVALID_TOKEN", "token has no session")
+
+
+def test_revoked_session_token_is_rejected():
+    from app import auth_sessions
+
+    session, _, _ = auth_sessions.create(42)
+    cred = HTTPAuthorizationCredentials(scheme="Bearer", credentials=s.issue_access(session, None))
+    auth_sessions.revoke(session.sid)
+    with pytest.raises(HTTPException) as e:
+        s.get_current_seller(cred)
+    assert (e.value.status_code, e.value.detail["message"]) == (401, "session not active")
+
+
+def test_access_never_outlives_session_absolute_expiry(monkeypatch):
+    from app import auth_sessions
+
+    t0 = 1_800_000_000
+    monkeypatch.setattr(auth_sessions, "now", lambda: t0)
+    session, _, _ = auth_sessions.create(42)
+    monkeypatch.setattr(auth_sessions, "now", lambda: session.abs_exp - 60)  # 절대 만료 1분 전 발급
+    payload = s.verify_signature(s.issue_access(session, None))
+    assert payload["exp"] == session.abs_exp and payload["sid"] == session.sid

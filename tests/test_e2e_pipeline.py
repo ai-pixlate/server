@@ -76,6 +76,7 @@ def test_auth_login():
     assert r.status_code == 200
     CTX["token"] = r.json()["accessToken"]
     CTX["headers"] = {"Authorization": f"Bearer {CTX['token']}"}
+    CTX["refresh"] = r.cookies.get("pxl_refresh")  # 세션(B): refresh 는 쿠키로만 오간다
 
 
 def test_auth_me():
@@ -84,8 +85,14 @@ def test_auth_me():
 
 
 def test_auth_refresh():
-    r = client.post("/v1/auth/refresh", headers=_h())
+    import os
+
+    origin = os.getenv("PIXLATE_AUTH_ORIGINS", "").split(",")[0].strip()  # 시험 허용 Origin(tests/conftest.py)
+    r = client.post("/v1/auth/refresh", headers={"X-Requested-With": "XMLHttpRequest", "Origin": origin,
+                                                 "Cookie": f"pxl_refresh={CTX['refresh']}"})
     assert r.status_code == 200 and r.json()["accessToken"]
+    CTX["token"] = r.json()["accessToken"]
+    CTX["headers"] = {"Authorization": f"Bearer {CTX['token']}"}
 
 
 def test_consents():

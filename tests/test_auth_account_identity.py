@@ -70,6 +70,19 @@ def _me(client, token: str):
     return client.get("/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
 
 
+def _session(seller_id: int, email: str | None) -> tuple[str, str]:
+    """B(세션) 이후: 소셜 로그인 API 가 아직 없으므로 세션을 직접 만든다 → (access, refresh 쿠키 값)."""
+    from app import auth_sessions
+    from app.security import issue_access
+
+    session, refresh_token, _ = auth_sessions.create(seller_id)
+    return issue_access(session, email), refresh_token
+
+
+def _refresh(client, refresh_token: str):
+    return client.post("/v1/auth/refresh", headers={"X-Requested-With": "test", "Origin": "https://fe.pixlate.test", "Cookie": f"pxl_refresh={refresh_token}"})
+
+
 def test_same_email_local_kakao_google_stay_separate(client):
     email = _email()
     google = _social("google", _subject(), email)  # 같은 이메일의 Google 계정이 local 보다 먼저 있어도
@@ -173,35 +186,33 @@ def test_display_name_is_optional_and_kept_as_given(dburl):
 
 
 def test_display_name_not_in_seller_response(client):
-    from app.security import create_token
-
     sid = _q("INSERT INTO seller (auth_provider, provider_subject, display_name, email) VALUES ('kakao', :s, '닉네임', NULL) RETURNING id",
              s=_subject())[0]["id"]
-    me = _me(client, create_token(sid, None))
+    me = _me(client, _session(sid, None)[0])
     assert me.status_code == 200 and "displayName" not in me.json() and "display_name" not in me.json()
 
 
-def test_existing_token_and_refresh_still_work(client):
+def test_login_token_and_cookie_refresh_work_old_format_rejected(client):
+    """A 에서는 「기존 형식 토큰도 계속 동작」을 봤다. B(세션)부터 세션 없는 이전 형식은 거절된다(전환 조건 — 다시 로그인)."""
     from app.security import create_token
 
     email = _email()
-    body = _login(client, email)
-    sid = body["seller"]["id"]
-    old = create_token(sid, email)  # 이 변경 전과 같은 형식의 토큰
-    me = _me(client, old)
+    r = client.post("/v1/auth/login", json={"email": email, "password": "x"})
+    sid = r.json()["seller"]["id"]
+    me = _me(client, r.json()["accessToken"])
     assert me.status_code == 200 and me.json()["id"] == sid and me.json()["email"] == email
-    r = client.post("/v1/auth/refresh", headers={"Authorization": f"Bearer {old}"})
-    assert r.status_code == 200 and _me(client, r.json()["accessToken"]).json()["id"] == sid
+    refreshed = _refresh(client, r.cookies["pxl_refresh"])
+    assert refreshed.status_code == 200 and _me(client, refreshed.json()["accessToken"]).json()["id"] == sid
+    old = _me(client, create_token(sid, email))  # 세션 도입 전 형식
+    assert old.status_code == 401 and old.json()["error"]["details"] == {"reason": "invalid_token"}
 
 
 def test_social_seller_without_email_reads_null(client):
-    from app.security import create_token
-
     kakao = _social("kakao", _subject())
-    tok = create_token(kakao, None)
+    tok, refresh_token = _session(kakao, None)
     me = _me(client, tok)
     assert me.status_code == 200 and me.json()["id"] == kakao and me.json()["email"] is None
-    r = client.post("/v1/auth/refresh", headers={"Authorization": f"Bearer {tok}"})
+    r = _refresh(client, refresh_token)
     assert r.status_code == 200 and _me(client, r.json()["accessToken"]).json()["email"] is None
 
 

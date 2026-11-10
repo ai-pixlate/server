@@ -20,12 +20,14 @@ import os
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app import auth_sessions
 from app.db import get_db
+from app.errors import error_body
 from app.security import active_session, get_current_seller, issue_access, session_unavailable, verify_signature
 
 router = APIRouter(tags=["Auth"])
@@ -200,7 +202,9 @@ def logout(request: Request, response: Response, x_requested_with: str = Header(
     판정(FE 11-10 회신 반영):
     - Bearer·쿠키를 각각 absent / invalid / ended / live 로 분류한다(쿠키는 서명이 맞으면 세대와 관계없이 그 세션을 식별).
     - Bearer 가 invalid(형식·서명 오류) → 401 invalid_token, 아무것도 바꾸지 않음(쿠키가 유효해도 — FE 는 Authorization 없이 재요청).
-    - 쿠키가 invalid 이고 Bearer 로 끝낼 살아 있는 세션도 없음 → 401 invalid_token, 아무것도 바꾸지 않음.
+    - 쿠키가 invalid 이고 Authorization 이 없음(쿠키만) → 401 refresh_invalid + refresh 쿠키 삭제(FE 11-10 최종 합의).
+      그 쿠키가 어느 세션인지 믿을 수 없으므로 어떤 세션도 폐기하지 않는다 — FE 는 「로그아웃 대기」를 풀고 G1 로 가지만 정상 로그아웃과 구분한다.
+    - 쿠키가 invalid 이고 Bearer 는 서명이 맞지만 끝낼 세션이 없음(ended) → 401 invalid_token, 아무것도 바꾸지 않음(FE 는 Authorization 없이 재요청).
     - 그 밖: live 세션을 모두 폐기(다른 계정이면 둘 다 — PM 11-10). 끝낼 세션이 없어도(이미 종료·자격 없음) 정상 재로그아웃으로 보고 204.
     - Origin·CSRF 실패(401 origin_not_allowed·422)와 저장소 장애(503)는 204 로 바꾸지 않는다. 계정의 다른 브라우저·기기 세션은 건드리지 않는다."""
     _require_allowed_origin(request)
@@ -211,6 +215,12 @@ def logout(request: Request, response: Response, x_requested_with: str = Header(
         cookie = auth_sessions.identify_refresh(request.cookies.get(REFRESH_COOKIE))
     except auth_sessions.Unavailable:
         raise session_unavailable()
+    if cookie.kind == "invalid" and bearer.kind == "absent":
+        log.info("auth.logout bearer=absent cookie=invalid revoked=0 cookie_cleared=1")
+        out = JSONResponse(status_code=401, content=error_body(request, "UNAUTHORIZED", "refresh cookie is unverifiable",
+                                                                {"reason": "refresh_invalid"}))
+        _clear_refresh_cookie(out)  # 오류 응답 중 이 경우만 쿠키를 지운다 — 같은 쿠키로 대기가 끝나지 않는 것을 막는다
+        return out
     if cookie.kind == "invalid" and bearer.kind != "live":
         raise _logout_rejected("refresh cookie is unverifiable")
     live = [c.session for c in (bearer, cookie) if c.kind == "live"]

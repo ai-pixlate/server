@@ -17,7 +17,7 @@ from pydantic import Field, ValidationError, field_validator
 from pipeline import config as cfgmod
 from pipeline.analyze import analyze
 from pipeline.errors import AnalyzeError
-from pipeline.handoff.canonical import sha256_file
+from pipeline.handoff.canonical import sha256_file, sha256_text
 from pipeline.stages import merge
 from pipeline.handoff.envelope import (
     CONTRACT_VERSION,
@@ -35,7 +35,8 @@ from pipeline.handoff.envelope import (
 from pipeline.types import SCHEMA_VERSION, SourceImage
 from pipeline.vlm import BoundaryPicker, MergeAssistant, VlmError
 
-ANALYZE_ADAPTER_VERSION = "analyze-handoff@2026-10-08.1"
+# 2026-11-10.1: 입력 지문 prompts.merge를 실제로 보내는 프롬프트(xycut이면 보충 프롬프트 포함)의 내용 해시로 바꿨다
+ANALYZE_ADAPTER_VERSION = "analyze-handoff@2026-11-10.1"
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -73,6 +74,18 @@ def _prompt_sha(path_value: str) -> str | None:
     return sha256_file(p) if p.is_file() else None
 
 
+def merge_prompt_sha(cfg: dict[str, Any]) -> str | None:
+    """③ `llm_assist`가 실제로 보내는 프롬프트의 내용 해시 [5.31 — 실제 소비하는 프롬프트의 내용 식별].
+
+    `merge.xycut`이면 `merge.prompt_path` 뒤에 보충 프롬프트(`merge_assist_region.md`)가 붙으므로 파일 하나의 해시로는
+    모자란다. 이어 붙인 프롬프트 그대로의 SHA-256이며 `merge_debug`의 `prompt_sha256`과 같은 값이다. xycut이 꺼져 있으면
+    기본 프롬프트 파일 해시와 같다(저장소 줄끝 LF 고정). 프롬프트를 만들 수 없는 설정이면 None — 실행은 config_invalid로 끝난다."""
+    try:
+        return sha256_text(merge.validate_llm_config(cfg, need_api_key=False))
+    except ValueError:
+        return None
+
+
 def _manifest(req: AnalyzeRequest, cfg: dict[str, Any]) -> dict[str, Any]:
     snap = cfgmod.snapshot(cfg)
     return {
@@ -82,7 +95,7 @@ def _manifest(req: AnalyzeRequest, cfg: dict[str, Any]) -> dict[str, Any]:
         "use_llm": req.use_llm,
         "config": {k: snap[k] for k in ("section", "ocr", "merge")},
         "prompts": {"section": _prompt_sha(cfg["section"]["prompt_path"]),
-                    "merge": _prompt_sha(cfg["merge"]["prompt_path"]) if req.use_llm else None},
+                    "merge": merge_prompt_sha(cfg) if req.use_llm else None},
     }
 
 

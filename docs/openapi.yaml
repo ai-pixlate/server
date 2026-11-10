@@ -1710,9 +1710,11 @@ paths:
         **유효한 refresh 쿠키만으로 로그아웃할 수 있다**(계약 — FE 11-10 요청·사용자 결정: 브라우저 재시작 뒤 access가 없어도 「로그아웃 대기」를 끝내기 위해). Origin·CSRF 검사는 같다.
         - **204** — 살아 있는 세션을 폐기했거나, **끝낼 세션이 없는 정상 재로그아웃**(세션이 이미 종료·만료). 쿠키 삭제 포함.
           [PM 11-10] 정상 로그아웃 · Bearer와 쿠키가 다른 계정이면 두 세션 모두 폐기. [FE 11-10 회신·사용자 결정] 이미 종료된 세션의 재로그아웃 → 204 + 쿠키 삭제.
-        - **401 `UNAUTHORIZED` + `invalid_token`** — Bearer 형식·서명 오류, 또는 Bearer로 끝낼 세션이 없는데 쿠키 서명이 틀림. **아무것도 바꾸지 않는다**(쿠키 삭제 없음).
-          FE는 Authorization 없이 한 번 다시 보낸다(FE 11-10 회신).
-          [미결] 쿠키만 있고 그 쿠키를 검증할 수 없는 경우(예: 서명 키 교체 뒤)에는 다시 보내도 같은 401이라 FE 「로그아웃 대기」가 끝나지 않는다 — 처리안 협의 중. FE는 이 401을 로그아웃 성공으로 보지 않는다.
+        - **401 `UNAUTHORIZED` + `invalid_token`** — Bearer 형식·서명 오류, 또는 서명은 맞지만 끝낼 세션이 없는 Bearer와 서명이 틀린 쿠키가 함께 옴. **아무것도 바꾸지 않는다**(쿠키 삭제 없음).
+          FE는 Authorization 없이 한 번 다시 보낸다(FE 11-10 회신). 재시도 횟수로 로그아웃 결과를 판단하지 않는다.
+        - **401 `UNAUTHORIZED` + `refresh_invalid` + refresh 쿠키 삭제(Set-Cookie)** — Authorization 없이 **쿠키만** 왔고 그 쿠키를 검증할 수 없음(서명 키 교체 뒤·손상·변조).
+          [FE 11-10 최종 합의 · 구현 완료(#124)·연동 검증 대기] 서버는 그 쿠키가 어느 세션인지 믿을 수 없어 **어떤 세션도 폐기하지 않는다.** 오류 응답 중 쿠키를 지우는 것은 이 경우뿐이다.
+          FE는 「로그아웃 대기」를 해제하고 G1로 간다. 서버 세션 폐기가 확인되지 않았으므로 정상 로그아웃 성공(204)과 구분한다.
         - **401 `UNAUTHORIZED` + `origin_not_allowed`**(FE 11-10 합의) · **422 `VALIDATION_ERROR`**(CSRF 헤더 없음) · **503 `SERVICE_UNAVAILABLE`**(세션 저장소 장애, 사유 없음) — 서버 로그아웃 **미완료**. 204로 바꾸지 않는다.
           FE는 미완료 안내·재시도를 주고, 토큰을 저장하지 않는 「로그아웃 대기」를 기록해 재진입 때 로그인 복원보다 로그아웃을 먼저 한다(FE 11-10 회신).
         - [사용자 11-10 확정 — Origin·CSRF 검사를 통과한 요청 전제] 같은 계정의 서로 다른 두 세션도 둘 다 폐기 · 만료됐지만 그 밖의 검증을 통과한 access로 그 세션 폐기 ·
@@ -1722,7 +1724,7 @@ paths:
       responses:
         '204': { description: '로그아웃됨 — 살아 있는 세션 폐기 또는 끝낼 세션 없음(정상 재로그아웃). Set-Cookie로 pxl_refresh 삭제' }
         '401':
-          description: '`UNAUTHORIZED` + `invalid_token`(검증할 수 없는 자격 — 아무것도 바꾸지 않음) 또는 `origin_not_allowed`(서버 로그아웃 미완료)'
+          description: '`UNAUTHORIZED` + `invalid_token`(검증할 수 없는 Bearer — 아무것도 바꾸지 않음) · `refresh_invalid`(쿠키만 왔고 검증할 수 없음 — 세션 폐기 없이 refresh 쿠키만 삭제, 정상 로그아웃과 구분) · `origin_not_allowed`(서버 로그아웃 미완료)'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }

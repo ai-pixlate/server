@@ -4,7 +4,7 @@
 비밀번호는 간이 인증이라 검증하지 않는다(seller 테이블에 비번 컬럼 없음). 정식 이메일 로그인이 아니다.
 refresh/me는 Bearer 토큰의 seller_id를 사용.
 
-계정 식별(0015): 간이 로그인은 `auth_provider = 'local'` 계정만 찾고 만든다. 소셜 계정(카카오·Google — 제공자 + 회원번호로 식별)은
+계정 식별(0016): 간이 로그인은 `auth_provider = 'local'` 계정만 찾고 만든다. 소셜 계정(카카오·Google — 제공자 + 회원번호로 식별)은
 이메일이 같아도 이 경로로 찾지 않는다. 이메일만으로 소셜 계정의 토큰을 받는 길을 막기 위해서다(PRD v3.5.10 F-ACC-05 ④).
 """
 from fastapi import APIRouter, Depends, HTTPException

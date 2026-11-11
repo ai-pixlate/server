@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from app.dictionary_bundle import BundleError, load_policy_rules, to_ai_bundle
+from app.dictionary_bundle import BundleError, ai_alternatives, load_policy_rules, to_ai_bundle
 from app.manifest import fingerprint
 from pipeline.handoff.bundle import check_bundle
 from pipeline.handoff.bundle import load_policy_rules as repo_rules
@@ -33,7 +33,7 @@ def _be_bundle(*, local_ok=True, rules=None):
         "class_notice": None,
         "regulatory": {"status": "ok", "entries": [
             _entry("RG-901", "regulatory", "cosmetic", "치료", ["치료"], "regulated", fen=["cure"]),
-            # 시트 rewritable → 적재 regulated + 원값 보존. 대체 표현은 나누지 않는다(#71)
+            # 시트 rewritable → 적재 regulated + 원값 보존. 대체 표현은 #71 구분 규칙(';' · 공백 제거)으로 나뉜다
             {**_entry("RG-902", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt="Soothing; Calming"),
              "source_verdict_status": "rewritable"},
             _entry("RG-903", "regulatory", "common", "보습", ["보습"], "allowed"),
@@ -56,8 +56,8 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     cb = check_bundle(ai, target_country="US")  # AI 쪽 구조·무결성·대응표 검사 통과
     assert ai == to_ai_bundle(copy.deepcopy(be))
     rg = cb.regulation
-    # #71 확정 전: 나누지 않은 원문 문자열 — "대체 표현 있음"·스냅샷에만 쓰이고 ⑧ 지시로 쓰이지 않는다(PR #55 3217142)
-    assert rg["RG-902"].alternative_expression == "Soothing; Calming" and rg["RG-902"].alternatives_split is None
+    assert rg["RG-902"].alternatives_split == ["Soothing", "Calming"]  # #71 구분 규칙으로 나눈 배열(⑧ 표현 지시에 쓰인다)
+    assert be["regulatory"]["entries"][1]["alternative_expression"] == "Soothing; Calming"  # 저장 묶음은 원문 그대로
     assert rg["RG-902"].has_alternative and not rg["RG-901"].has_alternative
     assert rg["RG-902"].verdict_status == "regulated" and rg["RG-902"].source_verdict_status == "rewritable"
     assert rg["RG-901"].variant_en == ["cure"] and rg["RG-903"].variant_en == []  # NULL → 영어 패턴 없음
@@ -66,6 +66,23 @@ def test_to_ai_bundle_passes_ai_bundle_check_and_is_deterministic():
     assert cb.local["LC-01"].seller_message == "사유" and cb.local["LC-01"].item == "항목 1"
     assert "pk" not in json.dumps(ai)  # DB PK 는 AI 에 보내지 않는다
     assert cb.identity["rules_sha256"] == fingerprint(be["policy_rules"])  # BE 저장 지문과 AI identity 대조 가능
+
+
+def test_to_ai_bundle_keeps_alternatives_breaking_split_rule_as_text():
+    be = _be_bundle()
+    be["regulatory"]["entries"][1]["alternative_expression"] = "Soothing;;Calming"  # 빈 조각(생성 때 막히기 전 고정된 묶음)
+    rg = check_bundle(to_ai_bundle(be), target_country="US").regulation  # 예외 없이 원문 문자열 — 대체 표현 있음 · 지시 불가
+    assert rg["RG-902"].alternative_expression == "Soothing;;Calming" and rg["RG-902"].alternatives_split is None
+    assert rg["RG-902"].has_alternative
+
+
+def test_ai_alternatives_rule():
+    assert ai_alternatives(None) == [] and ai_alternatives("  ") == []
+    assert ai_alternatives("a; b; c") == ["a", "b", "c"] and ai_alternatives(" a;b ;  c ") == ["a", "b", "c"]  # 공백은 지운다
+    assert ai_alternatives("look of calm") == ["look of calm"]  # 조각 안의 공백은 그대로
+    # 빈 조각은 규칙 위반 → 나누지 않은 원문 문자열(적재 검증과 같은 split_alternatives)
+    for bad in ("a; ; b", "a;;b", "a; b;", ";a", " ; "):
+        assert ai_alternatives(bad) == bad
 
 
 def test_to_ai_bundle_local_unavailable_and_missing_rules():
@@ -93,3 +110,15 @@ def test_load_policy_rules_rejects_overrides_and_d8_mismatch(tmp_path):
     p.write_text(json.dumps(ov), encoding="utf-8")
     with pytest.raises(BundleError):
         load_policy_rules(str(p))
+
+
+def test_new_bundle_rejects_alternatives_breaking_split_rule():
+    from app.dictionary_bundle import _problems_regulatory
+
+    def entry(alt):
+        return _entry("RG-1", "regulatory", "cosmetic", "진정", ["진정"], "regulated", alt=alt)
+
+    assert _problems_regulatory(entry("calm; soothing")) == [] and _problems_regulatory(entry("calm;soothing")) == []
+    assert _problems_regulatory(entry(None)) == []
+    for bad in ("calm;;soothing", "calm; ; soothing", "calm; "):  # 묶음 생성 때 필수값 누락처럼 공급 불가(REGULATORY_DICT_INVALID)
+        assert any("alternative_expression" in p for p in _problems_regulatory(entry(bad)))

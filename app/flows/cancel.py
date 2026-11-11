@@ -6,8 +6,10 @@
 2) 같은 트랜잭션에서 이미지·문구가 담긴 DB 자료를 지운다: 섹션(블록·판정·산출물 연결 포함)·원본·산출물·내보내기·수정 기록·키워드·
    인계 payload·산출물 행·event_log·audit_log.detail(콘텐츠 없는 행위자·시각·대상 행은 남김)·시도 오류 메시지·상품명.
    정상 작업의 스냅샷 보존 규칙을 취소 콘텐츠 보존 근거로 쓰지 않는다.
-3) 커밋 후 S3 를 job 접두사 단위로 지운다(원본·검증·스테이징·산출물·내보내기). 실패하거나 늦은 업로드가 생겨도 복구 프로세스가
-   최근 취소 작업의 접두사를 다시 지운다(app.recovery.purge_archived).
+3) 커밋 후 S3 를 job 접두사 단위로 지운다(원본·검증·스테이징·산출물·내보내기·검사 고정 요청 input/). 실패하거나 늦은 업로드가
+   생겨도 복구 프로세스가 최근 취소 작업(PIXLATE_PURGE_WINDOW_H 안)의 접두사를 다시 지운다(app.recovery.purge_archived).
+   개별 삭제 실패는 성공으로 세지 않는다(purge_storage 의 failed). 기간이 지나면 재삭제하지 않으므로 남은 실패는 오류 로그로 남겨
+   운영자가 처리한다(기존 운영 경로 — 로그 감시).
 GPU 로컬 자료: 상태 조회가 discard=True 를 돌려 GPU 워커가 지운다(app.flows.gpu_worker).
 """
 from __future__ import annotations
@@ -20,14 +22,14 @@ from sqlalchemy.orm import Session
 
 from app import execution
 from app.flows import common
-from app.storage import get_store
+from app.storage import DeleteIncomplete, get_store
 
 log = logging.getLogger(__name__)
 
 
 def job_prefixes(job_id: int) -> list[str]:
     return [f"source/{job_id}/", f"verified/{job_id}/", f"staging/{job_id}/", f"deliverable/job-{job_id}/", f"export/{job_id}/",
-            f"inpaint/job-{job_id}/"]
+            f"inpaint/job-{job_id}/", f"input/{job_id}/"]  # input/ = 규칙 검사 고정 요청(app.flows.text_check)
 
 
 def cancel_job(db: Session, job_id: int, seller_id: int) -> dict[str, Any] | None:
@@ -86,18 +88,26 @@ def cancel_job(db: Session, job_id: int, seller_id: int) -> dict[str, Any] | Non
     return {"jobId": job_id, "status": "archived"}
 
 
-def purge_storage(job_id: int, keys: list[str] | None = None) -> int:
+def purge_storage(job_id: int, keys: list[str] | None = None) -> dict[str, int]:
+    """{deleted, failed}. failed = 지우지 못한 접두사 · 키(일괄 삭제의 개별 실패 포함) — 성공으로 세지 않는다.
+    실패는 오류 로그로 남기고 복구 프로세스가 기간 안에 다시 지운다."""
     store = get_store()
-    n = 0
+    n, failed = 0, 0
     for p in job_prefixes(job_id):
         try:
             n += store.delete_prefix(p)
+        except DeleteIncomplete as e:
+            n += e.deleted
+            failed += e.failed
+            log.error("콘텐츠 삭제 미완료 job=%s prefix=%s — %s", job_id, p, e)
         except Exception:  # noqa: BLE001 — 복구 프로세스가 다시 지운다
-            log.exception("콘텐츠 삭제 실패 prefix=%s", p)
+            failed += 1
+            log.exception("콘텐츠 삭제 실패 job=%s prefix=%s", job_id, p)
     for k in keys or []:
         try:
             store.delete(k)
             n += 1
         except Exception:  # noqa: BLE001
-            log.exception("콘텐츠 삭제 실패 key=%s", k)
-    return n
+            failed += 1
+            log.exception("콘텐츠 삭제 실패 job=%s key=%s", job_id, k)
+    return {"deleted": n, "failed": failed}

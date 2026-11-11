@@ -74,7 +74,7 @@ PRD 관련 조항에서는 auto_local·auto_local_failed를 확인했다. 아래
 | `style` | 처리 대상 블록의 ⑦ 측정 대표값 `{font_color, bg_color, est_font_px, align}`, 측정 불가는 명시적 NULL. 라벨·로고 블록과 ⑦ 실패는 객체 NULL. 역할 기본값 적용값은 렌더 기록(인계 payload)에 남기고 style을 덮지 않는다. align_basis 별도 저장·전달·지문 보존 방향이며 저장 키·외부 매핑은 #78, 기존 NULL 근거는 추정하지 않음 | [계약 1.2, 2장] [통합 D9] [BE–AI §4.1] |
 | `trans_1` | 번역문 | [계약 2장, 5.1] |
 | `overflow` | 최신 렌더 기준 폭·높이 초과 여부 | [계약 6.2] |
-| `auto_adjust` | 기존 사용자 배치 JSON(`layout_bbox`). 최신 사용자/시스템 구분은 `contract.md` 6.1·6.5이며 layout_adjust 내부 필드·구 컬럼 이관은 #87. 원본·AI 기준값·시스템 값 보존 | [계약 6.1] [BE–AI §4.2] |
+| `layout_adjust` | 배치 조정 JSON. 계약 v3.5의 `auto_adjust`이며 migrations 0013에서 이름을 바꾸고 저장 모양을 나눴다(NULL = 조정 없음). `user`(셀러 조정 `layout_bbox` · `font_scale`) ↔ API `TextBlock.layoutAdjust`(`box` · `fontScale`) · content.csv 배치 5열, `system`(`font_scale` · `line_break_applied`) ↔ `autoAdjust`(`fontScale` · `lineBreakApplied`), `legacy`(출처 불명 이전 값 원본) · `legacy_released`는 응답 · content.csv에 없음. 저장 모양 · 이전 값 변환 · 되돌리기 한계는 마이그레이션 머리말, 적용 박스 · 배율 해석은 `contract.md` 6.1. 셀러 수정 · 해제는 원본 · AI 기준값 · 시스템 값을 지우지 않음. 3차 system 생성 · 합성은 #87 | [계약 6.1] [BE–AI §4.2] [migrations 0013] |
 | `compliance_flags` | 검사별 의미 입력이 현재와 같은 확인 필요 근거 JSON. revision은 출처·감사 정보이며 단독 유효성 조건이 아님(`contract.md` 5.3·7.2). producer별 소유 — `translation_validation`(규칙 규제) · `glossary_validation`(강제 용어) · `translation_llm_review`(LLM 규제 판정). LLM 판정 전체(no_risk 포함) · 검사 범위 · 공급 스냅샷은 이 컬럼이 아니라 채택 인계 payload · `audit_log.detail`에 둔다. producer 소유·입력 키·채택 보호는 BE–AI 채택, 외부 필드·저장 연결 상세는 `be-handoff.md` 8절 | [계약 7.1] [통합 D12] [BE–AI §2·3] |
 | `revision` | 번역문 또는 배치 영역 변경 시 증가 | [계약 6.3] |
 | `block_status` | `'edited'`가 `user_edited`에 대응 | [계약 0장, 7장] |

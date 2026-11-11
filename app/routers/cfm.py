@@ -15,7 +15,7 @@ from app import edit_idempotency as idem
 from app import layout_adjust as layout
 from app import render, s3
 from app.db import get_db
-from app.flows import preview_view
+from app.flows import preview_view, text_check
 from app.flows.common import VISIBLE, json_value
 from app.security import get_current_seller
 
@@ -30,7 +30,7 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
         raise HTTPException(status_code=404, detail="job not found")
 
 
-def _block_dict(r, signals: dict, fps: dict) -> dict:
+def _block_dict(r, signals: dict, fps: dict, checks: dict | None = None) -> dict:
     adj = layout.parse(r["layout_adjust"])
     return {
         "id": r["id"],
@@ -54,6 +54,8 @@ def _block_dict(r, signals: dict, fps: dict) -> dict:
         "revision": r["revision"],
         # /preview sections[].inputFingerprint 와 같은 계산 — 같은 섹션의 블록은 같은 값. 제외·입력 구성 실패·입력 준비 중은 null
         "sectionInputFingerprint": fps.get(r["section_id"]),
+        # 규칙 검사 상태(OpenAPI BlockCheck) — 활성 검사가 없거나 검사 대상 밖이면 null
+        "check": (checks or {}).get(r["id"]),
     }
 
 
@@ -83,7 +85,8 @@ def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block
     sids = sorted({r["section_id"] for r in rows})
     secs = [dict(x) for x in db.execute(text("SELECT id, bucket FROM section WHERE id = ANY(:s)"), {"s": sids}).mappings().all()]
     fps = preview_view.section_fingerprints(preview_view.PreviewContext(db, job_id), secs) if secs else {}
-    return [_block_dict(r, signals, fps) for r in rows]
+    checks = text_check.job_block_states(db, job_id)
+    return [_block_dict(r, signals, fps, checks) for r in rows]
 
 
 # ── CFM-01: 실제 DB ───────────────────────────────────────────────
@@ -238,7 +241,7 @@ def update_block(
 
     trans_changed = cur["trans_1"] != body.trans1
     layout_changed = new_state != state
-    rerender = None
+    rerender = check = None
     if trans_changed:
         # 번역문이 바뀐 저장만 edited·수정 기록. 규칙 검사를 연결할 때도 등록은 이 분기에서만 한다(배치만 바꾼 저장은 검사 입력이 같다)
         db.execute(
@@ -263,6 +266,8 @@ def update_block(
     if trans_changed or layout_changed:  # 둘 다 바뀌어도 revision 은 한 번, 재렌더 시도도 하나
         db.execute(text("UPDATE text_block SET revision = revision + 1 WHERE id = :b"), {"b": block_id})
         rerender = rerender_section(db, job_id, cur["section_id"])
+    if trans_changed:  # 번역문이 실제로 바뀐 저장만 검사 등록(등록 보장 ③). 배치만 · no-op · 멱등 재전송은 등록하지 않는다
+        check = text_check.ensure_for_job(db, job_id, cur["section_id"], origin="user")
     # 번역문과 배치가 모두 같으면(no-op) 쓰기·기록·재렌더 없음 — 재렌더 등록 가능 여부는 묻지 않는다. NULL 칸에 빈 문자열은 같은 값이 아니다
     block = _blocks(db, job_id, block_id=block_id)[0]  # 계약 BlockPatchResponse.block = 전체 TextBlock(FE 가 캐시를 이것으로 바꾼다)
     resp = {"block": block, "rerenderTaskId": rerender}
@@ -270,8 +275,7 @@ def update_block(
         idem.record(db, seller_id=seller_id, job_id=job_id, operation=_OP_BLOCK_PATCH, key=idempotency_key, sha=sha,
                     status_code=200, response=resp)
     db.commit()
-    if rerender:
-        execution.dispatch([rerender])
+    execution.dispatch([t for t in (rerender, check) if t])
     return resp
 
 
@@ -334,9 +338,25 @@ def preview(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends
     }
 
 
+_INT64_MAX = 2**63 - 1
+
+
 class Ack(BaseModel):
+    """확인 항목(계약 ConfirmRequest.acknowledgedWarnings[]). 정의되지 않은 키는 지금처럼 무시한다(화면 신호 전부를 보내도 된다).
+    taskId — translation_failed 확인 기준(선택). 타입·범위는 기존 task ID 스키마(`integer`, `format: int64`)를 따른다:
+    정수 값인 JSON 수만, int64 범위 밖은 422. 최솟값은 스키마에 없어 형식 오류로 만들지 않는다(0·음수는 현재 시도와 맞지 않아 outdated).
+    생략은 지금처럼 {blockId, code}로만 판정한다. 명시적 null 은 422 — 요청 스키마가 nullable 이 아니다(생략과 구분한다)."""
     blockId: int
     code: str
+    taskId: Optional[int] = None
+
+    @field_validator("taskId", mode="before")
+    @classmethod
+    def _task_id(cls, v):  # 키를 보냈을 때만 불린다(생략은 기본값 None 그대로)
+        v = idem.integer_value(v)  # null·불리언·문자열·0.5 → ValueError
+        if not -_INT64_MAX - 1 <= v <= _INT64_MAX:
+            raise ValueError("must be a 64-bit integer")
+        return v
 
 
 class ConfirmBody(BaseModel):

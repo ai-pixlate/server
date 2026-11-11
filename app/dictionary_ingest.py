@@ -72,6 +72,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DBAPIError
 
+from app.dictionary_bundle import split_alternatives
 from app.glossary_ingest import CellError, Issue, _blank, _date, _text, print_issues
 
 REG_SHEET = "규제사전"
@@ -160,6 +161,14 @@ def _split(v: Any, required: bool) -> Optional[list[str]]:
     if any(p.strip() == "" or ";" in p for p in parts):
         raise CellError("'; '(세미콜론+한 칸)로 나눈 값에 빈 값이나 다른 구분자가 있음")
     return parts
+
+
+def _alternatives(v: Any) -> Optional[str]:
+    """대체 표현 — DB에는 원문 문자열 그대로 두고, AI 인계 때 나눌 #71 구분 규칙(';' · 공백 제거)에 맞는지만 적재 때 검사한다."""
+    s = _text(v, False)
+    if split_alternatives(s) is None:
+        raise CellError("';'로 나눈 값에 빈 값이 있음")
+    return s
 
 
 def _version(v: Any) -> int:
@@ -304,7 +313,7 @@ def parse_regulatory(path: str, issues: list[Issue]) -> DictFile:
         r.take(rec, cell, "source_expression", "source_expression", lambda v: _text(v, True))
         r.take(rec, cell, "variant_expressions.ko", "variant_ko", lambda v: _split(v, True))
         r.take(rec, cell, "variant_expressions.en", "forbidden_en", lambda v: _split(v, True))
-        r.take(rec, cell, "alternative_expression", "alternative_expression", lambda v: _text(v, False))
+        r.take(rec, cell, "alternative_expression", "alternative_expression", _alternatives)
         r.take(rec, cell, "reason", "reason", lambda v: _text(v, True))
         r.take(rec, cell, "verified_at", "confirmed_date", _required_date)
         try:

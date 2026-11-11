@@ -307,8 +307,10 @@ class SpyTranslate(FakeTranslate):
     def __init__(self, fail_marker: str | None = "판독불가"):
         super().__init__(fail_marker)
         self.seen: list[tuple[set[str], list[dict[str, Any]]]] = []  # (이번 호출의 대상 블록 id 집합, 모델 입력 glossary)
+        self.instructions: list[list[dict[str, Any]]] = []  # 호출별 모델 입력 instructions
 
     def __call__(self, prompt, payload, image):
         p = json.loads(payload)
         self.seen.append(({b["id"] for b in p["blocks"] if "id" in b}, p["glossary"]))
+        self.instructions.append(p["instructions"])
         return super().__call__(prompt, payload, image)

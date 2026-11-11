@@ -152,10 +152,10 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 번역문 같은 값 저장(no-op) | FE 합의 | blockPatch 「같은 값 저장」·예시 `sameValue`·`sameValueWhileRendering` | 구현 완료·서버 배포 대기 | #104 |
 | 저장 공통(처리 순서·멱등 키·422/409/503·`Idempotent-Replayed`·CORS 노출) | FE 11-03·11-04 | blockPatch 「저장 공통」·`EditIdempotencyKey` | 구현 완료·서버 배포 대기 | #105(블록)·#107(섹션) |
 | 저장 공통의 배치 항목(업무 검증 400·배치 요청 422·409 `not_render_target`) | FE 11-03 | blockPatch 「저장 공통」 7단계·오류 분류 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
-| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing`·`not_render_target` / 계약 확정·서버 구현 대기: `check_not_settled`·`acknowledgement_mismatch`·`acknowledgement_outdated` | #105·#107 / 미정 |
+| 409 구분(`error.code` + `details.reason`) | FE 11-04 | `Error.details` | reason별 — 구현 완료·서버 배포 대기: `idempotency_key_reused`·`job_not_editable`·`n3_excluded_section`·`restore_basis_missing`·`not_render_target` / 구현 완료·서버 배포 대기(`feature/confirm-ack-task-id`): `acknowledgement_mismatch`·`acknowledgement_outdated` / 구현 완료·서버 배포 대기(기본 꺼짐): `check_not_settled` | #105·#107 / `feature/translate-check-connect` |
 | 섹션 제외·복원(revision·같은 상태 변경 없음·복원 의미·전체 Section 응답·근거 없는 복원 409) | FE 11-03·PM | sectionPatch·`Section.revision`·`SectionPatch`·예시 `n3ExcludedInN5` | 구현 완료·서버 배포 대기 | #107 |
 | N5 복원 때 미리보기 시도 확보 | FE 11-03·PM | sectionPatch | 구현 완료·서버 배포 대기(하류 실행 없는 섹션은 서버 미완료) | #108 |
-| N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 계약 확정·서버 구현 대기 | 미정 |
+| N5 복원 때 검사 시도 확보 | PM 11-04 | sectionPatch·confirmReview 「규칙 검사 연결」 ④ | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
 | N5 섹션 Undo/Redo | FE 11-03 | sectionPatch | 화면 | — |
 | 실행 취소·재실행 — 전용 API 없음, 현재 revision으로 다시 저장 | PRD F-CFM-03 | blockPatch·예시 `changed` | 현행 | — |
 | 블록 배치 저장(`layoutAdjust`·생략/null·2차 정규화·범위 400·`not_render_target`·원자성) | FE 11-03 · 정규화 FE 수용·AI 동의 11-04 | blockPatch 「블록 배치」·`BlockPatch.layoutAdjust`·`LayoutAdjustPatch`·`LayoutBox`·`LayoutAdjust`·`TextBlock.layoutAdjust`·요청 예시 7개·응답 `layoutOnly`·오류 예시 3개 | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
@@ -164,15 +164,16 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | content.csv 배치 5열 | PM(F-CFM-15 H109) | exportCreate | 구현 완료·서버 배포 대기 | `feature/block-layout-adjust` |
 | 기존 배치 박스(출처 불명) — 보존·그 박스로 렌더, 해제 = 원본 bbox(`layoutAdjust` null → null이어도 revision+1·재렌더), Undo = 이전 적용 박스를 셀러 조정으로 저장, 해제 재전송 3경우 | FE 11-09 | blockPatch 「블록 배치」 | 구현 완료·서버 배포 대기(FE 구현·dev 연동 검증 전) | `feature/block-layout-adjust` |
 | 글자 픽셀이 섹션 안에 없는 렌더도 넘침으로 채택(2차 기존 규칙 유지, 서버 내부 관측 기록만), 렌더러 예외는 기존 실패 경로 | PM 11-09 | `LayoutAdjustPatch.fontScale` | 구현 완료·서버 배포 대기(PM 전제인 N5 미리보기 갱신·넘침 표시의 FE 연동 확인 전) | `feature/block-layout-adjust` |
-| 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~⑤, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 계약 확정·서버 구현 대기 | 미정 |
-| 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 계약 확정·서버 구현 대기 | 미정 |
-| 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 계약 확정·서버 구현 대기 | 미정 |
-| 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 계약 확정·서버 구현 대기 | 미정 |
+| 규칙 검사 연결(활성 검사 = 규칙 검사, 등록 단위, 등록 보장 ①~④, 보조 복구, 박스·배율·제외·복원만으로는 재검사 안 함) | PM 11-04·AI 회신 | confirmReview 「규칙 검사 연결」 | 구현 완료·서버 배포 대기(기본 꺼짐). 등록 보장 ⑤(배포 때 기존 N5 일괄 등록)는 대상 정책 미정 | `feature/translate-check-connect` |
+| 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 구현 완료·서버 배포 대기(기본 꺼짐)(FE 연동 전) | `feature/translate-check-connect` |
+| 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 구현 완료·서버 배포 대기(기본 꺼짐). `registeredBlockIds` 문구·FE 처리 확인 대기 | `feature/translate-check-connect` |
+| 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
+| 셀러가 고칠 수 없는 검사 오류(용어 공급 실패·강제 용어 충돌·`input_invalid`·`bundle_invalid`·사전 묶음 변환 실패·검사 보고/요청 무결성)도 failed — 확정 통과(등록 불가 섹션도 N4에서 멈추지 않음), 다른 섹션 조회·편집 유지. 범위: 실행된 시도는 서버가 고정한 대상 블록, 섹션 공통 공급 실패는 섹션, 블록 하나의 충돌(강제 용어끼리 · 금지/허용 같은 구간)은 그 블록만 — 나머지 블록은 실제 검사(7.2 ⑨) | PM 11-10 | `BlockCheck.state`·confirmReview | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
 | 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
 | 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |
 | 필수 확인 = `translation_failed`, `mandatory_term_unapplied` 제외, 블록·코드 단위 한 번 확인 | PRD F-CFM-09·PM 재확인 11-04 | ConfirmRequest | 현행 | — |
-| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 계약 확정·서버 구현 대기 | 미정 |
-| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기 | 미정 |
+| `translation_failed` 확인 기준 `taskId`(선택 필드) | FE 11-04 | `ConfirmRequest.acknowledgedWarnings[].taskId`·`ReviewSignal.taskId`·예시 `acknowledgeTranslationFailed` | 구현 완료·서버 배포 대기(생략 = 기존 판정, 명시적 null = 422) | `feature/confirm-ack-task-id` |
+| 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기(대상·action 이름·revision 의미 미정) | 미정 |
 | 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
 | 표시 결과 없이 렌더 시도가 실패한 섹션의 N5 원본 표시(화면 표시 조건 — N4 렌더 실패 판별이 아니다. N4 판별·N6 출력은 P14·P15) | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
 | category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 계약 확정·서버 구현 대기 | 미정 |
@@ -204,7 +205,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 | ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
 | ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
-| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 2개다(예: brandCreate) | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
+| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 3개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
+| ⑨ | 확정된 검사 오류 정책(PM 11-10)의 남은 연결(검사 활성화 전 해결 — PM 추가 승인 대상 아님) | (a) 블록 범위: 블록 하나의 충돌(강제 용어끼리 · 금지/허용 같은 구간)은 그 블록만 failed 로 두고 실행 요청 대상에서 뺀다 — 같은 섹션의 나머지 블록은 실제로 검사(AI 11-11 회신: 규칙 검사에 한한 요청 대상 예외). 섹션 공통 공급 실패(후보 형식 · ID 불일치)만 섹션 단위. (b) 현재 inputKey 를 계산할 수 없으면 failed · `inputKey: null`(API 6-10 — 블록 저장 200, 확정 통과). 대상 언어가 없어 공급 기준을 정할 수 없으면 여전히 500. (c) 고정 요청 객체 저장 실패는 그 입력의 실패로 기록해 failed · 확정 통과(실행 없음 · `CHECK_REQUEST_STORE_FAILED`, API 6-10) | (a)(b)(c) 해결(로컬 구현 · 격리 검증 — 커밋 전) | `BlockCheck`·blockPatch·confirmReview | (a)(b)(c) 구현 완료·서버 배포 대기(기본 꺼짐) |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 
@@ -228,7 +230,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - 업로드 실패로 남은 draft의 재개·취소 정책.
 - 출처 불명 기존 배치 박스의 실제 존재 여부(DB 미조회)와 데이터 정리 방침 — 처리 의미는 7.1(FE 11-09 확정). 0012로 되돌리면 legacy 위에 배율만 저장한 행은 이전 서버 코드가 legacy 박스 대신 원본 bbox로 그리고, 다시 올려도 그 박스는 돌아오지 않는다(되돌리기 한계, `migrations/versions/0013_layout_adjust.py`).
 - 렌더러 예외로 그리지 못하는 배율로 확정한 작업 — 최종 렌더가 실패하고 산출물을 만들지 않는다. 재시도해도 같은 입력이고, 2차에서는 전체 취소 외에 고칠 경로가 없다. 미리보기 실패의 `retryable: true`도 같은 입력이면 결과가 같다.
-- 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`가 `auto_adjust`를 읽는다. 열 이름뿐 아니라 저장 모양도 바뀌어 이름 교체만으로 해결되지 않는다. AI 담당 확인이 필요하다.
+- 블록 배치 배포 전 의존 작업 — `docs/ai-experiments/tools/typeset_overflow_probe.py`·`style_section_align_review_page.py`의 `auto_adjust` 읽기: **도구·문서 대응 완료**(#121, develop `e5908b4`). 두 도구가 `layout_adjust`와 이전 보존본의 `auto_adjust`를 모두 읽는다(`typeset_overflow_probe.applied_layout`, 운영 렌더 입력과 같은 해석). DB 적용·서버 배포·FE 연동 완료를 뜻하지 않는다.
 
 FE 확인
 - F24 — N5 미리보기 갱신 실패 때 새 번역문의 로컬 렌더 표시.

@@ -32,8 +32,8 @@ def _sign(segment: str) -> str:
     return _b64url(sig)
 
 
-def create_token(seller_id: int, email: str) -> str:
-    """seller_id·email·만료시각을 담은 HS256 JWT 발급."""
+def create_token(seller_id: int, email: Optional[str]) -> str:
+    """seller_id·email·만료시각을 담은 HS256 JWT 발급. email 은 소셜 계정이면 None 일 수 있다(검증 쪽은 sub 만 쓴다)."""
     header = _b64url(json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode())
     payload = _b64url(json.dumps(
         {"sub": seller_id, "email": email, "exp": int(time.time()) + JWT_TTL},

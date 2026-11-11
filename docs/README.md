@@ -181,6 +181,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | N3 원래 순서(`sectionOrder` 정렬)·섹션 카드 버튼 | PRD F-SEC-02·F-SEC-03 | `Section.sectionOrder`·`SectionPatch` | 현행(정렬·버튼은 화면) | — |
 | OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥ | PM 11-04·AI 11-04·11-05 | `JobPatch.regulatoryClass` | 계약 확정·서버 구현 대기(OTC 필드는 새 규제사전 작업, 백필은 대상 조사·실행 승인 뒤) | 미정(#103 계열) |
 | 작업 생성 시점·책임 동의, `consentId` 미사용 | PRD F-ACC-04 | jobCreate·consentCreate | 현행(동의 체크는 화면) | — |
+| `Seller.email` null 허용(소셜 계정 대비 — 계정은 제공자 + 회원번호로 구분, 이메일은 식별에 쓰지 않음), 이메일 간이 로그인(개발용)은 local 계정만 찾고 만듦 | PRD F-ACC-05 · FE 회신 11-09(타입 수용) · PM 11-09(이메일 수집·용도) | `Seller.email`·authLogin·authMe | 구현 완료·서버 배포 대기(소셜 로그인 API는 협의 중 — 명세에 싣지 않음) | `feature/auth-account-identity` |
 | 브랜드 생성 시점 스냅샷 | PM 11-04 | jobCreate | 계약 확정·서버 구현 대기 | 미정 |
 | `/blocks`의 `overflow`는 유지하되 넘침 판정에 쓰지 않음 | FE | `TextBlock.overflow` | 현행 | — |
 | `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문·지문 A·B·C 비교 | FE 11-04·11-05 | reviewPreview 「렌더 입력과 시도·결과」·응답 예시 6개·`PreviewRender*`·`TextBlock.sectionInputFingerprint`·blockList | 구현 완료·서버 배포 대기(#108 머지 전제). 서버 미완료 2건: ① 하류 실행 없는 N5 섹션의 미리보기 확보 ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록(블록 저장 500) | #108 |

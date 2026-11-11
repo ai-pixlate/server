@@ -11,6 +11,7 @@
 | run_inpaint | gpu | ⑥ (원격 GPU 어댑터 — app.flows.gpu_worker) |
 | run_translate | cpu | ⑧ |
 | run_preview | cpu | ⑨ 초기 미리보기(섹션별) |
+| run_text_check | cpu | ⑧ 번역문 규칙 검사(섹션별, 모델 호출 없음) |
 | run_render | cpu | N6 최종 렌더 |
 | run_adopt | cpu | 원격 인계 검증·채택 |
 """
@@ -71,6 +72,13 @@ def run_preview(attempt_id: int) -> dict:
     from app.flows.downstream import execute_preview
 
     return execute_preview(attempt_id)
+
+
+@celery_app.task(name="app.tasks.run_text_check")
+def run_text_check(attempt_id: int) -> dict:
+    from app.flows.text_check import execute_text_check
+
+    return execute_text_check(attempt_id)
 
 
 @celery_app.task(name="app.tasks.run_render")

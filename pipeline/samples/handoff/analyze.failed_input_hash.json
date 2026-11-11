@@ -38,7 +38,7 @@
       "targets": []
     },
     "implementation": {
-      "adapter": "analyze-handoff@2026-10-08.1",
+      "adapter": "analyze-handoff@2026-11-10.1",
       "analyze_result_schema": "1",
       "models": {
         "section_vlm": "gemini-3.8-flash",

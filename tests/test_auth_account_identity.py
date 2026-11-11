@@ -1,4 +1,4 @@
-"""0015 판매자 계정 식별(제공자 + 제공자 회원번호)과 간이 로그인의 local 제한 — 실제 PostgreSQL.
+"""0016 판매자 계정 식별(제공자 + 제공자 회원번호)과 간이 로그인의 local 제한 — 실제 PostgreSQL.
 
 PRD v3.5.10 F-ACC-05: 계정은 제공자 + 제공자 회원번호로 구분하고, 같은 이메일이어도 제공자가 다르면 다른 계정이다.
 소셜 계정을 만드는 API 는 아직 없으므로 소셜 행은 SQL 로 직접 넣는다.
@@ -217,7 +217,7 @@ def test_social_seller_without_email_reads_null(client):
 
 
 # ---------------------------------------------------------------------------------------------------------
-# 0014(develop head) → 0015 업그레이드 · downgrade
+# 0015(develop head — 번역 검사 stage) → 0016 업그레이드 · downgrade
 # ---------------------------------------------------------------------------------------------------------
 def _cols(c) -> dict:
     rows = c.execute(text(
@@ -241,7 +241,7 @@ def _snapshot(c) -> list:
 
 def test_upgrade_keeps_existing_rows_and_downgrade_refuses_with_social_rows():
     cfg = alembic_config()
-    with fresh_database("0014") as url:
+    with fresh_database("0015") as url:
         eng = create_engine(url)
         try:
             with eng.begin() as c:  # 이 저장소에 있었던 생성 경로 세 가지 + 9월 수동 행 모양
@@ -256,7 +256,7 @@ def test_upgrade_keeps_existing_rows_and_downgrade_refuses_with_social_rows():
                 before = _snapshot(c)
                 assert _cols(c)["email"] == "NO"
 
-            command.upgrade(cfg, "0015")
+            command.upgrade(cfg, "0016")
             with eng.connect() as c:
                 assert _snapshot(c) == before  # 기존 값·연결은 그대로
                 rows = c.execute(text("SELECT auth_provider, provider_subject, display_name FROM seller")).all()
@@ -272,17 +272,17 @@ def test_upgrade_keeps_existing_rows_and_downgrade_refuses_with_social_rows():
                 c.execute(text("INSERT INTO seller (auth_provider, provider_subject) VALUES ('kakao', '9001')"))
             with eng.connect() as c:
                 cols_before, cons_before, n_before = _cols(c), _constraints(c), c.execute(text("SELECT count(*) FROM seller")).scalar()
-            with pytest.raises(Exception, match="0015 downgrade"):
-                command.downgrade(cfg, "0014")
+            with pytest.raises(Exception, match="0016 downgrade"):
+                command.downgrade(cfg, "0015")
             with eng.connect() as c:
                 assert _cols(c) == cols_before and _constraints(c) == cons_before
                 assert c.execute(text("SELECT count(*) FROM seller")).scalar() == n_before
-                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0015"
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0016"
 
             # 소셜 행이 없으면 내려가고, NOT NULL 이 돌아오며, 기존 값은 그대로 — 다시 올려도 같다
             with eng.begin() as c:
                 c.execute(text("DELETE FROM seller WHERE auth_provider <> 'local'"))
-            command.downgrade(cfg, "0014")
+            command.downgrade(cfg, "0015")
             with eng.connect() as c:
                 cols = _cols(c)
                 assert not {"auth_provider", "provider_subject", "display_name"} & set(cols)
@@ -290,8 +290,82 @@ def test_upgrade_keeps_existing_rows_and_downgrade_refuses_with_social_rows():
                             "uq_seller_provider_subject"} & _constraints(c)
                 assert cols["email"] == "NO" and cols["cognito_sub"] == "NO"
                 assert _snapshot(c) == before
-            command.upgrade(cfg, "0015")
+            command.upgrade(cfg, "0016")
             with eng.connect() as c:
                 assert _snapshot(c) == before
+        finally:
+            eng.dispose()
+
+
+# ---------------------------------------------------------------------------------------------------------
+# revision 연결(2026-11-11): develop 0015_text_check_stage 뒤 0016 — ID 중복 없음, head 하나, 번역 검사 구조와 겹치지 않음
+# ---------------------------------------------------------------------------------------------------------
+def _check_structure(c) -> tuple:
+    """0015_text_check_stage 가 바꾸는 것 — job_async_task 의 두 CHECK 와 guard 함수 정의."""
+    cons = dict(c.execute(text(
+        "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = 'job_async_task'::regclass "
+        "AND conname IN ('ck_jat_stage', 'ck_jat_k1_attempt')")).all())
+    fn = c.execute(text("SELECT prosrc FROM pg_proc WHERE proname = 'job_async_task_guard'")).scalar()
+    return cons.get("ck_jat_stage"), cons.get("ck_jat_k1_attempt"), fn
+
+
+def test_revision_ids_unique_and_single_head_0016():
+    import warnings
+
+    from alembic.script import ScriptDirectory
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # 「Revision … is present more than once」 경고가 나면 실패
+        sd = ScriptDirectory.from_config(alembic_config())
+        revs = list(sd.walk_revisions())
+    ids = [r.revision for r in revs]
+    assert len(ids) == len(set(ids))
+    assert sd.get_heads() == ["0016"]
+    assert sd.get_revision("0016").down_revision == "0015"
+    assert sd.get_revision("0016").module.__file__.endswith("0016_seller_auth_identity.py")
+    assert sd.get_revision("0015").module.__file__.endswith("0015_text_check_stage.py")
+
+
+def test_empty_database_upgrades_to_head_0016_with_both_changes():
+    with fresh_database() as url:  # 빈 DB → head
+        eng = create_engine(url)
+        try:
+            with eng.connect() as c:
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0016"
+                assert {"auth_provider", "provider_subject", "display_name"} <= set(_cols(c))
+                stage, k1, fn = _check_structure(c)
+                assert "text_check" in stage and "translation_review" in k1 and "text_check" in fn
+        finally:
+            eng.dispose()
+
+
+def test_roundtrip_0016_0015_0016_without_social_rows_keeps_data_and_text_check_structure():
+    """소셜 계정이 없는 별도 DB — 0016 → 0015 → 0016 왕복. 기존 판매자·브랜드·작업 연결과 0015 번역 검사 구조가 그대로다."""
+    cfg = alembic_config()
+    with fresh_database("0015") as url:
+        eng = create_engine(url)
+        try:
+            with eng.begin() as c:
+                for sub, email in (("local:r1@example.com", "r1@example.com"), ("mock-seller-2", "m2@example.com")):
+                    sid = c.execute(text("INSERT INTO seller (cognito_sub, email) VALUES (:s, :e) RETURNING id"),
+                                    {"s": sub, "e": email}).scalar()
+                    b = c.execute(text("INSERT INTO brand (seller_id, name_ko, name_en) VALUES (:s, '브랜드', 'brand') RETURNING id"),
+                                  {"s": sid}).scalar()
+                    c.execute(text("INSERT INTO job (seller_id, brand_id) VALUES (:s, :b)"), {"s": sid, "b": b})
+            with eng.connect() as c:
+                before, check_before = _snapshot(c), _check_structure(c)
+                assert "text_check" in check_before[0]
+            command.upgrade(cfg, "0016")
+            with eng.connect() as c:
+                assert _snapshot(c) == before and _check_structure(c) == check_before
+            command.downgrade(cfg, "0015")
+            with eng.connect() as c:
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0015"
+                assert not {"auth_provider", "provider_subject", "display_name"} & set(_cols(c))
+                assert _snapshot(c) == before and _check_structure(c) == check_before  # 0016 downgrade 는 번역 검사 구조를 건드리지 않는다
+            command.upgrade(cfg, "0016")
+            with eng.connect() as c:
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0016"
+                assert _snapshot(c) == before and _check_structure(c) == check_before
         finally:
             eng.dispose()

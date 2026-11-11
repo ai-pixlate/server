@@ -27,9 +27,9 @@ from sqlalchemy.orm import Session
 from app import ai_adapters, artifacts, execution, layout_adjust, typeset
 from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
-from app.flows import common
+from app.flows import common, text_check
 from app.flows.common import block_key, failed_envelope, json_value, report, section_key, set_job_state, submit
-from app.dictionary_bundle import entries_by_ref
+from app.dictionary_bundle import ai_alternatives, entries_by_ref
 from app.manifest import fingerprint, sha256_bytes, sha256_text, stable_hash
 from app.storage import ObjectMissing, get_store
 
@@ -168,6 +168,7 @@ def proceed(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
         "source_image_ids": sorted({s["source_image_id"] for s in secs}),
         "brand": {"id": brand["id"], "name_ko": brand["name_ko"], "name_en": brand["name_en"]},
         "target_lang": job["target_lang"] or "en",
+        "active_checks": text_check.configured_active_checks(),  # 이 실행에서 돌릴 검사(be-handoff 8.1) — 등록·집계·확정이 같은 값
     }
     run_id = execution.create_run(db, job_id, "downstream", scope)
     run = execution.lock_task(db, run_id)
@@ -516,7 +517,9 @@ def _translate_targets(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
 
 
-ALTERNATIVES_SPLIT = False  # #71 대체 표현 구분 규칙 확정 여부. False 면 원문 문자열 공급·⑧ 표현 지시 없음
+# ⑧ 표현 지시 공급 규칙(#71). 시도 명세 supply 에 이 값이 없는 시도(활성화 전에 만든 시도)는 지시 없이 공급을 다시 만들어
+# 대조·실행한다 — 기존 대기 시도가 INPUT_CHANGED 로 멈추지 않고, 재시도로 새로 만드는 시도부터 지시를 넣는다.
+INSTRUCTIONS_RULE = "translate-instructions@2026-11-03.1"
 _PLACEHOLDER = re.compile(r"\[[^\[\]\n]+\]")  # 템플릿 대체 표현(예: [value]) — 번역 지시로 쓰지 않는다(D9-2, PR #55 규칙과 같음)
 
 
@@ -546,7 +549,8 @@ def select_glossary(rows: list[dict[str, Any]], targets: list[dict[str, Any]], s
 
     try:
         chosen = gl.select([(block_key(r["id"]), r["source_ko"] or "") for r in targets],
-                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"]) for g in rows])
+                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"], g.get("term_kind"))
+                            for g in rows])  # term_kind = DB 값 그대로(NULL → None, 접두어로 추정하지 않음)
     except gl.GlossaryDataError as e:
         return {"status": "failed", "version": None, "reason": f"용어집 선별 실패: {e}", "terms": []}
     ids = {e.glossary_id for e in chosen}
@@ -566,7 +570,7 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
     cats = _glossary_categories(db, sid)
     selection = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats}
     rows = db.execute(
-        text("SELECT id, term_ko, term_target, enforcement, internal_category, version FROM glossary "
+        text("SELECT id, term_ko, term_target, enforcement, internal_category, version, term_kind FROM glossary "
              "WHERE target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL ORDER BY id"),
         {"l": lang, "c": cats},
     ).mappings().all()
@@ -575,26 +579,26 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
 
 def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
     """표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(regulated) 규제 판정의 매칭을 이번 대상 블록에 한해 넘긴다.
-    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다. 템플릿 대체 표현(RG-021/022 등)은 원문 수치 유지라 넘기지 않는다(D9-2).
-
-    #71 구분 규칙 확정 전에는 대체 표현을 나누지 않은 원문 문자열로 공급하고, AI는 그런 행을 표현 지시로 받지 않는다
-    (PR #55 3217142). 그래서 지금은 지시를 만들지 않는다 — 규칙이 정해져 to_ai_bundle()이 배열을 보내면 이 가드를 푼다."""
-    if not ALTERNATIVES_SPLIT:
-        return []
+    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다(#71 구분 규칙으로 나눈 배열). 템플릿 대체 표현(RG-021/022 등)은 원문 수치
+    유지라 넘기지 않는다(D9-2). 판정 단계에서 억제된 매칭(overlaps kind=suppressed — contained · allowed_wrap 등)은 판정의
+    매칭이 아니므로 지시하지 않는다(audit matches 에는 억제된 원시 매칭도 남아 있다)."""
     det = json_value(db.execute(
         text("SELECT detail FROM audit_log WHERE action_type = :a AND target_type = 'section' AND target_id = :s ORDER BY id DESC LIMIT 1"),
         {"a": common.ACT_ANALYSIS_ADOPTED, "s": sid},
     ).scalar()) or {}
     refs = entries_by_ref(bundle)
+    suppressed = {o["match_key"] for o in det.get("overlaps", []) if o.get("kind") == "suppressed" and o.get("match_key")}
     out: list[dict[str, Any]] = []
     for v in det.get("verdicts", []):
         e = refs.get(v["dictionary_ref"])
-        alt = (e or {}).get("alternative_expression")
-        if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated" or not alt or not alt.strip():
+        if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated":
             continue
-        if _PLACEHOLDER.search(alt):
-            continue
+        alts = ai_alternatives(e["alternative_expression"])
+        if not isinstance(alts, list) or not alts or any(_PLACEHOLDER.search(a) for a in alts):
+            continue  # 구분 규칙 위반(원문 문자열) · 대체 표현 없음 · 템플릿은 지시하지 않는다
         for m in det.get("matches", []):
+            if m.get("match_key") in suppressed:
+                continue
             if m["snapshot_key"] == v["dictionary_ref"] and m["finding_key"] == v["finding_key"] and m["block_id"] in target_ids:
                 item = {"block_key": block_key(m["block_id"]), "external_id": v["dictionary_ref"], "matched_text": m["matched_text"]}
                 if item not in out:
@@ -602,20 +606,30 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
     return out
 
 
-def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]]) -> dict[str, Any]:
+def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]], *,
+                      instructions: bool = True) -> dict[str, Any]:
+    """instructions=False: 표현 지시 활성화 전 공급 규칙(지시 없음) — 그 전에 만든 시도의 대조·실행에만 쓴다."""
     scope = _run_scope(db, run_id)
     hid, bundle = _analysis_bundle(db, scope["analysis_task_id"])
     glossary, selection = _glossary_supply(db, scope["target_lang"], sid, targets)
-    instructions = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle)
+    ins = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle) if instructions else []
     return {"bundle_handoff_id": hid, "bundle": bundle, "glossary": glossary, "glossary_selection": selection,
-            "instructions": instructions}
+            "instructions": ins, "instructions_rule": INSTRUCTIONS_RULE if instructions else None}
 
 
 def _supply_ref(supply: dict[str, Any]) -> dict[str, Any]:
     """시도 명세에 고정할 공급 지문. 실행 때 다시 만든 공급과 대조한다(5.32 입력 고정)."""
-    return {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
-            "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
-            "instructions": supply["instructions"]}
+    ref = {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
+           "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
+           "instructions": supply["instructions"]}
+    if supply["instructions_rule"] is not None:  # 활성화 전 시도의 명세에는 이 키가 없다
+        ref["instructions_rule"] = supply["instructions_rule"]
+    return ref
+
+
+def _instructions_enabled(fixed: dict[str, Any] | None) -> bool:
+    """이 시도에 표현 지시를 넣는가. 고정 공급에 instructions_rule 이 없으면 활성화 전에 만든 시도 — 지시 없이 대조·실행한다."""
+    return fixed is None or "instructions_rule" in fixed
 
 
 def _translate_manifest(sid: int, rows: list[dict[str, Any]], targets: list[dict[str, Any]], lang: str,
@@ -644,7 +658,8 @@ def execute_translate(attempt_id: int) -> dict[str, Any]:
                    for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
         db = app_db.SessionLocal()
         try:
-            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids])
+            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids],
+                                       instructions=_instructions_enabled(m.get("supply")))
         finally:
             db.close()
         if m.get("supply") is not None and _supply_ref(supply) != m["supply"]:
@@ -738,11 +753,13 @@ class TranslateHandler:
                             verify_result=verify, retryable=code == TRANSLATE_ALL_FAILED)
 
     def after_done(self, db, att):
-        return progress(db, att["parent_task_id"], att["unit_id"])
+        # 실제 저장된 문구로 활성 검사 등록(등록 보장 ①②) — 같은 채택 트랜잭션
+        return text_check.after_translate(db, att["parent_task_id"], att["unit_id"]) + progress(db, att["parent_task_id"], att["unit_id"])
 
     def after_failure(self, db, att, code, retryable):
         if code == TRANSLATE_PARTIAL:
-            return progress(db, att["parent_task_id"], att["unit_id"])  # 성공분 보존·실패 칸 비움으로 N5 진행(D9-3)
+            ids = text_check.after_translate(db, att["parent_task_id"], att["unit_id"])  # 저장된 성공분만 검사 대상
+            return ids + progress(db, att["parent_task_id"], att["unit_id"])  # 성공분 보존·실패 칸 비움으로 N5 진행(D9-3)
         return _after_failure(db, att, code, retryable)
 
 
@@ -1042,6 +1059,8 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if not (_final(inp) and _final(sty) and _final(tr)):
             all_ready = False
             continue
+        if text_check.waiting(db, run, sid, by.get(("text_check", sid))):  # 활성 검사가 끝나야 N5(be-handoff 8.2)
+            all_ready = False
         if pv is None:
             m = _render_inputs(db, run_id, sid)
             ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),

@@ -229,20 +229,21 @@ def update_section(
                  "WHERE id = :id"),
             {"b": target[0], "r": target[1], "st": target[2], "id": section_id},
         )
-    render_task = None
+    render_task = check_task = None
     if target is not None and target[0] == "include" and job["current_step"] == "N5":
         # N5 복원: 현재 입력의 유효한 미리보기 시도를 재사용하고 없을 때만 확보한다(같은 입력의 최종 실패·재시도 횟수 보존).
-        # 검사 시도 확보는 규칙 검사 연결 작업에서 같은 기준으로 붙인다
+        # 검사 시도도 같은 기준 — 현재 입력의 유효한 시도가 있으면 그대로, 없을 때만 등록(등록 보장 ④)
         from app.flows.downstream import ensure_preview_for_restore
+        from app.flows.text_check import ensure_for_job
 
         render_task = ensure_preview_for_restore(db, job_id, section_id)
+        check_task = ensure_for_job(db, job_id, section_id, origin="restore")
     resp = _section(db, job_id, section_id)
     if idempotency_key is not None:
         idem.record(db, seller_id=seller_id, job_id=job_id, operation=_OP_SECTION_PATCH, key=idempotency_key, sha=sha,
                     status_code=200, response=resp)
     db.commit()
-    if render_task:
-        execution.dispatch([render_task])
+    execution.dispatch([t for t in (render_task, check_task) if t])
     return resp
 
 

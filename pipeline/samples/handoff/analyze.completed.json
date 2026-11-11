@@ -26,7 +26,7 @@
     "input_manifest": {
       "stage": "analyze",
       "contract_version": "handoff@2026-10-08.1",
-      "adapter": "analyze-handoff@2026-10-08.1",
+      "adapter": "analyze-handoff@2026-11-10.1",
       "sources": [
         {
           "source_image_id": 1,
@@ -110,7 +110,7 @@
         "merge": null
       }
     },
-    "input_manifest_sha256": "9921e790e52cd2bdaf8c00295852bd8f6c560deccafa0bd4bfea621045e0169e",
+    "input_manifest_sha256": "e7b7888c29c9e7093405a9a4c970760857719b52fdbd9b5dffef8d5296add8c6",
     "outcome": "completed",
     "target_count": 1,
     "skip_reason": null,
@@ -404,7 +404,7 @@
     "source_refs": [],
     "failure": null,
     "implementation": {
-      "adapter": "analyze-handoff@2026-10-08.1",
+      "adapter": "analyze-handoff@2026-11-10.1",
       "analyze_result_schema": "1",
       "models": {
         "section_vlm": "gemini-3.8-flash",

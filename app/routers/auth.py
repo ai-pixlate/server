@@ -6,7 +6,7 @@
 세션(S안, app.auth_sessions — 2026-11-10 2차 시연용 구현 방향 결정. 정본 「refresh 서버 상태 없음」을 바꾼다):
 - 로그인 성공 = 새 세션 + access(본문) + refresh(Set-Cookie). 요청에 실려 온 검증된 refresh 쿠키의 세션은 새 세션 생성과 같은
   스크립트에서 폐기한다 — 이전 계정 탭의 access 로 요청이 실행되지 않게 하는 BE 구현 선택(PM 11-10 「한 브라우저 한 계정」을 돕는다).
-  완전한 보장은 아니다: 같은 이전 쿠키로 로그인 두 건이 겹치면 새 세션이 둘 남는다(개발용 한계 — C 는 브라우저 결속 기준으로 해결).
+  완전한 보장은 아니다: 같은 이전 쿠키로 로그인 두 건이 겹치면 새 세션이 둘 남는다(개발용 한계 — 소셜 로그인(C)의 결속 기준 교체는 간이 로그인에 적용되지 않아 그대로 남는다. 간이 로그인을 환경별로 끄는 전환으로 해소).
 - refresh·logout 은 Origin 허용 목록(PIXLATE_AUTH_ORIGINS) 정확 일치를 먼저 본다. 누락·null·목록 밖·설정 없음 → 401 origin_not_allowed.
 - refresh = 쿠키의 refresh 로만(바디·Bearer 아님, CSRF 헤더 X-Requested-With 필수). 성공만 활동 시각을 갱신한다.
   거절 응답은 Set-Cookie 를 보내지 않는다(늦게 도착한 거절이 새 쿠키를 지우지 않게).
@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import auth_sessions
+from app import auth_sessions, social_auth
 from app.db import get_db
 from app.errors import error_body
 from app.security import active_session, get_current_seller, issue_access, session_unavailable, verify_signature
@@ -203,7 +203,9 @@ def logout(request: Request, response: Response, x_requested_with: str = Header(
     - Bearer·쿠키를 각각 absent / invalid / ended / live 로 분류한다(쿠키는 서명이 맞으면 세대와 관계없이 그 세션을 식별).
     - Bearer 가 invalid(형식·서명 오류) → 401 invalid_token, 아무것도 바꾸지 않음(쿠키가 유효해도 — FE 는 Authorization 없이 재요청).
     - 쿠키가 invalid 이고 Authorization 이 없음(쿠키만) → 401 refresh_invalid + refresh 쿠키 삭제(FE 11-10 최종 합의).
-      그 쿠키가 어느 세션인지 믿을 수 없으므로 어떤 세션도 폐기하지 않는다 — FE 는 「로그아웃 대기」를 풀고 G1 로 가지만 정상 로그아웃과 구분한다.
+      그 쿠키가 어느 세션인지 믿을 수 없으므로 그 값으로는 어떤 세션도 식별·폐기하지 않는다 — FE 는 「로그아웃 대기」를 풀고 G1 로 가지만 정상 로그아웃과 구분한다.
+      단 함께 온 결속 쿠키가 서버 기록이 있는 결속이면 그 결속의 진행 중 로그인 시도와 그 결속이 발급한 현재 세션은 끝낸다(11-11 결함 수정 —
+      로그아웃 뒤 진행 중 로그인이 세션을 남기지 않게). 그 처리 중 저장소 장애는 503(쿠키 변경 없음).
     - 쿠키가 invalid 이고 Bearer 는 서명이 맞지만 끝낼 세션이 없음(ended) → 401 invalid_token, 아무것도 바꾸지 않음(FE 는 Authorization 없이 재요청).
     - 그 밖: live 세션을 모두 폐기(다른 계정이면 둘 다 — PM 11-10). 끝낼 세션이 없어도(이미 종료·자격 없음) 정상 재로그아웃으로 보고 204.
     - Origin·CSRF 실패(401 origin_not_allowed·422)와 저장소 장애(503)는 204 로 바꾸지 않는다. 계정의 다른 브라우저·기기 세션은 건드리지 않는다."""
@@ -216,7 +218,16 @@ def logout(request: Request, response: Response, x_requested_with: str = Header(
     except auth_sessions.Unavailable:
         raise session_unavailable()
     if cookie.kind == "invalid" and bearer.kind == "absent":
-        log.info("auth.logout bearer=absent cookie=invalid revoked=0 cookie_cleared=1")
+        # 검증 불가 refresh 값으로는 어떤 세션도 식별·폐기하지 않는다. 함께 온 결속 쿠키가 **서버 기록이 있는 결속**이면 그 결속으로
+        # 진행 중 로그인 시도를 무효로 하고 그 결속이 발급한 현재 세션을 끝낸다(204 경로와 같은 결속 처리 — 로그아웃 뒤 진행 중 로그인이
+        # 세션을 남기지 않게, 완료·로그아웃 순서와 관계없이). 형식만 맞거나 기록이 없는 결속은 아무것도 바꾸지 않는다.
+        # 저장소 장애는 503 — 결속 처리를 건너뛴 채 401(대기 해제)로 답하지 않는다.
+        try:
+            bind_revoked = social_auth.logout_binding(request.cookies.get(social_auth.BIND_COOKIE), *social_auth.binding_ttls(),
+                                                      require_record=True)
+        except auth_sessions.Unavailable:
+            raise session_unavailable()
+        log.info("auth.logout bearer=absent cookie=invalid revoked=0 binding_session_revoked=%d cookie_cleared=1", bind_revoked)
         out = JSONResponse(status_code=401, content=error_body(request, "UNAUTHORIZED", "refresh cookie is unverifiable",
                                                                 {"reason": "refresh_invalid"}))
         _clear_refresh_cookie(out)  # 오류 응답 중 이 경우만 쿠키를 지운다 — 같은 쿠키로 대기가 끝나지 않는 것을 막는다
@@ -224,10 +235,17 @@ def logout(request: Request, response: Response, x_requested_with: str = Header(
     if cookie.kind == "invalid" and bearer.kind != "live":
         raise _logout_rejected("refresh cookie is unverifiable")
     live = [c.session for c in (bearer, cookie) if c.kind == "live"]
+    bind = request.cookies.get(social_auth.BIND_COOKIE)
     try:
+        # 소셜 로그인 결속(C): 로그아웃 시각 기록 · 진행 중 시도 무효 · 그 결속으로 만든 현재 세션 폐기 — 늦게 끝나는 로그인 완료가 세션을 만들지 않게
+        bind_revoked = social_auth.logout_binding(bind, *social_auth.binding_ttls())
         auth_sessions.revoke(*[x.sid for x in live])
     except auth_sessions.Unavailable:
         raise session_unavailable()
+    if bind_revoked:
+        log.info("auth.logout_binding_session_revoked")
+    if social_auth.valid_binding(bind):
+        response.delete_cookie(social_auth.BIND_COOKIE, path=_cookie_path(), secure=_cookie_secure(), httponly=True, samesite="strict")
     if len({x.sid for x in live}) == 2:
         log.warning("auth.logout_session_mismatch same_seller=%s", live[0].seller_id == live[1].seller_id)
     log.info("auth.logout bearer=%s cookie=%s revoked=%d", bearer.kind, cookie.kind, len({x.sid for x in live}))

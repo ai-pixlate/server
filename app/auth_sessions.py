@@ -212,7 +212,7 @@ def create(seller_id: int, replacing: Optional[str] = None) -> tuple[Session, st
     replacing = 이 브라우저가 들고 온 refresh 쿠키 값. 서명이 맞고 그 세션의 현재·직전 세대면 **같은 스크립트 안에서** 폐기한다
     (새 세션 생성과 이전 세션 폐기가 함께 일어나거나 함께 일어나지 않는다). 돌려주는 셋째 값 = 폐기한 이전 세션의 판매자(없으면 None).
     한계: 같은 이전 쿠키로 로그인 두 건이 겹치면 이전 세션은 한 번 폐기되지만 새 세션은 둘 다 남는다(브라우저에 남는 쿠키는 하나).
-    이 함수는 「한 브라우저 한 계정」을 보장하지 않는다 — 소셜 로그인(C)은 브라우저 결속 기준 원자 교체가 활성화 조건이다."""
+    이 함수는 「한 브라우저 한 계정」을 보장하지 않는다(간이 로그인 경로). 소셜 로그인(C)은 이 함수가 아니라 app.social_auth.issue 의 결속 기준 원자 교체를 쓴다."""
     t = now()
     sid = secrets.token_urlsafe(16)  # 22자
     abs_exp, idle_exp = t + ABSOLUTE_TTL_S, t + IDLE_TTL_S

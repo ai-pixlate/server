@@ -15,6 +15,7 @@ import logging
 import os
 import datetime
 import random
+import secrets
 import threading
 import time
 import uuid
@@ -1195,3 +1196,165 @@ def test_lost_success_then_new_start_in_same_browser_leaves_only_the_new_session
     assert len(_sessions(rds) - before) == 1
     r = _post(client, "/v1/auth/refresh", {"pxl_refresh": b.refresh})
     assert r.status_code == 200
+
+
+# ═════════════════════════════ 검증 불가 refresh 쿠키 로그아웃과 진행 중 로그인(11-11 결함 수정) ═════════════════════════════
+# 401 refresh_invalid(쿠키만·검증 불가) 응답은 그대로다. 검증 불가 refresh 값으로는 어떤 세션도 식별·폐기하지 않는다.
+# 함께 온 결속 쿠키가 서버 기록이 있는 결속이면 그 결속의 진행 중 시도를 무효로 하고, 그 결속이 발급한 현재 세션을 끝낸다.
+
+GARBAGE_REFRESH = "not-a-refresh-token"
+
+
+def _tampered(refresh: str) -> str:
+    return refresh[:-1] + ("A" if refresh[-1] != "A" else "B")  # 서명 부분 한 글자 — 형식은 맞고 검증은 실패
+
+
+def _bind_key(binding: str) -> str:
+    return "pixlate:oauth:bind:" + hashlib.sha256(binding.encode()).hexdigest()
+
+
+def _cookie_only_logout(client, bind, refresh=GARBAGE_REFRESH):
+    return _post(client, "/v1/auth/logout", {"pxl_oauth_bind": bind, "pxl_refresh": refresh})  # Authorization 없음
+
+
+def _assert_refresh_invalid_response(r):
+    """기존 FE 계약 그대로: 401 refresh_invalid + refresh 쿠키 삭제, 결속 쿠키 Set-Cookie 없음."""
+    assert r.status_code == 401 and _reason(r) == "refresh_invalid", r.text
+    ck = _cookies(r)
+    assert _attrs(ck["pxl_refresh"]).get("max-age") == "0" and "pxl_oauth_bind" not in ck
+
+
+def _alive(client, access, refresh) -> tuple[int, int]:
+    return _me(client, access).status_code, _post(client, "/v1/auth/refresh", {"pxl_refresh": refresh}).status_code
+
+
+@pytest.mark.parametrize("refresh_kind", ["tampered_live", "garbage"])
+def test_unverifiable_refresh_logout_during_processing_blocks_the_late_completion(client, prov, rds, refresh_kind):
+    """① 완료 요청이 시도를 점유하고 제공자 호출 중 ② 같은 브라우저가 검증 불가 refresh 쿠키 + 결속 쿠키로 로그아웃
+    ③ FE 는 401 refresh_invalid + refresh 쿠키 삭제를 받는다 ④ 그 뒤 제공자 응답 도착 → 완료는 state_invalid, 세션·성공 쿠키 없음.
+    tampered_live: 변조한 값의 원래 세션(이전 로그인)은 검증 불가 값으로 식별하지 않으므로 그대로 남는다."""
+    b = Browser(client, prov)
+    earlier = None
+    if refresh_kind == "tampered_live":
+        earlier = b.login("kakao", _kakao(_uid()))
+        bad = _tampered(b.refresh)
+        earlier_refresh = b.refresh
+    else:
+        bad = GARBAGE_REFRESH
+    url = b.start().json()["authorizeUrl"]
+    code, state = prov.issue_code("kakao", url, _kakao(_uid()))
+    jar = {"pxl_oauth_bind": b.bind, "pxl_refresh": bad}
+    seen = {}
+
+    def logout_now():  # ② 제공자 호출(access_token_info) 도중 — 완료 요청은 이미 시도를 점유했다
+        seen["logout"] = _post(client, "/v1/auth/logout", jar)
+    prov.hook["kakao_token_info"] = lambda: logout_now()
+    before = _sessions(rds)
+    r = _post(client, "/v1/auth/social", jar, json={"provider": "kakao", "code": code, "state": state})  # ④
+    del prov.hook["kakao_token_info"]
+    _assert_refresh_invalid_response(seen["logout"])  # ③
+    assert r.status_code == 401 and _reason(r) == "state_invalid" and _no_cookies(r), r.text
+    assert not (_sessions(rds) - before)
+    if earlier is not None:  # 검증 불가 값으로 식별·폐기하지 않는다 — 원래 세션은 결속과 무관하므로 남는다
+        assert _alive(client, earlier.json()["accessToken"], earlier_refresh) == (200, 200)
+
+
+def test_unverifiable_refresh_logout_after_issue_ends_the_binding_session(client, prov, rds, caplog, live_logs):
+    """반대 순서 — 완료가 먼저 세션을 만들고(성공 응답은 아직 브라우저에 반영되지 않음) 그다음 검증 불가 refresh 쿠키 + 결속 쿠키로 로그아웃.
+    → 401 refresh_invalid 그대로, 그 결속이 발급한 세션은 끝난다: 늦게 닿는 성공 응답의 access·refresh 는 쓸 수 없다."""
+    b = Browser(client, prov)
+    url = b.start().json()["authorizeUrl"]
+    code, state = prov.issue_code("kakao", url, _kakao(_uid()))
+    in_flight = b.complete("kakao", code, state, absorb=False)
+    assert in_flight.status_code == 200
+    with caplog.at_level(logging.INFO):
+        lo = _cookie_only_logout(client, b.bind)
+    _assert_refresh_invalid_response(lo)
+    assert _alive(client, in_flight.json()["accessToken"], _value(_cookies(in_flight)["pxl_refresh"])) == (401, 401)
+    text = " ".join(m.getMessage() for m in caplog.records)
+    assert "cookie=invalid" in text and "binding_session_revoked=1" in text
+
+
+def test_unverifiable_refresh_logout_before_completion_request_blocks_it(client, prov, rds):
+    """start 뒤(제공자 화면에 있는 동안) 로그아웃 → 그 뒤 도착한 완료 요청은 점유하지 못한다(state_invalid, 세션 없음)."""
+    b = Browser(client, prov)
+    url = b.start().json()["authorizeUrl"]
+    code, state = prov.issue_code("kakao", url, _kakao(_uid()))
+    _assert_refresh_invalid_response(_cookie_only_logout(client, b.bind))
+    before = _sessions(rds)
+    r = b.complete("kakao", code, state)
+    assert r.status_code == 401 and _reason(r) == "state_invalid" and _no_cookies(r)
+    assert _sessions(rds) == before
+
+
+@pytest.mark.parametrize("bind_kind", ["absent", "malformed", "unknown"])
+def test_unverifiable_refresh_logout_without_server_binding_changes_nothing(client, prov, rds, bind_kind):
+    """결속 없음 · 형식 오류 · 형식은 맞지만 서버 기록 없음 → 응답은 그대로(401 refresh_invalid + refresh 쿠키 삭제),
+    저장소에 아무것도 쓰지 않고 어떤 세션도 건드리지 않는다(다른 브라우저의 결속·세션 포함)."""
+    other = Browser(client, prov)
+    url = other.start().json()["authorizeUrl"]
+    code, state = prov.issue_code("kakao", url, _kakao(_uid()))
+    lost = other.complete("kakao", code, state, absorb=False)  # 다른 브라우저 — 결속 기록·현재 세션이 있다
+    bind = {"absent": None, "malformed": "short!", "unknown": secrets.token_urlsafe(32)}[bind_kind]
+    keys_before = {k.decode() for k in rds.scan_iter("pixlate:*")}
+    _assert_refresh_invalid_response(_cookie_only_logout(client, bind))
+    assert {k.decode() for k in rds.scan_iter("pixlate:*")} == keys_before
+    if bind_kind == "unknown":
+        assert not rds.exists(_bind_key(bind))
+    assert _alive(client, lost.json()["accessToken"], _value(_cookies(lost)["pxl_refresh"])) == (200, 200)
+
+
+def test_unverifiable_refresh_logout_does_not_touch_other_browsers_or_accounts(client, prov, rds):
+    """같은 계정의 다른 브라우저, 다른 계정의 세션은 그대로 — 끝나는 것은 이 브라우저 결속이 발급한 세션 하나뿐."""
+    uid = _uid()
+    me = Browser(client, prov)
+    url = me.start().json()["authorizeUrl"]
+    code, state = prov.issue_code("kakao", url, _kakao(uid))
+    mine = me.complete("kakao", code, state, absorb=False)
+    same_account = Browser(client, prov)
+    sa = same_account.login("kakao", _kakao(uid))
+    other_account = Browser(client, prov)
+    oa = other_account.login("google", _google(f"g-{uuid.uuid4().hex[:12]}"))
+    _assert_refresh_invalid_response(_cookie_only_logout(client, me.bind))
+    assert _alive(client, mine.json()["accessToken"], _value(_cookies(mine)["pxl_refresh"])) == (401, 401)
+    assert _alive(client, sa.json()["accessToken"], same_account.refresh) == (200, 200)
+    assert _alive(client, oa.json()["accessToken"], other_account.refresh) == (200, 200)
+
+
+@pytest.mark.parametrize("bind_present", [True, False])
+def test_unverifiable_refresh_logout_store_outage(client, prov, rds, bind_present):
+    """결속 처리 중 저장소 장애 → 503(사유 없음), 쿠키 변경 없음 — 로그아웃을 마친 것처럼 답하지 않는다(FE 는 대기 유지·재전송).
+    결속이 없으면 저장소를 부르지 않으므로 응답은 기존 그대로 401 refresh_invalid. 재전송(복구 뒤)은 결속 세션을 끝낸다."""
+    from app import auth_sessions, social_auth
+
+    b = Browser(client, prov)
+    url = b.start().json()["authorizeUrl"]
+    code, state = prov.issue_code("kakao", url, _kakao(_uid()))
+    lost = b.complete("kakao", code, state, absorb=False)
+    real_eval, real_client = social_auth._eval, auth_sessions.client
+
+    class Down:
+        def __getattr__(self, name):
+            def fail(*a, **k):
+                import redis
+
+                raise redis.ConnectionError("down")
+            return fail
+
+    def failing(script, keys, *args):
+        raise auth_sessions.Unavailable("down")
+    social_auth._eval = failing
+    social_auth.auth_sessions.client = lambda: Down()
+    try:
+        r = _cookie_only_logout(client, b.bind if bind_present else None)
+    finally:
+        social_auth._eval, social_auth.auth_sessions.client = real_eval, real_client
+    if bind_present:
+        assert r.status_code == 503 and _err(r)["details"] is None and _no_cookies(r), r.text
+        assert _alive(client, lost.json()["accessToken"], _value(_cookies(lost)["pxl_refresh"])) == (200, 200)  # 아무것도 끝나지 않음
+        _assert_refresh_invalid_response(_cookie_only_logout(client, b.bind))  # 복구 뒤 재전송
+        lost2 = _value(_cookies(lost)["pxl_refresh"])
+        assert _me(client, lost.json()["accessToken"]).status_code == 401
+        assert _post(client, "/v1/auth/refresh", {"pxl_refresh": lost2}).status_code == 401
+    else:
+        _assert_refresh_invalid_response(r)

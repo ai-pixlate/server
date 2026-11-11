@@ -256,7 +256,8 @@ return {'ok'}
 """
 
 _LOGOUT = _NOW + """
--- KEYS: 결속, 결속의 현재 세션 · ARGV: now, 기대한 현재 sid, 결속 보관ms
+-- KEYS: 결속, 결속의 현재 세션 · ARGV: now, 기대한 현재 sid, 결속 보관ms, 기록 있는 결속만('1' = 서버 기록이 없으면 아무것도 쓰지 않음)
+if ARGV[4] == '1' and redis.call('EXISTS', KEYS[1]) == 0 then return {'ok', '', 'absent'} end
 local cur = redis.call('HGET', KEYS[1], 'cur_sid') or ''
 if cur ~= ARGV[2] then return {'retry'} end
 redis.call('DEL', KEYS[2])
@@ -382,8 +383,11 @@ def issue(c: Claim, seller_id: int, refresh_cookie: Optional[str]):
     return "stale", None, None
 
 
-def logout_binding(binding_cookie: Optional[str], attempt_ttl_s: int = 600, claim_ttl_s: int = 60) -> int:
-    """로그아웃 때 결속 처리 — 로그아웃 시각 기록, 진행 중 시도 무효, 결속의 현재 세션 폐기. 돌려주는 값 = 폐기한 세션 수(0·1)."""
+def logout_binding(binding_cookie: Optional[str], attempt_ttl_s: int = 600, claim_ttl_s: int = 60, require_record: bool = False) -> int:
+    """로그아웃 때 결속 처리 — 로그아웃 시각 기록, 진행 중 시도 무효, 결속의 현재 세션 폐기. 돌려주는 값 = 폐기한 세션 수(0·1).
+    require_record=True: 서버에 그 결속의 기록이 있을 때만 처리한다(검증 불가 refresh 쿠키 로그아웃 — 형식만 맞는 값으로는 아무것도
+    쓰거나 지우지 않는다). 폐기 대상은 이 결속 기록의 cur_sid(이 결속으로 발급한 세션)뿐이다 — 요청의 다른 값으로 세션을 고르지 않는다.
+    저장소 장애 = auth_sessions.Unavailable(호출하는 쪽이 503)."""
     binding = valid_binding(binding_cookie)
     if binding is None:
         return 0
@@ -394,7 +398,7 @@ def logout_binding(binding_cookie: Optional[str], attempt_ttl_s: int = 600, clai
             cur = _s(auth_sessions.client().hget(bkey, "cur_sid"))
         except redis.RedisError as e:
             raise auth_sessions.Unavailable(str(e)) from e
-        res = _eval(_LOGOUT, [bkey, auth_sessions.key(cur) if cur else _NONE_KEY], _now_arg(), cur, keep)
+        res = _eval(_LOGOUT, [bkey, auth_sessions.key(cur) if cur else _NONE_KEY], _now_arg(), cur, keep, "1" if require_record else "0")
         if _s(res[0]) == "ok":
             return 1 if _s(res[1]) else 0
     raise auth_sessions.Unavailable("binding logout retry exhausted")

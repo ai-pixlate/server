@@ -30,3 +30,19 @@
 
 ## 한계
 제공자 동작은 문서와 시험 대역 기준의 흉내다. 실제 제공자 동작(PKCE 강제 여부, 코드 유효 시간, 오류 코드 실물, 실제 Google 토큰)의 근거가 아니다.
+
+## 실제 제공자 로컬 시험 — `real`
+`python -m tools.local_oauth.real --real-providers-local [--port 8000]` — 가짜 제공자 없이 BE를 127.0.0.1에 띄운다(실제 콘솔 클라이언트 값은 셸 환경 변수로만).
+
+막는 범위는 두 가지뿐이다. **프로세스의 모든 외부 통신을 막지는 않는다.**
+- OAuth 제공자 HTTP 전송: https이고 허용 호스트 4개(`kauth.kakao.com`·`kapi.kakao.com`·`oauth2.googleapis.com`·`www.googleapis.com`)일 때만 보내고, 나머지는 보내지 않고 실패
+- S3: 클라이언트 차단(`app.s3._s3` 대역), 자격·엔드포인트 격리(AWS 자격 환경 변수 삭제, 자격·설정 파일 비움, 메타데이터 조회 끔, `AWS_ENDPOINT_URL_S3=http://127.0.0.1:9`)
+- DB·Redis는 시작 조건(루프백)으로만 제한한다.
+
+시작 조건: 실행 인자, 실제 클라이언트 ID(`local-fake-`면 거절), AWS 자격 환경 변수 없음, 루프백 DB(`pixlate_local_…`)·Redis, `http://localhost` 오리진.
+
+### 값이 남지 않게 실행하기
+- BE: 접근 로그를 끈다(진입점 기본). app 로그에는 코드·토큰·state가 없다.
+- **FE `next dev` 출력에는 콜백 주소(`code`·`state`)가 찍힌다.** 실제 제공자 시험에서는 출력을 저장하지 않는다: `next dev … > NUL 2>&1`(Git Bash는 `> /dev/null 2>&1`). Next 자체 로그 파일(`.next/dev/logs/next-development.log`)에는 요청 주소가 남지 않는 것을 11-11에 확인했지만, 시험 뒤 그 폴더를 지운다.
+- 오류를 보려고 출력을 꼭 받아야 하면 저장소 밖 임시 폴더(작업 세션 scratchpad)에만 받고, 그 시험 단계가 끝나는 즉시 지운다. 값은 보고서·커밋에 넣지 않는다.
+- 브라우저 네트워크 기록은 도구가 `code`·`state`를 가린다. 결과에는 필드 존재 여부·검증 결과·상태 코드만 적는다.

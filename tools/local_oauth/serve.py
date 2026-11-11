@@ -93,9 +93,18 @@ def port_free(port: int) -> bool:
 
 
 class BlockedS3:
+    """app.s3._s3 자리에 둔다 — 어떤 메서드든 부르면 네트워크 없이 실패한다."""
+
+    def __init__(self, label: str = "로컬 가짜 제공자 실행"):
+        self._label = label
+
     def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        label = self._label
+
         def blocked(*a, **k):
-            raise RuntimeError(f"로컬 가짜 제공자 실행: S3 호출 차단({name})")
+            raise RuntimeError(f"{label}: S3 호출 차단({name})")
         return blocked
 
 

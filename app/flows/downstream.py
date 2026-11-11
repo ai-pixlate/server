@@ -27,7 +27,7 @@ from sqlalchemy.orm import Session
 from app import ai_adapters, artifacts, execution, layout_adjust, typeset
 from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
-from app.flows import common
+from app.flows import common, text_check
 from app.flows.common import block_key, failed_envelope, json_value, report, section_key, set_job_state, submit
 from app.dictionary_bundle import ai_alternatives, entries_by_ref
 from app.manifest import fingerprint, sha256_bytes, sha256_text, stable_hash
@@ -168,6 +168,7 @@ def proceed(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
         "source_image_ids": sorted({s["source_image_id"] for s in secs}),
         "brand": {"id": brand["id"], "name_ko": brand["name_ko"], "name_en": brand["name_en"]},
         "target_lang": job["target_lang"] or "en",
+        "active_checks": text_check.configured_active_checks(),  # 이 실행에서 돌릴 검사(be-handoff 8.1) — 등록·집계·확정이 같은 값
     }
     run_id = execution.create_run(db, job_id, "downstream", scope)
     run = execution.lock_task(db, run_id)
@@ -548,7 +549,8 @@ def select_glossary(rows: list[dict[str, Any]], targets: list[dict[str, Any]], s
 
     try:
         chosen = gl.select([(block_key(r["id"]), r["source_ko"] or "") for r in targets],
-                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"]) for g in rows])
+                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"], g.get("term_kind"))
+                            for g in rows])  # term_kind = DB 값 그대로(NULL → None, 접두어로 추정하지 않음)
     except gl.GlossaryDataError as e:
         return {"status": "failed", "version": None, "reason": f"용어집 선별 실패: {e}", "terms": []}
     ids = {e.glossary_id for e in chosen}
@@ -568,7 +570,7 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
     cats = _glossary_categories(db, sid)
     selection = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats}
     rows = db.execute(
-        text("SELECT id, term_ko, term_target, enforcement, internal_category, version FROM glossary "
+        text("SELECT id, term_ko, term_target, enforcement, internal_category, version, term_kind FROM glossary "
              "WHERE target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL ORDER BY id"),
         {"l": lang, "c": cats},
     ).mappings().all()
@@ -751,11 +753,13 @@ class TranslateHandler:
                             verify_result=verify, retryable=code == TRANSLATE_ALL_FAILED)
 
     def after_done(self, db, att):
-        return progress(db, att["parent_task_id"], att["unit_id"])
+        # 실제 저장된 문구로 활성 검사 등록(등록 보장 ①②) — 같은 채택 트랜잭션
+        return text_check.after_translate(db, att["parent_task_id"], att["unit_id"]) + progress(db, att["parent_task_id"], att["unit_id"])
 
     def after_failure(self, db, att, code, retryable):
         if code == TRANSLATE_PARTIAL:
-            return progress(db, att["parent_task_id"], att["unit_id"])  # 성공분 보존·실패 칸 비움으로 N5 진행(D9-3)
+            ids = text_check.after_translate(db, att["parent_task_id"], att["unit_id"])  # 저장된 성공분만 검사 대상
+            return ids + progress(db, att["parent_task_id"], att["unit_id"])  # 성공분 보존·실패 칸 비움으로 N5 진행(D9-3)
         return _after_failure(db, att, code, retryable)
 
 
@@ -1055,6 +1059,8 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if not (_final(inp) and _final(sty) and _final(tr)):
             all_ready = False
             continue
+        if text_check.waiting(db, run, sid, by.get(("text_check", sid))):  # 활성 검사가 끝나야 N5(be-handoff 8.2)
+            all_ready = False
         if pv is None:
             m = _render_inputs(db, run_id, sid)
             ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),

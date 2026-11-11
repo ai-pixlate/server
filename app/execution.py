@@ -45,12 +45,13 @@ STAGE_TASK = {
     "inpaint": ("inpaint", "section"),
     "translate": ("translate", "section"),
     "preview": ("render", "section"),
+    "text_check": ("verify", "section"),  # 번역문 규칙 검사(be-handoff 8.7). translation_review 는 DB 허용만 — 2차에 만들지 않는다
     "final_render": ("render", "job"),
 }
 STAGE_RUN_KIND = {
     "analyze": "analysis", "judge": "analysis",
     "label": "downstream", "logo": "downstream", "inpaint": "downstream", "style": "downstream",
-    "translate": "downstream", "preview": "downstream",
+    "translate": "downstream", "preview": "downstream", "text_check": "downstream",
     "final_render": "final_render",
 }
 CONTRACT_VERSION = "1"  # 인계 봉투 형식 버전(5.24 공통 인계 봉투의 BE 구현 1판)
@@ -65,6 +66,7 @@ TASK_BY_STAGE = {
     "style": "app.tasks.run_style",
     "translate": "app.tasks.run_translate",
     "preview": "app.tasks.run_preview",
+    "text_check": "app.tasks.run_text_check",
     "final_render": "app.tasks.run_render",
 }
 ADOPT_TASK = "app.tasks.run_adopt"

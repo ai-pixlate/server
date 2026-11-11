@@ -55,6 +55,11 @@ info:
     - **Base-path**: 경로는 접두어 없는 상대경로(`/auth/login`). 버전·호스트는 `servers`에서만 선언(`/v1`).
     - **인증**: `bearerAuth`(JWT access) 전역 적용. refresh 토큰은 httpOnly 쿠키로만 오간다(요청 바디 금지).
       `/auth/refresh`·`/auth/logout`은 쿠키 기반(+ CSRF 헤더 `X-Requested-With`). `/admin/**`은 역할 권한(403).
+    - **로그인 세션** [**정본 변경** — 인벤토리 v3.4.2 AUTH-02의 「refresh 서버 상태 없음」을 바꾼다 · 2026-11-10 2차 시연용 인증 구현 방향 결정(BE·사용자) · PM 회신만으로 확정된 것이 아님 · 구현 완료·서버 배포 대기]
+      로그인마다 서버 세션(Redis)을 만들고, access는 그 세션에 묶인다. 요청마다 세션이 살아 있는지 확인하므로 로그아웃·만료된 세션의 access는 남은 수명과 관계없이 다음 요청부터 401이다.
+      만료: 비활성 7일 · 최초 로그인 후 최대 30일(PM 11-09). **활동 = 로그인과 유효한 refresh 성공뿐**이고 다른 API 요청은 활동이 아니다(시연용 허용 — 실제 사용자 조작을 재는 정책과 다르며 운영 영구 정책이 아니다).
+      access 수명은 서버 설정 `JWT_TTL`(초)이 정하고 **설정이 없을 때 기본 15분**이다(배포 환경 값 확인 전에는 「항상 15분」이 아니다). 어느 값이든 세션의 30일 기한을 넘지 않는다. 세션 없는 이전 형식 access(세션 도입 전 발급)는 401 `UNAUTHORIZED`(`invalid_token`) — 배포 뒤 기존 로그인은 다시 로그인한다.
+      세션 저장소 장애는 인증 만료와 구분해 503 `SERVICE_UNAVAILABLE`(`retryable: true`, `details: null` — 사유 없음, FE 11-10 합의: 안내만, 자동 반복 없음)이다. 저장소 데이터가 유실되면 전원 다시 로그인한다.
     - **소유 검증**: 남의 `/jobs/{jobId}/**`·`/brands/{brandId}/**` 접근은 존재 은닉 위해 **404 NOT_FOUND**.
     - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
     - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
@@ -1588,7 +1593,12 @@ paths:
       operationId: authLogin
       x-screen: 'G1'
       x-source: API-AUTH-01
-      description: 'Cognito 자격 검증 → access(본문) + refresh(Set-Cookie HttpOnly). 🟢9월.'
+      description: >
+        Cognito 자격 검증 → access(본문) + refresh(Set-Cookie HttpOnly). 🟢9월.
+        [현행 · 개발용 이메일 간이 로그인 — 정식 로그인 아님, local 계정만] 로그인마다 새 세션(공통 규칙 「로그인 세션」)과 refresh 쿠키 `pxl_refresh`를 발급한다.
+        요청에 이 브라우저의 유효한 refresh 쿠키가 실려 오면 새 세션 생성과 함께(한 번에) 그 이전 세션을 폐기한다(BE 구현 선택 — 그 계정의 다른 브라우저·기기 세션은 그대로).
+        한계(개발용): 같은 이전 쿠키로 로그인 두 건이 겹치면 새 세션이 둘 남는다 — 「한 브라우저 한 세션」을 서버가 완전히 보장하지 않는다.
+        세션 저장소 장애면 503(세션·쿠키를 만들지 않는다).
       security: []
       requestBody:
         required: true
@@ -1610,7 +1620,28 @@ paths:
       operationId: authRefresh
       x-screen: 'G1'
       x-source: API-AUTH-02
-      description: '쿠키의 refresh로 검증(+ CSRF 헤더 X-Requested-With). 바디 없음. 새 access 발급 + refresh 회전. 🟢9월.'
+      description: >
+        쿠키의 refresh로 검증(+ CSRF 헤더 X-Requested-With). 바디 없음. 새 access 발급 + refresh 회전. 🟢9월.
+        [정본 변경(공통 규칙 「로그인 세션」) · 구현 완료·서버 배포 대기] 회전은 원자적이다 — 같은 refresh의 동시 요청은 정확히 하나만 성공한다.
+        **성공만** 세션의 활동 시각을 갱신해 비활성 기한을 다시 7일로 한다. 최초 로그인 시각·30일 기한은 늘지 않는다. 새 쿠키의 `Max-Age`는 남은 30일 기한이다.
+        거절은 모두 401 `UNAUTHORIZED` + `details.reason`이고 **Set-Cookie가 없다**(늦게 도착한 거절이 새 쿠키를 지우지 않는다). 거절은 기한을 늘리지 않는다.
+        - `refresh_rotated`: 직전 refresh가 회전 뒤 30초 안에 다시 옴(경합·응답 유실). 세션은 그대로.
+        - `refresh_reused`: 직전 refresh가 30초 뒤에 옴, 또는 **그보다 더 오래전에 발급한 refresh**가 옴. 그 세션만 폐기한다(그 계정의 다른 세션은 그대로).
+        - `refresh_invalid`: 쿠키 없음·형식 오류·**서명 불일치**(변조·임의 값·다른 세션으로 옮긴 값·access를 넣은 경우 — 어떤 세션도 바꾸지 않는다)·발급한 적 없는 세대·폐기된 세션·비활성 7일 또는 30일 지난 세션(되살리지 않는다).
+        refresh 값은 세션·세대·용도가 서버 서명으로 묶인 불투명 값이다(쿠키 `pxl_refresh` — FE는 읽거나 만들지 않는다). 서명 키를 바꾸면 모든 refresh가 `refresh_invalid`가 되어 다시 로그인한다.
+        CSRF 헤더가 없으면 422 `VALIDATION_ERROR`. **`Origin`이 허용 목록(서버 설정)과 정확히 같지 않으면**(누락·`null`·목록 밖) 401 `UNAUTHORIZED` `origin_not_allowed` — 회전·쿠키 변경 없음.
+        (`origin_not_allowed`와 HTTP 401은 FE 11-10 회신으로 합의 — FE는 안내만 하고 자동 재시도하지 않는다.) 허용 목록이 비어 있으면 모두 거절한다.
+        판매자를 회전 전에 확인한다 — 세션은 있는데 판매자 행이 없으면 404(검증된 쿠키면 세션 폐기), DB 장애면 회전하지 않는다. 세션 저장소 장애 503.
+        회전 뒤 응답 전에 실패하면 응답 유실과 같다(이전 쿠키는 30초 안 `refresh_rotated`, 뒤에 `refresh_reused`).
+        응답에 계정 정보가 없다 — 계정이 바뀌었는지는 새 access로 `GET /auth/me`를 불러 확인한다.
+        [FE 11-10 합의 — FE 처리] 갱신 성공 뒤 `GET /auth/me`로 계정을 확인한 다음에만 원 요청을 재전송한다. `refresh_rotated`는 다른 탭의 갱신 완료 알림을 2초 기다린 뒤
+        잠금(최대 10초) 안에서 다시 갱신한다(갱신 과정당 refresh 최대 2회, 원 요청 재시도 최대 1회).
+        실패별 처리: `503` = 세션 종료로 판단하지 않고 자동 반복하지 않음(FE). 서버 상태는 실패 시점에 따라 다르다 —
+        회전 전 실패(저장소 연결 실패 등)면 세션·쿠키 그대로라 같은 쿠키로 나중에 갱신된다. 회전이 저장소에서 실행된 뒤 응답을 잃은 경우(503)·응답 유실은
+        서버가 이미 회전했으므로 브라우저의 쿠키는 직전 세대다 → 30초 안이면 `refresh_rotated`, 그 뒤면 `refresh_reused`(세션 종료) — 응답 유실과 같은 한계.
+        `refresh_reused`·`refresh_invalid` = 자동 복구 중단 → G1 ·
+        `refresh_rotated` 복구 한도 초과 = 자동 재시도 중단 → G1이지만 **서버 세션이 무효화된 것은 아니다**(유예 안의 `rotated`는 세션을 바꾸지 않는다).
+        FE의 화면 정리·G1 이동과 서버 세션 폐기 완료는 다른 것이다.
       security: []
       parameters:
         - name: X-Requested-With
@@ -1626,6 +1657,11 @@ paths:
               schema: { $ref: '#/components/schemas/TokenResponse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503':
+          description: '세션 저장소 장애 — SERVICE_UNAVAILABLE, retryable true, details null. 쿠키·세션 그대로'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /auth/logout:
     post:
       tags: [G1 Auth]
@@ -1633,10 +1669,42 @@ paths:
       operationId: authLogout
       x-screen: 'G1'
       x-source: API-AUTH-03
-      description: 'access 무효화(캐시) + refresh 쿠키 삭제. 쿠키 기반(+ CSRF 헤더). 🟢9월.'
+      description: >
+        access 무효화(캐시) + refresh 쿠키 삭제. 쿠키 기반(+ CSRF 헤더). 🟢9월.
+        [정본 변경(공통 규칙 「로그인 세션」) · 구현 완료·서버 배포 대기] 「access 무효화 캐시」 대신 세션을 폐기한다 — 그 세션의 access·refresh 모두 다음 요청부터 401.
+        요청의 자격이 가리키는 **살아 있는 세션만** 폐기하고 refresh 쿠키를 지운다(204). 검증하지 않은 값으로는 어떤 세션도 폐기하지 않으며, 계정의 다른 브라우저·기기 세션은 건드리지 않는다.
+        자격 분류: Bearer = 서명이 맞으면 그 세션(만료 시각은 보지 않는다). 쿠키 = 서명이 맞으면 **세대와 관계없이** 그 세션(현재·직전·더 오래된 세대 — 서명에 세션·세대가 묶여 있다).
+        **유효한 refresh 쿠키만으로 로그아웃할 수 있다**(계약 — FE 11-10 요청·사용자 결정: 브라우저 재시작 뒤 access가 없어도 「로그아웃 대기」를 끝내기 위해). Origin·CSRF 검사는 같다.
+        - **204** — 살아 있는 세션을 폐기했거나, **끝낼 세션이 없는 정상 재로그아웃**(세션이 이미 종료·만료). 쿠키 삭제 포함.
+          [PM 11-10] 정상 로그아웃 · Bearer와 쿠키가 다른 계정이면 두 세션 모두 폐기. [FE 11-10 회신·사용자 결정] 이미 종료된 세션의 재로그아웃 → 204 + 쿠키 삭제.
+        - **401 `UNAUTHORIZED` + `invalid_token`** — Bearer 형식·서명 오류, 또는 서명은 맞지만 끝낼 세션이 없는 Bearer와 서명이 틀린 쿠키가 함께 옴. **아무것도 바꾸지 않는다**(쿠키 삭제 없음).
+          FE는 Authorization 없이 한 번 다시 보낸다(FE 11-10 회신). 재시도 횟수로 로그아웃 결과를 판단하지 않는다.
+        - **401 `UNAUTHORIZED` + `refresh_invalid` + refresh 쿠키 삭제(Set-Cookie)** — Authorization 없이 **쿠키만** 왔고 그 쿠키를 검증할 수 없음(서명 키 교체 뒤·손상·변조).
+          [FE 11-10 최종 합의 · 구현 완료(#124)·연동 검증 대기] 서버는 그 쿠키가 어느 세션인지 믿을 수 없어 **어떤 세션도 폐기하지 않는다.** 오류 응답 중 쿠키를 지우는 것은 이 경우뿐이다.
+          FE는 「로그아웃 대기」를 해제하고 G1로 간다. 서버 세션 폐기가 확인되지 않았으므로 정상 로그아웃 성공(204)과 구분한다.
+        - **401 `UNAUTHORIZED` + `origin_not_allowed`**(FE 11-10 합의) · **422 `VALIDATION_ERROR`**(CSRF 헤더 없음) · **503 `SERVICE_UNAVAILABLE`**(세션 저장소 장애, 사유 없음) — 서버 로그아웃 **미완료**. 204로 바꾸지 않는다.
+          FE는 미완료 안내·재시도를 주고, 토큰을 저장하지 않는 「로그아웃 대기」를 기록해 재진입 때 로그인 복원보다 로그아웃을 먼저 한다(FE 11-10 회신).
+        - [사용자 11-10 확정 — Origin·CSRF 검사를 통과한 요청 전제] 같은 계정의 서로 다른 두 세션도 둘 다 폐기 · 만료됐지만 그 밖의 검증을 통과한 access로 그 세션 폐기 ·
+          유효한 Bearer로 끝낼 세션이 있고 쿠키는 검증할 수 없으면 그 세션 폐기 + 쿠키 삭제 + 204 · 자격이 전혀 없는 요청 → 204 + 쿠키 삭제.
+          검증할 수 없는 자격(변조·형식 오류)은 「자격 없음」으로 보지 않는다.
+        FE의 「세션 종료·G1 이동」(화면 정리)과 서버 세션 폐기 완료(204)는 다른 것이다.
       responses:
-        '204': { description: '로그아웃됨' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
+        '204': { description: '로그아웃됨 — 살아 있는 세션 폐기 또는 끝낼 세션 없음(정상 재로그아웃). Set-Cookie로 pxl_refresh 삭제' }
+        '401':
+          description: '`UNAUTHORIZED` + `invalid_token`(검증할 수 없는 Bearer — 아무것도 바꾸지 않음) · `refresh_invalid`(쿠키만 왔고 검증할 수 없음 — 세션 폐기 없이 refresh 쿠키만 삭제, 정상 로그아웃과 구분) · `origin_not_allowed`(서버 로그아웃 미완료)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: '`VALIDATION_ERROR` — `X-Requested-With` 없음. 서버 로그아웃 미완료'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: '세션 저장소 장애 — SERVICE_UNAVAILABLE, retryable true, details null. 세션을 폐기하지 못했다'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /auth/me:
     get:
       tags: [G1 Auth]

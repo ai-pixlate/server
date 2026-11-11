@@ -31,6 +31,12 @@ def _db_ok() -> bool:
 
 pytestmark = pytest.mark.skipif(not _db_ok(), reason="database not reachable")
 requires_ai = pytest.mark.skipif(os.getenv("PIXLATE_E2E_AI") != "1", reason="실제 AI 연결 없음(PIXLATE_E2E_AI=1 일 때만)")
+# 실제 S3 에 올리고 지우는 시험 — PIXLATE_TEST_REAL_S3=1 과 시험 전용 버킷(PIXLATE_TEST_S3_BUCKET)이 있을 때만(tests/s3_guard.py).
+# AI 시험도 산출물을 S3 에 쓴다. 조건이 없으면 건너뛴다(공유 버킷에 자동 연결하지 않는다).
+from tests import s3_guard  # noqa: E402
+
+_REAL_S3_BUCKET, _REAL_S3_SKIP = s3_guard.real_s3_bucket()
+requires_real_s3 = pytest.mark.skipif(_REAL_S3_BUCKET is None, reason=_REAL_S3_SKIP or "실제 S3 시험")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -76,6 +82,7 @@ def test_auth_login():
     assert r.status_code == 200
     CTX["token"] = r.json()["accessToken"]
     CTX["headers"] = {"Authorization": f"Bearer {CTX['token']}"}
+    CTX["refresh"] = r.cookies.get("pxl_refresh")  # 세션(B): refresh 는 쿠키로만 오간다
 
 
 def test_auth_me():
@@ -84,8 +91,14 @@ def test_auth_me():
 
 
 def test_auth_refresh():
-    r = client.post("/v1/auth/refresh", headers=_h())
+    import os
+
+    origin = os.getenv("PIXLATE_AUTH_ORIGINS", "").split(",")[0].strip()  # 시험 허용 Origin(tests/conftest.py)
+    r = client.post("/v1/auth/refresh", headers={"X-Requested-With": "XMLHttpRequest", "Origin": origin,
+                                                 "Cookie": f"pxl_refresh={CTX['refresh']}"})
     assert r.status_code == 200 and r.json()["accessToken"]
+    CTX["token"] = r.json()["accessToken"]
+    CTX["headers"] = {"Authorization": f"Bearer {CTX['token']}"}
 
 
 def test_consents():
@@ -117,6 +130,7 @@ def test_brand_create_and_read():
     assert r.status_code == 200
 
 
+@requires_real_s3
 def test_brand_logo():
     r = client.post(
         f"/v1/brands/{CTX['brand_id']}/logos",
@@ -141,6 +155,7 @@ def test_job_create_and_get():
     assert client.get(f"/v1/jobs/{CTX['job_id']}", headers=_h()).status_code == 200
 
 
+@requires_real_s3
 def test_source_images():
     r = client.post(
         f"/v1/jobs/{CTX['job_id']}/source-images",
@@ -159,6 +174,7 @@ def test_source_images():
 
 # ── N2 분석(ocr 워커) → N3 ────────────────────────────────────────
 @requires_ai
+@requires_real_s3
 def test_analyze_to_n3():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/analyze", headers=_h())
     assert r.status_code == 202
@@ -168,6 +184,7 @@ def test_analyze_to_n3():
 
 
 @requires_ai
+@requires_real_s3
 def test_sections():
     r = client.get(f"/v1/jobs/{CTX['job_id']}/sections", headers=_h())
     assert r.status_code == 200
@@ -183,6 +200,7 @@ def test_sections():
 
 
 @requires_ai
+@requires_real_s3
 def test_inpaint_result():
     # gpu 워커가 채운 결과(폴링). 미완이어도 200 이면 통과.
     r = client.get(f"/v1/jobs/{CTX['job_id']}/sections/{CTX['section_id']}/inpaint", headers=_h())
@@ -191,6 +209,7 @@ def test_inpaint_result():
 
 # ── N4 번역(cpu 워커) → N5 ────────────────────────────────────────
 @requires_ai
+@requires_real_s3
 def test_proceed_to_n5():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/sections/proceed", headers=_h())
     assert r.status_code == 202
@@ -198,6 +217,7 @@ def test_proceed_to_n5():
 
 
 @requires_ai
+@requires_real_s3
 def test_blocks():
     r = client.get(f"/v1/jobs/{CTX['job_id']}/blocks", headers=_h())
     assert r.status_code == 200 and len(r.json()) >= 1
@@ -211,6 +231,7 @@ def test_blocks():
 
 
 @requires_ai
+@requires_real_s3
 def test_preview():
     r = client.get(f"/v1/jobs/{CTX['job_id']}/preview", headers=_h())
     assert r.status_code == 200 and "sections" in r.json()
@@ -218,12 +239,14 @@ def test_preview():
 
 # ── N6 확정 → 렌더(cpu 워커) → 산출물 ─────────────────────────────
 @requires_ai
+@requires_real_s3
 def test_confirm_to_n6():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/confirm", json={"acknowledgedWarnings": []}, headers=_h())
     assert r.status_code == 200 and r.json()["currentStep"] == "N6"
 
 
 @requires_ai
+@requires_real_s3
 def test_render_and_deliverables():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/render", headers=_h())
     assert r.status_code == 202
@@ -243,6 +266,7 @@ def test_render_and_deliverables():
 
 
 @requires_ai
+@requires_real_s3
 def test_export_and_download():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/export", json={"components": ["content.csv"]}, headers=_h())
     assert r.status_code == 201
@@ -252,6 +276,7 @@ def test_export_and_download():
 
 
 @requires_ai
+@requires_real_s3
 def test_save_and_library():
     r = client.post(f"/v1/jobs/{CTX['job_id']}/save", headers=_h())
     assert r.status_code == 200 and r.json()["isSaved"] is True
@@ -272,6 +297,7 @@ def test_abort_outside_n2_n4_is_invalid_state():
     assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
 
 
+@requires_real_s3
 def test_cleanup_deletes():
     assert client.delete(f"/v1/brands/{CTX['brand_id']}/logos/{CTX['logo_id']}", headers=_h()).status_code == 204
     assert client.delete(

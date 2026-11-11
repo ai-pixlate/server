@@ -175,12 +175,15 @@ def test_other_sellers_brand_block_and_artifact_look_missing(env):
 
 @requires_db
 def test_seller_not_found_and_tokens(env):
+    from app import auth_sessions
     from app.main import app
-    from app.security import create_token
+    from app.security import issue_access
 
     c = TestClient(app)
-    ghost = {"Authorization": "Bearer " + create_token(MISSING, "ghost@example.com")}
-    for r in (c.get("/v1/auth/me", headers=ghost), c.post("/v1/auth/refresh", headers=ghost)):
+    session, refresh_token, _ = auth_sessions.create(MISSING)  # 세션은 있는데 판매자 행이 없다
+    ghost = {"Authorization": "Bearer " + issue_access(session, "ghost@example.com")}
+    for r in (c.get("/v1/auth/me", headers=ghost),
+              c.post("/v1/auth/refresh", headers={"X-Requested-With": "test", "Origin": "https://fe.pixlate.test", "Cookie": f"pxl_refresh={refresh_token}"})):
         assert _err(r, 404, "NOT_FOUND", "seller not found")["details"] == {"reason": "seller_not_found"}
 
     malformed = _err(c.get("/v1/auth/me", headers={"Authorization": "Bearer nope"}), 401, "UNAUTHORIZED", "malformed token")

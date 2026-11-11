@@ -27,7 +27,7 @@ env:
   # 러너 안 일회용 서비스 접속값 — 실제 비밀이 아니다. exec_db 가 이 계정으로 시험용 DB 를 만들고 지운다.
   PIXLATE_TEST_DATABASE_URL: postgresql+psycopg://postgres:ci-only@localhost:5432/postgres
   PIXLATE_TEST_REDIS_URL: redis://localhost:6379/15
-  REQUIRED_TESTS: tests/test_celery_broker_options.py tests/test_exec_recovery.py
+  REQUIRED_TESTS: tests/test_celery_broker_options.py tests/test_exec_recovery.py tests/test_auth_session.py tests/test_auth_session_ownership.py tests/test_s3_isolation.py
 
 jobs:
   test:

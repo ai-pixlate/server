@@ -29,20 +29,21 @@ local 행의 display_name 은 지금 채우는 경로가 없다(있으면 downgr
 배포: 이전 서버 코드와 함께 쓸 수 있다(이전 코드는 새 열을 모르고, 기존 행 값은 그대로). 소셜 행이 생긴 뒤에는
 이메일만으로 판매자를 찾는 이전 `/auth/login` 코드로 되돌리지 않는다.
 
-revision 연결: 2026-11-10 develop head 0014(#122 dictionary_v9_category_code) 뒤. 「0015 → 0014 단일 head」는 이 브랜치 기준 확인이다.
-다른 미머지 마이그레이션과의 관계는 따로 남는다 — 예: 검사 연결 작업 폴더의 미커밋 0014_text_check_stage 는 revision ID 가 "0014" 로
-develop 의 0014 와 같고(ID 중복) down_revision 이 0013 이다. 그쪽은 고유 revision ID 와 최신 down_revision 을 함께 정해야 한다(이 PR 이 고치지 않음).
+revision 연결: 처음에는 2026-11-10 develop head 0014 뒤의 0015 였다. 2026-11-11 develop 에 0015_text_check_stage(#127 번역문 규칙 검사 —
+revision 0015, down 0014)가 먼저 머지돼 ID 가 겹쳤으므로 이 마이그레이션을 0016(down 0015)으로 옮겼다. 계정 식별 동작은 바꾸지 않았다.
+0015_text_check_stage 는 job_async_task 제약·트리거만, 이 마이그레이션은 seller 만 바꾼다(서로 겹치지 않음). 실제 서버 DB 에는 적용한 적 없다.
+이전 번호(0015)로 이 마이그레이션을 적용해 둔 로컬 시험 DB 는 새 번호 체계와 맞지 않는다 — stamp 로 맞추지 말고 새 DB 로 시험한다.
 이 PR 도 머지 직전에 그 시점의 develop head 와 열린 PR 의 마이그레이션을 다시 확인하고, 필요하면 down_revision 을 다시 잇는다.
 
-Revision ID: 0015
-Revises: 0014
+Revision ID: 0016
+Revises: 0015
 """
 from typing import Union
 
 from alembic import op
 
-revision: str = "0015"
-down_revision: Union[str, None] = "0014"
+revision: str = "0016"
+down_revision: Union[str, None] = "0015"
 branch_labels = None
 depends_on = None
 
@@ -53,7 +54,7 @@ DECLARE n bigint;
 BEGIN
   SELECT count(*) INTO n FROM seller WHERE auth_provider <> 'local';
   IF n > 0 THEN
-    RAISE EXCEPTION '0015 downgrade 중단 - 소셜 계정 %개. 회원번호 매핑이 사라지고 email NOT NULL 을 되돌릴 수 없어 진행하지 않음', n;
+    RAISE EXCEPTION '0016 downgrade 중단 - 소셜 계정 %개. 회원번호 매핑이 사라지고 email NOT NULL 을 되돌릴 수 없어 진행하지 않음', n;
   END IF;
 END $$
 """

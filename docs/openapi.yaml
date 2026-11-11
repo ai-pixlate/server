@@ -60,6 +60,20 @@ info:
       만료: 비활성 7일 · 최초 로그인 후 최대 30일(PM 11-09). **활동 = 로그인과 유효한 refresh 성공뿐**이고 다른 API 요청은 활동이 아니다(시연용 허용 — 실제 사용자 조작을 재는 정책과 다르며 운영 영구 정책이 아니다).
       access 수명은 서버 설정 `JWT_TTL`(초)이 정하고 **설정이 없을 때 기본 15분**이다(배포 환경 값 확인 전에는 「항상 15분」이 아니다). 어느 값이든 세션의 30일 기한을 넘지 않는다. 세션 없는 이전 형식 access(세션 도입 전 발급)는 401 `UNAUTHORIZED`(`invalid_token`) — 배포 뒤 기존 로그인은 다시 로그인한다.
       세션 저장소 장애는 인증 만료와 구분해 503 `SERVICE_UNAVAILABLE`(`retryable: true`, `details: null` — 사유 없음, FE 11-10 합의: 안내만, 자동 반복 없음)이다. 저장소 데이터가 유실되면 전원 다시 로그인한다.
+    - **소셜 로그인(카카오·Google)** [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전 — develop 코드에 아직 이 경로가 없다. 배포 서버의 상태는 이 문서가 확인한 것이 아니다]
+      흐름: `POST /auth/social/{provider}/start` → 응답의 `authorizeUrl`로 이동 → 제공자가 FE 콜백 `/login/callback/{provider}`로 돌려보냄
+      → FE가 `POST /auth/social {provider, code, state}` → access(본문) + refresh(쿠키 `pxl_refresh` — 「로그인 세션」과 같은 세션) → M1. 별도 가입 단계 없음(첫 로그인에 계정 생성).
+      계정은 제공자 + 회원번호로 구분한다. 같은 이메일이어도 제공자가 다르면 다른 계정이다.
+      **명세 공개는 그 환경에서 로그인 API를 쓸 수 있다는 뜻이 아니다.** 구현된 서버에서 그 환경의 소셜 로그인을 켜지 않았으면(의도적 비활성) 두 엔드포인트 모두 404다(사용자 11-10).
+      켰지만 필수 설정이 빠졌거나 잘못됐으면 404로 숨기지 않는다 — 503 `SERVICE_UNAVAILABLE`(`details: null`) + 서버 내부 오류 기록(사용자 11-10).
+      공개 오류 응답에는 비밀·키·설정 이름·값·내부 원인을 싣지 않는다(`message`는 일반 문구).
+      완료 요청(`POST /auth/social`)은 **같은 인가 코드로 다시 보내지 않는다.** 실패·유실·시간 초과면 start부터 새로 시작한다(코드가 이미 제공자에게 쓰였을 수 있다).
+      **공개 계약의 FE 보장**(서버 내부 값과 관계없이 유지. C 구현 예정 — 구현·시험 전에는 서버가 지키는 것이 아니다): ① 로그인 시도 수명이 지나면 완료는 401 `state_invalid`(처음부터 다시 로그인).
+      ② 409 `login_in_progress`는 끝없이 이어지지 않는다 — 서버 점유 상한이 지나면 그 시도는 `state_invalid`. ③ 점유 상한 뒤 늦게 끝난 제공자 응답은 세션을 만들지 않고 성공을 돌려주지 않는다.
+      한 브라우저 한 세션 교체와 로그아웃 뒤 늦게 끝난 완료의 차단도 같은 상태(계약 확정 · C 구현 예정)다. 서버가 이를 지키는 방법(원자 처리 등)은 공개 계약이 아니다.
+      **서버 내부 설정값(공개 계약 아님)**: 로그인 시도 수명(C 초기 기본값 10분)·시도 점유 상한(C 초기 기본값 60초). 실제 제공자 인가 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증하며 바뀔 수 있다.
+      FE는 이 값을 대기 시간으로 쓰지 않는다 — 기다림은 FE 자신의 요청 timeout·대기 종료 처리로 끝낸다(refresh의 대기 2초·잠금 10초와도 별개).
+      개발용 이메일 간이 로그인(`authLogin`)은 환경별 FE 전환·검증 뒤 끈다(환경마다 따로).
     - **소유 검증**: 남의 `/jobs/{jobId}/**`·`/brands/{brandId}/**` 접근은 존재 은닉 위해 **404 NOT_FOUND**.
     - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
     - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
@@ -74,7 +88,7 @@ servers:
 
 tags:
   - name: G1 Auth
-    description: 'G1 로그인·회원가입 — 계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜은 🔵12월)'
+    description: 'G1 로그인·회원가입 — 계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜 로그인은 2차 계약 확정 · 서버 구현 대기)'
   - name: M2 Brand
     description: 'M2 브랜드 정보 — 브랜드·로고 (F-BRD) · 🟢9월'
   - name: N1 Source
@@ -479,6 +493,13 @@ components:
                 reason은 리소스 종류만 나타낸다 — 없는 리소스와 남의 리소스는 같은 응답이다(존재 은닉). 없는 task의 NOT_FOUND와 정의되지 않은 경로의 404에는 reason이 없다.
                 UNAUTHORIZED `invalid_token` → 토큰 형식·서명 오류(토큰 없음은 reason 없음).
                 RETRY_NOT_ALLOWED `retry_limit_exceeded` → 재시도 한도 초과(0008 이전 실행 행). 현행 실행의 한도 초과는 reason 없는 RETRY_NOT_ALLOWED다.
+                [소셜 로그인 · 계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] **인증 사유** — `error.code`는 15종 공통 코드이고 `details.reason`은 그 안의 구분이다(새 `error.code`를 만들지 않는다).
+                UNAUTHORIZED `state_invalid` → 로그인 시도 없음·만료·이미 사용·state 불일치·로그아웃 전 시작 시도 — 처음부터 다시 로그인 /
+                UNAUTHORIZED `provider_auth_failed` → 제공자가 코드를 거절했거나 회원 확인 실패 — 인증 실패 안내 /
+                UNAUTHORIZED `origin_not_allowed` → Origin이 허용 목록 밖 — 안내만, 자동 재시도 없음(refresh·로그아웃과 같은 값) /
+                DUPLICATE `login_in_progress` → 같은 로그인 시도를 다른 요청이 처리 중 — 먼저 보낸 요청 결과 대기 /
+                SERVICE_UNAVAILABLE `provider_unavailable` → 제공자 일시 장애 — start부터 새 로그인. 사유 없는 SERVICE_UNAVAILABLE(`details: null`) = 세션·시도 저장소 장애 또는 켰지만 필수 설정 오류 — 안내만, 자동 반복 없음.
+                refresh·로그아웃의 사유(`refresh_rotated`·`refresh_reused`·`refresh_invalid`·`invalid_token`·`origin_not_allowed`)는 authRefresh·authLogout 설명이 기준이다.
             traceId: { type: string, description: '서버 추적 ID' }
     AcceptedTask:
       type: object
@@ -649,8 +670,8 @@ components:
           description: >
             [PRD v3.5.10 F-ACC-05 · FE 회신 11-09(타입 `string | null` 수용) · 구현 완료·서버 배포 대기] null 일 수 있다.
             계정은 이메일이 아니라 제공자 + 제공자 회원번호로 구분하며, 같은 이메일이어도 제공자가 다르면 다른 계정이다 — 이메일은 계정 확인·서비스 안내용이고 로그인 식별에 쓰지 않는다.
-            소셜 계정은 제공자에게서 확인된 이메일을 받지 못하면 null 이다(서버가 값을 만들지 않는다). 어떤 제공자 응답을 확인된 이메일로 볼지와 재로그인 때의 갱신 규칙은 소셜 로그인 계약에서 정한다.
-            이메일 간이 로그인(authLogin — 개발용, 정식 로그인 아님)이 돌려주는 계정은 늘 이메일이 있다. 소셜 로그인 API 는 아직 명세에 없다(계약 협의 중).
+            소셜 계정은 제공자에게서 확인된 이메일을 받지 못하면 null 이다(서버가 값을 만들지 않는다). 어떤 제공자 응답을 확인된 이메일로 볼지와 재로그인 때의 갱신 규칙은 서버 내부 규칙이다(응답 타입은 `string | null` 그대로).
+            이메일 간이 로그인(authLogin — 개발용, 정식 로그인 아님)이 돌려주는 계정은 늘 이메일이 있다. 소셜 로그인은 authSocialStart·authSocial(계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전).
         accountType: { type: string, enum: [individual, business] }
         createdAt: { type: string, format: date-time }
     ConsentRequest:
@@ -1580,6 +1601,20 @@ components:
         specType: { $ref: '#/components/schemas/SpecType' }
         thumbnailUrl: { type: [string, 'null'], format: uri, description: 'presigned, 만료 5분' }
         savedAt: { type: [string, 'null'], format: date-time }
+    SocialStartResponse:
+      type: object
+      required: [authorizeUrl]
+      description: '[계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] 제공자 인가 주소. FE는 이 주소로 이동만 한다(값을 고치지 않는다).'
+      properties:
+        authorizeUrl: { type: string, format: uri }
+    SocialLoginRequest:
+      type: object
+      required: [provider, code, state]
+      description: '[계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] 콜백에서 받은 값 그대로.'
+      properties:
+        provider: { type: string, enum: [kakao, google] }
+        code: { type: string, minLength: 1 }
+        state: { type: string, minLength: 1 }
     StubResponse:
       type: object
       description: '🔵12월/📌조건부 — 상세 계약 미확정. TODO: 확정 시 스키마 채움.'
@@ -1744,23 +1779,196 @@ paths:
               schema: { $ref: '#/components/schemas/ConsentResponse' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/social/{provider}/start:
+    post:
+      tags: [G1 Auth]
+      summary: 소셜 로그인 시작 — 제공자 인가 주소 발급
+      operationId: authSocialStart
+      x-screen: 'G1'
+      x-source: API-AUTH-06
+      description: >
+        [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] 공통 규칙 「소셜 로그인」을 따른다.
+        로그인 시도를 만들고 제공자 인가 주소를 돌려준다. 바디 없음. FE는 `authorizeUrl`로 이동만 한다(`window.location.assign`, 값을 고치지 않는다).
+        서버는 시도마다 state · PKCE(S256, verifier는 서버 보관) · (Google) nonce를 만들고, 이 브라우저에 로그인 시도 쿠키(HttpOnly, Path=/auth, 수명 = 서버의 로그인 시도 수명)를 둔다 — FE는 이 쿠키를 읽거나 만들지 않는다.
+        `authorizeUrl`의 `redirect_uri`는 환경별 FE 콜백 주소(`<FE 오리진>/login/callback/{provider}`)이며, 콘솔 등록 값·토큰 교환 값과 같다.
+        FE는 버튼을 눌러 이동하기까지 다시 부르지 않는다(중복 호출 방지 — FE 11-10 합의). 503이면 사용자가 다시 시도할 수 있다(소비된 것이 없다).
+        카카오 scope `profile_nickname account_email`, Google scope `openid email profile`.
+        같은 브라우저에서 다시 부르면 새 시도가 이전 시도를 대신한다(마지막 시도만 유효).
+        쿠키 기반(+ CSRF 헤더 `X-Requested-With`, `Origin` 허용 목록 — refresh·로그아웃과 같은 검사).
+        오류별 처리(`error.code` / `details.reason` → FE): 401 `UNAUTHORIZED` / `origin_not_allowed` → 안내만, 자동 재시도 없음 ·
+        404 `NOT_FOUND` / 없음 → 이 환경에서 소셜 로그인을 쓸 수 없음 · 422 `VALIDATION_ERROR` → CSRF 헤더 누락(FE 버그) ·
+        503 `SERVICE_UNAVAILABLE` / 없음(`details: null`) → 안내만, 자동 반복 없음, 사용자가 다시 누르면 새 start.
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string, enum: [kakao, google] }
+        - name: X-Requested-With
+          in: header
+          required: true
+          schema: { type: string }
+          description: 'CSRF 방지 헤더'
+      responses:
+        '200':
+          description: '시도 생성 — Set-Cookie로 로그인 시도 쿠키 발급'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SocialStartResponse' }
+              examples:
+                kakao:
+                  summary: '(가상 값) 카카오 — 실제 값은 서버가 만든 주소 그대로 쓴다'
+                  value:
+                    authorizeUrl: 'https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=EXAMPLE_CLIENT_ID&redirect_uri=https%3A%2F%2Fapp.example.com%2Flogin%2Fcallback%2Fkakao&scope=profile_nickname%20account_email&state=EXAMPLE_STATE&code_challenge=EXAMPLE_CHALLENGE&code_challenge_method=S256'
+        '401':
+          description: '`UNAUTHORIZED` + `details.reason: origin_not_allowed` — Origin이 허용 목록 밖. 시도·쿠키를 만들지 않는다. FE는 안내만 하고 자동 재시도하지 않는다(FE 11-10 합의).'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                originNotAllowed:
+                  summary: '(가상 값) Origin 허용 목록 밖'
+                  value:
+                    error: { code: UNAUTHORIZED, message: 'origin not allowed', retryable: false, details: { reason: origin_not_allowed }, traceId: 'example-trace-0101' }
+        '404':
+          description: '`NOT_FOUND`(`details: null`) — 모르는 provider, 또는 이 환경에서 그 제공자를 켜지 않음(의도적 비활성 — 사용자 11-10). 설정 오류는 404가 아니라 503.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: '`VALIDATION_ERROR` — `X-Requested-With` 없음. 시도를 만들지 않는다.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: '`SERVICE_UNAVAILABLE`, `retryable: true`, `details: null` — 세션·시도 저장소 장애, 또는 켰지만 제공자 필수 설정이 잘못됨(원인은 서버 내부 기록만, 응답에 설정값 없음 — 사용자 11-10). 시도를 만들지 않는다. FE는 안내만, 자동 반복 없음.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                unavailable:
+                  summary: '(가상 값) 저장소 장애 또는 설정 오류 — 응답으로는 구분하지 않는다'
+                  value:
+                    error: { code: SERVICE_UNAVAILABLE, message: 'service unavailable', retryable: true, details: null, traceId: 'example-trace-0102' }
   /auth/social:
     post:
       tags: [G1 Auth]
-      summary: 소셜 로그인/회원가입 🔵12월
+      summary: 소셜 로그인 완료 — 로그인(첫 로그인이면 계정 생성)
       operationId: authSocial
-      x-screen: 'G1(12월)'
+      x-screen: 'G1'
       x-source: API-AUTH-06
-      description: '🔵12월 · 상세 계약 미확정. 제공자+회원번호 식별 분기. TODO: 12월 확정(임의 설계 금지).'
+      description: >
+        [계약 확정(PM 11-09·11-10 · FE 11-10) · 서버 구현 대기(C 예정) · 서버 배포 전] 공통 규칙 「소셜 로그인」을 따른다.
+        FE 콜백 페이지가 제공자에게서 받은 `code`·`state`를 그대로 넘긴다. **한 시도에 한 번만** 보낸다.
+        `access_denied` 등 제공자 오류로 돌아온 경우에는 이 API를 부르지 않는다(G1에서 취소·재시도 안내).
+        서버: 로그인 시도 쿠키·state 확인 → 시도 점유(한 번만) → 코드 교환(PKCE · redirect_uri 같은 값)
+        → 회원번호 확인(카카오 `id` · Google ID 토큰 `sub`) → (제공자, 회원번호)로 계정 조회, 없으면 생성
+        → 이 브라우저의 이전 로그인 세션을 끝내고 새 세션 발급(한 브라우저 한 계정 — PM 11-09) → access(본문) + refresh(Set-Cookie `pxl_refresh`).
+        신규·기존 응답 모양은 같다(가입 여부 필드 없음, 둘 다 M1 — FE 11-10 합의). 이메일·이름 저장 규칙은 서버 내부 규칙이며 응답의 `seller.email`은 `string | null`.
+        이 브라우저에서 로그아웃한 뒤에 끝난, 로그아웃 전에 시작한 시도는 세션을 만들지 않는다(`state_invalid`).
+        오류 응답에는 Set-Cookie가 없다.
+        **로그인 시도의 상태와 재시도** — 서버는 시도를 「발급 → 점유(이 요청이 처리 중) → 코드 교환 → 완료/실패」로 다룬다.
+        - 점유 전 실패(저장소 503 등): 시도·코드가 쓰이지 않았다. 그래도 FE는 같은 코드를 다시 보내지 않고 start부터 새로 시작한다(코드 수명이 짧고, 서버가 같은 요청 재처리를 보장하지 않는다).
+        - 점유 뒤 처리 중: 같은 시도의 다른 요청은 409 `DUPLICATE` + `login_in_progress`. 점유는 서버 내부 상한까지만 유효하다(공통 규칙의 서버 내부 설정값 — FE 합의 수치가 아니다).
+          그 안에 끝나지 않으면 시도는 쓸 수 없게 되고(`state_invalid`) 409가 끝없이 이어지지 않는다. 상한이 지난 뒤 늦게 끝난 제공자 응답은 세션을 만들지 않고 성공을 돌려주지 않는다(`state_invalid`).
+        - 코드 교환 뒤 실패(제공자 장애 503 `provider_unavailable`, 저장소 503): 코드가 이미 쓰였다. 시도는 실패로 끝나며 같은 요청은 다시 받지 않는다(`state_invalid`) → start부터 새로 시작.
+        - 완료·실패로 끝난 시도에 다시 오는 요청: `state_invalid`.
+        오류별 처리(`error.code` / `details.reason` → FE, FE 11-10 합의):
+        401 `UNAUTHORIZED` / `state_invalid` → 처음부터 다시 로그인 · / `provider_auth_failed` → 인증 실패 안내 · / `origin_not_allowed` → 안내만, 자동 재시도 없음 ·
+        409 `DUPLICATE` / `login_in_progress` → 먼저 보낸 요청 결과 대기(대기 종료는 FE 요청 timeout) ·
+        503 `SERVICE_UNAVAILABLE` / `provider_unavailable` → start부터 새 로그인 · / 없음 → 안내만, 자동 반복 없음, 다시 할 때는 start부터 ·
+        404 `NOT_FOUND` / 없음 → 이 환경에서 소셜 로그인을 쓸 수 없음 · 422 `VALIDATION_ERROR` → CSRF 헤더 누락·요청 본문 형식 오류(FE 버그).
       security: []
+      parameters:
+        - name: X-Requested-With
+          in: header
+          required: true
+          schema: { type: string }
+          description: 'CSRF 방지 헤더'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SocialLoginRequest' }
+            examples:
+              kakao:
+                summary: '(가상 값) 카카오 콜백에서 받은 값 그대로'
+                value: { provider: kakao, code: EXAMPLE_AUTHORIZATION_CODE, state: EXAMPLE_STATE }
       responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
         '200':
-          description: '🔵12월 미확정'
+          description: '로그인 성공 — Set-Cookie로 refresh(`pxl_refresh`) 발급, 로그인 시도 쿠키 삭제. 신규·기존 같은 모양'
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/StubResponse' }
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+              examples:
+                withEmail:
+                  summary: '(가상 값) 제공자에게서 확인된 이메일을 받은 계정'
+                  value: { accessToken: 'EXAMPLE_ACCESS_TOKEN', seller: { id: 101, email: 'seller@example.com', accountType: individual, createdAt: '2026-11-10T09:00:00Z' } }
+                withoutEmail:
+                  summary: '(가상 값) 확인된 이메일이 없는 계정 — email null'
+                  value: { accessToken: 'EXAMPLE_ACCESS_TOKEN', seller: { id: 102, email: null, accountType: individual, createdAt: '2026-11-10T09:00:00Z' } }
+        '401':
+          description: >
+            `UNAUTHORIZED` + `details.reason`:
+            `state_invalid` — 시도 없음·만료·이미 사용·쿠키 없음·state 불일치·로그아웃 전 시작 시도 → 처음부터 다시 로그인.
+            `provider_auth_failed` — 제공자가 코드를 거절했거나 회원 확인 실패 → 인증 실패 안내.
+            `origin_not_allowed` — Origin이 허용 목록 밖. 안내만, 자동 재시도 없음(FE 11-10 합의).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                stateInvalid:
+                  summary: '(가상 값) 시도 만료·이미 사용 등 — 처음부터 다시 로그인'
+                  value:
+                    error: { code: UNAUTHORIZED, message: 'login attempt is not valid', retryable: false, details: { reason: state_invalid }, traceId: 'example-trace-0111' }
+                providerAuthFailed:
+                  summary: '(가상 값) 제공자가 코드를 거절'
+                  value:
+                    error: { code: UNAUTHORIZED, message: 'provider authentication failed', retryable: false, details: { reason: provider_auth_failed }, traceId: 'example-trace-0112' }
+                originNotAllowed:
+                  summary: '(가상 값) Origin 허용 목록 밖'
+                  value:
+                    error: { code: UNAUTHORIZED, message: 'origin not allowed', retryable: false, details: { reason: origin_not_allowed }, traceId: 'example-trace-0113' }
+        '404':
+          description: '`NOT_FOUND`(`details: null`) — 모르는 provider, 또는 이 환경에서 그 제공자를 켜지 않음(의도적 비활성 — 사용자 11-10). 설정 오류는 503.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: >
+            `DUPLICATE` + `details.reason: login_in_progress` — 같은 로그인 시도를 다른 요청이 처리 중(서버 내부 점유 상한까지).
+            FE는 먼저 보낸 요청의 결과를 기다린다(FE 11-10 합의). 기다리는 시간은 FE 자신의 요청 timeout·대기 종료 처리로 정한다 — 서버 점유 상한을 FE 대기 시간으로 쓰지 않는다.
+            먼저 보낸 요청이 실패·유실·시간 초과로 끝나면 같은 코드를 다시 보내지 않고 G1에서 start부터 새로 시작한다.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                loginInProgress:
+                  summary: '(가상 값) 같은 시도를 다른 요청이 처리 중'
+                  value:
+                    error: { code: DUPLICATE, message: 'login is in progress', retryable: false, details: { reason: login_in_progress }, traceId: 'example-trace-0114' }
+        '422':
+          description: '`VALIDATION_ERROR` — `X-Requested-With` 없음, 또는 요청 본문 형식 오류(`details.fields`). 시도를 점유하지 않는다.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: >
+            `SERVICE_UNAVAILABLE`, `retryable: true`(공통 코드의 기본값 — 이 경로에서는 같은 요청 재전송이 아니라 start부터 새 로그인을 뜻한다).
+            `details.reason: provider_unavailable` — 제공자 일시 장애. 새 로그인부터 다시 시작(FE 11-10 합의).
+            `details: null` — 세션·시도 저장소 장애, 또는 제공자 필수 설정 오류(원인은 서버 내부 기록만 — 사용자 11-10). 안내만, 자동 반복 없음. 다시 할 때는 start부터(같은 코드 재전송 아님).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                providerUnavailable:
+                  summary: '(가상 값) 제공자 일시 장애 — start부터 새 로그인'
+                  value:
+                    error: { code: SERVICE_UNAVAILABLE, message: 'provider unavailable', retryable: true, details: { reason: provider_unavailable }, traceId: 'example-trace-0115' }
+                unavailable:
+                  summary: '(가상 값) 저장소 장애 또는 설정 오류 — 사유 없음'
+                  value:
+                    error: { code: SERVICE_UNAVAILABLE, message: 'service unavailable', retryable: true, details: null, traceId: 'example-trace-0116' }
 
   /brands:
     get:

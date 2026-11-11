@@ -168,7 +168,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 구현 완료·서버 배포 대기(기본 꺼짐)(FE 연동 전) | `feature/translate-check-connect` |
 | 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 구현 완료·서버 배포 대기(기본 꺼짐). `registeredBlockIds` 문구·FE 처리 확인 대기 | `feature/translate-check-connect` |
 | 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
-| 예외: AI 공급·입력·데이터 오류(`input_invalid`·`bundle_invalid`)로 끝났거나 실행 때 고정 사전 묶음 변환에 실패한 시도는 결과로 인정하지 않음(`missing`·`outdated`) — 확정 차단 | AI 11-10 동의·API 11-10 형식 검토(**PM 정책 확인 대기**) | `BlockCheck.state`·confirmReview | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
+| 셀러가 고칠 수 없는 검사 오류(용어 공급 실패·강제 용어 충돌·`input_invalid`·`bundle_invalid`·사전 묶음 변환 실패·검사 보고/요청 무결성)도 failed — 확정 통과(등록 불가 섹션도 N4에서 멈추지 않음), 다른 섹션 조회·편집 유지. 범위: 실행된 시도는 서버가 고정한 대상 블록, 섹션 공통 공급 실패는 섹션, 블록 하나의 충돌(강제 용어끼리 · 금지/허용 같은 구간)은 그 블록만 — 나머지 블록은 실제 검사(7.2 ⑨) | PM 11-10 | `BlockCheck.state`·confirmReview | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
 | 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
 | 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |
 | 필수 확인 = `translation_failed`, `mandatory_term_unapplied` 제외, 블록·코드 단위 한 번 확인 | PRD F-CFM-09·PM 재확인 11-04 | ConfirmRequest | 현행 | — |
@@ -205,7 +205,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
 | ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
 | ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 3개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
-| ⑨ | 규칙 검사를 등록·판정할 수 없는 경우의 공개 처리(검사 활성화 전 해결) | 키 계산 불가·검사 보고/요청 무결성(M7)이면 /blocks·블록 저장·확정이 500. 등록할 수 없는 블록은 `missing`·`outdated`로 남고 확정이 409를 반복한다. 실행에 고정된 사전 묶음 자체의 오류는 사전을 고쳐도 키가 바뀌지 않아 회복 경로가 없다 | 같은 입력이면 반복되어 N5 화면·편집이 회복되지 않을 수 있다. 검사는 기본 꺼짐이라 지금 서버에는 나타나지 않는다 | `BlockCheck`·confirmReview | 미해결 — PM·FE·BE 결정 |
+| ⑨ | 확정된 검사 오류 정책(PM 11-10)의 남은 연결(검사 활성화 전 해결 — PM 추가 승인 대상 아님) | (a) 블록 범위: 블록 하나의 충돌(강제 용어끼리 · 금지/허용 같은 구간)은 그 블록만 failed 로 두고 실행 요청 대상에서 뺀다 — 같은 섹션의 나머지 블록은 실제로 검사(AI 11-11 회신: 규칙 검사에 한한 요청 대상 예외). 섹션 공통 공급 실패(후보 형식 · ID 불일치)만 섹션 단위. (b) 현재 inputKey 를 계산할 수 없으면 failed · `inputKey: null`(API 6-10 — 블록 저장 200, 확정 통과). 대상 언어가 없어 공급 기준을 정할 수 없으면 여전히 500. (c) 고정 요청 객체 저장 실패는 그 입력의 실패로 기록해 failed · 확정 통과(실행 없음 · `CHECK_REQUEST_STORE_FAILED`, API 6-10) | (a)(b)(c) 해결(로컬 구현 · 격리 검증 — 커밋 전) | `BlockCheck`·blockPatch·confirmReview | (a)(b)(c) 구현 완료·서버 배포 대기(기본 꺼짐) |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
 

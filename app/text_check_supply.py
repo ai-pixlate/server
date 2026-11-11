@@ -115,28 +115,41 @@ class GlossarySelectionSupply:
             record["translation_selection"] = {"error": str(e), "rules_version": gl.SELECT_RULES_VERSION}
             record["excluded_entries"] = None  # 선별 실패 — 제외 판단 자체가 없다
             record["failures"].append({"stage": "translation_selection", "reason": str(e)})
-        # (2) 검사 공급 — 강제 용어만
+        # (2) 검사 공급 — 강제 용어만. 같은 후보 집합으로 공통 검증(Prepared)을 먼저 하고(실패 = 섹션 공통 오류 → status=failed),
+        #     블록마다 같은 후보로 선별해 실패한 블록만 블록 국소 오류로 둔다(11-11 AI 회신 — 후보를 지우거나 블록마다 다른 후보 집합을 만들지 않는다).
+        #     공급 용어 = 정상 블록 선별 결과 ∪ 국소 오류 블록 원문에 걸리는 후보(AI block_hits) — 그 블록의 키에만 충돌이 들어가고 정상 블록의
+        #     키 · 검사는 바뀌지 않는다. 국소 오류 블록은 요청 대상에서 빠진다(register — 규칙 검사에 한한 대상 예외)
         enforced = [e for e in entries if e.enforcement == "enforced"]
         selection_input = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats, "kind": "text_check:enforced"}
         try:
-            chk = gl.select_by_block(blocks, enforced)
+            prep = gl.Prepared(enforced)
         except gl.GlossaryDataError as e:
             record["check_selection"] = {"error": str(e), "rules_version": gl.SELECT_RULES_VERSION}
             record["failures"].append({"stage": "check_selection", "reason": str(e)})
             return {"status": "failed", "version": None, "reason": f"검사 용어 선별 실패: {e}", "terms": [], "supply_record": record}
-        record["check_selection"] = _selection_dict(chk)
+        local: dict[str, str] = {}
+        for key, src in blocks:
+            try:
+                gl.select_by_block([(key, src)], prep)
+            except gl.GlossaryDataError as e:
+                local[key] = str(e)
+                record["failures"].append({"stage": "check_selection", "block_key": key, "reason": str(e)})
+        chk = gl.select_by_block([(k, s) for k, s in blocks if k not in local], prep)
+        record["check_selection"] = {**_selection_dict(chk), "local_failures": [{"block_key": k, "reason": r} for k, r in local.items()]}
         if chk.union_conflicts:  # 한 목록으로 블록별 관계를 지킬 수 없다 — 공급 실패(BE 안 · ai-a1-a3-proposal 5절)
             reason = f"검사 용어 합집합 충돌(블록별 공급 필요) {[list(c) for c in chk.union_conflicts]}"
             record["failures"].append({"stage": "check_union", "reason": reason})
             return {"status": "failed", "version": None, "reason": reason, "terms": [], "supply_record": record}
         rows_by_id = {str(r["id"]): r for r in rows}
+        hit = {h.glossary_id for k, s in blocks if k in local for h in gl.block_hits(k, s, prep)}
+        chosen = {e.glossary_id for e in chk.entries} | hit
         terms = [{"glossary_id": e.glossary_id, "term_ko": e.term_ko, "term_target": e.term_target, "enforcement": "enforced"}
-                 for e in chk.entries]
+                 for e in prep.entries if e.glossary_id in chosen]
         content = [{**t, "internal_category": rows_by_id[t["glossary_id"]]["internal_category"],
                     "row_version": rows_by_id[t["glossary_id"]]["version"]} for t in terms]
         log.debug("검사 공급 section=%s origin=%s terms=%d", section_id, origin, len(terms))
         return {"status": "ok", "version": "db-sha256:" + fingerprint({"selection": selection_input, "terms": content})[:16],
-                "reason": None, "terms": terms, "supply_record": record}
+                "reason": None, "terms": terms, "local_failures": sorted(local), "supply_record": record}
 
 
 def install_from_env() -> bool:

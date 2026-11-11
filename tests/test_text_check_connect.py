@@ -354,6 +354,22 @@ def test_result_after_confirm_is_rejected(env, rule_on):
     assert _q("SELECT count(*) AS n FROM task_handoff WHERE job_id = :j", j=ids["job"])[0]["n"] == 0  # 늦은 결과가 자료를 남기지 않는다
 
 
+
+def _failed_shown_and_confirm_passes(ids, attempts=None):
+    """PM 11-10: 검사 오류(보고 · 요청 무결성 · 공급 · 입력 오류 포함)는 그 시도 대상 블록(BE 고정 명세 기준)만 failed, 목록 · 확정은 막지 않는다."""
+    from app import db as app_db
+
+    with app_db.SessionLocal() as db:
+        st = text_check.job_block_states(db, ids["job"])
+    failed = {b for b, v in st.items() if v["state"] == "failed"}
+    assert failed, st
+    for a in attempts or []:
+        assert {t["block_id"] for t in a["input_manifest"]["targets"]} <= failed
+    assert ids["c"].get(f"/v1/jobs/{ids['job']}/blocks").status_code == 200
+    r = ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
+    assert r.status_code == 200, r.text
+    assert _step(ids) == ("review", "N6")
+
 def test_adoption_rejects_incomplete_report(env, rule_on, monkeypatch):
     from pipeline.handoff import translation, validate
 
@@ -373,14 +389,8 @@ def test_adoption_rejects_incomplete_report(env, rule_on, monkeypatch):
     assert bad and all(c["status"] == "failed" for c in bad)
     rej = _q("SELECT reject_reason FROM task_handoff WHERE task_id = ANY(:t)", t=[c["id"] for c in bad])
     assert all(r["reject_reason"].startswith("CHECK_RESULT_INCOMPLETE") for r in rej)
-    # M7 미확정 — 무결성 오류를 일반 검사 실패(확정 통과)로 분류하지 않는다. 조회 · 확정 모두 통과시키지 않는다
-    from app import db as app_db
-
-    with app_db.SessionLocal() as db:
-        with pytest.raises(text_check.CheckIntegrityError):
-            text_check.job_block_states(db, ids["job"])
-    with pytest.raises(text_check.CheckIntegrityError):
-        ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
+    # M7: 보고는 채택하지 않고(위) 그 시도 대상 블록은 failed — 목록 · 확정은 막지 않는다(PM 11-10)
+    _failed_shown_and_confirm_passes(ids, bad)  # PM 11-10 — 차단 · 500 대신 failed 표시, 확정 허용(보고는 채택 안 함)
 
 
 def test_adoption_rejects_result_for_text_changed_during_check(env, rule_on, monkeypatch):
@@ -417,16 +427,19 @@ def test_integrity_error_is_not_treated_as_settled(env, rule_on):
     from app import db as app_db
 
     with app_db.SessionLocal() as db:
-        with pytest.raises(text_check.CheckIntegrityError):
-            text_check.job_block_states(db, ids["job"])
-    with pytest.raises(text_check.CheckIntegrityError):  # 확정도 통과시키지 않는다
-        ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
+        st = text_check.job_block_states(db, ids["job"])
+    lost = [t["block_id"] for t in c["input_manifest"]["targets"] if f"blk_{t['block_id']}" not in
+            {b["block_key"] for b in p["text_check"]["blocks"]}]
+    assert lost and all(st[b]["state"] == "failed" for b in lost)  # 결과 누락 블록은 settled 가 아니라 failed
+    kept = [t["block_id"] for t in c["input_manifest"]["targets"] if t["block_id"] not in lost]
+    assert kept and all(st[b]["state"] == "settled" for b in kept)  # 유효한 다른 블록 결과는 그대로
+    _failed_shown_and_confirm_passes(ids)  # PM 11-10 — 차단 · 500 대신 failed 표시, 확정 허용(보고는 채택 안 함)
 
 
 def test_decide_table():
     d = text_check.decide
     assert d(current_key="k", result_key="k", attempt_status="running", attempt_key="k2", attempt_done_without_result=False)["state"] == "settled"
-    assert d(current_key="k", result_key=None, attempt_status="done", attempt_key="k", attempt_done_without_result=True)["state"] == "integrity_error"
+    assert d(current_key="k", result_key=None, attempt_status="done", attempt_key="k", attempt_done_without_result=True)["state"] == "failed"
     assert d(current_key="k", result_key="old", attempt_status="pending", attempt_key="k", attempt_done_without_result=False) == {
         "state": "in_progress", "inputKey": "old"}
     assert d(current_key="k", result_key=None, attempt_status="running", attempt_key="k", attempt_done_without_result=False) == {
@@ -693,16 +706,26 @@ def test_decide_ignores_non_result_failures_and_flags_integrity():
     assert d(current_key="k", result_key="o", attempt_status="failed", attempt_key="k", attempt_done_without_result=False,
              attempt_error_code="CHECK_KEY_UNAVAILABLE")["state"] == "outdated"
     assert d(current_key="k", result_key=None, attempt_status="failed", attempt_key="k", attempt_done_without_result=False,
-             attempt_error_code="CHECK_RESULT_INCOMPLETE")["state"] == "integrity_error"
+             attempt_error_code="CHECK_RESULT_INCOMPLETE")["state"] == "failed"  # M7 — PM 11-10 failed 표시
     assert d(current_key="k", result_key=None, attempt_status="failed", attempt_key="k", attempt_done_without_result=False,
              attempt_error_code="TEXT_CHECK_INTERNAL")["state"] == "failed"  # 일반 검사 최종 실패 — 기존 정책(확인 없이 통과)
-    for code in ("TEXT_CHECK_INPUT_INVALID", "TEXT_CHECK_BUNDLE_INVALID", "AI_ADAPTER_UNAVAILABLE"):  # 공급 · 입력 · 데이터 오류 · 규칙 검사 묶음 변환 실패 — 그 시도를 빼고 판단
+    for code in ("TEXT_CHECK_INPUT_INVALID", "TEXT_CHECK_BUNDLE_INVALID", "AI_ADAPTER_UNAVAILABLE", "CHECK_REQUEST_MISSING"):
+        # 공급 · 입력 · 데이터 오류 · 묶음 변환 실패 · 요청 무결성 — 현재 입력의 시도면 failed(PM 11-10)
         assert d(current_key="k", result_key=None, attempt_status="failed", attempt_key="k", attempt_done_without_result=False,
-                 attempt_error_code=code)["state"] == "missing"
+                 attempt_error_code=code)["state"] == "failed"
         assert d(current_key="k", result_key="o", attempt_status="failed", attempt_key="k", attempt_done_without_result=False,
-                 attempt_error_code=code)["state"] == "outdated"
+                 attempt_error_code=code) == {"state": "failed", "inputKey": "k"}
         assert d(current_key="k", result_key="k", attempt_status="failed", attempt_key="k", attempt_done_without_result=False,
                  attempt_error_code=code) == {"state": "settled", "inputKey": "k"}  # 현재 키의 정상 결과는 무효화하지 않는다
+        assert d(current_key="k", result_key="o", attempt_status="failed", attempt_key="old", attempt_done_without_result=False,
+                 attempt_error_code=code)["state"] == "outdated"  # 과거 입력의 실패를 현재 실패로 보지 않는다
+    # 시도 없이 현재 입력으로 검사 요청을 만들 수 없음(공급 실패 · 강제 용어 충돌) — failed, 진행 중 · 정상 결과는 그대로
+    assert d(current_key="k", result_key=None, attempt_status=None, attempt_key=None, attempt_done_without_result=False,
+             current_unregistrable=True) == {"state": "failed", "inputKey": "k"}
+    assert d(current_key="k", result_key="k", attempt_status=None, attempt_key=None, attempt_done_without_result=False,
+             current_unregistrable=True)["state"] == "settled"
+    assert d(current_key="k", result_key=None, attempt_status="running", attempt_key="k", attempt_done_without_result=False,
+             current_unregistrable=True)["state"] == "in_progress"
 
 
 # ── M7 검출 경로 일치: 실제 validate_report 를 거치는 보고 무결성 오류 ─────────────────────────
@@ -766,12 +789,7 @@ def test_integrity_error_found_by_validate_report_blocks_confirm_after_retries(e
     assert all(m.startswith("AI 보고 검증 실패") for m in msgs)  # BE 채택 전에 실제 validate_report 가 먼저 잡은 경로
     assert any(c["retry_origin"] == "auto" for c in rows)  # 재시도까지 소진
     assert all(_attempt(c["id"])["status"] == "failed" for c in cur)
-    with app_db.SessionLocal() as db:
-        with pytest.raises(text_check.CheckIntegrityError):
-            text_check.job_block_states(db, ids["job"])
-    with pytest.raises(text_check.CheckIntegrityError):  # 일반 검사 실패처럼 확정을 통과시키지 않는다
-        ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert _step(ids) == ("review", "N5")
+    _failed_shown_and_confirm_passes(ids)  # PM 11-10 — 차단 · 500 대신 failed 표시, 확정 허용(보고는 채택 안 함)
 
 
 def test_other_validation_failure_keeps_final_failure_confirm_path(env, rule_on, monkeypatch):
@@ -859,12 +877,14 @@ class _FlakyStore:
         self.get_override: bytes | None = None
         self.pretend_exists = False
         self.get_fail_times = 0
+        self.puts = 0  # 고정 요청(input/) 쓰기 호출 수 — 같은 입력의 저장소 재호출이 없는지 본다
 
     def __getattr__(self, name):
         return getattr(self.inner, name)
 
     def put_if_absent(self, key, data, content_type=None):
         if key.startswith("input/"):
+            self.puts += 1
             if self.put_error:
                 raise self.put_error
             if self.pretend_exists:
@@ -894,7 +914,10 @@ def flaky(env):
 
 
 @pytest.mark.parametrize("mode", ["put_error", "readback_mismatch", "existing_key_other_content"])
-def test_request_not_stored_means_no_attempt(env, rule_on, flaky, mode):
+def test_request_not_stored_is_recorded_as_failed_input_without_execution(env, rule_on, flaky, mode):
+    """요청 객체 저장 · 되읽기 · 해시 확인 실패(U2 · PM 11-10): 번역문 저장은 성공하고, 실행할 시도 대신 그 입력의 실패를 현재 검사 시도 행으로
+    남긴다(failed · 요청 참조 없음 · 큐 전달 없음 · errorCode CHECK_REQUEST_STORE_FAILED). 조회 failed(inputKey = 실제 현재 키) · 확정 통과.
+    같은 입력의 재저장 · 확정은 저장소를 다시 부르지 않고 행을 늘리지 않는다."""
     ids = _to_n3(env)
     _proceed(ids, env)
     assert _step(ids) == ("review", "N5")
@@ -907,17 +930,23 @@ def test_request_not_stored_means_no_attempt(env, rule_on, flaky, mode):
         flaky.get_override = b'{"other":1}'
     else:
         flaky.pretend_exists, flaky.get_override = True, b'{"format":"text-check-request@1","job_id":0}'
-    _patch(ids, blk["id"], "changed while store is broken")  # 저장은 성공, 검사 등록만 안 된다
-    assert [c["id"] for c in _checks(ids["job"])] == before  # 객체 저장 · 되읽기 · 해시 확인 실패 — 시도 없음
-    assert _blocks(ids)[blk["id"]]["check"]["state"] == "outdated"  # 이전 결과만 있다(검사 실패로 보지 않음)
-    r = ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert r.status_code == 409 and r.json()["error"]["details"]["registeredBlockIds"] == []  # 확정 보조 등록도 같은 이유로 못 함
-    flaky.put_error = flaky.get_override = None
-    flaky.pretend_exists = False
-    r = ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert r.status_code == 409 and blk["id"] in r.json()["error"]["details"]["registeredBlockIds"]  # 복구되면 등록
+    env["q"].messages.clear()
+    _patch(ids, blk["id"], "changed while store is broken")  # 번역문 저장 성공
     new = [c for c in _checks(ids["job"]) if c["id"] not in before]
-    assert len(new) == 1 and new[0]["unit_id"] == sec
+    assert len(new) == 1 and new[0]["unit_id"] == sec and new[0]["status"] == "failed" and new[0]["is_current"]
+    m = new[0]["input_manifest"]
+    assert "request_ref" not in m and m["registration_failure"]["stage"] == "request_store"
+    row = _q("SELECT error_code, error_message FROM job_async_task WHERE id = :t", t=new[0]["id"])[0]
+    assert row["error_code"] == "CHECK_REQUEST_STORE_FAILED" and row["error_message"]  # 등록 단계 저장 실패(API 6-10) · 사유는 내부 메시지
+    task = [t for t in ids["c"].get(f"/v1/jobs/{ids['job']}/tasks").json()["items"] if t["taskId"] == new[0]["id"]]
+    assert task and task[0]["errorCode"] == "CHECK_REQUEST_STORE_FAILED" and task[0]["retryable"] is False  # 재시도 API 대상 아님
+    assert [n for n, _a in env["q"].messages if n == TC] == []  # 실행 · 전달 없음
+    assert _blocks(ids)[blk["id"]]["check"] == {"state": "failed", "inputKey": m["input_keys"][f"blk_{blk['id']}"]}
+    puts, rows = flaky.puts, len(_checks(ids["job"]))
+    _patch(ids, blk["id"], "changed while store is broken")  # 같은 입력 재저장 — 재사용(저장소 호출 · 행 없음)
+    r = ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
+    assert r.status_code == 200, r.text  # 검사 오류로 확정을 막지 않는다
+    assert (flaky.puts, len(_checks(ids["job"]))) == (puts, rows)
 
 
 def test_store_request_same_key_checks_content():
@@ -1031,12 +1060,7 @@ def test_untrusted_request_is_not_a_check_failure(env, rule_on, flaky, mode, cod
     assert _q("SELECT count(*) AS n FROM task_handoff h WHERE h.task_id = ANY(:t) AND h.state = 'adopted' AND h.outcome = 'done'",
               t=[c["id"] for c in rows])[0]["n"] == 0  # 검사하지 않았다
     assert _step(ids) == ("review", "N5")
-    with app_db.SessionLocal() as db:
-        with pytest.raises(text_check.CheckIntegrityError):  # 일반 failed(확정 통과)로 분류하지 않는다
-            text_check.job_block_states(db, ids["job"])
-    with pytest.raises(text_check.CheckIntegrityError):
-        ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert _step(ids) == ("review", "N5")
+    _failed_shown_and_confirm_passes(ids)  # PM 11-10 — 차단 · 500 대신 failed 표시, 확정 허용(보고는 채택 안 함)
 
 
 def test_transient_read_error_recovers_by_same_input_retry(env, rule_on, flaky):
@@ -1174,12 +1198,7 @@ def test_request_lost_after_start_rejects_whole_report(env, rule_on, flaky, monk
     assert _flags_of(target) == before  # flag 무변경
     assert any(c["retry_origin"] == "auto" for c in rows) is (mode == "unreadable")
     assert _step(ids) == ("review", "N5")
-    with app_db.SessionLocal() as db:
-        with pytest.raises(text_check.CheckIntegrityError):
-            text_check.job_block_states(db, ids["job"])
-    with pytest.raises(text_check.CheckIntegrityError):  # 확정 통과 없음
-        ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
-    assert _step(ids) == ("review", "N5")
+    _failed_shown_and_confirm_passes(ids)  # PM 11-10 — 차단 · 500 대신 failed 표시, 확정 허용(보고는 채택 안 함)
 
 
 def test_cancel_during_run_blocks_report_before_adoption(env, rule_on, monkeypatch):

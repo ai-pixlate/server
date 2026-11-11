@@ -133,7 +133,8 @@ class ChecksNotSettled(ConfirmRejected):
 def _require_checks_settled(db: Session, job_id: int) -> None:
     """OpenAPI confirmReview 「규칙 검사 연결」 확정 조건. 포함 섹션 검사 대상 블록이 모두 settled · failed 면 통과.
     그 밖이면 missing · outdated 블록의 섹션에 검사를 등록(보조 복구 경로)해 커밋하고 409 로 거절한다.
-    조회와 같은 판정 함수(text_check.job_block_states)를 쓴다. 무결성 오류는 통과로 바꾸지 않는다(CheckIntegrityError 전파)."""
+    조회와 같은 판정 함수(text_check.job_block_states)를 쓴다. 검사 오류(공급 · 입력 · 데이터 오류 · 보고/요청 무결성 포함)는 failed 로
+    통과한다(PM 11-10) — 확인 집합 · taskId 등 다른 확정 조건은 아래에서 그대로 본다."""
     from app.flows import text_check
 
     states = text_check.job_block_states(db, job_id)
@@ -153,6 +154,12 @@ def _require_checks_settled(db: Session, job_id: int) -> None:
             targets = {t["block_id"] for t in json_value(db.execute(
                 text("SELECT input_manifest FROM job_async_task WHERE id = :t"), {"t": aid}).scalar())["targets"]}
             registered += sorted(b for b, s_ in sec_of.items() if s_ == sid and b in targets)
+    if not ids:
+        # 보조 등록이 실행할 시도를 하나도 만들지 않았다(예: 요청 객체 저장 실패를 그 입력의 실패로 기록) — 같은 잠금 · 트랜잭션에서 다시
+        # 판정해 모두 settled · failed 면 확정을 이어 간다(PM 11-10 — 검사 오류로 확정을 막지 않는다). 커밋은 확정 끝에서 한 번
+        again = text_check.job_block_states(db, job_id) or {}
+        if all(v["state"] in text_check.PASSING for v in again.values()):
+            return
     db.commit()
     execution.dispatch(ids)
     raise ChecksNotSettled(409, "INVALID_STATE", "검사가 끝나지 않은 블록이 있다", {

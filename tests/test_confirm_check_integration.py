@@ -368,9 +368,9 @@ def test_i8_concurrent_double_confirm_only_one_wins(env, rule_on):
     assert _q("SELECT current_step FROM job WHERE id = :j", j=s["job"])[0]["current_step"] == "N6"
 
 
-def test_i9_supply_or_key_unresolved_current_behavior_is_server_error_without_writes(env, rule_on):
-    """미결 항목(검토 메모 「공급자 미연결 · 실패일 때 조회 · 확정」, 503 안은 제안 · 구현 전) — 현재 동작만 기록한다.
-    현재 키를 계산하지 못하면 상태 판정(job_block_states)이 예외를 내 확정이 500 이 된다. 확정 쓰기 · 검사 등록은 없다."""
+def test_i9_supply_unresolved_is_server_error_and_key_unavailable_is_failed_null(env, rule_on):
+    """공급 기준(대상 언어 등)을 정할 수 없으면 상태 판정이 예외를 내 확정이 500(확정 쓰기 · 검사 등록 없음 — 현재 동작 기록).
+    현재 키를 계산할 수 없으면(U1) failed · inputKey null 로 판정해 확정을 막지 않는다(PM 11-10 · API 6-10)."""
     from app.flows import text_check
 
     s = _failed_n5_checked(env)
@@ -382,13 +382,13 @@ def test_i9_supply_or_key_unresolved_current_behavior_is_server_error_without_wr
     assert len(_checks(s["job"])) == n
     _n5_no_final(s["job"])
     rule_on.fail = False
-    rule_on.keys.fail = True
-    with pytest.raises(text_check.InputKeysUnavailable):
-        _confirm(s, _ack(s))
-    assert len(_checks(s["job"])) == n
-    _n5_no_final(s["job"])
-    rule_on.keys.fail = False
-    assert _err(_confirm(s, _ack(s)))["reason"] == "check_not_settled"  # 장애가 풀리면 보조 등록 경로로 돌아온다
+    rule_on.keys.fail = True  # U1(11-11 API 6-10): 현재 키를 계산할 수 없으면 failed · inputKey null — 시도 행 없이 확정 통과
+    st = _blocks(s["c"], s["job"])
+    assert all(v["check"] == {"state": "failed", "inputKey": None} for v in st.values() if v["check"] is not None)
+    r = _confirm(s, _ack(s))
+    assert r.status_code == 200, r.text
+    assert len(_checks(s["job"])) == n  # 검사 등록 · 실패 기록 없음
+    assert (_final_runs(s["job"]), _final_attempts(s["job"])) == (1, 1)
 
 
 def test_i11_cancel_after_registration_then_next_confirm_not_n5(env, rule_on):
@@ -440,7 +440,7 @@ def test_i14_partial_registration_reports_only_new_blocks(env, rule_on):
 
 
 
-# ── 요청 객체 저장 실패(공급 · 키 계산은 성공) — 현재 409 · retryable false 는 관찰이며 응답 · 복구 정책 확정이 아니다 ─────────
+# ── 요청 객체 저장 실패(공급 · 키 계산은 성공) — 그 입력의 실패를 기록해 failed · 확정 통과(PM 11-10). errorCode 표현은 API 확인 전 잠정 ─────
 class _SectionStore:
     """env 메모리 저장소 앞의 장애 대역. 지정한 블록 키가 든 고정 요청(input/)만 쓰기 실패 또는 되읽기 불일치로 만든다."""
 
@@ -501,26 +501,24 @@ def _http_409(r):
 
 
 @pytest.mark.parametrize("mode", ["put", "readback"])
-def test_store_failure_all_sections_registers_nothing_then_recovers(env, rule_on, sec_store, mode):
+def test_store_failure_all_sections_records_failed_and_confirm_passes(env, rule_on, sec_store, mode):
+    """확정 보조 등록이 두 섹션 모두 요청 객체 저장에 실패 — 실행할 시도는 없고 각 입력의 실패를 기록한다. 같은 잠금 안에서 다시 판정하면
+    모두 settled · failed 라 그 확정 요청이 통과한다(409 반복 없음). 확인 집합 · taskId 조건은 그대로 적용된다."""
     s = _failed_n5_checked(env)
     b1, sec1, b2, sec2 = _two_outdated_sections(s)
     sec_store.mode = mode
     sec_store.fail_blocks = _section_blocks(s, sec1) | _section_blocks(s, sec2)
     before = {c["id"] for c in _checks(s["job"])}
     env["q"].messages.clear()
-    code, retryable, d = _http_409(_confirm(s, _ack(s)))
-    assert (code, retryable, d["reason"], d["registeredBlockIds"]) == ("INVALID_STATE", False, "check_not_settled", [])  # 관찰
-    assert {"blockId": b1, "state": "outdated"} in d["blocks"] and {"blockId": b2, "state": "outdated"} in d["blocks"]
-    assert {c["id"] for c in _checks(s["job"])} == before and [n for n, _a in env["q"].messages if n == TC] == []  # 시도 · 전달 없음
+    d = _err(_confirm(s, []))  # 검사 조건은 통과 — 확인 집합 조건은 그대로 거절(이 요청의 기록도 요청과 함께 롤백)
+    assert d["reason"] == "acknowledgement_mismatch"
     _n5_no_final(s["job"])
-    sec_store.fail_blocks, sec_store.bad_keys = set(), set()  # 장애 해소(일시 장애 — 되읽기 정상화) — 같은 확정 재요청
-    code, retryable, d = _http_409(_confirm(s, _ack(s)))
-    assert d["reason"] == "check_not_settled" and {b1, b2} <= set(d["registeredBlockIds"])
-    new = [c for c in _checks(s["job"]) if c["id"] not in before]
-    assert sorted(c["unit_id"] for c in new) == sorted([sec1, sec2]) and sorted(_queued(env, {c["id"] for c in new})) == sorted(c["id"] for c in new)
-    env["q"].drain()
+    assert {c["id"] for c in _checks(s["job"])} == before
     r = _confirm(s, _ack(s))
     assert r.status_code == 200, r.text
+    new = [c for c in _checks(s["job"]) if c["id"] not in before]
+    assert sorted((c["unit_id"], c["status"]) for c in new) == sorted([(sec1, "failed"), (sec2, "failed")])
+    assert [n for n, _a in env["q"].messages if n == TC] == []  # 실행 · 전달 없음
     assert (_final_runs(s["job"]), _final_attempts(s["job"])) == (1, 1)
 
 
@@ -533,23 +531,20 @@ def test_store_failure_partial_commits_and_dispatches_only_successful_sections(e
     before = {c["id"] for c in _checks(s["job"])}
     env["q"].messages.clear()
     code, retryable, d = _http_409(_confirm(s, _ack(s)))
-    assert (code, retryable, d["reason"]) == ("INVALID_STATE", False, "check_not_settled")  # 관찰
+    assert (code, retryable, d["reason"]) == ("INVALID_STATE", False, "check_not_settled")  # sec1 은 실제 검사 등록 — 끝날 때까지 대기
     assert b1 in d["registeredBlockIds"] and b2 not in d["registeredBlockIds"]
     new = [c for c in _checks(s["job"]) if c["id"] not in before]
-    assert [c["unit_id"] for c in new] == [sec1]  # 저장 실패 섹션에는 시도 없음
-    assert _queued(env, {c["id"] for c in new}) == [new[0]["id"]]  # 성공한 등록만 커밋 · 전달
-    assert {"blockId": b2, "state": "outdated"} in d["blocks"]
+    assert sorted((c["unit_id"], c["status"]) for c in new) == sorted([(sec1, "pending"), (sec2, "failed")])  # sec2 는 입력 실패 기록
+    sec1_att = [c["id"] for c in new if c["unit_id"] == sec1]
+    assert _queued(env, {c["id"] for c in new}) == sec1_att  # 실행할 시도만 커밋 · 전달
+    assert _blocks(s["c"], s["job"])[b2]["check"]["state"] == "failed"
     _n5_no_final(s["job"])
-    # 장애가 남은 채 재요청 — sec1 은 진행 중이라 다시 만들지 않는다
+    # 장애가 남은 채 재요청 — sec1 은 진행 중(대기 유지), sec2 는 같은 입력 기록 재사용(행 없음)
     code, retryable, d = _http_409(_confirm(s, _ack(s)))
-    assert d["registeredBlockIds"] == [] and len(_checks(s["job"])) == len(before) + 1
-    sec_store.fail_blocks, sec_store.bad_keys = set(), set()
-    code, retryable, d = _http_409(_confirm(s, _ack(s)))
-    assert b2 in d["registeredBlockIds"] and b1 not in d["registeredBlockIds"]
-    new2 = [c for c in _checks(s["job"]) if c["id"] not in before]
-    assert sorted(c["unit_id"] for c in new2) == sorted([sec1, sec2]) and len(new2) == 2  # 중복 없음
+    assert d["registeredBlockIds"] == [] and len(_checks(s["job"])) == len(before) + 2
     env["q"].drain()
     assert _confirm(s, _ack(s)).status_code == 200
+    assert len(_checks(s["job"])) == len(before) + 2  # 중복 없음
     assert (_final_runs(s["job"]), _final_attempts(s["job"])) == (1, 1)
 
 

@@ -68,6 +68,8 @@ def check_environment(env: Mapping[str, str], flag_given: bool) -> list[str]:
         p.append("PIXLATE_OAUTH_KAKAO_APP_ID(숫자) 없음")
     if not env.get("JWT_SECRET", "").startswith(TEST_PREFIX):
         p.append(f"JWT_SECRET 는 로컬 시험 값({TEST_PREFIX}…)")
+    if env.get("PIXLATE_ACTIVE_CHECKS", "").strip():  # 규칙 검사 공급자 등록(app.text_check_supply) — 로그인 시험에서 켜지 않는다
+        p.append("PIXLATE_ACTIVE_CHECKS 가 설정돼 있음 — 비우고 실행(이 진입점은 번역 검사를 켜지 않는다)")
     db = env.get("DATABASE_URL", "")
     if _host(db) not in LOOPBACK:
         p.append("DATABASE_URL 은 루프백 주소의 로컬 DB 여야 함")

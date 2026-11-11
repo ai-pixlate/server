@@ -49,6 +49,7 @@ def test_good_environment_passes():
     ({"PIXLATE_AUTH_ORIGINS": "http://localhost:3000,https://pixlate.example"}, "PIXLATE_AUTH_ORIGINS"),
     ({"PIXLATE_AUTH_ORIGINS": "http://localhost:3001"}, "REDIRECT_BASE 가 PIXLATE_AUTH_ORIGINS"),
     ({"PIXLATE_OAUTH_PROVIDERS": ""}, "PIXLATE_OAUTH_PROVIDERS"),
+    ({"PIXLATE_ACTIVE_CHECKS": "rule"}, "PIXLATE_ACTIVE_CHECKS"),
 ])
 def test_bad_environment_refuses(change, needle):
     env = {**GOOD, **change}

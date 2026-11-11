@@ -36,6 +36,7 @@ def test_good_environment_passes():
     ({"DATABASE_URL": "postgresql+psycopg://u:p@pixlate-db.example.com:5432/pixlate_local_real"}, "DATABASE_URL"),
     ({"DATABASE_URL": "postgresql+psycopg://u:p@127.0.0.1:55451/pixlate"}, "DB 이름"),
     ({"CELERY_BROKER_URL": ""}, "CELERY_BROKER_URL"),
+    ({"PIXLATE_ACTIVE_CHECKS": "rule"}, "PIXLATE_ACTIVE_CHECKS"),
     ({"PIXLATE_OAUTH_REDIRECT_BASE": "https://dev.example"}, "REDIRECT_BASE"),
 ])
 def test_bad_environment_refuses_without_echoing_values(change, needle):

@@ -14,7 +14,7 @@
     PIXLATE_OAUTH_HTTP_TIMEOUT_S     제공자 호출 하나의 제한 시간(초, 기본 10, 재시도 없음)
   켠 제공자의 필수 값이 빠졌거나 형식이 틀리면 404 로 숨기지 않는다 → 503(사유 없음) + 서버 로그(설정 이름만, 값 없음).
   점유 상한은 「호출 수 × 호출 제한 시간 + 10초」 이상이어야 한다(아니면 설정 오류). 카카오 = 토큰 교환·access_token_info·user/me 3회,
-  Google = 토큰 교환 + (캐시가 비면) discovery·인증서 2회 = 최대 3회.
+  Google = 토큰 교환 + 인증서(캐시가 비었거나 만료, 또는 모르는 kid) 1회 = 최대 2회.
   공식 문서(2026-11-10 확인): 카카오·Google 모두 인가 코드 유효 시간을 적지 않았다(둘 다 일회용). 시도 수명 10분과의 관계는 실제 제공자 시험에서 확인한다.
 
 ■ Redis(세션 저장소와 같은 연결 — app.auth_sessions.client())
@@ -51,6 +51,12 @@ from urllib.parse import quote, urlencode, urlsplit
 
 import httpx
 import redis
+from cryptography import x509
+from cryptography.hazmat.primitives.asymmetric import rsa
+from google.auth import exceptions as google_exceptions
+from google.auth import jwt as google_jwt
+from google.auth import transport as google_transport
+from google.oauth2 import id_token as google_id_token
 
 from app import auth_sessions
 
@@ -69,7 +75,6 @@ KAKAO_TOKEN_INFO = "https://kapi.kakao.com/v1/user/access_token_info"
 KAKAO_ME = "https://kapi.kakao.com/v2/user/me"
 GOOGLE_AUTHORIZE = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN = "https://oauth2.googleapis.com/token"
-GOOGLE_DISCOVERY = "https://accounts.google.com/.well-known/openid-configuration"
 GOOGLE_ISSUERS = ("https://accounts.google.com", "accounts.google.com")
 SCOPES = {"kakao": "profile_nickname account_email", "google": "openid email profile"}
 _MAX_TEXT = 255  # seller.email · display_name 길이 — 넘으면 저장하지 않는다(자르지 않음)
@@ -82,7 +87,7 @@ clock_ms: Callable[[], Optional[int]] = lambda: None
 def set_transport(t: Optional[httpx.BaseTransport]) -> None:
     global _transport
     _transport = t
-    _JWKS.clear()
+    _CERTS.clear()
 
 
 # ───────────────────────────── 오류 ─────────────────────────────
@@ -539,28 +544,23 @@ def _kakao_name(acct: dict) -> tuple[Optional[str], str]:
     return (v, "set") if v else (None, "keep")
 
 
-# ── Google ID 토큰(RS256) — 표준 라이브러리로 검증(새 의존성 없음) ──
+# ── Google ID 토큰 — google-auth 의 verify_oauth2_token 으로 검증(Google 가이드 권장 방식) ──
+# 라이브러리(google-auth 2.61.0 — constraints.txt 고정)가 하는 것: RS256 서명(cryptography) · aud(audience 를 반드시 넘긴다 — None 이면
+# 검사하지 않음) · iat·exp(시계 차이 60초 허용, 둘 다 없으면 거절) · iss(accounts.google.com 두 형태).
+# 우리가 더 하는 것: 헤더 alg=RS256·kid 필수(ES256 등 다른 알고리즘 차단) · iss·aud 를 한 번 더(aud 는 문자열 하나만) · nonce · sub.
+# 인증서 GET 은 라이브러리가 _CertsRequest(아래)를 거쳐 하므로 기존 httpx 경로(제한 시간·시험 대역·실제 호출 차단)를 그대로 쓴다.
+# 인증서는 Cache-Control 동안 캐시하고, 모르는 kid 면 다시 받는다 — 단 마지막으로 받은 지 _CERTS_REFRESH_MIN_S 안이면 다시 받지 않는다.
+# 인증서 조회 실패(네트워크·5xx·4xx·JSON·인증서 형식)는 ProviderUnavailable 이고, 사용자 토큰 거절(AuthFailed)로 바꾸지 않는다.
+# 알려진 한계(30초 재조회 제한): 이 서버 프로세스가 인증서를 받은 지 30초 안에, 그때 받은 목록에 없던 새 키로 서명된 정상 토큰이 오면
+#   다시 받지 않고 401 provider_auth_failed(재시도 불가)로 거절하고 그 시도를 닫는다(Google 이 새 키를 쓰기 시작하는 시점이 그 목록보다
+#   앞선 경우). 범위는 프로세스마다 마지막 조회 뒤 30초다. 복구 = 사용자가 새 로그인(start 부터)을 하면 그 요청에서 30초가 지났으면
+#   목록을 다시 받아 통과한다 — 서버 조치는 필요 없다. Google 이 키를 언제 목록에 올리는지는 확인하지 않았다(실제 제공자 시험 범위).
+# 검증 근거: 제공자 대역(cryptography·OpenSSL 서명, 자체 서명 PEM 인증서)과 설치된 라이브러리 시험까지다. 실제 Google ID 토큰·실제 v1 인증서
+#   응답·브라우저 연동은 미검증이다.
 
-_JWKS: dict = {}  # {"keys": {kid: (n, e)}, "until": epoch}
-_SHA256_DIGESTINFO = bytes.fromhex("3031300d060960864801650304020105000420")
-
-
-def _b64d(s: str) -> bytes:
-    return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
-
-
-def rsa_verify(n: int, e: int, message: bytes, signature: bytes) -> bool:
-    """RSASSA-PKCS1-v1_5 + SHA-256 검증(공개 키 연산만 — 비밀 값이 없어 시간 차 공격 대상이 아니다)."""
-    k = (n.bit_length() + 7) // 8
-    if len(signature) != k or k < 256:  # 2048비트 미만 키는 받지 않는다
-        return False
-    s = int.from_bytes(signature, "big")
-    if s >= n:
-        return False
-    em = pow(s, e, n).to_bytes(k, "big")
-    t = _SHA256_DIGESTINFO + hashlib.sha256(message).digest()
-    expected = b"\x00\x01" + b"\xff" * (k - len(t) - 3) + b"\x00" + t
-    return hmac.compare_digest(em, expected)
+GOOGLE_CERTS = "https://www.googleapis.com/oauth2/v1/certs"  # verify_oauth2_token 이 요청하는 주소(라이브러리 상수 — 시험이 대조)
+_CERTS_REFRESH_MIN_S = 30
+_CERTS: dict = {}  # {"body": bytes, "kids": frozenset, "until": epoch, "fetched": epoch}
 
 
 def _max_age(r: httpx.Response, default: int) -> int:
@@ -568,57 +568,94 @@ def _max_age(r: httpx.Response, default: int) -> int:
     return min(int(m.group(1)), 86400) if m else default
 
 
-def _google_keys(cfg: Config, refresh: bool = False) -> dict:
-    if not refresh and _JWKS.get("until", 0) > time.time():
-        return _JWKS["keys"]
-    r = _call(cfg, "discovery", "GET", GOOGLE_DISCOVERY)
+def _fetch_google_certs(cfg: Config) -> None:
+    r = _call(cfg, "certs", "GET", GOOGLE_CERTS)
     if r.status_code != 200:
-        raise ProviderUnavailable("discovery")
-    jwks_uri = _json(cfg, "discovery", r).get("jwks_uri")
-    if not isinstance(jwks_uri, str) or not jwks_uri.startswith("https://"):
-        raise ProviderUnavailable("discovery")
-    r = _call(cfg, "certs", "GET", jwks_uri)
-    if r.status_code != 200:
+        log.warning("oauth.google_certs_status status=%d", r.status_code)
         raise ProviderUnavailable("certs")
-    keys = {}
-    for k in _json(cfg, "certs", r).get("keys") or []:
-        if isinstance(k, dict) and k.get("kty") == "RSA" and k.get("kid") and k.get("n") and k.get("e"):
-            keys[k["kid"]] = (int.from_bytes(_b64d(k["n"]), "big"), int.from_bytes(_b64d(k["e"]), "big"))
-    if not keys:
+    raw = _json(cfg, "certs", r)
+    good = {}
+    for kid, pem in raw.items():
+        try:
+            pub = x509.load_pem_x509_certificate(pem.encode("ascii")).public_key()
+        except (AttributeError, TypeError, ValueError):
+            continue
+        if isinstance(pub, rsa.RSAPublicKey) and pub.key_size >= 2048:
+            good[kid] = pem
+    if not good:
+        log.warning("oauth.google_certs_unusable entries=%d", len(raw))
         raise ProviderUnavailable("certs")
-    _JWKS.update(keys=keys, until=time.time() + _max_age(r, 3600))
-    return keys
+    now = time.time()
+    _CERTS.update(body=json.dumps(good).encode(), kids=frozenset(good), until=now + _max_age(r, 3600), fetched=now)
+
+
+def _google_certs_body(cfg: Config, kid: str) -> bytes:
+    now = time.time()
+    if not _CERTS or _CERTS["until"] <= now:
+        _fetch_google_certs(cfg)
+    elif kid not in _CERTS["kids"] and now - _CERTS["fetched"] >= _CERTS_REFRESH_MIN_S:  # 인증서 교체 — 한 번만 다시 받는다
+        log.info("oauth.google_certs_refresh reason=unknown_kid")
+        _fetch_google_certs(cfg)
+    return _CERTS["body"]
+
+
+class _CertsResponse(google_transport.Response):
+    def __init__(self, body: bytes):
+        self._body = body
+
+    @property
+    def status(self):
+        return 200
+
+    @property
+    def headers(self):
+        return {}
+
+    @property
+    def data(self):
+        return self._body
+
+
+class _CertsRequest(google_transport.Request):
+    """verify_oauth2_token 의 인증서 GET 하나만 받는다. 다른 요청은 코드 오류로 본다."""
+
+    def __init__(self, cfg: Config, kid: str):
+        self.cfg, self.kid = cfg, kid
+
+    def __call__(self, url, method="GET", body=None, headers=None, timeout=None, **kwargs):
+        if method != "GET" or url != GOOGLE_CERTS:
+            log.error("oauth.google_unexpected_request method=%s", method)  # 라이브러리 버전이 바뀌어 주소가 달라진 경우 등
+            raise Misconfigured("google")
+        return _CertsResponse(_google_certs_body(self.cfg, self.kid))
 
 
 def verify_google_id_token(cfg: Config, id_token: str, nonce: str) -> dict:
-    """서명(Google 인증서) · iss · aud · exp · nonce. 실패 = AuthFailed(인증서를 못 받으면 ProviderUnavailable)."""
+    """실패 = AuthFailed(토큰 거절) · ProviderUnavailable(인증서 조회 실패) · Misconfigured(라이브러리 요청이 예상과 다름)."""
     try:
-        h64, p64, s64 = id_token.split(".")
-        header, claims, sig = json.loads(_b64d(h64)), json.loads(_b64d(p64)), _b64d(s64)
-    except (ValueError, TypeError):
+        header = google_jwt.decode_header(id_token)
+    except (ValueError, TypeError, google_exceptions.GoogleAuthError):
         raise AuthFailed("id_token_format")
-    if not isinstance(header, dict) or not isinstance(claims, dict) or header.get("alg") != "RS256" or not header.get("kid"):
+    if not isinstance(header, dict) or header.get("alg") != "RS256" or not isinstance(header.get("kid"), str) or not header["kid"]:
         raise AuthFailed("id_token_header")
-    keys = _google_keys(cfg)
-    if header["kid"] not in keys:  # 인증서 교체 직후 — 한 번만 새로 받는다
-        keys = _google_keys(cfg, refresh=True)
-    key = keys.get(header["kid"])
-    if key is None or not rsa_verify(key[0], key[1], f"{h64}.{p64}".encode(), sig):
-        raise AuthFailed("id_token_signature")
-    now_s = int(time.time())
+    try:
+        claims = google_id_token.verify_oauth2_token(id_token, _CertsRequest(cfg, header["kid"]),
+                                                     audience=cfg.client_id, clock_skew_in_seconds=60)
+    except (ProviderUnavailable, Misconfigured):
+        raise
+    except google_exceptions.TransportError:
+        raise ProviderUnavailable("certs")
+    except (ValueError, TypeError, KeyError, google_exceptions.GoogleAuthError) as e:
+        log.info("oauth.google_id_token_rejected err=%s", type(e).__name__)  # 메시지에는 토큰 값이 들어갈 수 있어 남기지 않는다
+        raise AuthFailed("id_token")
     if claims.get("iss") not in GOOGLE_ISSUERS:
         raise AuthFailed("id_token_iss")
-    aud = claims.get("aud")
-    if not (aud == cfg.client_id or (isinstance(aud, list) and cfg.client_id in aud)):
+    if claims.get("aud") != cfg.client_id:
         raise AuthFailed("id_token_aud")
-    exp = claims.get("exp")
-    if not isinstance(exp, (int, float)) or exp <= now_s - 60:  # 서버 간 시계 차이 60초 허용
-        raise AuthFailed("id_token_exp")
     if not nonce or not isinstance(claims.get("nonce"), str) or not hmac.compare_digest(claims["nonce"], nonce):
         raise AuthFailed("id_token_nonce")
     if not isinstance(claims.get("sub"), str) or not claims["sub"].strip():
         raise AuthFailed("id_token_sub")
-    return claims
+    return dict(claims)
 
 
 def google_identity(cfg: Config, code: str, verifier: str, nonce: str) -> Identity:

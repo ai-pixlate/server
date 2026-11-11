@@ -2,7 +2,8 @@
 
 제공자는 대역(httpx.MockTransport)이다 — 실제 카카오·Google 을 부르지 않는다(conftest 가 실제 호출을 막는다).
 대역은 실제 제공자처럼 PKCE(verifier ↔ challenge)·redirect_uri·client_id·코드 일회성을 검사한다. 실제 제공자 동작(특히 카카오 PKCE 강제 여부)은 별도 시험이다.
-Google ID 토큰은 시험이 만든 RSA 키로 서명한다(서버는 표준 라이브러리로 RS256 을 검증).
+Google ID 토큰은 시험이 cryptography 로 서명하고 대역 인증서(X.509 PEM)를 준다 — 서버는 google-auth(verify_oauth2_token)로 검증한다.
+독립 근거로 OpenSSL 이 만든 키·인증서·서명도 대조한다. 실제 Google ID 토큰 통과는 실제 제공자 시험 범위다(미검증).
 시계: 세션(auth_sessions.now)과 시도·점유(Lua — social_auth.clock_ms)를 같은 가짜 시계로 맞춘다. Redis TIME 경로는 따로 한 번 본다.
 """
 from __future__ import annotations
@@ -12,13 +13,19 @@ import hashlib
 import json
 import logging
 import os
+import datetime
 import random
 import threading
+import time
 import uuid
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa
+from cryptography.x509.oid import NameOID
 from fastapi.testclient import TestClient
 
 from tests.exec_db import bound_app_db, fresh_database, requires_db
@@ -33,72 +40,50 @@ KAKAO_APP_ID = 990001  # 시험 값 — 실제 앱 ID 아님
 SECRETS = {"PIXLATE_OAUTH_KAKAO_CLIENT_SECRET": "test-kakao-secret-xyz", "PIXLATE_OAUTH_GOOGLE_CLIENT_SECRET": "test-google-secret-xyz"}
 
 
-# ───────────────────────────── RSA(시험용 키) ─────────────────────────────
+# ───────────────────────────── 시험용 서명 키(cryptography) ─────────────────────────────
 
-def _is_probable_prime(n: int, rnd: random.Random) -> bool:
-    if n < 2:
-        return False
-    for p in (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37):
-        if n % p == 0:
-            return n == p
-    d, r = n - 1, 0
-    while d % 2 == 0:
-        d //= 2
-        r += 1
-    for _ in range(24):
-        x = pow(rnd.randrange(2, n - 2), d, n)
-        if x in (1, n - 1):
-            continue
-        for _ in range(r - 1):
-            x = pow(x, 2, n)
-            if x == n - 1:
-                break
-        else:
-            return False
-    return True
-
-
-def _prime(bits: int, rnd: random.Random) -> int:
-    while True:
-        c = rnd.getrandbits(bits) | (1 << (bits - 1)) | 1
-        if _is_probable_prime(c, rnd):
-            return c
+def _self_signed(priv) -> str:
+    """대역 인증서 — Google v1 certs 형식(kid → X.509 PEM)과 같은 자체 서명 인증서."""
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "pixlate-test")])
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(priv.public_key())
+            .serial_number(x509.random_serial_number()).not_valid_before(now - datetime.timedelta(days=1))
+            .not_valid_after(now + datetime.timedelta(days=2)).sign(priv, hashes.SHA256()))
+    return cert.public_bytes(serialization.Encoding.PEM).decode()
 
 
 class RsaKey:
-    def __init__(self, seed: int):
-        rnd = random.Random(seed)
-        self.e = 65537
-        while True:
-            p, q = _prime(1024, rnd), _prime(1024, rnd)
-            phi = (p - 1) * (q - 1)
-            if p != q and phi % self.e:
-                break
-        self.n, self.d = p * q, pow(self.e, -1, phi)
-        self.kid = f"test-kid-{seed}"
+    """시험용 RSA 키 — 서명은 cryptography(RSASSA-PKCS1-v1_5 + SHA-256). 서버 검증은 google-auth 가 한다(검증 코드와 다른 구현)."""
+
+    def __init__(self, name: str, bits: int = 2048):
+        self.kid = f"test-kid-{name}"
+        self.priv = rsa.generate_private_key(public_exponent=65537, key_size=bits)
+        self.pem = _self_signed(self.priv)
 
     def sign(self, msg: bytes) -> bytes:
-        k = (self.n.bit_length() + 7) // 8
-        t = bytes.fromhex("3031300d060960864801650304020105000420") + hashlib.sha256(msg).digest()
-        em = b"\x00\x01" + b"\xff" * (k - len(t) - 3) + b"\x00" + t
-        return pow(int.from_bytes(em, "big"), self.d, self.n).to_bytes(k, "big")
-
-    def jwk(self) -> dict:
-        b = lambda i: _b64(i.to_bytes((i.bit_length() + 7) // 8, "big"))
-        return {"kty": "RSA", "kid": self.kid, "alg": "RS256", "use": "sig", "n": b(self.n), "e": b(self.e)}
+        return self.priv.sign(msg, padding.PKCS1v15(), hashes.SHA256())
 
 
 def _b64(raw: bytes) -> str:
     return base64.urlsafe_b64encode(raw).rstrip(b"=").decode()
 
 
+def _b64d(s: str) -> bytes:
+    return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+
+
 @pytest.fixture(scope="module")
 def rsa_key():
-    return RsaKey(20261110)
+    return RsaKey("main")
 
 
-def _jwt(key: RsaKey, claims: dict, kid: str | None = None) -> str:
-    h = _b64(json.dumps({"alg": "RS256", "kid": kid or key.kid, "typ": "JWT"}).encode())
+@pytest.fixture(scope="module")
+def other_key():
+    return RsaKey("other")
+
+
+def _jwt(key: RsaKey, claims: dict, kid: str | None = None, alg: str = "RS256") -> str:
+    h = _b64(json.dumps({"alg": alg, "kid": kid or key.kid, "typ": "JWT"}).encode())
     p = _b64(json.dumps(claims).encode())
     return f"{h}.{p}.{_b64(key.sign(f'{h}.{p}'.encode()))}"
 
@@ -116,6 +101,8 @@ class Providers:
         self.hook: dict[str, callable] = {}  # 호출 이름 → 응답 전에 실행(지연·경합 흉내). 값을 돌려주면 그 응답을 쓴다
         self.google_aud: str | None = None
         self.app_id = KAKAO_APP_ID
+        self.cert_keys: list[RsaKey] = [key]  # Google 인증서 목록(kid → PEM)
+        self.cert_calls = 0
 
     def issue_code(self, provider: str, authorize_url: str, profile: dict) -> tuple[str, str]:
         q = {k: v[0] for k, v in parse_qs(urlsplit(authorize_url).query).items()}
@@ -151,10 +138,12 @@ class Providers:
             prof = self.tokens.get(request.headers.get("authorization", "")[7:])
             assert json.loads(request.url.params["property_keys"]) == ["kakao_account.email", "kakao_account.profile"]
             return httpx.Response(200, json={"id": prof["id"], "kakao_account": prof.get("kakao_account", {})})
-        if host == "accounts.google.com" and path == "/.well-known/openid-configuration":
-            return httpx.Response(200, json={"jwks_uri": "https://www.googleapis.com/oauth2/v3/certs"})
-        if host == "www.googleapis.com" and path == "/oauth2/v3/certs":
-            return httpx.Response(200, json={"keys": [self.key.jwk()]}, headers={"cache-control": "public, max-age=3600"})
+        if host == "www.googleapis.com" and path == "/oauth2/v1/certs":  # google-auth verify_oauth2_token 이 받는 형식
+            self.cert_calls += 1
+            r = self._run_hook("google_certs")
+            if r is not None:
+                return r
+            return httpx.Response(200, json={k.kid: k.pem for k in self.cert_keys}, headers={"cache-control": "public, max-age=3600"})
         raise AssertionError(f"대역에 없는 호출 {request.method} {request.url}")
 
     def _token(self, provider: str, request: httpx.Request) -> httpx.Response:
@@ -182,7 +171,7 @@ class Providers:
             self.tokens[at] = prof
             return httpx.Response(200, json={"access_token": at, "token_type": "bearer", "expires_in": 21599})
         claims = {"iss": "https://accounts.google.com", "aud": self.google_aud or c["client_id"], "sub": prof["sub"],
-                  "exp": 4102444800, "iat": 1700000000, "nonce": c["nonce"], **prof.get("claims", {})}
+                  "exp": int(time.time()) + 3600, "iat": int(time.time()) - 5, "nonce": c["nonce"], **prof.get("claims", {})}
         return httpx.Response(200, json={"access_token": "gat", "id_token": _jwt(self.key, claims), "expires_in": 3599})
 
 
@@ -569,30 +558,247 @@ def test_google_login_verifies_id_token_and_stores_verified_profile(client, prov
     assert (row["email"], row["display_name"]) == (None, "지 이름")  # email_verified false = 지움, name 누락 = 그대로
 
 
-@pytest.mark.parametrize("tamper", ["signature", "aud", "iss", "exp", "nonce", "kid", "alg"])
-def test_google_bad_id_token_is_provider_auth_failed_and_closes_attempt(client, prov, rsa_key, tamper):
+GOOGLE_CLIENT = "test-google-client.apps.example"
+_DROP = object()
+
+
+def _google_claims(sub: str, nonce: str, /, **over) -> dict:
+    """정상 클레임(실제 시각 기준 — google-auth 는 시스템 시계로 iat·exp 를 본다). over 로 하나만 바꾸거나(_DROP = 뺌) 한다."""
+    now = int(time.time())
+    c = {"iss": "https://accounts.google.com", "aud": GOOGLE_CLIENT, "sub": sub, "iat": now - 5, "exp": now + 3600, "nonce": nonce}
+    for k, v in over.items():
+        if v is _DROP:
+            c.pop(k)
+        else:
+            c[k] = v
+    return c
+
+
+# 사례마다 하나만 틀리게 만든다 — 같은 시험의 정상 대조(valid)가 통과하므로, 거절 원인은 그 하나다.
+def _google_token(case: str, key: RsaKey, other: RsaKey, sub: str, nonce: str) -> str:
+    now = int(time.time())
+    c = lambda **o: _google_claims(sub, nonce, **o)
+    if case == "valid":
+        return _jwt(key, c())
+    if case == "skew_within_60s":  # 만료 30초 지남 · 발급 시각 30초 미래 — 시계 차이 60초 안이라 받는다
+        return _jwt(key, c(exp=now - 30, iat=now + 30))
+    if case == "signature_other_key":  # 다른 키로 서명하고 kid 만 맞춤
+        return _jwt(other, c(), kid=key.kid)
+    if case == "signature_bitflip":
+        h, p, s = _jwt(key, c()).split(".")
+        sig = bytearray(_b64d(s))
+        sig[-1] ^= 1
+        return f"{h}.{p}.{_b64(bytes(sig))}"
+    if case == "payload_swapped":  # 서명은 원래 클레임, 본문은 다른 사용자
+        h, _, s = _jwt(key, c()).split(".")
+        return f"{h}.{_b64(json.dumps(c(sub='someone-else')).encode())}.{s}"
+    if case == "kid_unknown":
+        return _jwt(key, c(), kid="unknown-kid")
+    if case == "kid_missing":
+        h = _b64(json.dumps({"alg": "RS256", "typ": "JWT"}).encode())
+        p = _b64(json.dumps(c()).encode())
+        return f"{h}.{p}.{_b64(key.sign(f'{h}.{p}'.encode()))}"
+    if case == "alg_none":
+        return f"{_b64(json.dumps({'alg': 'none', 'kid': key.kid}).encode())}.{_b64(json.dumps(c()).encode())}."
+    if case == "alg_es256":
+        return _jwt(key, c(), alg="ES256")
+    if case == "alg_hs256":
+        return _jwt(key, c(), alg="HS256")
+    if case == "not_a_jwt":
+        return "not-a-jwt"
+    over = {
+        "aud_other": {"aud": "other-client"}, "aud_list": {"aud": [GOOGLE_CLIENT, "other-client"]}, "aud_missing": {"aud": _DROP},
+        "iss_other": {"iss": "https://evil.example"}, "iss_missing": {"iss": _DROP},
+        "exp_past": {"exp": now - 120}, "exp_missing": {"exp": _DROP}, "exp_not_number": {"exp": "soon"},
+        "iat_future": {"iat": now + 300}, "iat_missing": {"iat": _DROP},
+        "nonce_other": {"nonce": "other-nonce"}, "nonce_missing": {"nonce": _DROP},
+        "sub_missing": {"sub": _DROP}, "sub_blank": {"sub": "  "},
+    }[case]
+    return _jwt(key, c(**over))
+
+
+GOOGLE_REJECT = ["signature_other_key", "signature_bitflip", "payload_swapped", "kid_unknown", "kid_missing", "alg_none", "alg_es256",
+                 "alg_hs256", "not_a_jwt", "aud_other", "aud_list", "aud_missing", "iss_other", "iss_missing", "exp_past", "exp_missing",
+                 "exp_not_number", "iat_future", "iat_missing", "nonce_other", "nonce_missing", "sub_missing", "sub_blank"]
+
+
+def _google_attempt(client, prov):
     b = Browser(client, prov)
     url = b.start("google").json()["authorizeUrl"]
     sub = f"g-{uuid.uuid4().hex[:12]}"
     code, state = prov.issue_code("google", url, _google(sub))
-    nonce = prov.codes[code]["nonce"]
-    claims = {"iss": "https://accounts.google.com", "aud": "test-google-client.apps.example", "sub": sub, "exp": 4102444800, "nonce": nonce}
-    if tamper == "signature":
-        tok = _jwt(RsaKey(7), claims, kid=rsa_key.kid)
-    elif tamper == "kid":
-        tok = _jwt(rsa_key, claims, kid="unknown-kid")
-    elif tamper == "alg":
-        h = _b64(json.dumps({"alg": "none", "kid": rsa_key.kid}).encode())
-        tok = f"{h}.{_b64(json.dumps(claims).encode())}."
-    else:
-        claims[tamper] = {"aud": "other-client", "iss": "https://evil.example", "exp": 1000, "nonce": "other-nonce"}[tamper]
-        tok = _jwt(rsa_key, claims)
+    return b, sub, code, state, prov.codes[code]["nonce"]
+
+
+@pytest.mark.parametrize("case", ["valid", "skew_within_60s"])
+def test_google_id_token_accepted_cases(client, prov, rsa_key, other_key, case):
+    b, sub, code, state, nonce = _google_attempt(client, prov)
+    tok = _google_token(case, rsa_key, other_key, sub, nonce)
     prov.hook["google_token"] = lambda: httpx.Response(200, json={"access_token": "gat", "id_token": tok})
     r = b.complete("google", code, state)
-    assert r.status_code == 401 and _reason(r) == "provider_auth_failed" and _no_cookies(r), tamper
+    assert r.status_code == 200, r.text
+
+
+@pytest.mark.parametrize("case", GOOGLE_REJECT)
+def test_google_bad_id_token_is_provider_auth_failed_and_closes_attempt(client, prov, rds, rsa_key, other_key, case):
+    b, sub, code, state, nonce = _google_attempt(client, prov)
+    tok = _google_token(case, rsa_key, other_key, sub, nonce)
+    prov.hook["google_token"] = lambda: httpx.Response(200, json={"access_token": "gat", "id_token": tok})
+    before = _sessions(rds)
+    r = b.complete("google", code, state)
+    assert r.status_code == 401 and _reason(r) == "provider_auth_failed" and _no_cookies(r), (case, r.text)
+    assert _err(r)["retryable"] is False and _sessions(rds) == before
+    if case == "kid_unknown":
+        assert prov.cert_calls == 1  # 방금 받은 인증서 목록에 없는 kid — 다시 받지 않고 토큰 거절
     prov.hook.clear()
     again = b.complete("google", code, state)
     assert again.status_code == 401 and _reason(again) == "state_invalid"  # 실패로 닫힌 시도는 다시 받지 않는다
+
+
+@pytest.mark.parametrize("case", ["signature_other_key", "signature_bitflip", "payload_swapped", "aud_other", "aud_missing",
+                                  "iss_other", "iss_missing", "exp_past", "exp_missing", "iat_future", "iat_missing", "kid_unknown"])
+def test_installed_google_auth_itself_rejects(env, prov, rsa_key, other_key, case):
+    """우리 쪽 이중 검사와 별개로, 설치된 google-auth(constraints 고정 버전)의 verify_oauth2_token 이 직접 거절하는지 본다
+    (서명 · audience · issuer · iat · exp). 같은 호출에서 정상 토큰은 통과한다."""
+    from google.auth import exceptions as gexc
+    from google.oauth2 import id_token as gid
+
+    from app import social_auth
+
+    cfg = social_auth.config("google")
+    verify = lambda t: gid.verify_oauth2_token(t, social_auth._CertsRequest(cfg, rsa_key.kid), audience=cfg.client_id,
+                                               clock_skew_in_seconds=60)
+    assert verify(_google_token("valid", rsa_key, other_key, "g-lib", "n-lib"))["sub"] == "g-lib"
+    with pytest.raises((ValueError, TypeError, KeyError, gexc.GoogleAuthError)) as ei:  # iss 누락은 라이브러리가 KeyError
+        verify(_google_token(case, rsa_key, other_key, "g-lib", "n-lib"))
+    assert not isinstance(ei.value, (social_auth.ProviderUnavailable, gexc.TransportError))
+
+
+def test_google_auth_version_and_constants_match_constraints():
+    """설치 결과가 constraints.txt(운영 이미지 목록)와 같고, 라이브러리의 인증서 주소·issuer 가 서버 상수와 같다(버전이 바뀌면 여기서 걸린다)."""
+    import importlib.metadata as md
+    import pathlib
+    import re
+
+    from google.oauth2 import id_token as gid
+
+    from app import social_auth
+
+    pins = {}
+    for line in (pathlib.Path(__file__).resolve().parents[1] / "constraints.txt").read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^([A-Za-z0-9_.-]+)==(\S+)$", line.strip())
+        if m:
+            pins[m.group(1).lower().replace("_", "-")] = m.group(2)
+    for pkg in ("google-auth", "cryptography", "pyasn1", "pyasn1-modules", "cffi"):
+        assert md.version(pkg) == pins[pkg], pkg
+    assert gid._GOOGLE_OAUTH2_CERTS_URL == social_auth.GOOGLE_CERTS
+    assert set(gid._GOOGLE_ISSUERS) == set(social_auth.GOOGLE_ISSUERS)
+
+
+def test_google_server_passes_audience_and_skew_to_library(client, prov, monkeypatch):
+    """audience 는 반드시 넘긴다(None 이면 라이브러리가 aud 를 검사하지 않음). 우리 쪽 aud 재확인이 있어도 이 전달은 따로 본다."""
+    from google.oauth2 import id_token as gid
+
+    seen = []
+    real = gid.verify_oauth2_token
+
+    def spy(token, request, audience=None, clock_skew_in_seconds=0):
+        seen.append((audience, clock_skew_in_seconds))
+        return real(token, request, audience=audience, clock_skew_in_seconds=clock_skew_in_seconds)
+
+    monkeypatch.setattr(gid, "verify_oauth2_token", spy)
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    assert seen == [(GOOGLE_CLIENT, 60)]
+
+
+# ── 인증서 캐시 · 키 교체 · 조회 장애 ──
+
+def test_google_certs_cached_by_cache_control_and_refetched_after_expiry(client, prov):
+    from app import social_auth
+
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    assert prov.cert_calls == 1 and 3500 < social_auth._CERTS["until"] - time.time() <= 3600  # max-age=3600
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    assert prov.cert_calls == 1  # 캐시
+    social_auth._CERTS["until"] = time.time() - 1  # 만료
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    assert prov.cert_calls == 2
+
+
+def test_google_key_rotation_refetches_once_then_uses_cache(client, prov, rsa_key, other_key):
+    from app import social_auth
+
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    prov.cert_keys, prov.key = [rsa_key, other_key], other_key  # Google 이 새 키로 서명하기 시작
+    social_auth._CERTS["fetched"] -= 31  # 마지막 조회에서 다시 받기 최소 간격(30초)이 지남
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    assert prov.cert_calls == 2  # 모르는 kid → 한 번 다시 받음
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    assert prov.cert_calls == 2  # 새 목록은 캐시
+
+
+def test_google_unknown_kid_within_refresh_interval_is_not_refetched(client, prov, rsa_key, other_key):
+    """마지막 조회 30초 안에 모르는 kid — 다시 받지 않는다(조회 폭주 방지). 방금 확인한 목록에 없는 키라 토큰 거절이다."""
+    assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+    prov.cert_keys, prov.key = [rsa_key, other_key], other_key
+    b, sub, code, state, nonce = _google_attempt(client, prov)
+    r = b.complete("google", code, state)
+    assert r.status_code == 401 and _reason(r) == "provider_auth_failed" and prov.cert_calls == 1
+
+
+CERT_FAILURES = ["status_500", "status_503", "status_429", "status_404", "status_403", "timeout", "network", "not_json",
+                 "json_list", "empty", "bad_pem", "small_key", "ec_key"]
+
+
+def _cert_failure(kind: str, kid: str):
+    if kind == "timeout":
+        raise httpx.ReadTimeout("t")
+    if kind == "network":
+        raise httpx.ConnectError("c")
+    if kind.startswith("status_"):
+        return httpx.Response(int(kind[7:]), json={"error": "x"})
+    if kind == "not_json":
+        return httpx.Response(200, text="<html>")
+    if kind == "json_list":
+        return httpx.Response(200, json=[1, 2])
+    if kind == "empty":
+        return httpx.Response(200, json={})
+    if kind == "bad_pem":
+        return httpx.Response(200, json={kid: "-----BEGIN CERTIFICATE-----\nnot a cert\n-----END CERTIFICATE-----\n"})
+    if kind == "small_key":
+        return httpx.Response(200, json={kid: _self_signed(rsa.generate_private_key(public_exponent=65537, key_size=1024))})
+    if kind == "ec_key":
+        return httpx.Response(200, json={kid: _self_signed(ec.generate_private_key(ec.SECP256R1()))})
+    raise AssertionError(kind)
+
+
+@pytest.mark.parametrize("cached", [False, True], ids=["cold", "rotation"])
+@pytest.mark.parametrize("kind", CERT_FAILURES)
+def test_google_cert_fetch_failure_is_provider_unavailable_not_token_rejection(client, prov, rds, rsa_key, other_key, kind, cached):
+    """인증서 조회 장애는 사용자 토큰 거절(401 provider_auth_failed)로 바꾸지 않는다 → 503 provider_unavailable(재시도 가능).
+    cold = 캐시 없음, rotation = 캐시는 있고 모르는 kid 라 다시 받다가 실패."""
+    from app import social_auth
+
+    if cached:
+        assert Browser(client, prov).login("google", _google(f"g-{uuid.uuid4().hex[:12]}")).status_code == 200
+        prov.key = other_key
+        social_auth._CERTS["fetched"] -= 31
+    prov.hook["google_certs"] = lambda: _cert_failure(kind, prov.key.kid)
+    b, sub, code, state, nonce = _google_attempt(client, prov)
+    before = _sessions(rds)
+    r = b.complete("google", code, state)
+    assert r.status_code == 503 and _reason(r) == "provider_unavailable" and _no_cookies(r), (kind, r.text)
+    assert _err(r)["retryable"] is True and _sessions(rds) == before
+
+
+def test_google_unexpected_library_request_is_config_error(client, prov, monkeypatch):
+    """라이브러리가 다른 주소를 요청하면(버전 변경 등) 토큰 거절이 아니라 서버 설정 문제로 본다 → 503(사유 없음)."""
+    from app import social_auth
+
+    monkeypatch.setattr(social_auth, "GOOGLE_CERTS", "https://www.googleapis.com/oauth2/v9/certs")
+    b, sub, code, state, nonce = _google_attempt(client, prov)
+    r = b.complete("google", code, state)
+    assert r.status_code == 503 and _err(r)["details"] is None and prov.cert_calls == 0
 
 
 # ═════════════════════════════ 제공자 실패 경로 ═════════════════════════════
@@ -917,38 +1123,39 @@ def _openssl():
 
 
 @pytest.mark.skipif(_openssl() is None, reason="openssl CLI 없음")
-def test_rsa_verify_agrees_with_openssl_both_directions(tmp_path):
-    """자체 서명기·자체 검증기끼리만 맞는지 보지 않는다 — 독립 구현(OpenSSL)과 양방향으로 대조한다.
-    ① OpenSSL 이 RS256(PKCS#1 v1.5 + SHA-256)으로 서명 → 서버 검증기(rsa_verify) 통과, 메시지·서명 1비트 변조는 거절
-    ② 같은 키의 비밀 지수로 시험 서명기가 서명 → OpenSSL 이 검증 통과(시험 서명기 자체도 표준과 같다는 근거)."""
-    import re
+def test_openssl_signed_id_token_passes_server_verification_both_directions(env, prov, tmp_path):
+    """시험 서명기와 서버 검증기가 같은 편끼리만 맞는지 보지 않는다 — 키·인증서·서명을 OpenSSL 이 만든다.
+    ① OpenSSL 키·자체 서명 인증서·RS256 서명 → 서버 검증(google-auth) 통과, 서명 1비트·본문 변조는 거절
+    ② 시험 서명기(cryptography)의 서명 → OpenSSL 이 인증서로 검증 통과(시험 서명기도 표준과 같다는 근거).
+    실제 Google ID 토큰 통과는 이 시험이 대신하지 못한다(실제 제공자 시험 범위)."""
     import subprocess
 
-    from app.social_auth import rsa_verify
+    from app import social_auth
 
     ossl = _openssl()
-    key, pub, msg, sig = (tmp_path / n for n in ("k.pem", "p.pem", "m.bin", "s.bin"))
+    key, crt, msg, sig = (tmp_path / n for n in ("k.pem", "c.pem", "m.bin", "s.bin"))
     run = lambda *a: subprocess.run([ossl, *a], check=True, capture_output=True, text=True)
     run("genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(key))
-    run("pkey", "-in", str(key), "-pubout", "-out", str(pub))
-    text = run("pkey", "-in", str(key), "-noout", "-text").stdout
-
-    def field(name):
-        m = re.search(rf"^{name}:\s*\n((?:\s+[0-9a-f:]+\n)+)", text, re.M)
-        return int(re.sub(r"[\s:]", "", m.group(1)), 16)
-    n, d = field("modulus"), field("privateExponent")
-    e = int(re.search(r"publicExponent: (\d+)", text).group(1))
-    signing_input = b"eyJhbGciOiJSUzI1NiIsImtpZCI6ImsifQ.eyJzdWIiOiIxMjMiLCJub25jZSI6Im4ifQ"
-    msg.write_bytes(signing_input)
+    run("req", "-new", "-x509", "-key", str(key), "-subj", "/CN=pixlate-openssl-test", "-days", "2", "-out", str(crt))
+    kid = "openssl-kid"
+    prov.hook["google_certs"] = lambda: httpx.Response(200, json={kid: crt.read_text()}, headers={"cache-control": "max-age=60"})
+    cfg = social_auth.config("google")
+    h = _b64(json.dumps({"alg": "RS256", "kid": kid, "typ": "JWT"}).encode())
+    p = _b64(json.dumps(_google_claims("g-openssl", "n-openssl")).encode())
+    msg.write_bytes(f"{h}.{p}".encode())
     run("dgst", "-sha256", "-sign", str(key), "-out", str(sig), str(msg))
     s = sig.read_bytes()
-    assert rsa_verify(n, e, signing_input, s)                                     # ① OpenSSL 서명 → 서버 검증 통과
-    assert not rsa_verify(n, e, signing_input + b"x", s)                          #   메시지 변조 거절
-    assert not rsa_verify(n, e, signing_input, s[:-1] + bytes([s[-1] ^ 1]))      #   서명 1비트 변조 거절
-    k = (n.bit_length() + 7) // 8                                                # ② 시험 서명기 → OpenSSL 검증
-    t = bytes.fromhex("3031300d060960864801650304020105000420") + __import__("hashlib").sha256(signing_input).digest()
-    mine = pow(int.from_bytes(b"\x00\x01" + b"\xff" * (k - len(t) - 3) + b"\x00" + t, "big"), d, n).to_bytes(k, "big")
-    sig.write_bytes(mine)
+    assert social_auth.verify_google_id_token(cfg, f"{h}.{p}.{_b64(s)}", "n-openssl")["sub"] == "g-openssl"  # ①
+    flipped = s[:-1] + bytes([s[-1] ^ 1])
+    p2 = _b64(json.dumps(_google_claims("g-other", "n-openssl")).encode())
+    for bad in (f"{h}.{p}.{_b64(flipped)}", f"{h}.{p2}.{_b64(s)}"):
+        with pytest.raises(social_auth.AuthFailed):
+            social_auth.verify_google_id_token(cfg, bad, "n-openssl")
+    # ② cryptography 로 같은 OpenSSL 키를 읽어 서명 → OpenSSL 이 인증서 공개 키로 검증
+    priv = serialization.load_pem_private_key(key.read_bytes(), password=None)
+    sig.write_bytes(priv.sign(msg.read_bytes(), padding.PKCS1v15(), hashes.SHA256()))
+    pub = tmp_path / "p.pem"
+    run("x509", "-in", str(crt), "-pubkey", "-noout", "-out", str(pub))
     out = subprocess.run([ossl, "dgst", "-sha256", "-verify", str(pub), "-signature", str(sig), str(msg)], capture_output=True, text=True)
     assert out.returncode == 0 and "Verified OK" in out.stdout, out.stdout + out.stderr
 

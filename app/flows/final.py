@@ -105,6 +105,68 @@ def required_acks(db: Session, job_id: int, acknowledged: list[dict[str, Any]]) 
     return [{"blockId": b, "code": c} for b, c in sorted(keep)]
 
 
+def outdated_acks(db: Session, job_id: int, acknowledged: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """확인 기준 taskId 가 지금 그 경고를 만든 현재 시도와 다른 확인 항목(계약 ConfirmRequest 「확인 기준 taskId」).
+    - 대조 대상은 required_acks 와 같다(필수 확인 코드·포함 섹션 블록). 그 밖의 항목의 taskId 는 보지 않는다.
+    - taskId 를 생략한 항목은 지금처럼 {blockId, code}로만 판정한다 — 여기서 보지 않는다(명시적 null 은 요청 검증에서 422).
+    - 기준은 경고 신호의 taskId(translation_failed = 그 블록을 실패시킨 현재 번역 시도)다. 블록 revision 은 보지 않는다 —
+      배치만 저장해 revision 이 올라도 같은 실패 시도에 대한 확인은 유효하다.
+    - 같은 블록·코드를 여러 번 보냈으면 하나라도 다르면 outdated(낡은 화면의 확인을 성공으로 쓰지 않는다).
+    호출 전에 확인 집합(unresolved_warnings == required_acks)이 같은지 먼저 본다."""
+    inc = _include_block_ids(db, job_id)
+    current = {(b, s["code"]): s["taskId"] for b, ss in block_signals(db, job_id).items() if b in inc for s in ss
+               if s["code"] in REQUIRED_ACK_CODES}
+    stale = set()
+    for a in acknowledged:
+        key = (int(a["blockId"]), a["code"])
+        if a.get("taskId") is None or a["code"] not in REQUIRED_ACK_CODES or key[0] not in inc:
+            continue
+        if key not in current or current[key] != a["taskId"]:
+            stale.add(key)
+    return [{"blockId": b, "code": c} for b, c in sorted(stale)]
+
+
+class ChecksNotSettled(ConfirmRejected):
+    """409 check_not_settled. 이 요청이 등록한 검사는 이미 커밋됐다(확정만 거절)."""
+
+
+def _require_checks_settled(db: Session, job_id: int) -> None:
+    """OpenAPI confirmReview 「규칙 검사 연결」 확정 조건. 포함 섹션 검사 대상 블록이 모두 settled · failed 면 통과.
+    그 밖이면 missing · outdated 블록의 섹션에 검사를 등록(보조 복구 경로)해 커밋하고 409 로 거절한다.
+    조회와 같은 판정 함수(text_check.job_block_states)를 쓴다. 검사 오류(공급 · 입력 · 데이터 오류 · 보고/요청 무결성 포함)는 failed 로
+    통과한다(PM 11-10) — 확인 집합 · taskId 등 다른 확정 조건은 아래에서 그대로 본다."""
+    from app.flows import text_check
+
+    states = text_check.job_block_states(db, job_id)
+    if not states:
+        return
+    blocked = sorted((b, v["state"]) for b, v in states.items() if v["state"] not in text_check.PASSING)
+    if not blocked:
+        return
+    need = {b for b, st in blocked if st in (text_check.MISSING, text_check.OUTDATED)}
+    sec_of = {r[0]: r[1] for r in db.execute(text("SELECT id, section_id FROM text_block WHERE id = ANY(:ids)"),
+                                               {"ids": sorted(need)}).all()} if need else {}
+    ids, registered = [], []
+    for sid in sorted(set(sec_of.values())):
+        aid = text_check.ensure_for_job(db, job_id, sid, origin="confirm")
+        if aid:
+            ids.append(aid)
+            targets = {t["block_id"] for t in json_value(db.execute(
+                text("SELECT input_manifest FROM job_async_task WHERE id = :t"), {"t": aid}).scalar())["targets"]}
+            registered += sorted(b for b, s_ in sec_of.items() if s_ == sid and b in targets)
+    if not ids:
+        # 보조 등록이 실행할 시도를 하나도 만들지 않았다(예: 요청 객체 저장 실패를 그 입력의 실패로 기록) — 같은 잠금 · 트랜잭션에서 다시
+        # 판정해 모두 settled · failed 면 확정을 이어 간다(PM 11-10 — 검사 오류로 확정을 막지 않는다). 커밋은 확정 끝에서 한 번
+        again = text_check.job_block_states(db, job_id) or {}
+        if all(v["state"] in text_check.PASSING for v in again.values()):
+            return
+    db.commit()
+    execution.dispatch(ids)
+    raise ChecksNotSettled(409, "INVALID_STATE", "검사가 끝나지 않은 블록이 있다", {
+        "reason": "check_not_settled", "blocks": [{"blockId": b, "state": st} for b, st in blocked],
+        "registeredBlockIds": sorted(registered)})
+
+
 # ---------------------------------------------------------------------------------------------------------
 # 확정
 # ---------------------------------------------------------------------------------------------------------
@@ -120,14 +182,19 @@ def confirm(db: Session, job_id: int, seller_id: int, acknowledged: list[dict[st
     if run is not None:
         busy = db.execute(
             text("SELECT count(*) FROM job_async_task WHERE parent_task_id = :r AND is_current AND status IN ('pending', 'running') "
-                 "AND stage <> 'preview'"), {"r": run["id"]}
+                 "AND stage NOT IN ('preview', 'text_check')"), {"r": run["id"]}
         ).scalar()
         if busy:
             raise ConfirmRejected(409, "INVALID_STATE", "진행 중인 번역 재시도가 있다")
+    _require_checks_settled(db, job_id)  # 규칙 검사 연결 — 검사 중 · 미종료면 거절, missing · outdated 는 등록을 커밋하고 거절
     want = unresolved_warnings(db, job_id)
     got = required_acks(db, job_id, acknowledged)
     if want != got:  # 필수 경고가 빠졌거나, 이미 해소된 필수 경고를 확인한 경우(낡은 화면) — 거절
-        raise ConfirmRejected(409, "INVALID_STATE", "확인한 경고가 현재 미해결 경고와 다르다", {"warnings": want})
+        raise ConfirmRejected(409, "INVALID_STATE", "확인한 경고가 현재 미해결 경고와 다르다",
+                              {"reason": "acknowledgement_mismatch", "warnings": want})
+    if outdated_acks(db, job_id, acknowledged):  # 집합은 같지만 확인 기준(taskId)이 지금 실패 시도와 다르다 — 재조회 후 다시 확인
+        raise ConfirmRejected(409, "INVALID_STATE", "확인 기준이 현재 실패 시도와 다르다",
+                              {"reason": "acknowledgement_outdated", "warnings": want})
     if run is not None:
         # 하류 실행 종료: 진행 중 재렌더는 취소, 실행은 done(N5 결과 확정)
         db.execute(

@@ -906,3 +906,85 @@ def test_secrets_codes_and_tokens_are_not_logged(client, prov, caplog, live_logs
     assert "oauth.start" in text and "oauth.login" in text  # 로그가 실제로 잡혔다(비어서 통과하지 않음)
     for secret in (code, state, b.refresh, r.json()["accessToken"], SECRETS["PIXLATE_OAUTH_KAKAO_CLIENT_SECRET"]):
         assert secret and secret not in text
+
+
+# ═════════════════════════════ 독립 근거 — OpenSSL 과 교차 검증 ═════════════════════════════
+
+def _openssl():
+    import shutil
+
+    return shutil.which("openssl")
+
+
+@pytest.mark.skipif(_openssl() is None, reason="openssl CLI 없음")
+def test_rsa_verify_agrees_with_openssl_both_directions(tmp_path):
+    """자체 서명기·자체 검증기끼리만 맞는지 보지 않는다 — 독립 구현(OpenSSL)과 양방향으로 대조한다.
+    ① OpenSSL 이 RS256(PKCS#1 v1.5 + SHA-256)으로 서명 → 서버 검증기(rsa_verify) 통과, 메시지·서명 1비트 변조는 거절
+    ② 같은 키의 비밀 지수로 시험 서명기가 서명 → OpenSSL 이 검증 통과(시험 서명기 자체도 표준과 같다는 근거)."""
+    import re
+    import subprocess
+
+    from app.social_auth import rsa_verify
+
+    ossl = _openssl()
+    key, pub, msg, sig = (tmp_path / n for n in ("k.pem", "p.pem", "m.bin", "s.bin"))
+    run = lambda *a: subprocess.run([ossl, *a], check=True, capture_output=True, text=True)
+    run("genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(key))
+    run("pkey", "-in", str(key), "-pubout", "-out", str(pub))
+    text = run("pkey", "-in", str(key), "-noout", "-text").stdout
+
+    def field(name):
+        m = re.search(rf"^{name}:\s*\n((?:\s+[0-9a-f:]+\n)+)", text, re.M)
+        return int(re.sub(r"[\s:]", "", m.group(1)), 16)
+    n, d = field("modulus"), field("privateExponent")
+    e = int(re.search(r"publicExponent: (\d+)", text).group(1))
+    signing_input = b"eyJhbGciOiJSUzI1NiIsImtpZCI6ImsifQ.eyJzdWIiOiIxMjMiLCJub25jZSI6Im4ifQ"
+    msg.write_bytes(signing_input)
+    run("dgst", "-sha256", "-sign", str(key), "-out", str(sig), str(msg))
+    s = sig.read_bytes()
+    assert rsa_verify(n, e, signing_input, s)                                     # ① OpenSSL 서명 → 서버 검증 통과
+    assert not rsa_verify(n, e, signing_input + b"x", s)                          #   메시지 변조 거절
+    assert not rsa_verify(n, e, signing_input, s[:-1] + bytes([s[-1] ^ 1]))      #   서명 1비트 변조 거절
+    k = (n.bit_length() + 7) // 8                                                # ② 시험 서명기 → OpenSSL 검증
+    t = bytes.fromhex("3031300d060960864801650304020105000420") + __import__("hashlib").sha256(signing_input).digest()
+    mine = pow(int.from_bytes(b"\x00\x01" + b"\xff" * (k - len(t) - 3) + b"\x00" + t, "big"), d, n).to_bytes(k, "big")
+    sig.write_bytes(mine)
+    out = subprocess.run([ossl, "dgst", "-sha256", "-verify", str(pub), "-signature", str(sig), str(msg)], capture_output=True, text=True)
+    assert out.returncode == 0 and "Verified OK" in out.stdout, out.stdout + out.stderr
+
+
+# ═════════════════════════════ reload B안 — 응답 유실 뒤 같은 결속으로 새 로그인 ═════════════════════════════
+
+@pytest.mark.parametrize("had_refresh", [False, True])
+def test_lost_success_then_new_start_in_same_browser_leaves_only_the_new_session(client, prov, rds, had_refresh):
+    """서버 로그인 성공 → 응답·새 쿠키 유실 → (같은 완료 재전송·refresh 로 성공 추측은 하지 않음) → 같은 결속으로 새 start → 새 로그인 성공.
+    응답을 잃은 세션과 그 access 는 폐기되고, 새 세션만 유효하다. 브라우저가 이전 로그인의 refresh 를 들고 있던 경우도 같다.
+    실제 document reload·G1 자동 복원 방지·Next 프록시 쿠키 전달은 브라우저 연동 시험 범위다(여기서는 서버 상태만 본다)."""
+    b = Browser(client, prov)
+    earlier = b.login("kakao", _kakao(_uid())) if had_refresh else None
+    before = _sessions(rds)
+    url = b.start().json()["authorizeUrl"]
+    bind_before = b.bind
+    code, state = prov.issue_code("kakao", url, _kakao(_uid()))
+    lost = b.complete("kakao", code, state, absorb=False)  # ① 서버는 성공 — 응답·Set-Cookie 를 브라우저가 받지 못함
+    assert lost.status_code == 200
+    lost_access, lost_refresh = lost.json()["accessToken"], _value(_cookies(lost)["pxl_refresh"])
+    assert b.bind == bind_before  # 결속 쿠키는 그대로 남았다(삭제 응답도 잃음)
+    # ② 계약: 같은 완료 요청을 다시 보내 성공을 추측하지 않는다 — 다시 보내도 받지 않는다
+    again = b.complete("kakao", code, state, absorb=False)
+    assert again.status_code == 401 and _reason(again) == "state_invalid" and _no_cookies(again)
+    # ③ 같은 결속으로 새 start → 새 로그인
+    url2 = b.start().json()["authorizeUrl"]
+    assert b.bind == bind_before  # 같은 결속을 다시 쓴다
+    code2, state2 = prov.issue_code("kakao", url2, _kakao(_uid()))
+    fresh = b.complete("kakao", code2, state2)
+    assert fresh.status_code == 200 and b.bind is None
+    # ④ 응답을 잃은 세션·access 폐기, 이전 로그인 세션도 폐기, 새 세션만 유효
+    assert _me(client, lost_access).status_code == 401
+    assert _reason(_post(client, "/v1/auth/refresh", {"pxl_refresh": lost_refresh})) == "refresh_invalid"
+    if earlier is not None:
+        assert _me(client, earlier.json()["accessToken"]).status_code == 401
+    assert _me(client, fresh.json()["accessToken"]).status_code == 200
+    assert len(_sessions(rds) - before) == 1
+    r = _post(client, "/v1/auth/refresh", {"pxl_refresh": b.refresh})
+    assert r.status_code == 200

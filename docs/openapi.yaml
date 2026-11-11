@@ -1043,8 +1043,10 @@ components:
           type: array
           description: >
             판정 목록 (정렬 불변식 regulated→policy→irrelevant→needs_fix→conditional, 같은 값은 id 순). 상세(SEC-02)는 판정 근거 전체.
-            **[PRD v3.5.10 · 계약 확정·서버 구현 대기]** 목록(sectionList)도 버킷과 관계없이 그 섹션에 달린 판정 전부를 싣는다 —
-            포함 섹션도 배지·판정 목록을 보인다(F-SEC-02 J74④ · F-SEC-04 J76⑤). 현행 서버는 목록의 포함 섹션을 빈 배열로 반환한다.
+            **[PRD v3.5.10 · 계약 확정 · 구현 완료·서버 배포 대기]** 목록(sectionList)도 버킷과 관계없이 그 섹션에 달린 판정 전부를 싣는다 —
+            포함 섹션도 배지·판정 목록을 보인다(F-SEC-02 J74④ · F-SEC-04 J76⑤). 목록과 상세의 판정은 정렬·필드까지 같다.
+            저장된 판정을 그대로 읽을 뿐이며, 조회가 판정·검사를 새로 실행하거나 섹션 값(`revision` 포함)을 바꾸지 않는다.
+            (배포 전 운영 서버 = 3.4.2 계약 — 목록의 포함 섹션은 빈 배열)
           items: { $ref: '#/components/schemas/SectionVerdict' }
         signals:
           type: array
@@ -1057,7 +1059,7 @@ components:
     SectionList:
       type: object
       description: >
-        버킷 2단. 두 배열 모두 섹션마다 판정 목록 전부를 싣는다([PRD v3.5.10 · 계약 확정·서버 구현 대기] — 현행 서버는 포함 섹션 빈 배열).
+        버킷 2단. 두 배열 모두 섹션마다 판정 목록 전부를 싣는다([PRD v3.5.10 · 계약 확정 · 구현 완료·서버 배포 대기] — 배포 전 운영 서버는 포함 섹션 빈 배열).
         화면의 원래 순서 목록은 두 배열을 합쳐 `sectionOrder`로 정렬한다(· 화면).
       properties:
         exclude:
@@ -2311,13 +2313,14 @@ paths:
       description: >
         **2차 상태**(PRD v3.5.10 기준)
 
-        - 계약 확정·서버 구현 대기: 포함 섹션도 판정 전부(`verdicts`)
+        - 구현 완료·서버 배포 대기: 포함 섹션도 판정 전부(`verdicts`)
 
         - 현행: 원래 순서 `sectionOrder`(두 배열 합쳐 정렬·섹션 카드 버튼은 화면)
 
 
-        버킷별 두 배열. 섹션마다 판정 목록 전부(정렬 불변식) — **[PRD v3.5.10 · 계약 확정·서버 구현 대기]** 포함 섹션도 판정을 싣는다
-        (현행 서버는 포함 섹션 verdicts=[]). 원래 순서는 sectionOrder(화면이 두 배열을 합쳐 정렬). verdictType 파생. 🟢9월.
+        버킷별 두 배열. 섹션마다 판정 목록 전부(정렬 불변식) — **[PRD v3.5.10 · 계약 확정 · 구현 완료·서버 배포 대기]** 포함 섹션도 판정을 싣는다
+        (배포 전 운영 서버는 포함 섹션 verdicts=[]). 판정은 상세(SEC-02)와 정렬·필드까지 같고, 조회는 저장값만 읽는다(판정·검사 실행·DB 변경 없음).
+        원래 순서는 sectionOrder(화면이 두 배열을 합쳐 정렬). verdictType 파생. 🟢9월.
       parameters:
         - name: bucket
           in: query

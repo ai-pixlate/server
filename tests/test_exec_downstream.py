@@ -1150,13 +1150,15 @@ def test_sections_list_and_detail_follow_contract(env):  # B
         top += s["height"] or 0
     det = c.get(f"/v1/jobs/{ids['job']}/sections/{ex['id']}").json()
     assert {k: v for k, v in det.items() if k != "contentFindings"} == ex and "contentFindings" in det
-    # 목록의 포함 섹션은 썸네일만(판정 목록 비움, 계약 sectionList). 상세(SEC-02)는 판정 근거 전체
+    # 목록도 포함 섹션의 판정을 전부 싣는다(PRD v3.5.10 F-SEC-02·04, 계약 sectionList). 상세(SEC-02)와 같은 값
     inc = secs["include"][0]["id"]
     _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type, reason) VALUES (:s, 'conditional', 'regulatory_conditional', 't')",
        s=inc)
     again = c.get(f"/v1/jobs/{ids['job']}/sections").json()
-    assert all(s["verdicts"] == [] for s in again["include"]) and again["exclude"][0]["verdicts"] == ex["verdicts"]
-    assert [v["verdictStatus"] for v in c.get(f"/v1/jobs/{ids['job']}/sections/{inc}").json()["verdicts"]] == ["conditional"]
+    assert again["exclude"][0]["verdicts"] == ex["verdicts"]
+    listed = next(s for s in again["include"] if s["id"] == inc)
+    assert [v["verdictStatus"] for v in listed["verdicts"]] == ["conditional"]
+    assert listed["verdicts"] == c.get(f"/v1/jobs/{ids['job']}/sections/{inc}").json()["verdicts"]
     # 판정 정렬 전체 순서(2026-10-14 확정): regulated → policy → irrelevant → needs_fix → conditional
     for st, vt in (("needs_fix", "needs_fix"), ("irrelevant", "local_irrelevant"), ("policy", "channel_policy")):
         _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type) VALUES (:s, :st, :vt)", s=ex["id"], st=st, vt=vt)
@@ -1166,6 +1168,63 @@ def test_sections_list_and_detail_follow_contract(env):  # B
     # 제외 사유는 BE 저장값(PRD 문자열) 그대로 — 계약 enum 을 auto_local·auto_local_failed 로 맞춘다(2026-10-14)
     assert {s["exclusionReason"] for s in again["exclude"]} <= {"auto_regulatory", "auto_channel", "auto_local", "auto_local_failed",
                                                                    "user_manual", "restored_by_user"}
+
+
+def _db_state() -> dict[str, tuple]:
+    """public 스키마 모든 테이블의 (행 수, 행 전체 지문). 조회 전후가 같으면 그 사이에 DB 쓰기가 없었다."""
+    tables = [r["t"] for r in _q("SELECT tablename AS t FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename")]
+    out = {}
+    for t in tables:
+        r = _q(f"SELECT count(*) AS n, md5(coalesce(string_agg(x::text, ',' ORDER BY x::text), '')) AS h FROM {t} x")[0]
+        out[t] = (r["n"], r["h"])
+    return out
+
+
+def test_sections_list_include_verdicts_match_detail_and_read_only(env):  # B — PRD v3.5.10 F-SEC-02 J74④ · F-SEC-04 J76⑤
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer(mutate=_mutate_regulatory))
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    base = c.get(f"/v1/jobs/{job}/sections").json()
+    assert base["include"] and base["exclude"]
+    inc = sorted(base["include"], key=lambda s: s["sectionOrder"])[0]["id"]
+    # 저장된 판정(근거 필드 포함)을 정렬과 다른 순서로 넣는다 — 응답은 regulated → needs_fix → conditional, 같은 값은 id 순
+    for st, vt, prob, alt, art, url, why in (
+        ("conditional", "regulatory_conditional", "주름 개선", "helps the look of wrinkles", "21 CFR 701.1", "https://example.test/c", "조건부"),
+        ("needs_fix", "needs_fix", "국내산", None, None, None, "현지 맥락 확인"),
+        ("regulated", "regulatory_replaceable", "치료", "soothes", "21 CFR 310", "https://example.test/r", "치료 표방"),
+        ("conditional", "regulatory_conditional", "주름개선", None, None, None, "두 번째 조건부"),
+    ):
+        _q("INSERT INTO section_verdict (section_id, verdict_status, verdict_type, problem_text, alternative_expression, basis_article, "
+           "evidence_url, reason) VALUES (:s, :st, :vt, :p, :a, :b, :u, :r)", s=inc, st=st, vt=vt, p=prob, a=alt, b=art, u=url, r=why)
+    stored = _q("SELECT id, verdict_status FROM section_verdict WHERE section_id = :s ORDER BY id", s=inc)
+    order = {"regulated": 0, "policy": 1, "irrelevant": 2, "needs_fix": 3, "conditional": 4}
+    expect_ids = [r["id"] for r in sorted(stored, key=lambda r: (order[r["verdict_status"]], r["id"]))]
+    revisions = {r["id"]: r["revision"] for r in _q("SELECT id, revision FROM section WHERE job_id = :j", j=job)}
+    sent_before = len(env["q"].messages)
+    before = _db_state()
+
+    full = c.get(f"/v1/jobs/{job}/sections").json()
+    only_inc = c.get(f"/v1/jobs/{job}/sections", params={"bucket": "include"}).json()
+    only_ex = c.get(f"/v1/jobs/{job}/sections", params={"bucket": "exclude"}).json()
+    details = {s["id"]: c.get(f"/v1/jobs/{job}/sections/{s['id']}").json() for s in full["include"] + full["exclude"]}
+
+    listed = next(s for s in full["include"] if s["id"] == inc)
+    assert [v["id"] for v in listed["verdicts"]] == expect_ids
+    assert [v["verdictStatus"] for v in listed["verdicts"]] == ["regulated", "needs_fix", "conditional", "conditional"]
+    reg = listed["verdicts"][0]
+    assert (reg["verdictType"], reg["problemText"], reg["alternativeExpression"], reg["basisArticle"], reg["evidenceUrl"],
+            reg["reason"]) == ("regulatory_replaceable", "치료", "soothes", "21 CFR 310", "https://example.test/r", "치료 표방")
+    # 목록의 모든 섹션(포함·제외)이 상세와 판정·정렬·필드까지 같다(상세 전용 contentFindings 만 다르다)
+    for s in full["include"] + full["exclude"]:
+        assert {k: v for k, v in details[s["id"]].items() if k != "contentFindings"} == s
+    # 제외 섹션은 이전과 같고, 버킷 필터는 같은 섹션을 같은 값으로 돌려준다
+    assert full["exclude"] == base["exclude"]
+    assert only_inc == full["include"] and only_ex == full["exclude"]
+    assert {s["bucket"] for s in only_inc} == {"include"} and {s["bucket"] for s in only_ex} == {"exclude"}
+    # 조회는 읽기만 한다 — DB 행·revision 그대로, 검사·실행 등록 없음
+    assert _db_state() == before
+    assert {s["id"]: s["revision"] for s in full["include"] + full["exclude"]} == revisions
+    assert len(env["q"].messages) == sent_before
 
 
 def test_export_bundle_types_names_and_html_excluded(env, monkeypatch):  # C

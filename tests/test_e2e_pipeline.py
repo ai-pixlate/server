@@ -111,7 +111,10 @@ def test_master_endpoints():
     assert client.get("/v1/master/countries").status_code == 200
     assert client.get("/v1/master/languages").status_code == 200
     assert client.get("/v1/master/regulatory-classes?country=US").status_code == 200
-    assert client.get("/v1/master/categories").status_code == 200
+    cats = client.get("/v1/master/categories")
+    assert cats.status_code == 200
+    # 최초 분석은 leaf 카테고리가 필요하다 — 그 DB의 첫 leaf를 쓴다(없으면 None → test_analyze_to_n3 가 카테고리 게이트 400)
+    CTX["category_id"] = next((x["id"] for x in cats.json() if x.get("isLeaf")), None)
     specs = client.get("/v1/master/channel-specs")
     assert specs.status_code == 200 and len(specs.json()) >= 1
     spec_id = specs.json()[0]["id"]
@@ -147,7 +150,7 @@ def test_job_create_and_get():
     r = client.post(
         "/v1/jobs",
         json={"brandId": CTX["brand_id"], "productName": "E2E 수분크림", "keywords": ["moisture"],
-              "regulatoryClass": "cosmetic"},
+              "regulatoryClass": "cosmetic", "categoryId": CTX.get("category_id")},
         headers=_h(),
     )
     assert r.status_code == 201

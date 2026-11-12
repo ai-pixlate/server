@@ -168,11 +168,13 @@ def test_conflicting_glossary_fails_translate_not_empty_success(handoff_env):
 SUN = "Sunscreens & Tanning Products"
 
 
-def _category(name: str, *, parent: int | None = None, mappings: tuple[str, ...] = ()) -> int:
+def _category(name: str, *, parent: int | None = None, mappings: tuple[str, ...] = (), leaf: bool = True) -> int:
+    """작업이 고를 수 있는 항목은 leaf뿐이다(작업 생성·수정 검증) — 상위 노드는 leaf=False 로 만든다."""
     from app import db as app_db
 
     with app_db.engine.begin() as c:
-        cid = c.execute(text("INSERT INTO category_master (parent_id, name) VALUES (:p, :n) RETURNING id"), {"p": parent, "n": name}).scalar()
+        cid = c.execute(text("INSERT INTO category_master (parent_id, name, is_leaf) VALUES (:p, :n, :l) RETURNING id"),
+                        {"p": parent, "n": name, "l": leaf}).scalar()
         for m in mappings:
             c.execute(text("INSERT INTO category_mapping (category_id, internal_category) VALUES (:c, :m)"), {"c": cid, "m": m})
     return cid
@@ -246,7 +248,7 @@ def test_api_category_maps_to_internal_category_and_supplies_its_terms(handoff_e
 
 def test_api_category_without_direct_mapping_supplies_common_only(handoff_env):
     _other_category_term()
-    parent = _category("자외선 차단", mappings=(SUN,))
+    parent = _category("자외선 차단", mappings=(SUN,), leaf=False)
     child = _category("선크림(매핑 없음)", parent=parent)  # 부모에만 매핑 — 상위 탐색 없음
     cl, job = _api_job_to_n3(handoff_env, child)
     assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] is None

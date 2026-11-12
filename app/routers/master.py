@@ -54,7 +54,7 @@ def regulatory_classes(country: str = Query(..., examples=["US"]), db: Session =
 def categories(db: Session = Depends(get_db)):
     """계약 `Category` 평면 배열 — 노드마다 한 원소, 트리는 `parentId`로 잇는다(화면이 조립). 순서는 id.
 
-    선택 가능 여부는 `isLeaf`(category_master.is_leaf)다.
+    선택 가능 여부는 `isLeaf`(category_master.is_leaf)다. 작업 생성·수정의 categoryId 검증도 같은 값을 쓴다.
     """
     rows = db.execute(
         text("SELECT id, parent_id, name, amazon_node, is_leaf, path FROM category_master ORDER BY id"),

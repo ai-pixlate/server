@@ -443,7 +443,7 @@ def test_redis_fails_before_commit_creates_nothing(redis_env, monkeypatch):
     assert c.post("/v1/jobs", json={"brandId": brand}, headers={"Idempotency-Key": key}).status_code == 201
 
 
-# ── 카테고리: /master/categories 평면 배열(계약 Category) ──
+# ── 카테고리: /master/categories 평면 배열 · 작업 생성·수정의 leaf 검증(PRD F-SRC-04 J41② · F-SRC-04b) ──
 CATEGORY_KEYS = {"id", "parentId", "name", "amazonNode", "isLeaf", "path"}
 
 
@@ -470,6 +470,10 @@ def _tree():
     return {"root": root[0], "mid": mid[0], "leaf": leaf[0], "unmapped": unmapped[0], "mid_leaf": mid_leaf[0]}
 
 
+def _fields(r):
+    return r.json()["error"]["details"]["fields"]
+
+
 def test_master_categories_is_flat_category_array(env):
     c, _, _ = _seller()
     ids = _tree()
@@ -486,3 +490,104 @@ def test_master_categories_is_flat_category_array(env):
     # 화면 규칙(parentId로 이은 트리에서 하위 없음 = 선택 가능)과 서버 isLeaf가 같다
     assert all(x["isLeaf"] == (x["id"] not in parents) for x in body)
     assert [k for k, v in ids.items() if by[v]["isLeaf"]] == ["leaf", "unmapped", "mid_leaf"]
+
+
+def test_create_accepts_leaf_and_keeps_draft_unselected(env):
+    c, brand, _ = _seller()
+    ids = _tree()
+    for cid, want in ((ids["leaf"], "G01"), (ids["mid_leaf"], "G02"), (ids["unmapped"], None)):  # 매핑 없는 leaf도 거절하지 않음
+        r = c.post("/v1/jobs", json={"brandId": brand, "categoryId": cid})
+        assert r.status_code == 201, r.text
+        assert (r.json()["categoryId"], r.json()["internalCategory"]) == (cid, want)
+    for body in ({"brandId": brand}, {"brandId": brand, "categoryId": None}):  # draft 미선택 허용
+        r = c.post("/v1/jobs", json=body)
+        assert r.status_code == 201 and r.json()["categoryId"] is None and r.json()["internalCategory"] is None
+
+
+@pytest.mark.parametrize("kind, msg", [("root", "category is not a leaf"), ("mid", "category is not a leaf"),
+                                       ("unknown", "unknown category"), ("huge", "unknown category"), ("zero", "unknown category")])
+def test_create_rejects_parent_or_unknown_category(env, kind, msg):
+    c, brand, seller = _seller()
+    ids = _tree()
+    cid = {"unknown": 987654321, "huge": 2**63, "zero": 0}.get(kind, ids.get(kind))
+    r = c.post("/v1/jobs", json={"brandId": brand, "productName": "x", "categoryId": cid})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "VALIDATION_ERROR", r.text
+    assert _fields(r) == [{"loc": ["body", "categoryId"], "msg": msg}] and "reason" not in r.json()["error"]["details"]
+    assert _jobs_of(seller) == 0
+
+
+def test_create_brand_ownership_still_checked_first(env):
+    c, _, seller = _seller()
+    _, other_brand, _ = _seller()
+    ids = _tree()
+    r = c.post("/v1/jobs", json={"brandId": other_brand, "categoryId": ids["root"]})
+    assert r.status_code == 404 and r.json()["error"]["code"] == "NOT_FOUND" and _jobs_of(seller) == 0
+
+
+@requires_redis
+def test_create_rejected_category_with_key_releases_key(redis_env):
+    c, brand, seller = _seller()
+    ids = _tree()
+    key = uuid.uuid4().hex
+    r = c.post("/v1/jobs", json={"brandId": brand, "categoryId": ids["root"]}, headers={"Idempotency-Key": key})
+    assert r.status_code == 400 and _jobs_of(seller) == 0
+    assert redis_env.get(idempotency.rkey(seller, "post_jobs", key)) is None  # 저장 안 됨이 확실 → 키 삭제(기존 규칙)
+    r = c.post("/v1/jobs", json={"brandId": brand, "categoryId": ids["leaf"]}, headers={"Idempotency-Key": key})
+    assert r.status_code == 201 and r.json()["categoryId"] == ids["leaf"] and _jobs_of(seller) == 1
+
+
+@pytest.mark.parametrize("kind", ["root", "mid", "unknown"])
+def test_patch_category_rejection_changes_nothing(env, kind):
+    c, brand, _ = _seller()
+    ids = _tree()
+    jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
+    before = c.patch(f"/v1/jobs/{jid}", json={**N1, "categoryId": ids["leaf"]}).json()
+    stamp = _q("SELECT updated_at FROM job WHERE id = :j", j=jid)[0]["updated_at"]
+    cid = 987654321 if kind == "unknown" else ids[kind]
+    r = c.patch(f"/v1/jobs/{jid}", json={"categoryId": cid, "productName": "바뀌면 안 됨", "keywords": ["x"]})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "VALIDATION_ERROR", r.text
+    assert _fields(r)[0]["loc"] == ["body", "categoryId"]
+    assert c.get(f"/v1/jobs/{jid}").json() == before  # 같은 요청의 다른 필드도 반영되지 않는다
+    assert _q("SELECT updated_at FROM job WHERE id = :j", j=jid)[0]["updated_at"] == stamp
+
+
+def test_patch_category_leaf_null_and_unmapped(env):
+    c, brand, _ = _seller()
+    ids = _tree()
+    jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
+    g = c.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["leaf"]}).json()
+    assert (g["categoryId"], g["internalCategory"]) == (ids["leaf"], "G01")
+    g = c.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["unmapped"]}).json()
+    assert (g["categoryId"], g["internalCategory"]) == (ids["unmapped"], None)
+    g = c.patch(f"/v1/jobs/{jid}", json={"categoryId": None}).json()  # null = 비움(draft 미선택)
+    assert (g["categoryId"], g["internalCategory"]) == (None, None)
+
+
+def test_stored_parent_category_is_not_rechecked_or_changed(env):
+    """검증 이전에 상위 분류가 저장된 작업(예: dev job 40) — 보정하지 않고, categoryId를 보내지 않는 수정·분석은 그대로다(analyze 조건은 별도 결정)."""
+    c, brand, _ = _seller()
+    ids = _tree()
+    jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
+    _q("UPDATE job SET display_category_id = :c, internal_category = NULL WHERE id = :j", c=ids["root"], j=jid)
+    g = c.patch(f"/v1/jobs/{jid}", json=N1)
+    assert g.status_code == 200 and (g.json()["categoryId"], g.json()["internalCategory"]) == (ids["root"], None)
+    _upload(c, jid, ("a.png",))
+    assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202  # 현행 analyze — 카테고리를 보지 않는다
+    assert c.get(f"/v1/jobs/{jid}").json()["categoryId"] == ids["root"]
+
+
+def test_patch_category_keeps_existing_auth_ownership_state_order(env):
+    from app.main import app
+
+    c, brand, _ = _seller()
+    other, _, _ = _seller()
+    ids = _tree()
+    jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
+    assert TestClient(app).patch(f"/v1/jobs/{jid}", json={"categoryId": ids["root"]}).status_code == 401
+    r = other.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["root"]})
+    assert r.status_code == 404 and r.json()["error"]["code"] == "NOT_FOUND"
+    c.patch(f"/v1/jobs/{jid}", json=N1)
+    _upload(c, jid, ("a.png",))
+    assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202  # → N2
+    r = c.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["root"]})
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"  # 상태 확인이 먼저(기존 순서)

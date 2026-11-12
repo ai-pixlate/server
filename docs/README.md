@@ -169,6 +169,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 검사 상태 5값·FE 처리, `check.inputKey`(불투명 문자열, 같은지만 비교) | FE 11-03·AI 11-04 | `BlockCheck`·`TextBlock.check` | 구현 완료·서버 배포 대기(기본 꺼짐)(FE 연동 전) | `feature/translate-check-connect` |
 | 검사 중 확정 거절(409 `check_not_settled`·`details.blocks`·`registeredBlockIds`)·버튼 비활성 | PM 10-29·FE 11-04 | confirmReview·예시 `checkNotSettled` | 구현 완료·서버 배포 대기(기본 꺼짐). `registeredBlockIds` 문구·FE 처리 확인 대기 | `feature/translate-check-connect` |
 | 검사 최종 실패는 확인 없이 확정 통과 | PM 11-04 | confirmReview·`BlockCheck.state` | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
+| 검사 신호 연결 — 강제 용어 미적용 → `mandatory_term_unapplied`, 원판정 regulated·conditional → `prohibited_expression`(allowed·그 밖 값·원판정 없는 이전 저장분은 신호 없음), 원판정 값 저장 보존 | 기존 계약(API 6-11 확인) | confirmReview 「규칙 검사 연결」·`SignalCode` | 구현 완료·서버 배포 대기(기본 꺼짐) | `fix/check-signals` |
+| 검사 신호는 settled일 때만 · 블록·코드당 1개 | API 권고(6-11) | `BlockCheck.inputKey`·confirmReview | 구현 완료·서버 배포 대기(기본 꺼짐) · **FE 확인 대기** | `fix/check-signals` |
 | 셀러가 고칠 수 없는 검사 오류(용어 공급 실패·강제 용어 충돌·`input_invalid`·`bundle_invalid`·사전 묶음 변환 실패·검사 보고/요청 무결성)도 failed — 확정 통과(등록 불가 섹션도 N4에서 멈추지 않음), 다른 섹션 조회·편집 유지. 범위: 실행된 시도는 서버가 고정한 대상 블록, 섹션 공통 공급 실패는 섹션, 블록 하나의 충돌(강제 용어끼리 · 금지/허용 같은 구간)은 그 블록만 — 나머지 블록은 실제 검사(7.2 ⑨) | PM 11-10 | `BlockCheck.state`·confirmReview | 구현 완료·서버 배포 대기(기본 꺼짐) | `feature/translate-check-connect` |
 | 미리보기 재렌더 중 확정 허용·넘침 경고 비차단 | PM | confirmReview | 현행 | — |
 | 미저장 번역문 확인창 | PM | confirmReview | 화면 | — |

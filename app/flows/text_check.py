@@ -48,6 +48,13 @@ MAX_RETRY = 2
 SETTLED, IN_PROGRESS, FAILED, MISSING, OUTDATED = "settled", "in_progress", "failed", "missing", "outdated"
 PASSING = frozenset({SETTLED, FAILED})  # 2차 확정 통과(failed 는 확인 없이 통과)
 
+# 규칙 검사 결과 → 공개 신호(OpenAPI confirmReview 「규칙 검사 연결」 · SignalCode · contract 7.1). 신호는 확인 필요 표시이며 위반 확정이 아니다.
+# (producer, type) 별 대응. regulatory 는 저장된 원판정값이 아래 값일 때만 — allowed · 그 밖의 값 · 값 없음(원판정값을 버리던 이전 저장분)은
+# 대응하지 않는다(현재 사전 행으로 추정하지 않는다). 2차 활성 검사는 rule 만이라 translation_llm_review 등 다른 producer 는 여기서 내지 않는다.
+SIGNAL_MANDATORY_TERM = "mandatory_term_unapplied"
+SIGNAL_PROHIBITED = "prohibited_expression"
+REGULATORY_SIGNAL_STATUSES = frozenset({"regulated", "conditional"})
+
 
 class CheckConfigError(RuntimeError):
     pass
@@ -676,8 +683,10 @@ def execute_text_check(attempt_id: int) -> dict[str, Any]:
 
 
 def _flag_db(f: dict[str, Any], dict_ids: dict[str, int]) -> dict[str, Any]:
-    """AI flag(원본 external_id · glossary id 문자열) → 저장 flag(DB id). contract 7.1."""
-    out = {k: v for k, v in f.items() if k not in ("external_id", "glossary_id", "dictionary_verdict_status")}
+    """AI flag(원본 external_id · glossary id 문자열) → 저장 flag(DB id). contract 7.1.
+    규칙 규제 flag 의 원판정값(`dictionary_verdict_status`)은 그대로 남긴다 — contract 7.1 「regulated · conditional 매칭은
+    dictionary_verdict_status · 사전 ID · span 을 유지한다」. 공개 신호(check_signals)는 이 저장값만 보고 현재 사전 행을 다시 읽지 않는다."""
+    out = {k: v for k, v in f.items() if k not in ("external_id", "glossary_id")}
     if "external_id" in f:
         if f["external_id"] not in dict_ids:
             raise AdoptionRejected(f"사전 항목 {f['external_id']} 의 DB id 없음", code="CHECK_RESULT_INVALID")
@@ -784,6 +793,33 @@ def decide(*, current_key: str, result_key: str | None, attempt_status: str | No
     if result_key is not None:
         return {"state": OUTDATED, "inputKey": result_key}
     return {"state": MISSING, "inputKey": None}
+
+
+def _flag_signal_code(f: dict[str, Any]) -> str | None:
+    producer, kind = f.get("producer"), f.get("type")
+    if producer == "glossary_validation" and kind == "mandatory_term_unapplied":
+        return SIGNAL_MANDATORY_TERM
+    if producer == "translation_validation" and kind == "regulatory" and f.get("dictionary_verdict_status") in REGULATORY_SIGNAL_STATUSES:
+        return SIGNAL_PROHIBITED
+    return None
+
+
+def check_signals(flags: Any, check: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """한 블록의 규칙 검사 공개 신호(ReviewSignal). 조회(GET /blocks)와 블록 저장 응답이 같은 함수를 쓴다(cfm._blocks).
+    - 그 블록 검사 상태가 settled 일 때만 낸다. settled = 가장 최근 채택 결과의 inputKey 가 현재 입력 키와 같다(decide) — 채택이 그 블록의
+      자기 producer flag 를 통째로 바꾸므로(TextCheckHandler.adopt) 이때 저장 flag 는 현재 입력의 결과다. in_progress · outdated · failed ·
+      missing · 검사 대상 밖(null)에서는 남아 있는 이전 flag 를 신호로 내지 않는다.
+    - 같은 블록 · 같은 코드는 1개로 묶는다(flag 여러 개 → 신호 1개). 사유 · 조문 · 근거 URL 은 null(계약 허용),
+      taskId · retryable 은 translation_failed 전용이라 null.
+    - 확정의 필수 확인 집합(final.REQUIRED_ACK_CODES = translation_failed)에는 들어가지 않는다 — final.block_signals 와 별개다."""
+    if not check or check.get("state") != SETTLED:
+        return []
+    codes: list[str] = []
+    for f in json_value(flags) or []:
+        code = _flag_signal_code(f) if isinstance(f, dict) else None
+        if code is not None and code not in codes:
+            codes.append(code)
+    return [{"code": c, "reason": None, "basisArticle": None, "evidenceUrl": None, "taskId": None, "retryable": None} for c in codes]
 
 
 def _adopted_results(db: Session, run_id: int, section_id: int) -> dict[str, str]:

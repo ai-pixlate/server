@@ -50,7 +50,9 @@ def _block_dict(r, signals: dict, fps: dict, checks: dict | None = None) -> dict
         "overflow": r["overflow"],
         "autoAdjust": layout.auto_view(adj),
         "layoutAdjust": layout.layout_view(adj),
-        "signals": signals.get(r["id"], []),
+        # 기존 신호(translation_failed · width_overflow — final.block_signals) 뒤에 규칙 검사 신호(settled 일 때만, 블록 · 코드당 1개).
+        # 검사 신호는 확정 확인 집합에 섞이지 않는다(확정은 final.block_signals 만 쓴다)
+        "signals": signals.get(r["id"], []) + text_check.check_signals(r["compliance_flags"], (checks or {}).get(r["id"])),
         "revision": r["revision"],
         # /preview sections[].inputFingerprint 와 같은 계산 — 같은 섹션의 블록은 같은 값. 제외·입력 구성 실패·입력 준비 중은 null
         "sectionInputFingerprint": fps.get(r["section_id"]),
@@ -67,7 +69,7 @@ def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block
         "SELECT tb.id, tb.section_id, tb.block_order, tb.role, "
         "tb.is_product_label, tb.is_brand_logo, tb.is_excluded, "
         "tb.source_ko, tb.trans_1, tb.trans_2, tb.block_status, tb.bbox, "
-        "tb.char_count, tb.char_limit, tb.overflow, tb.layout_adjust, tb.revision "
+        "tb.char_count, tb.char_limit, tb.overflow, tb.layout_adjust, tb.revision, tb.compliance_flags "
         "FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
         "WHERE s.job_id = :j AND " + VISIBLE
     )

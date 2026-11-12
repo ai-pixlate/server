@@ -106,6 +106,7 @@ API 명세(`docs/openapi.yaml`)는 서버 코드와 같은 저장소에서 관�
 
 - **59 = 60(API-* 행) − JOB-08 resume(📌·개수 미합산)**. 인벤토리 합계 규칙과 동일.
 - **스펙 총 61 = 60 + `PATCH /jobs`**(태스크 지침: "조건부(JOB-08 resume, PATCH /jobs)를 스펙에 포함"). resume·PATCH /jobs 둘 다 📌 최소 스키마 + `TODO`.
+- 2차 소셜 로그인(`fix/auth-social-contract`): AUTH-06이 start(`authSocialStart`)·완료(`authSocial`) 두 오퍼레이션이 됐다. 이 표는 3.4.x 집계 그대로이고, 현재 스펙 오퍼레이션은 63개다.
 - 릴리스 마커 집계(스펙): 🟢46 · 🟡1 · 🔵12 · 📌2(resume + PATCH /jobs). 이후 `PATCH /jobs/{jobId}`(jobPatch)는 draft-first 로 확정돼 🟢9월로 바뀌었다(2026-10-14 BE 구현).
 
 ---
@@ -133,7 +134,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 ## 6. 미확정(TODO) 요약
 스펙 내 `TODO` 주석으로 표시된 미확정 항목:
 - **Error code 전체 15종** — 근거(회신문 종합 1-C-5) 확정 시 `Error.code`를 enum으로 고정.
-- **🔵12월 스텁**: AUTH-06 · JOB-01 · INP-02 · LIB-02 · LIB-03 · ADM-01~07 — 상세 Request/Response 12월 확정.
+- **🔵12월 스텁**: JOB-01 · INP-02 · LIB-02 · LIB-03 · ADM-01~07 — 상세 Request/Response 12월 확정. (AUTH-06 소셜 로그인은 2차에 계약 확정 — 7.1)
 - **📌조건부**: JOB-08 `resume` — PM 확정 후 계약 채움. (`PATCH /jobs/{jobId}` 는 jobPatch 로 확정·구현됨)
 - **verify 노드 분리**(N2 판정 vs N4 규제검증) — 오케스트레이션 §15-1 미결(스펙엔 영향 없음).
 
@@ -181,12 +182,15 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | N3 원래 순서(`sectionOrder` 정렬)·섹션 카드 버튼 | PRD F-SEC-02·F-SEC-03 | `Section.sectionOrder`·`SectionPatch` | 현행(정렬·버튼은 화면) | — |
 | OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥ | PM 11-04·AI 11-04·11-05 | `JobPatch.regulatoryClass` | 계약 확정·서버 구현 대기(OTC 필드는 새 규제사전 작업, 백필은 대상 조사·실행 승인 뒤) | 미정(#103 계열) |
 | 작업 생성 시점·책임 동의, `consentId` 미사용 | PRD F-ACC-04 | jobCreate·consentCreate | 현행(동의 체크는 화면) | — |
+| `Seller.email` null 허용(소셜 계정 대비 — 계정은 제공자 + 회원번호로 구분, 이메일은 식별에 쓰지 않음), 이메일 간이 로그인(개발용)은 local 계정만 찾고 만듦 | PRD F-ACC-05 · FE 회신 11-09(타입 수용) · PM 11-09(이메일 수집·용도) | `Seller.email`·authLogin·authMe | 구현 완료·서버 배포 대기(소셜 로그인 API는 아래 「소셜 로그인」 행) | `feature/auth-account-identity` |
+| 로그인 세션(S안) — **정본 「refresh 서버 상태 없음」 변경**: 로그인마다 서버 세션(Redis), access는 세션에 묶여 요청마다 확인, refresh 쿠키 회전(동시 요청 하나만 성공·30초 유예·재사용 시 그 세션 폐기·거절은 Set-Cookie 없음), 비활성 7일·최대 30일, **활동 = 로그인·refresh 성공만**(시연용 허용 — 실제 조작 기준 정책과 다름), 로그아웃 = 자격이 가리키는 살아 있는 세션만 폐기(쿠키는 서명이 맞으면 세대와 관계없이 식별), 유효한 refresh 쿠키만으로도 로그아웃(계약 — FE 요청), 이미 종료된 세션의 재로그아웃 204(FE 11-10), 검증할 수 없는 자격은 401 `invalid_token`·무변경, 같은 브라우저 재로그인은 이전 세션 폐기, 세션 없는 이전 access 401, 저장소 장애 503(사유 없음) | PM 11-09(7일·30일·서버 무효화)·11-10(다중 탭·로그아웃·refresh 활동 허용) · 2026-11-10 구현 방향 결정(BE·사용자 — PM 회신만으로 확정 아님) · FE 회신 11-10(화면 흐름 수용) | 공통 규칙 「로그인 세션」·authLogin·authRefresh·authLogout | 구현·시험 완료(#124 Draft, develop 미머지)·서버 배포 대기. Origin 허용 목록 검사(`PIXLATE_AUTH_ORIGINS`, 비면 거절). access 수명은 `JWT_TTL` 우선(기본 15분). 재사용 탐지 = 세대 + 서명(더 오래된 발급 refresh도 `refresh_reused`로 그 세션 폐기, 서명이 틀린 값은 아무것도 바꾸지 않음). **한계:** 같은 쿠키 동시 재로그인은 새 세션 둘(개발용 — 한 브라우저 한 계정 완전 보장 아님). **FE 11-10 합의:** refresh 뒤 `/auth/me` 확인 순서, 경합 복구 수치(대기 2초·갱신 2회·원 요청 1회·잠금 10초), `origin_not_allowed` 401, 저장소 장애 503 사유 없음, 로그아웃 결과별 처리. refresh 실패별 처리(503 = 세션 종료로 보지 않음·자동 반복 없음 — 서버 상태는 회전 전/후 실패에 따라 다름, `reused`·`invalid` = G1, `rotated` 한도 초과 = G1이지만 서버 세션 유지). 로그아웃 네 항목(같은 계정 두 세션·만료 access·유효 Bearer + 검증 불가 쿠키·자격 없음 204) 사용자 11-10 확정. 검증 불가 쿠키만 있는 로그아웃 = 401 `refresh_invalid` + 쿠키 삭제, 그 값으로는 세션 폐기 없음, FE는 대기 해제·G1·정상 로그아웃과 구분(FE 11-10 최종 합의 · 구현 완료 · 연동 검증 대기). 함께 온 소셜 결속을 서버에서 확인하면 그 결속의 진행 중 로그인·결속 세션은 정리(11-11 결함 수정 — C, 응답 동일, 결속 처리 중 저장소 장애는 503). 로그아웃 세부 중 PM 확정은 정상·다른 계정 두 세션, 나머지 네 항목은 사용자 11-10 확정, 검증 불가 쿠키만은 FE 11-10 최종 합의 | `feature/auth-session`(A #123 위) |
 | 브랜드 생성 시점 스냅샷 | PM 11-04 | jobCreate | 계약 확정·서버 구현 대기 | 미정 |
 | `/blocks`의 `overflow`는 유지하되 넘침 판정에 쓰지 않음 | FE | `TextBlock.overflow` | 현행 | — |
 | `/preview` 공통 렌더 입력·현재 시도/표시 결과·입력 지문, `/blocks` 섹션 입력 지문·지문 A·B·C 비교 | FE 11-04·11-05 | reviewPreview 「렌더 입력과 시도·결과」·응답 예시 6개·`PreviewRender*`·`TextBlock.sectionInputFingerprint`·blockList | 구현 완료·서버 배포 대기(#108 머지 전제). 서버 미완료 2건: ① 하류 실행 없는 N5 섹션의 미리보기 확보 ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록(블록 저장 500) | #108 |
 | `/preview` 키 제공 규칙 — `required` 키 항상, 상태별 null(외곽 8키·섹션 16키) | #100 계약안·FE 11-05 | `ReviewPreview` 「키 제공 규칙」 | 구현 완료·서버 배포 대기 | #108 |
 | 배치 요청의 `trans1` 필수(현재 공개안) — 생략 허용은 후속 협의(7.3) | FE 11-03 | `BlockPatch`·blockPatch 「블록 배치」·예시 `missingTrans1` | 현행(현행 서버도 `trans1` 필수) | — |
 | 서버 렌더러의 FE 공통 렌더 일치(HTML/Playwright·번들) | 실행계획 BE 8번·R-18 | `PreviewRenderer` — 현행 Pillow·`bundleId = null`·자간 미적용 | 미착수(7.2 ③) | 미정 |
+| 소셜 로그인(카카오·Google) — start·완료, 자동 가입, 제공자+회원번호 식별, FE 콜백 `/login/callback/{provider}`, PKCE·state·nonce 서버 관리, 한 브라우저 한 세션 교체, 완료 응답 = `LoginResponse`(신규·기존 같은 모양), 오류 `error.code` + `details.reason` (`UNAUTHORIZED`: `state_invalid`·`provider_auth_failed`·`origin_not_allowed` / `DUPLICATE`: `login_in_progress` / `SERVICE_UNAVAILABLE`: `provider_unavailable` 또는 사유 없음), 완료 요청은 같은 코드로 재전송하지 않음, 의도적 비활성 404 · 켰지만 필수 설정 오류 503(공개 오류에 비밀·설정값 없음). **FE 보장과 서버 내부 값 구분:** 시도 수명(C 초기 기본값 10분)·점유 상한(C 초기 기본값 60초)은 서버 설정이며 공개 계약이 아니다 — 명세에는 「수명이 지나면 `state_invalid`」「409는 끝없이 이어지지 않음」「상한 뒤 늦은 제공자 응답은 세션을 만들지 않음」만 싣는다. FE 대기 종료는 FE 요청 timeout | PRD F-ACC-05 · PM 11-09·11-10 · FE F-A 회신 · FE 기술 확인 회신 11-10(F6·start·F7) · 사용자 11-10(U6, 10분·60초 초기 기본값 채택) | 공통 규칙 「소셜 로그인」·authSocialStart·authSocial·`Error.details`·`SocialStartResponse`·`SocialLoginRequest`·`LoginResponse` | 계약 확정·구현·대역 시험 완료(C `feature/auth-social`, develop 미머지 · 서버 배포 전 — 배포 서버는 확인하지 않음). 공개 계약(요청·응답·오류·FE 보장)과 서버 보장(브라우저 세션 교체·로그아웃 뒤 늦은 완료 차단·점유 만료·늦은 제공자 응답)을 구분 — 서버 보장은 C에서 구현해 제공자 대역·실제 Redis 경합 시험으로 확인, 실제 제공자·브라우저 연동 검증 전. 10분·60초는 실제 제공자 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증 | `fix/auth-social-contract`(명세) → C 구현 PR 미정 |
 | HTTP `error.code` 15종 정리 — 서버 코드 11개를 공통 코드와 `details.reason`·`details.fields`로 변환(7.7) | FE 11-06 | `Error.details` | 구현 완료·서버 배포 대기 | `fix/int2-error-cancel-contract` |
 | 작업 취소 200 `{jobId, status}`·반복 취소 200·없는 작업/남의 작업 404 | FE 11-06 | jobCancel | 현행(서버 변경 없음, 명세·시험 보완) | `fix/int2-error-cancel-contract` |
 | `isExcluded` true·false·null 구분, null만으로 새 편집 차단 정책을 만들지 않음 | FE 11-06 | `TextBlock.isExcluded` | 현행 | — |
@@ -204,7 +208,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | ⑤ | 카테고리 매핑 충돌 500의 `retryable` | `retryable: true`로 나가지만 데이터를 고칠 때까지 결과가 같다 | 명세에는 현재 값을 적었다. 서버 값 변경은 하지 않았다 | jobCreate 500 | 미해결 — 서버 변경 여부 미정 |
 | ⑥ | 매핑 대상 밖 400의 `details.fields` | `productName` 누락(`/analyze`)·원본 순서 변경 3종·JSON 객체가 아닌 본문(`PATCH /jobs`)에는 `details.fields`가 없고, 내보내기 구성 오류는 `details.unsupported`다 | `error.code`는 맞다. `productName`은 요청 본문의 값이 아니라 `loc`을 정할 근거가 없어 임의로 만들지 않았다 | `Error.details` | 미해결 — 형식 미정 |
 | ⑦ | 정의되지 않은 메서드의 405 | 서버 프레임워크가 내는 405의 `error.code`가 `ERROR`로 15종 밖이다. HTTP 405도 명세에 없다 | 확정 매핑에 없어 바꾸지 않았다. FE가 부르는 경로에서는 나오지 않을 것으로 보지만 확인하지 않았다 | `Error.code` | 미해결 — 처리 미정 |
-| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 62개 중 3개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
+| ⑧ | 요청 형식 422의 문서화 범위 | 서버는 요청 형식 오류에 422 `VALIDATION_ERROR`를 내지만 응답에 422를 적은 오퍼레이션은 63개 중 6개다(sectionPatch·blockPatch·confirmReview — confirmReview는 `taskId` 형식 오류와 함께 추가 · authLogout(로그인 세션) · authSocialStart·authSocial(소셜 로그인)). 빠진 예: brandCreate | 응답 형식은 `Error`로 맞다. 오퍼레이션별 표기만 빠져 있다 | 각 오퍼레이션 | 미해결 — 처리 미정 |
 | ⑨ | 확정된 검사 오류 정책(PM 11-10)의 남은 연결(검사 활성화 전 해결 — PM 추가 승인 대상 아님) | (a) 블록 범위: 블록 하나의 충돌(강제 용어끼리 · 금지/허용 같은 구간)은 그 블록만 failed 로 두고 실행 요청 대상에서 뺀다 — 같은 섹션의 나머지 블록은 실제로 검사(AI 11-11 회신: 규칙 검사에 한한 요청 대상 예외). 섹션 공통 공급 실패(후보 형식 · ID 불일치)만 섹션 단위. (b) 현재 inputKey 를 계산할 수 없으면 failed · `inputKey: null`(API 6-10 — 블록 저장 200, 확정 통과). 대상 언어가 없어 공급 기준을 정할 수 없으면 여전히 500. (c) 고정 요청 객체 저장 실패는 그 입력의 실패로 기록해 failed · 확정 통과(실행 없음 · `CHECK_REQUEST_STORE_FAILED`, API 6-10) | (a)(b)(c) 해결(로컬 구현 · 격리 검증 — 커밋 전) | `BlockCheck`·blockPatch·confirmReview | (a)(b)(c) 구현 완료·서버 배포 대기(기본 꺼짐) |
 
 ### 7.3 남은 계약 항목 (명세에 싣지 않음)
@@ -247,6 +251,8 @@ FE 구현 (계약은 11-06 확정, 구현은 미완료)
 - 저장소 밖 스크립트·모니터링이 이전 오류 코드 값에 기대는지.
 
 서버 내부 계산·직렬화 (외부 계약에 영향 없음)
+- 소셜 로그인 시도 수명(C 초기 기본값 10분)·점유 상한(C 초기 기본값 60초) — 실제 제공자 인가 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증한다. 값이 바뀌어도 공개 계약(FE 보장)은 바뀌지 않는다.
+- 소셜 로그인의 발급 직전 원자 처리(점유 재확인·결속의 마지막 시도·로그아웃 시각·브라우저 현재 세션 교체) — C(`feature/auth-social`, develop 미머지)에서 구현했고 제공자 대역 + 실제 Redis 시험으로 점유 만료·로그아웃·다른 로그인 시작·늦은 제공자 응답·같은 시도 동시 요청을 확인했다(`tests/test_auth_social.py`). 실제 제공자·브라우저(프록시·SameSite) 연동 검증 전이다. 검증 불가 refresh 쿠키만의 로그아웃(401 `refresh_invalid`)이 결속 처리를 건너뛰어 진행 중 로그인이 뒤늦게 세션을 만들던 결함은 11-11 C에서 고쳤다(서버 기록이 있는 결속만 근거, 완료·로그아웃 순서 양쪽 시험). 간이 로그인(authLogin)의 동시 재로그인 한계(새 세션 둘)는 결속이 없어 C에서도 그대로다(이전 계획의 「C에서 함께 해결」은 정정) — 간이 로그인을 환경별로 끄는 전환 조건과 묶어 해소한다.
 - 규칙 검사 `inputKey`의 서버 내부 계산 — 의미 입력(고정 사전·용어집 선별 결과·규칙 버전 등)의 세부 표현과 직렬화·해시 방식, 기존 요청 검증 지문(`input_manifest_sha256`)과의 관계. 외부 계약(불투명 문자열·같은지만 비교·null 조건·배치·배율·revision 제외)은 확정이다(`BlockCheck`).
 - 공통 렌더 번들 반입·버전 고정 방식(R-FE-6) — 7.2 ③의 선행 조건.
 

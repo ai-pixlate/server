@@ -10,3 +10,5 @@ pillow
 pytest
 httpx
 openpyxl
+google-auth
+cryptography

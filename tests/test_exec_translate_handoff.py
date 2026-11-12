@@ -259,8 +259,27 @@ def test_api_category_without_direct_mapping_supplies_common_only(handoff_env):
 
 
 def test_api_job_without_category_supplies_common_only(handoff_env):
-    cl, job = _api_job_to_n3(handoff_env, None)
-    assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] is None
+    """카테고리 없는 작업: 새 작업은 최초 분석 게이트에서 막힌다. 게이트 이전에 분석을 시작해 N3에 있는 기존 작업(카테고리 NULL)은
+    보정하지 않고 common만 공급받는다(카테고리 값을 leaf로 바꿔 이 경우를 숨기지 않는다)."""
+    from app import db as app_db
+    from app.manifest import sha256_bytes
+
+    cl, ids = _api_client(handoff_env)
+    r = cl.post("/v1/jobs", json={"brandId": ids["brand"], "productName": "선크림", "targetCountry": "US",
+                                  "regulatoryClass": "cosmetic", "targetLanguage": "en"})
+    new = r.json()["id"]
+    data = sample_source_png()
+    handoff_env["store"].put(f"source/{new}/src.png", data)
+    with app_db.engine.begin() as c:
+        c.execute(text("INSERT INTO source_image (job_id, upload_order, file_url, width, height, sha256) VALUES (:j, 1, :k, 600, 1000, :h)"),
+                  {"j": new, "k": f"source/{new}/src.png", "h": sha256_bytes(data)})
+    r = cl.post(f"/v1/jobs/{new}/analyze")
+    assert r.status_code == 400 and r.json()["error"]["details"]["fields"][0]["msg"] == "category is required"
+
+    cl, job = _api_job_to_n3(handoff_env, _category("선크림(게이트 이전 작업)"))
+    with app_db.engine.begin() as c:  # 게이트 이전에 카테고리 없이 시작한 기존 작업과 같은 저장 값
+        c.execute(text("UPDATE job SET display_category_id = NULL, internal_category = NULL WHERE id = :j"), {"j": job})
+    assert cl.get(f"/v1/jobs/{job}").json()["categoryId"] is None
     sups, _ = _proceed_and_supply(handoff_env, cl, job)
     assert {tuple(s["glossary_selection"]["categories"]) for s in sups if s} == {("common",)}
 

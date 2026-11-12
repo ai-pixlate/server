@@ -130,6 +130,7 @@ def test_draft_first_flow_create_upload_patch_get_reorder_analyze(env):
     lst = c.get(f"/v1/jobs/{jid}/source-images").json()
     assert [x["id"] for x in lst] == want and all(x["fileUrl"] and x["createdAt"] for x in lst)
 
+    assert c.patch(f"/v1/jobs/{jid}", json={"categoryId": _tree()["leaf"]}).status_code == 200  # 최초 분석 필수(leaf)
     a = c.post(f"/v1/jobs/{jid}/analyze")
     assert a.status_code == 202, a.text
     assert [m[0] for m in env["q"].messages] == ["app.tasks.run_analyze"]  # 큐 발행까지만(실행·모델 호출 없음)
@@ -147,8 +148,9 @@ def test_analyze_rejects_missing_product_name_without_side_effects(env, name):
     _upload(c, jid, ("a.png",))
     patch = {k: v for k, v in N1.items() if k != "productName"} | ({"productName": name} if name is not None else {})
     assert c.patch(f"/v1/jobs/{jid}", json=patch).status_code == 200
-    r = c.post(f"/v1/jobs/{jid}/analyze")
+    r = c.post(f"/v1/jobs/{jid}/analyze")  # 카테고리도 없지만 상품명 게이트가 먼저다
     assert r.status_code == 400 and r.json()["error"]["code"] == "VALIDATION_ERROR", r.text
+    assert r.json()["error"]["message"] == "productName is required" and r.json()["error"]["details"] is None
     assert env["q"].messages == []
     assert _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j", j=jid)[0]["n"] == 0
     g = c.get(f"/v1/jobs/{jid}").json()
@@ -189,7 +191,7 @@ def test_patch_ownership_and_state(env):
     c, brand, _ = _seller()
     other, _, _ = _seller()
     jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
-    before = c.patch(f"/v1/jobs/{jid}", json=N1).json()
+    before = c.patch(f"/v1/jobs/{jid}", json={**N1, "categoryId": _tree()["leaf"]}).json()
 
     for r in (other.patch(f"/v1/jobs/{jid}", json={"productName": "x"}), c.patch("/v1/jobs/987654321", json={"productName": "x"})):
         assert r.status_code == 404 and r.json()["error"]["code"] == "NOT_FOUND"
@@ -564,7 +566,8 @@ def test_patch_category_leaf_null_and_unmapped(env):
 
 
 def test_stored_parent_category_is_not_rechecked_or_changed(env):
-    """검증 이전에 상위 분류가 저장된 작업(예: dev job 40) — 보정하지 않고, categoryId를 보내지 않는 수정·분석은 그대로다(analyze 조건은 별도 결정)."""
+    """검증 이전에 상위 분류가 저장된 draft 작업 — 보정하지 않고, categoryId를 보내지 않는 수정은 그대로 통과한다.
+    최초 분석은 카테고리 게이트에서 막힌다(아래 analyze 시험). 값은 바뀌지 않는다."""
     c, brand, _ = _seller()
     ids = _tree()
     jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
@@ -572,7 +575,7 @@ def test_stored_parent_category_is_not_rechecked_or_changed(env):
     g = c.patch(f"/v1/jobs/{jid}", json=N1)
     assert g.status_code == 200 and (g.json()["categoryId"], g.json()["internalCategory"]) == (ids["root"], None)
     _upload(c, jid, ("a.png",))
-    assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202  # 현행 analyze — 카테고리를 보지 않는다
+    assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 400  # 최초 분석 게이트
     assert c.get(f"/v1/jobs/{jid}").json()["categoryId"] == ids["root"]
 
 
@@ -586,8 +589,107 @@ def test_patch_category_keeps_existing_auth_ownership_state_order(env):
     assert TestClient(app).patch(f"/v1/jobs/{jid}", json={"categoryId": ids["root"]}).status_code == 401
     r = other.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["root"]})
     assert r.status_code == 404 and r.json()["error"]["code"] == "NOT_FOUND"
-    c.patch(f"/v1/jobs/{jid}", json=N1)
+    c.patch(f"/v1/jobs/{jid}", json={**N1, "categoryId": ids["leaf"]})
     _upload(c, jid, ("a.png",))
     assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202  # → N2
     r = c.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["root"]})
     assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"  # 상태 확인이 먼저(기존 순서)
+
+
+# ── 분석 시작(ANL-01)의 카테고리 게이트 — 최초(N1)만, 기존 게이트 뒤·실행 생성 전 ──
+def _analysis_rows(jid):
+    return _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j", j=jid)[0]["n"]
+
+
+def _ready_job(c, brand, category, **n1):
+    """원본 1장 + N1 값. category 는 저장할 categoryId(None = 미선택). 상위 분류는 검증 이전 데이터처럼 SQL로 넣는다."""
+    jid = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]
+    _upload(c, jid, ("a.png",))
+    assert c.patch(f"/v1/jobs/{jid}", json={**N1, **n1}).status_code == 200
+    if category is not None:
+        _q("UPDATE job SET display_category_id = :c WHERE id = :j", c=category, j=jid)
+    return jid
+
+
+@pytest.mark.parametrize("kind, msg", [("none", "category is required"), ("root", "category is not a leaf"),
+                                       ("mid", "category is not a leaf")])
+def test_first_analysis_requires_leaf_category(env, kind, msg):
+    c, brand, _ = _seller()
+    ids = _tree()
+    jid = _ready_job(c, brand, None if kind == "none" else ids[kind])
+    before = c.get(f"/v1/jobs/{jid}").json()
+    r = c.post(f"/v1/jobs/{jid}/analyze")
+    assert r.status_code == 400 and r.json()["error"]["code"] == "VALIDATION_ERROR", r.text
+    assert r.json()["error"]["details"] == {"fields": [{"loc": ["body", "categoryId"], "msg": msg}]}
+    assert _analysis_rows(jid) == 0 and env["q"].messages == []  # 실행·시도·큐 전달 없음
+    assert c.get(f"/v1/jobs/{jid}").json() == before  # draft/N1 · 값 그대로
+
+
+def test_first_analysis_accepts_mapped_and_unmapped_leaf(env):
+    c, brand, _ = _seller()
+    ids = _tree()
+    for cid in (ids["leaf"], ids["unmapped"], ids["mid_leaf"]):
+        jid = _ready_job(c, brand, None, categoryId=cid)
+        assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202
+        assert c.get(f"/v1/jobs/{jid}").json()["currentStep"] == "N2"
+
+
+def test_first_analysis_gate_order_keeps_existing_gates_first(env):
+    """여러 조건이 함께 틀리면 기존 순서가 먼저다: 404 → 409(취소·단계) → 400 상품명 → 409 규제 분류 → 409 국가 → 409 원본 → 400 카테고리."""
+    from app.main import app
+
+    c, brand, _ = _seller()
+    other, _, _ = _seller()
+    no_cat = _ready_job(c, brand, None)
+    assert TestClient(app).post(f"/v1/jobs/{no_cat}/analyze").status_code == 401
+    r = other.post(f"/v1/jobs/{no_cat}/analyze")
+    assert r.status_code == 404 and r.json()["error"]["code"] == "NOT_FOUND"
+    r = c.post(f"/v1/jobs/{_ready_job(c, brand, None, productName=None)}/analyze")
+    assert r.status_code == 400 and r.json()["error"]["message"] == "productName is required"
+    r = c.post(f"/v1/jobs/{_ready_job(c, brand, None, regulatoryClass=None)}/analyze")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    r = c.post(f"/v1/jobs/{_ready_job(c, brand, None, targetCountry=None)}/analyze")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    bare = c.post("/v1/jobs", json={"brandId": brand}).json()["id"]  # 원본 없음 + 카테고리 없음
+    assert c.patch(f"/v1/jobs/{bare}", json=N1).status_code == 200
+    r = c.post(f"/v1/jobs/{bare}/analyze")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    assert c.delete(f"/v1/jobs/{no_cat}").status_code == 200  # 취소된 작업 + 카테고리 없음
+    r = c.post(f"/v1/jobs/{no_cat}/analyze")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    assert env["q"].messages == []
+
+
+@pytest.mark.parametrize("legacy", ["none", "root"])
+def test_n2_failed_retry_keeps_current_behavior_and_abort_reapplies_gate(env, legacy):
+    """게이트 이전에 시작한 기존 작업(카테고리 미선택·상위 분류)의 N2 실패 [다시 시도]는 기존 작업 재시도 호환을 위한 예외로 그대로 시작한다.
+    [중단]으로 N1에 돌아오면 최초 분석이므로 게이트가 다시 적용되고, leaf로 고친 뒤 시작할 수 있다."""
+    from pipeline.errors import AnalyzeError
+
+    c, brand, _ = _seller()
+    ids = _tree()
+    jid = _ready_job(c, brand, None, categoryId=ids["leaf"])
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer(fail=AnalyzeError("IMAGE_OPEN_FAILED", "깨진 파일", 1)))
+    assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202
+    env["q"].drain()
+    assert (c.get(f"/v1/jobs/{jid}").json()["status"], c.get(f"/v1/jobs/{jid}").json()["currentStep"]) == ("failed", "N2")
+    # 게이트 이전에 시작한 작업처럼 만든다(카테고리 값만 — 실행 기록은 그대로)
+    _q("UPDATE job SET display_category_id = :c, internal_category = NULL WHERE id = :j",
+       c=None if legacy == "none" else ids["root"], j=jid)
+    rows, sent = _analysis_rows(jid), len(env["q"].messages)
+
+    r = c.post(f"/v1/jobs/{jid}/analyze")  # [다시 시도] — 카테고리 확인 안 함(현행)
+    assert r.status_code == 202, r.text
+    assert _analysis_rows(jid) > rows and len(env["q"].messages) == sent + 1  # 새 실행·시도 + 큐 전달
+    env["q"].drain()
+    assert c.get(f"/v1/jobs/{jid}").json()["status"] == "failed"
+
+    assert c.post(f"/v1/jobs/{jid}/abort").status_code == 200  # [중단] → draft/N1
+    assert c.get(f"/v1/jobs/{jid}").json()["currentStep"] == "N1"
+    sent = len(env["q"].messages)
+    r = c.post(f"/v1/jobs/{jid}/analyze")  # N1로 돌아온 작업 = 최초 분석 → 게이트
+    assert r.status_code == 400 and r.json()["error"]["details"]["fields"][0]["loc"] == ["body", "categoryId"]
+    assert len(env["q"].messages) == sent
+    ai_adapters.set_adapters(analyzer=FakeAnalyzer())
+    assert c.patch(f"/v1/jobs/{jid}", json={"categoryId": ids["unmapped"]}).status_code == 200
+    assert c.post(f"/v1/jobs/{jid}/analyze").status_code == 202

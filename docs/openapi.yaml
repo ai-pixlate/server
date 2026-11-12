@@ -809,7 +809,7 @@ components:
             없는 id와 상위 분류(isLeaf false)는 400 `VALIDATION_ERROR` — `details.fields`에 `loc: [body, categoryId]` 한 항목(`msg`가 `unknown category` / `category is not a leaf`),
             `details.reason` 없음. 작업은 만들어지지 않는다(Idempotency-Key는 브랜드 404처럼 해제 — 같은 키로 고친 본문을 다시 보낼 수 있다).
             leaf인데 내부 카테고리 매핑이 없으면 거절하지 않고 `internalCategory` null(용어집 common만 — F-SRC-04b).
-            분석 시작(analyzeStart) 때 카테고리 필수·leaf 재확인 여부는 정해지지 않았고 현행 서버는 보지 않는다.
+            생략은 draft에서만의 허용이다 — 최초 분석(analyzeStart)은 저장된 categoryId가 있고 지금 leaf여야 시작한다(그 설명 참고).
         keywords: { type: array, items: { type: string } }
         imageType: { $ref: '#/components/schemas/ImageContinuity' }
         consentId: { type: integer, format: int64, description: '[PRD v3.5.10] 사용하지 않는다 — 서버는 저장하지 않는다(현행과 같음). 동의 시각은 작업 생성 시각으로 본다(jobCreate 설명). 필드 제거 여부는 협의 중' }
@@ -2597,6 +2597,21 @@ paths:
       description: >
         draft·원본 존재·N1 게이트(product_name NULL이면 400 VALIDATION_ERROR). 큐 등록까지만(202),
         산출물은 오케스트레이터. 진행은 JOB-05 폴링. 🟢9월.
+
+        **[PRD v3.5.10 F-SRC-04 J41① · 2026-11-12 결정 · 구현 완료·서버 배포 대기] 최초 분석의 카테고리 조건** — 최초 분석(작업이 draft/N1 —
+        [중단]으로 N1에 돌아온 작업 포함)은 저장된 `categoryId`가 있고, 그 항목이 지금 카테고리 마스터에 있으며 `isLeaf`여야 시작한다.
+        아니면 400 `VALIDATION_ERROR` — `details.fields`에 `loc: [body, categoryId]`(그 값을 넣는 N1 필드 — JobCreate·JobPatch 거절과 같은 표시) 한 항목,
+        `msg`는 `category is required`(미선택) · `category is not a leaf`(상위 분류) · `unknown category`. 새 code·reason 없음.
+        실행·시도를 만들지 않고 큐에 보내지 않으며 작업 값·단계는 그대로다. 매핑 없는 leaf는 통과한다(용어집 common만 — F-SRC-04b).
+        상위 분류가 저장된 기존 draft 작업도 보정하지 않는다 — leaf로 PATCH한 뒤 시작한다.
+
+        **N2 오류 [다시 시도]**(N2 · failed)는 카테고리를 확인하지 않는다 — 이 조건 이전에 분석을 시작한 기존 작업의 재시도 호환을 위한 예외다
+        (재시도는 이전 시도의 입력을 재사용하지 않고 현재 작업 값으로 새 실행을 만든다. N2에서는 카테고리를 바꿀 수 없다).
+        카테고리를 고치려면 [중단](jobAbort: N2 → draft/N1) → PATCH → 최초 분석이며, 이때 위 조건이 적용된다. N3 이후 작업은 이 API를 쓰지 않는다(409).
+
+        **여러 조건이 함께 틀릴 때 먼저 나오는 응답(현행 순서 유지, 카테고리는 마지막):** 인증 401 → 없는·남의 작업 404 →
+        취소된 작업 409 → (진행 중인 분석이 있으면 그 시도를 202로 돌려줌) → 시작할 수 없는 단계 409 → 상품명 400 → 규제 분류 미선택 409 →
+        대상 국가 미선택 409 → 원본 없음·원본 파일 없음 409 → 카테고리 400(최초 분석만).
       responses:
         '202':
           description: '분석 수락'

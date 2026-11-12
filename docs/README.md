@@ -177,7 +177,7 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기(대상·action 이름·revision 의미 미정) | 미정 |
 | 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
 | 표시 결과 없이 렌더 시도가 실패한 섹션의 N5 원본 표시(화면 표시 조건 — N4 렌더 실패 판별이 아니다. N4 판별·N6 출력은 P14·P15) | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
-| category leaf만 허용 — 값이 실려 올 때 생성·수정에서 확인(생략·null = draft 미선택 허용), 없는 id·상위 분류 = 400 `VALIDATION_ERROR` `details.fields`(loc `body.categoryId`, reason 없음), 매핑 없는 leaf는 통과(common), 저장된 상위 분류는 보정·재검사하지 않음. 분석 시작의 카테고리 조건은 미정 | PRD F-SRC-04 J41② · 검증 시점·형식 2026-11-12 결정(사용자) | `JobCreate.categoryId`·`JobPatch.categoryId` | 구현 완료·서버 배포 대기 | `fix/job-category-leaf` |
+| category leaf만 허용 — 값이 실려 올 때 생성·수정에서 확인(생략·null = draft 미선택 허용), 없는 id·상위 분류 = 400 `VALIDATION_ERROR` `details.fields`(loc `body.categoryId`, reason 없음), 매핑 없는 leaf는 통과(common), 저장된 상위 분류는 보정·재검사하지 않음. 최초 분석(N1 — [중단]으로 돌아온 작업 포함)은 저장된 categoryId 필수·지금 leaf(같은 400 형식, 기존 분석 게이트 뒤·실행 생성 전), N2 실패 재시도는 기존 작업 재시도 호환을 위한 예외로 확인하지 않음 | PRD F-SRC-04 J41①② · 검증 시점·형식·최초 분석 조건 2026-11-12 결정(사용자) | `JobCreate.categoryId`·`JobPatch.categoryId` | 구현 완료·서버 배포 대기 | `fix/job-category-leaf` |
 | `/master/categories` 응답을 명세의 `Category` 평면 배열(`parentId`로 연결)로 정정 — 이전 서버는 중첩 트리(`children`)라 화면이 대분류를 leaf로 볼 수 있었다 | OpenAPI masterCategories(정본) | masterCategories·`Category` | 구현 완료·서버 배포 대기 | `fix/job-category-leaf` |
 | N3 포함 섹션 판정(목록도 판정 전부) | PRD F-SEC-02·F-SEC-04 | `Section.verdicts`·`SectionList`·sectionList | 계약 확정·서버 구현 대기 | 미정 |
 | N3 원래 순서(`sectionOrder` 정렬)·섹션 카드 버튼 | PRD F-SEC-02·F-SEC-03 | `Section.sectionOrder`·`SectionPatch` | 현행(정렬·버튼은 화면) | — |
@@ -225,7 +225,6 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 - `consentId` 필드와 `POST /consents`의 제거 여부.
 
 정책·처리 판단
-- 분석 시작(analyzeStart)의 카테고리 조건 — PRD F-SRC-04는 N1 필수 입력(J41① 미선택 시 진행 불가)이지만 analyze 게이트 명세에는 카테고리 조건이 없고, 현행 서버도 보지 않는다. 최초 분석의 미선택·상위 분류, 기존 작업의 N2 재시도, 이미 분석 이후로 진행한 작업을 나눠 정한다(생성·수정의 leaf 검증만으로 N1 필수가 해결된 것은 아니다).
 - P14 — N4 렌더 실패 섹션의 N6 원본 사용과 그 적용 차수.
 - P15 — 성공 이력이 없지만 N4 렌더 실패로 단정하지 않는 섹션의 확인·N6 출력(`render_failed` 판별 기준 포함). /preview의 「표시 결과 없음 + 시도 실패」는 화면 표시 조건이며 이 판별을 대신하지 않는다.
 - PM-R8 이후 처리 — 최초 판정 기록이 없는 직접 제외 섹션(지금은 409 `restore_basis_missing`).

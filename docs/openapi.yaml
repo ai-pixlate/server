@@ -803,8 +803,13 @@ components:
           type: integer
           format: int64
           description: >
-            카테고리 마스터(MST-04)의 id. [PRD v3.5.10 · 계약 확정·서버 구현 대기] 더 펼칠 것이 없는 항목(leaf — 소분류, 또는 소분류가 없는 중분류)만
-            허용한다(F-SRC-04 J41②). 검증 실패 응답 형식·적용 시점은 확정 전이다.
+            카테고리 마스터(MST-04)의 id. [PRD v3.5.10 · 계약 확정 · 구현 완료·서버 배포 대기] 더 펼칠 것이 없는 항목(leaf — 소분류, 또는 소분류가 없는 중분류)만
+            허용한다(F-SRC-04 J41②). 선택 가능 여부는 masterCategories의 `Category.isLeaf`와 같다.
+            **검증 시점(2026-11-12 결정):** 값이 요청에 실려 올 때 작업 생성·수정에서 확인한다. 생략(draft 미선택)은 그대로 허용한다.
+            없는 id와 상위 분류(isLeaf false)는 400 `VALIDATION_ERROR` — `details.fields`에 `loc: [body, categoryId]` 한 항목(`msg`가 `unknown category` / `category is not a leaf`),
+            `details.reason` 없음. 작업은 만들어지지 않는다(Idempotency-Key는 브랜드 404처럼 해제 — 같은 키로 고친 본문을 다시 보낼 수 있다).
+            leaf인데 내부 카테고리 매핑이 없으면 거절하지 않고 `internalCategory` null(용어집 common만 — F-SRC-04b).
+            생략은 draft에서만의 허용이다 — 최초 분석(analyzeStart)은 저장된 categoryId가 있고 지금 leaf여야 시작한다(그 설명 참고).
         keywords: { type: array, items: { type: string } }
         imageType: { $ref: '#/components/schemas/ImageContinuity' }
         consentId: { type: integer, format: int64, description: '[PRD v3.5.10] 사용하지 않는다 — 서버는 저장하지 않는다(현행과 같음). 동의 시각은 작업 생성 시각으로 본다(jobCreate 설명). 필드 제거 여부는 협의 중' }
@@ -838,7 +843,10 @@ components:
         categoryId:
           type: [integer, 'null']
           format: int64
-          description: '카테고리 마스터 id. [PRD v3.5.10 · 계약 확정·서버 구현 대기] leaf 항목만 허용(JobCreate.categoryId와 같음). 검증 실패 응답 형식·적용 시점은 확정 전.'
+          description: >
+            카테고리 마스터 id. [PRD v3.5.10 · 계약 확정 · 구현 완료·서버 배포 대기] leaf 항목만 허용 — 검증·오류는 JobCreate.categoryId와 같다.
+            보냈을 때만 확인한다: null은 비움(draft 미선택), 생략하면 저장된 값을 다시 확인하지 않는다(이 검증 이전에 저장된 상위 분류도 그대로 둔다 — 자동 보정 없음).
+            거절(400)이면 같은 요청의 다른 필드도 반영하지 않는다. 확인 순서는 기존과 같다 — 작업 없음·남의 작업 404, 본문 형식·null 불가 400, draft/N1 아님 409 뒤에 카테고리 400.
         keywords: { type: array, items: { type: string }, description: '보내면 전체 교체. null 불가' }
         imageType: { oneOf: [ { $ref: '#/components/schemas/ImageContinuity' }, { type: 'null' } ] }
         consentId: { type: [integer, 'null'], format: int64, description: '[PRD v3.5.10] 사용하지 않음(서버 미저장) — jobCreate 설명' }
@@ -2170,11 +2178,15 @@ paths:
       operationId: masterCategories
       x-screen: 'N1'
       x-source: API-MST-04
+      description: >
+        노드마다 한 원소인 **평면 배열**(`Category`)이다. 트리는 `parentId`로 잇는다(최상위는 `parentId` null). 순서는 `id` 오름차순.
+        선택 가능한 항목은 `isLeaf` true — 작업 생성·수정의 `categoryId` 검증과 같은 값이다.
+        [2026-11-12 정정 · 구현 완료·서버 배포 대기] 이전 서버는 명세와 달리 최상위만 담은 중첩 트리(`children`, `parentId`·`amazonNode`·`path` 없음)를 돌려줬다.
       responses:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '200':
-          description: '카테고리 트리(노드 배열)'
+          description: '카테고리 노드 평면 배열(트리는 parentId로 연결)'
           content:
             application/json:
               schema: { type: array, items: { $ref: '#/components/schemas/Category' } }
@@ -2253,7 +2265,9 @@ paths:
       description: >
         **2차 상태**(PRD v3.5.10 기준)
 
-        - 계약 확정·서버 구현 대기: category leaf만 허용(`categoryId`) · 브랜드 생성 시점 스냅샷
+        - 구현 완료·서버 배포 대기: category leaf만 허용(`categoryId` — 없는 id·상위 분류 400 `VALIDATION_ERROR`)
+
+        - 계약 확정·서버 구현 대기: 브랜드 생성 시점 스냅샷
 
         - 현행: 호출 시점·책임 동의(`consentId` 미사용 — 동의 체크는 화면) · 500·503 오류 응답
 
@@ -2337,7 +2351,9 @@ paths:
       description: >
         **2차 상태**(PRD v3.5.10 기준)
 
-        - 계약 확정·서버 구현 대기: category leaf만 허용(`categoryId`) · OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥(`regulatoryClass`)
+        - 구현 완료·서버 배포 대기: category leaf만 허용(`categoryId` — 보냈을 때만, 없는 id·상위 분류 400 `VALIDATION_ERROR`)
+
+        - 계약 확정·서버 구현 대기: OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥(`regulatoryClass`)
 
 
         draft job의 N1 입력값을 세팅/수정(A3 draft-first · 8차 #32). 부분 갱신 — 보낸 필드만 반영.
@@ -2581,6 +2597,21 @@ paths:
       description: >
         draft·원본 존재·N1 게이트(product_name NULL이면 400 VALIDATION_ERROR). 큐 등록까지만(202),
         산출물은 오케스트레이터. 진행은 JOB-05 폴링. 🟢9월.
+
+        **[PRD v3.5.10 F-SRC-04 J41① · 2026-11-12 결정 · 구현 완료·서버 배포 대기] 최초 분석의 카테고리 조건** — 최초 분석(작업이 draft/N1 —
+        [중단]으로 N1에 돌아온 작업 포함)은 저장된 `categoryId`가 있고, 그 항목이 지금 카테고리 마스터에 있으며 `isLeaf`여야 시작한다.
+        아니면 400 `VALIDATION_ERROR` — `details.fields`에 `loc: [body, categoryId]`(그 값을 넣는 N1 필드 — JobCreate·JobPatch 거절과 같은 표시) 한 항목,
+        `msg`는 `category is required`(미선택) · `category is not a leaf`(상위 분류) · `unknown category`. 새 code·reason 없음.
+        실행·시도를 만들지 않고 큐에 보내지 않으며 작업 값·단계는 그대로다. 매핑 없는 leaf는 통과한다(용어집 common만 — F-SRC-04b).
+        상위 분류가 저장된 기존 draft 작업도 보정하지 않는다 — leaf로 PATCH한 뒤 시작한다.
+
+        **N2 오류 [다시 시도]**(N2 · failed)는 카테고리를 확인하지 않는다 — 이 조건 이전에 분석을 시작한 기존 작업의 재시도 호환을 위한 예외다
+        (재시도는 이전 시도의 입력을 재사용하지 않고 현재 작업 값으로 새 실행을 만든다. N2에서는 카테고리를 바꿀 수 없다).
+        카테고리를 고치려면 [중단](jobAbort: N2 → draft/N1) → PATCH → 최초 분석이며, 이때 위 조건이 적용된다. N3 이후 작업은 이 API를 쓰지 않는다(409).
+
+        **여러 조건이 함께 틀릴 때 먼저 나오는 응답(현행 순서 유지, 카테고리는 마지막):** 인증 401 → 없는·남의 작업 404 →
+        취소된 작업 409 → (진행 중인 분석이 있으면 그 시도를 202로 돌려줌) → 시작할 수 없는 단계 409 → 상품명 400 → 규제 분류 미선택 409 →
+        대상 국가 미선택 409 → 원본 없음·원본 파일 없음 409 → 카테고리 400(최초 분석만).
       responses:
         '202':
           description: '분석 수락'

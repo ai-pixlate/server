@@ -177,7 +177,8 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 | 확인 기록 감사 로그 | PM C3 | ConfirmRequest | 계약 확정·서버 구현 대기(대상·action 이름·revision 의미 미정) | 미정 |
 | 섹션 실행 실패 출력 — 인페인팅 실패 = 원본 위 번역문, 이전 성공 이미지가 있는 N5 재렌더 실패 = N6에서 확정 번역문으로 다시 렌더 | PM 11-04 | confirmReview 「섹션 실행 실패의 출력」 | 현행 | — |
 | 표시 결과 없이 렌더 시도가 실패한 섹션의 N5 원본 표시(화면 표시 조건 — N4 렌더 실패 판별이 아니다. N4 판별·N6 출력은 P14·P15) | PM 11-04·FE(client PR #44) | confirmReview 「섹션 실행 실패의 출력」·reviewPreview 「표시 결과가 없을 때」 | 화면 | — |
-| category leaf만 허용 | PRD F-SRC-04 J41② | `JobCreate.categoryId`·`JobPatch.categoryId` | 계약 확정·서버 구현 대기 | 미정 |
+| category leaf만 허용 — 값이 실려 올 때 생성·수정에서 확인(생략·null = draft 미선택 허용), 없는 id·상위 분류 = 400 `VALIDATION_ERROR` `details.fields`(loc `body.categoryId`, reason 없음), 매핑 없는 leaf는 통과(common), 저장된 상위 분류는 보정·재검사하지 않음. 최초 분석(N1 — [중단]으로 돌아온 작업 포함)은 저장된 categoryId 필수·지금 leaf(같은 400 형식, 기존 분석 게이트 뒤·실행 생성 전), N2 실패 재시도는 기존 작업 재시도 호환을 위한 예외로 확인하지 않음 | PRD F-SRC-04 J41①② · 검증 시점·형식·최초 분석 조건 2026-11-12 결정(사용자) | `JobCreate.categoryId`·`JobPatch.categoryId` | 구현 완료·서버 배포 대기 | `fix/job-category-leaf` |
+| `/master/categories` 응답을 명세의 `Category` 평면 배열(`parentId`로 연결)로 정정 — 이전 서버는 중첩 트리(`children`)라 화면이 대분류를 leaf로 볼 수 있었다 | OpenAPI masterCategories(정본) | masterCategories·`Category` | 구현 완료·서버 배포 대기 | `fix/job-category-leaf` |
 | N3 포함 섹션 판정(목록도 판정 전부) | PRD F-SEC-02·F-SEC-04 | `Section.verdicts`·`SectionList`·sectionList | 계약 확정·서버 구현 대기 | 미정 |
 | N3 원래 순서(`sectionOrder` 정렬)·섹션 카드 버튼 | PRD F-SEC-02·F-SEC-03 | `Section.sectionOrder`·`SectionPatch` | 현행(정렬·버튼은 화면) | — |
 | OTC 종류 규칙·임시 M020·2차 M020 적용 규칙 ①~⑥ | PM 11-04·AI 11-04·11-05 | `JobPatch.regulatoryClass` | 계약 확정·서버 구현 대기(OTC 필드는 새 규제사전 작업, 백필은 대상 조사·실행 승인 뒤) | 미정(#103 계열) |
@@ -219,7 +220,6 @@ npx @redocly/cli@1 lint docs/openapi.yaml
 
 필드 미확정
 - 조건부 규제 판정 구분 — 금지·조건부를 나누는 필드(`regulationVerdict` 후보)의 이름·값. 표시 방식(공통 `prohibited_expression` + 판정 구분)은 FE·PM 확정, 필드는 미정이라 2차 공개안에는 그 필드가 없다.
-- category leaf 검증 실패 응답 형식·적용 시점.
 - `displayTop`과 제외를 반영한 출력 위치의 분리(필드 추가 또는 의미 변경).
 - N3 단일 배열 응답.
 - `consentId` 필드와 `POST /consents`의 제거 여부.

@@ -117,8 +117,25 @@ def job_payload(db: Session, job_id: int, seller_id: int) -> Optional[dict[str, 
     }
 
 
+_BIGINT_MAX = 2**63 - 1
+
+
 def _category(db: Session, category_id: Optional[int]) -> Optional[str]:
-    """선택 카테고리의 직접 매핑 → 내부 분류(용어집 적용 분류). 작업과 같은 트랜잭션에서 저장한다(통합 D10)."""
+    """선택 카테고리의 직접 매핑 → 내부 분류(용어집 적용 분류). 작업과 같은 트랜잭션에서 저장한다(통합 D10).
+
+    값이 실려 오면 먼저 leaf만 허용한다(PRD F-SRC-04 J41② · JobCreate·JobPatch.categoryId) — 없는 id·상위 분류는
+    400 VALIDATION_ERROR(details.fields loc body.categoryId)이고 아무것도 바꾸지 않는다. leaf 판정은 /master/categories의
+    isLeaf와 같은 category_master.is_leaf. 매핑이 없는 leaf는 거절하지 않는다(NULL → 용어집 common만 · F-SRC-04b).
+    None(생략·null — draft 미선택)은 조회하지 않는다.
+    """
+    if category_id is not None:
+        leaf = None
+        if 0 < category_id <= _BIGINT_MAX:
+            leaf = db.execute(text("SELECT is_leaf FROM category_master WHERE id = :c"), {"c": category_id}).scalar()
+        if leaf is not True:
+            db.rollback()
+            msg = "unknown category" if leaf is None else "category is not a leaf"
+            raise _validation_error("invalid categoryId", [{"loc": ["body", "categoryId"], "msg": msg}])
     try:
         return resolve_internal_category(db, category_id)
     except CategoryMappingConflict as e:
@@ -308,14 +325,18 @@ def cancel_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depe
 @router.post("/jobs/{job_id}/analyze", status_code=202, summary="API-ANL-01 분석 시작 (Celery 큐)")
 def analyze(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     """분석 실행(대표 행 + ①②③ 시도)을 만들고 N2로 올린 뒤 큐에 보낸다. 이미 진행 중인 분석이 있으면 그 시도를 돌려준다.
-    N1(최초) 또는 N2 오류([다시 시도])에서만 시작한다. 규제 분류 미선택은 시작하지 않는다(D8)."""
+    N1(최초) 또는 N2 오류([다시 시도])에서만 시작한다. 규제 분류 미선택은 시작하지 않는다(D8).
+    최초(N1)는 기존 게이트 뒤에 카테고리(필수 · 지금 leaf)를 확인한다 — N2 오류 재시도는 기존 작업 호환을 위해 확인하지 않는다."""
     from app.flows.analysis import StartRejected, start_analysis  # 지연 임포트(파이프라인 설정 로드)
 
     try:
         r = start_analysis(db, job_id, seller_id)
     except StartRejected as e:
         db.rollback()
-        raise HTTPException(status_code=e.status, detail={"code": e.code, "message": e.message}) from e
+        detail: dict[str, Any] = {"code": e.code, "message": e.message}
+        if e.fields:
+            detail["fields"] = e.fields
+        raise HTTPException(status_code=e.status, detail=detail) from e
     response.status_code = 202
     return {"jobId": job_id, "accepted": True, "taskId": r["taskId"]}
 

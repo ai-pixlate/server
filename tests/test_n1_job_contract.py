@@ -441,3 +441,48 @@ def test_redis_fails_before_commit_creates_nothing(redis_env, monkeypatch):
     assert _jobs_of(seller) == 0 and _state(redis_env, seller, key) is None  # 롤백 + 키 삭제
     monkeypatch.setattr(idempotency, "_put", real_put)
     assert c.post("/v1/jobs", json={"brandId": brand}, headers={"Idempotency-Key": key}).status_code == 201
+
+
+# ── 카테고리: /master/categories 평면 배열(계약 Category) ──
+CATEGORY_KEYS = {"id", "parentId", "name", "amazonNode", "isLeaf", "path"}
+
+
+def _tree():
+    """대분류 > 중분류 > 소분류 + 소분류 없는 중분류. 이름은 시험마다 고유(같은 모듈 DB를 쓴다)."""
+    from app import db as app_db
+
+    t = uuid.uuid4().hex[:6]
+
+    def node(c, name, parent, leaf, mapping=None):
+        path = f"{parent[1]} > {name}" if parent else name
+        cid = c.execute(text("INSERT INTO category_master (parent_id, name, is_leaf, path) VALUES (:p, :n, :l, :path) RETURNING id"),
+                        {"p": parent[0] if parent else None, "n": name, "l": leaf, "path": path}).scalar()
+        if mapping:
+            c.execute(text("INSERT INTO category_mapping (category_id, internal_category) VALUES (:c, :m)"), {"c": cid, "m": mapping})
+        return cid, path
+
+    with app_db.engine.begin() as c:
+        root = node(c, f"스킨케어{t}", None, False)
+        mid = node(c, "크림", root, False)
+        leaf = node(c, "아이크림", mid, True, "G01")
+        unmapped = node(c, "넥크림", mid, True)
+        mid_leaf = node(c, "미스트", root, True, "G02")  # 소분류가 없는 중분류 = leaf
+    return {"root": root[0], "mid": mid[0], "leaf": leaf[0], "unmapped": unmapped[0], "mid_leaf": mid_leaf[0]}
+
+
+def test_master_categories_is_flat_category_array(env):
+    c, _, _ = _seller()
+    ids = _tree()
+    body = c.get("/v1/master/categories").json()
+    assert isinstance(body, list) and all(set(x) == CATEGORY_KEYS for x in body)  # 계약 Category — children 없음
+    assert [x["id"] for x in body] == sorted(x["id"] for x in body)
+    by = {x["id"]: x for x in body}
+    assert all(isinstance(x["id"], int) and isinstance(x["isLeaf"], bool) and isinstance(x["name"], str)
+               and (x["parentId"] is None or isinstance(x["parentId"], int)) for x in body)
+    assert by[ids["root"]]["parentId"] is None and by[ids["mid"]]["parentId"] == ids["root"]
+    assert by[ids["leaf"]]["parentId"] == ids["mid"] and by[ids["mid_leaf"]]["parentId"] == ids["root"]
+    assert by[ids["leaf"]]["path"].endswith("크림 > 아이크림") and by[ids["leaf"]]["amazonNode"] is None
+    parents = {x["parentId"] for x in body if x["parentId"] is not None}
+    # 화면 규칙(parentId로 이은 트리에서 하위 없음 = 선택 가능)과 서버 isLeaf가 같다
+    assert all(x["isLeaf"] == (x["id"] not in parents) for x in body)
+    assert [k for k, v in ids.items() if by[v]["isLeaf"]] == ["leaf", "unmapped", "mid_leaf"]

@@ -2170,11 +2170,15 @@ paths:
       operationId: masterCategories
       x-screen: 'N1'
       x-source: API-MST-04
+      description: >
+        노드마다 한 원소인 **평면 배열**(`Category`)이다. 트리는 `parentId`로 잇는다(최상위는 `parentId` null). 순서는 `id` 오름차순.
+        선택 가능한 항목은 `isLeaf` true.
+        [2026-11-12 정정 · 구현 완료·서버 배포 대기] 이전 서버는 명세와 달리 최상위만 담은 중첩 트리(`children`, `parentId`·`amazonNode`·`path` 없음)를 돌려줬다.
       responses:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '200':
-          description: '카테고리 트리(노드 배열)'
+          description: '카테고리 노드 평면 배열(트리는 parentId로 연결)'
           content:
             application/json:
               schema: { type: array, items: { $ref: '#/components/schemas/Category' } }

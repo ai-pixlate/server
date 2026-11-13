@@ -1,0 +1,9 @@
+# 용어집 임베딩 실험 전용 — 서버 requirements.txt 와 별개(파이프라인에 통합하지 않음)
+# CPU PC: torch 를 먼저 CPU 휠로 설치하면 용량이 작다
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch
+sentence-transformers>=3.0
+qdrant-client>=1.10
+pandas
+openpyxl
+psutil

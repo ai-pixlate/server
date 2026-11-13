@@ -1,0 +1,18 @@
+{
+  "tools/baseline/ocr.py": {
+    "snapshot": "reproduction\\ocr.py",
+    "sha256": "44e83a50228242c72775fb2253236a55ec66fa124eae370395b9d3ae17f068be"
+  },
+  "tools/baseline/ocr_prepare.py": {
+    "snapshot": "reproduction\\ocr_prepare.py",
+    "sha256": "5fecbe12dc696f6e42207d968e1683736af9219599b91f8016fbc4fdb4b475d3"
+  },
+  "tools/baseline/core.py": {
+    "snapshot": "reproduction\\core.py",
+    "sha256": "c71ec2aef4442ff5e5e14d841dc67945a363e40984c20c686eafdb66d9334af1"
+  },
+  "docs/ai-baseline/preparations/ocr-text-v2-preflight-20261105/inventory.json": {
+    "snapshot": "reproduction\\inventory.json",
+    "sha256": "522e8cd507ba0e05078516168eda053083a47afda4bb0d85a08006ec8c5c19d3"
+  }
+}

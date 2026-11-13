@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto'),S=require('./review-state.js');
+const raw=fs.readFileSync(__dirname+'/review-data.json'),data=JSON.parse(raw),hash=crypto.createHash('sha256').update(raw).digest('hex'),ids=data.items.map(i=>i.id);
+let count=0;function test(fn){fn();count++}
+test(()=>assert.equal(new Set(ids).size,9));
+test(()=>assert.equal(new Set(data.items.slice(0,6).map(i=>i.section_id)).size,5));
+test(()=>assert.equal(new Set(data.items.map(i=>i.section_id)).size,8));
+test(()=>assert(data.items.every(i=>i.decision===null&&!i.approved&&!i.frozen)));
+test(()=>assert.equal(data.items.find(i=>i.id==='D02').focus_rect_percent,null));
+test(()=>assert.equal(data.items.find(i=>i.id==='D06').ocr.find(o=>o.region_key==='reg_0001').text,'Good all goodal'));
+let state=S.empty(hash),snapshot=JSON.stringify(state);
+test(()=>{let next=S.put(state,'D01','exclude','위치 확인 메모',hash,ids,'test-time');assert.equal(next.records.D01.note,'위치 확인 메모');assert.equal(JSON.stringify(state),snapshot);assert.equal(next.approved,false)});
+test(()=>assert.throws(()=>S.put(state,'D01','','',hash,ids,'t')));
+test(()=>assert.throws(()=>S.put(state,'UNKNOWN','include','',hash,ids,'t')));
+test(()=>assert.throws(()=>S.validate(state,'changed-hash',ids)));
+test(()=>assert.throws(()=>S.validate({...state,approved:true},hash,ids)));
+test(()=>assert.throws(()=>S.validate({...state,frozen:true},hash,ids)));
+test(()=>{let next=S.put(state,'D06','hold','문자열 분리 금지',hash,ids,'t');assert.deepEqual(S.validate(JSON.parse(JSON.stringify(next)),hash,ids),next)});
+test(()=>{for(const item of data.items){assert.equal(crypto.createHash('sha256').update(fs.readFileSync(item.image.path)).digest('hex'),item.image.sha256)}});
+test(()=>{let src=JSON.parse(fs.readFileSync(__dirname+'/source-hashes.json'));for(const [p,h] of Object.entries(src))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),h)});
+console.log(`${count} checks passed; browser visual verification not performed`);

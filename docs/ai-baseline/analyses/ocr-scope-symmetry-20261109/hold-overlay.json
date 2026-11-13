@@ -1,0 +1,13 @@
+{
+  "base_sections_sha256": "50f09b79f4088ee7a5a7594953d579f96b2d630ab2bb016b03364026da04cc77",
+  "scoring_authorized": false,
+  "additional_holds": [
+    {
+      "section_id": "GS-03_018__sec_1_08",
+      "region_key": "reg_0044",
+      "previous_scope": "include",
+      "audit_scope": "undetermined",
+      "recommendation": "용기 인쇄 반사 범위로 제외 권고; 기존 결과 수정 없음"
+    }
+  ]
+}

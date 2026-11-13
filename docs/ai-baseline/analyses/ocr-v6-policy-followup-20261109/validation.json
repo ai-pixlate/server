@@ -1,0 +1,10 @@
+{
+  "protected_files_unchanged": 232,
+  "gt_scope_links": 55,
+  "ocr_explicit_scope_links": 4,
+  "document_ocr_pending": 86,
+  "review_notes_sha256": "339abd9afc10926c864c14cd49c1b8492ce050c2efec69915c4da8c5b581664e",
+  "frozen_truth_sha256": "6cdd20c8a550c0a082caa4c843ddedbe8bd25bf14f372c1763f49a68abc37840",
+  "cer_executed": false,
+  "gt_modified": false
+}

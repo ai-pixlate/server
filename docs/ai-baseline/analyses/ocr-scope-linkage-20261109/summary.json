@@ -1,0 +1,35 @@
+{
+  "classification": {
+    "GS-01": {
+      "혼합": 13,
+      "번역 대상": 11,
+      "번역 비대상": 1
+    },
+    "GS-02": {
+      "번역 대상": 37,
+      "혼합": 11
+    },
+    "GS-03": {
+      "번역 대상": 27,
+      "혼합": 9,
+      "번역 비대상": 3
+    }
+  },
+  "mixed_sections": 33,
+  "gt_lines": 969,
+  "gt_scope_counts": {
+    "include": 416,
+    "exclude": 518,
+    "undetermined": 35
+  },
+  "priority_82_counts": {
+    "exclude": 47,
+    "undetermined": 3,
+    "empty_no_text": 2,
+    "include": 30
+  },
+  "all_mixed_ocr_regions": 1193,
+  "other_ocr_unverified": 1111,
+  "mixed_sections_ready_for_scoring": 0,
+  "reason": "거친 영역의 자동 규칙/GT 완전성/비우선 OCR 의미 연결 검증 미완료"
+}

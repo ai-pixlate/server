@@ -1,0 +1,3698 @@
+[
+  {
+    "id": "GS-01_001__sec_1_01",
+    "sample": "GS-01_001",
+    "section_key": "sec_1_01",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_001__sec_1_01.json",
+      "sha256": "f2b4e45d06a3dcb2d2bc671def80c5d6fd442dc6ddb0d569470faab4b0c289c8"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_001\\sections\\sec_1_01.png",
+      "sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+      "width": 1000,
+      "height": 1360
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "디자인 리뉴얼 안내"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "구달 맑은 어성초 진정 무기자차 선크림 50ml 1+1 기획"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "제품 디자인이 리뉴얼 되었습니다."
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "내용물의 성분 및 용량은 기존과 동일합니다."
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "저자극"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "무기자차"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "ONLY"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "올리브영"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "어성초 무기자차 선크림"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "1+1"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "올리브영"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "ONLY"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "Calming"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "CLEAN BEAUTY"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "OLIVE YOUNG"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "Calming"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "Calming"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L033",
+        "source_index": 32,
+        "order": 32,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L034",
+        "source_index": 33,
+        "order": 33,
+        "text": "어성초 무기자차 선 50ml 1+1 기획"
+      },
+      {
+        "line_id": "L035",
+        "source_index": 34,
+        "order": 34,
+        "text": "민감 진정"
+      },
+      {
+        "line_id": "L036",
+        "source_index": 35,
+        "order": 35,
+        "text": "어성초 무기자차 선"
+      },
+      {
+        "line_id": "L037",
+        "source_index": 36,
+        "order": 36,
+        "text": "1+1"
+      },
+      {
+        "line_id": "L038",
+        "source_index": 37,
+        "order": 37,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L039",
+        "source_index": 38,
+        "order": 38,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L040",
+        "source_index": 39,
+        "order": 39,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L041",
+        "source_index": 40,
+        "order": 40,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L042",
+        "source_index": 41,
+        "order": 41,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L043",
+        "source_index": 42,
+        "order": 42,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L044",
+        "source_index": 43,
+        "order": 43,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L045",
+        "source_index": 44,
+        "order": 44,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L046",
+        "source_index": 45,
+        "order": 45,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L047",
+        "source_index": 46,
+        "order": 46,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L048",
+        "source_index": 47,
+        "order": 47,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L049",
+        "source_index": 48,
+        "order": 48,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L050",
+        "source_index": 49,
+        "order": 49,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L051",
+        "source_index": 50,
+        "order": 50,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L052",
+        "source_index": 51,
+        "order": 51,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L053",
+        "source_index": 52,
+        "order": 52,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L054",
+        "source_index": 53,
+        "order": 53,
+        "text": "+"
+      },
+      {
+        "line_id": "L055",
+        "source_index": 54,
+        "order": 54,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L056",
+        "source_index": 55,
+        "order": 55,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L057",
+        "source_index": 56,
+        "order": 56,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L058",
+        "source_index": 57,
+        "order": 57,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L059",
+        "source_index": 58,
+        "order": 58,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L060",
+        "source_index": 59,
+        "order": 59,
+        "text": "기존 디자인"
+      },
+      {
+        "line_id": "L061",
+        "source_index": 60,
+        "order": 60,
+        "text": "신규 디자인"
+      },
+      {
+        "line_id": "L062",
+        "source_index": 61,
+        "order": 61,
+        "text": "리뉴얼 진행 중인 상품으로 주문 시점에 따라"
+      },
+      {
+        "line_id": "L063",
+        "source_index": 62,
+        "order": 62,
+        "text": "발송되는 제품의 디자인이 상이할 수 있습니다."
+      },
+      {
+        "line_id": "L064",
+        "source_index": 63,
+        "order": 63,
+        "text": "*디자인 변경으로 인한 교환, 환불은 어려운 점 양해 부탁드립니다."
+      },
+      {
+        "line_id": "L065",
+        "source_index": 64,
+        "order": 64,
+        "text": "goodal"
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_01",
+    "sample": "GS-01_002",
+    "section_key": "sec_1_01",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_002__sec_1_01.json",
+      "sha256": "beb7b19c1dd1ef814bb902e1178bbae691002e8bd03681778bccb6a48cb0d827"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_01.png",
+      "sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+      "width": 1000,
+      "height": 1976
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "민감피부도 순하게"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "진정 집중"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "무기자차"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "구달 어성초 진정 무기자차 선크림 50ml"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": ""
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "산뜻"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "밀착"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "VEGAN"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "CERTIFIED"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "goodal"
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_06",
+    "sample": "GS-01_002",
+    "section_key": "sec_1_06",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_002__sec_1_06.json",
+      "sha256": "20f6fa549e5fc8f582eca8575502d7a62d8b5dadbe3ab278889e386f64f7208f"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_06.png",
+      "sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+      "width": 1000,
+      "height": 3420
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "오직, 징크 성분으로 피부에 순한"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "민감피부"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "저자극 무기자차"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "POINT"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "01"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "어성초 추출물* + 트리플 징크 콤플렉스**"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "확실한 진정 효과!"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "02"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "10종 히알루 쿨링성분***으로"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "건조함 걱정 NO! 산뜻 밀착"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "03"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "비건 인증****, 저자극 테스트 완료로"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "민감피부도 순한 선케어"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "04"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "내 피부는 물론, 바다 환경까지 생각하는"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "배려 깊은 당신을 위한 Reef Safe 선*****"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "*어성초추출물(약모밀추출물) | 원료적 특성에 한함 **징크옥사이드, 징크락테이트, 징크글루코네이트"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "***10종 히알루론산 쿨링, 피부 쿨링 인체적용시험 완료"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "한국피부과학연구원, 21명 대상, 2022.12.29~2023.02.03 / 일시적, 개인차 있음"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "****벨기에 바이오리우스 비건 인증"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "*****옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료"
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_11",
+    "sample": "GS-01_002",
+    "section_key": "sec_1_11",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_002__sec_1_11.json",
+      "sha256": "84ab4f9c72a425d502d8e1c83138900e094a090464759eb39255399822fb1e2e"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_11.png",
+      "sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+      "width": 1000,
+      "height": 2020
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "POINT 02"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "건조함 걱정 없이"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "산뜻 보송한"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "데일리 진정 선케어"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "부드럽게 터치되며 뭉침없이 고르게 펴발려,"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "메이크업을 해도 밀리지 않는 산뜻한 제형이에요."
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "SP"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "goodal"
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_18",
+    "sample": "GS-01_002",
+    "section_key": "sec_1_18",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_002__sec_1_18.json",
+      "sha256": "75c063e29125222efffeccee1016ebb20eefd6ae3b3969c418700bc3d5ed5dce"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_18.png",
+      "sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+      "width": 1000,
+      "height": 1799
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "피부타입에 따라 Pick!"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "어성초 진정"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "선케어 라인"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "Heartleaf Calming Sun Care"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "Tone Up"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "GREEN CORRECTING"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "Moisture"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "Calming"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "Tone Up"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L033",
+        "source_index": 32,
+        "order": 32,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L034",
+        "source_index": 33,
+        "order": 33,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L035",
+        "source_index": 34,
+        "order": 34,
+        "text": "Calming"
+      },
+      {
+        "line_id": "L036",
+        "source_index": 35,
+        "order": 35,
+        "text": "COOLING SUN STICK"
+      },
+      {
+        "line_id": "L037",
+        "source_index": 36,
+        "order": 36,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L038",
+        "source_index": 37,
+        "order": 37,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L039",
+        "source_index": 38,
+        "order": 38,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L040",
+        "source_index": 39,
+        "order": 39,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L041",
+        "source_index": 40,
+        "order": 40,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L042",
+        "source_index": 41,
+        "order": 41,
+        "text": "Hyaluron"
+      },
+      {
+        "line_id": "L043",
+        "source_index": 42,
+        "order": 42,
+        "text": "SUN SERUM"
+      },
+      {
+        "line_id": "L044",
+        "source_index": 43,
+        "order": 43,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L045",
+        "source_index": 44,
+        "order": 44,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L046",
+        "source_index": 45,
+        "order": 45,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L047",
+        "source_index": 46,
+        "order": 46,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L048",
+        "source_index": 47,
+        "order": 47,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L049",
+        "source_index": 48,
+        "order": 48,
+        "text": "QUICK SLIDING"
+      },
+      {
+        "line_id": "L050",
+        "source_index": 49,
+        "order": 49,
+        "text": "SUN STICK"
+      },
+      {
+        "line_id": "L051",
+        "source_index": 50,
+        "order": 50,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L052",
+        "source_index": 51,
+        "order": 51,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L053",
+        "source_index": 52,
+        "order": 52,
+        "text": "goodal"
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_22",
+    "sample": "GS-01_002",
+    "section_key": "sec_1_22",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_002__sec_1_22.json",
+      "sha256": "69252d6bd9c0c0b7b7838906b0c04cd0a3cccc822c609532c89ed0f068b20cc6"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_22.png",
+      "sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+      "width": 1000,
+      "height": 1815
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "Sustainable Packaging"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "자연을 위한 작은 실천"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다."
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "Glyceryl Caprylate,"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "Ethylhexylgly-"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "Madecassoside, Zinc"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "Octadecane, Lactic"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "Copolymer, Butylene"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "Glycol, Magnesium"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "Glucon-"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "Hydro-"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "olyzed"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "assium"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "odium"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "oxypro-"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "m Hyal-"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "Acety-"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "Sticky, Sticky"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "applied or not."
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "hyaluronic acid"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "it calms"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "Biorius Vegan"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "and even ref"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "Belgian Biorius"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "ingredients, and"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "safety! easy"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "a cool sun"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "and light like"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "effect of"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "cooling"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "that's not"
+      },
+      {
+        "line_id": "L033",
+        "source_index": 32,
+        "order": 32,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L034",
+        "source_index": 33,
+        "order": 33,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L035",
+        "source_index": 34,
+        "order": 34,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L036",
+        "source_index": 35,
+        "order": 35,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L037",
+        "source_index": 36,
+        "order": 36,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L038",
+        "source_index": 37,
+        "order": 37,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L039",
+        "source_index": 38,
+        "order": 38,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L040",
+        "source_index": 39,
+        "order": 39,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L041",
+        "source_index": 40,
+        "order": 40,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L042",
+        "source_index": 41,
+        "order": 41,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L043",
+        "source_index": 42,
+        "order": 42,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L044",
+        "source_index": 43,
+        "order": 43,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L045",
+        "source_index": 44,
+        "order": 44,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L046",
+        "source_index": 45,
+        "order": 45,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L047",
+        "source_index": 46,
+        "order": 46,
+        "text": "MIX"
+      },
+      {
+        "line_id": "L048",
+        "source_index": 47,
+        "order": 47,
+        "text": "Packaging"
+      },
+      {
+        "line_id": "L049",
+        "source_index": 48,
+        "order": 48,
+        "text": "FSC"
+      },
+      {
+        "line_id": "L050",
+        "source_index": 49,
+        "order": 49,
+        "text": "FSC® C149190"
+      },
+      {
+        "line_id": "L051",
+        "source_index": 50,
+        "order": 50,
+        "text": "PRINTED WITH"
+      },
+      {
+        "line_id": "L052",
+        "source_index": 51,
+        "order": 51,
+        "text": "SOYINK"
+      },
+      {
+        "line_id": "L053",
+        "source_index": 52,
+        "order": 52,
+        "text": "TM"
+      },
+      {
+        "line_id": "L054",
+        "source_index": 53,
+        "order": 53,
+        "text": "FSC 산림보존인증 단상자를 사용하여"
+      },
+      {
+        "line_id": "L055",
+        "source_index": 54,
+        "order": 54,
+        "text": "국제 산림 보호 운동 참여"
+      },
+      {
+        "line_id": "L056",
+        "source_index": 55,
+        "order": 55,
+        "text": "소이 잉크로 인쇄된"
+      },
+      {
+        "line_id": "L057",
+        "source_index": 56,
+        "order": 56,
+        "text": "종이 사용"
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_24",
+    "sample": "GS-01_002",
+    "section_key": "sec_1_24",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-01_002__sec_1_24.json",
+      "sha256": "d91c901a20c64be96a1548bade73b2863241b948629ee25ed0724ed0da1b5432"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_24.png",
+      "sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+      "width": 1000,
+      "height": 1300
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "goodal"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "HEARTLEAF"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "Soothing"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "MINERAL FILTER"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "SUN CREAM"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "SPF 50+"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "PA++++"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "goodal"
+      }
+    ]
+  },
+  {
+    "id": "GS-02_002__sec_1_01",
+    "sample": "GS-02_002",
+    "section_key": "sec_1_01",
+    "source": {
+      "path": "docs/ai-experiments/ocr_truth/v1/GS-02_002__sec_1_01.json",
+      "sha256": "f2e4b28ed2cf223132a67fc3cc4fb3c308d4ad7d49da963eab186dbfacc3155a"
+    },
+    "image": {
+      "path": "pipeline/out/ocr_input/v1/GS-02_002/sections/sec_1_01.png",
+      "sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+      "width": 1000,
+      "height": 2117
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "celimax × OLIVE YOUNG"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "레티날 부스터"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "올리브영 단독 증정 기획"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "313, 638, 404, 807"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "304, 595, 396, 780"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "판매랭킹"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "TOP.1"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "20,250 A-Shot TM"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "Retinal"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "모공"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "탄력"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "Retinal 0.1% Panthenol 1%"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "MATRIXYL 3000 3%"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "20,250 A-Shot TM"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "Retinal 0.1% Panthenol 1%"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "MATRIXYL 3000 3%"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "+"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "Retinal 0.1% Panthenol 1%"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "MATRIXYL 3000 3%"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "20,250 A-Shot TM"
+      },
+      {
+        "line_id": "L033",
+        "source_index": 32,
+        "order": 32,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L034",
+        "source_index": 33,
+        "order": 33,
+        "text": "구성"
+      },
+      {
+        "line_id": "L035",
+        "source_index": 34,
+        "order": 34,
+        "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml"
+      },
+      {
+        "line_id": "L036",
+        "source_index": 35,
+        "order": 35,
+        "text": "증정"
+      },
+      {
+        "line_id": "L037",
+        "source_index": 36,
+        "order": 36,
+        "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml"
+      }
+    ]
+  },
+  {
+    "id": "GS-02_008__sec_1_01",
+    "sample": "GS-02_008",
+    "section_key": "sec_1_01",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-02_008__sec_1_01.json",
+      "sha256": "06aad31bf2d9cd9dbd93b2ca1f307e3da0decb7d7dd135caea7440394de36685"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_01.png",
+      "sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+      "width": 830,
+      "height": 2419
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "0.00003mm 나노 리포좀 레티날"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "0.015mm(15μm) 마이크로 에이샷®"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "20,250 A-Shot™"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "Retinal 0.1% Panthenol 1%"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "MATRIXYL®3000 3%"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "FIRM SK"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "20,250 A-S"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "Panthenol 1%"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "TRIXYL®3000 3%"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "초미세 성분으로"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "속까지 깊고 확실하게 -"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "4중"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "모공"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "1회 사용 후 개선 시험"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "+"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "3단 깊이"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "속탄력"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "사용 2주 후 개선 시험"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "+"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "각질층"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "착색 개선"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "사용 1주 후 개선 시험"
+      }
+    ]
+  },
+  {
+    "id": "GS-02_008__sec_1_04",
+    "sample": "GS-02_008",
+    "section_key": "sec_1_04",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-02_008__sec_1_04.json",
+      "sha256": "3f5882848ac29899dae061d89c2d2f463fbd018006f7d465d3e619e198e2a5b9"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_04.png",
+      "sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+      "width": 830,
+      "height": 3077
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "비타민A 레티날 0.1% 고함량"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "색소없이도 샛노란"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "레티날 고함량 크림"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "20,250 A-Shot™"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "Retinal 0.1% Panthenol 1%"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "MATRIXYL®3000 3%"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "레티놀 원료보다 10.2배"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "더 비싼 프리미엄 성분 : 레티날"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "레티날은 피부에서 빠르게 활성화되어"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "연구와 논문을 통해 입증된"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "비타민A 레티날의 효과"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "참고 논문"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "Dermatology"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "Repair of UVA-Induced Elastic Fiber and"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "Collagen Damage by 0.05%"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "Retinaldehyde Cream in an ex vivo"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "레티날은 피부 내 콜라겐 합성을"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "촉진시키는데 효과가 있다*"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "눈에 띄는 노화 징후에 효과가 있다*"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "레티날은 피부를 매끄럽게 만들고"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "탄력을 증가시키는데 효과가 있다*"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+      }
+    ]
+  },
+  {
+    "id": "GS-02_008__sec_1_05",
+    "sample": "GS-02_008",
+    "section_key": "sec_1_05",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-02_008__sec_1_05.json",
+      "sha256": "9dafc9997ddc37aa949b01f14a93250ff25518ee80f2e8dfd439574534047cbe"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_05.png",
+      "sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+      "width": 830,
+      "height": 1684
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "셀리맥스 레티날 샷 더 특별한 이유 ②"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "모공보다 6배 얇은"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "마이크로 에이샷®"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "20,250 shot"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "고순도 분리정제로 균일화된"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "에이샷®으로 빈틈없이 촘촘하게"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "WD: 5.34 mm"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "WD: 5.62 mm"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "WD: 5.28 mm"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "특허출원 (제 10-2270816호)"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "마이크로 스피큘이 함유된"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "천연 화장료 제조방법"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "특허증"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "Certificate of Patent"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "*원료적 특성에 한함"
+      }
+    ]
+  },
+  {
+    "id": "GS-02_014__sec_1_02",
+    "sample": "GS-02_014",
+    "section_key": "sec_1_02",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-02_014__sec_1_02.json",
+      "sha256": "2ce7d1dd52563d89014c4b9c839d11ef434b72719ae01f1f901af1d74428968e"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_02.png",
+      "sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+      "width": 830,
+      "height": 1424
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "how to use"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "Retinal 0.1% Panthenol 1%"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "MATRIXYL®3000 3%"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "NAL SHOT"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "NG BOOSTER"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "A-Shot™"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "저녁 스킨케어 마무리 단계에서"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "적당량을 덜어 얼굴 고민부위에 얇게 펴 발라"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "흡수 시킨 후, 마무리해주세요."
+      }
+    ]
+  },
+  {
+    "id": "GS-02_014__sec_1_05",
+    "sample": "GS-02_014",
+    "section_key": "sec_1_05",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-02_014__sec_1_05.json",
+      "sha256": "b6bb660bd80597ce17ca67108fd1064567d7a6e6ff1008702308f0fce2dc7b67"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_05.png",
+      "sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+      "width": 830,
+      "height": 1796
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "함께 사용하면 더 효과있는"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "THE VITA-A SET"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "RETINOL SHOT TIGHTENING SERUM"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "+"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "RETINAL SHOT TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "celimax"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "RETINOL SHOT"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "TIGHTENING SERUM"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "FOR"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "FIRM SKIN"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "celimax"
+      }
+    ]
+  },
+  {
+    "id": "GS-02_014__sec_1_09",
+    "sample": "GS-02_014",
+    "section_key": "sec_1_09",
+    "source": {
+      "path": "docs/ai-experiments/ocr_truth/v1/GS-02_014__sec_1_09.json",
+      "sha256": "859c77e273f02de3f0e5e0c78ba53d0441ef7b5673f10d5f613df6de86ea1d1d"
+    },
+    "image": {
+      "path": "pipeline/out/ocr_input/v1/GS-02_014/sections/sec_1_09.png",
+      "sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+      "width": 830,
+      "height": 3272
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "셀리맥스 레티날 샷"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "타이트닝 부스터 Q&A"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "Q) 아침, 저녁 모두 사용해도 되나요?"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "A) 레티날 성분은 빛과 열에 약하므로 저녁"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "사용을 권장드립니다. 다만, 아침에 사용을 할"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "경우엔 자외선 차단제를 꼭 발라주시는 것이"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "좋습니다."
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": ""
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "Q) 첫 사용 시 자극이 없으면"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "더 많이 사용해도 되나요?"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "A) 첫 사용 시 자극이 없더라도 레티날에 의한"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "피부 적응 반응이 뒤늦게 나타날 수 있습니다."
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "반응이 나타나지 않더라도 사용량이나 빈도를"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "늘리지 말고 초기 2주까지는 올바른 사용법에"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "맞춰 사용하시길 권장드립니다."
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "Q) 레티날 적응 반응은 어떤 증상으로"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "나타나나요?"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "A) 레티날을 처음 사용한다면 2주까지 피부"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "적응 과정을 가져야 합니다."
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "적응 기간 동안 일시적으로 붉어짐, 각질탈락,"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "간지러움, 화끈거림, 따가움 등의 피부 반응이"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "나타날 수 있습니다."
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "Q) 임산부도 사용 가능한가요?"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "A) 임산부, 수유부는 호르몬 변화로 인하여"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "피부가 예민해지는 시기로 인해 사용을"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "권장하지 않습니다."
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "Q) 같이 쓰면 안되는 성분이 있나요?"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "A) 고함량의 비타민 C 혹은 스크럽제 및"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "각질제거 성분이 포함된 제품과 동시 사용은"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "권장하지 않습니다. 함께 사용할 경우 사용"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "주기를 알맞게 조절하여 (격일) 사용하실 것을"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "권장 드립니다."
+      }
+    ]
+  },
+  {
+    "id": "GS-02_014__sec_1_11",
+    "sample": "GS-02_014",
+    "section_key": "sec_1_11",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-02_014__sec_1_11.json",
+      "sha256": "4a387654b189a4318c84dcc71a79f8029884fbffa4c9473a7093322d1eae2fe0"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_11.png",
+      "sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d",
+      "width": 830,
+      "height": 1971
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "the vita A"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "retinal"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "tightening"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "0.1"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "0.05"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "0.01"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "0.03"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "RETINAL SHOT"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "TIGHTENING BOOSTER"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "피부 탄력이 필요할 땐,"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "레티날 샷 타이트닝 부스터로 해결해 보세요."
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며"
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "‘ 레티날 샷 타이트닝 부스터’를 개발했습니다."
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "실제로 체감할 수 있는 피부 변화를 위해"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "성분까지 고함량으로 배합하여"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "더 효과적인 탄력케어를 할수있어요."
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "탄력이 고민일 때, 레티날 샷 타이트닝 부스터로"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요."
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "감사합니다."
+      }
+    ]
+  },
+  {
+    "id": "GS-03_013__sec_1_01",
+    "sample": "GS-03_013",
+    "section_key": "sec_1_01",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-03_013__sec_1_01.json",
+      "sha256": "8d638dd5b4dab5183a1819da03a167cd0ee42fee8943fca732de0e60d1cde7e5"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_013\\sections\\sec_1_01.png",
+      "sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b",
+      "width": 1000,
+      "height": 2350
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "POINT 4"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "상큼한 시트러스 향"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "레몬 터지듯 싱그러운 시트러스 향이"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "매일의 바디 케어를 상쾌하게 완성"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "b3+"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "MA"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "M.E.L.A Spotless Ex"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "Niacinamide 5%"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "+Glutathione & Vitamin C"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "향이 만족스럽다. 96.7%"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "향기로 인해 몸과 마음이 편안해진다. 96.7%"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "*제품 적용 4주 후 향 만족도 평가 완료"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "[시험기관: 엘리드 / 시험기간: 26.04.08~26.05.07 / 대상: 25~29세 여성 31명 / 설문 결과 기준]"
+      }
+    ]
+  },
+  {
+    "id": "GS-03_014__sec_1_01",
+    "sample": "GS-03_014",
+    "section_key": "sec_1_01",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-03_014__sec_1_01.json",
+      "sha256": "882924ec1f162e6bb36312c6ad9aec44139bfedad9b88da14ccb396971a32be3"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_01.png",
+      "sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+      "width": 1000,
+      "height": 1239
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "TEST"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "안심하고 사용할 수 있는"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "바디로션"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "항산화 테스트 완료¹⁾"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "피부 대상"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "저자극 테스트 완료²⁾"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "Antioxidant testing"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "+"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "External patch testing"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "+"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "LG H&H"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "CONFIDENTIAL"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "5. 결론 및 요약"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "㈜LG 생활건강 신개념연구팀에서는 ㈜LG 생활건강 크로스뷰티연구팀의 의뢰를 받아"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션의 ORAC 지수를 평가하기 위한 연구를"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "수행하였다."
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "ORAC 지수를 측정하기 위하여 Trolox를 검량선(y = 0.4178x + 1.431)에 시료의 Net AUC 값을"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "대입한 뒤 최석배수를 곱하였다."
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "본 연구는 ㈜LG 생활건강 기술연구원의 표준 작업 절차서(SOP ORAC assay)에 따라"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "수행되었으며, 그 결과와 최종 보고서의 내용은 절차에 따라 감사 완료되었다."
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "1. 결과 보고서 요약문 (국문)"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "정상 성인 30명(남 2명, 여 28명, 평균연령 42.2±4.8)을 대상으로, “비클리닉스"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "브라이트닝 세럼 톤 코렉팅 바디로션”을 포함한 23종의 시제품을 48시간 폐쇄형"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "첩포시험으로 적용하여 피부 안전성을 평가한 결과 유의한 수준의 피부자극지수를"
+      },
+      {
+        "line_id": "L033",
+        "source_index": 32,
+        "order": 32,
+        "text": "보인 시료는 없어 안전하게 활용될 것으로 사료된다."
+      },
+      {
+        "line_id": "L034",
+        "source_index": 33,
+        "order": 33,
+        "text": "12"
+      },
+      {
+        "line_id": "L035",
+        "source_index": 34,
+        "order": 34,
+        "text": "Ecoderm, inc."
+      },
+      {
+        "line_id": "L036",
+        "source_index": 35,
+        "order": 35,
+        "text": "www.ecoderm.co.kr"
+      }
+    ]
+  },
+  {
+    "id": "GS-03_018__sec_1_08",
+    "sample": "GS-03_018",
+    "section_key": "sec_1_08",
+    "source": {
+      "path": ".cache/ocr-text-v2-review/GS-03_018__sec_1_08.json",
+      "sha256": "ab3b12db6ded40ba76240692e5af8c96dba0082911495a8ddd76c2e98127e35a"
+    },
+    "image": {
+      "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_08.png",
+      "sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+      "width": 1000,
+      "height": 2994
+    },
+    "lines": [
+      {
+        "line_id": "L001",
+        "source_index": 0,
+        "order": 0,
+        "text": "b3 BRIGHTENING"
+      },
+      {
+        "line_id": "L002",
+        "source_index": 1,
+        "order": 1,
+        "text": "함께 쓰면 효과 UP!"
+      },
+      {
+        "line_id": "L003",
+        "source_index": 2,
+        "order": 2,
+        "text": "비클리닉스"
+      },
+      {
+        "line_id": "L004",
+        "source_index": 3,
+        "order": 3,
+        "text": "b3 바디 브라이트닝 루틴"
+      },
+      {
+        "line_id": "L005",
+        "source_index": 4,
+        "order": 4,
+        "text": "BODY MIST"
+      },
+      {
+        "line_id": "L006",
+        "source_index": 5,
+        "order": 5,
+        "text": "BODY"
+      },
+      {
+        "line_id": "L007",
+        "source_index": 6,
+        "order": 6,
+        "text": "WASH"
+      },
+      {
+        "line_id": "L008",
+        "source_index": 7,
+        "order": 7,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L009",
+        "source_index": 8,
+        "order": 8,
+        "text": "b3+"
+      },
+      {
+        "line_id": "L010",
+        "source_index": 9,
+        "order": 9,
+        "text": "BRIGHTENING SERUM"
+      },
+      {
+        "line_id": "L011",
+        "source_index": 10,
+        "order": 10,
+        "text": "BODY MIST"
+      },
+      {
+        "line_id": "L012",
+        "source_index": 11,
+        "order": 11,
+        "text": "TONE CORRECTING"
+      },
+      {
+        "line_id": "L013",
+        "source_index": 12,
+        "order": 12,
+        "text": "Niacinamide"
+      },
+      {
+        "line_id": "L014",
+        "source_index": 13,
+        "order": 13,
+        "text": "+ Vit C. Derivative"
+      },
+      {
+        "line_id": "L015",
+        "source_index": 14,
+        "order": 14,
+        "text": "BRIGHTENING"
+      },
+      {
+        "line_id": "L016",
+        "source_index": 15,
+        "order": 15,
+        "text": "It takes care of"
+      },
+      {
+        "line_id": "L017",
+        "source_index": 16,
+        "order": 16,
+        "text": "the body skin"
+      },
+      {
+        "line_id": "L018",
+        "source_index": 17,
+        "order": 17,
+        "text": "brightly."
+      },
+      {
+        "line_id": "L019",
+        "source_index": 18,
+        "order": 18,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L020",
+        "source_index": 19,
+        "order": 19,
+        "text": "b3"
+      },
+      {
+        "line_id": "L021",
+        "source_index": 20,
+        "order": 20,
+        "text": "ACNE CARE+BRIGHTENING"
+      },
+      {
+        "line_id": "L022",
+        "source_index": 21,
+        "order": 21,
+        "text": "BODY WASH"
+      },
+      {
+        "line_id": "L023",
+        "source_index": 22,
+        "order": 22,
+        "text": "Vitamin B3 2%"
+      },
+      {
+        "line_id": "L024",
+        "source_index": 23,
+        "order": 23,
+        "text": "+ AHA·BHA·PHA"
+      },
+      {
+        "line_id": "L025",
+        "source_index": 24,
+        "order": 24,
+        "text": "FOR ACNE-PRONE"
+      },
+      {
+        "line_id": "L026",
+        "source_index": 25,
+        "order": 25,
+        "text": "AND DISCOLORED SKIN"
+      },
+      {
+        "line_id": "L027",
+        "source_index": 26,
+        "order": 26,
+        "text": "BODY"
+      },
+      {
+        "line_id": "L028",
+        "source_index": 27,
+        "order": 27,
+        "text": "LOTION"
+      },
+      {
+        "line_id": "L029",
+        "source_index": 28,
+        "order": 28,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L030",
+        "source_index": 29,
+        "order": 29,
+        "text": "b3+"
+      },
+      {
+        "line_id": "L031",
+        "source_index": 30,
+        "order": 30,
+        "text": "BRIGHTENING SERUM"
+      },
+      {
+        "line_id": "L032",
+        "source_index": 31,
+        "order": 31,
+        "text": "BODY LOTION"
+      },
+      {
+        "line_id": "L033",
+        "source_index": 32,
+        "order": 32,
+        "text": "TONE CORRECTING"
+      },
+      {
+        "line_id": "L034",
+        "source_index": 33,
+        "order": 33,
+        "text": "M.E.L.A Spotless EX™"
+      },
+      {
+        "line_id": "L035",
+        "source_index": 34,
+        "order": 34,
+        "text": "Niacinamide 5%"
+      },
+      {
+        "line_id": "L036",
+        "source_index": 35,
+        "order": 35,
+        "text": "+Glutathione & Vitamin C"
+      },
+      {
+        "line_id": "L037",
+        "source_index": 36,
+        "order": 36,
+        "text": "TXA-MA"
+      },
+      {
+        "line_id": "L038",
+        "source_index": 37,
+        "order": 37,
+        "text": "LV.0"
+      },
+      {
+        "line_id": "L039",
+        "source_index": 38,
+        "order": 38,
+        "text": "LV.1"
+      },
+      {
+        "line_id": "L040",
+        "source_index": 39,
+        "order": 39,
+        "text": "LV.2"
+      },
+      {
+        "line_id": "L041",
+        "source_index": 40,
+        "order": 40,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L042",
+        "source_index": 41,
+        "order": 41,
+        "text": "b3"
+      },
+      {
+        "line_id": "L043",
+        "source_index": 42,
+        "order": 42,
+        "text": "ACNE CARE+BRIGHTENING"
+      },
+      {
+        "line_id": "L044",
+        "source_index": 43,
+        "order": 43,
+        "text": "BODY WASH"
+      },
+      {
+        "line_id": "L045",
+        "source_index": 44,
+        "order": 44,
+        "text": "Vitamin B3 2%"
+      },
+      {
+        "line_id": "L046",
+        "source_index": 45,
+        "order": 45,
+        "text": "+ AHA·BHA·PHA"
+      },
+      {
+        "line_id": "L047",
+        "source_index": 46,
+        "order": 46,
+        "text": "FOR ACNE-PRONE"
+      },
+      {
+        "line_id": "L048",
+        "source_index": 47,
+        "order": 47,
+        "text": "AND DISCOLORED SKIN"
+      },
+      {
+        "line_id": "L049",
+        "source_index": 48,
+        "order": 48,
+        "text": "아크네 클리어"
+      },
+      {
+        "line_id": "L050",
+        "source_index": 49,
+        "order": 49,
+        "text": "바디워시"
+      },
+      {
+        "line_id": "L051",
+        "source_index": 50,
+        "order": 50,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L052",
+        "source_index": 51,
+        "order": 51,
+        "text": "b3+"
+      },
+      {
+        "line_id": "L053",
+        "source_index": 52,
+        "order": 52,
+        "text": "BRIGHTENING SERUM"
+      },
+      {
+        "line_id": "L054",
+        "source_index": 53,
+        "order": 53,
+        "text": "BODY LOTION"
+      },
+      {
+        "line_id": "L055",
+        "source_index": 54,
+        "order": 54,
+        "text": "TONE CORRECTING"
+      },
+      {
+        "line_id": "L056",
+        "source_index": 55,
+        "order": 55,
+        "text": "M.E.L.A Spotless EX™"
+      },
+      {
+        "line_id": "L057",
+        "source_index": 56,
+        "order": 56,
+        "text": "Niacinamide 5%"
+      },
+      {
+        "line_id": "L058",
+        "source_index": 57,
+        "order": 57,
+        "text": "+Glutathione & Vitamin C"
+      },
+      {
+        "line_id": "L059",
+        "source_index": 58,
+        "order": 58,
+        "text": "TXA-MA"
+      },
+      {
+        "line_id": "L060",
+        "source_index": 59,
+        "order": 59,
+        "text": "데일리 톤 코렉팅"
+      },
+      {
+        "line_id": "L061",
+        "source_index": 60,
+        "order": 60,
+        "text": "바디로션"
+      },
+      {
+        "line_id": "L062",
+        "source_index": 61,
+        "order": 61,
+        "text": "b.clinicx"
+      },
+      {
+        "line_id": "L063",
+        "source_index": 62,
+        "order": 62,
+        "text": "b3+"
+      },
+      {
+        "line_id": "L064",
+        "source_index": 63,
+        "order": 63,
+        "text": "BRIGHTENING SERUM"
+      },
+      {
+        "line_id": "L065",
+        "source_index": 64,
+        "order": 64,
+        "text": "BODY MIST"
+      },
+      {
+        "line_id": "L066",
+        "source_index": 65,
+        "order": 65,
+        "text": "TONE CORRECTING"
+      },
+      {
+        "line_id": "L067",
+        "source_index": 66,
+        "order": 66,
+        "text": "Niacinamide"
+      },
+      {
+        "line_id": "L068",
+        "source_index": 67,
+        "order": 67,
+        "text": "+ Vit C. Derivative"
+      },
+      {
+        "line_id": "L069",
+        "source_index": 68,
+        "order": 68,
+        "text": "인텐시브 톤업"
+      },
+      {
+        "line_id": "L070",
+        "source_index": 69,
+        "order": 69,
+        "text": "바디미스트"
+      },
+      {
+        "line_id": "L071",
+        "source_index": 70,
+        "order": 70,
+        "text": "Brightening effect up"
+      },
+      {
+        "line_id": "L072",
+        "source_index": 71,
+        "order": 71,
+        "text": "Increase in absorption"
+      },
+      {
+        "line_id": "L073",
+        "source_index": 72,
+        "order": 72,
+        "text": "로션 단독 사용 대비"
+      },
+      {
+        "line_id": "L074",
+        "source_index": 73,
+        "order": 73,
+        "text": "착색 부위 개선 효과"
+      },
+      {
+        "line_id": "L075",
+        "source_index": 74,
+        "order": 74,
+        "text": "최대 118.9%¹⁾ UP"
+      },
+      {
+        "line_id": "L076",
+        "source_index": 75,
+        "order": 75,
+        "text": "동시 사용 시"
+      },
+      {
+        "line_id": "L077",
+        "source_index": 76,
+        "order": 76,
+        "text": "나이아신아마이드 흡수율"
+      },
+      {
+        "line_id": "L078",
+        "source_index": 77,
+        "order": 77,
+        "text": "2배로²⁾ UP"
+      },
+      {
+        "line_id": "L079",
+        "source_index": 78,
+        "order": 78,
+        "text": "¹⁾시험기관: 엘리드 | 비클리닉스 바디워시 바디로션 단독 및 병행 적용 팔꿈치 톤 균일도 4주 후 개선 평가"
+      },
+      {
+        "line_id": "L080",
+        "source_index": 79,
+        "order": 79,
+        "text": "시험기간: 26.04.08~26.05.07 | 대상: 25~59세 여성 31명 | 개인차 있음"
+      },
+      {
+        "line_id": "L081",
+        "source_index": 80,
+        "order": 80,
+        "text": "²⁾LG생활건강 기술연구원 | 비클리닉스 바디미스트 바디로션 복합사용 나이아신아마이드 피부투과 비교평가"
+      }
+    ]
+  }
+]

@@ -1,0 +1,663 @@
+{
+  "id": "GS-02_002__sec_1_01",
+  "sample": "GS-02_002",
+  "section_key": "sec_1_01",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_002\\sections\\sec_1_01.png",
+    "sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+    "width": 1000,
+    "height": 2117
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "celimax × OLIVE YOUNG"
+    },
+    {
+      "line_id": "L002",
+      "text": "레티날 부스터"
+    },
+    {
+      "line_id": "L003",
+      "text": "올리브영 단독 증정 기획"
+    },
+    {
+      "line_id": "L004",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L005",
+      "text": "313, 638, 404, 807"
+    },
+    {
+      "line_id": "L006",
+      "text": "304, 595, 396, 780"
+    },
+    {
+      "line_id": "L007",
+      "text": "판매랭킹"
+    },
+    {
+      "line_id": "L008",
+      "text": "TOP.1"
+    },
+    {
+      "line_id": "L009",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L010",
+      "text": "20,250 A-Shot TM"
+    },
+    {
+      "line_id": "L011",
+      "text": "Retinal"
+    },
+    {
+      "line_id": "L012",
+      "text": "모공"
+    },
+    {
+      "line_id": "L013",
+      "text": "탄력"
+    },
+    {
+      "line_id": "L014",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L015",
+      "text": "MATRIXYL 3000 3%"
+    },
+    {
+      "line_id": "L016",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L017",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L018",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L019",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L020",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L021",
+      "text": "20,250 A-Shot TM"
+    },
+    {
+      "line_id": "L022",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L023",
+      "text": "MATRIXYL 3000 3%"
+    },
+    {
+      "line_id": "L024",
+      "text": "+"
+    },
+    {
+      "line_id": "L025",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L026",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L027",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L028",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L029",
+      "text": "MATRIXYL 3000 3%"
+    },
+    {
+      "line_id": "L030",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L031",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L032",
+      "text": "20,250 A-Shot TM"
+    },
+    {
+      "line_id": "L033",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L034",
+      "text": "구성"
+    },
+    {
+      "line_id": "L035",
+      "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml"
+    },
+    {
+      "line_id": "L036",
+      "text": "증정"
+    },
+    {
+      "line_id": "L037",
+      "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml"
+    }
+  ],
+  "parent_text_sha256": "6f9afbce1139dfb46c6ecfc0a305083a1dff03657f2e9f8f457cf3e7526d4cc5",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "celimax × OLIVE YOUNG"
+    },
+    {
+      "line_id": "L002",
+      "text": "레티날 부스터"
+    },
+    {
+      "line_id": "L003",
+      "text": "올리브영 단독 증정 기획"
+    },
+    {
+      "line_id": "L004",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L005",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L006",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L007",
+      "text": "판매랭킹"
+    },
+    {
+      "line_id": "L008",
+      "text": "TOP.1"
+    },
+    {
+      "line_id": "L009",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L010",
+      "text": "20,250 A-Shot TM"
+    },
+    {
+      "line_id": "L011",
+      "text": "Retinal"
+    },
+    {
+      "line_id": "L012",
+      "text": "모공"
+    },
+    {
+      "line_id": "L013",
+      "text": "탄력"
+    },
+    {
+      "line_id": "L014",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L015",
+      "text": "MATRIXYL 3000 3%"
+    },
+    {
+      "line_id": "L016",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L017",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L018",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L019",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L020",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L021",
+      "text": "20,250 A-Shot TM"
+    },
+    {
+      "line_id": "L022",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L023",
+      "text": "MATRIXYL 3000 3%"
+    },
+    {
+      "line_id": "L024",
+      "text": "+"
+    },
+    {
+      "line_id": "L025",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L026",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L027",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L028",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L029",
+      "text": "MATRIXYL 3000 3%"
+    },
+    {
+      "line_id": "L030",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L031",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L032",
+      "text": "20,250 A-Shot TM"
+    },
+    {
+      "line_id": "L033",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L034",
+      "text": "구성"
+    },
+    {
+      "line_id": "L035",
+      "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml"
+    },
+    {
+      "line_id": "L036",
+      "text": "증정"
+    },
+    {
+      "line_id": "L037",
+      "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml"
+    }
+  ],
+  "text_sha256": "3c278c819751cc31604f3a501a4af43314349385a666d17acc0814aceee8a3fa",
+  "changes": [
+    {
+      "operation": "replace",
+      "line_id": "L005",
+      "before": "313, 638, 404, 807",
+      "after": "RETINAL SHOT",
+      "reason": "상단 큰 튜브의 노란 라벨에서 직접 확인. 기존 좌표형 숫자는 이미지에 없음"
+    },
+    {
+      "operation": "replace",
+      "line_id": "L006",
+      "before": "304, 595, 396, 780",
+      "after": "TIGHTENING BOOSTER",
+      "reason": "같은 큰 튜브 제품명 두 번째 줄. 기존 좌표형 숫자는 이미지에 없음"
+    }
+  ],
+  "unresolved": [
+    "소형 튜브의 ™/®와 숫자 주위 미세 기호는 사용자 확대 확인 필요. 기존 TM 표기를 자동으로 기호 치환하지 않음"
+  ],
+  "note": "L005·006 좌표형 숫자가 제품명 대신 들어간 것으로 의심\n소형 튜브의 ™/®와 숫자 주위 미세 기호는 사용자 확대 확인 필요. 기존 TM 표기를 자동으로 기호 치환하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "celimax × OLIVE YOUNG"
+          },
+          {
+            "line_id": "L002",
+            "text": "레티날 부스터"
+          },
+          {
+            "line_id": "L003",
+            "text": "올리브영 단독 증정 기획"
+          },
+          {
+            "line_id": "L004",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L005",
+            "text": "313, 638, 404, 807"
+          },
+          {
+            "line_id": "L006",
+            "text": "304, 595, 396, 780"
+          },
+          {
+            "line_id": "L007",
+            "text": "판매랭킹"
+          },
+          {
+            "line_id": "L008",
+            "text": "TOP.1"
+          },
+          {
+            "line_id": "L009",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L010",
+            "text": "20,250 A-Shot TM"
+          },
+          {
+            "line_id": "L011",
+            "text": "Retinal"
+          },
+          {
+            "line_id": "L012",
+            "text": "모공"
+          },
+          {
+            "line_id": "L013",
+            "text": "탄력"
+          },
+          {
+            "line_id": "L014",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L015",
+            "text": "MATRIXYL 3000 3%"
+          },
+          {
+            "line_id": "L016",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L017",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L018",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L019",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L020",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L021",
+            "text": "20,250 A-Shot TM"
+          },
+          {
+            "line_id": "L022",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L023",
+            "text": "MATRIXYL 3000 3%"
+          },
+          {
+            "line_id": "L024",
+            "text": "+"
+          },
+          {
+            "line_id": "L025",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L026",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L027",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L028",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L029",
+            "text": "MATRIXYL 3000 3%"
+          },
+          {
+            "line_id": "L030",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L031",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L032",
+            "text": "20,250 A-Shot TM"
+          },
+          {
+            "line_id": "L033",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L034",
+            "text": "구성"
+          },
+          {
+            "line_id": "L035",
+            "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml"
+          },
+          {
+            "line_id": "L036",
+            "text": "증정"
+          },
+          {
+            "line_id": "L037",
+            "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "celimax × OLIVE YOUNG"
+          },
+          {
+            "line_id": "L002",
+            "text": "레티날 부스터"
+          },
+          {
+            "line_id": "L003",
+            "text": "올리브영 단독 증정 기획"
+          },
+          {
+            "line_id": "L004",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "판매랭킹"
+          },
+          {
+            "line_id": "L008",
+            "text": "TOP.1"
+          },
+          {
+            "line_id": "L009",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L010",
+            "text": "20,250 A-Shot TM"
+          },
+          {
+            "line_id": "L011",
+            "text": "Retinal"
+          },
+          {
+            "line_id": "L012",
+            "text": "모공"
+          },
+          {
+            "line_id": "L013",
+            "text": "탄력"
+          },
+          {
+            "line_id": "L014",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L015",
+            "text": "MATRIXYL 3000 3%"
+          },
+          {
+            "line_id": "L016",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L017",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L018",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L019",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L020",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L021",
+            "text": "20,250 A-Shot TM"
+          },
+          {
+            "line_id": "L022",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L023",
+            "text": "MATRIXYL 3000 3%"
+          },
+          {
+            "line_id": "L024",
+            "text": "+"
+          },
+          {
+            "line_id": "L025",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L026",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L027",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L028",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L029",
+            "text": "MATRIXYL 3000 3%"
+          },
+          {
+            "line_id": "L030",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L031",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L032",
+            "text": "20,250 A-Shot TM"
+          },
+          {
+            "line_id": "L033",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L034",
+            "text": "구성"
+          },
+          {
+            "line_id": "L035",
+            "text": "더 비타 A 레티날 샷 타이트닝 부스터 15ml"
+          },
+          {
+            "line_id": "L036",
+            "text": "증정"
+          },
+          {
+            "line_id": "L037",
+            "text": "더 비타 A 레티날 샷 타이트닝 부스터 3ml"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

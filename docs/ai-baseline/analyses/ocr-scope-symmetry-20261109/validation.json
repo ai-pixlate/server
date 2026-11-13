@@ -1,0 +1,23 @@
+{
+  "sections_status": {
+    "사용자 판단 필요": 5,
+    "검증 완료": 27,
+    "채점 차단": 1
+  },
+  "gt_verified_text_hashes": 969,
+  "ocr_verified_source_regions": 1193,
+  "automatic_rule_reproduction": 1063,
+  "semantic_accuracy_rate": null,
+  "semantic_accuracy_note": "독립적인 전수 영역 정답/사람 검수 없음. 기하 재현율을 의미 정확도로 부르지 않음",
+  "confirmed_scope_risk_count": 1,
+  "lexical_false_alarms": 2,
+  "empty_geometry": {
+    "exclude": 32,
+    "undetermined": 2,
+    "include": 2
+  },
+  "protected_files_unchanged": 232,
+  "prior_refinement_files_unchanged": 13,
+  "cer_computed": false,
+  "browser": "미수행; 이전 안전 중단 재시도/우회 없음"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "survey_only_not_approved",
+  "section_count": 112,
+  "unique_section_count": 112,
+  "input_hash_matches": 112,
+  "existing_gt_lines": 1861,
+  "counts": {
+    "GS-01": {
+      "혼합": 12,
+      "번역 대상": 12,
+      "번역 비대상": 1
+    },
+    "GS-02": {
+      "번역 대상": 37,
+      "판단 보류": 1,
+      "혼합": 10
+    },
+    "GS-03": {
+      "번역 대상": 27,
+      "혼합": 9,
+      "번역 비대상": 3
+    }
+  },
+  "protected_files_unchanged": 219,
+  "local_links_checked": 121,
+  "gt_edits": 0,
+  "ocr_runs": 0,
+  "cer_runs": 0,
+  "external_api_calls": 0,
+  "note": "원본 시각 조사에 따른 분류 후보이며 전사 완전성 승인 아님"
+}

@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "사용자 확인 필요": 109,
+    "채점 차단": 1,
+    "검증 완료": 2
+  },
+  "document_86": {
+    "include": 30,
+    "exclude": 56
+  },
+  "protected_files_unchanged": 232,
+  "cer_called": false,
+  "gt_modified": false,
+  "scope_sha256": "a46570d35f386a5ba60e30c0717dd74710489facd0540bed14d28aefc313429a",
+  "filter_sha256": "eb169172593d5bd8d3c466058b421fd7b7177419f2601b93885bd57ed4326d07"
+}

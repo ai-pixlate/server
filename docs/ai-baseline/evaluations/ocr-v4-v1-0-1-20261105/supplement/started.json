@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-05T05:52:28.017032+00:00",
+  "run_id": "ocr-v4-v1-0-1-20261105-supplement",
+  "ids": [
+    "GS-03_002__sec_1_04",
+    "GS-03_016__sec_1_01",
+    "GS-03_018__sec_1_11"
+  ],
+  "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+  "approval": "사용자 2026-11-05 승인할게: 9개 부분 채점 및 GS-03 고정 섹션 3개 로컬 OCR 보완",
+  "attempts_per_section": 1,
+  "network": "blocked",
+  "external_api_cost_usd": 0,
+  "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+  "runner_sha256": "6e8fe9e86fb5cb3dc8f1c8f36baed410c602b311bb0e8e784d2127ab64bceabe"
+}

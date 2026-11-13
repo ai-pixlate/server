@@ -1,4 +1,4 @@
-# AI baseline
+# AI 파이프라인 평가 지표 — Baseline
 
 > 최신 승인 상태: **$50·최대 1,367회·호출당 예약 $1.04 승인**. 동결 전 생성 허용·동결 후 H01~H04 채점. N3·N5 확인은 예람. 과거 승인 보류 문구보다 [현재 승인 범위](cost-estimate.md#pr-제출-시-승인-상태)를 우선한다. 이번 작업은 리뷰 반영까지만 수행하며 생성·채점은 실행하지 않는다.
 > 상태: 기존 지표 정의 유지 · 2026-10-28 회차 범위 변경 PM 승인 완료(2026-10-28 사용자 확인) · 공식 생성 미실행 · 기준 자료 동결 후 공식 채점
@@ -27,15 +27,21 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 2 | [decisions.md](decisions.md) | 보존할 실행 환경 결정·실행 예외 |
 | 3 | [dataset.md](protocols/v1/dataset.md) | 고정 평가셋·식별자·기준 단위·좌표·처리 기대값 |
 | 4 | [evaluation.md](protocols/v1/evaluation.md) | 체크포인트·실패와 심각도·판정 기준·Codex 평가 및 사람 검수 |
-| 5 | [aggregation.md](protocols/v1/aggregation.md) | 핵심 지표 5개·원인 단계별 결함 집계·Baseline 보조 운영지표 7개·파생 분석·별도 평가 트랙의 계산·예외·비교 |
+| 5 | [aggregation.md](protocols/v1/aggregation.md) | AI 파이프라인 평가 지표 3개 그룹·공통 결함 분석·파생 분석의 계산·예외·비교 |
 | 6 | [execution.md](protocols/v1/execution.md) | 실행 환경·입력·비용 승인·보관 원칙·후속 실행 설계 제안 |
+| OCR 평가 | [ocr-current.md](protocols/v1/ocr-current.md) | OCR01 v6 고정 부분 CER·v4/v5 이력·OCR02 보류 |
+| OCR 자료 점검 | [ocr-preflight.md](ocr-preflight.md) | 12개 정답 초안·입력 해시·최초 OCR 출력 재사용 가능 범위·후속 작업 |
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |
 
-지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리하며 GS-02·03은 미동결이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
+[AI 파이프라인 평가 지표](protocols/v1/aggregation.md#ai-파이프라인-평가-지표-분류)는 서비스 성과 지표(H01~H05), 단계별 기술 품질 지표(OCR01·OCR02(보류)·OI-54·NFR-15 등), 운영 성능 지표(OP01~OP07)의 3개 그룹으로 구분하며 공통 결함 분석은 별도로 유지한다. 지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리하며 GS-02·03은 미동결이다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
 
 [기존 측정 도구 안내](../../tools/baseline/README.md)는 기존 구현의 사용법·검증 범위만 설명한다. 도구 출력이 최신 명세와 일치한다고 가정하지 않으며 도구 정비·실행은 별도 작업이다.
 
 비용이 발생하는 모델 호출은 [사전 예산 승인](protocols/v1/execution.md#ai-실행자의-사전-예산-승인)을 따른다. 문서 검토·승인만으로 사전 점검·제품 생성·실측을 허용하지 않는다.
 
 예상 비용과 실행 준비 2단계 현황은 [비용 산정안](cost-estimate.md)을 참조한다. PM 비용 승인·부담은 합의 완료이며, 실제 실행 범위·상한은 사용자 승인 전이다.
+
+## OCR v6 최종 기준선
+
+[지표 개편·OCR 평가 최종 정리](ocr-baseline-summary.md): v1.0.1 고정 105개 부분 CER **3.49% (584/16,742자)**, 정책상 제외 4개·고정 undetermined 3개. 이전 v4/v5 대비 OCR 모델 성능 개선으로 해석하지 않는다.

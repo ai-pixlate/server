@@ -1,0 +1,104 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>OCR Text v2 검수</title>
+<style>[hidden]{display:none!important}body{margin:0;font:15px system-ui;color:#e8edf5;background:#111827}header{padding:14px;background:#1e293b}button,select,input,textarea{font:inherit}button,select{padding:6px;margin:3px}main{display:grid;grid-template-columns:270px minmax(0,1fr) minmax(0,1fr);height:calc(100vh - 150px)}nav,section{overflow:auto;padding:12px;border-right:1px solid #475569}nav button{display:block;text-align:left;width:100%;font-size:12px}textarea{width:95%;min-height:48px;background:#fff;color:#111}.line{border-bottom:1px solid #64748b;padding:8px}.muted{color:#cbd5e1}#imagePane{overflow:auto}#picture{max-width:none}#message{color:#fcd34d}#meta{overflow-wrap:anywhere}#future{overflow-wrap:anywhere;border:1px dashed #64748b;padding:8px}progress{width:150px}#stage{position:relative;width:max-content}#picture{display:block}#boxes{position:absolute;inset:0;pointer-events:none}.bbox{position:absolute;box-sizing:border-box;border:1.5px solid #0573ab;background:transparent;border-radius:2px;pointer-events:auto;padding:0;margin:0}.bbox span{position:absolute;left:0;bottom:100%;font: bold 11px system-ui;background:#075985;color:white;padding:0 2px}.bbox.active,.bbox:focus{border:3px solid #ea580c;z-index:2}.line.active{background:#334155}#list h4{position:sticky;top:0;background:#1e293b;padding:6px;margin:8px 0}#imagePane label{position:sticky;top:0;background:#111827;display:block;z-index:3}@media(max-width:900px){main{grid-template-columns:1fr;height:auto}nav{max-height:220px}#imagePane{height:60vh}main>section:last-child{max-height:85vh}header{overflow-wrap:anywhere}}</style>
+<header><b>OCR Text v2 · 텍스트 검수 작업 공간</b> <span class="muted">임시 저장 ≠ 승인·동결 · bbox 검수 없음</span><div id="progress"></div><div id="message" role="status"></div></header>
+<main><nav><select id="scope" aria-label="검수 목록"><option value="targets">사용자 검수 대상만</option><option value="all">전체 섹션</option></select><select id="group"><option value="">전체 GS</option></select><select id="filter"><option value="">전체 상태</option><option value="empty">미작성</option><option value="draft">초안</option><option value="in_review">검수 중</option><option value="needs_attention">확인 필요</option><option value="reviewed">사람 확인 기록</option><option value="frozen_v1">v1 동결(읽기 전용)</option></select><select id="aiFilter"><option value="">AI 전체 상태</option><option value="pass">통과</option><option value="needs_review">검토 필요</option><option value="failed">실패</option><option value="stale">초안 변경·무효</option><option value="not_run">미실행</option></select><button id="plan">사용자 검수 표본 고정</button><div id="planStatus"></div><div id="list"></div></nav>
+<section id="imagePane"><label>이미지 배율 <input id="zoom" type="range" min="20" max="200" value="65"> <span id="zoomLabel">65%</span></label><div id="locationStatus"></div><div id="stage"><img id="picture" alt="선택한 원본 섹션"><div id="boxes"></div></div></section>
+<section><h3 id="title">섹션을 선택하세요</h3><div id="meta"></div><p>위에서 아래로 보이는 줄 순서가 lines[] 순서입니다. 빈 줄도 삭제 전까지 보존됩니다.</p><div id="editor"></div><button id="add" disabled>줄 추가</button><div><label>전사 작성 상태 <select id="status"><option value="frozen_v1" disabled>v1 동결(읽기 전용)</option><option value="draft">초안</option><option value="in_review">검수 중</option><option value="needs_attention">확인 필요</option><option value="reviewed">사람 확인 기록(미동결)</option></select></label></div><label>검수 메모<textarea id="note"></textarea></label><label><input id="confirm" type="checkbox">직접 전사·누락을 확인했습니다</label><p><button id="save" disabled>임시 저장</button></p><aside id="future"><h3>AI 1차 검수</h3><div id="aiStatus">미실행</div><pre id="aiReason" style="white-space:pre-wrap"></pre><details><summary>독립 전사 제안 보기</summary><pre id="proposal" style="white-space:pre-wrap"></pre><button id="adopt" disabled>빈 초안에 제안 적용(미승인)</button></details><p>AI 통과는 사람 승인·동결이 아닙니다.</p><h3>사용자 2차 검수</h3><div id="humanTarget"></div><select id="humanOutcome"><option value="deferred">판단 보류</option><option value="no_error">오류 없음</option><option value="error_found">오류 발견</option></select><textarea id="humanReason" placeholder="직접 확인한 근거"></textarea><label><input id="humanConfirm" type="checkbox">직접 원본과 대조했습니다</label><button id="humanSave" disabled>사용자 검수 기록 저장(미승인)</button><pre id="humanHistory" style="white-space:pre-wrap"></pre></aside></section></main>
+<script>
+const $=id=>document.getElementById(id), labels={empty:'미작성',draft:'초안',in_review:'검수 중',needs_attention:'확인 필요',reviewed:'사람 확인',frozen_v1:'v1 동결'};let listing,doc,dirty=false,busy=false,nextId=1,aiData,planData;
+const aiLabels={pass:'통과',needs_review:'검토 필요(전수 확인)',failed:'실패(전수 확인)',stale:'초안 변경·무효',not_run:'미실행',excluded:'v1 동결·대상 제외'};
+function msg(t){$('message').textContent=t}async function api(url,opt){let r=await fetch(url,opt),d=await r.json();if(!r.ok)throw Error(d.error);return d}
+function changed(){dirty=true;$('confirm').checked=false;if($('status').value==='reviewed')$('status').value='in_review';$('aiStatus').textContent='저장 전 변경: 기존 AI 결과로 확인 불가';$('humanSave').disabled=true;$('adopt').disabled=true;msg('저장하지 않은 변경사항이 있습니다')}
+async function refresh(){listing=await api('/api/list');if(listing.revision_mode){document.title='OCR Text v3 보완 초안 검수';document.querySelector('header b').textContent='OCR Text v3 · 18개 보완 초안 · 미동결';$('scope').value='all';$('scope').disabled=true;$('plan').hidden=true;$('future').hidden=true;}$('progress').replaceChildren();for(const [g,p]of Object.entries(listing.progress)){let s=document.createElement('span');s.textContent=listing.revision_mode?`${g==='all'?'전체':g}: 사용자 확인 ${p.reviewed}/${p.total} · 미동결 `:`${g==='all'?'전체':g}: v1 ${p.frozen_v1} · 신규 확인 ${p.reviewed}/${p.total-p.frozen_v1} `;let bar=document.createElement('progress');bar.max=p.total-p.frozen_v1||1;bar.value=p.reviewed;s.append(bar);$('progress').append(s,document.createTextNode(' | '))}renderList()}
+function queueGroups(){
+ const items=listing.items.filter(i=>(!$('group').value||i.group===$('group').value)&&
+   (!$('filter').value||i.status===$('filter').value)&&(!$('aiFilter').value||i.ai_status===$('aiFilter').value));
+ if($('scope').value==='all')return [['전체 섹션',items]];
+ const p=planData?.plan;
+ if(!p)return [];
+ return [['전수 확인',items.filter(i=>p.mandatory.includes(i.id))],['통과 표본',items.filter(i=>p.sample.includes(i.id))]];
+}
+function renderList(){
+ const list=$('list');list.replaceChildren();
+ for(const [name,items] of queueGroups()){
+   const title=document.createElement('h4');title.textContent=name+' · '+items.length+'개';list.append(title);
+   for(const i of items){const b=document.createElement('button');b.textContent=i.id+' · '+labels[i.status]+' · '+i.lines+'줄 · '+(listing.revision_mode?'AI 채팅 검토·사용자 확인 전':'AI '+aiLabels[i.ai_status]);b.onclick=()=>openDoc(i.id);list.append(b)}
+ }
+ if(!list.children.length)list.textContent='고정된 검수 계획이 없습니다.';
+}
+let locationLines=[];
+function normalized(s){return s.normalize('NFC').replace(/\s+/gu,'')}
+function locateLines(){
+ const matches=new Map(),draftCounts=new Map();
+ for(const l of doc.lines){const t=normalized(l.text);draftCounts.set(t,(draftCounts.get(t)||0)+1)}
+ for(const {words} of locationLines){
+   for(let a=0;a<words.length;a++){
+     let t='',left=Infinity,top=Infinity,right=0,bottom=0;
+     for(let b=a;b<words.length;b++){
+       const w=words[b];t+=normalized(w.text);
+       left=Math.min(left,w.x);top=Math.min(top,w.y);right=Math.max(right,w.x+w.w);bottom=Math.max(bottom,w.y+w.h);
+       if(draftCounts.get(t)===1)matches.set(t,matches.has(t)?null:[left,top,right-left,bottom-top])
+     }
+   }
+ }
+ return matches;
+}
+function renderBoxes(){
+ const matches=locateLines(),overlay=$('boxes');overlay.replaceChildren();
+ doc.lines.forEach((line,index)=>{
+   const row=$('editor').children[index],rect=matches.get(normalized(line.text));
+   row.firstChild.textContent=(index+1)+'. '+line.line_id+(rect?'':' · 위치 미확인');
+   row.onfocusin=null;
+   if(!rect)return;
+   const box=document.createElement('button'),badge=document.createElement('span');
+   const [x,y,w,h]=rect;box.className='bbox';box.style.left=x/doc.image.width*100+'%';box.style.top=y/doc.image.height*100+'%';
+   box.style.width=w/doc.image.width*100+'%';box.style.height=h/doc.image.height*100+'%';
+   badge.textContent=index+1;box.append(badge);box.title=(index+1)+'. '+line.text;
+   function select(){for(const el of document.querySelectorAll('.active'))el.classList.remove('active');box.classList.add('active');row.classList.add('active')}
+   box.onclick=()=>{select();row.querySelector('textarea').focus();row.scrollIntoView({block:'nearest'})};
+   row.onfocusin=()=>{select();box.scrollIntoView({block:'nearest',inline:'nearest'})};
+   overlay.append(box);
+ });
+ $('locationStatus').textContent='원본 위치 후보 '+overlay.children.length+' / '+doc.lines.length+'줄 · 번호를 누르면 전사로 이동';
+}
+function renderLines(){$('editor').replaceChildren();doc.lines.forEach((l,index)=>{let div=document.createElement('div');div.className='line';let label=document.createElement('div');label.textContent=`${index+1}. ${l.line_id}`;let input=document.createElement('textarea');input.value=l.text;input.disabled=doc.read_only;input.oninput=()=>{l.text=input.value;changed();renderBoxes()};div.append(label,input);for(const [name,fn]of [['↑',()=>move(index,-1)],['↓',()=>move(index,1)],['삭제',()=>{if(confirm('이 줄을 삭제할까요?')){doc.lines.splice(index,1);changed();renderLines()}}]]){let b=document.createElement('button');b.textContent=name;b.disabled=doc.read_only;b.onclick=fn;div.append(b)}$('editor').append(div)});renderBoxes()}
+function move(i,d){if(i+d<0||i+d>=doc.lines.length)return;[doc.lines[i],doc.lines[i+d]]=[doc.lines[i+d],doc.lines[i]];changed();renderLines()}
+
+function renderParent(){
+ let pane=$('parentComparison');
+ if(!pane){pane=document.createElement('details');pane.id='parentComparison';pane.open=true;$('meta').after(pane)}
+ pane.replaceChildren();pane.hidden=!doc.parent_lines;if(!doc.parent_lines)return;
+ const title=document.createElement('summary');title.textContent='v2 원문·변경 근거·사용자 검수 상태';pane.append(title);
+ const meta=document.createElement('p');meta.textContent=`리비전 ${doc.revision} · 텍스트 SHA-256 ${doc.text_sha256} · 현재 사용자 확인 ${doc.human_review_current?'있음(미승인)':'없음'} · 미동결`;pane.append(meta);
+ const pre=document.createElement('pre');pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto';pre.textContent=doc.parent_lines.map(l=>l.line_id+' '+(l.text||'〈빈 문자열〉')).join('\n');pane.append(pre);
+ const changes=document.createElement('pre');changes.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto';changes.textContent=(doc.changes||[]).map(c=>c.line_id+': '+(c.before??'〈추가〉')+' → '+c.after+'\n근거: '+c.reason).join('\n\n');pane.append(changes);
+ const pending=document.createElement('p');pending.textContent='미해결: '+(doc.unresolved||[]).join(' / ');pane.append(pending);
+}
+
+async function openDoc(id){if(busy)return;if(dirty&&!confirm('저장하지 않은 변경을 버리고 이동할까요?'))return;busy=true;try{let data=await api('/api/truth/'+id);locationLines=(await api('/api/locations/'+id)).lines;doc=data;dirty=false;nextId=Math.max(0,...doc.lines.map(l=>Number(l.line_id.slice(1))),...doc.history.flatMap(h=>(h.before?.lines||[]).map(l=>Number(l.line_id.slice(1)))))+1;$('title').textContent=id;$('meta').textContent=`${doc.image.width}×${doc.image.height} · SHA-256 ${doc.image.sha256}`;$('picture').src='/image/'+id;zoom();$('status').value=doc.status==='empty'?'draft':doc.status;$('note').value=doc.note;$('confirm').checked=false;for(const key of ['add','save','status','note','confirm'])$(key).disabled=doc.read_only;renderLines();renderParent();await renderAI();msg(listing.revision_mode?'v3 보완 후보입니다. 변경 전후와 미해결 항목을 확인하세요. 저장은 승인·동결이 아닙니다.':doc.read_only?'v1 동결본: 읽기 전용':'직접 작성하거나 독립 전사 제안을 적용하세요. Baseline OCR 출력은 사용하지 않습니다.')}catch(e){msg(e.message)}finally{busy=false}}
+function zoom(){if(doc)$('picture').style.width=doc.image.width*Number($('zoom').value)/100+'px';$('zoomLabel').textContent=$('zoom').value+'%'}$('zoom').oninput=zoom;$('picture').onerror=()=>msg('이미지를 불러올 수 없습니다. 해시·경로를 확인하세요');
+$('add').onclick=()=>{doc.lines.push({line_id:'L'+String(nextId++).padStart(3,'0'),text:''});changed();renderLines()};$('note').oninput=changed;$('status').onchange=()=>{dirty=true;$('confirm').checked=false};$('scope').onchange=renderList;$('group').onchange=renderList;$('filter').onchange=renderList;$('aiFilter').onchange=renderList;
+$('save').onclick=async()=>{if(!doc||doc.read_only||busy)return;busy=true;$('save').disabled=true;$('save').closest('section').inert=true;try{const saved=await api('/api/truth/'+doc.id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:doc.revision,lines:doc.lines,note:$('note').value,status:$('status').value,human_confirmed:$('confirm').checked})});doc=saved;dirty=false;$('confirm').checked=false;await refresh();renderParent();await renderAI();msg('임시 저장 완료 · 승인/동결되지 않았습니다')}catch(e){msg(e.message)}finally{busy=false;$('save').disabled=false;$('save').closest('section').inert=false}};
+
+async function renderAI(){
+ aiData=await api('/api/ai/'+doc.id);planData=await api('/api/plan');
+ const r=aiData.result,p=aiData.proposal;
+ $('aiStatus').textContent=aiLabels[aiData.status]+(r?' · '+(r.mode==='mock'?'모의 응답 · 실제 검수 아님':r.model):'');
+ $('aiReason').textContent=r?r.reason+'\n'+JSON.stringify(r.parsed?.issues||[],null,2):'원본 이미지 기반 AI 검수 실행 전';
+ $('proposal').textContent=p?(p.mode==='mock'?'[모의 전사]\n':'')+(p.parsed?.lines||[]).join('\n')+'\n'+p.reason:'제안 없음';
+ $('adopt').disabled=doc.read_only||dirty||!!doc.lines.length||!p||p.status==='failed'||!aiData.proposal_current;
+ const plan=planData.plan;renderList();
+ $('planStatus').textContent=!plan?'표본 미선정':`${plan.mode==='mock'?'모의 계획 · ':''}통과 표본 ${plan.sample.length}개 · 전수 ${plan.mandatory.length}개${planData.stale?' · 입력 변경: 계획 무효':''}${planData.expansion_required?' · 오류 발견: 전체 검수 확대 필요':''}`;
+ const target=plan&&!planData.stale&&planData.targets.includes(doc.id);
+ $('humanTarget').textContent=target?'사용자 확인 대상(승인 아님)':(doc.read_only?'v1 동결: 대상 제외':'현재 확인 대상 아님 / 계획 미확정');
+ $('humanSave').disabled=!target||dirty;$('humanConfirm').checked=false;
+ $('humanHistory').textContent=(planData.human_history||[]).filter(x=>x.id===doc.id).map(x=>`${x.at} · ${x.outcome} · ${x.reason}`).join('\n');
+}
+async function action(fn){if(busy||dirty){msg('먼저 초안을 저장하세요');return}busy=true;$('save').closest('section').inert=true;try{await fn();await refresh();await renderAI()}catch(e){msg(e.message)}finally{busy=false;$('save').closest('section').inert=false}}
+$('plan').onclick=()=>action(async()=>{await api('/api/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});msg('재현 가능한 검수 계획을 저장했습니다. 승인·동결은 하지 않습니다')});
+$('adopt').onclick=()=>action(async()=>{doc=await api('/api/adopt/'+doc.id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:doc.revision,run_id:aiData.proposal.run_id})});nextId=doc.lines.length+1;renderLines();$('note').value=doc.note;$('status').value='draft';msg('전사 제안을 초안으로 저장했습니다. 사람이 확인해야 합니다')});
+$('humanSave').onclick=()=>action(async()=>{await api('/api/human',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:doc.id,plan_id:planData.plan.id,outcome:$('humanOutcome').value,reason:$('humanReason').value,human_confirmed:$('humanConfirm').checked})});msg('사용자 검수 기록을 저장했습니다. 승인·동결은 하지 않았습니다')});
+
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+(async()=>{try{planData=await api('/api/plan');if(!planData.plan)$('scope').value='all';await refresh();for(const g of Object.keys(listing.progress).filter(g=>g!=='all')){let o=document.createElement('option');o.value=g;o.textContent=g;$('group').append(o)}const first=queueGroups().flatMap(g=>g[1])[0];if(first)await openDoc(first.id)}catch(e){msg(e.message)}})();
+</script></html>

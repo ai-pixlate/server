@@ -1,0 +1,26 @@
+{
+  "status": "candidate_not_official",
+  "tests": {
+    "passed": 51,
+    "v5": 21,
+    "existing_v4_regression": 30,
+    "command": "python -m pytest tests/test_ocr_v5.py tests/test_baseline_ocr.py -q --basetemp .cache/pytest-ocr-v5-check-01"
+  },
+  "protected_files_unchanged": 185,
+  "input_images_sha256_verified": 112,
+  "output_linkages_sha256_verified": 112,
+  "markdown_links_checked": 134,
+  "visual_check_scope": "112-section overview and 2 individual original images; not a complete independent transcription review",
+  "external_api_calls": 0,
+  "ocr_inferences": 0,
+  "files": {
+    "tools\\baseline\\ocr_v5.py": "02c4d9adbb542c5d64a11887a02e09d35b2ad1c78879bd660be19cf914e6c3e2",
+    "tests\\test_ocr_v5.py": "2d0f623d6e14258b1fe37ac2fff0bdb4f856b97d0e5d4c61c34fe622d22048b6",
+    "docs\\ai-baseline\\protocols\\v1\\ocr-v5.md": "fb27238772e57361db30889210fe693c43288da5dc729383a65d719b235e1bb2",
+    "docs\\ai-baseline\\analyses\\ocr-v5-candidate-20261109\\analyze.py": "7fe5e40bcce105032abe2930559db3987c92d7b13ce732b678c24019d3c1d5ba",
+    "docs\\ai-baseline\\analyses\\ocr-v5-candidate-20261109\\README.md": "b34f44f7fb3ee5a0edef92d62e0e9fd3fe2e917e87f4776455f8d16b07ec0011",
+    "docs\\ai-baseline\\analyses\\ocr-v5-candidate-20261109\\section-review.md": "ba91657b81618bc46c1970d55d66960dc6366dd74178aca82daf0b8fb382aead",
+    "docs\\ai-baseline\\analyses\\ocr-v5-candidate-20261109\\candidate-a2\\comparison.json": "92a214b47cbadeb00253cf2a5e8503b23270511a643f2b503ebf0e2ff5191137",
+    "docs\\ai-baseline\\analyses\\ocr-v5-candidate-20261109\\candidate-a2\\completeness-audit.json": "035ea322319df76984f9add200092109eadef9b4cf0f3553053769480e8c8bc0"
+  }
+}

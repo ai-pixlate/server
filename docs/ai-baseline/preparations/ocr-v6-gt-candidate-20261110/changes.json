@@ -1,0 +1,23 @@
+[
+  {
+    "section_id": "GS-02_001__sec_1_03",
+    "line_id": "L045",
+    "before": "상품앞 표시품목 : 부가세 면세품목",
+    "after": "상품앞 @표시품목 : 부가세 면세품목",
+    "reviewer": "user",
+    "evidence": "원본 육안 검수로 @ 확인",
+    "freeze_approved": false
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "line_id": "L005",
+    "text": "313, 638, 404, 807",
+    "active": false
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "line_id": "L006",
+    "text": "304, 595, 396, 780",
+    "active": false
+  }
+]

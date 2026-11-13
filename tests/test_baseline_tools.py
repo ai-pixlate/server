@@ -41,7 +41,19 @@ class ToolsTest(unittest.TestCase):
         self.assertTrue(missing)
         self.assertEqual(core.read(self.root / "run/inputs.json"), [])
         self.assertEqual(len((self.root / "run/evaluation-sheet.csv").read_text(encoding="utf-8-sig").splitlines()), 239)
-        self.assertEqual(len(core.read(self.root / "run/frozen.json")), 4)
+        # 명세 추가에도 개수 대신 전체 파일과 원문·해시 보존을 검증한다.
+        protocol_root = Path(__file__).resolve().parents[1] / "docs/ai-baseline/protocols/v1"
+        protocols = {"protocol/" + p.name: p for p in protocol_root.glob("*.md")}
+        self.assertTrue(protocols)
+        frozen = core.read(self.root / "run/frozen.json")
+        self.assertEqual(set(frozen), set(protocols))
+        for key, source in protocols.items():
+            with self.subTest(protocol=key):
+                original = source.read_bytes()
+                self.assertEqual(frozen[key], {
+                    "file": key, "sha256": hashlib.sha256(original).hexdigest(),
+                })
+                self.assertEqual((self.root / "run" / key).read_bytes(), original)
         self.assertEqual(core.rows(self.root / "run/evaluations.jsonl"), [])
         with self.assertRaises(FileExistsError):
             core.prepare(core.template(), self.root / "run")

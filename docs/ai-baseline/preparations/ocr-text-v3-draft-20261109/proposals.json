@@ -1,0 +1,288 @@
+{
+  "GS-01_001__sec_1_01": {
+    "problem": "겹친 튜브의 반복 인쇄·배지·새 상자 상단 브랜드 누락 가능성",
+    "edits": [],
+    "insertions": [
+      {
+        "after": "L033",
+        "texts": [
+          "goodal"
+        ],
+        "reason": "신규 디자인 상자 상단 띠에서 상품명 앞의 goodal을 원본으로 확인"
+      }
+    ],
+    "unresolved": [
+      "기존 디자인 상자 내부 두 튜브의 미세 SPF/PA 및 Calming 반복 횟수와 위치별 대응 재확인",
+      "왼쪽 올리브영·CLEAN BEAUTY 배지의 작은 문자와 오른쪽 튜브군의 동일 문구 누락 여부"
+    ]
+  },
+  "GS-01_002__sec_1_01": {
+    "problem": "L005 실링 양각 로트/날짜가 빈 정답",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "실링의 희미한 숫자 전체를 확정할 수 없음. L005 빈 문자열은 자리만 유지하며 무문자/평가 제외로 승인하지 않음"
+    ]
+  },
+  "GS-01_002__sec_1_06": {
+    "problem": "실링 인쇄·작은 각주 재확인",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "기울어진 튜브 실링의 저대비 각인; 확정 전사 불가",
+      "하단 L024~L028 각주 기호·성분명 철자 최종 사용자 확대 확인 필요. 본문/라벨의 명확한 부분은 유지"
+    ]
+  },
+  "GS-01_002__sec_1_11": {
+    "problem": "오른쪽 경계에서 잘린 SPF 표기",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "L007 SP는 화면 오른쪽 경계에서 잘린 부분 전사. 보이지 않는 F/수치를 복원하지 않음. 부분 글자 포함 범위 사용자 확인"
+    ]
+  },
+  "GS-01_002__sec_1_18": {
+    "problem": "여러 제품의 실링 숫자 누락",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "분홍·연녹색 튜브 상단의 로트/날짜 각인 전체가 불확실함. 기존 제품명·SPF·브랜드는 유지하고 실링 문자열은 추측하지 않음"
+    ]
+  },
+  "GS-01_002__sec_1_22": {
+    "problem": "가려진 패키지 영문 단어의 앞부분 누락·불확실한 완성",
+    "edits": [
+      {
+        "id": "L014",
+        "text": "Sodium",
+        "reason": "튜브 오른쪽으로 S를 포함한 Sodium이 보임"
+      },
+      {
+        "id": "L024",
+        "text": "and even ref",
+        "reason": "잘린 ref 뒤의 단어는 보이지 않아 보완하지 않고 기존 부분 전사 유지"
+      }
+    ],
+    "insertions": [],
+    "unresolved": [
+      "L004~L017: 이미지 왼쪽 경계/튜브에 가려진 성분명 앞부분 및 실링 숫자",
+      "L019~L032: 오른쪽 상자의 굽은 면에서 사라지는 단어 앞부분. Sticky의 대소문자·중간 it 등 추가 노출 문자 재확인 필요; 문맥으로 단어 완성 금지"
+    ]
+  },
+  "GS-01_002__sec_1_24": {
+    "problem": "상단 실링 로트/날짜 누락",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "실링 양각은 일부 숫자가 보이나 전체 문자열은 확정 불가. 원본 확대 사용자 확인 필요. 라벨 본문 8줄은 유지"
+    ]
+  },
+  "GS-02_002__sec_1_01": {
+    "problem": "L005·006 좌표형 숫자가 제품명 대신 들어간 것으로 의심",
+    "edits": [
+      {
+        "id": "L005",
+        "text": "RETINAL SHOT",
+        "reason": "상단 큰 튜브의 노란 라벨에서 직접 확인. 기존 좌표형 숫자는 이미지에 없음"
+      },
+      {
+        "id": "L006",
+        "text": "TIGHTENING BOOSTER",
+        "reason": "같은 큰 튜브 제품명 두 번째 줄. 기존 좌표형 숫자는 이미지에 없음"
+      }
+    ],
+    "insertions": [],
+    "unresolved": [
+      "소형 튜브의 ™/®와 숫자 주위 미세 기호는 사용자 확대 확인 필요. 기존 TM 표기를 자동으로 기호 치환하지 않음"
+    ]
+  },
+  "GS-02_008__sec_1_01": {
+    "problem": "뒤쪽 튜브 라벨의 가려진 접두부와 미세 등록기호",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "뒤쪽 FIRM SK/20,250 A-S와 TRIXYL 앞의 부분 글자는 물체에 가려짐. 보이지 않는 문자열을 앞쪽 제품에서 복사하지 않음",
+      "각주·등록기호 및 15μm의 문자 모양 최종 확인 필요"
+    ]
+  },
+  "GS-02_008__sec_1_04": {
+    "problem": "논문 축소 이미지 본문·표와 참고문헌, 하단 겹친 논문 본문 누락",
+    "edits": [],
+    "insertions": [
+      {
+        "after": "L019",
+        "texts": [
+          "Natural Retinol Analogs Potentiate the Effects",
+          "of Retinal on Aged and Photodamaged Skin: Results",
+          "from In Vitro to Clinical Studies",
+          "ABSTRACT",
+          "DISCUSSION"
+        ],
+        "reason": "중간 논문 5열 축소 이미지에서 읽을 수 있는 제목 및 굵은 절 제목. 작은 저자·본문·표는 미확정"
+      },
+      {
+        "after": "L020",
+        "texts": [
+          "· A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies",
+          "· Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies",
+          "· A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin",
+          "· Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model",
+          "· Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance",
+          "· The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study"
+        ],
+        "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+      },
+      {
+        "after": "L026",
+        "texts": [
+          "Key Words",
+          "Retinaldehyde · Normal human skin · Skin explants ·",
+          "Organ culture · Collagen · Elastic fibers · Ultraviolet",
+          "light · Photoaging",
+          "Abstract",
+          "Background: The effects of UV exposure are impli-",
+          "cated in cutaneous aging. UV radiations induce struc-",
+          "tural and biochemical changes in all compartments of",
+          "skin. Aim: To study the antiaging efficacy of a cream",
+          "containing retinaldehyde/vitamin A on ex vivo sur-",
+          "viving human skin in order to approximate in vivo",
+          "metabolic conditions. Methods: Human skin explants"
+        ],
+        "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+      },
+      {
+        "after": "L028",
+        "texts": [
+          "other anti-photoaging ingredients, such as",
+          "niacinamide and melatonin, 3RC reversed",
+          "ultraviolet radiation-induced deficits in struc-",
+          "tural components of the dermal extracellular",
+          "matrix, including hyaluronic acid and collagen.",
+          "In vivo, it led to a reversal of clinical signs of age",
+          "and photodamage, with statistically significant",
+          "improvement to skin firmness (+5.6%), skin",
+          "elasticity (+13.9%), wrinkle count (−43.2%),",
+          "and skin tone homogeneity (+7.0%), observed",
+          "within 28 days of once nightly use. Notably, the",
+          "number of crow's feet wrinkles was reduced in",
+          "100% of subjects. Furthermore, 3RC was very",
+          "well tolerated.",
+          "Conclusion: These data suggest that 3RC is a",
+          "highly effective and well-tolerated treatment for",
+          "photoaging."
+        ],
+        "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+      }
+    ],
+    "unresolved": [
+      "중간 5열 축소 논문의 대부분 본문·저자·표·캡션은 현재 픽셀로 확정 불가",
+      "참고문헌 6개 제목 외 저자·소속·연도 전체가 아직 미전사. 제목을 추가한 것으로 참고문헌 전사 완료 처리하지 않음",
+      "하단 겹친 논문 3개의 가림 경계 및 Abstract·Introduction·Methods·Results·Conclusions 나머지 본문 미완성",
+      "신규 영문 단락의 아포스트로피·대시·작은 숫자와 합자 모양은 사용자 확인 필요. 외부 논문/웹 검색으로 내용을 복원하지 않음"
+    ]
+  },
+  "GS-02_008__sec_1_05": {
+    "problem": "특허증 본문의 미세 항목 누락",
+    "edits": [],
+    "insertions": [
+      {
+        "after": "L014",
+        "texts": [
+          "특허",
+          "제 10-2270816 호"
+        ],
+        "reason": "하단 특허증의 특허 번호 행을 확대 원본에서 확인. 본문/날짜는 미확정"
+      }
+    ],
+    "unresolved": [
+      "특허증 출원/등록 날짜·소유자·주소·발명자·하단 인증 문구는 저해상도로 전체 확정 불가. 큰 설명 문구를 증서 본문에 복제하지 않음"
+    ]
+  },
+  "GS-02_014__sec_1_02": {
+    "problem": "손가락과 이미지 경계로 잘린 제품 라벨",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "L005~L008의 경계에 보이는 부분 글자 및 손가락에 가려진 성분명은 사용자 확인 필요. 완전한 제품명을 복원하지 않음"
+    ]
+  },
+  "GS-02_014__sec_1_05": {
+    "problem": "튜브·세럼 병의 작은 성분/함량 라벨 누락",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "윗 튜브의 A-Shot 숫자·성분 함량, 아래 세럼 병의 작은 성분/함량 및 인증 배지 전체는 불확실. 기존 제품명과 브랜드 유지"
+    ]
+  },
+  "GS-02_014__sec_1_09": {
+    "problem": "L008 배경 튜브의 숫자가 빈 정답",
+    "edits": [
+      {
+        "id": "L008",
+        "text": "3000 3%",
+        "reason": "첫 답변과 두 번째 질문 사이 노출된 노란 튜브에서 숫자 부분을 확인. 가려진 앞 단어는 복원하지 않음"
+      }
+    ],
+    "insertions": [],
+    "unresolved": [
+      "L008 앞뒤 경계의 부분 글자와 % 기호를 사용자 확대 재검수. Q&A 본문은 유지. v2의 빈 정답 승인은 변경하지 않고 v3 후보만 작성"
+    ]
+  },
+  "GS-02_014__sec_1_11": {
+    "problem": "개발 사진의 손글씨와 시험 라벨 누락",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "사진 속 수기 소수·차수 및 작은 시험용 스티커·튜브/상자 인쇄의 전체 전사는 불확실. 읽을 수 없는 숫자에 다른 제품 값을 복사하지 않음"
+    ]
+  },
+  "GS-03_013__sec_1_01": {
+    "problem": "로션에 가려진 제품 라벨과 아래 반사/절단 문자",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "MA 앞, 하단 왼쪽 Niacin…/+Gluta…의 부분 문자 경계. 로션에 가려진 내용을 복원하지 않음",
+      "L014 시험 대상 연령 숫자는 사용자 원본 확대 최종 확인 필요"
+    ]
+  },
+  "GS-03_014__sec_1_01": {
+    "problem": "시험 보고서 오른쪽 표·하단 결과 누락 및 희석배수 오전사",
+    "edits": [
+      {
+        "id": "L018",
+        "text": "대입한 뒤 희석배수를 곱하였다.",
+        "reason": "왼쪽 보고서에서 희석배수를 직접 확인; 기존 최석배수 수정"
+      }
+    ],
+    "insertions": [
+      {
+        "after": "L025",
+        "texts": [
+          "시험제목 및 시험 제품",
+          "시험목적",
+          "시험의뢰기관",
+          "의뢰기관: (주) 엘지생활건강",
+          "연구기관",
+          "기관명: ㈜ 에코덤",
+          "시험물품관리책임자",
+          "연구원의 구성"
+        ],
+        "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+      }
+    ],
+    "unresolved": [
+      "오른쪽 표의 날짜·담당자·주소·피부자극 시험 방법 세부 값과 하단 결과의 반복 전사 미완료",
+      "기존 L014~L024의 미세 본문, 검량선·농도·ORAC 수치·μ/기호는 사용자 확대 검수 필요",
+      "하단 인증 각주 및 로고의 작은 문자는 확정 불가"
+    ]
+  },
+  "GS-03_018__sec_1_08": {
+    "problem": "제품 반사 라벨·작은 반복 라벨 및 하단 각주",
+    "edits": [],
+    "insertions": [],
+    "unresolved": [
+      "상단 제품 아래 반사된 글자와 세 제품의 작은 성분/함량 라벨 전체는 확정 불가",
+      "하단 LV.0~2 제품의 반복 인쇄·미스트 라벨 작은 기호 및 시험 각주 재확인. 읽을 수 없는 반사 문구를 정방향 라벨에서 복사하지 않음"
+    ]
+  }
+}

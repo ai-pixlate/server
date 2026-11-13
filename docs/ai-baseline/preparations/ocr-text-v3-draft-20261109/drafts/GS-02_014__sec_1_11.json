@@ -1,0 +1,472 @@
+{
+  "id": "GS-02_014__sec_1_11",
+  "sample": "GS-02_014",
+  "section_key": "sec_1_11",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_11.png",
+    "sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d",
+    "width": 830,
+    "height": 1971
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "the vita A"
+    },
+    {
+      "line_id": "L002",
+      "text": "retinal"
+    },
+    {
+      "line_id": "L003",
+      "text": "tightening"
+    },
+    {
+      "line_id": "L004",
+      "text": "0.1"
+    },
+    {
+      "line_id": "L005",
+      "text": "0.05"
+    },
+    {
+      "line_id": "L006",
+      "text": "0.01"
+    },
+    {
+      "line_id": "L007",
+      "text": "0.03"
+    },
+    {
+      "line_id": "L008",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L009",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L010",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L011",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L012",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L013",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L014",
+      "text": "피부 탄력이 필요할 땐,"
+    },
+    {
+      "line_id": "L015",
+      "text": "레티날 샷 타이트닝 부스터로 해결해 보세요."
+    },
+    {
+      "line_id": "L016",
+      "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는"
+    },
+    {
+      "line_id": "L017",
+      "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를"
+    },
+    {
+      "line_id": "L018",
+      "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며"
+    },
+    {
+      "line_id": "L019",
+      "text": "‘ 레티날 샷 타이트닝 부스터’를 개발했습니다."
+    },
+    {
+      "line_id": "L020",
+      "text": "실제로 체감할 수 있는 피부 변화를 위해"
+    },
+    {
+      "line_id": "L021",
+      "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한"
+    },
+    {
+      "line_id": "L022",
+      "text": "성분까지 고함량으로 배합하여"
+    },
+    {
+      "line_id": "L023",
+      "text": "더 효과적인 탄력케어를 할수있어요."
+    },
+    {
+      "line_id": "L024",
+      "text": "탄력이 고민일 때, 레티날 샷 타이트닝 부스터로"
+    },
+    {
+      "line_id": "L025",
+      "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요."
+    },
+    {
+      "line_id": "L026",
+      "text": "감사합니다."
+    }
+  ],
+  "parent_text_sha256": "920c653fa77e690697e7fce3fab53e3069dd23e9c8270e352dece1f2a78ae26d",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "the vita A"
+    },
+    {
+      "line_id": "L002",
+      "text": "retinal"
+    },
+    {
+      "line_id": "L003",
+      "text": "tightening"
+    },
+    {
+      "line_id": "L004",
+      "text": "0.1"
+    },
+    {
+      "line_id": "L005",
+      "text": "0.05"
+    },
+    {
+      "line_id": "L006",
+      "text": "0.01"
+    },
+    {
+      "line_id": "L007",
+      "text": "0.03"
+    },
+    {
+      "line_id": "L008",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L009",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L010",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L011",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L012",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L013",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L014",
+      "text": "피부 탄력이 필요할 땐,"
+    },
+    {
+      "line_id": "L015",
+      "text": "레티날 샷 타이트닝 부스터로 해결해 보세요."
+    },
+    {
+      "line_id": "L016",
+      "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는"
+    },
+    {
+      "line_id": "L017",
+      "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를"
+    },
+    {
+      "line_id": "L018",
+      "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며"
+    },
+    {
+      "line_id": "L019",
+      "text": "‘ 레티날 샷 타이트닝 부스터’를 개발했습니다."
+    },
+    {
+      "line_id": "L020",
+      "text": "실제로 체감할 수 있는 피부 변화를 위해"
+    },
+    {
+      "line_id": "L021",
+      "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한"
+    },
+    {
+      "line_id": "L022",
+      "text": "성분까지 고함량으로 배합하여"
+    },
+    {
+      "line_id": "L023",
+      "text": "더 효과적인 탄력케어를 할수있어요."
+    },
+    {
+      "line_id": "L024",
+      "text": "탄력이 고민일 때, 레티날 샷 타이트닝 부스터로"
+    },
+    {
+      "line_id": "L025",
+      "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요."
+    },
+    {
+      "line_id": "L026",
+      "text": "감사합니다."
+    }
+  ],
+  "text_sha256": "920c653fa77e690697e7fce3fab53e3069dd23e9c8270e352dece1f2a78ae26d",
+  "changes": [],
+  "unresolved": [
+    "사진 속 수기 소수·차수 및 작은 시험용 스티커·튜브/상자 인쇄의 전체 전사는 불확실. 읽을 수 없는 숫자에 다른 제품 값을 복사하지 않음"
+  ],
+  "note": "개발 사진의 손글씨와 시험 라벨 누락\n사진 속 수기 소수·차수 및 작은 시험용 스티커·튜브/상자 인쇄의 전체 전사는 불확실. 읽을 수 없는 숫자에 다른 제품 값을 복사하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "the vita A"
+          },
+          {
+            "line_id": "L002",
+            "text": "retinal"
+          },
+          {
+            "line_id": "L003",
+            "text": "tightening"
+          },
+          {
+            "line_id": "L004",
+            "text": "0.1"
+          },
+          {
+            "line_id": "L005",
+            "text": "0.05"
+          },
+          {
+            "line_id": "L006",
+            "text": "0.01"
+          },
+          {
+            "line_id": "L007",
+            "text": "0.03"
+          },
+          {
+            "line_id": "L008",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L009",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L010",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L011",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L012",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L013",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L014",
+            "text": "피부 탄력이 필요할 땐,"
+          },
+          {
+            "line_id": "L015",
+            "text": "레티날 샷 타이트닝 부스터로 해결해 보세요."
+          },
+          {
+            "line_id": "L016",
+            "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는"
+          },
+          {
+            "line_id": "L017",
+            "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를"
+          },
+          {
+            "line_id": "L018",
+            "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며"
+          },
+          {
+            "line_id": "L019",
+            "text": "‘ 레티날 샷 타이트닝 부스터’를 개발했습니다."
+          },
+          {
+            "line_id": "L020",
+            "text": "실제로 체감할 수 있는 피부 변화를 위해"
+          },
+          {
+            "line_id": "L021",
+            "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한"
+          },
+          {
+            "line_id": "L022",
+            "text": "성분까지 고함량으로 배합하여"
+          },
+          {
+            "line_id": "L023",
+            "text": "더 효과적인 탄력케어를 할수있어요."
+          },
+          {
+            "line_id": "L024",
+            "text": "탄력이 고민일 때, 레티날 샷 타이트닝 부스터로"
+          },
+          {
+            "line_id": "L025",
+            "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요."
+          },
+          {
+            "line_id": "L026",
+            "text": "감사합니다."
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "the vita A"
+          },
+          {
+            "line_id": "L002",
+            "text": "retinal"
+          },
+          {
+            "line_id": "L003",
+            "text": "tightening"
+          },
+          {
+            "line_id": "L004",
+            "text": "0.1"
+          },
+          {
+            "line_id": "L005",
+            "text": "0.05"
+          },
+          {
+            "line_id": "L006",
+            "text": "0.01"
+          },
+          {
+            "line_id": "L007",
+            "text": "0.03"
+          },
+          {
+            "line_id": "L008",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L009",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L010",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L011",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L012",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L013",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L014",
+            "text": "피부 탄력이 필요할 땐,"
+          },
+          {
+            "line_id": "L015",
+            "text": "레티날 샷 타이트닝 부스터로 해결해 보세요."
+          },
+          {
+            "line_id": "L016",
+            "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는"
+          },
+          {
+            "line_id": "L017",
+            "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를"
+          },
+          {
+            "line_id": "L018",
+            "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며"
+          },
+          {
+            "line_id": "L019",
+            "text": "‘ 레티날 샷 타이트닝 부스터’를 개발했습니다."
+          },
+          {
+            "line_id": "L020",
+            "text": "실제로 체감할 수 있는 피부 변화를 위해"
+          },
+          {
+            "line_id": "L021",
+            "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한"
+          },
+          {
+            "line_id": "L022",
+            "text": "성분까지 고함량으로 배합하여"
+          },
+          {
+            "line_id": "L023",
+            "text": "더 효과적인 탄력케어를 할수있어요."
+          },
+          {
+            "line_id": "L024",
+            "text": "탄력이 고민일 때, 레티날 샷 타이트닝 부스터로"
+          },
+          {
+            "line_id": "L025",
+            "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요."
+          },
+          {
+            "line_id": "L026",
+            "text": "감사합니다."
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

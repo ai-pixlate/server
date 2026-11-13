@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "output_sha256": "c988c0eccbc5bc318c11fb041a7fdbd6031d6625c1f985ff7f37e8cfd852c1d3",
+  "region_count": 10,
+  "id": "GS-03_012__sec_1_01",
+  "at": "2026-11-09T02:03:28.783345+00:00",
+  "seconds": 12.577999999979511,
+  "engine_calls": 1,
+  "input_sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de",
+  "boundary": "pipeline.stages.ocr.run:return",
+  "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+  "diag": {}
+}

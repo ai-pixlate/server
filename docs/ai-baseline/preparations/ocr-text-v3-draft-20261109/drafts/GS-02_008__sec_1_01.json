@@ -1,0 +1,553 @@
+{
+  "id": "GS-02_008__sec_1_01",
+  "sample": "GS-02_008",
+  "section_key": "sec_1_01",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_01.png",
+    "sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+    "width": 830,
+    "height": 2419
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "0.00003mm 나노 리포좀 레티날"
+    },
+    {
+      "line_id": "L002",
+      "text": "0.015mm(15μm) 마이크로 에이샷®"
+    },
+    {
+      "line_id": "L003",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L004",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L005",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L006",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L007",
+      "text": "20,250 A-Shot™"
+    },
+    {
+      "line_id": "L008",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L009",
+      "text": "MATRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L010",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L011",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L012",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L013",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L014",
+      "text": "FIRM SK"
+    },
+    {
+      "line_id": "L015",
+      "text": "20,250 A-S"
+    },
+    {
+      "line_id": "L016",
+      "text": "Panthenol 1%"
+    },
+    {
+      "line_id": "L017",
+      "text": "TRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L018",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L019",
+      "text": "초미세 성분으로"
+    },
+    {
+      "line_id": "L020",
+      "text": "속까지 깊고 확실하게 -"
+    },
+    {
+      "line_id": "L021",
+      "text": "4중"
+    },
+    {
+      "line_id": "L022",
+      "text": "모공"
+    },
+    {
+      "line_id": "L023",
+      "text": "1회 사용 후 개선 시험"
+    },
+    {
+      "line_id": "L024",
+      "text": "+"
+    },
+    {
+      "line_id": "L025",
+      "text": "3단 깊이"
+    },
+    {
+      "line_id": "L026",
+      "text": "속탄력"
+    },
+    {
+      "line_id": "L027",
+      "text": "사용 2주 후 개선 시험"
+    },
+    {
+      "line_id": "L028",
+      "text": "+"
+    },
+    {
+      "line_id": "L029",
+      "text": "각질층"
+    },
+    {
+      "line_id": "L030",
+      "text": "착색 개선"
+    },
+    {
+      "line_id": "L031",
+      "text": "사용 1주 후 개선 시험"
+    }
+  ],
+  "parent_text_sha256": "6ee5af33090c3448f7001cee8b49e385a8965819714eba4e1ec2bb85066ebe7a",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "0.00003mm 나노 리포좀 레티날"
+    },
+    {
+      "line_id": "L002",
+      "text": "0.015mm(15μm) 마이크로 에이샷®"
+    },
+    {
+      "line_id": "L003",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L004",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L005",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L006",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L007",
+      "text": "20,250 A-Shot™"
+    },
+    {
+      "line_id": "L008",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L009",
+      "text": "MATRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L010",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L011",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L012",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L013",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L014",
+      "text": "FIRM SK"
+    },
+    {
+      "line_id": "L015",
+      "text": "20,250 A-S"
+    },
+    {
+      "line_id": "L016",
+      "text": "Panthenol 1%"
+    },
+    {
+      "line_id": "L017",
+      "text": "TRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L018",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L019",
+      "text": "초미세 성분으로"
+    },
+    {
+      "line_id": "L020",
+      "text": "속까지 깊고 확실하게 -"
+    },
+    {
+      "line_id": "L021",
+      "text": "4중"
+    },
+    {
+      "line_id": "L022",
+      "text": "모공"
+    },
+    {
+      "line_id": "L023",
+      "text": "1회 사용 후 개선 시험"
+    },
+    {
+      "line_id": "L024",
+      "text": "+"
+    },
+    {
+      "line_id": "L025",
+      "text": "3단 깊이"
+    },
+    {
+      "line_id": "L026",
+      "text": "속탄력"
+    },
+    {
+      "line_id": "L027",
+      "text": "사용 2주 후 개선 시험"
+    },
+    {
+      "line_id": "L028",
+      "text": "+"
+    },
+    {
+      "line_id": "L029",
+      "text": "각질층"
+    },
+    {
+      "line_id": "L030",
+      "text": "착색 개선"
+    },
+    {
+      "line_id": "L031",
+      "text": "사용 1주 후 개선 시험"
+    }
+  ],
+  "text_sha256": "6ee5af33090c3448f7001cee8b49e385a8965819714eba4e1ec2bb85066ebe7a",
+  "changes": [],
+  "unresolved": [
+    "뒤쪽 FIRM SK/20,250 A-S와 TRIXYL 앞의 부분 글자는 물체에 가려짐. 보이지 않는 문자열을 앞쪽 제품에서 복사하지 않음",
+    "각주·등록기호 및 15μm의 문자 모양 최종 확인 필요"
+  ],
+  "note": "뒤쪽 튜브 라벨의 가려진 접두부와 미세 등록기호\n뒤쪽 FIRM SK/20,250 A-S와 TRIXYL 앞의 부분 글자는 물체에 가려짐. 보이지 않는 문자열을 앞쪽 제품에서 복사하지 않음\n각주·등록기호 및 15μm의 문자 모양 최종 확인 필요",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "0.00003mm 나노 리포좀 레티날"
+          },
+          {
+            "line_id": "L002",
+            "text": "0.015mm(15μm) 마이크로 에이샷®"
+          },
+          {
+            "line_id": "L003",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L004",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L005",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L006",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L007",
+            "text": "20,250 A-Shot™"
+          },
+          {
+            "line_id": "L008",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L009",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L010",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L011",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L012",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L013",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L014",
+            "text": "FIRM SK"
+          },
+          {
+            "line_id": "L015",
+            "text": "20,250 A-S"
+          },
+          {
+            "line_id": "L016",
+            "text": "Panthenol 1%"
+          },
+          {
+            "line_id": "L017",
+            "text": "TRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L018",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L019",
+            "text": "초미세 성분으로"
+          },
+          {
+            "line_id": "L020",
+            "text": "속까지 깊고 확실하게 -"
+          },
+          {
+            "line_id": "L021",
+            "text": "4중"
+          },
+          {
+            "line_id": "L022",
+            "text": "모공"
+          },
+          {
+            "line_id": "L023",
+            "text": "1회 사용 후 개선 시험"
+          },
+          {
+            "line_id": "L024",
+            "text": "+"
+          },
+          {
+            "line_id": "L025",
+            "text": "3단 깊이"
+          },
+          {
+            "line_id": "L026",
+            "text": "속탄력"
+          },
+          {
+            "line_id": "L027",
+            "text": "사용 2주 후 개선 시험"
+          },
+          {
+            "line_id": "L028",
+            "text": "+"
+          },
+          {
+            "line_id": "L029",
+            "text": "각질층"
+          },
+          {
+            "line_id": "L030",
+            "text": "착색 개선"
+          },
+          {
+            "line_id": "L031",
+            "text": "사용 1주 후 개선 시험"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "0.00003mm 나노 리포좀 레티날"
+          },
+          {
+            "line_id": "L002",
+            "text": "0.015mm(15μm) 마이크로 에이샷®"
+          },
+          {
+            "line_id": "L003",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L004",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L005",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L006",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L007",
+            "text": "20,250 A-Shot™"
+          },
+          {
+            "line_id": "L008",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L009",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L010",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L011",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L012",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L013",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L014",
+            "text": "FIRM SK"
+          },
+          {
+            "line_id": "L015",
+            "text": "20,250 A-S"
+          },
+          {
+            "line_id": "L016",
+            "text": "Panthenol 1%"
+          },
+          {
+            "line_id": "L017",
+            "text": "TRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L018",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L019",
+            "text": "초미세 성분으로"
+          },
+          {
+            "line_id": "L020",
+            "text": "속까지 깊고 확실하게 -"
+          },
+          {
+            "line_id": "L021",
+            "text": "4중"
+          },
+          {
+            "line_id": "L022",
+            "text": "모공"
+          },
+          {
+            "line_id": "L023",
+            "text": "1회 사용 후 개선 시험"
+          },
+          {
+            "line_id": "L024",
+            "text": "+"
+          },
+          {
+            "line_id": "L025",
+            "text": "3단 깊이"
+          },
+          {
+            "line_id": "L026",
+            "text": "속탄력"
+          },
+          {
+            "line_id": "L027",
+            "text": "사용 2주 후 개선 시험"
+          },
+          {
+            "line_id": "L028",
+            "text": "+"
+          },
+          {
+            "line_id": "L029",
+            "text": "각질층"
+          },
+          {
+            "line_id": "L030",
+            "text": "착색 개선"
+          },
+          {
+            "line_id": "L031",
+            "text": "사용 1주 후 개선 시험"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "id": "GS-02_014__sec_1_05",
+  "sample": "GS-02_014",
+  "section_key": "sec_1_05",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_05.png",
+    "sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+    "width": 830,
+    "height": 1796
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "함께 사용하면 더 효과있는"
+    },
+    {
+      "line_id": "L002",
+      "text": "THE VITA-A SET"
+    },
+    {
+      "line_id": "L003",
+      "text": "RETINOL SHOT TIGHTENING SERUM"
+    },
+    {
+      "line_id": "L004",
+      "text": "+"
+    },
+    {
+      "line_id": "L005",
+      "text": "RETINAL SHOT TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L006",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L007",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L008",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L009",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L010",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L011",
+      "text": "RETINOL SHOT"
+    },
+    {
+      "line_id": "L012",
+      "text": "TIGHTENING SERUM"
+    },
+    {
+      "line_id": "L013",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L014",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L015",
+      "text": "celimax"
+    }
+  ],
+  "parent_text_sha256": "c0bb0e4c9343dc1a501b00e51d5c5a43d6d484184254e20d1a5881129479724f",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "함께 사용하면 더 효과있는"
+    },
+    {
+      "line_id": "L002",
+      "text": "THE VITA-A SET"
+    },
+    {
+      "line_id": "L003",
+      "text": "RETINOL SHOT TIGHTENING SERUM"
+    },
+    {
+      "line_id": "L004",
+      "text": "+"
+    },
+    {
+      "line_id": "L005",
+      "text": "RETINAL SHOT TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L006",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L007",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L008",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L009",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L010",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L011",
+      "text": "RETINOL SHOT"
+    },
+    {
+      "line_id": "L012",
+      "text": "TIGHTENING SERUM"
+    },
+    {
+      "line_id": "L013",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L014",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L015",
+      "text": "celimax"
+    }
+  ],
+  "text_sha256": "c0bb0e4c9343dc1a501b00e51d5c5a43d6d484184254e20d1a5881129479724f",
+  "changes": [],
+  "unresolved": [
+    "윗 튜브의 A-Shot 숫자·성분 함량, 아래 세럼 병의 작은 성분/함량 및 인증 배지 전체는 불확실. 기존 제품명과 브랜드 유지"
+  ],
+  "note": "튜브·세럼 병의 작은 성분/함량 라벨 누락\n윗 튜브의 A-Shot 숫자·성분 함량, 아래 세럼 병의 작은 성분/함량 및 인증 배지 전체는 불확실. 기존 제품명과 브랜드 유지",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "함께 사용하면 더 효과있는"
+          },
+          {
+            "line_id": "L002",
+            "text": "THE VITA-A SET"
+          },
+          {
+            "line_id": "L003",
+            "text": "RETINOL SHOT TIGHTENING SERUM"
+          },
+          {
+            "line_id": "L004",
+            "text": "+"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L006",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L007",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L008",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L009",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L010",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L011",
+            "text": "RETINOL SHOT"
+          },
+          {
+            "line_id": "L012",
+            "text": "TIGHTENING SERUM"
+          },
+          {
+            "line_id": "L013",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L014",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L015",
+            "text": "celimax"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "함께 사용하면 더 효과있는"
+          },
+          {
+            "line_id": "L002",
+            "text": "THE VITA-A SET"
+          },
+          {
+            "line_id": "L003",
+            "text": "RETINOL SHOT TIGHTENING SERUM"
+          },
+          {
+            "line_id": "L004",
+            "text": "+"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L006",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L007",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L008",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L009",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L010",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L011",
+            "text": "RETINOL SHOT"
+          },
+          {
+            "line_id": "L012",
+            "text": "TIGHTENING SERUM"
+          },
+          {
+            "line_id": "L013",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L014",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L015",
+            "text": "celimax"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

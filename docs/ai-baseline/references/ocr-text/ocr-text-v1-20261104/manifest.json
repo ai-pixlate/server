@@ -1,0 +1,41 @@
+{
+  "format": 1,
+  "version": "ocr-text-v1-20261104",
+  "status": "frozen_text_only",
+  "frozen_at": "2026-11-04T08:43:34.632245+00:00",
+  "spec": {
+    "path": "docs/ai-baseline/protocols/v1/ocr-v4.md",
+    "sha256": "686871ca121ce2ecc5f2a1e3d851355b7334a59501fe629a9fbcda9609626a06",
+    "commit": null
+  },
+  "sections": [
+    "GS-01_002__sec_1_05",
+    "GS-01_002__sec_1_15",
+    "GS-01_002__sec_1_16",
+    "GS-01_002__sec_1_17",
+    "GS-02_001__sec_1_03",
+    "GS-02_001__sec_1_04",
+    "GS-02_002__sec_1_01",
+    "GS-02_007__sec_1_02",
+    "GS-02_014__sec_1_09",
+    "GS-03_002__sec_1_04",
+    "GS-03_016__sec_1_01",
+    "GS-03_018__sec_1_11"
+  ],
+  "section_count": 12,
+  "line_count": 369,
+  "held_sections": [],
+  "history": [
+    {
+      "at": "2026-11-04T08:43:34.632245+00:00",
+      "action": "freeze_text_only",
+      "authority": "approval.json"
+    }
+  ],
+  "files": {
+    "text_units.jsonl": "6f5a3aed1b332c40ede49c5e45b5a7405a99e2f83c012f0deee62ecd23b21fc7",
+    "approval.json": "cb43e3f7db446f25cba067ccfebd1aacafab752460d97b49bc1938ae054101a0",
+    "spec-v4.txt": "686871ca121ce2ecc5f2a1e3d851355b7334a59501fe629a9fbcda9609626a06",
+    "README.md": "f52477c703f3d23dbe51d4efee9a09391e35ab61e14a4c3faa946a4731b538f3"
+  }
+}

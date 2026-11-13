@@ -1,0 +1,493 @@
+[
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L001",
+    "text_sha256": "aef7a8987bb968e01fcb20422e46fb15d2181d3eda17619ce26ba8b0ee4665d1",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L002",
+    "text_sha256": "40d05d7b997ea259e3161ed87df111034a9e60d90eec07e434b0ab23fe64f396",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L003",
+    "text_sha256": "fc8182ee92eac75404a56b478735e30fbde5377600bc635cd23b25b3fe716f4a",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L004",
+    "text_sha256": "06644e408288a8bb641e6d510cf1f132c1380d02860ea78ed1199f3ec486fa65",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L005",
+    "text_sha256": "ece81a7500ce3154049dd7167136533ee0f521701545ae7b94478b638d93a5a0",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L006",
+    "text_sha256": "bf815df186c74ecafa24881be2d2562c92036564ce2a0d70fdd487ed412c78b4",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L007",
+    "text_sha256": "4dfcc04a6a81951015556f2c4a41ce69f4b79e3b47538fd3aaf61ffa6e9c4cc0",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L008",
+    "text_sha256": "8eb80f9da1cc39d817b615dfdfe709f2a0f8f6fc731f592e01f331c40228edc2",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L009",
+    "text_sha256": "b1c9c89426ed303ffc0a60bc5ca7b1515f4f8048ef8ad865de4a69b14292001b",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L010",
+    "text_sha256": "1038fad7032e2e65e0768cd036d7351f2722d4292cf406fdad4ae095efb88855",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L011",
+    "text_sha256": "1af5c6ab049536ce0e1493229a003e5eeb3df7569fb9d0add4820380405bbccc",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L012",
+    "text_sha256": "bfdba03a511cff57f2c29a068c2fbecb4e45ec3009f5cac9a1ab8b91d5ac95f5",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L013",
+    "text_sha256": "eb3d44cd002d7c6454b96954578a3782d1595ef6379f76955165437f17e563d3",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L014",
+    "text_sha256": "ab47a844094a89507e8c9ff02becf4f81251df51ae52b90670d836c3a5236c03",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "line_id": "L015",
+    "text_sha256": "ef1b8a301455c26c6afc19e0b578f467160be111c8575563b19ac3d18261febc",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L001",
+    "text_sha256": "94ee059335e587e501cc4bf90613e0814f00a7b08bc7c648fd865a2af6a22cc2",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L002",
+    "text_sha256": "2aa05882199e7cf4d0f641a254cfd74966a3545d95b6a622961f2ca67929cc51",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L003",
+    "text_sha256": "7e26727511e9ecda2128f177951d8bcf95b6bfd33e5aa043866d0791ff2286da",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L004",
+    "text_sha256": "fd74685da7f25a0579cf611236ee50b5c658ae7c1dfcadd0a3bd445ec040eabc",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L005",
+    "text_sha256": "0fb1ada976d015a7af5f324dc12f92eea51835741efd63e0842ffab8c7f0e2c3",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L006",
+    "text_sha256": "adfa81fe0766fab96b4d7cfaf55813133bd0f191c88d2952fa69114e25a79257",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L007",
+    "text_sha256": "f7c9c1b73c5e5a783c4dabee891cc574275403de0d9e4d194a371196c91d2f34",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L008",
+    "text_sha256": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L009",
+    "text_sha256": "22bde1632a1583f17195a743f9cfdc2134c6ff38f861000a9d6e82a62f82d626",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L010",
+    "text_sha256": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L011",
+    "text_sha256": "1d1b2be00b2b07f77ceb518488a81b0a39fcb0d65d1a1341063f9d58161dc30b",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L012",
+    "text_sha256": "41f0c9c802bd8c3b29e5e62b4cc4e606bfc943d8109c8005c67f6e438314d09c",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L013",
+    "text_sha256": "5c3f4801f9f4324d74ffab7929e76c2c7440c1d1bf51809c15360161d3bafb51",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L014",
+    "text_sha256": "374d16c9105ffb2397c7af2f6291f26b67131b2fa94c1f34df46d5a35ecc0527",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L015",
+    "text_sha256": "645c54a550121289368691d58cd0007d6c683252b0ecd4fc9e856bc401afada0",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L016",
+    "text_sha256": "7f6494921eed9a84242aa3d8db029263bbf96ccbb8e5720769e88d30d1626069",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L017",
+    "text_sha256": "0e5fc1f1466521a5f6d100721915ca422585e0375cf1b6227dd7401591702eb3",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L018",
+    "text_sha256": "dffeee0e6f3aeb04464d68c1b6f064136bb467edca9c69cfcbb2ba807ef75624",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L019",
+    "text_sha256": "22ad113a637a121d1db3711ae0b3cdfc4bd551873ebb6af3f6126e7550ce13f4",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L020",
+    "text_sha256": "0e4462b10675887d31f69d1454335c0dcdd5ea662a886dd7ec2afd6eb28919ea",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L021",
+    "text_sha256": "ae6e177a038244e76f0c1ffb16b6d704aad236719d8f3b5161ea77481913660b",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L022",
+    "text_sha256": "46fce4e7b4a9c0fc35476815220caed19c8d7360c10999425a77c092db6b3941",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L023",
+    "text_sha256": "7e00ffed346e6a4f83563d0762933ae53d29a77b5bf333ce824b42c6c6534b2e",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L024",
+    "text_sha256": "cf13d1f8b887b382dee0fe9ed5861f2d345951add76fed0e3f1eca91fd6a3b24",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L025",
+    "text_sha256": "2d5ec13f8538b5dc8bdac087c53981b0b34d2c0788aa3b4b1f5322b39785c873",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L026",
+    "text_sha256": "22ad113a637a121d1db3711ae0b3cdfc4bd551873ebb6af3f6126e7550ce13f4",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L027",
+    "text_sha256": "0e4462b10675887d31f69d1454335c0dcdd5ea662a886dd7ec2afd6eb28919ea",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L028",
+    "text_sha256": "ae6e177a038244e76f0c1ffb16b6d704aad236719d8f3b5161ea77481913660b",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L029",
+    "text_sha256": "46fce4e7b4a9c0fc35476815220caed19c8d7360c10999425a77c092db6b3941",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L030",
+    "text_sha256": "ce800305c4989ee68ac1338bff90a8864fb8f0b4657d3a101a18dadb0ff2a504",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L031",
+    "text_sha256": "afb19d70fc35b8fdb86ddd23d7bff127c3bb64814de1e7ab16ad8c6ab17c12af",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L032",
+    "text_sha256": "ff1c6df0cb4987204d43edf962d390257acc353d17c381f8fd5854e9da61660d",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L033",
+    "text_sha256": "0e9c5545d1e991510b4fdb8abb353117a5f949b90e3883d8bd88b2de551df5a0",
+    "scope": "include",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L034",
+    "text_sha256": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L035",
+    "text_sha256": "f7d5ef34fcd2ba5c3e9937833ee12786e6dde720f854addf2e1825bb3f36decb",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "line_id": "L036",
+    "text_sha256": "9456f0228dac0be205436fcc6f42e3a891b2b56629d9d9ee3592bc3304fd7a90",
+    "scope": "exclude",
+    "basis": "사용자 확정: 문서 내부 제외, 별도 설명/인용 포함",
+    "geometry_verified": false,
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "line_id": "L054",
+    "text_sha256": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+    "scope": "exclude",
+    "basis": "사용자 검수 JSON의 라벨/텍스트 없음 판정; GT 문자열은 그대로 보존",
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "line_id": "L005",
+    "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "exclude",
+    "basis": "사용자 검수 JSON의 라벨/텍스트 없음 판정; GT 문자열은 그대로 보존",
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "line_id": "L005",
+    "text_sha256": "ca36c777ba5a57e87d557aabf0a68176f9e22bf4ee8335c08c5f21ad85706814",
+    "scope": "exclude",
+    "basis": "사용자 검수 JSON의 라벨/텍스트 없음 판정; GT 문자열은 그대로 보존",
+    "gt_modified": false
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "line_id": "L006",
+    "text_sha256": "7f6e577e268740a97f2135bb977fbc155e9a949cadb0fdd0a915af42883b39e0",
+    "scope": "exclude",
+    "basis": "사용자 검수 JSON의 라벨/텍스트 없음 판정; GT 문자열은 그대로 보존",
+    "gt_modified": false
+  }
+]

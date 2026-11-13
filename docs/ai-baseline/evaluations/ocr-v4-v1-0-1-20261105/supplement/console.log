@@ -1,0 +1,10 @@
+INFO: Could not find files for the given pattern(s).
+C:\Users\Yeram\Documents\pixlate-server\.cache\bl-venv-locked-20261028\Lib\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+Creating model: ('PP-OCRv5_server_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\Yeram\Documents\pixlate-server\.cache\baseline-connection-check-20261028\paddlex-cache\official_models\PP-OCRv5_server_det`.
+Creating model: ('korean_PP-OCRv5_mobile_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\Yeram\Documents\pixlate-server\.cache\baseline-connection-check-20261028\paddlex-cache\official_models\korean_PP-OCRv5_mobile_rec`.
+GS-03_002__sec_1_04 success 41.15599999995902
+GS-03_016__sec_1_01 success 4.687000000150874
+GS-03_018__sec_1_11 success 33.73400000017136

@@ -1,0 +1,218 @@
+[
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "region_key": "reg_0023",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "region_key": "reg_0026",
+    "geometry_scope": "undetermined",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "region_key": "reg_0027",
+    "geometry_scope": "undetermined",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_22",
+    "region_key": "reg_0046",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_23",
+    "region_key": "reg_0012",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_02",
+    "region_key": "reg_0002",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0024",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0025",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0026",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0031",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0032",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0033",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0034",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0035",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0036",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0037",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0039",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0040",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0042",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0044",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0046",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0047",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0048",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0049",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0050",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0052",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0053",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0054",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0055",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0056",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0058",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_key": "reg_0059",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "region_key": "reg_0016",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "region_key": "reg_0017",
+    "geometry_scope": "exclude",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "region_key": "reg_0011",
+    "geometry_scope": "include",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "region_key": "reg_0025",
+    "geometry_scope": "include",
+    "gt_correspondence": "빈 영역 개수로 삭제 문자 수 산정 불가; 포함 GT 잔여분을 전체 대응에서 검증"
+  }
+]

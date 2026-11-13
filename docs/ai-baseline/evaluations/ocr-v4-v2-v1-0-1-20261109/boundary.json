@@ -1,0 +1,32 @@
+{
+  "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+  "boundary": "pipeline.stages.ocr.run:return",
+  "review_date": "2026-11-05",
+  "wrapper_sha256": "7d93afee17f6ba3c7b703f21c9a042622a9c77f3ea5db30b1f31997e53c0af72",
+  "code_sources": [
+    {
+      "commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "path": "pipeline/analyze.py",
+      "sha256": "852bb5588dd45a2157b5259e2543f7832b180bfdde1b9e8724eceb9d62e37b40"
+    },
+    {
+      "commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "path": "pipeline/stages/ocr.py",
+      "sha256": "9df1e190754d84327171a19c1f78b4a3347b72219450948e2efb559bb933d69e"
+    },
+    {
+      "commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "path": "pipeline/stages/ocr_tile.py",
+      "sha256": "6ff5cb4cf656ed74f051ccd02b8f2948f1a24891543196e02835d2a66ae7383e"
+    }
+  ],
+  "findings": [
+    "계측 wrapper는 OCR module.run을 감싸 result=model_dump(mode=json) 후 동일 result 반환. 배열 순서 유지. runtime tool_sha256과 보존 파일 일치 검증.",
+    "v1.0.1 analyze._ocr_section은 ocr.run 반환을 그대로 반환하며 analyze는 이를 merge.run에 전달한다.",
+    "v1.0.1의 짧은 섹션은 to_result, 긴 섹션은 run_tiled 반환이다. 현재 develop의 호출 내 추가 dedup/국소 재인식은 v1.0.1에 없으므로 적용됐다고 해석하지 않는다."
+  ],
+  "limits": [
+    "소스·보존 런타임·계측 증거 대조이며 운영 서버에 새로 접속하거나 모델 실행하지 않음",
+    "GS-03 후보는 입력 바이트 근거가 부족하여 자동 연결 금지"
+  ]
+}

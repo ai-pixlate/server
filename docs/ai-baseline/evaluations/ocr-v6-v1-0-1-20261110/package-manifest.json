@@ -1,0 +1,14 @@
+{
+  "files": {
+    "README.md": "bced807b98bbfaf680f4ba59c81ad215aaf528a7a7e809f21c52a652c3281d2b",
+    "results/execution.jsonl": "ab95f691c2eb4dca5101a37b0c47be483c9a22d6d3faff2b7aeecab99d8ea6e6",
+    "results/inputs.json": "87105521eaf51145deb749125b2bd65005f7e3b4a64fb7ff7df991e7756528ee",
+    "results/manifest.json": "972dbe248170596c5ea810d901fb34aeb0a5ee6e5a034521a3ff3f37139b727d",
+    "results/sections.jsonl": "2d73c8b1c80b743fa565e588360b1ba1afd025b7935f0f23ad425a6681970738",
+    "results/source-hashes.json": "1593e1618507d41cf6ecc03240b4c405ebe20ddfd58bbe07a55d6c39d22d493e",
+    "results/summary.json": "e05dfaaf109d2fdf66c12ea76bb2ce3b0eda238653e7db97c747d5a29172d5d4",
+    "results/validation.json": "ea24fce1f57450fa380d088f40f4f5937e10b939030cf9fae8a9f324d0ed7d53",
+    "run.py": "5b2e9a2920c48de46df1129a5502242fcd1be284a169478122e82c9e33996e78",
+    "verification.json": "f0b4dcf71b4ad49d51b629a62e9cc38f9d2a7fb8b37be976fd4f9d8a9864d237"
+  }
+}

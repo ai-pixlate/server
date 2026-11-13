@@ -1,0 +1,262 @@
+{
+  "sections": [
+    {
+      "id": "GS-01_002__sec_1_05",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_2_05",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:14:2026-10-30T00:33:06.717819+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-01_002__sec_1_05"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 14,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_15",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_2_15",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:34:2026-10-30T00:38:42.363983+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-01_002__sec_1_15"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 34,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_16",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_2_16",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:36:2026-10-30T00:39:27.576140+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-01_002__sec_1_16"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 36,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_17",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_2_17",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:38:2026-10-30T00:39:44.675286+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-01_002__sec_1_17"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 38,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_03",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_3_03",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:170:2026-10-30T01:06:56.888620+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-02_001__sec_1_03"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 170,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_04",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_3_04",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:172:2026-10-30T01:07:56.430161+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-02_001__sec_1_04"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 172,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_4_01",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:175:2026-10-30T01:08:56.407540+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-02_002__sec_1_01"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 175,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-02_007__sec_1_02",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_9_02",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:198:2026-10-30T01:12:50.028583+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-02_007__sec_1_02"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 198,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "available",
+      "input_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+      "boundary": "pipeline.stages.ocr.run:return",
+      "output_section_key": "sec_16_09",
+      "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:269:2026-10-30T01:29:36.607748+00:00",
+      "evidence": {
+        "path": "linkage.json",
+        "sha256": "e5acac8353987f4a6b725615874cd6fa0e886dfdefe7ac88b24a1cb140b2ae6c",
+        "locator": "GS-02_014__sec_1_09"
+      },
+      "output": {
+        "path": "../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+        "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+        "line": 269,
+        "pointer": "/result"
+      }
+    },
+    {
+      "id": "GS-03_002__sec_1_04",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+    },
+    {
+      "id": "GS-03_016__sec_1_01",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+    },
+    {
+      "id": "GS-03_018__sec_1_11",
+      "product_version": "1.0.1",
+      "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+      "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+      "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+      "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+      "truth_manifest_sha256": "40b63866bce4b2b74d8c98e3dabf28c441894a927d666a0631e1d2a9c0bccb34",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+    }
+  ]
+}

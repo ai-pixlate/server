@@ -1,0 +1,977 @@
+{
+  "id": "GS-01_002__sec_1_22",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_22",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_22.png",
+    "sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+    "width": 1000,
+    "height": 1815
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "Sustainable Packaging"
+    },
+    {
+      "line_id": "L002",
+      "text": "자연을 위한 작은 실천"
+    },
+    {
+      "line_id": "L003",
+      "text": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다."
+    },
+    {
+      "line_id": "L004",
+      "text": "Glyceryl Caprylate,"
+    },
+    {
+      "line_id": "L005",
+      "text": "Ethylhexylgly-"
+    },
+    {
+      "line_id": "L006",
+      "text": "Madecassoside, Zinc"
+    },
+    {
+      "line_id": "L007",
+      "text": "Octadecane, Lactic"
+    },
+    {
+      "line_id": "L008",
+      "text": "Copolymer, Butylene"
+    },
+    {
+      "line_id": "L009",
+      "text": "Glycol, Magnesium"
+    },
+    {
+      "line_id": "L010",
+      "text": "Glucon-"
+    },
+    {
+      "line_id": "L011",
+      "text": "Hydro-"
+    },
+    {
+      "line_id": "L012",
+      "text": "olyzed"
+    },
+    {
+      "line_id": "L013",
+      "text": "assium"
+    },
+    {
+      "line_id": "L014",
+      "text": "odium"
+    },
+    {
+      "line_id": "L015",
+      "text": "oxypro-"
+    },
+    {
+      "line_id": "L016",
+      "text": "m Hyal-"
+    },
+    {
+      "line_id": "L017",
+      "text": "Acety-"
+    },
+    {
+      "line_id": "L018",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L019",
+      "text": "Sticky, Sticky"
+    },
+    {
+      "line_id": "L020",
+      "text": "applied or not."
+    },
+    {
+      "line_id": "L021",
+      "text": "hyaluronic acid"
+    },
+    {
+      "line_id": "L022",
+      "text": "it calms"
+    },
+    {
+      "line_id": "L023",
+      "text": "Biorius Vegan"
+    },
+    {
+      "line_id": "L024",
+      "text": "and even ref"
+    },
+    {
+      "line_id": "L025",
+      "text": "Belgian Biorius"
+    },
+    {
+      "line_id": "L026",
+      "text": "ingredients, and"
+    },
+    {
+      "line_id": "L027",
+      "text": "safety! easy"
+    },
+    {
+      "line_id": "L028",
+      "text": "a cool sun"
+    },
+    {
+      "line_id": "L029",
+      "text": "and light like"
+    },
+    {
+      "line_id": "L030",
+      "text": "effect of"
+    },
+    {
+      "line_id": "L031",
+      "text": "cooling"
+    },
+    {
+      "line_id": "L032",
+      "text": "that's not"
+    },
+    {
+      "line_id": "L033",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L034",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L035",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L036",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L037",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L038",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L039",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L040",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L041",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L042",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L043",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L044",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L045",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L046",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L047",
+      "text": "MIX"
+    },
+    {
+      "line_id": "L048",
+      "text": "Packaging"
+    },
+    {
+      "line_id": "L049",
+      "text": "FSC"
+    },
+    {
+      "line_id": "L050",
+      "text": "FSC® C149190"
+    },
+    {
+      "line_id": "L051",
+      "text": "PRINTED WITH"
+    },
+    {
+      "line_id": "L052",
+      "text": "SOYINK"
+    },
+    {
+      "line_id": "L053",
+      "text": "TM"
+    },
+    {
+      "line_id": "L054",
+      "text": "FSC 산림보존인증 단상자를 사용하여"
+    },
+    {
+      "line_id": "L055",
+      "text": "국제 산림 보호 운동 참여"
+    },
+    {
+      "line_id": "L056",
+      "text": "소이 잉크로 인쇄된"
+    },
+    {
+      "line_id": "L057",
+      "text": "종이 사용"
+    }
+  ],
+  "parent_text_sha256": "beebaf3c725269043097864e1aa48736ba14aa238906a0f7401e53772978630b",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "Sustainable Packaging"
+    },
+    {
+      "line_id": "L002",
+      "text": "자연을 위한 작은 실천"
+    },
+    {
+      "line_id": "L003",
+      "text": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다."
+    },
+    {
+      "line_id": "L004",
+      "text": "Glyceryl Caprylate,"
+    },
+    {
+      "line_id": "L005",
+      "text": "Ethylhexylgly-"
+    },
+    {
+      "line_id": "L006",
+      "text": "Madecassoside, Zinc"
+    },
+    {
+      "line_id": "L007",
+      "text": "Octadecane, Lactic"
+    },
+    {
+      "line_id": "L008",
+      "text": "Copolymer, Butylene"
+    },
+    {
+      "line_id": "L009",
+      "text": "Glycol, Magnesium"
+    },
+    {
+      "line_id": "L010",
+      "text": "Glucon-"
+    },
+    {
+      "line_id": "L011",
+      "text": "Hydro-"
+    },
+    {
+      "line_id": "L012",
+      "text": "olyzed"
+    },
+    {
+      "line_id": "L013",
+      "text": "assium"
+    },
+    {
+      "line_id": "L014",
+      "text": "Sodium"
+    },
+    {
+      "line_id": "L015",
+      "text": "oxypro-"
+    },
+    {
+      "line_id": "L016",
+      "text": "m Hyal-"
+    },
+    {
+      "line_id": "L017",
+      "text": "Acety-"
+    },
+    {
+      "line_id": "L018",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L019",
+      "text": "Sticky, Sticky"
+    },
+    {
+      "line_id": "L020",
+      "text": "applied or not."
+    },
+    {
+      "line_id": "L021",
+      "text": "hyaluronic acid"
+    },
+    {
+      "line_id": "L022",
+      "text": "it calms"
+    },
+    {
+      "line_id": "L023",
+      "text": "Biorius Vegan"
+    },
+    {
+      "line_id": "L024",
+      "text": "and even ref"
+    },
+    {
+      "line_id": "L025",
+      "text": "Belgian Biorius"
+    },
+    {
+      "line_id": "L026",
+      "text": "ingredients, and"
+    },
+    {
+      "line_id": "L027",
+      "text": "safety! easy"
+    },
+    {
+      "line_id": "L028",
+      "text": "a cool sun"
+    },
+    {
+      "line_id": "L029",
+      "text": "and light like"
+    },
+    {
+      "line_id": "L030",
+      "text": "effect of"
+    },
+    {
+      "line_id": "L031",
+      "text": "cooling"
+    },
+    {
+      "line_id": "L032",
+      "text": "that's not"
+    },
+    {
+      "line_id": "L033",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L034",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L035",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L036",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L037",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L038",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L039",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L040",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L041",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L042",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L043",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L044",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L045",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L046",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L047",
+      "text": "MIX"
+    },
+    {
+      "line_id": "L048",
+      "text": "Packaging"
+    },
+    {
+      "line_id": "L049",
+      "text": "FSC"
+    },
+    {
+      "line_id": "L050",
+      "text": "FSC® C149190"
+    },
+    {
+      "line_id": "L051",
+      "text": "PRINTED WITH"
+    },
+    {
+      "line_id": "L052",
+      "text": "SOYINK"
+    },
+    {
+      "line_id": "L053",
+      "text": "TM"
+    },
+    {
+      "line_id": "L054",
+      "text": "FSC 산림보존인증 단상자를 사용하여"
+    },
+    {
+      "line_id": "L055",
+      "text": "국제 산림 보호 운동 참여"
+    },
+    {
+      "line_id": "L056",
+      "text": "소이 잉크로 인쇄된"
+    },
+    {
+      "line_id": "L057",
+      "text": "종이 사용"
+    }
+  ],
+  "text_sha256": "a86010c3cd08820bea3d94556dd39da56c01d7d425d42a7515d7c957f2b89350",
+  "changes": [
+    {
+      "operation": "replace",
+      "line_id": "L014",
+      "before": "odium",
+      "after": "Sodium",
+      "reason": "튜브 오른쪽으로 S를 포함한 Sodium이 보임"
+    }
+  ],
+  "unresolved": [
+    "L004~L017: 이미지 왼쪽 경계/튜브에 가려진 성분명 앞부분 및 실링 숫자",
+    "L019~L032: 오른쪽 상자의 굽은 면에서 사라지는 단어 앞부분. Sticky의 대소문자·중간 it 등 추가 노출 문자 재확인 필요; 문맥으로 단어 완성 금지"
+  ],
+  "note": "가려진 패키지 영문 단어의 앞부분 누락·불확실한 완성\nL004~L017: 이미지 왼쪽 경계/튜브에 가려진 성분명 앞부분 및 실링 숫자\nL019~L032: 오른쪽 상자의 굽은 면에서 사라지는 단어 앞부분. Sticky의 대소문자·중간 it 등 추가 노출 문자 재확인 필요; 문맥으로 단어 완성 금지",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "Sustainable Packaging"
+          },
+          {
+            "line_id": "L002",
+            "text": "자연을 위한 작은 실천"
+          },
+          {
+            "line_id": "L003",
+            "text": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다."
+          },
+          {
+            "line_id": "L004",
+            "text": "Glyceryl Caprylate,"
+          },
+          {
+            "line_id": "L005",
+            "text": "Ethylhexylgly-"
+          },
+          {
+            "line_id": "L006",
+            "text": "Madecassoside, Zinc"
+          },
+          {
+            "line_id": "L007",
+            "text": "Octadecane, Lactic"
+          },
+          {
+            "line_id": "L008",
+            "text": "Copolymer, Butylene"
+          },
+          {
+            "line_id": "L009",
+            "text": "Glycol, Magnesium"
+          },
+          {
+            "line_id": "L010",
+            "text": "Glucon-"
+          },
+          {
+            "line_id": "L011",
+            "text": "Hydro-"
+          },
+          {
+            "line_id": "L012",
+            "text": "olyzed"
+          },
+          {
+            "line_id": "L013",
+            "text": "assium"
+          },
+          {
+            "line_id": "L014",
+            "text": "odium"
+          },
+          {
+            "line_id": "L015",
+            "text": "oxypro-"
+          },
+          {
+            "line_id": "L016",
+            "text": "m Hyal-"
+          },
+          {
+            "line_id": "L017",
+            "text": "Acety-"
+          },
+          {
+            "line_id": "L018",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L019",
+            "text": "Sticky, Sticky"
+          },
+          {
+            "line_id": "L020",
+            "text": "applied or not."
+          },
+          {
+            "line_id": "L021",
+            "text": "hyaluronic acid"
+          },
+          {
+            "line_id": "L022",
+            "text": "it calms"
+          },
+          {
+            "line_id": "L023",
+            "text": "Biorius Vegan"
+          },
+          {
+            "line_id": "L024",
+            "text": "and even ref"
+          },
+          {
+            "line_id": "L025",
+            "text": "Belgian Biorius"
+          },
+          {
+            "line_id": "L026",
+            "text": "ingredients, and"
+          },
+          {
+            "line_id": "L027",
+            "text": "safety! easy"
+          },
+          {
+            "line_id": "L028",
+            "text": "a cool sun"
+          },
+          {
+            "line_id": "L029",
+            "text": "and light like"
+          },
+          {
+            "line_id": "L030",
+            "text": "effect of"
+          },
+          {
+            "line_id": "L031",
+            "text": "cooling"
+          },
+          {
+            "line_id": "L032",
+            "text": "that's not"
+          },
+          {
+            "line_id": "L033",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L034",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L035",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L036",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L037",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L038",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L039",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L040",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L041",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L042",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L043",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L044",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L045",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L046",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L047",
+            "text": "MIX"
+          },
+          {
+            "line_id": "L048",
+            "text": "Packaging"
+          },
+          {
+            "line_id": "L049",
+            "text": "FSC"
+          },
+          {
+            "line_id": "L050",
+            "text": "FSC® C149190"
+          },
+          {
+            "line_id": "L051",
+            "text": "PRINTED WITH"
+          },
+          {
+            "line_id": "L052",
+            "text": "SOYINK"
+          },
+          {
+            "line_id": "L053",
+            "text": "TM"
+          },
+          {
+            "line_id": "L054",
+            "text": "FSC 산림보존인증 단상자를 사용하여"
+          },
+          {
+            "line_id": "L055",
+            "text": "국제 산림 보호 운동 참여"
+          },
+          {
+            "line_id": "L056",
+            "text": "소이 잉크로 인쇄된"
+          },
+          {
+            "line_id": "L057",
+            "text": "종이 사용"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "Sustainable Packaging"
+          },
+          {
+            "line_id": "L002",
+            "text": "자연을 위한 작은 실천"
+          },
+          {
+            "line_id": "L003",
+            "text": "구달은 자연과 사람을 생각하는 지속 가능한 패키지를 사용합니다."
+          },
+          {
+            "line_id": "L004",
+            "text": "Glyceryl Caprylate,"
+          },
+          {
+            "line_id": "L005",
+            "text": "Ethylhexylgly-"
+          },
+          {
+            "line_id": "L006",
+            "text": "Madecassoside, Zinc"
+          },
+          {
+            "line_id": "L007",
+            "text": "Octadecane, Lactic"
+          },
+          {
+            "line_id": "L008",
+            "text": "Copolymer, Butylene"
+          },
+          {
+            "line_id": "L009",
+            "text": "Glycol, Magnesium"
+          },
+          {
+            "line_id": "L010",
+            "text": "Glucon-"
+          },
+          {
+            "line_id": "L011",
+            "text": "Hydro-"
+          },
+          {
+            "line_id": "L012",
+            "text": "olyzed"
+          },
+          {
+            "line_id": "L013",
+            "text": "assium"
+          },
+          {
+            "line_id": "L014",
+            "text": "Sodium"
+          },
+          {
+            "line_id": "L015",
+            "text": "oxypro-"
+          },
+          {
+            "line_id": "L016",
+            "text": "m Hyal-"
+          },
+          {
+            "line_id": "L017",
+            "text": "Acety-"
+          },
+          {
+            "line_id": "L018",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L019",
+            "text": "Sticky, Sticky"
+          },
+          {
+            "line_id": "L020",
+            "text": "applied or not."
+          },
+          {
+            "line_id": "L021",
+            "text": "hyaluronic acid"
+          },
+          {
+            "line_id": "L022",
+            "text": "it calms"
+          },
+          {
+            "line_id": "L023",
+            "text": "Biorius Vegan"
+          },
+          {
+            "line_id": "L024",
+            "text": "and even ref"
+          },
+          {
+            "line_id": "L025",
+            "text": "Belgian Biorius"
+          },
+          {
+            "line_id": "L026",
+            "text": "ingredients, and"
+          },
+          {
+            "line_id": "L027",
+            "text": "safety! easy"
+          },
+          {
+            "line_id": "L028",
+            "text": "a cool sun"
+          },
+          {
+            "line_id": "L029",
+            "text": "and light like"
+          },
+          {
+            "line_id": "L030",
+            "text": "effect of"
+          },
+          {
+            "line_id": "L031",
+            "text": "cooling"
+          },
+          {
+            "line_id": "L032",
+            "text": "that's not"
+          },
+          {
+            "line_id": "L033",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L034",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L035",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L036",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L037",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L038",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L039",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L040",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L041",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L042",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L043",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L044",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L045",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L046",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L047",
+            "text": "MIX"
+          },
+          {
+            "line_id": "L048",
+            "text": "Packaging"
+          },
+          {
+            "line_id": "L049",
+            "text": "FSC"
+          },
+          {
+            "line_id": "L050",
+            "text": "FSC® C149190"
+          },
+          {
+            "line_id": "L051",
+            "text": "PRINTED WITH"
+          },
+          {
+            "line_id": "L052",
+            "text": "SOYINK"
+          },
+          {
+            "line_id": "L053",
+            "text": "TM"
+          },
+          {
+            "line_id": "L054",
+            "text": "FSC 산림보존인증 단상자를 사용하여"
+          },
+          {
+            "line_id": "L055",
+            "text": "국제 산림 보호 운동 참여"
+          },
+          {
+            "line_id": "L056",
+            "text": "소이 잉크로 인쇄된"
+          },
+          {
+            "line_id": "L057",
+            "text": "종이 사용"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

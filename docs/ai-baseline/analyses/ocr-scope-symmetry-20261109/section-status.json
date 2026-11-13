@@ -1,0 +1,200 @@
+[
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "status": "사용자 판단 필요",
+    "reason": "기존 GT/OCR 보류 유지; 미결 항목 표 참조",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "status": "사용자 판단 필요",
+    "reason": "기존 GT/OCR 보류 유지; 미결 항목 표 참조",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_04",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_06",
+    "status": "사용자 판단 필요",
+    "reason": "기존 GT/OCR 보류 유지; 미결 항목 표 참조",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_07",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_17",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_18",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_19",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_20",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_21",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_22",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_23",
+    "status": "사용자 판단 필요",
+    "reason": "기존 GT/OCR 보류 유지; 미결 항목 표 참조",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_001__sec_1_02",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "status": "사용자 판단 필요",
+    "reason": "기존 GT/OCR 보류 유지; 미결 항목 표 참조",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_007__sec_1_03",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_01",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_013__sec_1_01",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_014__sec_1_02",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_014__sec_1_05",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_014__sec_1_08",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_002__sec_1_05",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_010__sec_1_03",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_013__sec_1_01",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_017__sec_1_01",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_018__sec_1_08",
+    "status": "채점 차단",
+    "reason": "reg_0044 용기 인쇄 반사상이 include. 대칭 범위 수정/확인 전 차단",
+    "scoring_ready": false
+  },
+  {
+    "section_id": "GS-03_018__sec_1_10",
+    "status": "검증 완료",
+    "reason": "현재 증거의 정책·연결 일관성 점검 통과; GT 완전성·사람 승인·공식 채점 준비 완료 아님",
+    "scoring_ready": false
+  }
+]

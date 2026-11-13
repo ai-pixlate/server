@@ -1,0 +1,904 @@
+{
+  "id": "GS-01_002__sec_1_18",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_18",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_18.png",
+    "sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+    "width": 1000,
+    "height": 1799
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "피부타입에 따라 Pick!"
+    },
+    {
+      "line_id": "L002",
+      "text": "어성초 진정"
+    },
+    {
+      "line_id": "L003",
+      "text": "선케어 라인"
+    },
+    {
+      "line_id": "L004",
+      "text": "Heartleaf Calming Sun Care"
+    },
+    {
+      "line_id": "L005",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L006",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L007",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L008",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L009",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L010",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L011",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L012",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L013",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L014",
+      "text": "Tone Up"
+    },
+    {
+      "line_id": "L015",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L016",
+      "text": "GREEN CORRECTING"
+    },
+    {
+      "line_id": "L017",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L018",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L019",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L020",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L021",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L022",
+      "text": "Moisture"
+    },
+    {
+      "line_id": "L023",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L024",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L025",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L026",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L027",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L028",
+      "text": "Calming"
+    },
+    {
+      "line_id": "L029",
+      "text": "Tone Up"
+    },
+    {
+      "line_id": "L030",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L031",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L032",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L033",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L034",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L035",
+      "text": "Calming"
+    },
+    {
+      "line_id": "L036",
+      "text": "COOLING SUN STICK"
+    },
+    {
+      "line_id": "L037",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L038",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L039",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L040",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L041",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L042",
+      "text": "Hyaluron"
+    },
+    {
+      "line_id": "L043",
+      "text": "SUN SERUM"
+    },
+    {
+      "line_id": "L044",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L045",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L046",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L047",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L048",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L049",
+      "text": "QUICK SLIDING"
+    },
+    {
+      "line_id": "L050",
+      "text": "SUN STICK"
+    },
+    {
+      "line_id": "L051",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L052",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L053",
+      "text": "goodal"
+    }
+  ],
+  "parent_text_sha256": "11b4797d0d9285e1d805756a81e091162d1e81bffaf79abea7a93ed564c5fe16",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "피부타입에 따라 Pick!"
+    },
+    {
+      "line_id": "L002",
+      "text": "어성초 진정"
+    },
+    {
+      "line_id": "L003",
+      "text": "선케어 라인"
+    },
+    {
+      "line_id": "L004",
+      "text": "Heartleaf Calming Sun Care"
+    },
+    {
+      "line_id": "L005",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L006",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L007",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L008",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L009",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L010",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L011",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L012",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L013",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L014",
+      "text": "Tone Up"
+    },
+    {
+      "line_id": "L015",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L016",
+      "text": "GREEN CORRECTING"
+    },
+    {
+      "line_id": "L017",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L018",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L019",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L020",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L021",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L022",
+      "text": "Moisture"
+    },
+    {
+      "line_id": "L023",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L024",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L025",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L026",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L027",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L028",
+      "text": "Calming"
+    },
+    {
+      "line_id": "L029",
+      "text": "Tone Up"
+    },
+    {
+      "line_id": "L030",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L031",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L032",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L033",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L034",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L035",
+      "text": "Calming"
+    },
+    {
+      "line_id": "L036",
+      "text": "COOLING SUN STICK"
+    },
+    {
+      "line_id": "L037",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L038",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L039",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L040",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L041",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L042",
+      "text": "Hyaluron"
+    },
+    {
+      "line_id": "L043",
+      "text": "SUN SERUM"
+    },
+    {
+      "line_id": "L044",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L045",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L046",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L047",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L048",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L049",
+      "text": "QUICK SLIDING"
+    },
+    {
+      "line_id": "L050",
+      "text": "SUN STICK"
+    },
+    {
+      "line_id": "L051",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L052",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L053",
+      "text": "goodal"
+    }
+  ],
+  "text_sha256": "11b4797d0d9285e1d805756a81e091162d1e81bffaf79abea7a93ed564c5fe16",
+  "changes": [],
+  "unresolved": [
+    "분홍·연녹색 튜브 상단의 로트/날짜 각인 전체가 불확실함. 기존 제품명·SPF·브랜드는 유지하고 실링 문자열은 추측하지 않음"
+  ],
+  "note": "여러 제품의 실링 숫자 누락\n분홍·연녹색 튜브 상단의 로트/날짜 각인 전체가 불확실함. 기존 제품명·SPF·브랜드는 유지하고 실링 문자열은 추측하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "피부타입에 따라 Pick!"
+          },
+          {
+            "line_id": "L002",
+            "text": "어성초 진정"
+          },
+          {
+            "line_id": "L003",
+            "text": "선케어 라인"
+          },
+          {
+            "line_id": "L004",
+            "text": "Heartleaf Calming Sun Care"
+          },
+          {
+            "line_id": "L005",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L006",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L007",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L008",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L009",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L010",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L011",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L012",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L013",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L014",
+            "text": "Tone Up"
+          },
+          {
+            "line_id": "L015",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L016",
+            "text": "GREEN CORRECTING"
+          },
+          {
+            "line_id": "L017",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L018",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L019",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L020",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L021",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L022",
+            "text": "Moisture"
+          },
+          {
+            "line_id": "L023",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L024",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L025",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L026",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L027",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L028",
+            "text": "Calming"
+          },
+          {
+            "line_id": "L029",
+            "text": "Tone Up"
+          },
+          {
+            "line_id": "L030",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L031",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L032",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L033",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L034",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L035",
+            "text": "Calming"
+          },
+          {
+            "line_id": "L036",
+            "text": "COOLING SUN STICK"
+          },
+          {
+            "line_id": "L037",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L038",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L039",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L040",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L041",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L042",
+            "text": "Hyaluron"
+          },
+          {
+            "line_id": "L043",
+            "text": "SUN SERUM"
+          },
+          {
+            "line_id": "L044",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L045",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L046",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L047",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L048",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L049",
+            "text": "QUICK SLIDING"
+          },
+          {
+            "line_id": "L050",
+            "text": "SUN STICK"
+          },
+          {
+            "line_id": "L051",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L052",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L053",
+            "text": "goodal"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "피부타입에 따라 Pick!"
+          },
+          {
+            "line_id": "L002",
+            "text": "어성초 진정"
+          },
+          {
+            "line_id": "L003",
+            "text": "선케어 라인"
+          },
+          {
+            "line_id": "L004",
+            "text": "Heartleaf Calming Sun Care"
+          },
+          {
+            "line_id": "L005",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L006",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L007",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L008",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L009",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L010",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L011",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L012",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L013",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L014",
+            "text": "Tone Up"
+          },
+          {
+            "line_id": "L015",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L016",
+            "text": "GREEN CORRECTING"
+          },
+          {
+            "line_id": "L017",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L018",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L019",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L020",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L021",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L022",
+            "text": "Moisture"
+          },
+          {
+            "line_id": "L023",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L024",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L025",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L026",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L027",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L028",
+            "text": "Calming"
+          },
+          {
+            "line_id": "L029",
+            "text": "Tone Up"
+          },
+          {
+            "line_id": "L030",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L031",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L032",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L033",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L034",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L035",
+            "text": "Calming"
+          },
+          {
+            "line_id": "L036",
+            "text": "COOLING SUN STICK"
+          },
+          {
+            "line_id": "L037",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L038",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L039",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L040",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L041",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L042",
+            "text": "Hyaluron"
+          },
+          {
+            "line_id": "L043",
+            "text": "SUN SERUM"
+          },
+          {
+            "line_id": "L044",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L045",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L046",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L047",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L048",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L049",
+            "text": "QUICK SLIDING"
+          },
+          {
+            "line_id": "L050",
+            "text": "SUN STICK"
+          },
+          {
+            "line_id": "L051",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L052",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L053",
+            "text": "goodal"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

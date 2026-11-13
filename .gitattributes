@@ -1,3 +1,24 @@
 * text=auto eol=lf
 *.png binary
 *.jpg binary
+
+# OCR 동결본·측정 증거는 SHA-256 검증을 위해 줄바꿈 변환하지 않는다
+docs/ai-baseline/references/ocr-text/ocr-text-v1-20261104/** -text
+docs/ai-baseline/evaluations/ocr-v4-v1-0-1-20261105/** -text
+docs/ai-baseline/preparations/ocr-v4-v1-0-1-20261105/** -text
+
+# OCR v2/v6 근거와 동결 스냅샷은 파일 해시의 바이트를 그대로 보존한다
+docs/ai-baseline/analyses/** -text
+docs/ai-baseline/preparations/ocr-text-v3-draft-20261109/** -text
+docs/ai-baseline/preparations/ocr-v6-*/** -text
+docs/ai-baseline/references/ocr-text/ocr-text-v2-20261109/** -text
+docs/ai-baseline/references/ocr-text/ocr-text-v3-v6-20261110/** -text
+docs/ai-baseline/evaluations/ocr-v4-v2-v1-0-1-20261109/** -text
+docs/ai-baseline/evaluations/ocr-v6-v1-0-1-20261110/** -text
+tools/baseline/ocr_scope.py -text
+tools/baseline/ocr_v5.py -text
+tools/baseline/ocr_v6.py -text
+docs/ai-baseline/protocols/v1/ocr-v6-scope-draft.md -text
+
+# Frozen source-evidence document: preserve exact historical bytes.
+docs/ai-baseline/protocols/v1/ocr.md -text

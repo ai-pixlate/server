@@ -1,0 +1,47 @@
+{
+  "status": "blocked_pending_L045_and_final_approval",
+  "frozen": false,
+  "cer_called": false,
+  "counts": {
+    "included": 105,
+    "not_applicable": 4,
+    "undetermined": 3
+  },
+  "tests_passed": 147,
+  "protected_hashes_verified": 356,
+  "candidate_files": {
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\build.py": "879ad3e644e0f65f8bd811f2fdc295764a56b266b0e43cc134b213728ceff5a0",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\changes.json": "0eb94b3a1353c8a1b2d77c7ad673a0c1344b6aba2d544d8a88813d1f0f0c986f",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\evaluation-plan.json": "85f33bd75a8dc27402533f89a35d8bcbafc985202b90f1165f7dc2824b6f4774",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\filter-audit.json": "a8df03d608e1ef8c23cdda0d93701350e914c0800d39a2813543cfcd0b2bd025",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\fixed-regions.json": "7c6793f7540800a90f7304ed74e69b66cfd170cef0c2aa93a1f0d9f8cab286ed",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\gt-region-links.json": "82ccc95ba4b81d93be468ddad8e9233b4f6f62181a31dbbb1216470b1d59d9cd",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\README.md": "3be135b7af241ba63e0bbfb8d45eaafe6e83e4cf3438bc9c85f090e1a5c4f2b3",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\section-status.json": "a6a3e7d601fc69a4a624c47fa6761d7afef811a55d492d69f8f7fb15fc86d0a9",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\text_units.jsonl": "92160479f8f888f98fc9a8bad97e40976f5c978bbc5023ae85a9c80ace17a271",
+    "docs\\ai-baseline\\preparations\\ocr-v6-gt-candidate-20261110\\validation.json": "cd60d1b1cc43eb91070d7e37885e9c58840def52a166ea0ed8a953ed214f51e2"
+  },
+  "implementation_hashes": {
+    "tools\\baseline\\ocr_scope.py": "f7a03a7e3c42541f78122455125a3f0258521a810ffd05c8f0f2c10707781a58",
+    "tools\\baseline\\ocr_v6.py": "9b279f1b60415ec75f2a0aa66704915d3124897f09d497bd28ba3ccf1656a56d",
+    "tools\\baseline\\ocr_v5.py": "02c4d9adbb542c5d64a11887a02e09d35b2ad1c78879bd660be19cf914e6c3e2",
+    "tools\\baseline\\ocr.py": "44e83a50228242c72775fb2253236a55ec66fa124eae370395b9d3ae17f068be",
+    "docs\\ai-baseline\\protocols\\v1\\ocr-v6-scope-draft.md": "14f7b436f572b3faef77b3a54b52d194a0b8663f538c1646d04d382abc1be71e"
+  },
+  "review_history_sha256": "6b80fda38c799c361ea88070afd9aa6b3944c1a5362afdc3bf84f9c043d04030",
+  "L045": {
+    "before": "상품앞 표시품목 : 부가세 면세품목",
+    "changed": false,
+    "symbol_present": true,
+    "symbol_identity": "uncertain",
+    "source_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+    "view_rect": [
+      500,
+      1380,
+      730,
+      1418
+    ],
+    "scale": 6,
+    "display_only": true
+  }
+}

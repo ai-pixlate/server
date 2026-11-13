@@ -1,0 +1,21 @@
+[
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "region_key": "reg_0023",
+    "text": "BODY",
+    "gt_candidates": [
+      "L007"
+    ],
+    "resolution": "동일 문자가 다른 원본 위치에 있음; 대칭 오류 아님. 문자열만으로 연결 금지"
+  },
+  {
+    "section_id": "GS-03_018__sec_1_08",
+    "region_key": "reg_0007",
+    "text": "b3",
+    "gt_candidates": [
+      "L020",
+      "L042"
+    ],
+    "resolution": "동일 문자가 다른 원본 위치에 있음; 대칭 오류 아님. 문자열만으로 연결 금지"
+  }
+]

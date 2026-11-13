@@ -1,0 +1,184 @@
+{
+  "id": "GS-01_002__sec_1_24",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_24",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_24.png",
+    "sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+    "width": 1000,
+    "height": 1300
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L002",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L003",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L004",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L005",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L006",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L007",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L008",
+      "text": "goodal"
+    }
+  ],
+  "parent_text_sha256": "b47b7c4194e39c24694d0dcc3c0de1c5f14508b99f5af6acab865cfc73dfc605",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L002",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L003",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L004",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L005",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L006",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L007",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L008",
+      "text": "goodal"
+    }
+  ],
+  "text_sha256": "b47b7c4194e39c24694d0dcc3c0de1c5f14508b99f5af6acab865cfc73dfc605",
+  "changes": [],
+  "unresolved": [
+    "실링 양각은 일부 숫자가 보이나 전체 문자열은 확정 불가. 원본 확대 사용자 확인 필요. 라벨 본문 8줄은 유지"
+  ],
+  "note": "상단 실링 로트/날짜 누락\n실링 양각은 일부 숫자가 보이나 전체 문자열은 확정 불가. 원본 확대 사용자 확인 필요. 라벨 본문 8줄은 유지",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L002",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L003",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L004",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L005",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L006",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L007",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L008",
+            "text": "goodal"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L002",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L003",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L004",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L005",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L006",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L007",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L008",
+            "text": "goodal"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

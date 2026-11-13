@@ -1,0 +1,9 @@
+{
+  "images_sha256": 112,
+  "gt_text_hashes": 969,
+  "ocr_source_regions": 1193,
+  "protected_files": 232,
+  "all_preserved": true,
+  "scoring_executed": false,
+  "browser_visual": "pending"
+}

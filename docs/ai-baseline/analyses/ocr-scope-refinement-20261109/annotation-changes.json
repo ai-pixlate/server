@@ -1,0 +1,730 @@
+[
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "region_id": "X1",
+    "before": {
+      "id": "X1",
+      "rect_percent": [
+        76,
+        36,
+        97,
+        58
+      ],
+      "kind": "exclude",
+      "meaning": "인증 배지",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "X1",
+      "kind": "exclude",
+      "rect_percent": [
+        77,
+        46,
+        97,
+        58
+      ],
+      "meaning": "비건 인증 마크만 제외; 위 산뜻 밀착은 일반 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_04",
+    "region_id": "R1",
+    "before": {
+      "id": "R1",
+      "rect_percent": [
+        3,
+        15,
+        97,
+        38
+      ],
+      "kind": "review",
+      "meaning": "설문 배지: 인증 마크/일반 설명 구분 수동 확인",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": null,
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_04",
+    "region_id": "E3",
+    "before": null,
+    "after": {
+      "id": "E3",
+      "kind": "exclude",
+      "rect_percent": [
+        14,
+        22.8,
+        29,
+        24.6
+      ],
+      "meaning": "설문 결과 내부 POWDER ROOM 로고",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_04",
+    "region_id": "E4",
+    "before": null,
+    "after": {
+      "id": "E4",
+      "kind": "exclude",
+      "rect_percent": [
+        44,
+        22.8,
+        59,
+        24.6
+      ],
+      "meaning": "설문 결과 내부 POWDER ROOM 로고",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_04",
+    "region_id": "E5",
+    "before": null,
+    "after": {
+      "id": "E5",
+      "kind": "exclude",
+      "rect_percent": [
+        74,
+        22.8,
+        89,
+        24.6
+      ],
+      "meaning": "설문 결과 내부 POWDER ROOM 로고",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_21",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        32,
+        14,
+        45,
+        26
+      ],
+      "meaning": "휴대용 스틱형 별도 콜아웃",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_21",
+    "region_id": "I2",
+    "before": null,
+    "after": {
+      "id": "I2",
+      "kind": "include",
+      "rect_percent": [
+        75,
+        14,
+        88,
+        26
+      ],
+      "meaning": "휴대용 스틱형 별도 콜아웃",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_23",
+    "region_id": "E3",
+    "before": {
+      "id": "E3",
+      "rect_percent": [
+        25,
+        42,
+        55,
+        58
+      ],
+      "kind": "exclude",
+      "meaning": "중간 제품 인쇄 위치(종전 누락 보완)",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "E3",
+      "kind": "exclude",
+      "rect_percent": [
+        17,
+        42,
+        46,
+        58
+      ],
+      "meaning": "제품 사진 내부 인쇄; 오른쪽 검증 설명 보호",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_02",
+    "region_id": "X1",
+    "before": {
+      "id": "X1",
+      "rect_percent": [
+        15,
+        11,
+        77,
+        64
+      ],
+      "kind": "exclude",
+      "meaning": "카드 자체 인쇄; 겹친 구매 안내는 포함",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "X1",
+      "kind": "exclude",
+      "rect_percent": [
+        28,
+        16,
+        72,
+        63
+      ],
+      "meaning": "카드 자체 인쇄",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_02",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        62,
+        9,
+        84,
+        48
+      ],
+      "meaning": "카드에 겹친 참여고객 전원증정 안내",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "region_id": "E1",
+    "before": {
+      "id": "E1",
+      "rect_percent": [
+        8,
+        18,
+        92,
+        61
+      ],
+      "kind": "exclude",
+      "meaning": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "E1",
+      "kind": "exclude",
+      "rect_percent": [
+        8,
+        24,
+        92,
+        61
+      ],
+      "meaning": "상단 용기 인쇄",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        72,
+        32,
+        99,
+        52
+      ],
+      "meaning": "판매순위 및 모공 탄력 별도 안내",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_002__sec_1_01",
+    "region_id": "I2",
+    "before": null,
+    "after": {
+      "id": "I2",
+      "kind": "include",
+      "rect_percent": [
+        46,
+        75,
+        53,
+        79
+      ],
+      "meaning": "두 제품 사이 구성 + 표시",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_03",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        3,
+        90,
+        60,
+        94
+      ],
+      "meaning": "사진 위 별도 집계 기준 각주",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        7,
+        72.9,
+        46,
+        77
+      ],
+      "meaning": "논문 위 콜라겐 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_id": "X4",
+    "before": {
+      "id": "X4",
+      "rect_percent": [
+        6,
+        73,
+        61,
+        77
+      ],
+      "kind": "include",
+      "meaning": "별도 콜라겐 효능 설명",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": null,
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_id": "X5",
+    "before": {
+      "id": "X5",
+      "rect_percent": [
+        47,
+        77,
+        94,
+        83
+      ],
+      "kind": "include",
+      "meaning": "별도 눈가 효능 설명",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "X5",
+      "kind": "include",
+      "rect_percent": [
+        47,
+        77.4,
+        91,
+        81.6
+      ],
+      "meaning": "논문 위 눈가주름 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "region_id": "X6",
+    "before": {
+      "id": "X6",
+      "rect_percent": [
+        6,
+        84,
+        55,
+        88
+      ],
+      "kind": "include",
+      "meaning": "별도 탄력 효능 설명",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "X6",
+      "kind": "include",
+      "rect_percent": [
+        6,
+        84,
+        51,
+        87.5
+      ],
+      "meaning": "논문 위 탄력 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_05",
+    "region_id": "E1",
+    "before": {
+      "id": "E1",
+      "rect_percent": [
+        65,
+        54,
+        100,
+        65
+      ],
+      "kind": "exclude",
+      "meaning": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "E1",
+      "kind": "exclude",
+      "rect_percent": [
+        44,
+        52,
+        85,
+        64
+      ],
+      "meaning": "손에 든 용기 인쇄; 이전 사각형 누락 보완",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_05",
+    "region_id": "E2",
+    "before": {
+      "id": "E2",
+      "rect_percent": [
+        38,
+        71,
+        59,
+        91
+      ],
+      "kind": "exclude",
+      "meaning": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "E2",
+      "kind": "exclude",
+      "rect_percent": [
+        28,
+        69,
+        46,
+        93
+      ],
+      "meaning": "하단 세럼 용기 인쇄",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_08",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        25,
+        16,
+        74,
+        18.5
+      ],
+      "meaning": "사진 위 별도 각주",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "region_id": "E1",
+    "before": {
+      "id": "E1",
+      "rect_percent": [
+        1,
+        23,
+        35,
+        40
+      ],
+      "kind": "exclude",
+      "meaning": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "E1",
+      "kind": "exclude",
+      "rect_percent": [
+        35,
+        24.5,
+        66,
+        27.5
+      ],
+      "meaning": "질문 상자 사이 노출된 용기 인쇄만 제외",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        68,
+        7.5,
+        87,
+        11
+      ],
+      "meaning": "사진 위 the vita A 개발 메모",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "region_id": "I2",
+    "before": null,
+    "after": {
+      "id": "I2",
+      "kind": "include",
+      "rect_percent": [
+        15,
+        18.4,
+        25,
+        20.5
+      ],
+      "meaning": "사진 위 retinal 메모",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "region_id": "I3",
+    "before": null,
+    "after": {
+      "id": "I3",
+      "kind": "include",
+      "rect_percent": [
+        54,
+        20.5,
+        69,
+        23.7
+      ],
+      "meaning": "사진 위 tightening 메모",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        12,
+        37,
+        49,
+        41
+      ],
+      "meaning": "별도 BODY BRIGHTENING",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "region_id": "I2",
+    "before": null,
+    "after": {
+      "id": "I2",
+      "kind": "include",
+      "rect_percent": [
+        36,
+        30,
+        60,
+        32.5
+      ],
+      "meaning": "별도 TONE UP",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_05",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        10,
+        43,
+        42,
+        47
+      ],
+      "meaning": "별도 2주 착색미백 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_05",
+    "region_id": "I2",
+    "before": null,
+    "after": {
+      "id": "I2",
+      "kind": "include",
+      "rect_percent": [
+        57,
+        75,
+        91,
+        80
+      ],
+      "meaning": "별도 24H 내추럴톤업 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_018__sec_1_08",
+    "region_id": "I1",
+    "before": null,
+    "after": {
+      "id": "I1",
+      "kind": "include",
+      "rect_percent": [
+        9,
+        38,
+        36,
+        42
+      ],
+      "meaning": "사진 옆 BRIGHTENING 설명",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_018__sec_1_08",
+    "region_id": "I2",
+    "before": null,
+    "after": {
+      "id": "I2",
+      "kind": "include",
+      "rect_percent": [
+        8,
+        44,
+        32,
+        48
+      ],
+      "meaning": "별도 BODY LOTION",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  },
+  {
+    "section_id": "GS-03_018__sec_1_08",
+    "region_id": "E2",
+    "before": {
+      "id": "E2",
+      "rect_percent": [
+        12,
+        65,
+        90,
+        80
+      ],
+      "kind": "exclude",
+      "meaning": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+      "precision": "coarse",
+      "approved_geometry": false
+    },
+    "after": {
+      "id": "E2",
+      "kind": "exclude",
+      "rect_percent": [
+        12,
+        65,
+        90,
+        78
+      ],
+      "meaning": "하단 3개 용기만; 아래 제품 설명 보호",
+      "precision": "scope_only_not_bbox_accuracy",
+      "approved_geometry": false
+    },
+    "basis": "원본 이미지 시각 재확인; GT/OCR 문자열로 경계 최적화하지 않음"
+  }
+]

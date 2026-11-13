@@ -1358,3 +1358,50 @@ def test_unverifiable_refresh_logout_store_outage(client, prov, rds, bind_presen
         assert _post(client, "/v1/auth/refresh", {"pxl_refresh": lost2}).status_code == 401
     else:
         _assert_refresh_invalid_response(r)
+
+
+# ═════════════════════════════ 간이 로그인 차단(U7) 환경 ═════════════════════════════
+
+@pytest.mark.parametrize("provider", ["kakao", "google"])
+def test_social_flow_unchanged_when_local_login_disabled(client, prov, rds, dburl, monkeypatch, provider):
+    """팀원용 session 환경(PIXLATE_AUTH_LOCAL_LOGIN=disabled)에서도 소셜 start → 완료 → refresh → logout 은 그대로이고,
+    같은 환경의 간이 로그인은 404 로 막혀 판매자 · 세션 · 쿠키를 만들지 않는다. 환경 변수는 monkeypatch 가 시험 뒤 되돌린다."""
+    import sqlalchemy as sa
+
+    from app.routers import auth as auth_router
+
+    monkeypatch.setenv("PIXLATE_AUTH_LOCAL_LOGIN", "disabled")
+    assert auth_router.local_login_enabled() is False  # disabled 가 실제로 적용됐는지
+
+    before = _sessions(rds)
+    email = f"u7-{uuid.uuid4().hex[:10]}@example.com"
+    blocked = _post(client, "/v1/auth/login", json={"email": email, "password": "x"})
+    assert blocked.status_code == 404 and _err(blocked)["code"] == "NOT_FOUND" and _no_cookies(blocked), blocked.text
+    eng = sa.create_engine(dburl)
+    try:
+        with eng.connect() as c:
+            assert c.execute(sa.text("SELECT count(*) FROM seller WHERE email = :e"), {"e": email}).scalar() == 0
+    finally:
+        eng.dispose()
+    assert _sessions(rds) == before
+
+    b = Browser(client, prov)
+    profile = _kakao(_uid()) if provider == "kakao" else _google(f"g-{uuid.uuid4().hex[:12]}")
+    done = b.login(provider, profile)
+    seller = done.json()["seller"]["id"]
+    assert b.refresh and len(_sessions(rds) - before) == 1
+    assert _me(client, done.json()["accessToken"]).json()["id"] == seller
+
+    rotated = _post(client, "/v1/auth/refresh", b.jar())
+    assert rotated.status_code == 200, rotated.text
+    old_refresh = b.refresh
+    b.absorb(rotated)
+    access = rotated.json()["accessToken"]
+    assert b.refresh and b.refresh != old_refresh
+    assert _me(client, access).json()["id"] == seller
+
+    last_refresh = b.refresh
+    assert b.logout(access).status_code == 204
+    assert _me(client, access).status_code == 401
+    assert _post(client, "/v1/auth/refresh", {"pxl_refresh": last_refresh}).status_code == 401
+    assert _sessions(rds) == before

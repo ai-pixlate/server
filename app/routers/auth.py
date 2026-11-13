@@ -14,6 +14,12 @@
 
 계정 식별(0016): 간이 로그인은 `auth_provider = 'local'` 계정만 찾고 만든다. 소셜 계정(카카오·Google — 제공자 + 회원번호로 식별)은
 이메일이 같아도 이 경로로 찾지 않는다. 이메일만으로 소셜 계정의 토큰을 받는 길을 막기 위해서다(PRD v3.5.10 F-ACC-05 ④).
+
+간이 로그인 환경별 차단(U7): 설정 PIXLATE_AUTH_LOCAL_LOGIN = enabled | disabled, 미설정 = enabled(기존 환경 호환).
+- disabled 면 `POST /auth/login` 은 404 NOT_FOUND — 새 간이 로그인 발급(판매자 생성·세션·refresh 쿠키)만 막는다.
+  라우트 의존성으로 본문 필드 검증보다 먼저 판정한다(빈 본문·필드 누락도 404). JSON 문법 오류는 본문 읽기 단계라 기존 422 그대로다.
+- 이미 발급된 세션(local 포함)·refresh·logout·me·소셜 로그인은 바꾸지 않는다(기존 local 세션 정리는 별도 운영 작업).
+- 그 밖의 값(빈 문자열 포함)은 이 모듈 import 때 오류 → API 기동 실패. 메시지에는 설정 이름과 허용 값만 싣고 입력값은 싣지 않는다.
 """
 import logging
 import os
@@ -34,6 +40,34 @@ router = APIRouter(tags=["Auth"])
 log = logging.getLogger("pixlate.auth")
 
 REFRESH_COOKIE = "pxl_refresh"
+
+LOCAL_LOGIN_ENV = "PIXLATE_AUTH_LOCAL_LOGIN"
+LOCAL_LOGIN_VALUES = ("enabled", "disabled")
+
+
+class LocalLoginConfigError(RuntimeError):
+    """PIXLATE_AUTH_LOCAL_LOGIN 값이 허용 값이 아님(빈 문자열 포함). 입력값은 메시지에 넣지 않는다."""
+
+
+def local_login_enabled() -> bool:
+    """간이 로그인(`POST /auth/login`) 허용 여부. 미설정 = enabled. 요청마다 읽는다(다른 인증 설정과 같은 방식)."""
+    raw = os.environ.get(LOCAL_LOGIN_ENV)
+    if raw is None or raw == "enabled":
+        return True
+    if raw == "disabled":
+        return False
+    raise LocalLoginConfigError(
+        f"{LOCAL_LOGIN_ENV} 설정 오류 — 허용 값: {' · '.join(LOCAL_LOGIN_VALUES)} (미설정 = enabled)"
+    )
+
+
+local_login_enabled()  # 시작 시 검증 — 잘못된 값이면 이 모듈을 불러오는 API 가 기동하지 않는다(워커는 이 모듈을 불러오지 않는다)
+
+
+def _require_local_login_enabled() -> None:
+    """disabled 환경에서 간이 로그인을 404 로 막는다. 라우트 의존성이라 본문 필드 검증·DB 연결보다 먼저 실행된다."""
+    if not local_login_enabled():
+        raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "not found"})
 
 
 def _cookie_path() -> str:
@@ -91,7 +125,8 @@ def _seller_by_id(db: Session, seller_id: int):
     ).mappings().first()
 
 
-@router.post("/auth/login", summary="API-AUTH-01 셀러 로그인/JWT 발급 (DB)")
+@router.post("/auth/login", summary="API-AUTH-01 셀러 로그인/JWT 발급 (DB)",
+             dependencies=[Depends(_require_local_login_enabled)])
 def login(body: LoginRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     email = body.email.strip().lower()
     if not email:

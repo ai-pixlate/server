@@ -66,6 +66,13 @@ def visible_sections(db: Session, job_id: int, *, include_only: bool = False) ->
     return [dict(r) for r in db.execute(text(sql), {"j": job_id}).mappings().all()]
 
 
+def has_source(source_ko: str | None) -> bool:
+    """원문이 있는 블록인가 — 렌더·번역 대상 판정(downstream._render_inputs · _translate_targets)과 같은 기준.
+    null 이거나 공백(줄바꿈·탭·전각 공백 포함)을 지우면 빈 문자열이면 빈 원문이다.
+    N5 블록 목록(blockList)과 content.csv(exportCreate)는 빈 원문 블록을 응답에서 뺀다. DB 행은 지우지 않는다 — 인페인팅 보호 영역으로 쓴다."""
+    return bool((source_ko or "").strip())
+
+
 def json_value(v: Any) -> Any:
     """psycopg 가 jsonb 를 이미 파싱하므로 문자열일 때만 읽는다."""
     return json.loads(v) if isinstance(v, str) else v

@@ -212,7 +212,7 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     일부 이미지를 읽지 못하면 성공분만 묶고 실패를 알린다(D9-3)."""
     import zipfile
 
-    from app.flows.common import VISIBLE
+    from app.flows.common import VISIBLE, has_source
     from app.storage import ObjectMissing, get_store
 
     _require_job_owned(db, job_id, seller_id)
@@ -239,6 +239,7 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
             ),
             {"j": job_id},
         ).mappings().all()
+        blocks = [b for b in blocks if has_source(b["source_ko"])]  # 빈 원문 블록은 행으로 내보내지 않는다(blockList 와 같은 기준)
         buf = io.StringIO()
         w = csv.writer(buf)
         w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1", "layout_x", "layout_y", "layout_w", "layout_h", "font_scale"])

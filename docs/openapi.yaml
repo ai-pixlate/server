@@ -55,12 +55,12 @@ info:
     - **Base-path**: 경로는 접두어 없는 상대경로(`/auth/login`). 버전·호스트는 `servers`에서만 선언(`/v1`).
     - **인증**: `bearerAuth`(JWT access) 전역 적용. refresh 토큰은 httpOnly 쿠키로만 오간다(요청 바디 금지).
       `/auth/refresh`·`/auth/logout`은 쿠키 기반(+ CSRF 헤더 `X-Requested-With`). `/admin/**`은 역할 권한(403).
-    - **로그인 세션** [**정본 변경** — 인벤토리 v3.4.2 AUTH-02의 「refresh 서버 상태 없음」을 바꾼다 · 2026-11-10 2차 시연용 인증 구현 방향 결정(BE·사용자) · PM 회신만으로 확정된 것이 아님 · 구현 완료·서버 배포 대기]
+    - **로그인 세션** [**정본 변경** — 인벤토리 v3.4.2 AUTH-02의 「refresh 서버 상태 없음」을 바꾼다 · 2026-11-10 2차 시연용 인증 구현 방향 결정(BE·사용자) · PM 회신만으로 확정된 것이 아님 · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증]
       로그인마다 서버 세션(Redis)을 만들고, access는 그 세션에 묶인다. 요청마다 세션이 살아 있는지 확인하므로 로그아웃·만료된 세션의 access는 남은 수명과 관계없이 다음 요청부터 401이다.
       만료: 비활성 7일 · 최초 로그인 후 최대 30일(PM 11-09). **활동 = 로그인과 유효한 refresh 성공뿐**이고 다른 API 요청은 활동이 아니다(시연용 허용 — 실제 사용자 조작을 재는 정책과 다르며 운영 영구 정책이 아니다).
       access 수명은 서버 설정 `JWT_TTL`(초)이 정하고 **설정이 없을 때 기본 15분**이다(배포 환경 값 확인 전에는 「항상 15분」이 아니다). 어느 값이든 세션의 30일 기한을 넘지 않는다. 세션 없는 이전 형식 access(세션 도입 전 발급)는 401 `UNAUTHORIZED`(`invalid_token`) — 배포 뒤 기존 로그인은 다시 로그인한다.
       세션 저장소 장애는 인증 만료와 구분해 503 `SERVICE_UNAVAILABLE`(`retryable: true`, `details: null` — 사유 없음, FE 11-10 합의: 안내만, 자동 반복 없음)이다. 저장소 데이터가 유실되면 전원 다시 로그인한다.
-    - **소셜 로그인(카카오·Google)** [계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전 — develop 코드에는 아직 이 경로가 없다(C 미머지). 배포 서버의 상태는 이 문서가 확인한 것이 아니다]
+    - **소셜 로그인(카카오·Google)** [계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증]
       흐름: `POST /auth/social/{provider}/start` → 응답의 `authorizeUrl`로 이동 → 제공자가 FE 콜백 `/login/callback/{provider}`로 돌려보냄
       → FE가 `POST /auth/social {provider, code, state}` → access(본문) + refresh(쿠키 `pxl_refresh` — 「로그인 세션」과 같은 세션) → M1. 별도 가입 단계 없음(첫 로그인에 계정 생성).
       계정은 제공자 + 회원번호로 구분한다. 같은 이메일이어도 제공자가 다르면 다른 계정이다.
@@ -73,7 +73,9 @@ info:
       한 브라우저 한 세션 교체와 로그아웃 뒤 늦게 끝난 완료의 차단도 같은 상태(계약 확정 · C 구현·대역 시험 완료 · 연동 검증 전)다. 서버가 이를 지키는 방법(원자 처리 등)은 공개 계약이 아니다.
       **서버 내부 설정값(공개 계약 아님)**: 로그인 시도 수명(C 초기 기본값 10분)·시도 점유 상한(C 초기 기본값 60초). 실제 제공자 인가 코드 유효 시간·외부 호출 timeout과 대조해 C에서 검증하며 바뀔 수 있다.
       FE는 이 값을 대기 시간으로 쓰지 않는다 — 기다림은 FE 자신의 요청 timeout·대기 종료 처리로 끝낸다(refresh의 대기 2초·잠금 10초와도 별개).
-      개발용 이메일 간이 로그인(`authLogin`)은 환경별 FE 전환·검증 뒤 끈다(환경마다 따로).
+      개발용 이메일 간이 로그인(`authLogin`)은 환경별 FE 전환·검증 뒤 끈다(환경마다 따로). 서버 설정 `PIXLATE_AUTH_LOCAL_LOGIN` = `enabled`·`disabled`(미설정 = `enabled`)이고,
+      `disabled`인 환경에서는 authLogin이 404 `NOT_FOUND`다(새 간이 로그인 발급만 막는다 — 이미 발급된 세션·refresh·로그아웃·소셜 로그인은 그대로).
+      팀원용 session 환경은 `disabled`를 명시하고 외부 공개 전에 실제 차단을 확인한다. [간이 로그인 차단(U7) · 구현(`fix/auth-local-login-gate`) · dev 환경 미적용]
     - **소유 검증**: 남의 `/jobs/{jobId}/**`·`/brands/{brandId}/**` 접근은 존재 은닉 위해 **404 NOT_FOUND**.
     - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
     - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
@@ -88,7 +90,7 @@ servers:
 
 tags:
   - name: G1 Auth
-    description: 'G1 로그인·회원가입 — 계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜 로그인은 2차 계약 확정 · 서버 구현 대기)'
+    description: 'G1 로그인·회원가입 — 계정·인증·동의 (F-ACC) · 🟢9월 (AUTH-06 소셜 로그인 — BE 병합·dev 배포 완료 · 실제 제공자·배포 HTTPS 미검증)'
   - name: M2 Brand
     description: 'M2 브랜드 정보 — 브랜드·로고 (F-BRD) · 🟢9월'
   - name: N1 Source
@@ -493,7 +495,7 @@ components:
                 reason은 리소스 종류만 나타낸다 — 없는 리소스와 남의 리소스는 같은 응답이다(존재 은닉). 없는 task의 NOT_FOUND와 정의되지 않은 경로의 404에는 reason이 없다.
                 UNAUTHORIZED `invalid_token` → 토큰 형식·서명 오류(토큰 없음은 reason 없음).
                 RETRY_NOT_ALLOWED `retry_limit_exceeded` → 재시도 한도 초과(0008 이전 실행 행). 현행 실행의 한도 초과는 reason 없는 RETRY_NOT_ALLOWED다.
-                [소셜 로그인 · 계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전] **인증 사유** — `error.code`는 15종 공통 코드이고 `details.reason`은 그 안의 구분이다(새 `error.code`를 만들지 않는다).
+                [소셜 로그인 · 계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] **인증 사유** — `error.code`는 15종 공통 코드이고 `details.reason`은 그 안의 구분이다(새 `error.code`를 만들지 않는다).
                 UNAUTHORIZED `state_invalid` → 로그인 시도 없음·만료·이미 사용·state 불일치·로그아웃 전 시작 시도 — 처음부터 다시 로그인 /
                 UNAUTHORIZED `provider_auth_failed` → 제공자가 코드를 거절했거나 회원 확인 실패 — 인증 실패 안내 /
                 UNAUTHORIZED `origin_not_allowed` → Origin이 허용 목록 밖 — 안내만, 자동 재시도 없음(refresh·로그아웃과 같은 값) /
@@ -668,10 +670,10 @@ components:
           type: [string, 'null']
           format: email
           description: >
-            [PRD v3.5.10 F-ACC-05 · FE 회신 11-09(타입 `string | null` 수용) · 구현 완료·서버 배포 대기] null 일 수 있다.
+            [PRD v3.5.10 F-ACC-05 · FE 회신 11-09(타입 `string | null` 수용) · BE 병합·dev 배포 완료(release/1.1.0)] null 일 수 있다.
             계정은 이메일이 아니라 제공자 + 제공자 회원번호로 구분하며, 같은 이메일이어도 제공자가 다르면 다른 계정이다 — 이메일은 계정 확인·서비스 안내용이고 로그인 식별에 쓰지 않는다.
             소셜 계정은 제공자에게서 확인된 이메일을 받지 못하면 null 이다(서버가 값을 만들지 않는다). 어떤 제공자 응답을 확인된 이메일로 볼지와 재로그인 때의 갱신 규칙은 서버 내부 규칙이다(응답 타입은 `string | null` 그대로).
-            이메일 간이 로그인(authLogin — 개발용, 정식 로그인 아님)이 돌려주는 계정은 늘 이메일이 있다. 소셜 로그인은 authSocialStart·authSocial(계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전).
+            이메일 간이 로그인(authLogin — 개발용, 정식 로그인 아님)이 돌려주는 계정은 늘 이메일이 있다. 소셜 로그인은 authSocialStart·authSocial(계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증).
         accountType: { type: string, enum: [individual, business] }
         createdAt: { type: string, format: date-time }
     ConsentRequest:
@@ -1615,13 +1617,13 @@ components:
     SocialStartResponse:
       type: object
       required: [authorizeUrl]
-      description: '[계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전] 제공자 인가 주소. FE는 이 주소로 이동만 한다(값을 고치지 않는다).'
+      description: '[계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] 제공자 인가 주소. FE는 이 주소로 이동만 한다(값을 고치지 않는다).'
       properties:
         authorizeUrl: { type: string, format: uri }
     SocialLoginRequest:
       type: object
       required: [provider, code, state]
-      description: '[계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전] 콜백에서 받은 값 그대로.'
+      description: '[계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] 콜백에서 받은 값 그대로.'
       properties:
         provider: { type: string, enum: [kakao, google] }
         code: { type: string, minLength: 1 }
@@ -1645,6 +1647,9 @@ paths:
         요청에 이 브라우저의 유효한 refresh 쿠키가 실려 오면 새 세션 생성과 함께(한 번에) 그 이전 세션을 폐기한다(BE 구현 선택 — 그 계정의 다른 브라우저·기기 세션은 그대로).
         한계(개발용): 같은 이전 쿠키로 로그인 두 건이 겹치면 새 세션이 둘 남는다 — 「한 브라우저 한 세션」을 서버가 완전히 보장하지 않는다.
         세션 저장소 장애면 503(세션·쿠키를 만들지 않는다).
+        [간이 로그인 차단(U7) · 구현(`fix/auth-local-login-gate`) · dev 환경 미적용] 서버 설정 `PIXLATE_AUTH_LOCAL_LOGIN`이 `disabled`인 환경에서는 404 `NOT_FOUND`(`details: null`)다 —
+        본문 필드 검증보다 먼저 판정한다(빈 본문·필드 누락도 404, JSON 문법 오류는 기존 422). 판매자·세션·refresh 쿠키를 만들지 않고, 요청에 실린 이전 쿠키의 세션도 폐기하지 않는다.
+        미설정 = `enabled`(기존 동작). 허용 값 밖(빈 문자열 포함)이면 서버가 기동하지 않는다(설정 오류).
       security: []
       requestBody:
         required: true
@@ -1659,6 +1664,11 @@ paths:
               schema: { $ref: '#/components/schemas/LoginResponse' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '404':
+          description: '`NOT_FOUND`(`details: null`) — 이 환경에서 간이 로그인을 끔(`PIXLATE_AUTH_LOCAL_LOGIN=disabled`). 판매자·세션·쿠키를 만들지 않는다.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /auth/refresh:
     post:
       tags: [G1 Auth]
@@ -1668,7 +1678,7 @@ paths:
       x-source: API-AUTH-02
       description: >
         쿠키의 refresh로 검증(+ CSRF 헤더 X-Requested-With). 바디 없음. 새 access 발급 + refresh 회전. 🟢9월.
-        [정본 변경(공통 규칙 「로그인 세션」) · 구현 완료·서버 배포 대기] 회전은 원자적이다 — 같은 refresh의 동시 요청은 정확히 하나만 성공한다.
+        [정본 변경(공통 규칙 「로그인 세션」) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] 회전은 원자적이다 — 같은 refresh의 동시 요청은 정확히 하나만 성공한다.
         **성공만** 세션의 활동 시각을 갱신해 비활성 기한을 다시 7일로 한다. 최초 로그인 시각·30일 기한은 늘지 않는다. 새 쿠키의 `Max-Age`는 남은 30일 기한이다.
         거절은 모두 401 `UNAUTHORIZED` + `details.reason`이고 **Set-Cookie가 없다**(늦게 도착한 거절이 새 쿠키를 지우지 않는다). 거절은 기한을 늘리지 않는다.
         - `refresh_rotated`: 직전 refresh가 회전 뒤 30초 안에 다시 옴(경합·응답 유실). 세션은 그대로.
@@ -1717,7 +1727,7 @@ paths:
       x-source: API-AUTH-03
       description: >
         access 무효화(캐시) + refresh 쿠키 삭제. 쿠키 기반(+ CSRF 헤더). 🟢9월.
-        [정본 변경(공통 규칙 「로그인 세션」) · 구현 완료·서버 배포 대기] 「access 무효화 캐시」 대신 세션을 폐기한다 — 그 세션의 access·refresh 모두 다음 요청부터 401.
+        [정본 변경(공통 규칙 「로그인 세션」) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] 「access 무효화 캐시」 대신 세션을 폐기한다 — 그 세션의 access·refresh 모두 다음 요청부터 401.
         요청의 자격이 가리키는 **살아 있는 세션만** 폐기하고 refresh 쿠키를 지운다(204). 검증하지 않은 값으로는 어떤 세션도 폐기하지 않으며, 계정의 다른 브라우저·기기 세션은 건드리지 않는다.
         자격 분류: Bearer = 서명이 맞으면 그 세션(만료 시각은 보지 않는다). 쿠키 = 서명이 맞으면 **세대와 관계없이** 그 세션(현재·직전·더 오래된 세대 — 서명에 세션·세대가 묶여 있다).
         **유효한 refresh 쿠키만으로 로그아웃할 수 있다**(계약 — FE 11-10 요청·사용자 결정: 브라우저 재시작 뒤 access가 없어도 「로그아웃 대기」를 끝내기 위해). Origin·CSRF 검사는 같다.
@@ -1805,7 +1815,7 @@ paths:
       x-screen: 'G1'
       x-source: API-AUTH-06
       description: >
-        [계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전] 공통 규칙 「소셜 로그인」을 따른다.
+        [계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] 공통 규칙 「소셜 로그인」을 따른다.
         로그인 시도를 만들고 제공자 인가 주소를 돌려준다. 바디 없음. FE는 `authorizeUrl`로 이동만 한다(`window.location.assign`, 값을 고치지 않는다).
         서버는 시도마다 state · PKCE(S256, verifier는 서버 보관) · (Google) nonce를 만들고, 이 브라우저에 로그인 시도 쿠키(HttpOnly, Path=/auth, 수명 = 서버의 로그인 시도 수명)를 둔다 — FE는 이 쿠키를 읽거나 만들지 않는다.
         `authorizeUrl`의 `redirect_uri`는 환경별 FE 콜백 주소(`<FE 오리진>/login/callback/{provider}`)이며, 콘솔 등록 값·토큰 교환 값과 같다.
@@ -1876,7 +1886,7 @@ paths:
       x-screen: 'G1'
       x-source: API-AUTH-06
       description: >
-        [계약 확정(PM 11-09·11-10 · FE 11-10) · 구현·대역 시험 완료(C `feature/auth-social` · develop 미머지) · 서버 배포 전] 공통 규칙 「소셜 로그인」을 따른다.
+        [계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] 공통 규칙 「소셜 로그인」을 따른다.
         FE 콜백 페이지가 제공자에게서 받은 `code`·`state`를 그대로 넘긴다. **한 시도에 한 번만** 보낸다.
         `access_denied` 등 제공자 오류로 돌아온 경우에는 이 API를 부르지 않는다(G1에서 취소·재시도 안내).
         서버: 로그인 시도 쿠키·state 확인 → 시도 점유(한 번만) → 코드 교환(PKCE · redirect_uri 같은 값)

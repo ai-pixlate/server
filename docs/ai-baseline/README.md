@@ -29,7 +29,7 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 4 | [evaluation.md](protocols/v1/evaluation.md) | 체크포인트·실패와 심각도·판정 기준·Codex 평가 및 사람 검수 |
 | 5 | [aggregation.md](protocols/v1/aggregation.md) | AI 파이프라인 평가 지표 3개 그룹·공통 결함 분석·파생 분석의 계산·예외·비교 |
 | 6 | [execution.md](protocols/v1/execution.md) | 실행 환경·입력·비용 승인·보관 원칙·후속 실행 설계 제안 |
-| OCR 평가 | [ocr.md](protocols/v1/ocr.md) | OCR01 텍스트 CER v4·OCR02 보류·텍스트 동결 설계 |
+| OCR 평가 | [ocr-current.md](protocols/v1/ocr-current.md) | OCR01 v6 고정 부분 CER·v4/v5 이력·OCR02 보류 |
 | OCR 자료 점검 | [ocr-preflight.md](ocr-preflight.md) | 12개 정답 초안·입력 해시·최초 OCR 출력 재사용 가능 범위·후속 작업 |
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |
@@ -41,3 +41,7 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 비용이 발생하는 모델 호출은 [사전 예산 승인](protocols/v1/execution.md#ai-실행자의-사전-예산-승인)을 따른다. 문서 검토·승인만으로 사전 점검·제품 생성·실측을 허용하지 않는다.
 
 예상 비용과 실행 준비 2단계 현황은 [비용 산정안](cost-estimate.md)을 참조한다. PM 비용 승인·부담은 합의 완료이며, 실제 실행 범위·상한은 사용자 승인 전이다.
+
+## OCR v6 최종 기준선
+
+[지표 개편·OCR 평가 최종 정리](ocr-baseline-summary.md): v1.0.1 고정 105개 부분 CER **3.49% (584/16,742자)**, 정책상 제외 4개·고정 undetermined 3개. 이전 v4/v5 대비 OCR 모델 성능 개선으로 해석하지 않는다.

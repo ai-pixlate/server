@@ -1,0 +1,4056 @@
+{
+  "cer_calculated": false,
+  "sections": [
+    {
+      "id": "GS-01_001__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "f2b4e45d06a3dcb2d2bc671def80c5d6fd442dc6ddb0d569470faab4b0c289c8",
+      "input_sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+      "provenance": {
+        "id": "GS-01_001__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_1_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:3:2026-10-30T00:26:59.609364+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_001__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 3,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "beb7b19c1dd1ef814bb902e1178bbae691002e8bd03681778bccb6a48cb0d827",
+      "input_sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+      "provenance": {
+        "id": "GS-01_002__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:6:2026-10-30T00:30:42.993859+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 6,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "5bf0fc8e4f93de018f6ff27558f52c9ecc030f576ddfe1f01bf2722659be1d77",
+      "input_sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+      "provenance": {
+        "id": "GS-01_002__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:8:2026-10-30T00:31:29.789008+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 8,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "09baa52d6ff797d4f862a7b59cad9fa3c44f1da98a04267e61e94437f9313c4e",
+      "input_sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+      "provenance": {
+        "id": "GS-01_002__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:10:2026-10-30T00:31:50.811471+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 10,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_04",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "484fb2faa70c2fcfbc26b85853fe396d44986457f3ebaf1c34968deb8a9623b6",
+      "input_sha256": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c",
+      "provenance": {
+        "id": "GS-01_002__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_04",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:12:2026-10-30T00:32:06.256259+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_04"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 12,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_05",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "c73dcf1181b62e8dbcdc9978e5ce7fdfa577b35fc23938046590f0bec3481c6e",
+      "input_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+      "provenance": {
+        "id": "GS-01_002__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_05",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:14:2026-10-30T00:33:06.717819+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_05"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 14,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_06",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "20f6fa549e5fc8f582eca8575502d7a62d8b5dadbe3ab278889e386f64f7208f",
+      "input_sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+      "provenance": {
+        "id": "GS-01_002__sec_1_06",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_06",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:16:2026-10-30T00:33:29.945152+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_06"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 16,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_07",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "8b4579a16d11b2b325de1e5a0ae95e27bf25782b3bb4323f78034aaa98ca75da",
+      "input_sha256": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f",
+      "provenance": {
+        "id": "GS-01_002__sec_1_07",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_07",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:18:2026-10-30T00:34:38.242551+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_07"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 18,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_08",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "550bd3ecfe26de5a8b7aa12c6cd6a5ecf5048d9d74d0ffdebc4cb4e797ff5535",
+      "input_sha256": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb",
+      "provenance": {
+        "id": "GS-01_002__sec_1_08",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_08",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:20:2026-10-30T00:34:49.017482+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_08"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 20,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_09",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "6ab69a5ed1cbbde66eb8b719af7d104a4cd7a7d21448b5180d86486056489697",
+      "input_sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+      "provenance": {
+        "id": "GS-01_002__sec_1_09",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_09",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:22:2026-10-30T00:35:45.925411+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_09"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 22,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_10",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b59f20105dfb895c876db337c87a8f269041807dcbcce1e6ed33a3e10843ac82",
+      "input_sha256": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae",
+      "provenance": {
+        "id": "GS-01_002__sec_1_10",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_10",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:24:2026-10-30T00:36:09.734689+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_10"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 24,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_11",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "84ab4f9c72a425d502d8e1c83138900e094a090464759eb39255399822fb1e2e",
+      "input_sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+      "provenance": {
+        "id": "GS-01_002__sec_1_11",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_11",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:26:2026-10-30T00:36:31.676200+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_11"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 26,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_12",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "0fbb92898601c0abafec2c441160d1f388b2db7ba29d4c5aa43fe5a59189ec91",
+      "input_sha256": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192",
+      "provenance": {
+        "id": "GS-01_002__sec_1_12",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_12",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:28:2026-10-30T00:37:02.555614+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_12"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 28,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_13",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "4cad9e337388551968cadc6367c0a1a357af0a90ce240a8eaf8e2c8ed8452a5a",
+      "input_sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+      "provenance": {
+        "id": "GS-01_002__sec_1_13",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_13",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:30:2026-10-30T00:37:42.357626+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_13"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 30,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_14",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b8cfaa49d9c1d3957567c57bcb87887c2dffcdabb803978653173c0d6d8cef31",
+      "input_sha256": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3",
+      "provenance": {
+        "id": "GS-01_002__sec_1_14",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_14",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:32:2026-10-30T00:38:17.436924+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_14"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 32,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_15",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "89b0a33d7579efc90ed1ef3301f684f7c42a1150c768e06e5a974221ce9b7feb",
+      "input_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+      "provenance": {
+        "id": "GS-01_002__sec_1_15",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_15",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:34:2026-10-30T00:38:42.363983+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_15"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 34,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_16",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b4112e4f18cd9ee60058176370947c4a6021203a789a07a2179ef159d5b74f0b",
+      "input_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+      "provenance": {
+        "id": "GS-01_002__sec_1_16",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_16",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:36:2026-10-30T00:39:27.576140+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_16"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 36,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_17",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "30fa06adf0e4d973232cb3b7c410714bad75c0e988457425386f150c6fb54478",
+      "input_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+      "provenance": {
+        "id": "GS-01_002__sec_1_17",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_17",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:38:2026-10-30T00:39:44.675286+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_17"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 38,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_18",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "75c063e29125222efffeccee1016ebb20eefd6ae3b3969c418700bc3d5ed5dce",
+      "input_sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+      "provenance": {
+        "id": "GS-01_002__sec_1_18",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_18",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:40:2026-10-30T00:40:27.459403+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_18"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 40,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_19",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "976c609cbcc6515fe391827e42bb82af9c624279e54027caf0e9a1d07b430901",
+      "input_sha256": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166",
+      "provenance": {
+        "id": "GS-01_002__sec_1_19",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_19",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:42:2026-10-30T00:41:06.350514+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_19"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 42,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_20",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "e3b65e8a58a9c3289438e65065f0c0b300c6db08fbcf0722f865a94b1656cfe7",
+      "input_sha256": "8b5a7ed33a648ed81538e1bc9e67aad801910084b4ccbc68cdfeea357a8b41f0",
+      "provenance": {
+        "id": "GS-01_002__sec_1_20",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-01_002__sec_1_21",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "1b3f1c1f4c668dca7fbc9e616e5d5536e9e56ef0b33ad3ff1bb871af17e1511c",
+      "input_sha256": "1ba30932fb8a7440cd7399eefa36ce63b086f486c6357f2e769483e7d4d7af65",
+      "provenance": {
+        "id": "GS-01_002__sec_1_21",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-01_002__sec_1_22",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "69252d6bd9c0c0b7b7838906b0c04cd0a3cccc822c609532c89ed0f068b20cc6",
+      "input_sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+      "provenance": {
+        "id": "GS-01_002__sec_1_22",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_21",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:46:2026-10-30T00:42:04.743472+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_22"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 46,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_23",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "457daef6490cb5e8edfd0d64e0ca3494e71e631573fe4cbfb2e852267a6f4955",
+      "input_sha256": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+      "provenance": {
+        "id": "GS-01_002__sec_1_23",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_22",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:48:2026-10-30T00:42:46.441637+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_23"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 48,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-01_002__sec_1_24",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "d91c901a20c64be96a1548bade73b2863241b948629ee25ed0724ed0da1b5432",
+      "input_sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+      "provenance": {
+        "id": "GS-01_002__sec_1_24",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_2_23",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:50:2026-10-30T00:43:39.598954+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-01_002__sec_1_24"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 50,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "9c8ffb689a8dfd787409cd0f617fbc2fa0a4215e2775c624366ea58970ca957d",
+      "input_sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+      "provenance": {
+        "id": "GS-02_001__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_3_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:166:2026-10-30T01:06:28.556204+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_001__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 166,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "72d2845e9d9675ad09749432c072f0061732f310e3a6b6b739e9051f13f3cedb",
+      "input_sha256": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df",
+      "provenance": {
+        "id": "GS-02_001__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_3_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:168:2026-10-30T01:06:44.618184+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_001__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 168,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "9ef49ff7df8fe87ebbf2900f56abdce42dc2a879df5dded835417b43d6c2de19",
+      "input_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+      "provenance": {
+        "id": "GS-02_001__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_3_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:170:2026-10-30T01:06:56.888620+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_001__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 170,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_001__sec_1_04",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "aee3f12678eff8db6f358bcd50b904b0739c32c07b2b4cd677eb87ff1ed79db3",
+      "input_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+      "provenance": {
+        "id": "GS-02_001__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_3_04",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:172:2026-10-30T01:07:56.430161+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_001__sec_1_04"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 172,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "f2e4b28ed2cf223132a67fc3cc4fb3c308d4ad7d49da963eab186dbfacc3155a",
+      "input_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+      "provenance": {
+        "id": "GS-02_002__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_4_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:175:2026-10-30T01:08:56.407540+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_002__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 175,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_003__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "25cf320137b9732c20a415f8d21e66e1497c43a799e54e40376ef2705cb97fa1",
+      "input_sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+      "provenance": {
+        "id": "GS-02_003__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_5_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:178:2026-10-30T01:09:40.024018+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_003__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 178,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_004__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "0f0f159dcf3ea01f06f046ea131a7c857cdabce8c1479aec52c1d542bd820406",
+      "input_sha256": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212",
+      "provenance": {
+        "id": "GS-02_004__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_6_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:181:2026-10-30T01:10:03.133677+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_004__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 181,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_004__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "d081d66f9b4c343a153e55c5a1111733cd78b9ec424eaf26a0c9e77d49d86f6e",
+      "input_sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+      "provenance": {
+        "id": "GS-02_004__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_6_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:183:2026-10-30T01:10:57.505298+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_004__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 183,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_005__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "5f8a8cc04ab6154a42a9ac8db35eab18463b9ad60615f1db7db32a457cf14db4",
+      "input_sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+      "provenance": {
+        "id": "GS-02_005__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_7_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:186:2026-10-30T01:11:05.416137+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_005__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 186,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_006__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "8a0cda6847c5bb86c9ab5d7e81598ad25634e7cf4cd374ef4a77620fbe9cb46d",
+      "input_sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+      "provenance": {
+        "id": "GS-02_006__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_8_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:189:2026-10-30T01:11:38.915117+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_006__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 189,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_006__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "5bb5ab36cf9b7385319677bff7dc36f523ca3a7713910848ccbd792d0e252d3d",
+      "input_sha256": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9",
+      "provenance": {
+        "id": "GS-02_006__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_8_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:191:2026-10-30T01:11:57.209360+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_006__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 191,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_006__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ab6d61b3d6e7cd41953f7641a3bf635d8b071e09814fe1b7ae5504ad73bea4dc",
+      "input_sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+      "provenance": {
+        "id": "GS-02_006__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_8_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:193:2026-10-30T01:12:17.118090+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_006__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 193,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_007__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "f2684b148c6ae029f534289ae7e0bb0375273d4ad516b03fa7d18f7348494790",
+      "input_sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+      "provenance": {
+        "id": "GS-02_007__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_9_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:196:2026-10-30T01:12:42.564361+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_007__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 196,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_007__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ec2f735451e36325bc9d6798d47dd9f0b6f609374632540e97bf68d91b0c7975",
+      "input_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+      "provenance": {
+        "id": "GS-02_007__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_9_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:198:2026-10-30T01:12:50.028583+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_007__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 198,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_007__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ab68294eb5e0f3538a7f68dcd48cb812a2b8ae86c34845a27f92f1c72856b868",
+      "input_sha256": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2",
+      "provenance": {
+        "id": "GS-02_007__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_9_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:200:2026-10-30T01:13:24.450052+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_007__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 200,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_008__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "06aad31bf2d9cd9dbd93b2ca1f307e3da0decb7d7dd135caea7440394de36685",
+      "input_sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+      "provenance": {
+        "id": "GS-02_008__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_10_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:203:2026-10-30T01:14:46.106081+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_008__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 203,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_008__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "adb6e7be376537ab28e0b5f46a73fdb1e81d79a9359b89f294aec05be07f9198",
+      "input_sha256": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303",
+      "provenance": {
+        "id": "GS-02_008__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_10_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:205:2026-10-30T01:15:20.710054+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_008__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 205,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_008__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "3c7aa2ce6aee3cb64a1bf1972394aad3fe39ecb4e890cf598af9559154d4f17d",
+      "input_sha256": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216",
+      "provenance": {
+        "id": "GS-02_008__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_10_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:207:2026-10-30T01:15:38.552947+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_008__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 207,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_008__sec_1_04",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "3f5882848ac29899dae061d89c2d2f463fbd018006f7d465d3e619e198e2a5b9",
+      "input_sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+      "provenance": {
+        "id": "GS-02_008__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_10_04",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:209:2026-10-30T01:15:45.433294+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_008__sec_1_04"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 209,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_008__sec_1_05",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "9dafc9997ddc37aa949b01f14a93250ff25518ee80f2e8dfd439574534047cbe",
+      "input_sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+      "provenance": {
+        "id": "GS-02_008__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_10_05",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:211:2026-10-30T01:17:24.104474+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_008__sec_1_05"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 211,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_008__sec_1_06",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "80de6eac60af16025fae9abf032b01041ccee299a26ec2d2c64f078be55ebba0",
+      "input_sha256": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140",
+      "provenance": {
+        "id": "GS-02_008__sec_1_06",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_10_06",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:213:2026-10-30T01:17:50.986779+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_008__sec_1_06"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 213,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_009__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "3f2799d11037d4a9f1a5f6e2c76ef860e80d1de5944b968cdbd09222aa73ad0e",
+      "input_sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+      "provenance": {
+        "id": "GS-02_009__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_11_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:216:2026-10-30T01:18:41.005856+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_009__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 216,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_009__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "efd079d047421db5ada253ee56d20279d261299823b15db1eff451d4bca7c714",
+      "input_sha256": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024",
+      "provenance": {
+        "id": "GS-02_009__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_11_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:218:2026-10-30T01:19:05.874071+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_009__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 218,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_009__sec_1_03",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "8df89b04166fca25556ee5be7756fb7959e8cfb12fc0687b7a2f5ffdd314efe7",
+      "input_sha256": "126aa7f80fc02a6d80e7463ad253aa3fe83c6d08dbdfcc2cac578ad5c5ce3913",
+      "provenance": {
+        "id": "GS-02_009__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-02_009__sec_1_04",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b5d6d3cbae91c08dc80d0b055386d6d1d02482f784b6b513e31135011e61d79c",
+      "input_sha256": "39f9cfc72e5b380e743657b61cc802d9bd96be70bbd391462b70885a8145cf97",
+      "provenance": {
+        "id": "GS-02_009__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-02_009__sec_1_05",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ff25ac2cdddd5b6423563e4fec07b9c8d1d2311ba95baac7df38075ab9905904",
+      "input_sha256": "c0d4f35bbebac9a2eedd68a880d540dd3fb9607d4814eb54e470ffbdb6e82317",
+      "provenance": {
+        "id": "GS-02_009__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-02_009__sec_1_06",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "c18c1695acb60cfb7470a97948306cccffd598248b34eb71a9ae9a0ec6f4c6b9",
+      "input_sha256": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900",
+      "provenance": {
+        "id": "GS-02_009__sec_1_06",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_11_06",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:226:2026-10-30T01:20:56.925817+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_009__sec_1_06"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 226,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_009__sec_1_07",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "698a32f8bd9bc495a8d4cb6e4d5992e9bd6c0aec4c1c8e40ef5ba3bfa8643ea2",
+      "input_sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+      "provenance": {
+        "id": "GS-02_009__sec_1_07",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_11_07",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:228:2026-10-30T01:21:21.133354+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_009__sec_1_07"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 228,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_010__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "dc4b7d4e75cb5d01c4cd720f5b97c949c4ba76d54cb6fc8999b36834bc4043b1",
+      "input_sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+      "provenance": {
+        "id": "GS-02_010__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_12_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:231:2026-10-30T01:21:41.858070+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_010__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 231,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_010__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ae65890048d3b1a8ca4bc32e9b20957625ffa8c53bb37276275e7342f0f0cc2b",
+      "input_sha256": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2",
+      "provenance": {
+        "id": "GS-02_010__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_12_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:233:2026-10-30T01:21:48.445083+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_010__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 233,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_010__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "08174835a18c1387330be3e765e1f73b12782b993cf01b74813c9debb9e38d1d",
+      "input_sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+      "provenance": {
+        "id": "GS-02_010__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_12_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:235:2026-10-30T01:22:17.267150+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_010__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 235,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_011__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "2d2909fe07346307987a9e1e2845953af4817d5ef619fe2971524d9ee9bf6f32",
+      "input_sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+      "provenance": {
+        "id": "GS-02_011__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_13_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:238:2026-10-30T01:22:37.453913+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_011__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 238,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_011__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "4f0e65786f19c2ee23cc20781cc1db9ba804a3401bf1c8f99d4561488f40324c",
+      "input_sha256": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f",
+      "provenance": {
+        "id": "GS-02_011__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_13_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:240:2026-10-30T01:22:47.588552+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_011__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 240,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_011__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "71a7d320274fc101c7bca6d13a3acbf4b8b434f1af5b806e0308ba6c178f59cb",
+      "input_sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+      "provenance": {
+        "id": "GS-02_011__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_13_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:242:2026-10-30T01:23:15.857534+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_011__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 242,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_012__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "7c6cab71756af16880ba92b2676e9f5c812df1aa43274b4f68324ec88fb68e20",
+      "input_sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+      "provenance": {
+        "id": "GS-02_012__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_14_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:245:2026-10-30T01:23:23.899995+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_012__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 245,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_013__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "06c0ec8419bb3d02aca541c9ca830edeef8276a45c650e0ee40bfb8cb16e1ace",
+      "input_sha256": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389",
+      "provenance": {
+        "id": "GS-02_013__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_15_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:248:2026-10-30T01:23:41.438423+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_013__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 248,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_013__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ef567af48c39c338c2630298ff0f81b6eb9c3bf3ad520afe766802891d13a494",
+      "input_sha256": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0",
+      "provenance": {
+        "id": "GS-02_013__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_15_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:250:2026-10-30T01:24:04.404470+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_013__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 250,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_01",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "20884e1b6bc6902a7511a6e5b15e5ec8661351c459e840db787acb9dbc17c85b",
+      "input_sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+      "provenance": {
+        "id": "GS-02_014__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_01",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:253:2026-10-30T01:26:07.800485+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_01"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 253,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_02",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "2ce7d1dd52563d89014c4b9c839d11ef434b72719ae01f1f901af1d74428968e",
+      "input_sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+      "provenance": {
+        "id": "GS-02_014__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_02",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:255:2026-10-30T01:26:16.840551+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_02"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 255,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_03",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "9a336402361098d3551f063f4f8c8f88a5cc7b2247a4f24f2f1870fdbd9a7ae3",
+      "input_sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+      "provenance": {
+        "id": "GS-02_014__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_03",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:257:2026-10-30T01:26:36.181298+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_03"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 257,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_04",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "13547f7b60a1607a6376f82255d08d4d736e54efd9396317b9dcfd16d26d34cc",
+      "input_sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+      "provenance": {
+        "id": "GS-02_014__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_04",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:259:2026-10-30T01:26:55.349166+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_04"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 259,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_05",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b6bb660bd80597ce17ca67108fd1064567d7a6e6ff1008702308f0fce2dc7b67",
+      "input_sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+      "provenance": {
+        "id": "GS-02_014__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_05",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:261:2026-10-30T01:27:29.936048+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_05"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 261,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_06",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "222ba154d7ddd2c0d55ddfa4d49357c807ca580ce057eaa021d430fa58c1f342",
+      "input_sha256": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135",
+      "provenance": {
+        "id": "GS-02_014__sec_1_06",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_06",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:263:2026-10-30T01:28:03.074284+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_06"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 263,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_07",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "af2b9bb5a38c12a1f58484013e421f482b8c1804a8bd451707d70cc791ce2757",
+      "input_sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+      "provenance": {
+        "id": "GS-02_014__sec_1_07",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_07",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:265:2026-10-30T01:29:00.149814+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_07"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 265,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_08",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "24e46ce33bd773b0eea3b5ddcd4680a55b694547551bd3df7681556752e9d58d",
+      "input_sha256": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf",
+      "provenance": {
+        "id": "GS-02_014__sec_1_08",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_08",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:267:2026-10-30T01:29:09.284154+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_08"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 267,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "859c77e273f02de3f0e5e0c78ba53d0441ef7b5673f10d5f613df6de86ea1d1d",
+      "input_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+      "provenance": {
+        "id": "GS-02_014__sec_1_09",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_09",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:269:2026-10-30T01:29:36.607748+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_09"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 269,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_10",
+      "status": "ready",
+      "reason": "형식·해시 검증 완료; CER 미계산",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "f707a6edf097acf7e642db0296e247df9a0bc103a3004805561f9d1bae9bd138",
+      "input_sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+      "provenance": {
+        "id": "GS-02_014__sec_1_10",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "available",
+        "input_sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+        "boundary": "pipeline.stages.ocr.run:return",
+        "output_section_key": "sec_16_10",
+        "attempt_id": "baseline-v1-0-1-gs-v1-20261030-01:stages:271:2026-10-30T01:30:21.066430+00:00",
+        "evidence": {
+          "path": "linkage.json",
+          "sha256": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+          "locator": "GS-02_014__sec_1_10"
+        },
+        "output": {
+          "path": "../../../runs/baseline-v1-0-1-gs-v1-20261030-01/stages.jsonl",
+          "sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+          "line": 271,
+          "pointer": "/result"
+        }
+      },
+      "observed_hashes": {
+        "evidence": "e734d8bcf0f5499e0a331dbe43e7bd068dde8dda7a388caa989183fd78b965bb",
+        "output": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1"
+      }
+    },
+    {
+      "id": "GS-02_014__sec_1_11",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "4a387654b189a4318c84dcc71a79f8029884fbffa4c9473a7093322d1eae2fe0",
+      "input_sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d",
+      "provenance": {
+        "id": "GS-02_014__sec_1_11",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_001__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "05692fa7f075ca126c6ca5ff52151fa3186760b138829ac86806f24de9139f30",
+      "input_sha256": "de344705fe7be6e652358b4285fdf40e9dd0f2df249e18e3a67321ae264eb0c0",
+      "provenance": {
+        "id": "GS-03_001__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "21cab5e3e1af24872e0484842fe612e4b800d3f426052a896f91d56454a77436",
+      "input_sha256": "5470a91012da041f763291d45cae0be0785500576253e3802b7ef937364b985f",
+      "provenance": {
+        "id": "GS-03_002__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_02",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "e328fae3e183b0608d1c38fd35bc8c60a90d90b292200cadf320ff84a0d45c0b",
+      "input_sha256": "aca85d646e594955a1b2302c3f2148416a8229f299146d18cb273496ccfb136e",
+      "provenance": {
+        "id": "GS-03_002__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_03",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "f7d0455ebe7cda0daa6709cb5d461ca9d91445338ab68c34fadd13380e72eed3",
+      "input_sha256": "f8461d1c76042be7acdf6927eca093cc315ca45b339028105b7637979145a3ef",
+      "provenance": {
+        "id": "GS-03_002__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_04",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "f0972b138b1e8e53952f615ea0bf52efd604d9dfd86164a64dac6fa923ff3818",
+      "input_sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+      "provenance": {
+        "id": "GS-03_002__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_05",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "d960ad7fc2a4649c583da1d009d983831bae1a29d0dbad19c9f63b1ba245111f",
+      "input_sha256": "2858eb810c9ec6c152d6a17c0f18f543e218a3d2666f50a7a2e2356e8e0e4e70",
+      "provenance": {
+        "id": "GS-03_002__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_06",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b28c1e532fc047a0945e58e94fc3fc0b7be75ed510b7b4d35bb22b57f1526645",
+      "input_sha256": "6ce84c620bd3eaaf202abfba7c01ee28ebf1cf19376cb3b98d075e12596dc4ae",
+      "provenance": {
+        "id": "GS-03_002__sec_1_06",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_002__sec_1_07",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "51b780588612923d7bdf9703386a08cc0869d74919dbab3eb5c0c1af782170a9",
+      "input_sha256": "f21f7b01f14ed818325ab4a8275ce1afd233463188bf0dc2fa4601281a43145f",
+      "provenance": {
+        "id": "GS-03_002__sec_1_07",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_003__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "127da461979a32542effe9d3cb3a3510ffa3b80e09d381a548749ffa418cc988",
+      "input_sha256": "61b782edc765b9b9a50c654c8c331de78f2280425cb815806050d24f4e2b8b30",
+      "provenance": {
+        "id": "GS-03_003__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_004__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "cab48491efbe42e774c2673e456398a8716b74e086e80e9d4e081b135f9b643b",
+      "input_sha256": "53c256ff9fd36f0558c28a17b0dfa65453f6b7b8edbc6165d371c8151b82c731",
+      "provenance": {
+        "id": "GS-03_004__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_005__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "6493533a488a8fb937c1d18ff01658612dd84bcdd6cbe4950fe6045267270cae",
+      "input_sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b",
+      "provenance": {
+        "id": "GS-03_005__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_006__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "643428850f98ae3f863e4ee0494016bce9518b42442d30126e289163b9309768",
+      "input_sha256": "95077b17459c40d4b5990da6859f17fb0ec8b7ab1865f24c607ea774f3964c44",
+      "provenance": {
+        "id": "GS-03_006__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_007__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "9d8e235fdbec63d03c461edef82ae9766d11b290acbb6f27e4f469233856fd5a",
+      "input_sha256": "09995a2f9f6022f159065fe96b40f8b99960897c4a4d69abb961843d6f287ca7",
+      "provenance": {
+        "id": "GS-03_007__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_008__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "7b58a7a64cff1aa1523f0ad1ee6d41c8a19a5f59e809fbe81c5228a1312518b9",
+      "input_sha256": "e2a476ae35dae98333a3a85756b69b80badffb53e44d7e1f7a6ec7b8ef5ce14f",
+      "provenance": {
+        "id": "GS-03_008__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_008__sec_1_02",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "47195498b76afd9fc2af7da8867d082d797f5dfc885b606cc0f08aa0ffcfebf0",
+      "input_sha256": "f99f91e318632c62d84a6ef7a6163274185bc3323ebd122762da10a12e7d0880",
+      "provenance": {
+        "id": "GS-03_008__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_009__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "9701b13f2b435b9a51bc7aaa295208b9baf56c51de89df25ea1ff213484678f0",
+      "input_sha256": "bb2f1c7ecb7ad0c7c47897131b89984f9e237aa6c16992b08ce4c0356645202b",
+      "provenance": {
+        "id": "GS-03_009__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_010__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "6990c3695dd8032b8e434c813ded3267068f79e683f3a8f69ee741230ae6afe5",
+      "input_sha256": "580756cc6e7a024a7f559e4c234ed2aa7bc473b423861cd9458f15868c7ec983",
+      "provenance": {
+        "id": "GS-03_010__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_010__sec_1_02",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "b5d43fb057b0dcb78545b130b9baadfe58251100dee45aad9a033688b6f45976",
+      "input_sha256": "f01aef4d5608979b8b1db38c72c9561afd70059f0932ecbc2163c0a793748b4b",
+      "provenance": {
+        "id": "GS-03_010__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_010__sec_1_03",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "2ec054fd3501bf8d50056780217673eaa21f2f216d5c44d56edf34d29719c9cb",
+      "input_sha256": "175191fee359ed1fcc0b1afdd07bf22eebc61fbb024f18429fc3795fcc0f217c",
+      "provenance": {
+        "id": "GS-03_010__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_011__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "6b051369833b3d3e16f6a4194f70e43ab872a9fa35f93f446378ee662fe0ef7f",
+      "input_sha256": "37d5857f6c90cd7b58b4467bf90dfd9ee31beb65a4fdbf02a104e90210d4fdea",
+      "provenance": {
+        "id": "GS-03_011__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_012__sec_1_01",
+      "status": "undetermined",
+      "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ed97f4f8032b179d683ad12429605e28f548ececcb6839d3746bb2c6403ae982",
+      "input_sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de",
+      "provenance": {
+        "id": "GS-03_012__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "undetermined",
+        "reason": "후보 출력 존재; 실행 입력 바이트 동일성/시도 선택 미확인"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_013__sec_1_01",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "8d638dd5b4dab5183a1819da03a167cd0ee42fee8943fca732de0e60d1cde7e5",
+      "input_sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b",
+      "provenance": {
+        "id": "GS-03_013__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_014__sec_1_01",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "882924ec1f162e6bb36312c6ad9aec44139bfedad9b88da14ccb396971a32be3",
+      "input_sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+      "provenance": {
+        "id": "GS-03_014__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_014__sec_1_02",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "1d5571506a3877a4f856142c2eb8e93c6826541917e30985bfcc09e0deb654ec",
+      "input_sha256": "7b53f338648a1d30b82105ab38c8c4259a143cc9687c19865aeb9a8f89a9db2e",
+      "provenance": {
+        "id": "GS-03_014__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_014__sec_1_03",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "3b518a43661cab4468254400784d9bff1dc061375d09956c95167ac86ed0c456",
+      "input_sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2",
+      "provenance": {
+        "id": "GS-03_014__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_015__sec_1_01",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "58277da5a0617b6a60d7977478ea24b216220509065b1c5a84811faa8d101912",
+      "input_sha256": "a86672e4ab5f6244cb4138596f2a2c00de08a6c78e2c493ec29b1b93f98fa4b9",
+      "provenance": {
+        "id": "GS-03_015__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_016__sec_1_01",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "240f6c4c4fbf4e5d2a061ae89a00659dcaeebd24d02cb1523424145d61518c80",
+      "input_sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4",
+      "provenance": {
+        "id": "GS-03_016__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_017__sec_1_01",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "5f387d910601ee069bdb0b0c3a94b48777ec9745d94804f9afd3aec504b76cc4",
+      "input_sha256": "dacea444c9853e23c3fa09504513a86bad73ac5d2dc10a140578d09ee958b032",
+      "provenance": {
+        "id": "GS-03_017__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_01",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "62b35aa025f03a605c7112865f878410fd174a8adc364e33399d0d50eaff7a54",
+      "input_sha256": "00a2c9bfdfbfd679e2f201b1e5456bebe77f89a55e2ada13be235d9f17c27abe",
+      "provenance": {
+        "id": "GS-03_018__sec_1_01",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_02",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "c7359c4568f5117e0568003f246c45e7fb385b1a856a72aa36416706a57b51f2",
+      "input_sha256": "5e742d34922941547603e88531af546d9728f23a92fa0941f082f2b5a0a8adf4",
+      "provenance": {
+        "id": "GS-03_018__sec_1_02",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_03",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "0902cb288bb65dd91730dbacd46cc087a8243c5ba1210da17736dec3b419e47f",
+      "input_sha256": "62af86c714c4977bd07088824062ac523850775bfad945447c5b167fa8a031a9",
+      "provenance": {
+        "id": "GS-03_018__sec_1_03",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_04",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "e0cf764e0453e89ca302bd7518044318a7d0ab9eef2ca47d1155db5640ef2ade",
+      "input_sha256": "5de0e3566d2345081b1487e031576aa71aa8d00e3486f10fdd3acf6b49efe167",
+      "provenance": {
+        "id": "GS-03_018__sec_1_04",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_05",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "7833b98172e5c56f99970be876592cf408b4e15a6422db3fd7cdacd338746389",
+      "input_sha256": "fbc50ce42b261752db0536d9e62ee292dbfed642e36b12325a76ed3f9ec53caa",
+      "provenance": {
+        "id": "GS-03_018__sec_1_05",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_06",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "0e2ae94cc4d24473c04078487f0f9269c1dafe844624177082cf02f61c6395fc",
+      "input_sha256": "5024e9f79b078992426c96cb2da8e817f0d844104c44f119502dbaf75a7d117c",
+      "provenance": {
+        "id": "GS-03_018__sec_1_06",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_07",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "1fd0991033dc699e73086477e7a3b4f1ae5d249e89f659de3b3d71d4016e243a",
+      "input_sha256": "00da1632cf5265828ee7065d08470a689709f514ff345c391ef19f1706bab416",
+      "provenance": {
+        "id": "GS-03_018__sec_1_07",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_08",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "ab3b12db6ded40ba76240692e5af8c96dba0082911495a8ddd76c2e98127e35a",
+      "input_sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+      "provenance": {
+        "id": "GS-03_018__sec_1_08",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_09",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "7d1e92ae6dec8c0326718246f3b19790d77191546280b625c77ccea9cf52acae",
+      "input_sha256": "acc2d6f9d37da9add4d1ca621be50e17cb3e7d2916b2c46bd7cbb368ea4f8748",
+      "provenance": {
+        "id": "GS-03_018__sec_1_09",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_10",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "25555440c82b90d0a2e9bab23d123434639b8df79686975f432e002357d0a7b2",
+      "input_sha256": "39fb52cd582ec5b2f6e4f4942dc87c68844fbce2a9225b03a15dd3e041df2a45",
+      "provenance": {
+        "id": "GS-03_018__sec_1_10",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    },
+    {
+      "id": "GS-03_018__sec_1_11",
+      "status": "no_output",
+      "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향",
+      "S": null,
+      "D": null,
+      "I": null,
+      "N": null,
+      "output_characters": null,
+      "cer": null,
+      "cer_percent": null,
+      "truth_source_sha256": "92ad8c66ac4c9fafcdb26fd8ca5653c71272b7e36e1ea224d180d58b4bae93da",
+      "input_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+      "provenance": {
+        "id": "GS-03_018__sec_1_11",
+        "product_version": "1.0.1",
+        "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "model": "PP-OCRv5_server_det + korean_PP-OCRv5_mobile_rec",
+        "config_sha256": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+        "environment_sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+        "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+        "status": "no_output",
+        "reason": "원본의 해당 고정 섹션 OCR 반환 기록 없음; 상품 분석 실패 영향"
+      },
+      "observed_hashes": {}
+    }
+  ]
+}

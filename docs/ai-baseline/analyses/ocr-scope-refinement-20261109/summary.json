@@ -1,0 +1,33 @@
+{
+  "sections": 33,
+  "ocr_total": 1193,
+  "ocr_scopes": {
+    "include": 572,
+    "exclude": 583,
+    "empty_no_text": 36,
+    "undetermined": 2
+  },
+  "ocr_methods": {
+    "automatic_geometry": 1063,
+    "empty_record": 36,
+    "prior_visual": 77,
+    "manual_required": 2,
+    "current_visual": 15
+  },
+  "remaining_1111": {
+    "include": 541,
+    "exclude": 536,
+    "empty_no_text": 34
+  },
+  "gt_scopes": {
+    "include": 436,
+    "exclude": 529,
+    "undetermined": 4
+  },
+  "sections_status": {
+    "보류": 5,
+    "연결 완료(범위 후보)": 28
+  },
+  "scoring_ready_sections": 0,
+  "changed_region_records": 32
+}

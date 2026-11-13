@@ -1,0 +1,179 @@
+{
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "unfrozen_draft",
+  "approved": false,
+  "frozen": false,
+  "parent_truth_sha256": "6cdd20c8a550c0a082caa4c843ddedbe8bd25bf14f372c1763f49a68abc37840",
+  "scope": 18,
+  "inherited_other_94": "not_copied_or_modified",
+  "human_reviews": 0,
+  "sections": [
+    {
+      "id": "GS-01_001__sec_1_01",
+      "path": "drafts/GS-01_001__sec_1_01.json",
+      "sha256": "f200ac7a6b09601a799606d2f530fdb7611a0bf80cd5d531313e950d28049e7e",
+      "revision": 1,
+      "text_sha256": "50ad52789544d48ffaabaa8703bfee91c7f6c88797d4b4163bded9499c4caf24",
+      "changes": 1,
+      "unresolved": 2
+    },
+    {
+      "id": "GS-01_002__sec_1_01",
+      "path": "drafts/GS-01_002__sec_1_01.json",
+      "sha256": "1e65d9eea57d4bf94a3963a4635aa25731bb15bb3b5b5c31434eadc613a1ee74",
+      "revision": 1,
+      "text_sha256": "023a4e04379aabb24c5fc4e39370113be4b7fdae9ba40f94c1f0d558721f4130",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-01_002__sec_1_06",
+      "path": "drafts/GS-01_002__sec_1_06.json",
+      "sha256": "e1e74b505a5cdbda0747a16d37889441cdc5f69ddc4fcdbddf45a4e4867cdc6d",
+      "revision": 1,
+      "text_sha256": "5b00d26c25676b787fea58ce2cc855cc8079cb2abe6ecb13a0b50cfd57f915a7",
+      "changes": 0,
+      "unresolved": 2
+    },
+    {
+      "id": "GS-01_002__sec_1_11",
+      "path": "drafts/GS-01_002__sec_1_11.json",
+      "sha256": "daf9162b5185b8c8dd19bd257f23a4ec02d1892af3762e03eb87d3a37578ab19",
+      "revision": 1,
+      "text_sha256": "4d993d50a0fa064512581cbb113dab7217b6de02003654e67e4c106241fd6a81",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-01_002__sec_1_18",
+      "path": "drafts/GS-01_002__sec_1_18.json",
+      "sha256": "9a9ab3c5d935560b3da4a7d7ff32b02f16f810755e7f233a1850b7da5d20761c",
+      "revision": 1,
+      "text_sha256": "11b4797d0d9285e1d805756a81e091162d1e81bffaf79abea7a93ed564c5fe16",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-01_002__sec_1_22",
+      "path": "drafts/GS-01_002__sec_1_22.json",
+      "sha256": "76baa621c01c8e99bdeb6a35c41066e61b20cdd26db76d2695fd105f0da0ec67",
+      "revision": 1,
+      "text_sha256": "a86010c3cd08820bea3d94556dd39da56c01d7d425d42a7515d7c957f2b89350",
+      "changes": 1,
+      "unresolved": 2
+    },
+    {
+      "id": "GS-01_002__sec_1_24",
+      "path": "drafts/GS-01_002__sec_1_24.json",
+      "sha256": "464fd8e046226cd419489070d338c4c14cbdb6ff0425a2ccd8e4c81e8df10142",
+      "revision": 1,
+      "text_sha256": "b47b7c4194e39c24694d0dcc3c0de1c5f14508b99f5af6acab865cfc73dfc605",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "path": "drafts/GS-02_002__sec_1_01.json",
+      "sha256": "b58121e041b4a9297d9b36de643a501366bf7ac4c85cf89b1b2a27a9ed7c0eff",
+      "revision": 1,
+      "text_sha256": "3c278c819751cc31604f3a501a4af43314349385a666d17acc0814aceee8a3fa",
+      "changes": 2,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-02_008__sec_1_01",
+      "path": "drafts/GS-02_008__sec_1_01.json",
+      "sha256": "b92b1397c1efe59d23d00e68857e8c1e31c04e336709c272988f22cd602e8a4b",
+      "revision": 1,
+      "text_sha256": "6ee5af33090c3448f7001cee8b49e385a8965819714eba4e1ec2bb85066ebe7a",
+      "changes": 0,
+      "unresolved": 2
+    },
+    {
+      "id": "GS-02_008__sec_1_04",
+      "path": "drafts/GS-02_008__sec_1_04.json",
+      "sha256": "29c2f8d4891dd07b0d01c3b5834ba989250e656dc3709c46f2d21dd3d5fabefe",
+      "revision": 2,
+      "text_sha256": "3ddb751fa0dd03f7e36d1d2c0ebfa7f16962b8ef22ee2efb71e1ef8458178195",
+      "changes": 40,
+      "unresolved": 4
+    },
+    {
+      "id": "GS-02_008__sec_1_05",
+      "path": "drafts/GS-02_008__sec_1_05.json",
+      "sha256": "0fc7703184c395e6d5e372658f8431dadbe7a78ab45893e1d898d795d2b9449a",
+      "revision": 1,
+      "text_sha256": "f621830aff7eabf460af4b6f4eda63bc673bdd8068adbcfe84be6bb1c7022b93",
+      "changes": 2,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-02_014__sec_1_02",
+      "path": "drafts/GS-02_014__sec_1_02.json",
+      "sha256": "487fc89617d0da6f4f0bec8a4496da6e8fbb833c18057e566b91591eabe45142",
+      "revision": 1,
+      "text_sha256": "1911f2d15651d48094d6675733530ee09c9c963691753e9ee5530a4ce40b9777",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-02_014__sec_1_05",
+      "path": "drafts/GS-02_014__sec_1_05.json",
+      "sha256": "81aa0aa4058ab4111113fe42256c0072175d42ea7d579255ccc75c03caf9cf92",
+      "revision": 1,
+      "text_sha256": "c0bb0e4c9343dc1a501b00e51d5c5a43d6d484184254e20d1a5881129479724f",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "path": "drafts/GS-02_014__sec_1_09.json",
+      "sha256": "238853f6a11cc255174e40905c99f861b934e3d280f1a67739ccd93e8ef56247",
+      "revision": 1,
+      "text_sha256": "f9195c935c13e88dca53c0c8a6edcecd1c32dcea8eb62bbfdc60bc28f6ee4f1f",
+      "changes": 1,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-02_014__sec_1_11",
+      "path": "drafts/GS-02_014__sec_1_11.json",
+      "sha256": "872bf69266d29803eb0ecd2892083a69565d3108222dd2712ff3797bfb09dc69",
+      "revision": 1,
+      "text_sha256": "920c653fa77e690697e7fce3fab53e3069dd23e9c8270e352dece1f2a78ae26d",
+      "changes": 0,
+      "unresolved": 1
+    },
+    {
+      "id": "GS-03_013__sec_1_01",
+      "path": "drafts/GS-03_013__sec_1_01.json",
+      "sha256": "f8569f747ea533fed863f6afa5d5e04de906467cce5788bcc610879975729563",
+      "revision": 1,
+      "text_sha256": "28f2737b472124f6c4fd9b85e8620d1b4934b6c28c6a0f796d155cea198ed0c3",
+      "changes": 0,
+      "unresolved": 2
+    },
+    {
+      "id": "GS-03_014__sec_1_01",
+      "path": "drafts/GS-03_014__sec_1_01.json",
+      "sha256": "23eb03c4f287763089232b2a6358330035786c535f4df20b996f7fd986658cac",
+      "revision": 1,
+      "text_sha256": "40722887c6953fe5737ebdc4b0d9a7c4b63e86066f6e87b66e523bb6d8b666a6",
+      "changes": 9,
+      "unresolved": 3
+    },
+    {
+      "id": "GS-03_018__sec_1_08",
+      "path": "drafts/GS-03_018__sec_1_08.json",
+      "sha256": "7a54c11db485fc6fe75a5ca60147a0f3d7feaba2e1af1059ce4d2b57edf7782f",
+      "revision": 1,
+      "text_sha256": "574340f35d2f2990198ac18324718eb636f473bf631ea195bf40d8281157d335",
+      "changes": 0,
+      "unresolved": 2
+    }
+  ],
+  "input_files": {
+    "targets.json": "89918ba2de9fcc4265dffd3afa828842060d415676aedfb2252b23c94fa83bee",
+    "proposals.json": "8c32b96c872e7d1ed57650fe41cab9dafeba20b5c10f377a75a7c0aec3b6f8fe",
+    "build_draft.py": "4a9de1726d87ad0726aac6aee9aace12efc42140979b803a149bdbeea9ab6ce4"
+  }
+}

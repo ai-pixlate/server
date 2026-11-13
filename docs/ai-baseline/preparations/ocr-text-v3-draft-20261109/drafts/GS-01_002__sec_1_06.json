@@ -1,0 +1,505 @@
+{
+  "id": "GS-01_002__sec_1_06",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_06",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_06.png",
+    "sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+    "width": 1000,
+    "height": 3420
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L002",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L003",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L004",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L005",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L006",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L007",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L008",
+      "text": "오직, 징크 성분으로 피부에 순한"
+    },
+    {
+      "line_id": "L009",
+      "text": "민감피부"
+    },
+    {
+      "line_id": "L010",
+      "text": "저자극 무기자차"
+    },
+    {
+      "line_id": "L011",
+      "text": "POINT"
+    },
+    {
+      "line_id": "L012",
+      "text": "01"
+    },
+    {
+      "line_id": "L013",
+      "text": "어성초 추출물* + 트리플 징크 콤플렉스**"
+    },
+    {
+      "line_id": "L014",
+      "text": "확실한 진정 효과!"
+    },
+    {
+      "line_id": "L015",
+      "text": "02"
+    },
+    {
+      "line_id": "L016",
+      "text": "10종 히알루 쿨링성분***으로"
+    },
+    {
+      "line_id": "L017",
+      "text": "건조함 걱정 NO! 산뜻 밀착"
+    },
+    {
+      "line_id": "L018",
+      "text": "03"
+    },
+    {
+      "line_id": "L019",
+      "text": "비건 인증****, 저자극 테스트 완료로"
+    },
+    {
+      "line_id": "L020",
+      "text": "민감피부도 순한 선케어"
+    },
+    {
+      "line_id": "L021",
+      "text": "04"
+    },
+    {
+      "line_id": "L022",
+      "text": "내 피부는 물론, 바다 환경까지 생각하는"
+    },
+    {
+      "line_id": "L023",
+      "text": "배려 깊은 당신을 위한 Reef Safe 선*****"
+    },
+    {
+      "line_id": "L024",
+      "text": "*어성초추출물(약모밀추출물) | 원료적 특성에 한함 **징크옥사이드, 징크락테이트, 징크글루코네이트"
+    },
+    {
+      "line_id": "L025",
+      "text": "***10종 히알루론산 쿨링, 피부 쿨링 인체적용시험 완료"
+    },
+    {
+      "line_id": "L026",
+      "text": "한국피부과학연구원, 21명 대상, 2022.12.29~2023.02.03 / 일시적, 개인차 있음"
+    },
+    {
+      "line_id": "L027",
+      "text": "****벨기에 바이오리우스 비건 인증"
+    },
+    {
+      "line_id": "L028",
+      "text": "*****옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료"
+    }
+  ],
+  "parent_text_sha256": "5b00d26c25676b787fea58ce2cc855cc8079cb2abe6ecb13a0b50cfd57f915a7",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L002",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L003",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L004",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L005",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L006",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L007",
+      "text": "goodal"
+    },
+    {
+      "line_id": "L008",
+      "text": "오직, 징크 성분으로 피부에 순한"
+    },
+    {
+      "line_id": "L009",
+      "text": "민감피부"
+    },
+    {
+      "line_id": "L010",
+      "text": "저자극 무기자차"
+    },
+    {
+      "line_id": "L011",
+      "text": "POINT"
+    },
+    {
+      "line_id": "L012",
+      "text": "01"
+    },
+    {
+      "line_id": "L013",
+      "text": "어성초 추출물* + 트리플 징크 콤플렉스**"
+    },
+    {
+      "line_id": "L014",
+      "text": "확실한 진정 효과!"
+    },
+    {
+      "line_id": "L015",
+      "text": "02"
+    },
+    {
+      "line_id": "L016",
+      "text": "10종 히알루 쿨링성분***으로"
+    },
+    {
+      "line_id": "L017",
+      "text": "건조함 걱정 NO! 산뜻 밀착"
+    },
+    {
+      "line_id": "L018",
+      "text": "03"
+    },
+    {
+      "line_id": "L019",
+      "text": "비건 인증****, 저자극 테스트 완료로"
+    },
+    {
+      "line_id": "L020",
+      "text": "민감피부도 순한 선케어"
+    },
+    {
+      "line_id": "L021",
+      "text": "04"
+    },
+    {
+      "line_id": "L022",
+      "text": "내 피부는 물론, 바다 환경까지 생각하는"
+    },
+    {
+      "line_id": "L023",
+      "text": "배려 깊은 당신을 위한 Reef Safe 선*****"
+    },
+    {
+      "line_id": "L024",
+      "text": "*어성초추출물(약모밀추출물) | 원료적 특성에 한함 **징크옥사이드, 징크락테이트, 징크글루코네이트"
+    },
+    {
+      "line_id": "L025",
+      "text": "***10종 히알루론산 쿨링, 피부 쿨링 인체적용시험 완료"
+    },
+    {
+      "line_id": "L026",
+      "text": "한국피부과학연구원, 21명 대상, 2022.12.29~2023.02.03 / 일시적, 개인차 있음"
+    },
+    {
+      "line_id": "L027",
+      "text": "****벨기에 바이오리우스 비건 인증"
+    },
+    {
+      "line_id": "L028",
+      "text": "*****옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료"
+    }
+  ],
+  "text_sha256": "5b00d26c25676b787fea58ce2cc855cc8079cb2abe6ecb13a0b50cfd57f915a7",
+  "changes": [],
+  "unresolved": [
+    "기울어진 튜브 실링의 저대비 각인; 확정 전사 불가",
+    "하단 L024~L028 각주 기호·성분명 철자 최종 사용자 확대 확인 필요. 본문/라벨의 명확한 부분은 유지"
+  ],
+  "note": "실링 인쇄·작은 각주 재확인\n기울어진 튜브 실링의 저대비 각인; 확정 전사 불가\n하단 L024~L028 각주 기호·성분명 철자 최종 사용자 확대 확인 필요. 본문/라벨의 명확한 부분은 유지",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L002",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L003",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L004",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L005",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L006",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L007",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L008",
+            "text": "오직, 징크 성분으로 피부에 순한"
+          },
+          {
+            "line_id": "L009",
+            "text": "민감피부"
+          },
+          {
+            "line_id": "L010",
+            "text": "저자극 무기자차"
+          },
+          {
+            "line_id": "L011",
+            "text": "POINT"
+          },
+          {
+            "line_id": "L012",
+            "text": "01"
+          },
+          {
+            "line_id": "L013",
+            "text": "어성초 추출물* + 트리플 징크 콤플렉스**"
+          },
+          {
+            "line_id": "L014",
+            "text": "확실한 진정 효과!"
+          },
+          {
+            "line_id": "L015",
+            "text": "02"
+          },
+          {
+            "line_id": "L016",
+            "text": "10종 히알루 쿨링성분***으로"
+          },
+          {
+            "line_id": "L017",
+            "text": "건조함 걱정 NO! 산뜻 밀착"
+          },
+          {
+            "line_id": "L018",
+            "text": "03"
+          },
+          {
+            "line_id": "L019",
+            "text": "비건 인증****, 저자극 테스트 완료로"
+          },
+          {
+            "line_id": "L020",
+            "text": "민감피부도 순한 선케어"
+          },
+          {
+            "line_id": "L021",
+            "text": "04"
+          },
+          {
+            "line_id": "L022",
+            "text": "내 피부는 물론, 바다 환경까지 생각하는"
+          },
+          {
+            "line_id": "L023",
+            "text": "배려 깊은 당신을 위한 Reef Safe 선*****"
+          },
+          {
+            "line_id": "L024",
+            "text": "*어성초추출물(약모밀추출물) | 원료적 특성에 한함 **징크옥사이드, 징크락테이트, 징크글루코네이트"
+          },
+          {
+            "line_id": "L025",
+            "text": "***10종 히알루론산 쿨링, 피부 쿨링 인체적용시험 완료"
+          },
+          {
+            "line_id": "L026",
+            "text": "한국피부과학연구원, 21명 대상, 2022.12.29~2023.02.03 / 일시적, 개인차 있음"
+          },
+          {
+            "line_id": "L027",
+            "text": "****벨기에 바이오리우스 비건 인증"
+          },
+          {
+            "line_id": "L028",
+            "text": "*****옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L002",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L003",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L004",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L005",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L006",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L007",
+            "text": "goodal"
+          },
+          {
+            "line_id": "L008",
+            "text": "오직, 징크 성분으로 피부에 순한"
+          },
+          {
+            "line_id": "L009",
+            "text": "민감피부"
+          },
+          {
+            "line_id": "L010",
+            "text": "저자극 무기자차"
+          },
+          {
+            "line_id": "L011",
+            "text": "POINT"
+          },
+          {
+            "line_id": "L012",
+            "text": "01"
+          },
+          {
+            "line_id": "L013",
+            "text": "어성초 추출물* + 트리플 징크 콤플렉스**"
+          },
+          {
+            "line_id": "L014",
+            "text": "확실한 진정 효과!"
+          },
+          {
+            "line_id": "L015",
+            "text": "02"
+          },
+          {
+            "line_id": "L016",
+            "text": "10종 히알루 쿨링성분***으로"
+          },
+          {
+            "line_id": "L017",
+            "text": "건조함 걱정 NO! 산뜻 밀착"
+          },
+          {
+            "line_id": "L018",
+            "text": "03"
+          },
+          {
+            "line_id": "L019",
+            "text": "비건 인증****, 저자극 테스트 완료로"
+          },
+          {
+            "line_id": "L020",
+            "text": "민감피부도 순한 선케어"
+          },
+          {
+            "line_id": "L021",
+            "text": "04"
+          },
+          {
+            "line_id": "L022",
+            "text": "내 피부는 물론, 바다 환경까지 생각하는"
+          },
+          {
+            "line_id": "L023",
+            "text": "배려 깊은 당신을 위한 Reef Safe 선*****"
+          },
+          {
+            "line_id": "L024",
+            "text": "*어성초추출물(약모밀추출물) | 원료적 특성에 한함 **징크옥사이드, 징크락테이트, 징크글루코네이트"
+          },
+          {
+            "line_id": "L025",
+            "text": "***10종 히알루론산 쿨링, 피부 쿨링 인체적용시험 완료"
+          },
+          {
+            "line_id": "L026",
+            "text": "한국피부과학연구원, 21명 대상, 2022.12.29~2023.02.03 / 일시적, 개인차 있음"
+          },
+          {
+            "line_id": "L027",
+            "text": "****벨기에 바이오리우스 비건 인증"
+          },
+          {
+            "line_id": "L028",
+            "text": "*****옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

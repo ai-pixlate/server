@@ -1,0 +1,17 @@
+{
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\references\\ocr-text\\ocr-text-v2-20261109\\text_units.jsonl": "6cdd20c8a550c0a082caa4c843ddedbe8bd25bf14f372c1763f49a68abc37840",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\evaluations\\ocr-v4-v2-v1-0-1-20261109\\inputs.json": "cebecbf5062f9feac2e55efc719091370789b410e6dcb2f5660b8f0a4463fd3c",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\analyses\\ocr-scope-refinement-20261109\\sections.json": "50f09b79f4088ee7a5a7594953d579f96b2d630ab2bb016b03364026da04cc77",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_001\\sections\\sec_1_01.png": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\runs\\baseline-v1-0-1-gs-v1-20261030-01\\stages.jsonl": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_01.png": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_002\\sections\\sec_1_01.png": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-experiments\\ocr_truth\\v1\\GS-02_002__sec_1_01.json": "f2e4b28ed2cf223132a67fc3cc4fb3c308d4ad7d49da963eab186dbfacc3155a",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_06.png": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_23.png": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_08.png": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\evaluations\\ocr-v4-v2-v1-0-1-20261109\\supplement\\GS-03_018__sec_1_08.json": "c9a799c072a37eef81fbbe6ac96499004a071cbf9ec17fcbe86d78805c7b3184",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_05.png": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_01.png": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+  "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\evaluations\\ocr-v4-v2-v1-0-1-20261109\\supplement\\GS-03_014__sec_1_01.json": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97"
+}

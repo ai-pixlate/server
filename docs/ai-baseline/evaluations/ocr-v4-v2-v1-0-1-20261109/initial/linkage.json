@@ -1,0 +1,4030 @@
+{
+  "cer_calculated": false,
+  "run_id": "baseline-v1-0-1-gs-v1-20261030-01",
+  "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+  "boundary_review": {
+    "product_sha": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+    "boundary": "pipeline.stages.ocr.run:return",
+    "review_date": "2026-11-05",
+    "wrapper_sha256": "7d93afee17f6ba3c7b703f21c9a042622a9c77f3ea5db30b1f31997e53c0af72",
+    "code_sources": [
+      {
+        "commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "path": "pipeline/analyze.py",
+        "sha256": "852bb5588dd45a2157b5259e2543f7832b180bfdde1b9e8724eceb9d62e37b40"
+      },
+      {
+        "commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "path": "pipeline/stages/ocr.py",
+        "sha256": "9df1e190754d84327171a19c1f78b4a3347b72219450948e2efb559bb933d69e"
+      },
+      {
+        "commit": "bfa3b700144467f4adf7d6802b7b2e93791fe6de",
+        "path": "pipeline/stages/ocr_tile.py",
+        "sha256": "6ff5cb4cf656ed74f051ccd02b8f2948f1a24891543196e02835d2a66ae7383e"
+      }
+    ],
+    "findings": [
+      "계측 wrapper는 OCR module.run을 감싸 result=model_dump(mode=json) 후 동일 result 반환. 배열 순서 유지. runtime tool_sha256과 보존 파일 일치 검증.",
+      "v1.0.1 analyze._ocr_section은 ocr.run 반환을 그대로 반환하며 analyze는 이를 merge.run에 전달한다.",
+      "v1.0.1의 짧은 섹션은 to_result, 긴 섹션은 run_tiled 반환이다. 현재 develop의 호출 내 추가 dedup/국소 재인식은 v1.0.1에 없으므로 적용됐다고 해석하지 않는다."
+    ],
+    "limits": [
+      "소스·보존 런타임·계측 증거 대조이며 운영 서버에 새로 접속하거나 모델 실행하지 않음",
+      "GS-03 후보는 입력 바이트 근거가 부족하여 자동 연결 금지"
+    ]
+  },
+  "boundary_review_sha256": "ec1faeeefe032a55a0d3d60532bfedfc5ec7e668efa9103cf7b60cb94e026d12",
+  "verified_preserved_files": {
+    "manifest.json": "60844c4632cbfe2c1364078c6be9bf7283210f4c1391aa34094977519d1330a5",
+    "runtime.json": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+    "stages.jsonl": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "object-index.json": "05f3372c393eda4b719b1792ba4ce762f06bc06cd460536d2383900438203e3d",
+    "preservation-20261030T042213Z/reproduction/product-settings/pipeline/config/default.toml": "57e023f53521dcd78111b145895434dff78993132de1382713211aff554096d0",
+    "preservation-20261030T042213Z/reproduction/baseline-tools/be.py": "7d93afee17f6ba3c7b703f21c9a042622a9c77f3ea5db30b1f31997e53c0af72",
+    "evidence/GS-02.json": "84232ef8f531b48b4e18f1667f4b1cdf80429433140184ddf83e21a7e7505f89",
+    "evidence/GS-03.json": "fef4cf647e291c4b1e6cb1661969f4a09d1256a915a82feda5577538f4030f93",
+    "evidence/GS-01.json": "e517353951f42dc2ae088528a44428aa1622650bc4107a932c9f0049f1b9367a",
+    "objects/d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+    "objects/0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065",
+    "objects/2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+    "objects/babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+    "objects/3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+    "objects/1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+    "objects/21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c",
+    "objects/e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+    "objects/4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+    "objects/62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f",
+    "objects/817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb",
+    "objects/0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+    "objects/0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae",
+    "objects/e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+    "objects/2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192",
+    "objects/122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+    "objects/c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3",
+    "objects/96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+    "objects/5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+    "objects/6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+    "objects/6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+    "objects/7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166",
+    "objects/cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+    "objects/2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+    "objects/507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+    "objects/8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+    "objects/574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4",
+    "objects/21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df",
+    "objects/9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+    "objects/1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+    "objects/84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+    "objects/91dee0b2018a89e3c4e595bfd4e05eaaef141198284f5add4d1c65a3feee272a": "91dee0b2018a89e3c4e595bfd4e05eaaef141198284f5add4d1c65a3feee272a",
+    "objects/de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+    "objects/ca750554556880bd7437669d4bc0c3b5dc7fc8d742d5ba95a9da0efbd4cbb137": "ca750554556880bd7437669d4bc0c3b5dc7fc8d742d5ba95a9da0efbd4cbb137",
+    "objects/e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212",
+    "objects/a565751f851e61176a1dfc2b016c814e7a50867b5966454bbad2f2491f8f94a3": "a565751f851e61176a1dfc2b016c814e7a50867b5966454bbad2f2491f8f94a3",
+    "objects/152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+    "objects/96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+    "objects/bd7eed2473ba95571701d0e2c253b473138c9618896de0378232df9e7d8522b4": "bd7eed2473ba95571701d0e2c253b473138c9618896de0378232df9e7d8522b4",
+    "objects/948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+    "objects/2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b": "2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b",
+    "objects/b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9",
+    "objects/acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+    "objects/603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+    "objects/0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86": "0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86",
+    "objects/8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+    "objects/f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2",
+    "objects/60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+    "objects/46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+    "objects/613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303",
+    "objects/f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216",
+    "objects/2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+    "objects/f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+    "objects/9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140",
+    "objects/45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+    "objects/034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910",
+    "objects/3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024",
+    "objects/eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900",
+    "objects/f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+    "objects/3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+    "objects/d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5": "d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5",
+    "objects/2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2",
+    "objects/c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+    "objects/46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+    "objects/6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39": "6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39",
+    "objects/0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f",
+    "objects/2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+    "objects/dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+    "objects/031be239854f57cbabacca94612f9f9cb2ff53ddd50f351f73431e69a96a04fe": "031be239854f57cbabacca94612f9f9cb2ff53ddd50f351f73431e69a96a04fe",
+    "objects/8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389",
+    "objects/8cd5c87dcaa94cf0663194cbe5663563d8603def8ac92002aa0d9c2ca9896def": "8cd5c87dcaa94cf0663194cbe5663563d8603def8ac92002aa0d9c2ca9896def",
+    "objects/2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0",
+    "objects/9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+    "objects/07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+    "objects/fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+    "objects/5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+    "objects/0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+    "objects/8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+    "objects/e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135",
+    "objects/8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+    "objects/25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf",
+    "objects/bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+    "objects/8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+    "objects/d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+    "objects/dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+    "objects/632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+    "objects/084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+    "objects/c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+    "objects/878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+    "objects/853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+    "objects/5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+    "objects/b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+    "objects/ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+    "objects/38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+    "objects/20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f"
+  },
+  "truth_manifest_sha256": "5fe7b3fbe6caf5421da74235b6a1fc3df6d9278f7feb8256c925af63488fef69",
+  "sections": [
+    {
+      "id": "GS-01_001__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+      "truth_source_sha256": "f2b4e45d06a3dcb2d2bc671def80c5d6fd442dc6ddb0d569470faab4b0c289c8",
+      "legacy_split_sha256": "f0da2d8e0ac50655ee1df785c046d7da78f3a96b294f09d6e66134bbb4f4694c",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_001/split.json",
+      "local_image_sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+      "candidates": [
+        {
+          "line": 3,
+          "split_line": 1,
+          "case": "GS-01",
+          "source_image_id": 1,
+          "section": {
+            "section_key": "sec_1_01",
+            "source_image_id": 1,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1360,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_1_01.png"
+          },
+          "at": "2026-10-30T00:26:59.609364+00:00",
+          "seconds": 33.73399999993853,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/1/d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385.png"
+          ],
+          "original_image_sha256": "0a411962375a3d78ff41de4abb596c6cea2ed4a494a9c1f769bfa66c6eeb1065",
+          "original_image_key": "source/GS-01_001.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+      "truth_source_sha256": "beb7b19c1dd1ef814bb902e1178bbae691002e8bd03681778bccb6a48cb0d827",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+      "candidates": [
+        {
+          "line": 6,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_01",
+            "source_image_id": 2,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1976,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_01.png"
+          },
+          "at": "2026-10-30T00:30:42.993859+00:00",
+          "seconds": 25.233999999938533,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/2/2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+      "truth_source_sha256": "5bf0fc8e4f93de018f6ff27558f52c9ecc030f576ddfe1f01bf2722659be1d77",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+      "candidates": [
+        {
+          "line": 8,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_02",
+            "source_image_id": 2,
+            "section_order": 2,
+            "top_offset": 1976,
+            "height": 953,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_02.png"
+          },
+          "at": "2026-10-30T00:31:29.789008+00:00",
+          "seconds": 13.311999999918044,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/3/3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+      "truth_source_sha256": "09baa52d6ff797d4f862a7b59cad9fa3c44f1da98a04267e61e94437f9313c4e",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+      "candidates": [
+        {
+          "line": 10,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_03",
+            "source_image_id": 2,
+            "section_order": 3,
+            "top_offset": 2929,
+            "height": 259,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_03.png"
+          },
+          "at": "2026-10-30T00:31:50.811471+00:00",
+          "seconds": 6.0,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/4/1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_04",
+      "state": "재사용 가능",
+      "truth_image_sha256": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c",
+      "truth_source_sha256": "484fb2faa70c2fcfbc26b85853fe396d44986457f3ebaf1c34968deb8a9623b6",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c",
+      "candidates": [
+        {
+          "line": 12,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_04",
+            "source_image_id": 2,
+            "section_order": 4,
+            "top_offset": 3188,
+            "height": 2620,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_04.png"
+          },
+          "at": "2026-10-30T00:32:06.256259+00:00",
+          "seconds": 39.031999999890104,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/5/21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_05",
+      "state": "재사용 가능",
+      "truth_image_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+      "truth_source_sha256": "c73dcf1181b62e8dbcdc9978e5ce7fdfa577b35fc23938046590f0bec3481c6e",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+      "candidates": [
+        {
+          "line": 14,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_05",
+            "source_image_id": 2,
+            "section_order": 5,
+            "top_offset": 5808,
+            "height": 966,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_05.png"
+          },
+          "at": "2026-10-30T00:33:06.717819+00:00",
+          "seconds": 14.109000000171363,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/6/e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_06",
+      "state": "재사용 가능",
+      "truth_image_sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+      "truth_source_sha256": "20f6fa549e5fc8f582eca8575502d7a62d8b5dadbe3ab278889e386f64f7208f",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+      "candidates": [
+        {
+          "line": 16,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_06",
+            "source_image_id": 2,
+            "section_order": 6,
+            "top_offset": 6774,
+            "height": 3420,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_06.png"
+          },
+          "at": "2026-10-30T00:33:29.945152+00:00",
+          "seconds": 46.84400000004098,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/7/4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_07",
+      "state": "재사용 가능",
+      "truth_image_sha256": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f",
+      "truth_source_sha256": "8b4579a16d11b2b325de1e5a0ae95e27bf25782b3bb4323f78034aaa98ca75da",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f",
+      "candidates": [
+        {
+          "line": 18,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_07",
+            "source_image_id": 2,
+            "section_order": 7,
+            "top_offset": 10194,
+            "height": 477,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_07.png"
+          },
+          "at": "2026-10-30T00:34:38.242551+00:00",
+          "seconds": 6.452999999979511,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/8/62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_08",
+      "state": "재사용 가능",
+      "truth_image_sha256": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb",
+      "truth_source_sha256": "550bd3ecfe26de5a8b7aa12c6cd6a5ecf5048d9d74d0ffdebc4cb4e797ff5535",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb",
+      "candidates": [
+        {
+          "line": 20,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_08",
+            "source_image_id": 2,
+            "section_order": 8,
+            "top_offset": 10671,
+            "height": 2291,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_08.png"
+          },
+          "at": "2026-10-30T00:34:49.017482+00:00",
+          "seconds": 29.905999999959022,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/9/817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_09",
+      "state": "재사용 가능",
+      "truth_image_sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+      "truth_source_sha256": "6ab69a5ed1cbbde66eb8b719af7d104a4cd7a7d21448b5180d86486056489697",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+      "candidates": [
+        {
+          "line": 22,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_09",
+            "source_image_id": 2,
+            "section_order": 9,
+            "top_offset": 12962,
+            "height": 1023,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_09.png"
+          },
+          "at": "2026-10-30T00:35:45.925411+00:00",
+          "seconds": 15.672000000020489,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/10/0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_10",
+      "state": "재사용 가능",
+      "truth_image_sha256": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae",
+      "truth_source_sha256": "b59f20105dfb895c876db337c87a8f269041807dcbcce1e6ed33a3e10843ac82",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae",
+      "candidates": [
+        {
+          "line": 24,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_10",
+            "source_image_id": 2,
+            "section_order": 10,
+            "top_offset": 13985,
+            "height": 1456,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_10.png"
+          },
+          "at": "2026-10-30T00:36:09.734689+00:00",
+          "seconds": 16.483999999938533,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/11/0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_11",
+      "state": "재사용 가능",
+      "truth_image_sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+      "truth_source_sha256": "84ab4f9c72a425d502d8e1c83138900e094a090464759eb39255399822fb1e2e",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+      "candidates": [
+        {
+          "line": 26,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_11",
+            "source_image_id": 2,
+            "section_order": 11,
+            "top_offset": 15441,
+            "height": 2020,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_11.png"
+          },
+          "at": "2026-10-30T00:36:31.676200+00:00",
+          "seconds": 22.32800000021234,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/12/e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_12",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192",
+      "truth_source_sha256": "0fbb92898601c0abafec2c441160d1f388b2db7ba29d4c5aa43fe5a59189ec91",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192",
+      "candidates": [
+        {
+          "line": 28,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_12",
+            "source_image_id": 2,
+            "section_order": 12,
+            "top_offset": 17461,
+            "height": 1889,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_12.png"
+          },
+          "at": "2026-10-30T00:37:02.555614+00:00",
+          "seconds": 22.625,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/13/2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_13",
+      "state": "재사용 가능",
+      "truth_image_sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+      "truth_source_sha256": "4cad9e337388551968cadc6367c0a1a357af0a90ce240a8eaf8e2c8ed8452a5a",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+      "candidates": [
+        {
+          "line": 30,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_13",
+            "source_image_id": 2,
+            "section_order": 13,
+            "top_offset": 19350,
+            "height": 1147,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_13.png"
+          },
+          "at": "2026-10-30T00:37:42.357626+00:00",
+          "seconds": 18.733999999938533,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/14/122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_14",
+      "state": "재사용 가능",
+      "truth_image_sha256": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3",
+      "truth_source_sha256": "b8cfaa49d9c1d3957567c57bcb87887c2dffcdabb803978653173c0d6d8cef31",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3",
+      "candidates": [
+        {
+          "line": 32,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_14",
+            "source_image_id": 2,
+            "section_order": 14,
+            "top_offset": 20497,
+            "height": 1806,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_14.png"
+          },
+          "at": "2026-10-30T00:38:17.436924+00:00",
+          "seconds": 18.45299999997951,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/15/c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_15",
+      "state": "재사용 가능",
+      "truth_image_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+      "truth_source_sha256": "89b0a33d7579efc90ed1ef3301f684f7c42a1150c768e06e5a974221ce9b7feb",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+      "candidates": [
+        {
+          "line": 34,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_15",
+            "source_image_id": 2,
+            "section_order": 15,
+            "top_offset": 22303,
+            "height": 2157,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_15.png"
+          },
+          "at": "2026-10-30T00:38:42.363983+00:00",
+          "seconds": 26.015000000130385,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/16/96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_16",
+      "state": "재사용 가능",
+      "truth_image_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+      "truth_source_sha256": "b4112e4f18cd9ee60058176370947c4a6021203a789a07a2179ef159d5b74f0b",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+      "candidates": [
+        {
+          "line": 36,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_16",
+            "source_image_id": 2,
+            "section_order": 16,
+            "top_offset": 24460,
+            "height": 848,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_16.png"
+          },
+          "at": "2026-10-30T00:39:27.576140+00:00",
+          "seconds": 12.781999999890104,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/17/5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_17",
+      "state": "재사용 가능",
+      "truth_image_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+      "truth_source_sha256": "30fa06adf0e4d973232cb3b7c410714bad75c0e988457425386f150c6fb54478",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+      "candidates": [
+        {
+          "line": 38,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_17",
+            "source_image_id": 2,
+            "section_order": 17,
+            "top_offset": 25308,
+            "height": 2067,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_17.png"
+          },
+          "at": "2026-10-30T00:39:44.675286+00:00",
+          "seconds": 32.57800000021234,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/18/6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_18",
+      "state": "재사용 가능",
+      "truth_image_sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+      "truth_source_sha256": "75c063e29125222efffeccee1016ebb20eefd6ae3b3969c418700bc3d5ed5dce",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+      "candidates": [
+        {
+          "line": 40,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_18",
+            "source_image_id": 2,
+            "section_order": 18,
+            "top_offset": 27375,
+            "height": 1799,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_18.png"
+          },
+          "at": "2026-10-30T00:40:27.459403+00:00",
+          "seconds": 25.640999999828637,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/19/6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_19",
+      "state": "재사용 가능",
+      "truth_image_sha256": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166",
+      "truth_source_sha256": "976c609cbcc6515fe391827e42bb82af9c624279e54027caf0e9a1d07b430901",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166",
+      "candidates": [
+        {
+          "line": 42,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_19",
+            "source_image_id": 2,
+            "section_order": 19,
+            "top_offset": 29174,
+            "height": 883,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_19.png"
+          },
+          "at": "2026-10-30T00:41:06.350514+00:00",
+          "seconds": 13.813000000081956,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/20/7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_20",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "8b5a7ed33a648ed81538e1bc9e67aad801910084b4ccbc68cdfeea357a8b41f0",
+      "truth_source_sha256": "e3b65e8a58a9c3289438e65065f0c0b300c6db08fbcf0722f865a94b1656cfe7",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "8b5a7ed33a648ed81538e1bc9e67aad801910084b4ccbc68cdfeea357a8b41f0",
+      "candidates": []
+    },
+    {
+      "id": "GS-01_002__sec_1_21",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "1ba30932fb8a7440cd7399eefa36ce63b086f486c6357f2e769483e7d4d7af65",
+      "truth_source_sha256": "1b3f1c1f4c668dca7fbc9e616e5d5536e9e56ef0b33ad3ff1bb871af17e1511c",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "1ba30932fb8a7440cd7399eefa36ce63b086f486c6357f2e769483e7d4d7af65",
+      "candidates": []
+    },
+    {
+      "id": "GS-01_002__sec_1_22",
+      "state": "재사용 가능",
+      "truth_image_sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+      "truth_source_sha256": "69252d6bd9c0c0b7b7838906b0c04cd0a3cccc822c609532c89ed0f068b20cc6",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+      "candidates": [
+        {
+          "line": 46,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_21",
+            "source_image_id": 2,
+            "section_order": 21,
+            "top_offset": 31869,
+            "height": 1815,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_21.png"
+          },
+          "at": "2026-10-30T00:42:04.743472+00:00",
+          "seconds": 27.405999999959022,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/22/cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_23",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+      "truth_source_sha256": "457daef6490cb5e8edfd0d64e0ca3494e71e631573fe4cbfb2e852267a6f4955",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+      "candidates": [
+        {
+          "line": 48,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_22",
+            "source_image_id": 2,
+            "section_order": 22,
+            "top_offset": 33684,
+            "height": 2681,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_22.png"
+          },
+          "at": "2026-10-30T00:42:46.441637+00:00",
+          "seconds": 39.79700000002049,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/23/2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-01_002__sec_1_24",
+      "state": "재사용 가능",
+      "truth_image_sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+      "truth_source_sha256": "d91c901a20c64be96a1548bade73b2863241b948629ee25ed0724ed0da1b5432",
+      "legacy_split_sha256": "187572ac9f5c5286493544748a0ddb753fcd0b8d0e97590fa1c8c99b7ce48d69",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-01_002/split.json",
+      "local_image_sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+      "candidates": [
+        {
+          "line": 50,
+          "split_line": 5,
+          "case": "GS-01",
+          "source_image_id": 2,
+          "section": {
+            "section_key": "sec_2_23",
+            "source_image_id": 2,
+            "section_order": 23,
+            "top_offset": 36365,
+            "height": 1300,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-2-iwd160og\\out\\sections\\sec_2_23.png"
+          },
+          "at": "2026-10-30T00:43:39.598954+00:00",
+          "seconds": 14.844000000040978,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/1/2/1/24/507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e.png"
+          ],
+          "original_image_sha256": "babb327b014557c3ea8413375756cbdcb86e9b9dce64ba0251df179f70692549",
+          "original_image_key": "source/GS-01_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_001__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+      "truth_source_sha256": "9c8ffb689a8dfd787409cd0f617fbc2fa0a4215e2775c624366ea58970ca957d",
+      "legacy_split_sha256": "d1cb91652732b17572e27a31794f16d92ad1be31dc9292dcaa556e916ed82547",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_001/split.json",
+      "local_image_sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+      "candidates": [
+        {
+          "line": 166,
+          "split_line": 165,
+          "case": "GS-02",
+          "source_image_id": 3,
+          "section": {
+            "section_key": "sec_3_01",
+            "source_image_id": 3,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 458,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_3_01.png"
+          },
+          "at": "2026-10-30T01:06:28.556204+00:00",
+          "seconds": 9.047000000020489,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/141/8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783.png"
+          ],
+          "original_image_sha256": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4",
+          "original_image_key": "source/GS-02_001.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_001__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df",
+      "truth_source_sha256": "72d2845e9d9675ad09749432c072f0061732f310e3a6b6b739e9051f13f3cedb",
+      "legacy_split_sha256": "d1cb91652732b17572e27a31794f16d92ad1be31dc9292dcaa556e916ed82547",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_001/split.json",
+      "local_image_sha256": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df",
+      "candidates": [
+        {
+          "line": 168,
+          "split_line": 165,
+          "case": "GS-02",
+          "source_image_id": 3,
+          "section": {
+            "section_key": "sec_3_02",
+            "source_image_id": 3,
+            "section_order": 2,
+            "top_offset": 458,
+            "height": 499,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_3_02.png"
+          },
+          "at": "2026-10-30T01:06:44.618184+00:00",
+          "seconds": 6.202999999979511,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/142/21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df.png"
+          ],
+          "original_image_sha256": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4",
+          "original_image_key": "source/GS-02_001.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_001__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+      "truth_source_sha256": "9ef49ff7df8fe87ebbf2900f56abdce42dc2a879df5dded835417b43d6c2de19",
+      "legacy_split_sha256": "d1cb91652732b17572e27a31794f16d92ad1be31dc9292dcaa556e916ed82547",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_001/split.json",
+      "local_image_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+      "candidates": [
+        {
+          "line": 170,
+          "split_line": 165,
+          "case": "GS-02",
+          "source_image_id": 3,
+          "section": {
+            "section_key": "sec_3_03",
+            "source_image_id": 3,
+            "section_order": 3,
+            "top_offset": 957,
+            "height": 2569,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_3_03.png"
+          },
+          "at": "2026-10-30T01:06:56.888620+00:00",
+          "seconds": 41.234999999869615,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/143/9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a.png"
+          ],
+          "original_image_sha256": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4",
+          "original_image_key": "source/GS-02_001.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_001__sec_1_04",
+      "state": "재사용 가능",
+      "truth_image_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+      "truth_source_sha256": "aee3f12678eff8db6f358bcd50b904b0739c32c07b2b4cd677eb87ff1ed79db3",
+      "legacy_split_sha256": "d1cb91652732b17572e27a31794f16d92ad1be31dc9292dcaa556e916ed82547",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_001/split.json",
+      "local_image_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+      "candidates": [
+        {
+          "line": 172,
+          "split_line": 165,
+          "case": "GS-02",
+          "source_image_id": 3,
+          "section": {
+            "section_key": "sec_3_04",
+            "source_image_id": 3,
+            "section_order": 4,
+            "top_offset": 3526,
+            "height": 1628,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_3_04.png"
+          },
+          "at": "2026-10-30T01:07:56.430161+00:00",
+          "seconds": 29.891000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/144/1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850.png"
+          ],
+          "original_image_sha256": "574dff04e7fdea3dcdc8cbc3507e7e2ca015e05ac9e6962ffcf5dfbf935bb5a4",
+          "original_image_key": "source/GS-02_001.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+      "truth_source_sha256": "f2e4b28ed2cf223132a67fc3cc4fb3c308d4ad7d49da963eab186dbfacc3155a",
+      "legacy_split_sha256": "627c61061d8a6a872436d287b76d5ccd1d346fa7bf29ae34a6caa1edec76f3c0",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_002/split.json",
+      "local_image_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+      "candidates": [
+        {
+          "line": 175,
+          "split_line": 174,
+          "case": "GS-02",
+          "source_image_id": 4,
+          "section": {
+            "section_key": "sec_4_01",
+            "source_image_id": 4,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2117,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_4_01.png"
+          },
+          "at": "2026-10-30T01:08:56.407540+00:00",
+          "seconds": 28.516000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/145/84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716.png"
+          ],
+          "original_image_sha256": "91dee0b2018a89e3c4e595bfd4e05eaaef141198284f5add4d1c65a3feee272a",
+          "original_image_key": "source/GS-02_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_003__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+      "truth_source_sha256": "25cf320137b9732c20a415f8d21e66e1497c43a799e54e40376ef2705cb97fa1",
+      "legacy_split_sha256": "bc8cc6a479c0c2c3ed4d552484f625973d6222a81b82799d9cfaa4c0e0278809",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_003/split.json",
+      "local_image_sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+      "candidates": [
+        {
+          "line": 178,
+          "split_line": 177,
+          "case": "GS-02",
+          "source_image_id": 5,
+          "section": {
+            "section_key": "sec_5_01",
+            "source_image_id": 5,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 641,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_5_01.png"
+          },
+          "at": "2026-10-30T01:09:40.024018+00:00",
+          "seconds": 8.641000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/146/de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911.png"
+          ],
+          "original_image_sha256": "ca750554556880bd7437669d4bc0c3b5dc7fc8d742d5ba95a9da0efbd4cbb137",
+          "original_image_key": "source/GS-02_003.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_004__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212",
+      "truth_source_sha256": "0f0f159dcf3ea01f06f046ea131a7c857cdabce8c1479aec52c1d542bd820406",
+      "legacy_split_sha256": "189de0fa103179ae55565f1539da71eebe50ab5d833283382d3c12c06e9d633b",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_004/split.json",
+      "local_image_sha256": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212",
+      "candidates": [
+        {
+          "line": 181,
+          "split_line": 180,
+          "case": "GS-02",
+          "source_image_id": 6,
+          "section": {
+            "section_key": "sec_6_01",
+            "source_image_id": 6,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 3470,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_6_01.png"
+          },
+          "at": "2026-10-30T01:10:03.133677+00:00",
+          "seconds": 42.42199999978766,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/147/e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212.png"
+          ],
+          "original_image_sha256": "a565751f851e61176a1dfc2b016c814e7a50867b5966454bbad2f2491f8f94a3",
+          "original_image_key": "source/GS-02_004.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_004__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+      "truth_source_sha256": "d081d66f9b4c343a153e55c5a1111733cd78b9ec424eaf26a0c9e77d49d86f6e",
+      "legacy_split_sha256": "189de0fa103179ae55565f1539da71eebe50ab5d833283382d3c12c06e9d633b",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_004/split.json",
+      "local_image_sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+      "candidates": [
+        {
+          "line": 183,
+          "split_line": 180,
+          "case": "GS-02",
+          "source_image_id": 6,
+          "section": {
+            "section_key": "sec_6_02",
+            "source_image_id": 6,
+            "section_order": 2,
+            "top_offset": 3470,
+            "height": 397,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_6_02.png"
+          },
+          "at": "2026-10-30T01:10:57.505298+00:00",
+          "seconds": 4.452999999979511,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/148/152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e.png"
+          ],
+          "original_image_sha256": "a565751f851e61176a1dfc2b016c814e7a50867b5966454bbad2f2491f8f94a3",
+          "original_image_key": "source/GS-02_004.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_005__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+      "truth_source_sha256": "5f8a8cc04ab6154a42a9ac8db35eab18463b9ad60615f1db7db32a457cf14db4",
+      "legacy_split_sha256": "b0a8bed2299cc7e3d3235debaec8299ea2b44d7917db1b4a750cdfc9fab8b7bf",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_005/split.json",
+      "local_image_sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+      "candidates": [
+        {
+          "line": 186,
+          "split_line": 185,
+          "case": "GS-02",
+          "source_image_id": 7,
+          "section": {
+            "section_key": "sec_7_01",
+            "source_image_id": 7,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 760,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_7_01.png"
+          },
+          "at": "2026-10-30T01:11:05.416137+00:00",
+          "seconds": 9.108999999938533,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/149/96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22.png"
+          ],
+          "original_image_sha256": "bd7eed2473ba95571701d0e2c253b473138c9618896de0378232df9e7d8522b4",
+          "original_image_key": "source/GS-02_005.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_006__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+      "truth_source_sha256": "8a0cda6847c5bb86c9ab5d7e81598ad25634e7cf4cd374ef4a77620fbe9cb46d",
+      "legacy_split_sha256": "5b54e42d9146c153d54e905583d1b95c49c454abc6916e43ba5f7e1fc12fcc99",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_006/split.json",
+      "local_image_sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+      "candidates": [
+        {
+          "line": 189,
+          "split_line": 188,
+          "case": "GS-02",
+          "source_image_id": 8,
+          "section": {
+            "section_key": "sec_8_01",
+            "source_image_id": 8,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 586,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_8_01.png"
+          },
+          "at": "2026-10-30T01:11:38.915117+00:00",
+          "seconds": 9.280999999959022,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/150/948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa.png"
+          ],
+          "original_image_sha256": "2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b",
+          "original_image_key": "source/GS-02_006.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_006__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9",
+      "truth_source_sha256": "5bb5ab36cf9b7385319677bff7dc36f523ca3a7713910848ccbd792d0e252d3d",
+      "legacy_split_sha256": "5b54e42d9146c153d54e905583d1b95c49c454abc6916e43ba5f7e1fc12fcc99",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_006/split.json",
+      "local_image_sha256": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9",
+      "candidates": [
+        {
+          "line": 191,
+          "split_line": 188,
+          "case": "GS-02",
+          "source_image_id": 8,
+          "section": {
+            "section_key": "sec_8_02",
+            "source_image_id": 8,
+            "section_order": 2,
+            "top_offset": 586,
+            "height": 1314,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_8_02.png"
+          },
+          "at": "2026-10-30T01:11:57.209360+00:00",
+          "seconds": 13.156999999890104,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/151/b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9.png"
+          ],
+          "original_image_sha256": "2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b",
+          "original_image_key": "source/GS-02_006.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_006__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+      "truth_source_sha256": "ab6d61b3d6e7cd41953f7641a3bf635d8b071e09814fe1b7ae5504ad73bea4dc",
+      "legacy_split_sha256": "5b54e42d9146c153d54e905583d1b95c49c454abc6916e43ba5f7e1fc12fcc99",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_006/split.json",
+      "local_image_sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+      "candidates": [
+        {
+          "line": 193,
+          "split_line": 188,
+          "case": "GS-02",
+          "source_image_id": 8,
+          "section": {
+            "section_key": "sec_8_03",
+            "source_image_id": 8,
+            "section_order": 3,
+            "top_offset": 1900,
+            "height": 483,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_8_03.png"
+          },
+          "at": "2026-10-30T01:12:17.118090+00:00",
+          "seconds": 5.672000000020489,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/152/acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6.png"
+          ],
+          "original_image_sha256": "2a1eceb4bcfcbfa56cacf98b06e45659e81d73b841cd989fbdc380f02a31166b",
+          "original_image_key": "source/GS-02_006.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_007__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+      "truth_source_sha256": "f2684b148c6ae029f534289ae7e0bb0375273d4ad516b03fa7d18f7348494790",
+      "legacy_split_sha256": "3c9be56dbe36c2fd949064f3be5289f1837e596efc724347439be3cf324464f2",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_007/split.json",
+      "local_image_sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+      "candidates": [
+        {
+          "line": 196,
+          "split_line": 195,
+          "case": "GS-02",
+          "source_image_id": 9,
+          "section": {
+            "section_key": "sec_9_01",
+            "source_image_id": 9,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 230,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_9_01.png"
+          },
+          "at": "2026-10-30T01:12:42.564361+00:00",
+          "seconds": 3.75,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/153/603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2.png"
+          ],
+          "original_image_sha256": "0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86",
+          "original_image_key": "source/GS-02_007.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_007__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+      "truth_source_sha256": "ec2f735451e36325bc9d6798d47dd9f0b6f609374632540e97bf68d91b0c7975",
+      "legacy_split_sha256": "3c9be56dbe36c2fd949064f3be5289f1837e596efc724347439be3cf324464f2",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_007/split.json",
+      "local_image_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+      "candidates": [
+        {
+          "line": 198,
+          "split_line": 195,
+          "case": "GS-02",
+          "source_image_id": 9,
+          "section": {
+            "section_key": "sec_9_02",
+            "source_image_id": 9,
+            "section_order": 2,
+            "top_offset": 230,
+            "height": 2457,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_9_02.png"
+          },
+          "at": "2026-10-30T01:12:50.028583+00:00",
+          "seconds": 28.54700000002049,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/154/8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e.png"
+          ],
+          "original_image_sha256": "0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86",
+          "original_image_key": "source/GS-02_007.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_007__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2",
+      "truth_source_sha256": "ab68294eb5e0f3538a7f68dcd48cb812a2b8ae86c34845a27f92f1c72856b868",
+      "legacy_split_sha256": "3c9be56dbe36c2fd949064f3be5289f1837e596efc724347439be3cf324464f2",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_007/split.json",
+      "local_image_sha256": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2",
+      "candidates": [
+        {
+          "line": 200,
+          "split_line": 195,
+          "case": "GS-02",
+          "source_image_id": 9,
+          "section": {
+            "section_key": "sec_9_03",
+            "source_image_id": 9,
+            "section_order": 3,
+            "top_offset": 2687,
+            "height": 1635,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_9_03.png"
+          },
+          "at": "2026-10-30T01:13:24.450052+00:00",
+          "seconds": 16.42200000002049,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/155/f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2.png"
+          ],
+          "original_image_sha256": "0d864d1e374d620caf359dbd338293f9e2b462093b5ab69f269ac8720b72ed86",
+          "original_image_key": "source/GS-02_007.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_008__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+      "truth_source_sha256": "06aad31bf2d9cd9dbd93b2ca1f307e3da0decb7d7dd135caea7440394de36685",
+      "legacy_split_sha256": "1240a520d5d92171ada703599fc65a3bed35b51f2bd6a355d8e71f6c2c732222",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_008/split.json",
+      "local_image_sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+      "candidates": [
+        {
+          "line": 203,
+          "split_line": 202,
+          "case": "GS-02",
+          "source_image_id": 10,
+          "section": {
+            "section_key": "sec_10_01",
+            "source_image_id": 10,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2419,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_10_01.png"
+          },
+          "at": "2026-10-30T01:14:46.106081+00:00",
+          "seconds": 25.234000000171363,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/156/60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9.png"
+          ],
+          "original_image_sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+          "original_image_key": "source/GS-02_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_008__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303",
+      "truth_source_sha256": "adb6e7be376537ab28e0b5f46a73fdb1e81d79a9359b89f294aec05be07f9198",
+      "legacy_split_sha256": "1240a520d5d92171ada703599fc65a3bed35b51f2bd6a355d8e71f6c2c732222",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_008/split.json",
+      "local_image_sha256": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303",
+      "candidates": [
+        {
+          "line": 205,
+          "split_line": 202,
+          "case": "GS-02",
+          "source_image_id": 10,
+          "section": {
+            "section_key": "sec_10_02",
+            "source_image_id": 10,
+            "section_order": 2,
+            "top_offset": 2419,
+            "height": 1132,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_10_02.png"
+          },
+          "at": "2026-10-30T01:15:20.710054+00:00",
+          "seconds": 10.828999999910593,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/157/613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303.png"
+          ],
+          "original_image_sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+          "original_image_key": "source/GS-02_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_008__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216",
+      "truth_source_sha256": "3c7aa2ce6aee3cb64a1bf1972394aad3fe39ecb4e890cf598af9559154d4f17d",
+      "legacy_split_sha256": "1240a520d5d92171ada703599fc65a3bed35b51f2bd6a355d8e71f6c2c732222",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_008/split.json",
+      "local_image_sha256": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216",
+      "candidates": [
+        {
+          "line": 207,
+          "split_line": 202,
+          "case": "GS-02",
+          "source_image_id": 10,
+          "section": {
+            "section_key": "sec_10_03",
+            "source_image_id": 10,
+            "section_order": 3,
+            "top_offset": 3551,
+            "height": 444,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_10_03.png"
+          },
+          "at": "2026-10-30T01:15:38.552947+00:00",
+          "seconds": 4.3280000002123415,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/158/f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216.png"
+          ],
+          "original_image_sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+          "original_image_key": "source/GS-02_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_008__sec_1_04",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+      "truth_source_sha256": "3f5882848ac29899dae061d89c2d2f463fbd018006f7d465d3e619e198e2a5b9",
+      "legacy_split_sha256": "1240a520d5d92171ada703599fc65a3bed35b51f2bd6a355d8e71f6c2c732222",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_008/split.json",
+      "local_image_sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+      "candidates": [
+        {
+          "line": 209,
+          "split_line": 202,
+          "case": "GS-02",
+          "source_image_id": 10,
+          "section": {
+            "section_key": "sec_10_04",
+            "source_image_id": 10,
+            "section_order": 4,
+            "top_offset": 3995,
+            "height": 3077,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_10_04.png"
+          },
+          "at": "2026-10-30T01:15:45.433294+00:00",
+          "seconds": 80.01600000006147,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/159/2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe.png"
+          ],
+          "original_image_sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+          "original_image_key": "source/GS-02_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_008__sec_1_05",
+      "state": "재사용 가능",
+      "truth_image_sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+      "truth_source_sha256": "9dafc9997ddc37aa949b01f14a93250ff25518ee80f2e8dfd439574534047cbe",
+      "legacy_split_sha256": "1240a520d5d92171ada703599fc65a3bed35b51f2bd6a355d8e71f6c2c732222",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_008/split.json",
+      "local_image_sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+      "candidates": [
+        {
+          "line": 211,
+          "split_line": 202,
+          "case": "GS-02",
+          "source_image_id": 10,
+          "section": {
+            "section_key": "sec_10_05",
+            "source_image_id": 10,
+            "section_order": 5,
+            "top_offset": 7072,
+            "height": 1684,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_10_05.png"
+          },
+          "at": "2026-10-30T01:17:24.104474+00:00",
+          "seconds": 17.5,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/160/f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23.png"
+          ],
+          "original_image_sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+          "original_image_key": "source/GS-02_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_008__sec_1_06",
+      "state": "재사용 가능",
+      "truth_image_sha256": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140",
+      "truth_source_sha256": "80de6eac60af16025fae9abf032b01041ccee299a26ec2d2c64f078be55ebba0",
+      "legacy_split_sha256": "1240a520d5d92171ada703599fc65a3bed35b51f2bd6a355d8e71f6c2c732222",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_008/split.json",
+      "local_image_sha256": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140",
+      "candidates": [
+        {
+          "line": 213,
+          "split_line": 202,
+          "case": "GS-02",
+          "source_image_id": 10,
+          "section": {
+            "section_key": "sec_10_06",
+            "source_image_id": 10,
+            "section_order": 6,
+            "top_offset": 8756,
+            "height": 1211,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_10_06.png"
+          },
+          "at": "2026-10-30T01:17:50.986779+00:00",
+          "seconds": 12.516000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/161/9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140.png"
+          ],
+          "original_image_sha256": "46cf244036432f63ee6d4ce43b6730928ac1a42049957bf0fea906bfc3bde5b1",
+          "original_image_key": "source/GS-02_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_009__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+      "truth_source_sha256": "3f2799d11037d4a9f1a5f6e2c76ef860e80d1de5944b968cdbd09222aa73ad0e",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+      "candidates": [
+        {
+          "line": 216,
+          "split_line": 215,
+          "case": "GS-02",
+          "source_image_id": 11,
+          "section": {
+            "section_key": "sec_11_01",
+            "source_image_id": 11,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1319,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_11_01.png"
+          },
+          "at": "2026-10-30T01:18:41.005856+00:00",
+          "seconds": 15.327999999979511,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/162/45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10.png"
+          ],
+          "original_image_sha256": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910",
+          "original_image_key": "source/GS-02_009.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_009__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024",
+      "truth_source_sha256": "efd079d047421db5ada253ee56d20279d261299823b15db1eff451d4bca7c714",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024",
+      "candidates": [
+        {
+          "line": 218,
+          "split_line": 215,
+          "case": "GS-02",
+          "source_image_id": 11,
+          "section": {
+            "section_key": "sec_11_02",
+            "source_image_id": 11,
+            "section_order": 2,
+            "top_offset": 1319,
+            "height": 2611,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_11_02.png"
+          },
+          "at": "2026-10-30T01:19:05.874071+00:00",
+          "seconds": 28.093000000109896,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/163/3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024.png"
+          ],
+          "original_image_sha256": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910",
+          "original_image_key": "source/GS-02_009.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_009__sec_1_03",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "126aa7f80fc02a6d80e7463ad253aa3fe83c6d08dbdfcc2cac578ad5c5ce3913",
+      "truth_source_sha256": "8df89b04166fca25556ee5be7756fb7959e8cfb12fc0687b7a2f5ffdd314efe7",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "126aa7f80fc02a6d80e7463ad253aa3fe83c6d08dbdfcc2cac578ad5c5ce3913",
+      "candidates": []
+    },
+    {
+      "id": "GS-02_009__sec_1_04",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "39f9cfc72e5b380e743657b61cc802d9bd96be70bbd391462b70885a8145cf97",
+      "truth_source_sha256": "b5d6d3cbae91c08dc80d0b055386d6d1d02482f784b6b513e31135011e61d79c",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "39f9cfc72e5b380e743657b61cc802d9bd96be70bbd391462b70885a8145cf97",
+      "candidates": []
+    },
+    {
+      "id": "GS-02_009__sec_1_05",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "c0d4f35bbebac9a2eedd68a880d540dd3fb9607d4814eb54e470ffbdb6e82317",
+      "truth_source_sha256": "ff25ac2cdddd5b6423563e4fec07b9c8d1d2311ba95baac7df38075ab9905904",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "c0d4f35bbebac9a2eedd68a880d540dd3fb9607d4814eb54e470ffbdb6e82317",
+      "candidates": []
+    },
+    {
+      "id": "GS-02_009__sec_1_06",
+      "state": "재사용 가능",
+      "truth_image_sha256": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900",
+      "truth_source_sha256": "c18c1695acb60cfb7470a97948306cccffd598248b34eb71a9ae9a0ec6f4c6b9",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900",
+      "candidates": [
+        {
+          "line": 226,
+          "split_line": 215,
+          "case": "GS-02",
+          "source_image_id": 11,
+          "section": {
+            "section_key": "sec_11_06",
+            "source_image_id": 11,
+            "section_order": 6,
+            "top_offset": 8077,
+            "height": 1590,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_11_06.png"
+          },
+          "at": "2026-10-30T01:20:56.925817+00:00",
+          "seconds": 18.046000000089407,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/167/eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900.png"
+          ],
+          "original_image_sha256": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910",
+          "original_image_key": "source/GS-02_009.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_009__sec_1_07",
+      "state": "재사용 가능",
+      "truth_image_sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+      "truth_source_sha256": "698a32f8bd9bc495a8d4cb6e4d5992e9bd6c0aec4c1c8e40ef5ba3bfa8643ea2",
+      "legacy_split_sha256": "24e7118cff493db04226bd11cb4b26d76cfcfb6a5dd82c6d227987d3e3b26d1e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_009/split.json",
+      "local_image_sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+      "candidates": [
+        {
+          "line": 228,
+          "split_line": 215,
+          "case": "GS-02",
+          "source_image_id": 11,
+          "section": {
+            "section_key": "sec_11_07",
+            "source_image_id": 11,
+            "section_order": 7,
+            "top_offset": 9667,
+            "height": 201,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_11_07.png"
+          },
+          "at": "2026-10-30T01:21:21.133354+00:00",
+          "seconds": 2.452999999979511,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/168/f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac.png"
+          ],
+          "original_image_sha256": "034bd1b15e99e2668c4eaba5706c55bc4d9a99d89275668a28bc56c480ba0910",
+          "original_image_key": "source/GS-02_009.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_010__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+      "truth_source_sha256": "dc4b7d4e75cb5d01c4cd720f5b97c949c4ba76d54cb6fc8999b36834bc4043b1",
+      "legacy_split_sha256": "dddf73cf36e8bc882393f054fd813d8d43c83e9fd2689913457deca04de89a42",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_010/split.json",
+      "local_image_sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+      "candidates": [
+        {
+          "line": 231,
+          "split_line": 230,
+          "case": "GS-02",
+          "source_image_id": 12,
+          "section": {
+            "section_key": "sec_12_01",
+            "source_image_id": 12,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 235,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_12_01.png"
+          },
+          "at": "2026-10-30T01:21:41.858070+00:00",
+          "seconds": 3.4840000001713634,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/169/3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7.png"
+          ],
+          "original_image_sha256": "d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5",
+          "original_image_key": "source/GS-02_010.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_010__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2",
+      "truth_source_sha256": "ae65890048d3b1a8ca4bc32e9b20957625ffa8c53bb37276275e7342f0f0cc2b",
+      "legacy_split_sha256": "dddf73cf36e8bc882393f054fd813d8d43c83e9fd2689913457deca04de89a42",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_010/split.json",
+      "local_image_sha256": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2",
+      "candidates": [
+        {
+          "line": 233,
+          "split_line": 230,
+          "case": "GS-02",
+          "source_image_id": 12,
+          "section": {
+            "section_key": "sec_12_02",
+            "source_image_id": 12,
+            "section_order": 2,
+            "top_offset": 235,
+            "height": 2157,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_12_02.png"
+          },
+          "at": "2026-10-30T01:21:48.445083+00:00",
+          "seconds": 19.07799999997951,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/170/2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2.png"
+          ],
+          "original_image_sha256": "d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5",
+          "original_image_key": "source/GS-02_010.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_010__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+      "truth_source_sha256": "08174835a18c1387330be3e765e1f73b12782b993cf01b74813c9debb9e38d1d",
+      "legacy_split_sha256": "dddf73cf36e8bc882393f054fd813d8d43c83e9fd2689913457deca04de89a42",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_010/split.json",
+      "local_image_sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+      "candidates": [
+        {
+          "line": 235,
+          "split_line": 230,
+          "case": "GS-02",
+          "source_image_id": 12,
+          "section": {
+            "section_key": "sec_12_03",
+            "source_image_id": 12,
+            "section_order": 3,
+            "top_offset": 2392,
+            "height": 207,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_12_03.png"
+          },
+          "at": "2026-10-30T01:22:17.267150+00:00",
+          "seconds": 2.3129999998491257,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/171/c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6.png"
+          ],
+          "original_image_sha256": "d90d50f7c5561998d7dadbab37a869805644459b9cc560ce6af2b24e58ead8f5",
+          "original_image_key": "source/GS-02_010.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_011__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+      "truth_source_sha256": "2d2909fe07346307987a9e1e2845953af4817d5ef619fe2971524d9ee9bf6f32",
+      "legacy_split_sha256": "16ae851ca17d5a55747698efbca237c78ba5ce17e7e173da8cd3be24ca7a01b6",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_011/split.json",
+      "local_image_sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+      "candidates": [
+        {
+          "line": 238,
+          "split_line": 237,
+          "case": "GS-02",
+          "source_image_id": 13,
+          "section": {
+            "section_key": "sec_13_01",
+            "source_image_id": 13,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 306,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_13_01.png"
+          },
+          "at": "2026-10-30T01:22:37.453913+00:00",
+          "seconds": 5.858999999938533,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/172/46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce.png"
+          ],
+          "original_image_sha256": "6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39",
+          "original_image_key": "source/GS-02_011.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_011__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f",
+      "truth_source_sha256": "4f0e65786f19c2ee23cc20781cc1db9ba804a3401bf1c8f99d4561488f40324c",
+      "legacy_split_sha256": "16ae851ca17d5a55747698efbca237c78ba5ce17e7e173da8cd3be24ca7a01b6",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_011/split.json",
+      "local_image_sha256": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f",
+      "candidates": [
+        {
+          "line": 240,
+          "split_line": 237,
+          "case": "GS-02",
+          "source_image_id": 13,
+          "section": {
+            "section_key": "sec_13_02",
+            "source_image_id": 13,
+            "section_order": 2,
+            "top_offset": 306,
+            "height": 2315,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_13_02.png"
+          },
+          "at": "2026-10-30T01:22:47.588552+00:00",
+          "seconds": 23.125,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/173/0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f.png"
+          ],
+          "original_image_sha256": "6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39",
+          "original_image_key": "source/GS-02_011.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_011__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+      "truth_source_sha256": "71a7d320274fc101c7bca6d13a3acbf4b8b434f1af5b806e0308ba6c178f59cb",
+      "legacy_split_sha256": "16ae851ca17d5a55747698efbca237c78ba5ce17e7e173da8cd3be24ca7a01b6",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_011/split.json",
+      "local_image_sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+      "candidates": [
+        {
+          "line": 242,
+          "split_line": 237,
+          "case": "GS-02",
+          "source_image_id": 13,
+          "section": {
+            "section_key": "sec_13_03",
+            "source_image_id": 13,
+            "section_order": 3,
+            "top_offset": 2621,
+            "height": 373,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_13_03.png"
+          },
+          "at": "2026-10-30T01:23:15.857534+00:00",
+          "seconds": 4.641000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/174/2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19.png"
+          ],
+          "original_image_sha256": "6e147ae35388daf40d607bcde6d0120343c24e4e208e1ff3877da2ba83249b39",
+          "original_image_key": "source/GS-02_011.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_012__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+      "truth_source_sha256": "7c6cab71756af16880ba92b2676e9f5c812df1aa43274b4f68324ec88fb68e20",
+      "legacy_split_sha256": "f4dd50ccbf559c7ded24a684129afe09dcfee297d1199b25acb6598d30fe9d4b",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_012/split.json",
+      "local_image_sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+      "candidates": [
+        {
+          "line": 245,
+          "split_line": 244,
+          "case": "GS-02",
+          "source_image_id": 14,
+          "section": {
+            "section_key": "sec_14_01",
+            "source_image_id": 14,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 220,
+            "width": 800,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_14_01.png"
+          },
+          "at": "2026-10-30T01:23:23.899995+00:00",
+          "seconds": 3.594000000040978,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/175/dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007.png"
+          ],
+          "original_image_sha256": "031be239854f57cbabacca94612f9f9cb2ff53ddd50f351f73431e69a96a04fe",
+          "original_image_key": "source/GS-02_012.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_013__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389",
+      "truth_source_sha256": "06c0ec8419bb3d02aca541c9ca830edeef8276a45c650e0ee40bfb8cb16e1ace",
+      "legacy_split_sha256": "f0662eb320a6c771e0b638957ebbefdad4e1949e146fc878a0ca364734a7d845",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_013/split.json",
+      "local_image_sha256": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389",
+      "candidates": [
+        {
+          "line": 248,
+          "split_line": 247,
+          "case": "GS-02",
+          "source_image_id": 15,
+          "section": {
+            "section_key": "sec_15_01",
+            "source_image_id": 15,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1565,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_15_01.png"
+          },
+          "at": "2026-10-30T01:23:41.438423+00:00",
+          "seconds": 14.641000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/176/8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389.png"
+          ],
+          "original_image_sha256": "8cd5c87dcaa94cf0663194cbe5663563d8603def8ac92002aa0d9c2ca9896def",
+          "original_image_key": "source/GS-02_013.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_013__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0",
+      "truth_source_sha256": "ef567af48c39c338c2630298ff0f81b6eb9c3bf3ad520afe766802891d13a494",
+      "legacy_split_sha256": "f0662eb320a6c771e0b638957ebbefdad4e1949e146fc878a0ca364734a7d845",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_013/split.json",
+      "local_image_sha256": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0",
+      "candidates": [
+        {
+          "line": 250,
+          "split_line": 247,
+          "case": "GS-02",
+          "source_image_id": 15,
+          "section": {
+            "section_key": "sec_15_02",
+            "source_image_id": 15,
+            "section_order": 2,
+            "top_offset": 1565,
+            "height": 1660,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_15_02.png"
+          },
+          "at": "2026-10-30T01:24:04.404470+00:00",
+          "seconds": 21.937000000150874,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/177/2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0.png"
+          ],
+          "original_image_sha256": "8cd5c87dcaa94cf0663194cbe5663563d8603def8ac92002aa0d9c2ca9896def",
+          "original_image_key": "source/GS-02_013.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_01",
+      "state": "재사용 가능",
+      "truth_image_sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+      "truth_source_sha256": "20884e1b6bc6902a7511a6e5b15e5ec8661351c459e840db787acb9dbc17c85b",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+      "candidates": [
+        {
+          "line": 253,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_01",
+            "source_image_id": 16,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 370,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_01.png"
+          },
+          "at": "2026-10-30T01:26:07.800485+00:00",
+          "seconds": 5.25,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/178/9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_02",
+      "state": "재사용 가능",
+      "truth_image_sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+      "truth_source_sha256": "2ce7d1dd52563d89014c4b9c839d11ef434b72719ae01f1f901af1d74428968e",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+      "candidates": [
+        {
+          "line": 255,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_02",
+            "source_image_id": 16,
+            "section_order": 2,
+            "top_offset": 370,
+            "height": 1424,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_02.png"
+          },
+          "at": "2026-10-30T01:26:16.840551+00:00",
+          "seconds": 13.25,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/179/fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_03",
+      "state": "재사용 가능",
+      "truth_image_sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+      "truth_source_sha256": "9a336402361098d3551f063f4f8c8f88a5cc7b2247a4f24f2f1870fdbd9a7ae3",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+      "candidates": [
+        {
+          "line": 257,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_03",
+            "source_image_id": 16,
+            "section_order": 3,
+            "top_offset": 1794,
+            "height": 1097,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_03.png"
+          },
+          "at": "2026-10-30T01:26:36.181298+00:00",
+          "seconds": 13.766000000061467,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/180/5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_04",
+      "state": "재사용 가능",
+      "truth_image_sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+      "truth_source_sha256": "13547f7b60a1607a6376f82255d08d4d736e54efd9396317b9dcfd16d26d34cc",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+      "candidates": [
+        {
+          "line": 259,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_04",
+            "source_image_id": 16,
+            "section_order": 4,
+            "top_offset": 2891,
+            "height": 1442,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_04.png"
+          },
+          "at": "2026-10-30T01:26:55.349166+00:00",
+          "seconds": 18.437999999849126,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/181/0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_05",
+      "state": "재사용 가능",
+      "truth_image_sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+      "truth_source_sha256": "b6bb660bd80597ce17ca67108fd1064567d7a6e6ff1008702308f0fce2dc7b67",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+      "candidates": [
+        {
+          "line": 261,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_05",
+            "source_image_id": 16,
+            "section_order": 5,
+            "top_offset": 4333,
+            "height": 1796,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_05.png"
+          },
+          "at": "2026-10-30T01:27:29.936048+00:00",
+          "seconds": 16.688000000081956,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/182/8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_06",
+      "state": "재사용 가능",
+      "truth_image_sha256": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135",
+      "truth_source_sha256": "222ba154d7ddd2c0d55ddfa4d49357c807ca580ce057eaa021d430fa58c1f342",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135",
+      "candidates": [
+        {
+          "line": 263,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_06",
+            "source_image_id": 16,
+            "section_order": 6,
+            "top_offset": 6129,
+            "height": 2705,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_06.png"
+          },
+          "at": "2026-10-30T01:28:03.074284+00:00",
+          "seconds": 27.92200000002049,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/183/e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_07",
+      "state": "재사용 가능",
+      "truth_image_sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+      "truth_source_sha256": "af2b9bb5a38c12a1f58484013e421f482b8c1804a8bd451707d70cc791ce2757",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+      "candidates": [
+        {
+          "line": 265,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_07",
+            "source_image_id": 16,
+            "section_order": 7,
+            "top_offset": 8834,
+            "height": 366,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_07.png"
+          },
+          "at": "2026-10-30T01:29:00.149814+00:00",
+          "seconds": 3.3910000000614673,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/184/8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_08",
+      "state": "재사용 가능",
+      "truth_image_sha256": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf",
+      "truth_source_sha256": "24e46ce33bd773b0eea3b5ddcd4680a55b694547551bd3df7681556752e9d58d",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf",
+      "candidates": [
+        {
+          "line": 267,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_08",
+            "source_image_id": 16,
+            "section_order": 8,
+            "top_offset": 9200,
+            "height": 1538,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_08.png"
+          },
+          "at": "2026-10-30T01:29:09.284154+00:00",
+          "seconds": 18.359000000171363,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/185/25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "state": "재사용 가능",
+      "truth_image_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+      "truth_source_sha256": "859c77e273f02de3f0e5e0c78ba53d0441ef7b5673f10d5f613df6de86ea1d1d",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+      "candidates": [
+        {
+          "line": 269,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_09",
+            "source_image_id": 16,
+            "section_order": 9,
+            "top_offset": 10738,
+            "height": 3272,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_09.png"
+          },
+          "at": "2026-10-30T01:29:36.607748+00:00",
+          "seconds": 35.438000000081956,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/186/bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_10",
+      "state": "재사용 가능",
+      "truth_image_sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+      "truth_source_sha256": "f707a6edf097acf7e642db0296e247df9a0bc103a3004805561f9d1bae9bd138",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+      "candidates": [
+        {
+          "line": 271,
+          "split_line": 252,
+          "case": "GS-02",
+          "source_image_id": 16,
+          "section": {
+            "section_key": "sec_16_10",
+            "source_image_id": 16,
+            "section_order": 10,
+            "top_offset": 14010,
+            "height": 433,
+            "width": 830,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-169-v4855gss\\out\\sections\\sec_16_10.png"
+          },
+          "at": "2026-10-30T01:30:21.066430+00:00",
+          "seconds": 4.4060000001918525,
+          "input_hash_verified": true,
+          "image_keys": [
+            "verified/2/169/165/187/8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e.png"
+          ],
+          "original_image_sha256": "07f12a483261b3d331f07f407200b2bd5abd8055e4ec302d3dfeb22325d6ca81",
+          "original_image_key": "source/GS-02_014.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-02_014__sec_1_11",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d",
+      "truth_source_sha256": "4a387654b189a4318c84dcc71a79f8029884fbffa4c9473a7093322d1eae2fe0",
+      "legacy_split_sha256": "fdcdceb3928279d7117cd1bc4ffa24caf53ca6286b464cfcec9cdae47c138232",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-02_014/split.json",
+      "local_image_sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_001__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "de344705fe7be6e652358b4285fdf40e9dd0f2df249e18e3a67321ae264eb0c0",
+      "truth_source_sha256": "05692fa7f075ca126c6ca5ff52151fa3186760b138829ac86806f24de9139f30",
+      "legacy_split_sha256": "126b37d8199c3ddbf6a2d655086a3e23e326062198efc14e1b143803932bada0",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_001/split.json",
+      "local_image_sha256": "de344705fe7be6e652358b4285fdf40e9dd0f2df249e18e3a67321ae264eb0c0",
+      "candidates": [
+        {
+          "line": 498,
+          "split_line": 497,
+          "case": "GS-03",
+          "source_image_id": 17,
+          "section": {
+            "section_key": "sec_17_01",
+            "source_image_id": 17,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 455,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_17_01.png"
+          },
+          "at": "2026-10-30T02:03:21.771290+00:00",
+          "seconds": 5.827999999979511,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+          "original_image_key": "source/GS-03_001.jpg"
+        },
+        {
+          "line": 550,
+          "split_line": 549,
+          "case": "GS-03",
+          "source_image_id": 17,
+          "section": {
+            "section_key": "sec_17_01",
+            "source_image_id": 17,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 455,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_17_01.png"
+          },
+          "at": "2026-10-30T02:15:08.773902+00:00",
+          "seconds": 6.202999999979511,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+          "original_image_key": "source/GS-03_001.jpg"
+        },
+        {
+          "line": 604,
+          "split_line": 603,
+          "case": "GS-03",
+          "source_image_id": 17,
+          "section": {
+            "section_key": "sec_17_01",
+            "source_image_id": 17,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 455,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_17_01.png"
+          },
+          "at": "2026-10-30T02:28:07.186156+00:00",
+          "seconds": 6.25,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "d2c0bad4477a37946cc85bfcd5ad9e7ec5f1363802024486090e54ff34ce795c",
+          "original_image_key": "source/GS-03_001.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "5470a91012da041f763291d45cae0be0785500576253e3802b7ef937364b985f",
+      "truth_source_sha256": "21cab5e3e1af24872e0484842fe612e4b800d3f426052a896f91d56454a77436",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "5470a91012da041f763291d45cae0be0785500576253e3802b7ef937364b985f",
+      "candidates": [
+        {
+          "line": 501,
+          "split_line": 500,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_01",
+            "source_image_id": 18,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2671,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_18_01.png"
+          },
+          "at": "2026-10-30T02:04:37.812427+00:00",
+          "seconds": 37.21900000004098,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 553,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_01",
+            "source_image_id": 18,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2671,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_01.png"
+          },
+          "at": "2026-10-30T02:16:23.296741+00:00",
+          "seconds": 33.60899999993853,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 607,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_01",
+            "source_image_id": 18,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2671,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_01.png"
+          },
+          "at": "2026-10-30T02:29:17.108516+00:00",
+          "seconds": 34.25,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_02",
+      "state": "확인 필요",
+      "truth_image_sha256": "aca85d646e594955a1b2302c3f2148416a8229f299146d18cb273496ccfb136e",
+      "truth_source_sha256": "e328fae3e183b0608d1c38fd35bc8c60a90d90b292200cadf320ff84a0d45c0b",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "aca85d646e594955a1b2302c3f2148416a8229f299146d18cb273496ccfb136e",
+      "candidates": [
+        {
+          "line": 555,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_02",
+            "source_image_id": 18,
+            "section_order": 2,
+            "top_offset": 2671,
+            "height": 1241,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_02.png"
+          },
+          "at": "2026-10-30T02:17:12.337703+00:00",
+          "seconds": 14.469000000040978,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 609,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_02",
+            "source_image_id": 18,
+            "section_order": 2,
+            "top_offset": 2671,
+            "height": 1241,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_02.png"
+          },
+          "at": "2026-10-30T02:30:07.365410+00:00",
+          "seconds": 14.719000000040978,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_03",
+      "state": "확인 필요",
+      "truth_image_sha256": "f8461d1c76042be7acdf6927eca093cc315ca45b339028105b7637979145a3ef",
+      "truth_source_sha256": "f7d0455ebe7cda0daa6709cb5d461ca9d91445338ab68c34fadd13380e72eed3",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "f8461d1c76042be7acdf6927eca093cc315ca45b339028105b7637979145a3ef",
+      "candidates": [
+        {
+          "line": 557,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_03",
+            "source_image_id": 18,
+            "section_order": 3,
+            "top_offset": 3912,
+            "height": 1399,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_03.png"
+          },
+          "at": "2026-10-30T02:17:39.314772+00:00",
+          "seconds": 18.141000000061467,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 611,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_03",
+            "source_image_id": 18,
+            "section_order": 3,
+            "top_offset": 3912,
+            "height": 1399,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_03.png"
+          },
+          "at": "2026-10-30T02:30:30.793171+00:00",
+          "seconds": 18.20299999997951,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_04",
+      "state": "확인 필요",
+      "truth_image_sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+      "truth_source_sha256": "f0972b138b1e8e53952f615ea0bf52efd604d9dfd86164a64dac6fa923ff3818",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+      "candidates": [
+        {
+          "line": 505,
+          "split_line": 500,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_03",
+            "source_image_id": 18,
+            "section_order": 3,
+            "top_offset": 5311,
+            "height": 2856,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_18_03.png"
+          },
+          "at": "2026-10-30T02:06:10.872829+00:00",
+          "seconds": 39.23399999993853,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 559,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_04",
+            "source_image_id": 18,
+            "section_order": 4,
+            "top_offset": 5311,
+            "height": 2856,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_04.png"
+          },
+          "at": "2026-10-30T02:18:03.823928+00:00",
+          "seconds": 39.313000000081956,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 613,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_04",
+            "source_image_id": 18,
+            "section_order": 4,
+            "top_offset": 5311,
+            "height": 2856,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_04.png"
+          },
+          "at": "2026-10-30T02:30:53.860091+00:00",
+          "seconds": 39.17200000002049,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_05",
+      "state": "확인 필요",
+      "truth_image_sha256": "2858eb810c9ec6c152d6a17c0f18f543e218a3d2666f50a7a2e2356e8e0e4e70",
+      "truth_source_sha256": "d960ad7fc2a4649c583da1d009d983831bae1a29d0dbad19c9f63b1ba245111f",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "2858eb810c9ec6c152d6a17c0f18f543e218a3d2666f50a7a2e2356e8e0e4e70",
+      "candidates": [
+        {
+          "line": 507,
+          "split_line": 500,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_04",
+            "source_image_id": 18,
+            "section_order": 4,
+            "top_offset": 8167,
+            "height": 2062,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_18_04.png"
+          },
+          "at": "2026-10-30T02:07:22.826958+00:00",
+          "seconds": 27.92200000002049,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 561,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_05",
+            "source_image_id": 18,
+            "section_order": 5,
+            "top_offset": 8167,
+            "height": 2062,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_05.png"
+          },
+          "at": "2026-10-30T02:19:38.504562+00:00",
+          "seconds": 28.20299999997951,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 615,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_05",
+            "source_image_id": 18,
+            "section_order": 5,
+            "top_offset": 8167,
+            "height": 2062,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_05.png"
+          },
+          "at": "2026-10-30T02:32:06.417617+00:00",
+          "seconds": 26.04700000002049,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_06",
+      "state": "확인 필요",
+      "truth_image_sha256": "6ce84c620bd3eaaf202abfba7c01ee28ebf1cf19376cb3b98d075e12596dc4ae",
+      "truth_source_sha256": "b28c1e532fc047a0945e58e94fc3fc0b7be75ed510b7b4d35bb22b57f1526645",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "6ce84c620bd3eaaf202abfba7c01ee28ebf1cf19376cb3b98d075e12596dc4ae",
+      "candidates": [
+        {
+          "line": 509,
+          "split_line": 500,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_05",
+            "source_image_id": 18,
+            "section_order": 5,
+            "top_offset": 10229,
+            "height": 2775,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_18_05.png"
+          },
+          "at": "2026-10-30T02:08:03.409176+00:00",
+          "seconds": 36.03099999995902,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 563,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_06",
+            "source_image_id": 18,
+            "section_order": 6,
+            "top_offset": 10229,
+            "height": 2775,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_06.png"
+          },
+          "at": "2026-10-30T02:20:18.671365+00:00",
+          "seconds": 36.125,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 617,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_06",
+            "source_image_id": 18,
+            "section_order": 6,
+            "top_offset": 10229,
+            "height": 2775,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_06.png"
+          },
+          "at": "2026-10-30T02:32:43.785712+00:00",
+          "seconds": 33.562000000150874,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_002__sec_1_07",
+      "state": "확인 필요",
+      "truth_image_sha256": "f21f7b01f14ed818325ab4a8275ce1afd233463188bf0dc2fa4601281a43145f",
+      "truth_source_sha256": "51b780588612923d7bdf9703386a08cc0869d74919dbab3eb5c0c1af782170a9",
+      "legacy_split_sha256": "eebba14f3b354d03d0dee1f95c082df544600575828096d2332422a87d8b10ec",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_002/split.json",
+      "local_image_sha256": "f21f7b01f14ed818325ab4a8275ce1afd233463188bf0dc2fa4601281a43145f",
+      "candidates": [
+        {
+          "line": 511,
+          "split_line": 500,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_06",
+            "source_image_id": 18,
+            "section_order": 6,
+            "top_offset": 13004,
+            "height": 421,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_18_06.png"
+          },
+          "at": "2026-10-30T02:08:46.938135+00:00",
+          "seconds": 5.4850000001024455,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 565,
+          "split_line": 552,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_07",
+            "source_image_id": 18,
+            "section_order": 7,
+            "top_offset": 13004,
+            "height": 421,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_18_07.png"
+          },
+          "at": "2026-10-30T02:21:11.690752+00:00",
+          "seconds": 5.5,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        },
+        {
+          "line": 619,
+          "split_line": 606,
+          "case": "GS-03",
+          "source_image_id": 18,
+          "section": {
+            "section_key": "sec_18_07",
+            "source_image_id": 18,
+            "section_order": 7,
+            "top_offset": 13004,
+            "height": 421,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_18_07.png"
+          },
+          "at": "2026-10-30T02:33:27.013964+00:00",
+          "seconds": 5.172000000020489,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "dc5cf0ef8e6ffa958d12301513bb170fe9581b46974edefa85b04f53b8735e20",
+          "original_image_key": "source/GS-03_002.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_003__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "61b782edc765b9b9a50c654c8c331de78f2280425cb815806050d24f4e2b8b30",
+      "truth_source_sha256": "127da461979a32542effe9d3cb3a3510ffa3b80e09d381a548749ffa418cc988",
+      "legacy_split_sha256": "dece74ecd6279a38f87429ea3c0bc0e5a92e35b4a43fc6b58e54d7170bfc2f94",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_003/split.json",
+      "local_image_sha256": "61b782edc765b9b9a50c654c8c331de78f2280425cb815806050d24f4e2b8b30",
+      "candidates": [
+        {
+          "line": 514,
+          "split_line": 513,
+          "case": "GS-03",
+          "source_image_id": 19,
+          "section": {
+            "section_key": "sec_19_01",
+            "source_image_id": 19,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 540,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_19_01.png"
+          },
+          "at": "2026-10-30T02:08:57.320709+00:00",
+          "seconds": 6.1100000001024455,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+          "original_image_key": "source/GS-03_003.jpg"
+        },
+        {
+          "line": 568,
+          "split_line": 567,
+          "case": "GS-03",
+          "source_image_id": 19,
+          "section": {
+            "section_key": "sec_19_01",
+            "source_image_id": 19,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 540,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_19_01.png"
+          },
+          "at": "2026-10-30T02:21:21.126137+00:00",
+          "seconds": 6.047000000020489,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+          "original_image_key": "source/GS-03_003.jpg"
+        },
+        {
+          "line": 622,
+          "split_line": 621,
+          "case": "GS-03",
+          "source_image_id": 19,
+          "section": {
+            "section_key": "sec_19_01",
+            "source_image_id": 19,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 540,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_19_01.png"
+          },
+          "at": "2026-10-30T02:33:36.530677+00:00",
+          "seconds": 5.5939999998081475,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "632923c8a59c305536b33e1e4b4a4c6ab44858497537bf262fd9d2a3284c84ec",
+          "original_image_key": "source/GS-03_003.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_004__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "53c256ff9fd36f0558c28a17b0dfa65453f6b7b8edbc6165d371c8151b82c731",
+      "truth_source_sha256": "cab48491efbe42e774c2673e456398a8716b74e086e80e9d4e081b135f9b643b",
+      "legacy_split_sha256": "a0c3503a98a14e4829e63611e2de785928c95d193d81b3a236943a13718b8c8d",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_004/split.json",
+      "local_image_sha256": "53c256ff9fd36f0558c28a17b0dfa65453f6b7b8edbc6165d371c8151b82c731",
+      "candidates": [
+        {
+          "line": 517,
+          "split_line": 516,
+          "case": "GS-03",
+          "source_image_id": 20,
+          "section": {
+            "section_key": "sec_20_01",
+            "source_image_id": 20,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1760,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_20_01.png"
+          },
+          "at": "2026-10-30T02:09:10.054794+00:00",
+          "seconds": 21.921000000089407,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+          "original_image_key": "source/GS-03_004.jpg"
+        },
+        {
+          "line": 571,
+          "split_line": 570,
+          "case": "GS-03",
+          "source_image_id": 20,
+          "section": {
+            "section_key": "sec_20_01",
+            "source_image_id": 20,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1760,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_20_01.png"
+          },
+          "at": "2026-10-30T02:21:34.468023+00:00",
+          "seconds": 21.45299999997951,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+          "original_image_key": "source/GS-03_004.jpg"
+        },
+        {
+          "line": 625,
+          "split_line": 624,
+          "case": "GS-03",
+          "source_image_id": 20,
+          "section": {
+            "section_key": "sec_20_01",
+            "source_image_id": 20,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1760,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_20_01.png"
+          },
+          "at": "2026-10-30T02:33:48.966104+00:00",
+          "seconds": 19.95299999997951,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "084e5d6d909291d0316a8d2f25b0209a52641ea142433c7fa3f7330272c7a87b",
+          "original_image_key": "source/GS-03_004.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_005__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b",
+      "truth_source_sha256": "6493533a488a8fb937c1d18ff01658612dd84bcdd6cbe4950fe6045267270cae",
+      "legacy_split_sha256": "58f085e27a20732db904604df842b6a0d1e35353e8410f209e5e19be5a78f60a",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_005/split.json",
+      "local_image_sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b",
+      "candidates": [
+        {
+          "line": 520,
+          "split_line": 519,
+          "case": "GS-03",
+          "source_image_id": 21,
+          "section": {
+            "section_key": "sec_21_01",
+            "source_image_id": 21,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2040,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_21_01.png"
+          },
+          "at": "2026-10-30T02:09:45.496090+00:00",
+          "seconds": 27.82799999997951,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+          "original_image_key": "source/GS-03_005.jpg"
+        },
+        {
+          "line": 574,
+          "split_line": 573,
+          "case": "GS-03",
+          "source_image_id": 21,
+          "section": {
+            "section_key": "sec_21_01",
+            "source_image_id": 21,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2040,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_21_01.png"
+          },
+          "at": "2026-10-30T02:22:09.506272+00:00",
+          "seconds": 26.983999999938533,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+          "original_image_key": "source/GS-03_005.jpg"
+        },
+        {
+          "line": 628,
+          "split_line": 627,
+          "case": "GS-03",
+          "source_image_id": 21,
+          "section": {
+            "section_key": "sec_21_01",
+            "source_image_id": 21,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 2040,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_21_01.png"
+          },
+          "at": "2026-10-30T02:34:25.678821+00:00",
+          "seconds": 24.811999999918044,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "c3ff29efa99f0d62d454b524fa50783a865efef114feae58cca2b7c5b4d9e410",
+          "original_image_key": "source/GS-03_005.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_006__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "95077b17459c40d4b5990da6859f17fb0ec8b7ab1865f24c607ea774f3964c44",
+      "truth_source_sha256": "643428850f98ae3f863e4ee0494016bce9518b42442d30126e289163b9309768",
+      "legacy_split_sha256": "1cd2b1498783e250aefe6aeaa28c19b6626e2b4969449122486642b5083b5f1f",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_006/split.json",
+      "local_image_sha256": "95077b17459c40d4b5990da6859f17fb0ec8b7ab1865f24c607ea774f3964c44",
+      "candidates": [
+        {
+          "line": 523,
+          "split_line": 522,
+          "case": "GS-03",
+          "source_image_id": 22,
+          "section": {
+            "section_key": "sec_22_01",
+            "source_image_id": 22,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 679,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_22_01.png"
+          },
+          "at": "2026-10-30T02:10:21.407204+00:00",
+          "seconds": 9.375,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+          "original_image_key": "source/GS-03_006.jpg"
+        },
+        {
+          "line": 577,
+          "split_line": 576,
+          "case": "GS-03",
+          "source_image_id": 22,
+          "section": {
+            "section_key": "sec_22_01",
+            "source_image_id": 22,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 679,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_22_01.png"
+          },
+          "at": "2026-10-30T02:22:41.848520+00:00",
+          "seconds": 8.953999999910593,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+          "original_image_key": "source/GS-03_006.jpg"
+        },
+        {
+          "line": 631,
+          "split_line": 630,
+          "case": "GS-03",
+          "source_image_id": 22,
+          "section": {
+            "section_key": "sec_22_01",
+            "source_image_id": 22,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 679,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_22_01.png"
+          },
+          "at": "2026-10-30T02:34:55.569684+00:00",
+          "seconds": 8.485000000102445,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "878981d535b0a4d364cba2b18c26b1cc95b47a41cfe48c2600d934a9107ca688",
+          "original_image_key": "source/GS-03_006.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_007__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "09995a2f9f6022f159065fe96b40f8b99960897c4a4d69abb961843d6f287ca7",
+      "truth_source_sha256": "9d8e235fdbec63d03c461edef82ae9766d11b290acbb6f27e4f469233856fd5a",
+      "legacy_split_sha256": "71489485c2c39d349a606dc6174c16fdb04d752e024eaa7ec23d3b9cfccb5442",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_007/split.json",
+      "local_image_sha256": "09995a2f9f6022f159065fe96b40f8b99960897c4a4d69abb961843d6f287ca7",
+      "candidates": [
+        {
+          "line": 526,
+          "split_line": 525,
+          "case": "GS-03",
+          "source_image_id": 23,
+          "section": {
+            "section_key": "sec_23_01",
+            "source_image_id": 23,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 710,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_23_01.png"
+          },
+          "at": "2026-10-30T02:10:35.179949+00:00",
+          "seconds": 8.061999999918044,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+          "original_image_key": "source/GS-03_007.jpg"
+        },
+        {
+          "line": 580,
+          "split_line": 579,
+          "case": "GS-03",
+          "source_image_id": 23,
+          "section": {
+            "section_key": "sec_23_01",
+            "source_image_id": 23,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 710,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_23_01.png"
+          },
+          "at": "2026-10-30T02:22:55.055163+00:00",
+          "seconds": 7.625,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+          "original_image_key": "source/GS-03_007.jpg"
+        },
+        {
+          "line": 634,
+          "split_line": 633,
+          "case": "GS-03",
+          "source_image_id": 23,
+          "section": {
+            "section_key": "sec_23_01",
+            "source_image_id": 23,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 710,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_23_01.png"
+          },
+          "at": "2026-10-30T02:35:08.075474+00:00",
+          "seconds": 6.969000000040978,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "853787635a81786d449ed4751b9413c01bcf6080b9d0aadbd75a183000d955e1",
+          "original_image_key": "source/GS-03_007.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_008__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "e2a476ae35dae98333a3a85756b69b80badffb53e44d7e1f7a6ec7b8ef5ce14f",
+      "truth_source_sha256": "7b58a7a64cff1aa1523f0ad1ee6d41c8a19a5f59e809fbe81c5228a1312518b9",
+      "legacy_split_sha256": "56d7a7b0e82b8ca24ed52e763122f5e23f33345988a922fc16a304db51c3e24e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_008/split.json",
+      "local_image_sha256": "e2a476ae35dae98333a3a85756b69b80badffb53e44d7e1f7a6ec7b8ef5ce14f",
+      "candidates": [
+        {
+          "line": 529,
+          "split_line": 528,
+          "case": "GS-03",
+          "source_image_id": 24,
+          "section": {
+            "section_key": "sec_24_01",
+            "source_image_id": 24,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 959,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_24_01.png"
+          },
+          "at": "2026-10-30T02:10:47.305228+00:00",
+          "seconds": 13.155999999959022,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+          "original_image_key": "source/GS-03_008.jpg"
+        },
+        {
+          "line": 583,
+          "split_line": 582,
+          "case": "GS-03",
+          "source_image_id": 24,
+          "section": {
+            "section_key": "sec_24_01",
+            "source_image_id": 24,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 959,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_24_01.png"
+          },
+          "at": "2026-10-30T02:23:08.083622+00:00",
+          "seconds": 12.437000000150874,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+          "original_image_key": "source/GS-03_008.jpg"
+        },
+        {
+          "line": 637,
+          "split_line": 636,
+          "case": "GS-03",
+          "source_image_id": 24,
+          "section": {
+            "section_key": "sec_24_01",
+            "source_image_id": 24,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 959,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-489-kgt7j3qf\\out\\sections\\sec_24_01.png"
+          },
+          "at": "2026-10-30T02:35:20.550870+00:00",
+          "seconds": 11.718000000109896,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+          "original_image_key": "source/GS-03_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_008__sec_1_02",
+      "state": "확인 필요",
+      "truth_image_sha256": "f99f91e318632c62d84a6ef7a6163274185bc3323ebd122762da10a12e7d0880",
+      "truth_source_sha256": "47195498b76afd9fc2af7da8867d082d797f5dfc885b606cc0f08aa0ffcfebf0",
+      "legacy_split_sha256": "56d7a7b0e82b8ca24ed52e763122f5e23f33345988a922fc16a304db51c3e24e",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_008/split.json",
+      "local_image_sha256": "f99f91e318632c62d84a6ef7a6163274185bc3323ebd122762da10a12e7d0880",
+      "candidates": [
+        {
+          "line": 531,
+          "split_line": 528,
+          "case": "GS-03",
+          "source_image_id": 24,
+          "section": {
+            "section_key": "sec_24_02",
+            "source_image_id": 24,
+            "section_order": 2,
+            "top_offset": 959,
+            "height": 617,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_24_02.png"
+          },
+          "at": "2026-10-30T02:11:10.360670+00:00",
+          "seconds": 8.516000000061467,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+          "original_image_key": "source/GS-03_008.jpg"
+        },
+        {
+          "line": 585,
+          "split_line": 582,
+          "case": "GS-03",
+          "source_image_id": 24,
+          "section": {
+            "section_key": "sec_24_02",
+            "source_image_id": 24,
+            "section_order": 2,
+            "top_offset": 959,
+            "height": 617,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_24_02.png"
+          },
+          "at": "2026-10-30T02:23:51.095674+00:00",
+          "seconds": 8.187999999849126,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "5cf2e07f61f0adfe8689ffdffb8e45fac94100e5d17f2f059a0763bf2b003e2c",
+          "original_image_key": "source/GS-03_008.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_009__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "bb2f1c7ecb7ad0c7c47897131b89984f9e237aa6c16992b08ce4c0356645202b",
+      "truth_source_sha256": "9701b13f2b435b9a51bc7aaa295208b9baf56c51de89df25ea1ff213484678f0",
+      "legacy_split_sha256": "71489485c2c39d349a606dc6174c16fdb04d752e024eaa7ec23d3b9cfccb5442",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_009/split.json",
+      "local_image_sha256": "bb2f1c7ecb7ad0c7c47897131b89984f9e237aa6c16992b08ce4c0356645202b",
+      "candidates": [
+        {
+          "line": 534,
+          "split_line": 533,
+          "case": "GS-03",
+          "source_image_id": 25,
+          "section": {
+            "section_key": "sec_25_01",
+            "source_image_id": 25,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 710,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_25_01.png"
+          },
+          "at": "2026-10-30T02:11:25.237568+00:00",
+          "seconds": 9.281000000191852,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+          "original_image_key": "source/GS-03_009.jpg"
+        },
+        {
+          "line": 588,
+          "split_line": 587,
+          "case": "GS-03",
+          "source_image_id": 25,
+          "section": {
+            "section_key": "sec_25_01",
+            "source_image_id": 25,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 710,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_25_01.png"
+          },
+          "at": "2026-10-30T02:24:08.510044+00:00",
+          "seconds": 8.952999999979511,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "b43eb392346e81b08d957c5d4731ec54e939d5f40ef6ab4b5fe98d96f22725e9",
+          "original_image_key": "source/GS-03_009.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_010__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "580756cc6e7a024a7f559e4c234ed2aa7bc473b423861cd9458f15868c7ec983",
+      "truth_source_sha256": "6990c3695dd8032b8e434c813ded3267068f79e683f3a8f69ee741230ae6afe5",
+      "legacy_split_sha256": "052cfb11e137048b088c2bed4efaca5a0e568d4858648d7cd491bef31cafc100",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_010/split.json",
+      "local_image_sha256": "580756cc6e7a024a7f559e4c234ed2aa7bc473b423861cd9458f15868c7ec983",
+      "candidates": [
+        {
+          "line": 537,
+          "split_line": 536,
+          "case": "GS-03",
+          "source_image_id": 26,
+          "section": {
+            "section_key": "sec_26_01",
+            "source_image_id": 26,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 343,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_26_01.png"
+          },
+          "at": "2026-10-30T02:11:58.522749+00:00",
+          "seconds": 5.281999999890104,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+          "original_image_key": "source/GS-03_010.jpg"
+        },
+        {
+          "line": 591,
+          "split_line": 590,
+          "case": "GS-03",
+          "source_image_id": 26,
+          "section": {
+            "section_key": "sec_26_01",
+            "source_image_id": 26,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 343,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_26_01.png"
+          },
+          "at": "2026-10-30T02:24:42.617764+00:00",
+          "seconds": 5.172000000020489,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+          "original_image_key": "source/GS-03_010.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_010__sec_1_02",
+      "state": "확인 필요",
+      "truth_image_sha256": "f01aef4d5608979b8b1db38c72c9561afd70059f0932ecbc2163c0a793748b4b",
+      "truth_source_sha256": "b5d43fb057b0dcb78545b130b9baadfe58251100dee45aad9a033688b6f45976",
+      "legacy_split_sha256": "052cfb11e137048b088c2bed4efaca5a0e568d4858648d7cd491bef31cafc100",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_010/split.json",
+      "local_image_sha256": "f01aef4d5608979b8b1db38c72c9561afd70059f0932ecbc2163c0a793748b4b",
+      "candidates": [
+        {
+          "line": 539,
+          "split_line": 536,
+          "case": "GS-03",
+          "source_image_id": 26,
+          "section": {
+            "section_key": "sec_26_02",
+            "source_image_id": 26,
+            "section_order": 2,
+            "top_offset": 343,
+            "height": 1576,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_26_02.png"
+          },
+          "at": "2026-10-30T02:12:07.064274+00:00",
+          "seconds": 21.5,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+          "original_image_key": "source/GS-03_010.jpg"
+        },
+        {
+          "line": 593,
+          "split_line": 590,
+          "case": "GS-03",
+          "source_image_id": 26,
+          "section": {
+            "section_key": "sec_26_02",
+            "source_image_id": 26,
+            "section_order": 2,
+            "top_offset": 343,
+            "height": 1576,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_26_02.png"
+          },
+          "at": "2026-10-30T02:24:51.015059+00:00",
+          "seconds": 21.218000000109896,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+          "original_image_key": "source/GS-03_010.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_010__sec_1_03",
+      "state": "확인 필요",
+      "truth_image_sha256": "175191fee359ed1fcc0b1afdd07bf22eebc61fbb024f18429fc3795fcc0f217c",
+      "truth_source_sha256": "2ec054fd3501bf8d50056780217673eaa21f2f216d5c44d56edf34d29719c9cb",
+      "legacy_split_sha256": "052cfb11e137048b088c2bed4efaca5a0e568d4858648d7cd491bef31cafc100",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_010/split.json",
+      "local_image_sha256": "175191fee359ed1fcc0b1afdd07bf22eebc61fbb024f18429fc3795fcc0f217c",
+      "candidates": [
+        {
+          "line": 541,
+          "split_line": 536,
+          "case": "GS-03",
+          "source_image_id": 26,
+          "section": {
+            "section_key": "sec_26_03",
+            "source_image_id": 26,
+            "section_order": 3,
+            "top_offset": 1919,
+            "height": 2781,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_26_03.png"
+          },
+          "at": "2026-10-30T02:12:34.226832+00:00",
+          "seconds": 33.656999999890104,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+          "original_image_key": "source/GS-03_010.jpg"
+        },
+        {
+          "line": 595,
+          "split_line": 590,
+          "case": "GS-03",
+          "source_image_id": 26,
+          "section": {
+            "section_key": "sec_26_03",
+            "source_image_id": 26,
+            "section_order": 3,
+            "top_offset": 1919,
+            "height": 2781,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_26_03.png"
+          },
+          "at": "2026-10-30T02:25:16.655734+00:00",
+          "seconds": 33.32799999997951,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "ed95189b58e38f11e22eae4f03ce9379e371f2b5aa7db3cbfff3f43cf35a11ea",
+          "original_image_key": "source/GS-03_010.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_011__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "37d5857f6c90cd7b58b4467bf90dfd9ee31beb65a4fdbf02a104e90210d4fdea",
+      "truth_source_sha256": "6b051369833b3d3e16f6a4194f70e43ab872a9fa35f93f446378ee662fe0ef7f",
+      "legacy_split_sha256": "35c30b883e62c31171b8a445495f3210116265abc0bf2dbc9a97e49cb2d3a202",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_011/split.json",
+      "local_image_sha256": "37d5857f6c90cd7b58b4467bf90dfd9ee31beb65a4fdbf02a104e90210d4fdea",
+      "candidates": [
+        {
+          "line": 544,
+          "split_line": 543,
+          "case": "GS-03",
+          "source_image_id": 27,
+          "section": {
+            "section_key": "sec_27_01",
+            "source_image_id": 27,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1720,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_27_01.png"
+          },
+          "at": "2026-10-30T02:13:28.417952+00:00",
+          "seconds": 20.391000000061467,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+          "original_image_key": "source/GS-03_011.jpg"
+        },
+        {
+          "line": 598,
+          "split_line": 597,
+          "case": "GS-03",
+          "source_image_id": 27,
+          "section": {
+            "section_key": "sec_27_01",
+            "source_image_id": 27,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 1720,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_27_01.png"
+          },
+          "at": "2026-10-30T02:26:27.420975+00:00",
+          "seconds": 20.54700000002049,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "38cad424c13d356eae6e482bb4cfc8e7998ddded6df04e073d4859b9f4ec546d",
+          "original_image_key": "source/GS-03_011.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_012__sec_1_01",
+      "state": "확인 필요",
+      "truth_image_sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de",
+      "truth_source_sha256": "ed97f4f8032b179d683ad12429605e28f548ececcb6839d3746bb2c6403ae982",
+      "legacy_split_sha256": "79ff5db09aaa21d99621944972ef4def33d2bf9cb523620f0671fc914c3c3797",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_012/split.json",
+      "local_image_sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de",
+      "candidates": [
+        {
+          "line": 547,
+          "split_line": 546,
+          "case": "GS-03",
+          "source_image_id": 28,
+          "section": {
+            "section_key": "sec_28_01",
+            "source_image_id": 28,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 830,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-487-5uew0n06\\out\\sections\\sec_28_01.png"
+          },
+          "at": "2026-10-30T02:13:53.951308+00:00",
+          "seconds": 12.625,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f",
+          "original_image_key": "source/GS-03_012.jpg"
+        },
+        {
+          "line": 601,
+          "split_line": 600,
+          "case": "GS-03",
+          "source_image_id": 28,
+          "section": {
+            "section_key": "sec_28_01",
+            "source_image_id": 28,
+            "section_order": 1,
+            "top_offset": 0,
+            "height": 830,
+            "width": 1000,
+            "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp\\px-analyze-488-jkml7r1y\\out\\sections\\sec_28_01.png"
+          },
+          "at": "2026-10-30T02:26:53.136990+00:00",
+          "seconds": 12.358999999938533,
+          "input_hash_verified": false,
+          "image_keys": [],
+          "original_image_sha256": "20e1aac327245c05cf5c5f0f919f7822e974b700a11c07979545710f7138c39f",
+          "original_image_key": "source/GS-03_012.jpg"
+        }
+      ]
+    },
+    {
+      "id": "GS-03_013__sec_1_01",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b",
+      "truth_source_sha256": "8d638dd5b4dab5183a1819da03a167cd0ee42fee8943fca732de0e60d1cde7e5",
+      "legacy_split_sha256": "4a07322174518c4abb91344a4d9cbf20b6795ad42b9eb0bafc70b39e67fde450",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_013/split.json",
+      "local_image_sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_014__sec_1_01",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+      "truth_source_sha256": "882924ec1f162e6bb36312c6ad9aec44139bfedad9b88da14ccb396971a32be3",
+      "legacy_split_sha256": "3648b1b9363578c16b7e684bdfa542637d7518e6523875f68c0dc5091f908108",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_014/split.json",
+      "local_image_sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_014__sec_1_02",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "7b53f338648a1d30b82105ab38c8c4259a143cc9687c19865aeb9a8f89a9db2e",
+      "truth_source_sha256": "1d5571506a3877a4f856142c2eb8e93c6826541917e30985bfcc09e0deb654ec",
+      "legacy_split_sha256": "3648b1b9363578c16b7e684bdfa542637d7518e6523875f68c0dc5091f908108",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_014/split.json",
+      "local_image_sha256": "7b53f338648a1d30b82105ab38c8c4259a143cc9687c19865aeb9a8f89a9db2e",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_014__sec_1_03",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2",
+      "truth_source_sha256": "3b518a43661cab4468254400784d9bff1dc061375d09956c95167ac86ed0c456",
+      "legacy_split_sha256": "3648b1b9363578c16b7e684bdfa542637d7518e6523875f68c0dc5091f908108",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_014/split.json",
+      "local_image_sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_015__sec_1_01",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "a86672e4ab5f6244cb4138596f2a2c00de08a6c78e2c493ec29b1b93f98fa4b9",
+      "truth_source_sha256": "58277da5a0617b6a60d7977478ea24b216220509065b1c5a84811faa8d101912",
+      "legacy_split_sha256": "f4c4fed3ce12b36f4b289970da671c410891a4940e1ca86ef5ce299bc56af3bd",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_015/split.json",
+      "local_image_sha256": "a86672e4ab5f6244cb4138596f2a2c00de08a6c78e2c493ec29b1b93f98fa4b9",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_016__sec_1_01",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4",
+      "truth_source_sha256": "240f6c4c4fbf4e5d2a061ae89a00659dcaeebd24d02cb1523424145d61518c80",
+      "legacy_split_sha256": "30738c3436d7b229e8cc0b1d26d8cb49afa20b5b611ff7dff1b7bdf30c7c1290",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_016/split.json",
+      "local_image_sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_017__sec_1_01",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "dacea444c9853e23c3fa09504513a86bad73ac5d2dc10a140578d09ee958b032",
+      "truth_source_sha256": "5f387d910601ee069bdb0b0c3a94b48777ec9745d94804f9afd3aec504b76cc4",
+      "legacy_split_sha256": "59cb0588dea9366dc82a6fbcd78f82a7173de4281658dd089f7e923e5c7b464d",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_017/split.json",
+      "local_image_sha256": "dacea444c9853e23c3fa09504513a86bad73ac5d2dc10a140578d09ee958b032",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_01",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "00a2c9bfdfbfd679e2f201b1e5456bebe77f89a55e2ada13be235d9f17c27abe",
+      "truth_source_sha256": "62b35aa025f03a605c7112865f878410fd174a8adc364e33399d0d50eaff7a54",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "00a2c9bfdfbfd679e2f201b1e5456bebe77f89a55e2ada13be235d9f17c27abe",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_02",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "5e742d34922941547603e88531af546d9728f23a92fa0941f082f2b5a0a8adf4",
+      "truth_source_sha256": "c7359c4568f5117e0568003f246c45e7fb385b1a856a72aa36416706a57b51f2",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "5e742d34922941547603e88531af546d9728f23a92fa0941f082f2b5a0a8adf4",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_03",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "62af86c714c4977bd07088824062ac523850775bfad945447c5b167fa8a031a9",
+      "truth_source_sha256": "0902cb288bb65dd91730dbacd46cc087a8243c5ba1210da17736dec3b419e47f",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "62af86c714c4977bd07088824062ac523850775bfad945447c5b167fa8a031a9",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_04",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "5de0e3566d2345081b1487e031576aa71aa8d00e3486f10fdd3acf6b49efe167",
+      "truth_source_sha256": "e0cf764e0453e89ca302bd7518044318a7d0ab9eef2ca47d1155db5640ef2ade",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "5de0e3566d2345081b1487e031576aa71aa8d00e3486f10fdd3acf6b49efe167",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_05",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "fbc50ce42b261752db0536d9e62ee292dbfed642e36b12325a76ed3f9ec53caa",
+      "truth_source_sha256": "7833b98172e5c56f99970be876592cf408b4e15a6422db3fd7cdacd338746389",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "fbc50ce42b261752db0536d9e62ee292dbfed642e36b12325a76ed3f9ec53caa",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_06",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "5024e9f79b078992426c96cb2da8e817f0d844104c44f119502dbaf75a7d117c",
+      "truth_source_sha256": "0e2ae94cc4d24473c04078487f0f9269c1dafe844624177082cf02f61c6395fc",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "5024e9f79b078992426c96cb2da8e817f0d844104c44f119502dbaf75a7d117c",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_07",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "00da1632cf5265828ee7065d08470a689709f514ff345c391ef19f1706bab416",
+      "truth_source_sha256": "1fd0991033dc699e73086477e7a3b4f1ae5d249e89f659de3b3d71d4016e243a",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "00da1632cf5265828ee7065d08470a689709f514ff345c391ef19f1706bab416",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_08",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+      "truth_source_sha256": "ab3b12db6ded40ba76240692e5af8c96dba0082911495a8ddd76c2e98127e35a",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_09",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "acc2d6f9d37da9add4d1ca621be50e17cb3e7d2916b2c46bd7cbb368ea4f8748",
+      "truth_source_sha256": "7d1e92ae6dec8c0326718246f3b19790d77191546280b625c77ccea9cf52acae",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "acc2d6f9d37da9add4d1ca621be50e17cb3e7d2916b2c46bd7cbb368ea4f8748",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_10",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "39fb52cd582ec5b2f6e4f4942dc87c68844fbce2a9225b03a15dd3e041df2a45",
+      "truth_source_sha256": "25555440c82b90d0a2e9bab23d123434639b8df79686975f432e002357d0a7b2",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "39fb52cd582ec5b2f6e4f4942dc87c68844fbce2a9225b03a15dd3e041df2a45",
+      "candidates": []
+    },
+    {
+      "id": "GS-03_018__sec_1_11",
+      "state": "추가 실행 필요",
+      "truth_image_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+      "truth_source_sha256": "92ad8c66ac4c9fafcdb26fd8ca5653c71272b7e36e1ea224d180d58b4bae93da",
+      "legacy_split_sha256": "c95b3192c89709f11d61c7114c9ade5ea72322be1c1ef5ec0f468501adfce343",
+      "legacy_split_path": "C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_018/split.json",
+      "local_image_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+      "candidates": []
+    }
+  ]
+}

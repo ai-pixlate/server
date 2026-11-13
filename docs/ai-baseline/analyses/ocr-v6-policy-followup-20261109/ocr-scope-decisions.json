@@ -1,0 +1,62 @@
+[
+  {
+    "section_id": "GS-01_002__sec_1_06",
+    "region_key": "reg_0001",
+    "scope": "exclude",
+    "basis": "D05 사용자 판정: 번역 대상 밖 얼굴 오검출",
+    "source_output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "source_text_sha256": "65c74c15a686187bb6bbf9958f494fc6b80068034a659a9ad44991b08c58f2d2",
+    "bbox": {
+      "x": 196,
+      "y": 487,
+      "w": 609,
+      "h": 561
+    },
+    "source_modified": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_06",
+    "region_key": "reg_0002",
+    "scope": "exclude",
+    "basis": "같은 정책의 영향 재검토: 원본 얼굴의 F 오검출, 사용자 항목별 판정과 구별",
+    "source_output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "source_text_sha256": "f67ab10ad4e4c53121b6a5fe4da9c10ddee905b978d3788d2723d7bfacbe28a9",
+    "bbox": {
+      "x": 126,
+      "y": 641,
+      "w": 274,
+      "h": 259
+    },
+    "source_modified": false
+  },
+  {
+    "section_id": "GS-01_002__sec_1_23",
+    "region_key": "reg_0001",
+    "scope": "undetermined",
+    "basis": "후속 사용자 결정이 JSON include보다 우선; 일반 설명+로고 분리 불가",
+    "source_output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "source_text_sha256": "e00cf9cd10900262c2e2b15546098044c4e9a6cdd252d2b70f7d9b650583f079",
+    "bbox": {
+      "x": 232,
+      "y": 190,
+      "w": 501,
+      "h": 84
+    },
+    "source_modified": false
+  },
+  {
+    "section_id": "GS-03_018__sec_1_08",
+    "region_key": "reg_0044",
+    "scope": "exclude",
+    "basis": "D07 사용자 검수: 용기 인쇄 반사",
+    "source_output_sha256": "c9a799c072a37eef81fbbe6ac96499004a071cbf9ec17fcbe86d78805c7b3184",
+    "source_text_sha256": "c4781e65873ec15bc5916139ffc950b90328b8403b449cbc88ab18625558fced",
+    "bbox": {
+      "x": 755,
+      "y": 1807,
+      "w": 168,
+      "h": 22
+    },
+    "source_modified": false
+  }
+]

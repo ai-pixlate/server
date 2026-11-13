@@ -1,0 +1,1779 @@
+{
+  "id": "GS-02_008__sec_1_04",
+  "sample": "GS-02_008",
+  "section_key": "sec_1_04",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_04.png",
+    "sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+    "width": 830,
+    "height": 3077
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 2,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+    },
+    {
+      "line_id": "L002",
+      "text": "비타민A 레티날 0.1% 고함량"
+    },
+    {
+      "line_id": "L003",
+      "text": "색소없이도 샛노란"
+    },
+    {
+      "line_id": "L004",
+      "text": "레티날 고함량 크림"
+    },
+    {
+      "line_id": "L005",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L006",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L007",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L008",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L009",
+      "text": "20,250 A-Shot™"
+    },
+    {
+      "line_id": "L010",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L011",
+      "text": "MATRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L012",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L013",
+      "text": "레티놀 원료보다 10.2배"
+    },
+    {
+      "line_id": "L014",
+      "text": "더 비싼 프리미엄 성분 : 레티날"
+    },
+    {
+      "line_id": "L015",
+      "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+    },
+    {
+      "line_id": "L016",
+      "text": "레티날은 피부에서 빠르게 활성화되어"
+    },
+    {
+      "line_id": "L017",
+      "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+    },
+    {
+      "line_id": "L018",
+      "text": "연구와 논문을 통해 입증된"
+    },
+    {
+      "line_id": "L019",
+      "text": "비타민A 레티날의 효과"
+    },
+    {
+      "line_id": "L020",
+      "text": "참고 논문"
+    },
+    {
+      "line_id": "L021",
+      "text": "Dermatology"
+    },
+    {
+      "line_id": "L022",
+      "text": "Repair of UVA-Induced Elastic Fiber and"
+    },
+    {
+      "line_id": "L023",
+      "text": "Collagen Damage by 0.05%"
+    },
+    {
+      "line_id": "L024",
+      "text": "Retinaldehyde Cream in an ex vivo"
+    },
+    {
+      "line_id": "L025",
+      "text": "레티날은 피부 내 콜라겐 합성을"
+    },
+    {
+      "line_id": "L026",
+      "text": "촉진시키는데 효과가 있다*"
+    },
+    {
+      "line_id": "L027",
+      "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+    },
+    {
+      "line_id": "L028",
+      "text": "눈에 띄는 노화 징후에 효과가 있다*"
+    },
+    {
+      "line_id": "L029",
+      "text": "레티날은 피부를 매끄럽게 만들고"
+    },
+    {
+      "line_id": "L030",
+      "text": "탄력을 증가시키는데 효과가 있다*"
+    },
+    {
+      "line_id": "L031",
+      "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+    }
+  ],
+  "parent_text_sha256": "b846dd297abc59f5185d677723dd164121798614229c073d03a0f6cc9c2c296b",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+    },
+    {
+      "line_id": "L002",
+      "text": "비타민A 레티날 0.1% 고함량"
+    },
+    {
+      "line_id": "L003",
+      "text": "색소없이도 샛노란"
+    },
+    {
+      "line_id": "L004",
+      "text": "레티날 고함량 크림"
+    },
+    {
+      "line_id": "L005",
+      "text": "RETINAL SHOT"
+    },
+    {
+      "line_id": "L006",
+      "text": "TIGHTENING BOOSTER"
+    },
+    {
+      "line_id": "L007",
+      "text": "FOR"
+    },
+    {
+      "line_id": "L008",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L009",
+      "text": "20,250 A-Shot™"
+    },
+    {
+      "line_id": "L010",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L011",
+      "text": "MATRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L012",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L013",
+      "text": "레티놀 원료보다 10.2배"
+    },
+    {
+      "line_id": "L014",
+      "text": "더 비싼 프리미엄 성분 : 레티날"
+    },
+    {
+      "line_id": "L015",
+      "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+    },
+    {
+      "line_id": "L016",
+      "text": "레티날은 피부에서 빠르게 활성화되어"
+    },
+    {
+      "line_id": "L017",
+      "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+    },
+    {
+      "line_id": "L018",
+      "text": "연구와 논문을 통해 입증된"
+    },
+    {
+      "line_id": "L019",
+      "text": "비타민A 레티날의 효과"
+    },
+    {
+      "line_id": "L032",
+      "text": "Natural Retinol Analogs Potentiate the Effects"
+    },
+    {
+      "line_id": "L033",
+      "text": "of Retinal on Aged and Photodamaged Skin: Results"
+    },
+    {
+      "line_id": "L034",
+      "text": "from In Vitro to Clinical Studies"
+    },
+    {
+      "line_id": "L035",
+      "text": "ABSTRACT"
+    },
+    {
+      "line_id": "L036",
+      "text": "DISCUSSION"
+    },
+    {
+      "line_id": "L020",
+      "text": "참고 논문"
+    },
+    {
+      "line_id": "L037",
+      "text": "· A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies"
+    },
+    {
+      "line_id": "L038",
+      "text": "· Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies"
+    },
+    {
+      "line_id": "L039",
+      "text": "· A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin"
+    },
+    {
+      "line_id": "L040",
+      "text": "· Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model"
+    },
+    {
+      "line_id": "L041",
+      "text": "· Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance"
+    },
+    {
+      "line_id": "L042",
+      "text": "· The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study"
+    },
+    {
+      "line_id": "L021",
+      "text": "Dermatology"
+    },
+    {
+      "line_id": "L022",
+      "text": "Repair of UVA-Induced Elastic Fiber and"
+    },
+    {
+      "line_id": "L023",
+      "text": "Collagen Damage by 0.05%"
+    },
+    {
+      "line_id": "L024",
+      "text": "Retinaldehyde Cream in an ex vivo"
+    },
+    {
+      "line_id": "L025",
+      "text": "레티날은 피부 내 콜라겐 합성을"
+    },
+    {
+      "line_id": "L026",
+      "text": "촉진시키는데 효과가 있다*"
+    },
+    {
+      "line_id": "L043",
+      "text": "Key Words"
+    },
+    {
+      "line_id": "L044",
+      "text": "Retinaldehyde · Normal human skin · Skin explants ·"
+    },
+    {
+      "line_id": "L045",
+      "text": "Organ culture · Collagen · Elastic fibers · Ultraviolet"
+    },
+    {
+      "line_id": "L046",
+      "text": "light · Photoaging"
+    },
+    {
+      "line_id": "L047",
+      "text": "Abstract"
+    },
+    {
+      "line_id": "L048",
+      "text": "Background: The effects of UV exposure are impli-"
+    },
+    {
+      "line_id": "L049",
+      "text": "cated in cutaneous aging. UV radiations induce struc-"
+    },
+    {
+      "line_id": "L050",
+      "text": "tural and biochemical changes in all compartments of"
+    },
+    {
+      "line_id": "L051",
+      "text": "skin. Aim: To study the antiaging efficacy of a cream"
+    },
+    {
+      "line_id": "L052",
+      "text": "containing retinaldehyde/vitamin A on ex vivo sur-"
+    },
+    {
+      "line_id": "L053",
+      "text": "viving human skin in order to approximate in vivo"
+    },
+    {
+      "line_id": "L054",
+      "text": "metabolic conditions. Methods: Human skin explants"
+    },
+    {
+      "line_id": "L027",
+      "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+    },
+    {
+      "line_id": "L028",
+      "text": "눈에 띄는 노화 징후에 효과가 있다*"
+    },
+    {
+      "line_id": "L055",
+      "text": "other anti-photoaging ingredients, such as"
+    },
+    {
+      "line_id": "L056",
+      "text": "niacinamide and melatonin, 3RC reversed"
+    },
+    {
+      "line_id": "L057",
+      "text": "ultraviolet radiation-induced deficits in struc-"
+    },
+    {
+      "line_id": "L058",
+      "text": "tural components of the dermal extracellular"
+    },
+    {
+      "line_id": "L059",
+      "text": "matrix, including hyaluronic acid and collagen."
+    },
+    {
+      "line_id": "L060",
+      "text": "In vivo, it led to a reversal of clinical signs of age"
+    },
+    {
+      "line_id": "L061",
+      "text": "and photodamage, with statistically significant"
+    },
+    {
+      "line_id": "L062",
+      "text": "improvement to skin firmness (+5.6%), skin"
+    },
+    {
+      "line_id": "L063",
+      "text": "elasticity (+13.9%), wrinkle count (−43.2%),"
+    },
+    {
+      "line_id": "L064",
+      "text": "and skin tone homogeneity (+7.0%), observed"
+    },
+    {
+      "line_id": "L065",
+      "text": "within 28 days of once nightly use. Notably, the"
+    },
+    {
+      "line_id": "L066",
+      "text": "number of crow's feet wrinkles was reduced in"
+    },
+    {
+      "line_id": "L067",
+      "text": "100% of subjects. Furthermore, 3RC was very"
+    },
+    {
+      "line_id": "L068",
+      "text": "well tolerated."
+    },
+    {
+      "line_id": "L069",
+      "text": "Conclusion: These data suggest that 3RC is a"
+    },
+    {
+      "line_id": "L070",
+      "text": "highly effective and well-tolerated treatment for"
+    },
+    {
+      "line_id": "L071",
+      "text": "photoaging."
+    },
+    {
+      "line_id": "L029",
+      "text": "레티날은 피부를 매끄럽게 만들고"
+    },
+    {
+      "line_id": "L030",
+      "text": "탄력을 증가시키는데 효과가 있다*"
+    },
+    {
+      "line_id": "L031",
+      "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+    }
+  ],
+  "text_sha256": "3ddb751fa0dd03f7e36d1d2c0ebfa7f16962b8ef22ee2efb71e1ef8458178195",
+  "changes": [
+    {
+      "operation": "insert",
+      "line_id": "L032",
+      "before": null,
+      "after": "Natural Retinol Analogs Potentiate the Effects",
+      "after_existing_id": "L019",
+      "reason": "중간 논문 5열 축소 이미지에서 읽을 수 있는 제목 및 굵은 절 제목. 작은 저자·본문·표는 미확정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L033",
+      "before": null,
+      "after": "of Retinal on Aged and Photodamaged Skin: Results",
+      "after_existing_id": "L019",
+      "reason": "중간 논문 5열 축소 이미지에서 읽을 수 있는 제목 및 굵은 절 제목. 작은 저자·본문·표는 미확정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L034",
+      "before": null,
+      "after": "from In Vitro to Clinical Studies",
+      "after_existing_id": "L019",
+      "reason": "중간 논문 5열 축소 이미지에서 읽을 수 있는 제목 및 굵은 절 제목. 작은 저자·본문·표는 미확정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L035",
+      "before": null,
+      "after": "ABSTRACT",
+      "after_existing_id": "L019",
+      "reason": "중간 논문 5열 축소 이미지에서 읽을 수 있는 제목 및 굵은 절 제목. 작은 저자·본문·표는 미확정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L036",
+      "before": null,
+      "after": "DISCUSSION",
+      "after_existing_id": "L019",
+      "reason": "중간 논문 5열 축소 이미지에서 읽을 수 있는 제목 및 굵은 절 제목. 작은 저자·본문·표는 미확정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L037",
+      "before": null,
+      "after": "· A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies",
+      "after_existing_id": "L020",
+      "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L038",
+      "before": null,
+      "after": "· Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies",
+      "after_existing_id": "L020",
+      "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L039",
+      "before": null,
+      "after": "· A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin",
+      "after_existing_id": "L020",
+      "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L040",
+      "before": null,
+      "after": "· Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model",
+      "after_existing_id": "L020",
+      "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L041",
+      "before": null,
+      "after": "· Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance",
+      "after_existing_id": "L020",
+      "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L042",
+      "before": null,
+      "after": "· The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study",
+      "after_existing_id": "L020",
+      "reason": "참고 논문 6개 항목의 읽을 수 있는 제목만 독립 전사. 저자·연도·기관·줄바꿈 전체는 미완성으로 별도 표시"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L043",
+      "before": null,
+      "after": "Key Words",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L044",
+      "before": null,
+      "after": "Retinaldehyde · Normal human skin · Skin explants ·",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L045",
+      "before": null,
+      "after": "Organ culture · Collagen · Elastic fibers · Ultraviolet",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L046",
+      "before": null,
+      "after": "light · Photoaging",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L047",
+      "before": null,
+      "after": "Abstract",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L048",
+      "before": null,
+      "after": "Background: The effects of UV exposure are impli-",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L049",
+      "before": null,
+      "after": "cated in cutaneous aging. UV radiations induce struc-",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L050",
+      "before": null,
+      "after": "tural and biochemical changes in all compartments of",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L051",
+      "before": null,
+      "after": "skin. Aim: To study the antiaging efficacy of a cream",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L052",
+      "before": null,
+      "after": "containing retinaldehyde/vitamin A on ex vivo sur-",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L053",
+      "before": null,
+      "after": "viving human skin in order to approximate in vivo",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L054",
+      "before": null,
+      "after": "metabolic conditions. Methods: Human skin explants",
+      "after_existing_id": "L026",
+      "reason": "하단 왼쪽 논문의 가림 아래에 드러난 Keywords와 Abstract 시작부. 가려진 나머지와 작은 글씨는 추정하지 않음"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L055",
+      "before": null,
+      "after": "other anti-photoaging ingredients, such as",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L056",
+      "before": null,
+      "after": "niacinamide and melatonin, 3RC reversed",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L057",
+      "before": null,
+      "after": "ultraviolet radiation-induced deficits in struc-",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L058",
+      "before": null,
+      "after": "tural components of the dermal extracellular",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L059",
+      "before": null,
+      "after": "matrix, including hyaluronic acid and collagen.",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L060",
+      "before": null,
+      "after": "In vivo, it led to a reversal of clinical signs of age",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L061",
+      "before": null,
+      "after": "and photodamage, with statistically significant",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L062",
+      "before": null,
+      "after": "improvement to skin firmness (+5.6%), skin",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L063",
+      "before": null,
+      "after": "elasticity (+13.9%), wrinkle count (−43.2%),",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L064",
+      "before": null,
+      "after": "and skin tone homogeneity (+7.0%), observed",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L065",
+      "before": null,
+      "after": "within 28 days of once nightly use. Notably, the",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L066",
+      "before": null,
+      "after": "number of crow's feet wrinkles was reduced in",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L067",
+      "before": null,
+      "after": "100% of subjects. Furthermore, 3RC was very",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L068",
+      "before": null,
+      "after": "well tolerated.",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L069",
+      "before": null,
+      "after": "Conclusion: These data suggest that 3RC is a",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L070",
+      "before": null,
+      "after": "highly effective and well-tolerated treatment for",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L071",
+      "before": null,
+      "after": "photoaging.",
+      "after_existing_id": "L028",
+      "reason": "하단 오른쪽 논문의 노출된 단락. 미세 기호·하이픈 모양과 수치는 사용자 재검수 대상"
+    }
+  ],
+  "unresolved": [
+    "중간 5열 축소 논문의 대부분 본문·저자·표·캡션은 현재 픽셀로 확정 불가",
+    "참고문헌 6개 제목 외 저자·소속·연도 전체가 아직 미전사. 제목을 추가한 것으로 참고문헌 전사 완료 처리하지 않음",
+    "하단 겹친 논문 3개의 가림 경계 및 Abstract·Introduction·Methods·Results·Conclusions 나머지 본문 미완성",
+    "신규 영문 단락의 아포스트로피·대시·작은 숫자와 합자 모양은 사용자 확인 필요. 외부 논문/웹 검색으로 내용을 복원하지 않음"
+  ],
+  "note": "논문 축소 이미지 본문·표와 참고문헌, 하단 겹친 논문 본문 누락\n중간 5열 축소 논문의 대부분 본문·저자·표·캡션은 현재 픽셀로 확정 불가\n참고문헌 6개 제목 외 저자·소속·연도 전체가 아직 미전사. 제목을 추가한 것으로 참고문헌 전사 완료 처리하지 않음\n하단 겹친 논문 3개의 가림 경계 및 Abstract·Introduction·Methods·Results·Conclusions 나머지 본문 미완성\n신규 영문 단락의 아포스트로피·대시·작은 숫자와 합자 모양은 사용자 확인 필요. 외부 논문/웹 검색으로 내용을 복원하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+          },
+          {
+            "line_id": "L002",
+            "text": "비타민A 레티날 0.1% 고함량"
+          },
+          {
+            "line_id": "L003",
+            "text": "색소없이도 샛노란"
+          },
+          {
+            "line_id": "L004",
+            "text": "레티날 고함량 크림"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L008",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L009",
+            "text": "20,250 A-Shot™"
+          },
+          {
+            "line_id": "L010",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L011",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L012",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L013",
+            "text": "레티놀 원료보다 10.2배"
+          },
+          {
+            "line_id": "L014",
+            "text": "더 비싼 프리미엄 성분 : 레티날"
+          },
+          {
+            "line_id": "L015",
+            "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+          },
+          {
+            "line_id": "L016",
+            "text": "레티날은 피부에서 빠르게 활성화되어"
+          },
+          {
+            "line_id": "L017",
+            "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+          },
+          {
+            "line_id": "L018",
+            "text": "연구와 논문을 통해 입증된"
+          },
+          {
+            "line_id": "L019",
+            "text": "비타민A 레티날의 효과"
+          },
+          {
+            "line_id": "L020",
+            "text": "참고 논문"
+          },
+          {
+            "line_id": "L021",
+            "text": "Dermatology"
+          },
+          {
+            "line_id": "L022",
+            "text": "Repair of UVA-Induced Elastic Fiber and"
+          },
+          {
+            "line_id": "L023",
+            "text": "Collagen Damage by 0.05%"
+          },
+          {
+            "line_id": "L024",
+            "text": "Retinaldehyde Cream in an ex vivo"
+          },
+          {
+            "line_id": "L025",
+            "text": "레티날은 피부 내 콜라겐 합성을"
+          },
+          {
+            "line_id": "L026",
+            "text": "촉진시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L027",
+            "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+          },
+          {
+            "line_id": "L028",
+            "text": "눈에 띄는 노화 징후에 효과가 있다*"
+          },
+          {
+            "line_id": "L029",
+            "text": "레티날은 피부를 매끄럽게 만들고"
+          },
+          {
+            "line_id": "L030",
+            "text": "탄력을 증가시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L031",
+            "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+          },
+          {
+            "line_id": "L002",
+            "text": "비타민A 레티날 0.1% 고함량"
+          },
+          {
+            "line_id": "L003",
+            "text": "색소없이도 샛노란"
+          },
+          {
+            "line_id": "L004",
+            "text": "레티날 고함량 크림"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L008",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L009",
+            "text": "20,250 A-Shot™"
+          },
+          {
+            "line_id": "L010",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L011",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L012",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L013",
+            "text": "레티놀 원료보다 10.2배"
+          },
+          {
+            "line_id": "L014",
+            "text": "더 비싼 프리미엄 성분 : 레티날"
+          },
+          {
+            "line_id": "L015",
+            "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+          },
+          {
+            "line_id": "L016",
+            "text": "레티날은 피부에서 빠르게 활성화되어"
+          },
+          {
+            "line_id": "L017",
+            "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+          },
+          {
+            "line_id": "L018",
+            "text": "연구와 논문을 통해 입증된"
+          },
+          {
+            "line_id": "L019",
+            "text": "비타민A 레티날의 효과"
+          },
+          {
+            "line_id": "L032",
+            "text": "Natural Retinol Analogs Potentiate the Effects"
+          },
+          {
+            "line_id": "L033",
+            "text": "of Retinal on Aged and Photodamaged Skin: Results"
+          },
+          {
+            "line_id": "L034",
+            "text": "from In Vitro to Clinical Studies"
+          },
+          {
+            "line_id": "L035",
+            "text": "ABSTRACT"
+          },
+          {
+            "line_id": "L036",
+            "text": "DISCUSSION"
+          },
+          {
+            "line_id": "L020",
+            "text": "참고 논문"
+          },
+          {
+            "line_id": "L037",
+            "text": "· A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies"
+          },
+          {
+            "line_id": "L038",
+            "text": "· Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies"
+          },
+          {
+            "line_id": "L039",
+            "text": "· A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin"
+          },
+          {
+            "line_id": "L040",
+            "text": "· Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model"
+          },
+          {
+            "line_id": "L041",
+            "text": "· Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance"
+          },
+          {
+            "line_id": "L042",
+            "text": "· The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study"
+          },
+          {
+            "line_id": "L021",
+            "text": "Dermatology"
+          },
+          {
+            "line_id": "L022",
+            "text": "Repair of UVA-Induced Elastic Fiber and"
+          },
+          {
+            "line_id": "L023",
+            "text": "Collagen Damage by 0.05%"
+          },
+          {
+            "line_id": "L024",
+            "text": "Retinaldehyde Cream in an ex vivo"
+          },
+          {
+            "line_id": "L025",
+            "text": "레티날은 피부 내 콜라겐 합성을"
+          },
+          {
+            "line_id": "L043",
+            "text": "Key Words"
+          },
+          {
+            "line_id": "L044",
+            "text": "Retinaldehyde · Normal human skin · Skin explants ·"
+          },
+          {
+            "line_id": "L045",
+            "text": "Organ culture · Collagen · Elastic fibers · Ultraviolet"
+          },
+          {
+            "line_id": "L046",
+            "text": "light · Photoaging"
+          },
+          {
+            "line_id": "L047",
+            "text": "Abstract"
+          },
+          {
+            "line_id": "L048",
+            "text": "Background: The effects of UV exposure are impli-"
+          },
+          {
+            "line_id": "L049",
+            "text": "cated in cutaneous aging. UV radiations induce struc-"
+          },
+          {
+            "line_id": "L050",
+            "text": "tural and biochemical changes in all compartments of"
+          },
+          {
+            "line_id": "L051",
+            "text": "skin. Aim: To study the antiaging efficacy of a cream"
+          },
+          {
+            "line_id": "L052",
+            "text": "containing retinaldehyde/vitamin A on ex vivo sur-"
+          },
+          {
+            "line_id": "L053",
+            "text": "viving human skin in order to approximate in vivo"
+          },
+          {
+            "line_id": "L054",
+            "text": "metabolic conditions. Methods: Human skin explants"
+          },
+          {
+            "line_id": "L026",
+            "text": "촉진시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L027",
+            "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+          },
+          {
+            "line_id": "L028",
+            "text": "눈에 띄는 노화 징후에 효과가 있다*"
+          },
+          {
+            "line_id": "L055",
+            "text": "other anti-photoaging ingredients, such as"
+          },
+          {
+            "line_id": "L056",
+            "text": "niacinamide and melatonin, 3RC reversed"
+          },
+          {
+            "line_id": "L057",
+            "text": "ultraviolet radiation-induced deficits in struc-"
+          },
+          {
+            "line_id": "L058",
+            "text": "tural components of the dermal extracellular"
+          },
+          {
+            "line_id": "L059",
+            "text": "matrix, including hyaluronic acid and collagen."
+          },
+          {
+            "line_id": "L060",
+            "text": "In vivo, it led to a reversal of clinical signs of age"
+          },
+          {
+            "line_id": "L061",
+            "text": "and photodamage, with statistically significant"
+          },
+          {
+            "line_id": "L062",
+            "text": "improvement to skin firmness (+5.6%), skin"
+          },
+          {
+            "line_id": "L063",
+            "text": "elasticity (+13.9%), wrinkle count (−43.2%),"
+          },
+          {
+            "line_id": "L064",
+            "text": "and skin tone homogeneity (+7.0%), observed"
+          },
+          {
+            "line_id": "L065",
+            "text": "within 28 days of once nightly use. Notably, the"
+          },
+          {
+            "line_id": "L066",
+            "text": "number of crow's feet wrinkles was reduced in"
+          },
+          {
+            "line_id": "L067",
+            "text": "100% of subjects. Furthermore, 3RC was very"
+          },
+          {
+            "line_id": "L068",
+            "text": "well tolerated."
+          },
+          {
+            "line_id": "L069",
+            "text": "Conclusion: These data suggest that 3RC is a"
+          },
+          {
+            "line_id": "L070",
+            "text": "highly effective and well-tolerated treatment for"
+          },
+          {
+            "line_id": "L071",
+            "text": "photoaging."
+          },
+          {
+            "line_id": "L029",
+            "text": "레티날은 피부를 매끄럽게 만들고"
+          },
+          {
+            "line_id": "L030",
+            "text": "탄력을 증가시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L031",
+            "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    },
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+          },
+          {
+            "line_id": "L002",
+            "text": "비타민A 레티날 0.1% 고함량"
+          },
+          {
+            "line_id": "L003",
+            "text": "색소없이도 샛노란"
+          },
+          {
+            "line_id": "L004",
+            "text": "레티날 고함량 크림"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L008",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L009",
+            "text": "20,250 A-Shot™"
+          },
+          {
+            "line_id": "L010",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L011",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L012",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L013",
+            "text": "레티놀 원료보다 10.2배"
+          },
+          {
+            "line_id": "L014",
+            "text": "더 비싼 프리미엄 성분 : 레티날"
+          },
+          {
+            "line_id": "L015",
+            "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+          },
+          {
+            "line_id": "L016",
+            "text": "레티날은 피부에서 빠르게 활성화되어"
+          },
+          {
+            "line_id": "L017",
+            "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+          },
+          {
+            "line_id": "L018",
+            "text": "연구와 논문을 통해 입증된"
+          },
+          {
+            "line_id": "L019",
+            "text": "비타민A 레티날의 효과"
+          },
+          {
+            "line_id": "L032",
+            "text": "Natural Retinol Analogs Potentiate the Effects"
+          },
+          {
+            "line_id": "L033",
+            "text": "of Retinal on Aged and Photodamaged Skin: Results"
+          },
+          {
+            "line_id": "L034",
+            "text": "from In Vitro to Clinical Studies"
+          },
+          {
+            "line_id": "L035",
+            "text": "ABSTRACT"
+          },
+          {
+            "line_id": "L036",
+            "text": "DISCUSSION"
+          },
+          {
+            "line_id": "L020",
+            "text": "참고 논문"
+          },
+          {
+            "line_id": "L037",
+            "text": "· A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies"
+          },
+          {
+            "line_id": "L038",
+            "text": "· Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies"
+          },
+          {
+            "line_id": "L039",
+            "text": "· A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin"
+          },
+          {
+            "line_id": "L040",
+            "text": "· Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model"
+          },
+          {
+            "line_id": "L041",
+            "text": "· Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance"
+          },
+          {
+            "line_id": "L042",
+            "text": "· The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study"
+          },
+          {
+            "line_id": "L021",
+            "text": "Dermatology"
+          },
+          {
+            "line_id": "L022",
+            "text": "Repair of UVA-Induced Elastic Fiber and"
+          },
+          {
+            "line_id": "L023",
+            "text": "Collagen Damage by 0.05%"
+          },
+          {
+            "line_id": "L024",
+            "text": "Retinaldehyde Cream in an ex vivo"
+          },
+          {
+            "line_id": "L025",
+            "text": "레티날은 피부 내 콜라겐 합성을"
+          },
+          {
+            "line_id": "L043",
+            "text": "Key Words"
+          },
+          {
+            "line_id": "L044",
+            "text": "Retinaldehyde · Normal human skin · Skin explants ·"
+          },
+          {
+            "line_id": "L045",
+            "text": "Organ culture · Collagen · Elastic fibers · Ultraviolet"
+          },
+          {
+            "line_id": "L046",
+            "text": "light · Photoaging"
+          },
+          {
+            "line_id": "L047",
+            "text": "Abstract"
+          },
+          {
+            "line_id": "L048",
+            "text": "Background: The effects of UV exposure are impli-"
+          },
+          {
+            "line_id": "L049",
+            "text": "cated in cutaneous aging. UV radiations induce struc-"
+          },
+          {
+            "line_id": "L050",
+            "text": "tural and biochemical changes in all compartments of"
+          },
+          {
+            "line_id": "L051",
+            "text": "skin. Aim: To study the antiaging efficacy of a cream"
+          },
+          {
+            "line_id": "L052",
+            "text": "containing retinaldehyde/vitamin A on ex vivo sur-"
+          },
+          {
+            "line_id": "L053",
+            "text": "viving human skin in order to approximate in vivo"
+          },
+          {
+            "line_id": "L054",
+            "text": "metabolic conditions. Methods: Human skin explants"
+          },
+          {
+            "line_id": "L026",
+            "text": "촉진시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L027",
+            "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+          },
+          {
+            "line_id": "L028",
+            "text": "눈에 띄는 노화 징후에 효과가 있다*"
+          },
+          {
+            "line_id": "L055",
+            "text": "other anti-photoaging ingredients, such as"
+          },
+          {
+            "line_id": "L056",
+            "text": "niacinamide and melatonin, 3RC reversed"
+          },
+          {
+            "line_id": "L057",
+            "text": "ultraviolet radiation-induced deficits in struc-"
+          },
+          {
+            "line_id": "L058",
+            "text": "tural components of the dermal extracellular"
+          },
+          {
+            "line_id": "L059",
+            "text": "matrix, including hyaluronic acid and collagen."
+          },
+          {
+            "line_id": "L060",
+            "text": "In vivo, it led to a reversal of clinical signs of age"
+          },
+          {
+            "line_id": "L061",
+            "text": "and photodamage, with statistically significant"
+          },
+          {
+            "line_id": "L062",
+            "text": "improvement to skin firmness (+5.6%), skin"
+          },
+          {
+            "line_id": "L063",
+            "text": "elasticity (+13.9%), wrinkle count (−43.2%),"
+          },
+          {
+            "line_id": "L064",
+            "text": "and skin tone homogeneity (+7.0%), observed"
+          },
+          {
+            "line_id": "L065",
+            "text": "within 28 days of once nightly use. Notably, the"
+          },
+          {
+            "line_id": "L066",
+            "text": "number of crow's feet wrinkles was reduced in"
+          },
+          {
+            "line_id": "L067",
+            "text": "100% of subjects. Furthermore, 3RC was very"
+          },
+          {
+            "line_id": "L068",
+            "text": "well tolerated."
+          },
+          {
+            "line_id": "L069",
+            "text": "Conclusion: These data suggest that 3RC is a"
+          },
+          {
+            "line_id": "L070",
+            "text": "highly effective and well-tolerated treatment for"
+          },
+          {
+            "line_id": "L071",
+            "text": "photoaging."
+          },
+          {
+            "line_id": "L029",
+            "text": "레티날은 피부를 매끄럽게 만들고"
+          },
+          {
+            "line_id": "L030",
+            "text": "탄력을 증가시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L031",
+            "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "셀리맥스 레티날 샷 더 특별한 이유 ①"
+          },
+          {
+            "line_id": "L002",
+            "text": "비타민A 레티날 0.1% 고함량"
+          },
+          {
+            "line_id": "L003",
+            "text": "색소없이도 샛노란"
+          },
+          {
+            "line_id": "L004",
+            "text": "레티날 고함량 크림"
+          },
+          {
+            "line_id": "L005",
+            "text": "RETINAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "TIGHTENING BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "FOR"
+          },
+          {
+            "line_id": "L008",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L009",
+            "text": "20,250 A-Shot™"
+          },
+          {
+            "line_id": "L010",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L011",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L012",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L013",
+            "text": "레티놀 원료보다 10.2배"
+          },
+          {
+            "line_id": "L014",
+            "text": "더 비싼 프리미엄 성분 : 레티날"
+          },
+          {
+            "line_id": "L015",
+            "text": "*자사 레티놀 세럼에 사용된 원료 기준"
+          },
+          {
+            "line_id": "L016",
+            "text": "레티날은 피부에서 빠르게 활성화되어"
+          },
+          {
+            "line_id": "L017",
+            "text": "즉각적으로 작용하는 비타민A 계열의 성분입니다."
+          },
+          {
+            "line_id": "L018",
+            "text": "연구와 논문을 통해 입증된"
+          },
+          {
+            "line_id": "L019",
+            "text": "비타민A 레티날의 효과"
+          },
+          {
+            "line_id": "L032",
+            "text": "Natural Retinol Analogs Potentiate the Effects"
+          },
+          {
+            "line_id": "L033",
+            "text": "of Retinal on Aged and Photodamaged Skin: Results"
+          },
+          {
+            "line_id": "L034",
+            "text": "from In Vitro to Clinical Studies"
+          },
+          {
+            "line_id": "L035",
+            "text": "ABSTRACT"
+          },
+          {
+            "line_id": "L036",
+            "text": "DISCUSSION"
+          },
+          {
+            "line_id": "L020",
+            "text": "참고 논문"
+          },
+          {
+            "line_id": "L037",
+            "text": "· A new dermocosmetic containing retinaldehyde, delta-tocopherol glucoside and glycylglycine oleamide for managing naturally aged skin: results from in vitro to clinical studies"
+          },
+          {
+            "line_id": "L038",
+            "text": "· Natural Retinol Analogs Potentiate the Effects of Retinal on Aged and Photodamaged Skin: Results from In Vitro to Clinical Studies"
+          },
+          {
+            "line_id": "L039",
+            "text": "· A comparative study of the effects of retinol and retinoic acid on histological, molecular, and clinical properties of human skin"
+          },
+          {
+            "line_id": "L040",
+            "text": "· Repair of UVA-Induced Elastic Fiber and Collagen Damage by 0.05% Retinaldehyde Cream in an ex vivo Human Skin Model"
+          },
+          {
+            "line_id": "L041",
+            "text": "· Topical Retinaldehyde on Human Skin: Biologic Effects and Tolerance"
+          },
+          {
+            "line_id": "L042",
+            "text": "· The efficacy and safety of multilamellar vesicle containing retinaldehyde: A double-blinded, randomized, split-face controlled study"
+          },
+          {
+            "line_id": "L021",
+            "text": "Dermatology"
+          },
+          {
+            "line_id": "L022",
+            "text": "Repair of UVA-Induced Elastic Fiber and"
+          },
+          {
+            "line_id": "L023",
+            "text": "Collagen Damage by 0.05%"
+          },
+          {
+            "line_id": "L024",
+            "text": "Retinaldehyde Cream in an ex vivo"
+          },
+          {
+            "line_id": "L025",
+            "text": "레티날은 피부 내 콜라겐 합성을"
+          },
+          {
+            "line_id": "L026",
+            "text": "촉진시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L043",
+            "text": "Key Words"
+          },
+          {
+            "line_id": "L044",
+            "text": "Retinaldehyde · Normal human skin · Skin explants ·"
+          },
+          {
+            "line_id": "L045",
+            "text": "Organ culture · Collagen · Elastic fibers · Ultraviolet"
+          },
+          {
+            "line_id": "L046",
+            "text": "light · Photoaging"
+          },
+          {
+            "line_id": "L047",
+            "text": "Abstract"
+          },
+          {
+            "line_id": "L048",
+            "text": "Background: The effects of UV exposure are impli-"
+          },
+          {
+            "line_id": "L049",
+            "text": "cated in cutaneous aging. UV radiations induce struc-"
+          },
+          {
+            "line_id": "L050",
+            "text": "tural and biochemical changes in all compartments of"
+          },
+          {
+            "line_id": "L051",
+            "text": "skin. Aim: To study the antiaging efficacy of a cream"
+          },
+          {
+            "line_id": "L052",
+            "text": "containing retinaldehyde/vitamin A on ex vivo sur-"
+          },
+          {
+            "line_id": "L053",
+            "text": "viving human skin in order to approximate in vivo"
+          },
+          {
+            "line_id": "L054",
+            "text": "metabolic conditions. Methods: Human skin explants"
+          },
+          {
+            "line_id": "L027",
+            "text": "레티날은 눈가주름, 눈주위 잔주름 등"
+          },
+          {
+            "line_id": "L028",
+            "text": "눈에 띄는 노화 징후에 효과가 있다*"
+          },
+          {
+            "line_id": "L055",
+            "text": "other anti-photoaging ingredients, such as"
+          },
+          {
+            "line_id": "L056",
+            "text": "niacinamide and melatonin, 3RC reversed"
+          },
+          {
+            "line_id": "L057",
+            "text": "ultraviolet radiation-induced deficits in struc-"
+          },
+          {
+            "line_id": "L058",
+            "text": "tural components of the dermal extracellular"
+          },
+          {
+            "line_id": "L059",
+            "text": "matrix, including hyaluronic acid and collagen."
+          },
+          {
+            "line_id": "L060",
+            "text": "In vivo, it led to a reversal of clinical signs of age"
+          },
+          {
+            "line_id": "L061",
+            "text": "and photodamage, with statistically significant"
+          },
+          {
+            "line_id": "L062",
+            "text": "improvement to skin firmness (+5.6%), skin"
+          },
+          {
+            "line_id": "L063",
+            "text": "elasticity (+13.9%), wrinkle count (−43.2%),"
+          },
+          {
+            "line_id": "L064",
+            "text": "and skin tone homogeneity (+7.0%), observed"
+          },
+          {
+            "line_id": "L065",
+            "text": "within 28 days of once nightly use. Notably, the"
+          },
+          {
+            "line_id": "L066",
+            "text": "number of crow's feet wrinkles was reduced in"
+          },
+          {
+            "line_id": "L067",
+            "text": "100% of subjects. Furthermore, 3RC was very"
+          },
+          {
+            "line_id": "L068",
+            "text": "well tolerated."
+          },
+          {
+            "line_id": "L069",
+            "text": "Conclusion: These data suggest that 3RC is a"
+          },
+          {
+            "line_id": "L070",
+            "text": "highly effective and well-tolerated treatment for"
+          },
+          {
+            "line_id": "L071",
+            "text": "photoaging."
+          },
+          {
+            "line_id": "L029",
+            "text": "레티날은 피부를 매끄럽게 만들고"
+          },
+          {
+            "line_id": "L030",
+            "text": "탄력을 증가시키는데 효과가 있다*"
+          },
+          {
+            "line_id": "L031",
+            "text": "*레티날 원료에 대한 내용을 참고 문헌 및 논문에서 발췌 / 원료적 특성에 한함"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "L025/L026 문장 연결을 보존하도록 삽입 위치 조정; 사용자 미검수"
+    }
+  ]
+}

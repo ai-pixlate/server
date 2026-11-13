@@ -1,0 +1,232 @@
+{
+  "id": "GS-02_014__sec_1_02",
+  "sample": "GS-02_014",
+  "section_key": "sec_1_02",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_02.png",
+    "sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+    "width": 830,
+    "height": 1424
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "how to use"
+    },
+    {
+      "line_id": "L002",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L003",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L004",
+      "text": "MATRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L005",
+      "text": "NAL SHOT"
+    },
+    {
+      "line_id": "L006",
+      "text": "NG BOOSTER"
+    },
+    {
+      "line_id": "L007",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L008",
+      "text": "A-Shot™"
+    },
+    {
+      "line_id": "L009",
+      "text": "저녁 스킨케어 마무리 단계에서"
+    },
+    {
+      "line_id": "L010",
+      "text": "적당량을 덜어 얼굴 고민부위에 얇게 펴 발라"
+    },
+    {
+      "line_id": "L011",
+      "text": "흡수 시킨 후, 마무리해주세요."
+    }
+  ],
+  "parent_text_sha256": "1911f2d15651d48094d6675733530ee09c9c963691753e9ee5530a4ce40b9777",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "how to use"
+    },
+    {
+      "line_id": "L002",
+      "text": "celimax"
+    },
+    {
+      "line_id": "L003",
+      "text": "Retinal 0.1% Panthenol 1%"
+    },
+    {
+      "line_id": "L004",
+      "text": "MATRIXYL®3000 3%"
+    },
+    {
+      "line_id": "L005",
+      "text": "NAL SHOT"
+    },
+    {
+      "line_id": "L006",
+      "text": "NG BOOSTER"
+    },
+    {
+      "line_id": "L007",
+      "text": "FIRM SKIN"
+    },
+    {
+      "line_id": "L008",
+      "text": "A-Shot™"
+    },
+    {
+      "line_id": "L009",
+      "text": "저녁 스킨케어 마무리 단계에서"
+    },
+    {
+      "line_id": "L010",
+      "text": "적당량을 덜어 얼굴 고민부위에 얇게 펴 발라"
+    },
+    {
+      "line_id": "L011",
+      "text": "흡수 시킨 후, 마무리해주세요."
+    }
+  ],
+  "text_sha256": "1911f2d15651d48094d6675733530ee09c9c963691753e9ee5530a4ce40b9777",
+  "changes": [],
+  "unresolved": [
+    "L005~L008의 경계에 보이는 부분 글자 및 손가락에 가려진 성분명은 사용자 확인 필요. 완전한 제품명을 복원하지 않음"
+  ],
+  "note": "손가락과 이미지 경계로 잘린 제품 라벨\nL005~L008의 경계에 보이는 부분 글자 및 손가락에 가려진 성분명은 사용자 확인 필요. 완전한 제품명을 복원하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "how to use"
+          },
+          {
+            "line_id": "L002",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L003",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L004",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L005",
+            "text": "NAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "NG BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L008",
+            "text": "A-Shot™"
+          },
+          {
+            "line_id": "L009",
+            "text": "저녁 스킨케어 마무리 단계에서"
+          },
+          {
+            "line_id": "L010",
+            "text": "적당량을 덜어 얼굴 고민부위에 얇게 펴 발라"
+          },
+          {
+            "line_id": "L011",
+            "text": "흡수 시킨 후, 마무리해주세요."
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "how to use"
+          },
+          {
+            "line_id": "L002",
+            "text": "celimax"
+          },
+          {
+            "line_id": "L003",
+            "text": "Retinal 0.1% Panthenol 1%"
+          },
+          {
+            "line_id": "L004",
+            "text": "MATRIXYL®3000 3%"
+          },
+          {
+            "line_id": "L005",
+            "text": "NAL SHOT"
+          },
+          {
+            "line_id": "L006",
+            "text": "NG BOOSTER"
+          },
+          {
+            "line_id": "L007",
+            "text": "FIRM SKIN"
+          },
+          {
+            "line_id": "L008",
+            "text": "A-Shot™"
+          },
+          {
+            "line_id": "L009",
+            "text": "저녁 스킨케어 마무리 단계에서"
+          },
+          {
+            "line_id": "L010",
+            "text": "적당량을 덜어 얼굴 고민부위에 얇게 펴 발라"
+          },
+          {
+            "line_id": "L011",
+            "text": "흡수 시킨 후, 마무리해주세요."
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

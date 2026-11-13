@@ -1,0 +1,281 @@
+{
+  "id": "GS-03_013__sec_1_01",
+  "sample": "GS-03_013",
+  "section_key": "sec_1_01",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_013\\sections\\sec_1_01.png",
+    "sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b",
+    "width": 1000,
+    "height": 2350
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "POINT 4"
+    },
+    {
+      "line_id": "L002",
+      "text": "상큼한 시트러스 향"
+    },
+    {
+      "line_id": "L003",
+      "text": "레몬 터지듯 싱그러운 시트러스 향이"
+    },
+    {
+      "line_id": "L004",
+      "text": "매일의 바디 케어를 상쾌하게 완성"
+    },
+    {
+      "line_id": "L005",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L006",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L007",
+      "text": "MA"
+    },
+    {
+      "line_id": "L008",
+      "text": "M.E.L.A Spotless Ex"
+    },
+    {
+      "line_id": "L009",
+      "text": "Niacinamide 5%"
+    },
+    {
+      "line_id": "L010",
+      "text": "+Glutathione & Vitamin C"
+    },
+    {
+      "line_id": "L011",
+      "text": "향이 만족스럽다. 96.7%"
+    },
+    {
+      "line_id": "L012",
+      "text": "향기로 인해 몸과 마음이 편안해진다. 96.7%"
+    },
+    {
+      "line_id": "L013",
+      "text": "*제품 적용 4주 후 향 만족도 평가 완료"
+    },
+    {
+      "line_id": "L014",
+      "text": "[시험기관: 엘리드 / 시험기간: 26.04.08~26.05.07 / 대상: 25~29세 여성 31명 / 설문 결과 기준]"
+    }
+  ],
+  "parent_text_sha256": "28f2737b472124f6c4fd9b85e8620d1b4934b6c28c6a0f796d155cea198ed0c3",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "POINT 4"
+    },
+    {
+      "line_id": "L002",
+      "text": "상큼한 시트러스 향"
+    },
+    {
+      "line_id": "L003",
+      "text": "레몬 터지듯 싱그러운 시트러스 향이"
+    },
+    {
+      "line_id": "L004",
+      "text": "매일의 바디 케어를 상쾌하게 완성"
+    },
+    {
+      "line_id": "L005",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L006",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L007",
+      "text": "MA"
+    },
+    {
+      "line_id": "L008",
+      "text": "M.E.L.A Spotless Ex"
+    },
+    {
+      "line_id": "L009",
+      "text": "Niacinamide 5%"
+    },
+    {
+      "line_id": "L010",
+      "text": "+Glutathione & Vitamin C"
+    },
+    {
+      "line_id": "L011",
+      "text": "향이 만족스럽다. 96.7%"
+    },
+    {
+      "line_id": "L012",
+      "text": "향기로 인해 몸과 마음이 편안해진다. 96.7%"
+    },
+    {
+      "line_id": "L013",
+      "text": "*제품 적용 4주 후 향 만족도 평가 완료"
+    },
+    {
+      "line_id": "L014",
+      "text": "[시험기관: 엘리드 / 시험기간: 26.04.08~26.05.07 / 대상: 25~29세 여성 31명 / 설문 결과 기준]"
+    }
+  ],
+  "text_sha256": "28f2737b472124f6c4fd9b85e8620d1b4934b6c28c6a0f796d155cea198ed0c3",
+  "changes": [],
+  "unresolved": [
+    "MA 앞, 하단 왼쪽 Niacin…/+Gluta…의 부분 문자 경계. 로션에 가려진 내용을 복원하지 않음",
+    "L014 시험 대상 연령 숫자는 사용자 원본 확대 최종 확인 필요"
+  ],
+  "note": "로션에 가려진 제품 라벨과 아래 반사/절단 문자\nMA 앞, 하단 왼쪽 Niacin…/+Gluta…의 부분 문자 경계. 로션에 가려진 내용을 복원하지 않음\nL014 시험 대상 연령 숫자는 사용자 원본 확대 최종 확인 필요",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "POINT 4"
+          },
+          {
+            "line_id": "L002",
+            "text": "상큼한 시트러스 향"
+          },
+          {
+            "line_id": "L003",
+            "text": "레몬 터지듯 싱그러운 시트러스 향이"
+          },
+          {
+            "line_id": "L004",
+            "text": "매일의 바디 케어를 상쾌하게 완성"
+          },
+          {
+            "line_id": "L005",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L006",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L007",
+            "text": "MA"
+          },
+          {
+            "line_id": "L008",
+            "text": "M.E.L.A Spotless Ex"
+          },
+          {
+            "line_id": "L009",
+            "text": "Niacinamide 5%"
+          },
+          {
+            "line_id": "L010",
+            "text": "+Glutathione & Vitamin C"
+          },
+          {
+            "line_id": "L011",
+            "text": "향이 만족스럽다. 96.7%"
+          },
+          {
+            "line_id": "L012",
+            "text": "향기로 인해 몸과 마음이 편안해진다. 96.7%"
+          },
+          {
+            "line_id": "L013",
+            "text": "*제품 적용 4주 후 향 만족도 평가 완료"
+          },
+          {
+            "line_id": "L014",
+            "text": "[시험기관: 엘리드 / 시험기간: 26.04.08~26.05.07 / 대상: 25~29세 여성 31명 / 설문 결과 기준]"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "POINT 4"
+          },
+          {
+            "line_id": "L002",
+            "text": "상큼한 시트러스 향"
+          },
+          {
+            "line_id": "L003",
+            "text": "레몬 터지듯 싱그러운 시트러스 향이"
+          },
+          {
+            "line_id": "L004",
+            "text": "매일의 바디 케어를 상쾌하게 완성"
+          },
+          {
+            "line_id": "L005",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L006",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L007",
+            "text": "MA"
+          },
+          {
+            "line_id": "L008",
+            "text": "M.E.L.A Spotless Ex"
+          },
+          {
+            "line_id": "L009",
+            "text": "Niacinamide 5%"
+          },
+          {
+            "line_id": "L010",
+            "text": "+Glutathione & Vitamin C"
+          },
+          {
+            "line_id": "L011",
+            "text": "향이 만족스럽다. 96.7%"
+          },
+          {
+            "line_id": "L012",
+            "text": "향기로 인해 몸과 마음이 편안해진다. 96.7%"
+          },
+          {
+            "line_id": "L013",
+            "text": "*제품 적용 4주 후 향 만족도 평가 완료"
+          },
+          {
+            "line_id": "L014",
+            "text": "[시험기관: 엘리드 / 시험기간: 26.04.08~26.05.07 / 대상: 25~29세 여성 31명 / 설문 결과 기준]"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

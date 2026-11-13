@@ -1,0 +1,956 @@
+[
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "셀리맥스레티날샷더 특별한 이유②",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "모공보다6배 앞은",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "마이크로 에이샷®",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "20,250 shot",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "고순도 분리정제로 균일화된",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "에이샷'으로 빈틈없이 촘촘하게",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "WD: 5.34 mm",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "WD: 5.62 mm",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "WD: 5.28 mm",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "특허출원 (제 10-2270816호)",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "특허증",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "마이크로 스피쿨이 함유된",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "4",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "1-2",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "we v",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "천연 화장료 제조방법",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "  ",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC"
+    ]
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "*원료적 특성에 한함",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T5"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "TEST",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "안심하고",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "사용할 수 있는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "피부 대상",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "항산화 테스트 완료1)",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "저자극 테스트 완료2)",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "Antioxidant testing",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "External patch testing",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "LG H&H",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "1.결과 보고서 요악문(국문)",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "CONFIDENTIAL",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "5. 결론 및 요약",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "시절지는읽시를제품",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "교졸표, 를 시지플의입칭피부에이로 일차자크기",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "(LG 성활건강 신개녕연구팅에서는  (LG  성활건강 크로스뷰티연구팀의 의회를 받아",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "시밀므",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "교표,표를 시지플의 입치피부 자근트의 끄부인전에 이스업기",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "비클리닉스 브라이트닝 세럼 톤 코력팅 바디로선의 ORAC 지수를 평가하기 위한 연구를",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "3리1일: 2028년 42 8일",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "수행하였다.",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "S교기()입지질",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "ORAC 지수를 즉정하기 위하여 Trolox를 검량선y = 0.4178x + 1.431y에 시료의 Net AUC 값을",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "시밀의월기원",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "사주소: 서출트벌시프구일교 이",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "대입한 뒤 희석배수를 곱하였다.",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "연구소주소: 서물트털시 칼서구 마플프일10교70 입지사이입스파류 티0티",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "의교기연구들을자  입지촌리립 만집없연구 기질",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "비클리닉스브라이트닝 세럼 론 코력팅 바디로션(농도 0.1%) 처리군에서는 2.839 Net AUC를",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "나타내었으며 Trolox 경량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 급한 결과",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "기린업:  어코얼",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "기원절:대프이사길",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "5(8)",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "33:reg_0034",
+    "text": "비플리닉스 브라이트닝 세럼 론 코력팅 바디로선 (놓도 100%) 은 3371.07 의ORAC",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "34:reg_0035",
+    "text": "지수(umoe TE/나)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "35:reg_0036",
+    "text": "엄구기란",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "36:reg_0037",
+    "text": "시밀부서: 비크업피부입업가연구소",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "37:reg_0038",
+    "text": "연구기들주소:직날미고발를 피부고,프주에시부0,5이-757",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "38:reg_0039",
+    "text": "본 연구는 (LG 생활건강 기술연구원의 표준 작업 절자서(SOP ORAC aSSV)에 따라",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "39:reg_0040",
+    "text": "시일일들지:연부오디",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "40:reg_0041",
+    "text": "수행되었으며, 그 결과와 최종 보고서의 내용은 절차에 따라 감사 완료되었다.",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "41:reg_0042",
+    "text": "시밀문질급리천일자",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "42:reg_0043",
+    "text": "소:읽크얼",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "43:reg_0044",
+    "text": "소:에크업기부일산가의구소정뉴대고의과대 피부과교실",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "44:reg_0045",
+    "text": "연구립의 구성",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "45:reg_0046",
+    "text": "연구일자:피부과전문의 교수 일 ",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "46:reg_0047",
+    "text": "등등역국제 프부관정동의 과",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "47:reg_0048",
+    "text": "비클리닉스 브라이트닝 세럼 돈 코렉팅 바디로션(놓도 0.1%) 처리군에서는 2.839 Net AUC를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1",
+      "QUOTE1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "48:reg_0049",
+    "text": "정상 성인 30명(남 2명, 여 28명, 평균연령 42.2±4.8)을 대상으로,\"비클리닉스",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2",
+      "QUOTE2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "49:reg_0050",
+    "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1",
+      "QUOTE1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "50:reg_0051",
+    "text": "브라이트닝 세럼 돈 코렉팅 바디로션\"를 포함한 23좋의 시제품을 48시간 폐쇄형",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2",
+      "QUOTE2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "51:reg_0052",
+    "text": "비클리닉스브라이트닝 세럼 톤 코렉팅바디로션(농도 100%) 은 3371.07의 ORAC",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1",
+      "QUOTE1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "52:reg_0053",
+    "text": "첩포시험으로 적용하여 피부 안전성을평가한결과 유의한 수준의피부자극지수를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2",
+      "QUOTE2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "53:reg_0054",
+    "text": "지수(μm이e TE/L)가 산졸 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1",
+      "QUOTE1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "54:reg_0055",
+    "text": "보인 시료는 없어 안전하게 활용될 것으로 사료된다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2",
+      "QUOTE2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "55:reg_0056",
+    "text": "브고서 지출립: 2028널 5월 11일",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "56:reg_0057",
+    "text": "브다이트널 시절  요진질 바디교성\"를 프일한 2조의 시지플를 시라 미",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "57:reg_0058",
+    "text": "절살 없인 30(날 2, 이 , 의철 소2.2±4)를 있살으교,\"비리닉스",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "58:reg_0059",
+    "text": "ηx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "59:reg_0060",
+    "text": "브의시교는 없어안즈하게총른을윗으교사교다",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "60:reg_0061",
+    "text": "최프시밀으교 전료하에 피부 만전검를 필가리 접고 유의리 수포의 끄부자급지수를",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "61:reg_0062",
+    "text": "12",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC1"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "62:reg_0063",
+    "text": "Ecoderm, inc.",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "63:reg_0064",
+    "text": " CCN3   =",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "kind": "ocr",
+    "id": "64:reg_0065",
+    "text": "www.ecodemm.co.kr",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "DOC2"
+    ]
+  }
+]

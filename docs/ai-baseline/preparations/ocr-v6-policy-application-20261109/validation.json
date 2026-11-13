@@ -1,0 +1,39 @@
+{
+  "before": {
+    "사용자 확인 필요": 33,
+    "검증 완료": 78,
+    "채점 차단": 1
+  },
+  "after": {
+    "기술적 연결 차단": 30,
+    "검증 완료": 82
+  },
+  "newly_ready": [
+    "GS-01_002__sec_1_11",
+    "GS-02_014__sec_1_02",
+    "GS-03_008__sec_1_01",
+    "GS-03_011__sec_1_01"
+  ],
+  "blockers": {
+    "gt_location_unverified": 593,
+    "boundary_or_unverified_scope": 799,
+    "section_coverage_unverified": 15,
+    "mixed_string_no_split": 1,
+    "oversized_ocr_3_crosses_retained_footnote": 1,
+    "policy_scope_connection_unresolved": 1,
+    "background_b3_overlaps_foreground_heading": 1
+  },
+  "policy_questions_remaining": 0,
+  "protected_files_unchanged": 232,
+  "source_hashes_verified": 159,
+  "prior_preparation_files_unchanged": 28,
+  "source_visual_reviewed_this_pass": [
+    "GS-01_002__sec_1_11",
+    "GS-02_014__sec_1_02",
+    "GS-03_008__sec_1_01",
+    "GS-03_005__sec_1_01",
+    "GS-03_014__sec_1_03"
+  ],
+  "cer_called": false,
+  "gt_modified": false
+}

@@ -1,0 +1,24 @@
+{
+  "policy_confirmed": true,
+  "geometry_approved": false,
+  "sections": 112,
+  "image_hash_matches": 112,
+  "mixed_sections_annotated": 31,
+  "range_and_id_checks": "passed",
+  "existing_files_unchanged": 233,
+  "links_checked": 13,
+  "boundary_feasibility": {
+    "sections": 112,
+    "output_hash_verified": 112,
+    "missing_bbox_sections": 0,
+    "boundary_candidate_sections": 16,
+    "unique_boundary_candidate_outputs": 82,
+    "annotation_intersection_pairs": 85,
+    "note": "AABB 교차 후보이며 실제 결함 수나 bbox 정확도 아님"
+  },
+  "gt_line_mapping_complete": false,
+  "gt_edits": 0,
+  "ocr_runs": 0,
+  "cer_runs": 0,
+  "service_code_changes": 0
+}

@@ -1,0 +1,11 @@
+{
+  "regression_tests_passed": 147,
+  "independent_edit_counts": "all measured matches passed",
+  "independent_aggregation": "passed",
+  "reproducibility": "112 section records and summary exactly equal in separate run",
+  "original_sections_sha256": "2d73c8b1c80b743fa565e588360b1ba1afd025b7935f0f23ad425a6681970738",
+  "rerun_sections_sha256": "2d73c8b1c80b743fa565e588360b1ba1afd025b7935f0f23ad425a6681970738",
+  "fixed_partial_complete": true,
+  "full_112_cer": null,
+  "source_hashes_verified": 377
+}

@@ -1,0 +1,2057 @@
+{
+  "summary": {
+    "sections": 112,
+    "output_hash_verified": 112,
+    "missing_bbox_sections": 0,
+    "boundary_candidate_sections": 16,
+    "unique_boundary_candidate_outputs": 82,
+    "annotation_intersection_pairs": 85,
+    "note": "AABB 교차 후보이며 실제 결함 수나 bbox 정확도 아님"
+  },
+  "sections": [
+    {
+      "id": "GS-01_001__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 47,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": "포장 밖 타브랜드/유통사 표기 경계",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 19,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0012",
+          "output_index": 11,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 776,
+            "y": 1088,
+            "w": 178,
+            "h": 26
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": "포장 옆 인증 배지",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 18,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_04",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 49,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_05",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 13,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_06",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 38,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0001",
+          "output_index": 0,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 196,
+            "y": 487,
+            "w": 609,
+            "h": 561
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_07",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": "인증 마크의 문구 제외 여부",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_08",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 30,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_09",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 20,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_10",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 19,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_11",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 27,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0026",
+          "output_index": 25,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 312,
+            "y": 1244,
+            "w": 355,
+            "h": 349
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0027",
+          "output_index": 26,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 174,
+            "y": 1280,
+            "w": 789,
+            "h": 679
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_12",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 22,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_13",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 22,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_14",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_15",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 30,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_16",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 6,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_17",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 74,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_18",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 50,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_19",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 33,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_20",
+      "output_sha256": "b6f6475f49920722d7cdac98a5de54df917fa46b34db742755b07e32780b2943",
+      "output_regions": 19,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_21",
+      "output_sha256": "27cf4da477a4fc4b74251efbc2b6632754a5fff63b0bada950b5d0f581e12d7e",
+      "output_regions": 24,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0003",
+          "output_index": 2,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 335,
+            "y": 157,
+            "w": 84,
+            "h": 36
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0004",
+          "output_index": 3,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 758,
+            "y": 156,
+            "w": 85,
+            "h": 40
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0005",
+          "output_index": 4,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 336,
+            "y": 192,
+            "w": 83,
+            "h": 37
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0006",
+          "output_index": 5,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 758,
+            "y": 192,
+            "w": 85,
+            "h": 37
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_22",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 60,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": "하단 FSC/SOYINK 마크",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_23",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 46,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0001",
+          "output_index": 0,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 232,
+            "y": 190,
+            "w": 501,
+            "h": 84
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": "Good all 문구와 독립 goodal 로고 경계",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-01_002__sec_1_24",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 8,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_001__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 18,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_001__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0003",
+          "output_index": 2,
+          "annotation_id": "X1",
+          "bbox": {
+            "x": 537,
+            "y": 94,
+            "w": 130,
+            "h": 40
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0004",
+          "output_index": 3,
+          "annotation_id": "X1",
+          "bbox": {
+            "x": 537,
+            "y": 138,
+            "w": 130,
+            "h": 41
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": "기프트카드 인쇄 정책",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_001__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 85,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_001__sec_1_04",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 38,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 41,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0006",
+          "output_index": 5,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 119,
+            "y": 323,
+            "w": 291,
+            "h": 92
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0007",
+          "output_index": 6,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 415,
+            "y": 323,
+            "w": 158,
+            "h": 94
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0008",
+          "output_index": 7,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 576,
+            "y": 323,
+            "w": 159,
+            "h": 93
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0009",
+          "output_index": 8,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 688,
+            "y": 318,
+            "w": 194,
+            "h": 98
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0011",
+          "output_index": 10,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 840,
+            "y": 663,
+            "w": 111,
+            "h": 180
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": "celimax x OLIVE YOUNG 협업 표기",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_003__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_004__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 31,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_004__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_005__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 16,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_006__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 11,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_006__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_006__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 4,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_007__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 3,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_007__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 32,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_007__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 12,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_008__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 38,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0013",
+          "output_index": 12,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 0,
+            "y": 936,
+            "w": 165,
+            "h": 88
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0016",
+          "output_index": 15,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 0,
+            "y": 990,
+            "w": 176,
+            "h": 78
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0019",
+          "output_index": 18,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 1,
+            "y": 1099,
+            "w": 79,
+            "h": 50
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_008__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 14,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_008__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 3,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_008__sec_1_04",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 174,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0013",
+          "output_index": 12,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 94,
+            "y": 799,
+            "w": 366,
+            "h": 50
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0060",
+          "output_index": 59,
+          "annotation_id": "X1",
+          "bbox": {
+            "x": 46,
+            "y": 1781,
+            "w": 68,
+            "h": 22
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0060",
+          "output_index": 59,
+          "annotation_id": "X2",
+          "bbox": {
+            "x": 46,
+            "y": 1781,
+            "w": 68,
+            "h": 22
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0078",
+          "output_index": 77,
+          "annotation_id": "X4",
+          "bbox": {
+            "x": 97,
+            "y": 2240,
+            "w": 273,
+            "h": 19
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0081",
+          "output_index": 80,
+          "annotation_id": "X4",
+          "bbox": {
+            "x": 506,
+            "y": 2300,
+            "w": 176,
+            "h": 18
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0087",
+          "output_index": 86,
+          "annotation_id": "X4",
+          "bbox": {
+            "x": 98,
+            "y": 2367,
+            "w": 45,
+            "h": 11
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0088",
+          "output_index": 87,
+          "annotation_id": "X4",
+          "bbox": {
+            "x": 292,
+            "y": 2366,
+            "w": 190,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0088",
+          "output_index": 87,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 292,
+            "y": 2366,
+            "w": 190,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0091",
+          "output_index": 90,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 293,
+            "y": 2377,
+            "w": 188,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0093",
+          "output_index": 92,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 292,
+            "y": 2393,
+            "w": 110,
+            "h": 14
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0094",
+          "output_index": 93,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 293,
+            "y": 2386,
+            "w": 187,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0095",
+          "output_index": 94,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 293,
+            "y": 2405,
+            "w": 111,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0097",
+          "output_index": 96,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 293,
+            "y": 2415,
+            "w": 111,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0098",
+          "output_index": 97,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 293,
+            "y": 2424,
+            "w": 111,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0102",
+          "output_index": 101,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 291,
+            "y": 2431,
+            "w": 113,
+            "h": 14
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0104",
+          "output_index": 103,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 291,
+            "y": 2442,
+            "w": 114,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0106",
+          "output_index": 105,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 292,
+            "y": 2451,
+            "w": 113,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0107",
+          "output_index": 106,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 293,
+            "y": 2462,
+            "w": 111,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0119",
+          "output_index": 118,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 301,
+            "y": 2516,
+            "w": 180,
+            "h": 14
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0123",
+          "output_index": 122,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 357,
+            "y": 2528,
+            "w": 178,
+            "h": 14
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0126",
+          "output_index": 125,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 358,
+            "y": 2540,
+            "w": 176,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0127",
+          "output_index": 126,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 549,
+            "y": 2545,
+            "w": 177,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0129",
+          "output_index": 128,
+          "annotation_id": "X5",
+          "bbox": {
+            "x": 357,
+            "y": 2548,
+            "w": 178,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0137",
+          "output_index": 136,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 238,
+            "y": 2584,
+            "w": 69,
+            "h": 7
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0138",
+          "output_index": 137,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 357,
+            "y": 2578,
+            "w": 177,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0139",
+          "output_index": 138,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 357,
+            "y": 2587,
+            "w": 178,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0141",
+          "output_index": 140,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 440,
+            "y": 2597,
+            "w": 96,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0144",
+          "output_index": 143,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 440,
+            "y": 2606,
+            "w": 96,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0146",
+          "output_index": 145,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 441,
+            "y": 2618,
+            "w": 94,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0149",
+          "output_index": 148,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 440,
+            "y": 2626,
+            "w": 96,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0150",
+          "output_index": 149,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 441,
+            "y": 2637,
+            "w": 94,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0152",
+          "output_index": 151,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 440,
+            "y": 2645,
+            "w": 96,
+            "h": 13
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0155",
+          "output_index": 154,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 441,
+            "y": 2655,
+            "w": 94,
+            "h": 12
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0158",
+          "output_index": 157,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 444,
+            "y": 2690,
+            "w": 82,
+            "h": 10
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0160",
+          "output_index": 159,
+          "annotation_id": "X6",
+          "bbox": {
+            "x": 443,
+            "y": 2701,
+            "w": 14,
+            "h": 7
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0174",
+          "output_index": 173,
+          "annotation_id": "X7",
+          "bbox": {
+            "x": 48,
+            "y": 2902,
+            "w": 494,
+            "h": 21
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": "논문 제목·저자·표·캡션까지 제외할지 미정; 별도 효능 설명은 포함",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_008__sec_1_05",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 21,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_008__sec_1_06",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 8,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 15,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 20,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_03",
+      "output_sha256": "9e5ac5fb0a9da2c7f762fec7a4560336da60e61838fe952a8f58f07547e51b98",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_04",
+      "output_sha256": "30d31c94c3d7f06044c67b66e5f2e8451532e2d2b5705ffac01662ed08a43153",
+      "output_regions": 16,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_05",
+      "output_sha256": "10389d56885edd21615a2a65b783479f1729296b90449c0f13643c53fd128c81",
+      "output_regions": 15,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_06",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 13,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_009__sec_1_07",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_010__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_010__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 14,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_010__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_011__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 4,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_011__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 20,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_011__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 3,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_012__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_013__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 10,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_013__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 28,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_01",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 4,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_02",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 8,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_03",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 12,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_04",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 35,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_05",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 10,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0008",
+          "output_index": 7,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 270,
+            "y": 1418,
+            "w": 67,
+            "h": 31
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0009",
+          "output_index": 8,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 278,
+            "y": 1431,
+            "w": 58,
+            "h": 25
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0010",
+          "output_index": 9,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 303,
+            "y": 1562,
+            "w": 46,
+            "h": 22
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_06",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 28,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_07",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_08",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 19,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 33,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0006",
+          "output_index": 5,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 99,
+            "y": 731,
+            "w": 485,
+            "h": 31
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0007",
+          "output_index": 6,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 99,
+            "y": 780,
+            "w": 471,
+            "h": 30
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0012",
+          "output_index": 11,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 98,
+            "y": 1194,
+            "w": 490,
+            "h": 32
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0013",
+          "output_index": 12,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 98,
+            "y": 1245,
+            "w": 485,
+            "h": 30
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0014",
+          "output_index": 13,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 99,
+            "y": 1293,
+            "w": 488,
+            "h": 30
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_10",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-02_014__sec_1_11",
+      "output_sha256": "f821429e3fffb40ec939f14dae3bc25500991e01c029d78605765a24866871a9",
+      "output_regions": 31,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0001",
+          "output_index": 0,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 571,
+            "y": 141,
+            "w": 132,
+            "h": 66
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0002",
+          "output_index": 1,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 794,
+            "y": 177,
+            "w": 36,
+            "h": 41
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0003",
+          "output_index": 2,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 790,
+            "y": 195,
+            "w": 40,
+            "h": 42
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_001__sec_1_01",
+      "output_sha256": "8729b7372b15a78f8ae7bce519fbebca99907f557c9da7f7552af0c24d59843e",
+      "output_regions": 9,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_01",
+      "output_sha256": "abc331b04c0e108af771524cf010153f85f0209712d07c36e8280dfbc45606b6",
+      "output_regions": 34,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0001",
+          "output_index": 0,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 385,
+            "y": 163,
+            "w": 226,
+            "h": 66
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_02",
+      "output_sha256": "464bac49590e79aac262301599b426c62c4e14c53d546e3158f3ff896ef97dfc",
+      "output_regions": 13,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_03",
+      "output_sha256": "c231d9c3a4a6bfefcc53fcebebd17ceb8d3a739753fd87d200a30c9d69a7431c",
+      "output_regions": 14,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_04",
+      "output_sha256": "f72a11e06e31a86add40d8aeb4c68fe56a902f0093f6fc282b56964622ded872",
+      "output_regions": 57,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0002",
+          "output_index": 1,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 387,
+            "y": 254,
+            "w": 224,
+            "h": 64
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0010",
+          "output_index": 9,
+          "annotation_id": "E3",
+          "bbox": {
+            "x": 390,
+            "y": 875,
+            "w": 118,
+            "h": 32
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0013",
+          "output_index": 12,
+          "annotation_id": "E3",
+          "bbox": {
+            "x": 177,
+            "y": 1051,
+            "w": 268,
+            "h": 30
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0027",
+          "output_index": 26,
+          "annotation_id": "X1",
+          "bbox": {
+            "x": 692,
+            "y": 1434,
+            "w": 69,
+            "h": 116
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0028",
+          "output_index": 27,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 448,
+            "y": 1646,
+            "w": 77,
+            "h": 156
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0028",
+          "output_index": 27,
+          "annotation_id": "E3",
+          "bbox": {
+            "x": 448,
+            "y": 1646,
+            "w": 77,
+            "h": 156
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0031",
+          "output_index": 30,
+          "annotation_id": "E3",
+          "bbox": {
+            "x": 840,
+            "y": 1727,
+            "w": 75,
+            "h": 33
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": "수상/인증 배지 문구 및 타브랜드",
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_05",
+      "output_sha256": "5626e4a3735c9f281cf60fb28c46b7ea36e0c7b2e21e76c170521e06ab97473d",
+      "output_regions": 21,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0020",
+          "output_index": 19,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 604,
+            "y": 1641,
+            "w": 258,
+            "h": 48
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_06",
+      "output_sha256": "0ed20cb08956068f31d1c66ff1f65a6a0db066c4d9f1d4bb769cd7bd9df3c507",
+      "output_regions": 35,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_002__sec_1_07",
+      "output_sha256": "753388c08f45e17af2f21c967978f76f44eaf560aa2e95bfe2af685361a9d663",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_003__sec_1_01",
+      "output_sha256": "9e6afee9ef4d9d589e15e2e6a9429344fb8405cbf3f16cd35c0a3f7e2ed142a1",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_004__sec_1_01",
+      "output_sha256": "912d293de553f8f84394707585b18b74ae0e71f54a2bca062b60839082e5741c",
+      "output_regions": 14,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_005__sec_1_01",
+      "output_sha256": "a1f540dec08642cfeff278124c5a327aeecc74fd3461b0ee21b171259144b90d",
+      "output_regions": 22,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_006__sec_1_01",
+      "output_sha256": "41d375cc19f0e8375be6c1219717dfcb4b6ae4ee0cbf889b0da32aa199cf6789",
+      "output_regions": 6,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_007__sec_1_01",
+      "output_sha256": "43e49bb66a33d2e4b5419fb619c7088013e0cac5dc3e4655e8d8188ee1f558dd",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_008__sec_1_01",
+      "output_sha256": "42aaeabc591a02f373fa7668afcddd0bd84ec71143c2866311f34c3cec369054",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_008__sec_1_02",
+      "output_sha256": "3be6760b211b3ff46b2231e9ef3acf11783a468f4c24f60ea4892c13ec762fc9",
+      "output_regions": 7,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_009__sec_1_01",
+      "output_sha256": "52ba9d3c010e084cf4bdaff55e8f45856114309295eda40e25052ac8542d27cb",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_010__sec_1_01",
+      "output_sha256": "07292785861205d5f1a3d1a7d6600afb58c3f1bb5d025c0567d2426118820cd3",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_010__sec_1_02",
+      "output_sha256": "503cad6f9ffb1c23e3149a2e9591870810beb17e95ec4b3054c56895062f9d5b",
+      "output_regions": 12,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_010__sec_1_03",
+      "output_sha256": "5ddd4e5b8392b93e1fe8e2623c08f363709a391fb58e87c9f558d211cf034a0f",
+      "output_regions": 32,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_011__sec_1_01",
+      "output_sha256": "b4dfecbd1a86f6409a12adf6ca3bf668c5522d907002c21c725f9e3519d62cbb",
+      "output_regions": 16,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_012__sec_1_01",
+      "output_sha256": "c988c0eccbc5bc318c11fb041a7fdbd6031d6625c1f985ff7f37e8cfd852c1d3",
+      "output_regions": 10,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_013__sec_1_01",
+      "output_sha256": "514e93e8611ae236b22ca446439410323fb499b3fb72a1c031e652d3c6131d83",
+      "output_regions": 23,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_014__sec_1_01",
+      "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+      "output_regions": 65,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_014__sec_1_02",
+      "output_sha256": "ab26bcfc653375207b30af02a5f67b50dab825fb7a753d071a97673a58c4a0d3",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_014__sec_1_03",
+      "output_sha256": "48ad3d99064b15da98e9e70625e506ad13eb44af20ef23bbd0e93870a3fcb06a",
+      "output_regions": 16,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_015__sec_1_01",
+      "output_sha256": "969fc003f44c4f1bef1b53412421fad785e42a78fd272b5143ab98b9b050096e",
+      "output_regions": 14,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_016__sec_1_01",
+      "output_sha256": "45300a6f898058db01b16c50d4d44cc5d867ec70281d05926686fcce82f9d87f",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_017__sec_1_01",
+      "output_sha256": "d7d31f23582d63358c276f149c2dcedce1472247e898f9ee23915bf4c16b7003",
+      "output_regions": 8,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_01",
+      "output_sha256": "4252a5b8f2d2cbc7cd468dbc04d1cb8196ad0b43ef879b744a7deccda165d7ec",
+      "output_regions": 2,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_02",
+      "output_sha256": "32ace4fb8169321dc90e66b5ceecff94e2a5485798a49392eac9edb070f49442",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_03",
+      "output_sha256": "600b90497ad16d74bc7873fae935f5b914cf728a9f5c19cea00be0d834d3928d",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_04",
+      "output_sha256": "2abfc65fce6b7234ae743ffacbb9f082dba40d555ca8c34d1c1b80c8baaa1d6b",
+      "output_regions": 4,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_05",
+      "output_sha256": "46403e37e0a35d1244e7a3dd6507573aacc82644f4e059517b9fbf7d8fcc042f",
+      "output_regions": 4,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_06",
+      "output_sha256": "8d723b160fb29923af4c6956728457233aed3ff29a6ed1355cd14477d33ce5eb",
+      "output_regions": 14,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_07",
+      "output_sha256": "4072797bd14c37172f907afa6b50b587afc75239b657b95c91cc7c1e6d35c3d6",
+      "output_regions": 5,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_08",
+      "output_sha256": "c9a799c072a37eef81fbbe6ac96499004a071cbf9ec17fcbe86d78805c7b3184",
+      "output_regions": 80,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [
+        {
+          "region_key": "reg_0013",
+          "output_index": 12,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 532,
+            "y": 1029,
+            "w": 66,
+            "h": 39
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0014",
+          "output_index": 13,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 749,
+            "y": 1023,
+            "w": 102,
+            "h": 25
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0016",
+          "output_index": 15,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 123,
+            "y": 1154,
+            "w": 188,
+            "h": 21
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0017",
+          "output_index": 16,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 122,
+            "y": 1184,
+            "w": 125,
+            "h": 20
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0018",
+          "output_index": 17,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 122,
+            "y": 1207,
+            "w": 114,
+            "h": 20
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0026",
+          "output_index": 25,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 116,
+            "y": 1344,
+            "w": 97,
+            "h": 29
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0027",
+          "output_index": 26,
+          "annotation_id": "E1",
+          "bbox": {
+            "x": 150,
+            "y": 1380,
+            "w": 127,
+            "h": 27
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0067",
+          "output_index": 66,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 165,
+            "y": 2364,
+            "w": 109,
+            "h": 37
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0068",
+          "output_index": 67,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 454,
+            "y": 2365,
+            "w": 106,
+            "h": 35
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        },
+        {
+          "region_key": "reg_0069",
+          "output_index": 68,
+          "annotation_id": "E2",
+          "bbox": {
+            "x": 718,
+            "y": 2367,
+            "w": 130,
+            "h": 31
+          },
+          "reason": "거친 사각형 부분 교차; 의미 경계 검토 필요"
+        }
+      ],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_09",
+      "output_sha256": "04f9c6c55e6cb812a59d142344f80ad17f500e232289261de1bc47dc6f0f0746",
+      "output_regions": 1,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_10",
+      "output_sha256": "9dde398bbcb415c0d53c9fade81986e9963262ea7c3e17e315388cbf6eaa7d5d",
+      "output_regions": 27,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    },
+    {
+      "id": "GS-03_018__sec_1_11",
+      "output_sha256": "f9983444ec74fa3d14503c2f0a948dcea54baa09cb557e4a3492608252b6ae28",
+      "output_regions": 48,
+      "missing_bbox_indices": [],
+      "boundary_candidates": [],
+      "policy_pending": null,
+      "result": "GT line 연결 미완료; 필터/채점 미실행"
+    }
+  ]
+}

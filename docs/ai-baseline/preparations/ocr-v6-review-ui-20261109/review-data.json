@@ -1,0 +1,638 @@
+{
+  "schema": "v6-focused-review-2",
+  "source_sha256": "876d4702d4efb33e58e245126ba0f90c659d8332f48213d4911e1606ea5686d1",
+  "reset_keys": [
+    "pixlate-v6-review:876d4702d4efb33e58e245126ba0f90c659d8332f48213d4911e1606ea5686d1"
+  ],
+  "items": [
+    {
+      "id": "GS-03_005__sec_1_01:scope",
+      "section_id": "GS-03_005__sec_1_01",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_005\\sections\\sec_1_01.png",
+        "sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b",
+        "width": 1000,
+        "height": 2040,
+        "url": "file:///C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_005/sections/sec_1_01.png"
+      },
+      "gt": [
+        {
+          "line_id": "L007",
+          "source_index": 6,
+          "order": 6,
+          "text": "3"
+        }
+      ],
+      "ocr": [
+        {
+          "region_key": "reg_0021",
+          "text": "3",
+          "score": 0.38794374465942383,
+          "poly": [
+            [
+              118,
+              764
+            ],
+            [
+              1000,
+              953
+            ],
+            [
+              906,
+              1816
+            ],
+            [
+              0,
+              1628
+            ]
+          ],
+          "bbox": {
+            "x": 0,
+            "y": 764,
+            "w": 1000,
+            "h": 1052
+          }
+        }
+      ],
+      "truth_sha256": "6cdd20c8a550c0a082caa4c843ddedbe8bd25bf14f372c1763f49a68abc37840",
+      "output_ref": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\evaluations\\ocr-v4-v2-v1-0-1-20261109\\supplement\\GS-03_005__sec_1_01.json",
+        "sha256": "a1f540dec08642cfeff278124c5a327aeecc74fd3461b0ee21b171259144b90d",
+        "pointer": ""
+      },
+      "decision": null,
+      "approved": false,
+      "title": "크림 제형으로 만든 숫자 3",
+      "focus": [
+        100,
+        800,
+        850,
+        1030
+      ],
+      "boxes": [
+        [
+          140,
+          850,
+          760,
+          930
+        ]
+      ],
+      "question": "크림 모양의 숫자 3 자체를 번역 대상 문자로 포함할까요?",
+      "reason": "위 설명의 “3중 효과”와 연결된 숫자인지, 장식 이미지인지 의미 판단이 필요합니다. 주변 설명과 하단 각주는 질문 대상이 아닙니다.",
+      "recommendation": "제외 권고: 제형을 이용한 장식 표현으로 보입니다. 숫자의 정보 전달 기능을 인정할지는 사용자 판단이 필요합니다.",
+      "linkage": "GT L007과 OCR reg_0021은 문자 3의 대응 후보입니다. OCR 사각형은 각주까지 걸쳐 있어 정확한 범위 연결이 확정되지 않았습니다. 선택 후에도 기술적 검증이 필요합니다."
+    },
+    {
+      "id": "GS-03_014__sec_1_03:scope",
+      "section_id": "GS-03_014__sec_1_03",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_03.png",
+        "sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2",
+        "width": 1000,
+        "height": 1677,
+        "url": "file:///C:/Users/Yeram/Documents/pixlate-server/pipeline/out/ocr_input/v1/GS-03_014/sections/sec_1_03.png"
+      },
+      "gt": [
+        {
+          "line_id": "L008",
+          "source_index": 7,
+          "order": 7,
+          "text": "b3+"
+        }
+      ],
+      "ocr": [],
+      "truth_sha256": "6cdd20c8a550c0a082caa4c843ddedbe8bd25bf14f372c1763f49a68abc37840",
+      "output_ref": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\evaluations\\ocr-v4-v2-v1-0-1-20261109\\supplement\\GS-03_014__sec_1_03.json",
+        "sha256": "48ad3d99064b15da98e9e70625e506ad13eb44af20ef23bbd0e93870a3fcb06a",
+        "pointer": ""
+      },
+      "decision": null,
+      "approved": false,
+      "title": "옅은 배경 글자 b3+",
+      "focus": [
+        0,
+        280,
+        1000,
+        620
+      ],
+      "boxes": [
+        [
+          835,
+          340,
+          165,
+          270
+        ],
+        [
+          590,
+          610,
+          190,
+          240
+        ],
+        [
+          0,
+          350,
+          100,
+          200
+        ]
+      ],
+      "question": "옅은 배경 b3+를 번역 대상 문자로 포함할까요?",
+      "reason": "브랜드·장식 배경인지 독립적인 설명 문구인지 판단이 필요합니다. 강조된 옅은 글자 조각만 확인하세요. 검정 제목·영문·사진은 판단 대상이 아닙니다.",
+      "recommendation": "제외 권고: 옅은 브랜드·장식 배경으로 보입니다. 일반 설명으로 판단한다면 포함을 선택해 주세요.",
+      "linkage": "GT L008은 의미상 연결 후보이며 줄별 위치가 검증된 것은 아닙니다. 대응 OCR 영역은 없습니다. OCR 누락 여부는 범위 결정 이후 별도 평가합니다."
+    }
+  ],
+  "triage": [
+    {
+      "id": "GS-01_001__sec_1_01:scope",
+      "section_id": "GS-01_001__sec_1_01",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "상단 리뉴얼 안내·기존/신규 디자인 캡션·하단 주의는 포함, 두 포장과 하단 goodal 로고 제외",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-01_002__sec_1_01:scope",
+      "section_id": "GS-01_002__sec_1_01",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "상단 설명·산뜻 밀착 콜아웃 포함, 용기 인쇄·VEGAN 심볼 제외; 빈 GT 위치는 사용자 제외 결정 유지",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-01_002__sec_1_04:scope",
+      "section_id": "GS-01_002__sec_1_04",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "설문 상세 수치 포함, POWDER ROOM 배지와 하단 용기 제외; 원형 시험 안내와 브랜드 배지를 구분",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-01_002__sec_1_11:20:reg_0021",
+      "section_id": "GS-01_002__sec_1_11",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 제형 설명 포함, 아래 튜브·제형 사진 및 인쇄 제외",
+      "focus_ocr": "reg_0021"
+    },
+    {
+      "id": "GS-01_002__sec_1_15:scope",
+      "section_id": "GS-01_002__sec_1_15",
+      "category": "ai_policy_resolved",
+      "reason": "원본의 Reef Safe는 일반 설명 문구입니다. 타원 배치만으로 인증 로고로 제외하지 않습니다. 포함 권고이며 영역·GT 연결 완료나 사용자 승인을 뜻하지 않습니다.",
+      "original_reason": "상하 Reef Safe 설명 포함; 바다 배경 및 하단 타원형 Reef Safe 심볼 여부 확인",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-01_002__sec_1_18:7:reg_0008",
+      "section_id": "GS-01_002__sec_1_18",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 선케어 라인 설명 포함, 아래 용기 사진 제외",
+      "focus_ocr": "reg_0008"
+    },
+    {
+      "id": "GS-01_002__sec_1_18:8:reg_0009",
+      "section_id": "GS-01_002__sec_1_18",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 선케어 라인 설명 포함, 아래 용기 사진 제외",
+      "focus_ocr": "reg_0009"
+    },
+    {
+      "id": "GS-01_002__sec_1_18:9:reg_0010",
+      "section_id": "GS-01_002__sec_1_18",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 선케어 라인 설명 포함, 아래 용기 사진 제외",
+      "focus_ocr": "reg_0010"
+    },
+    {
+      "id": "GS-01_002__sec_1_21:6:reg_0007",
+      "section_id": "GS-01_002__sec_1_21",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의",
+      "focus_ocr": "reg_0007"
+    },
+    {
+      "id": "GS-01_002__sec_1_21:7:reg_0008",
+      "section_id": "GS-01_002__sec_1_21",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의",
+      "focus_ocr": "reg_0008"
+    },
+    {
+      "id": "GS-01_002__sec_1_21:8:reg_0009",
+      "section_id": "GS-01_002__sec_1_21",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의",
+      "focus_ocr": "reg_0009"
+    },
+    {
+      "id": "GS-02_001__sec_1_03:scope",
+      "section_id": "GS-02_001__sec_1_03",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "이벤트 방법·영수증 안내 포함; 앱 화면의 제품 인쇄·QR과 별도 화면 텍스트 구분 필요",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-02_002__sec_1_01:scope",
+      "section_id": "GS-02_002__sec_1_01",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "상단 협업 로고·제품 인쇄 제외, 제목·모공탄력 콜아웃·하단 구성 설명 포함; 좌표형 GT 제외 결정 유지",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-02_007__sec_1_02:5:reg_0006",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0006"
+    },
+    {
+      "id": "GS-02_007__sec_1_02:8:reg_0009",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0009"
+    },
+    {
+      "id": "GS-02_007__sec_1_02:11:reg_0012",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0012"
+    },
+    {
+      "id": "GS-02_007__sec_1_02:13:reg_0014",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0014"
+    },
+    {
+      "id": "GS-02_007__sec_1_02:16:reg_0017",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0017"
+    },
+    {
+      "id": "GS-02_007__sec_1_02:18:reg_0019",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0019"
+    },
+    {
+      "id": "GS-02_007__sec_1_02:20:reg_0021",
+      "section_id": "GS-02_007__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요",
+      "focus_ocr": "reg_0021"
+    },
+    {
+      "id": "GS-02_008__sec_1_02:13:reg_0014",
+      "section_id": "GS-02_008__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 설명·성분 수치·사진 내 현미경 스케일은 별도 의미 확인 필요; 비텍스트 도해 제외",
+      "focus_ocr": "reg_0014"
+    },
+    {
+      "id": "GS-02_008__sec_1_04:scope",
+      "section_id": "GS-02_008__sec_1_04",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "논문 내부 제외, 논문 위 3개 별도 인용문·상단 레티날 설명·사진 옆 콜아웃 포함",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-02_009__sec_1_02:8:reg_0009",
+      "section_id": "GS-02_009__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함",
+      "focus_ocr": "reg_0009"
+    },
+    {
+      "id": "GS-02_009__sec_1_02:11:reg_0012",
+      "section_id": "GS-02_009__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함",
+      "focus_ocr": "reg_0012"
+    },
+    {
+      "id": "GS-02_009__sec_1_02:14:reg_0015",
+      "section_id": "GS-02_009__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함",
+      "focus_ocr": "reg_0015"
+    },
+    {
+      "id": "GS-02_009__sec_1_02:17:reg_0018",
+      "section_id": "GS-02_009__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함",
+      "focus_ocr": "reg_0018"
+    },
+    {
+      "id": "GS-02_009__sec_1_05:3:reg_0004",
+      "section_id": "GS-02_009__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0004"
+    },
+    {
+      "id": "GS-02_009__sec_1_05:4:reg_0005",
+      "section_id": "GS-02_009__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0005"
+    },
+    {
+      "id": "GS-02_009__sec_1_05:6:reg_0007",
+      "section_id": "GS-02_009__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0007"
+    },
+    {
+      "id": "GS-02_009__sec_1_05:7:reg_0008",
+      "section_id": "GS-02_009__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0008"
+    },
+    {
+      "id": "GS-02_009__sec_1_05:9:reg_0010",
+      "section_id": "GS-02_009__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0010"
+    },
+    {
+      "id": "GS-02_009__sec_1_05:10:reg_0011",
+      "section_id": "GS-02_009__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0011"
+    },
+    {
+      "id": "GS-02_009__sec_1_06:5:reg_0006",
+      "section_id": "GS-02_009__sec_1_06",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0006"
+    },
+    {
+      "id": "GS-02_009__sec_1_06:6:reg_0007",
+      "section_id": "GS-02_009__sec_1_06",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0007"
+    },
+    {
+      "id": "GS-02_009__sec_1_06:9:reg_0010",
+      "section_id": "GS-02_009__sec_1_06",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0010"
+    },
+    {
+      "id": "GS-02_009__sec_1_06:10:reg_0011",
+      "section_id": "GS-02_009__sec_1_06",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함",
+      "focus_ocr": "reg_0011"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:4:reg_0005",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0005"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:5:reg_0006",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0006"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:6:reg_0007",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0007"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:7:reg_0008",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0008"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:8:reg_0009",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0009"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:9:reg_0010",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0010"
+    },
+    {
+      "id": "GS-02_010__sec_1_02:10:reg_0011",
+      "section_id": "GS-02_010__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함",
+      "focus_ocr": "reg_0011"
+    },
+    {
+      "id": "GS-02_014__sec_1_02:0:reg_0001",
+      "section_id": "GS-02_014__sec_1_02",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "얼굴·용기 인쇄 제외, 사진 위 how to use와 하단 사용법 포함",
+      "focus_ocr": "reg_0001"
+    },
+    {
+      "id": "GS-02_014__sec_1_06:scope",
+      "section_id": "GS-02_014__sec_1_06",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "피부/얼굴 사진 제외, 개선율 콜아웃·캡션·작은 각도 수치 포함",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-02_014__sec_1_08:3:reg_0004",
+      "section_id": "GS-02_014__sec_1_08",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 제목·하단 추천/성분/체크포인트 포함, 가운데 용기 인쇄 제외",
+      "focus_ocr": "reg_0004"
+    },
+    {
+      "id": "GS-02_014__sec_1_08:10:reg_0011",
+      "section_id": "GS-02_014__sec_1_08",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 제목·하단 추천/성분/체크포인트 포함, 가운데 용기 인쇄 제외",
+      "focus_ocr": "reg_0011"
+    },
+    {
+      "id": "GS-02_014__sec_1_09:scope",
+      "section_id": "GS-02_014__sec_1_09",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "질의응답 말풍선 포함, 뒤 인물·용기 배경 제외; 말풍선 밖 제목은 유지",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-02_014__sec_1_11:scope",
+      "section_id": "GS-02_014__sec_1_11",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "하단 개발 이야기 포함; 위 콜라주의 별도 손글씨와 용기 인쇄 구분 필요",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-03_002__sec_1_01:scope",
+      "section_id": "GS-03_002__sec_1_01",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "독립 b.clinicx·용기 인쇄 제외, 일반 제품 설명·영문 설명·하단 효능/각주 포함",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-03_002__sec_1_04:scope",
+      "section_id": "GS-03_002__sec_1_04",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "브랜드·용기·수상 심볼 제외, 일반 효능/수상 설명·TONE UP 콜아웃 포함",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-03_002__sec_1_05:18:reg_0019",
+      "section_id": "GS-03_002__sec_1_05",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "상단 설명·2주/24H 콜아웃 포함, 손·용기 인쇄 제외",
+      "focus_ocr": "reg_0019"
+    },
+    {
+      "id": "GS-03_002__sec_1_06:scope",
+      "section_id": "GS-03_002__sec_1_06",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "얼굴·용기·피부 사진 제외, 2WEEKS·효능 수치·하단 캡션/각주 포함",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-03_004__sec_1_01:3:reg_0004",
+      "section_id": "GS-03_004__sec_1_01",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "피부 사진 제외, 상단 수치·캡션·하단 그래프/각주 포함",
+      "focus_ocr": "reg_0004"
+    },
+    {
+      "id": "GS-03_005__sec_1_01:scope",
+      "section_id": "GS-03_005__sec_1_01",
+      "category": "policy_question",
+      "reason": "위 설명의 “3중 효과”와 연결된 숫자인지, 장식 이미지인지 의미 판단이 필요합니다. 주변 설명과 하단 각주는 질문 대상이 아닙니다.",
+      "original_reason": "큰 제형 숫자 3이 전사 대상 숫자인지 장식 이미지인지 사용자 확인 필요; 나머지 효능 설명/각주는 포함",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-03_008__sec_1_01:1:reg_0002",
+      "section_id": "GS-03_008__sec_1_01",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "성분 구형 그림 제외, 두 성분 콜아웃과 아래 영문 설명 포함",
+      "focus_ocr": "reg_0002"
+    },
+    {
+      "id": "GS-03_011__sec_1_01:14:reg_0015",
+      "section_id": "GS-03_011__sec_1_01",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "제형/스푼 사진 제외, 상단 설명·DERMATOLOGICALLY TESTED 별도 콜아웃 포함",
+      "focus_ocr": "reg_0015"
+    },
+    {
+      "id": "GS-03_014__sec_1_03:scope",
+      "section_id": "GS-03_014__sec_1_03",
+      "category": "policy_question",
+      "reason": "브랜드·장식 배경인지 독립적인 설명 문구인지 판단이 필요합니다. 강조된 옅은 글자 조각만 확인하세요. 검정 제목·영문·사진은 판단 대상이 아닙니다.",
+      "original_reason": "피부 사진 제외, 상단 설명·영문 콜아웃·BRIGHTENING 포함; 배경 b3+의 문자/장식 해석 확인",
+      "focus_ocr": null
+    },
+    {
+      "id": "GS-03_016__sec_1_01:1:reg_0002",
+      "section_id": "GS-03_016__sec_1_01",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "우측 HOW TO USE 제목 포함, 좌하단 제형 사진 제외",
+      "focus_ocr": "reg_0002"
+    },
+    {
+      "id": "GS-03_017__sec_1_01:0:reg_0001",
+      "section_id": "GS-03_017__sec_1_01",
+      "category": "technical_pending",
+      "reason": "OCR 경계 교차의 원본·영역 연결 검증 필요. 문자열 분리만으로 정책 판단을 요청하지 않음.",
+      "original_reason": "손·용기 인쇄 제외, 상단 TO USE 및 왼쪽 영문 사용법 포함",
+      "focus_ocr": "reg_0001"
+    },
+    {
+      "id": "GS-03_018__sec_1_08:scope",
+      "section_id": "GS-03_018__sec_1_08",
+      "category": "technical_pending",
+      "reason": "기존 포함·제외 정책은 유지. 섹션 전체 선택 대신 줄별 위치·연결 근거를 보완해야 함.",
+      "original_reason": "용기/반사상 제외, 별도 BODY 이름·설명·레벨 캡션·효능표 포함; 다수 경계 확인",
+      "focus_ocr": null
+    }
+  ],
+  "approved": false,
+  "frozen": false,
+  "filter_status_changed": false
+}

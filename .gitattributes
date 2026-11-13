@@ -19,3 +19,6 @@ tools/baseline/ocr_scope.py -text
 tools/baseline/ocr_v5.py -text
 tools/baseline/ocr_v6.py -text
 docs/ai-baseline/protocols/v1/ocr-v6-scope-draft.md -text
+
+# Frozen source-evidence document: preserve exact historical bytes.
+docs/ai-baseline/protocols/v1/ocr.md -text

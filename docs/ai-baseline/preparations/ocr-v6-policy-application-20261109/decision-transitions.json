@@ -1,0 +1,911 @@
+[
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "않는",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_22",
+    "kind": "ocr",
+    "id": "45:reg_0046",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_23",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_02",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_03",
+    "kind": "ocr",
+    "id": "36:reg_0037",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_03",
+    "kind": "ocr",
+    "id": "41:reg_0042",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_001__sec_1_03",
+    "kind": "ocr",
+    "id": "69:reg_0070",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "33:reg_0034",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "34:reg_0035",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "35:reg_0036",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "36:reg_0037",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "38:reg_0039",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "41:reg_0042",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "43:reg_0044",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "45:reg_0046",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "46:reg_0047",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "47:reg_0048",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "48:reg_0049",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "49:reg_0050",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "51:reg_0052",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "53:reg_0054",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "55:reg_0056",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_04",
+    "kind": "ocr",
+    "id": "57:reg_0058",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "",
+    "before": "exclude",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_02",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "how to use",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L001",
+    "text": "POINT 2",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L002",
+    "text": "효과의 차이를 만드는",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L003",
+    "text": "비클리닉스만의 핵심성분",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L004",
+    "text": "착색 케어, 각질 정돈, 24시간 즉각 톤업*까지",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L005",
+    "text": "3중 효과를 실현한 비클리닉스만의 기술력",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L006",
+    "text": "*커버에 의한 톤업 효과",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L007",
+    "text": "3",
+    "before": "hold",
+    "after": "exclude",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "gt",
+    "id": "L008",
+    "text": "**제품 1병(300mL) 기준",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "POINT 2",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "효과의",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "차이를",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "만드는",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "비클리닉스만의",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "핵심성분",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "착색",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "케어,",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "각질",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "정돈,",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "24시간",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "즉각 톤업'까지",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "3중",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "효과를",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "실현한",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "비클리닉스만의",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "기술력",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "*커버에",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "의한톤업",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "효과",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "*제품 1병(300mL)기준",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_008__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "VITAMIN C",
+    "before": "exclude",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_008__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "비타민C",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_011__sec_1_01",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "",
+    "before": "hold",
+    "after": "include",
+    "reason": "empty_output_preserved"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L001",
+    "text": "b3 BRIGHTENING SERUM BODY LOTION",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L002",
+    "text": "A long-term",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L003",
+    "text": "whitening effect",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L004",
+    "text": "Tone-up and",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L005",
+    "text": "antioxidant solutions",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L006",
+    "text": "사용 4주 후",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L007",
+    "text": "피부톤 & 결 개선 만족도",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L009",
+    "text": "After applying b3",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L010",
+    "text": "brightening serum tone",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L011",
+    "text": "collecting body lotion,",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L012",
+    "text": "the skin tone improved",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L013",
+    "text": "brightly.",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "gt",
+    "id": "L014",
+    "text": "BRIGHTENING",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "b3 BRIGHTENING SERUM BODY LOTION",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "A long-term",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "Tone-up and",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "whitening effect",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "antioxidtant solutions",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "사용",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "4주후",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "피부톤&결",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "볼개선",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "만족도",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "After applying b3",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "brightening serum tone",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "collecting body lotion,",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "the skin tone improved",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "brightly.",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "BRIGHTENING",
+    "before": "hold",
+    "after": "include",
+    "reason": "fixed_source_region"
+  }
+]

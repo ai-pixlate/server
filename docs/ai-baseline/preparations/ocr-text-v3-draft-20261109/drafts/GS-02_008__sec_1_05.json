@@ -1,0 +1,329 @@
+{
+  "id": "GS-02_008__sec_1_05",
+  "sample": "GS-02_008",
+  "section_key": "sec_1_05",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_05.png",
+    "sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+    "width": 830,
+    "height": 1684
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "셀리맥스 레티날 샷 더 특별한 이유 ②"
+    },
+    {
+      "line_id": "L002",
+      "text": "모공보다 6배 얇은"
+    },
+    {
+      "line_id": "L003",
+      "text": "마이크로 에이샷®"
+    },
+    {
+      "line_id": "L004",
+      "text": "20,250 shot"
+    },
+    {
+      "line_id": "L005",
+      "text": "고순도 분리정제로 균일화된"
+    },
+    {
+      "line_id": "L006",
+      "text": "에이샷®으로 빈틈없이 촘촘하게"
+    },
+    {
+      "line_id": "L007",
+      "text": "WD: 5.34 mm"
+    },
+    {
+      "line_id": "L008",
+      "text": "WD: 5.62 mm"
+    },
+    {
+      "line_id": "L009",
+      "text": "WD: 5.28 mm"
+    },
+    {
+      "line_id": "L010",
+      "text": "특허출원 (제 10-2270816호)"
+    },
+    {
+      "line_id": "L011",
+      "text": "마이크로 스피큘이 함유된"
+    },
+    {
+      "line_id": "L012",
+      "text": "천연 화장료 제조방법"
+    },
+    {
+      "line_id": "L013",
+      "text": "특허증"
+    },
+    {
+      "line_id": "L014",
+      "text": "Certificate of Patent"
+    },
+    {
+      "line_id": "L015",
+      "text": "*원료적 특성에 한함"
+    }
+  ],
+  "parent_text_sha256": "e9ed6aa6c0c16d9bff84f65a0c78d3e8a2fd4ee3e8ca2adf778b6931accca8c3",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "셀리맥스 레티날 샷 더 특별한 이유 ②"
+    },
+    {
+      "line_id": "L002",
+      "text": "모공보다 6배 얇은"
+    },
+    {
+      "line_id": "L003",
+      "text": "마이크로 에이샷®"
+    },
+    {
+      "line_id": "L004",
+      "text": "20,250 shot"
+    },
+    {
+      "line_id": "L005",
+      "text": "고순도 분리정제로 균일화된"
+    },
+    {
+      "line_id": "L006",
+      "text": "에이샷®으로 빈틈없이 촘촘하게"
+    },
+    {
+      "line_id": "L007",
+      "text": "WD: 5.34 mm"
+    },
+    {
+      "line_id": "L008",
+      "text": "WD: 5.62 mm"
+    },
+    {
+      "line_id": "L009",
+      "text": "WD: 5.28 mm"
+    },
+    {
+      "line_id": "L010",
+      "text": "특허출원 (제 10-2270816호)"
+    },
+    {
+      "line_id": "L011",
+      "text": "마이크로 스피큘이 함유된"
+    },
+    {
+      "line_id": "L012",
+      "text": "천연 화장료 제조방법"
+    },
+    {
+      "line_id": "L013",
+      "text": "특허증"
+    },
+    {
+      "line_id": "L014",
+      "text": "Certificate of Patent"
+    },
+    {
+      "line_id": "L016",
+      "text": "특허"
+    },
+    {
+      "line_id": "L017",
+      "text": "제 10-2270816 호"
+    },
+    {
+      "line_id": "L015",
+      "text": "*원료적 특성에 한함"
+    }
+  ],
+  "text_sha256": "f621830aff7eabf460af4b6f4eda63bc673bdd8068adbcfe84be6bb1c7022b93",
+  "changes": [
+    {
+      "operation": "insert",
+      "line_id": "L016",
+      "before": null,
+      "after": "특허",
+      "after_existing_id": "L014",
+      "reason": "하단 특허증의 특허 번호 행을 확대 원본에서 확인. 본문/날짜는 미확정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L017",
+      "before": null,
+      "after": "제 10-2270816 호",
+      "after_existing_id": "L014",
+      "reason": "하단 특허증의 특허 번호 행을 확대 원본에서 확인. 본문/날짜는 미확정"
+    }
+  ],
+  "unresolved": [
+    "특허증 출원/등록 날짜·소유자·주소·발명자·하단 인증 문구는 저해상도로 전체 확정 불가. 큰 설명 문구를 증서 본문에 복제하지 않음"
+  ],
+  "note": "특허증 본문의 미세 항목 누락\n특허증 출원/등록 날짜·소유자·주소·발명자·하단 인증 문구는 저해상도로 전체 확정 불가. 큰 설명 문구를 증서 본문에 복제하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "셀리맥스 레티날 샷 더 특별한 이유 ②"
+          },
+          {
+            "line_id": "L002",
+            "text": "모공보다 6배 얇은"
+          },
+          {
+            "line_id": "L003",
+            "text": "마이크로 에이샷®"
+          },
+          {
+            "line_id": "L004",
+            "text": "20,250 shot"
+          },
+          {
+            "line_id": "L005",
+            "text": "고순도 분리정제로 균일화된"
+          },
+          {
+            "line_id": "L006",
+            "text": "에이샷®으로 빈틈없이 촘촘하게"
+          },
+          {
+            "line_id": "L007",
+            "text": "WD: 5.34 mm"
+          },
+          {
+            "line_id": "L008",
+            "text": "WD: 5.62 mm"
+          },
+          {
+            "line_id": "L009",
+            "text": "WD: 5.28 mm"
+          },
+          {
+            "line_id": "L010",
+            "text": "특허출원 (제 10-2270816호)"
+          },
+          {
+            "line_id": "L011",
+            "text": "마이크로 스피큘이 함유된"
+          },
+          {
+            "line_id": "L012",
+            "text": "천연 화장료 제조방법"
+          },
+          {
+            "line_id": "L013",
+            "text": "특허증"
+          },
+          {
+            "line_id": "L014",
+            "text": "Certificate of Patent"
+          },
+          {
+            "line_id": "L015",
+            "text": "*원료적 특성에 한함"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "셀리맥스 레티날 샷 더 특별한 이유 ②"
+          },
+          {
+            "line_id": "L002",
+            "text": "모공보다 6배 얇은"
+          },
+          {
+            "line_id": "L003",
+            "text": "마이크로 에이샷®"
+          },
+          {
+            "line_id": "L004",
+            "text": "20,250 shot"
+          },
+          {
+            "line_id": "L005",
+            "text": "고순도 분리정제로 균일화된"
+          },
+          {
+            "line_id": "L006",
+            "text": "에이샷®으로 빈틈없이 촘촘하게"
+          },
+          {
+            "line_id": "L007",
+            "text": "WD: 5.34 mm"
+          },
+          {
+            "line_id": "L008",
+            "text": "WD: 5.62 mm"
+          },
+          {
+            "line_id": "L009",
+            "text": "WD: 5.28 mm"
+          },
+          {
+            "line_id": "L010",
+            "text": "특허출원 (제 10-2270816호)"
+          },
+          {
+            "line_id": "L011",
+            "text": "마이크로 스피큘이 함유된"
+          },
+          {
+            "line_id": "L012",
+            "text": "천연 화장료 제조방법"
+          },
+          {
+            "line_id": "L013",
+            "text": "특허증"
+          },
+          {
+            "line_id": "L014",
+            "text": "Certificate of Patent"
+          },
+          {
+            "line_id": "L016",
+            "text": "특허"
+          },
+          {
+            "line_id": "L017",
+            "text": "제 10-2270816 호"
+          },
+          {
+            "line_id": "L015",
+            "text": "*원료적 특성에 한함"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

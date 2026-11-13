@@ -1,0 +1,15 @@
+{
+  "items": 9,
+  "scope_decisions": 7,
+  "prior_pending_sections_covered": 5,
+  "new_reflection_sections": 1,
+  "gt_candidate_sections": 3,
+  "unique_image_sections": 8,
+  "all_source_hashes_verified": 15,
+  "protected_files_unchanged": 232,
+  "data_sha256": "adac4b62ec1287f1dd1a663578dd0e7a929c040e326c56ff3f082c9812b2614a",
+  "browser_visual": "미수행 — 이전 안전 중단 재시도하지 않음",
+  "gt_modified": false,
+  "approved": false,
+  "frozen": false
+}

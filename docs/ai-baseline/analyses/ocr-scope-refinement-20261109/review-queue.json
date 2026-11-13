@@ -1,0 +1,96 @@
+{
+  "gt": [
+    {
+      "section_id": "GS-01_001__sec_1_01",
+      "line_id": "L054",
+      "text_sha256": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+      "scope": "undetermined",
+      "region_candidates": [
+        "I0"
+      ],
+      "reason": "플러스 기호의 인쇄/독립 장식 연결 불확실",
+      "link_status": "needs_human_review",
+      "geometry_status": "의미 범위 연결; GT 줄별 bbox 동결/검증 없음",
+      "human_approved": false
+    },
+    {
+      "section_id": "GS-01_002__sec_1_01",
+      "line_id": "L005",
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "undetermined",
+      "region_candidates": [
+        "I0"
+      ],
+      "reason": "빈 GT의 물리적 위치 검증 불충분; 제외 추정으로 확정하지 않음",
+      "link_status": "needs_human_review",
+      "geometry_status": "의미 범위 연결; GT 줄별 bbox 동결/검증 없음",
+      "human_approved": false
+    },
+    {
+      "section_id": "GS-02_002__sec_1_01",
+      "line_id": "L005",
+      "text_sha256": "ca36c777ba5a57e87d557aabf0a68176f9e22bf4ee8335c08c5f21ad85706814",
+      "scope": "undetermined",
+      "region_candidates": [
+        "I0"
+      ],
+      "reason": "좌표형 GT에 실제 문자 근거 없음; 패키지라는 이유로 오류를 승인하지 않음",
+      "link_status": "needs_human_review",
+      "geometry_status": "의미 범위 연결; GT 줄별 bbox 동결/검증 없음",
+      "human_approved": false
+    },
+    {
+      "section_id": "GS-02_002__sec_1_01",
+      "line_id": "L006",
+      "text_sha256": "7f6e577e268740a97f2135bb977fbc155e9a949cadb0fdd0a915af42883b39e0",
+      "scope": "undetermined",
+      "region_candidates": [
+        "I0"
+      ],
+      "reason": "좌표형 GT에 실제 문자 근거 없음; 패키지라는 이유로 오류를 승인하지 않음",
+      "link_status": "needs_human_review",
+      "geometry_status": "의미 범위 연결; GT 줄별 bbox 동결/검증 없음",
+      "human_approved": false
+    }
+  ],
+  "ocr": [
+    {
+      "section_id": "GS-01_002__sec_1_06",
+      "output_index": 0,
+      "region_key": "reg_0001",
+      "text": "o",
+      "bbox": {
+        "x": 196,
+        "y": 487,
+        "w": 609,
+        "h": 561
+      },
+      "scope": "undetermined",
+      "method": "manual_required",
+      "reason": "넓은 오검출 영역이 얼굴/용기 경계를 덮음. o를 라벨로 자동 제외하면 삽입 오류 은폐 가능",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "text_sha256": "65c74c15a686187bb6bbf9958f494fc6b80068034a659a9ad44991b08c58f2d2",
+      "previous_priority": true,
+      "scoring_ready": false
+    },
+    {
+      "section_id": "GS-01_002__sec_1_23",
+      "output_index": 0,
+      "region_key": "reg_0001",
+      "text": "Good all goodal",
+      "bbox": {
+        "x": 232,
+        "y": 190,
+        "w": 501,
+        "h": 84
+      },
+      "scope": "undetermined",
+      "method": "manual_required",
+      "reason": "Good all(일반 문구)+goodal(로고)이 하나의 OCR 반환 문자열. 임의 분할 금지",
+      "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+      "text_sha256": "e00cf9cd10900262c2e2b15546098044c4e9a6cdd252d2b70f7d9b650583f079",
+      "previous_priority": true,
+      "scoring_ready": false
+    }
+  ]
+}

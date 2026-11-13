@@ -1,0 +1,22 @@
+{
+  "status": "unfrozen_draft",
+  "sections": 18,
+  "before_lines": 565,
+  "draft_lines": 616,
+  "replaced_lines": 5,
+  "inserted_lines": 51,
+  "changed_sections": 7,
+  "unchanged_text_sections": 11,
+  "human_reviews": 0,
+  "approved": false,
+  "frozen": false,
+  "protected_files_unchanged": 193,
+  "image_sha256_verified": 18,
+  "tests_passed": 14,
+  "browser_check": "18-item list, source image, parent/candidate text, hashes and unresolved items displayed; no editing or approval performed",
+  "links_checked": 39,
+  "ocr_runs": 0,
+  "cer_runs": 0,
+  "external_api_calls": 0,
+  "manifest_sha256": "334fe71d0ff482400a3c76a4f2ebdee0d1885f87ee93078b8d315985457655a8"
+}

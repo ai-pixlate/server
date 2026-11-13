@@ -1,0 +1,808 @@
+{
+  "frozen": true,
+  "cer_called": false,
+  "tests_passed": 147,
+  "preflight_counts": {
+    "ready": 105,
+    "undetermined": 3,
+    "not_applicable": 4
+  },
+  "sections": [
+    {
+      "section_id": "GS-01_001__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_05",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_06",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_07",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_08",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_09",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_10",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_11",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_12",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_13",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_14",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_15",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_16",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_17",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_18",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_19",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_20",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_21",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_22",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_23",
+      "status": "undetermined",
+      "reasons": [
+        "gt:L001:gt_location_unverified",
+        "gt:L002:gt_location_unverified",
+        "gt:L003:gt_location_unverified",
+        "gt:L004:gt_location_unverified",
+        "gt:L005:gt_location_unverified",
+        "gt:L006:gt_location_unverified",
+        "gt:L007:gt_location_unverified",
+        "gt:L008:gt_location_unverified",
+        "gt:L009:gt_location_unverified",
+        "gt:L010:gt_location_unverified",
+        "gt:L011:gt_location_unverified",
+        "gt:L012:gt_location_unverified",
+        "gt:L013:gt_location_unverified",
+        "gt:L014:gt_location_unverified",
+        "gt:L015:gt_location_unverified",
+        "gt:L016:gt_location_unverified",
+        "gt:L017:gt_location_unverified",
+        "gt:L018:gt_location_unverified",
+        "gt:L019:gt_location_unverified",
+        "gt:L020:gt_location_unverified",
+        "gt:L021:gt_location_unverified",
+        "gt:L022:gt_location_unverified",
+        "gt:L023:gt_location_unverified",
+        "gt:L024:gt_location_unverified",
+        "gt:L025:gt_location_unverified",
+        "gt:L026:gt_location_unverified",
+        "gt:L027:gt_location_unverified",
+        "gt:L028:gt_location_unverified",
+        "gt:L029:gt_location_unverified",
+        "gt:L030:gt_location_unverified",
+        "gt:L031:gt_location_unverified",
+        "gt:L032:gt_location_unverified",
+        "gt:L033:gt_location_unverified",
+        "gt:L034:gt_location_unverified",
+        "gt:L035:gt_location_unverified",
+        "gt:L036:gt_location_unverified",
+        "gt:L037:gt_location_unverified",
+        "gt:L038:gt_location_unverified",
+        "gt:L039:gt_location_unverified",
+        "gt:L040:gt_location_unverified",
+        "gt:L041:gt_location_unverified",
+        "gt:L042:gt_location_unverified",
+        "gt:L043:gt_location_unverified",
+        "gt:L044:gt_location_unverified",
+        "gt:L045:gt_location_unverified",
+        "gt:L046:gt_location_unverified",
+        "gt:L047:gt_location_unverified",
+        "gt:L048:gt_location_unverified",
+        "gt:L049:gt_location_unverified",
+        "gt:L050:gt_location_unverified",
+        "gt:L051:gt_location_unverified",
+        "gt:L052:gt_location_unverified",
+        "ocr:0:reg_0001:mixed_string_no_split",
+        "ocr:1:reg_0002:boundary_or_unverified_scope",
+        "ocr:2:reg_0003:boundary_or_unverified_scope",
+        "ocr:3:reg_0004:boundary_or_unverified_scope",
+        "ocr:4:reg_0005:boundary_or_unverified_scope",
+        "ocr:5:reg_0006:boundary_or_unverified_scope",
+        "ocr:6:reg_0007:boundary_or_unverified_scope",
+        "ocr:7:reg_0008:boundary_or_unverified_scope",
+        "ocr:8:reg_0009:boundary_or_unverified_scope",
+        "ocr:9:reg_0010:boundary_or_unverified_scope",
+        "ocr:10:reg_0011:boundary_or_unverified_scope",
+        "ocr:12:reg_0013:boundary_or_unverified_scope",
+        "ocr:13:reg_0014:boundary_or_unverified_scope",
+        "ocr:14:reg_0015:boundary_or_unverified_scope",
+        "ocr:15:reg_0016:boundary_or_unverified_scope",
+        "ocr:16:reg_0017:boundary_or_unverified_scope",
+        "ocr:17:reg_0018:boundary_or_unverified_scope",
+        "ocr:18:reg_0019:boundary_or_unverified_scope",
+        "ocr:19:reg_0020:boundary_or_unverified_scope",
+        "ocr:20:reg_0021:boundary_or_unverified_scope",
+        "ocr:21:reg_0022:boundary_or_unverified_scope",
+        "ocr:22:reg_0023:boundary_or_unverified_scope",
+        "ocr:23:reg_0024:boundary_or_unverified_scope",
+        "ocr:24:reg_0025:boundary_or_unverified_scope",
+        "ocr:25:reg_0026:boundary_or_unverified_scope",
+        "ocr:26:reg_0027:boundary_or_unverified_scope",
+        "ocr:27:reg_0028:boundary_or_unverified_scope",
+        "ocr:28:reg_0029:boundary_or_unverified_scope",
+        "ocr:29:reg_0030:boundary_or_unverified_scope",
+        "ocr:30:reg_0031:boundary_or_unverified_scope",
+        "ocr:31:reg_0032:boundary_or_unverified_scope",
+        "ocr:32:reg_0033:boundary_or_unverified_scope",
+        "ocr:33:reg_0034:boundary_or_unverified_scope",
+        "ocr:34:reg_0035:boundary_or_unverified_scope",
+        "ocr:35:reg_0036:boundary_or_unverified_scope",
+        "ocr:36:reg_0037:boundary_or_unverified_scope",
+        "ocr:37:reg_0038:boundary_or_unverified_scope",
+        "ocr:38:reg_0039:boundary_or_unverified_scope",
+        "ocr:39:reg_0040:boundary_or_unverified_scope",
+        "ocr:40:reg_0041:boundary_or_unverified_scope",
+        "ocr:41:reg_0042:boundary_or_unverified_scope",
+        "ocr:42:reg_0043:boundary_or_unverified_scope",
+        "ocr:43:reg_0044:boundary_or_unverified_scope",
+        "ocr:44:reg_0045:boundary_or_unverified_scope",
+        "ocr:45:reg_0046:boundary_or_unverified_scope",
+        "section_coverage_unverified",
+        "scope_connection:user_fixed_undetermined_20261110"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-01_002__sec_1_24",
+      "status": "not_applicable",
+      "reasons": [
+        "no_target_scope"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_001__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_001__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_001__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_001__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_002__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_003__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_004__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_004__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_005__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_006__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_006__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_006__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_007__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_007__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_007__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_008__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_008__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_008__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_008__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_008__sec_1_05",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_008__sec_1_06",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_05",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_06",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_009__sec_1_07",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_010__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_010__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_010__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_011__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_011__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_011__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_012__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_013__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_013__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_05",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_06",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_07",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_08",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_09",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_10",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-02_014__sec_1_11",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_001__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_05",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_06",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_002__sec_1_07",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_003__sec_1_01",
+      "status": "not_applicable",
+      "reasons": [
+        "no_target_scope"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_004__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_005__sec_1_01",
+      "status": "undetermined",
+      "reasons": [
+        "ocr:20:reg_0021:boundary_or_unverified_scope",
+        "scope_connection:oversized_ocr_3_crosses_retained_footnote",
+        "scope_connection:user_fixed_undetermined_20261110"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_006__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_007__sec_1_01",
+      "status": "not_applicable",
+      "reasons": [
+        "no_target_scope"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_008__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_008__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_009__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_010__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_010__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_010__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_011__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_012__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_013__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_014__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_014__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_014__sec_1_03",
+      "status": "undetermined",
+      "reasons": [
+        "gt:L008:policy_scope_connection_unresolved",
+        "scope_connection:background_b3_overlaps_foreground_heading",
+        "scope_connection:user_fixed_undetermined_20261110"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_015__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_016__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_017__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_01",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_02",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_03",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_04",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_05",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_06",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_07",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_08",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_09",
+      "status": "not_applicable",
+      "reasons": [
+        "no_target_scope"
+      ],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_10",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    },
+    {
+      "section_id": "GS-03_018__sec_1_11",
+      "status": "ready",
+      "reasons": [],
+      "metrics": null
+    }
+  ],
+  "protected_hashes_verified": 356,
+  "environment": {
+    "python": "3.12.10",
+    "unicode": "15.0.0",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "source_git_head": "80668eddaf0e846cc28cbfd781ede452e2a80ba2",
+  "source_worktree_dirty": true
+}

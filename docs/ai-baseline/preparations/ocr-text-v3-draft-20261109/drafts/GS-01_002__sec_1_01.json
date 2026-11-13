@@ -1,0 +1,312 @@
+{
+  "id": "GS-01_002__sec_1_01",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_01",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_01.png",
+    "sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+    "width": 1000,
+    "height": 1976
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "민감피부도 순하게"
+    },
+    {
+      "line_id": "L002",
+      "text": "진정 집중"
+    },
+    {
+      "line_id": "L003",
+      "text": "무기자차"
+    },
+    {
+      "line_id": "L004",
+      "text": "구달 어성초 진정 무기자차 선크림 50ml"
+    },
+    {
+      "line_id": "L005",
+      "text": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "산뜻"
+    },
+    {
+      "line_id": "L007",
+      "text": "밀착"
+    },
+    {
+      "line_id": "L008",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L009",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L010",
+      "text": "VEGAN"
+    },
+    {
+      "line_id": "L011",
+      "text": "CERTIFIED"
+    },
+    {
+      "line_id": "L012",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L013",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L014",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L015",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L016",
+      "text": "goodal"
+    }
+  ],
+  "parent_text_sha256": "023a4e04379aabb24c5fc4e39370113be4b7fdae9ba40f94c1f0d558721f4130",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "민감피부도 순하게"
+    },
+    {
+      "line_id": "L002",
+      "text": "진정 집중"
+    },
+    {
+      "line_id": "L003",
+      "text": "무기자차"
+    },
+    {
+      "line_id": "L004",
+      "text": "구달 어성초 진정 무기자차 선크림 50ml"
+    },
+    {
+      "line_id": "L005",
+      "text": ""
+    },
+    {
+      "line_id": "L006",
+      "text": "산뜻"
+    },
+    {
+      "line_id": "L007",
+      "text": "밀착"
+    },
+    {
+      "line_id": "L008",
+      "text": "HEARTLEAF"
+    },
+    {
+      "line_id": "L009",
+      "text": "Soothing"
+    },
+    {
+      "line_id": "L010",
+      "text": "VEGAN"
+    },
+    {
+      "line_id": "L011",
+      "text": "CERTIFIED"
+    },
+    {
+      "line_id": "L012",
+      "text": "MINERAL FILTER"
+    },
+    {
+      "line_id": "L013",
+      "text": "SUN CREAM"
+    },
+    {
+      "line_id": "L014",
+      "text": "SPF 50+"
+    },
+    {
+      "line_id": "L015",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L016",
+      "text": "goodal"
+    }
+  ],
+  "text_sha256": "023a4e04379aabb24c5fc4e39370113be4b7fdae9ba40f94c1f0d558721f4130",
+  "changes": [],
+  "unresolved": [
+    "실링의 희미한 숫자 전체를 확정할 수 없음. L005 빈 문자열은 자리만 유지하며 무문자/평가 제외로 승인하지 않음"
+  ],
+  "note": "L005 실링 양각 로트/날짜가 빈 정답\n실링의 희미한 숫자 전체를 확정할 수 없음. L005 빈 문자열은 자리만 유지하며 무문자/평가 제외로 승인하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "민감피부도 순하게"
+          },
+          {
+            "line_id": "L002",
+            "text": "진정 집중"
+          },
+          {
+            "line_id": "L003",
+            "text": "무기자차"
+          },
+          {
+            "line_id": "L004",
+            "text": "구달 어성초 진정 무기자차 선크림 50ml"
+          },
+          {
+            "line_id": "L005",
+            "text": ""
+          },
+          {
+            "line_id": "L006",
+            "text": "산뜻"
+          },
+          {
+            "line_id": "L007",
+            "text": "밀착"
+          },
+          {
+            "line_id": "L008",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L009",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L010",
+            "text": "VEGAN"
+          },
+          {
+            "line_id": "L011",
+            "text": "CERTIFIED"
+          },
+          {
+            "line_id": "L012",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L013",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L014",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L015",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L016",
+            "text": "goodal"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "민감피부도 순하게"
+          },
+          {
+            "line_id": "L002",
+            "text": "진정 집중"
+          },
+          {
+            "line_id": "L003",
+            "text": "무기자차"
+          },
+          {
+            "line_id": "L004",
+            "text": "구달 어성초 진정 무기자차 선크림 50ml"
+          },
+          {
+            "line_id": "L005",
+            "text": ""
+          },
+          {
+            "line_id": "L006",
+            "text": "산뜻"
+          },
+          {
+            "line_id": "L007",
+            "text": "밀착"
+          },
+          {
+            "line_id": "L008",
+            "text": "HEARTLEAF"
+          },
+          {
+            "line_id": "L009",
+            "text": "Soothing"
+          },
+          {
+            "line_id": "L010",
+            "text": "VEGAN"
+          },
+          {
+            "line_id": "L011",
+            "text": "CERTIFIED"
+          },
+          {
+            "line_id": "L012",
+            "text": "MINERAL FILTER"
+          },
+          {
+            "line_id": "L013",
+            "text": "SUN CREAM"
+          },
+          {
+            "line_id": "L014",
+            "text": "SPF 50+"
+          },
+          {
+            "line_id": "L015",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L016",
+            "text": "goodal"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

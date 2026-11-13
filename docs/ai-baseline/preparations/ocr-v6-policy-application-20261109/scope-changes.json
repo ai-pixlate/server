@@ -1,0 +1,73 @@
+[
+  {
+    "section_id": "GS-01_002__sec_1_11",
+    "before": [
+      0.0,
+      0.0,
+      1000.0,
+      767.6
+    ],
+    "after": [
+      0,
+      0,
+      1000,
+      810
+    ],
+    "reason": "상단 두 줄 설명 전체 포함. 767.6 경계가 마지막 줄을 잘랐음. 아래 용기 인쇄는 제외 유지.",
+    "source_image_sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_02",
+    "before": [
+      323.7,
+      42.72,
+      531.2,
+      128.16
+    ],
+    "after": [
+      320,
+      100,
+      510,
+      175
+    ],
+    "reason": "사진 위 how to use 전체 문구 포함. 기존 y=42.72~128.16이 문구 상단만 덮음. 얼굴과 용기는 제외 유지.",
+    "source_image_sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1"
+  },
+  {
+    "section_id": "GS-03_005__sec_1_01",
+    "excluded_gt": "L007",
+    "policy_decision": "exclude",
+    "policy_evidence": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\preparations\\ocr-v6-review-ui-20261109\\user-review-chat.json#6d17bd80af4ee98ef05f90a5cc152ceb07aaf75bf8e284aa4ebb1a6a34cc1088",
+    "source_image_sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b",
+    "unresolved": [
+      "oversized_ocr_3_crosses_retained_footnote"
+    ]
+  },
+  {
+    "section_id": "GS-03_008__sec_1_01",
+    "before": [
+      730.0,
+      134.26,
+      970.0,
+      230.16
+    ],
+    "after": [
+      735,
+      75,
+      940,
+      190
+    ],
+    "reason": "우측 성분 콜아웃 VITAMIN C 및 비타민C 모두 포함. 기존 y=134.26 시작은 영문 전체와 한글 상단을 누락.",
+    "source_image_sha256": "e2a476ae35dae98333a3a85756b69b80badffb53e44d7e1f7a6ec7b8ef5ce14f"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_03",
+    "excluded_gt": "L008",
+    "policy_decision": "exclude",
+    "policy_evidence": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\preparations\\ocr-v6-review-ui-20261109\\user-review-chat.json#6d17bd80af4ee98ef05f90a5cc152ceb07aaf75bf8e284aa4ebb1a6a34cc1088",
+    "source_image_sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2",
+    "unresolved": [
+      "background_b3_overlaps_foreground_heading"
+    ]
+  }
+]

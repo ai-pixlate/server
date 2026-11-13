@@ -1,0 +1,4256 @@
+[
+  {
+    "id": "GS-01_001__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_001\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 1360,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          120.0,
+          435.2,
+          880.0,
+          870.4
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E2",
+        "kind": "exclude",
+        "rect": [
+          400.0,
+          1210.4,
+          600.0,
+          1292.0
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 1976,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          40.0,
+          691.6,
+          800.0,
+          1896.96
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "X1",
+        "kind": "exclude",
+        "rect": [
+          770.0,
+          908.96,
+          970.0,
+          1146.08
+        ],
+        "reason": "비건 인증 마크만 제외; 위 산뜻 밀착은 일반 설명",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_02.png",
+    "width": 1000,
+    "height": 953,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_02",
+      "image_sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_02.png",
+      "sheet": 0,
+      "position": 0,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-01_002__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_03.png",
+    "width": 1000,
+    "height": 259,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_03",
+      "image_sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_03.png",
+      "sheet": 0,
+      "position": 1,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-01_002__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_04.png",
+    "width": 1000,
+    "height": 2620,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          100.0,
+          1572.0,
+          870.0,
+          2515.2
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E3",
+        "kind": "exclude",
+        "rect": [
+          140.0,
+          597.36,
+          290.0,
+          644.5200000000001
+        ],
+        "reason": "설문 결과 내부 POWDER ROOM 로고",
+        "verified": false
+      },
+      {
+        "id": "E4",
+        "kind": "exclude",
+        "rect": [
+          440.0,
+          597.36,
+          590.0,
+          644.5200000000001
+        ],
+        "reason": "설문 결과 내부 POWDER ROOM 로고",
+        "verified": false
+      },
+      {
+        "id": "E5",
+        "kind": "exclude",
+        "rect": [
+          740.0,
+          597.36,
+          890.0,
+          644.5200000000001
+        ],
+        "reason": "설문 결과 내부 POWDER ROOM 로고",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_05",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_05.png",
+    "width": 1000,
+    "height": 966,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_05",
+      "image_sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_05.png",
+      "sheet": 0,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-01_002__sec_1_06",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_06.png",
+    "width": 1000,
+    "height": 3420,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1573.2,
+          1000.0,
+          3420.0
+        ],
+        "verified": true,
+        "reason": "얼굴·용기 사진 제외, 아래 징크/민감피부 설명과 각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_07",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_07.png",
+    "width": 1000,
+    "height": 477,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          400.0,
+          0.0,
+          1000.0,
+          477.0
+        ],
+        "verified": true,
+        "reason": "왼쪽 VEGAN CERTIFIED 심볼 제외, 오른쪽 인증 설명 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_08",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_08.png",
+    "width": 1000,
+    "height": 2291,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          847.67
+        ],
+        "verified": true,
+        "reason": "상단 제목·우측 3개 성분 설명·하단 각주 포함; 잎 사진 경계는 설명 원과 겹침"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          560.0,
+          1008.04,
+          930.0,
+          1809.89
+        ],
+        "verified": true,
+        "reason": "상단 제목·우측 3개 성분 설명·하단 각주 포함; 잎 사진 경계는 설명 원과 겹침"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1970.26,
+          1000.0,
+          2291.0
+        ],
+        "verified": true,
+        "reason": "상단 제목·우측 3개 성분 설명·하단 각주 포함; 잎 사진 경계는 설명 원과 겹침"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_09",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_09.png",
+    "width": 1000,
+    "height": 1023,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_09",
+      "image_sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_09.png",
+      "sheet": 0,
+      "position": 4,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-01_002__sec_1_10",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_10.png",
+    "width": 1000,
+    "height": 1456,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          684.32
+        ],
+        "verified": true,
+        "reason": "상단 논나노 설명·하단 연출 각주 포함, 중앙 피부 단면 그림 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1281.28,
+          1000.0,
+          1456.0
+        ],
+        "verified": true,
+        "reason": "상단 논나노 설명·하단 연출 각주 포함, 중앙 피부 단면 그림 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_11",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_11.png",
+    "width": 1000,
+    "height": 2020,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0,
+          0,
+          1000,
+          810
+        ],
+        "verified": true,
+        "reason": "상단 두 줄 설명 전체 포함. 767.6 경계가 마지막 줄을 잘랐음. 아래 용기 인쇄는 제외 유지."
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_12",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_12.png",
+    "width": 1000,
+    "height": 1889,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          1020.06
+        ],
+        "verified": true,
+        "reason": "원형 3개는 별도 기관 로고가 아닌 일반 시험 결과 안내로 포함; 하단 손 사진 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_13",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_13.png",
+    "width": 1000,
+    "height": 1147,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_13",
+      "image_sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_13.png",
+      "sheet": 0,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-01_002__sec_1_14",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_14.png",
+    "width": 1000,
+    "height": 1806,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          361.2
+        ],
+        "verified": true,
+        "reason": "상단 제목·하단 제형 설명/각주 포함, 가운데 제형 사진 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1426.74,
+          1000.0,
+          1806.0
+        ],
+        "verified": true,
+        "reason": "상단 제목·하단 제형 설명/각주 포함, 가운데 제형 사진 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_15",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_15.png",
+    "width": 1000,
+    "height": 2157,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": []
+  },
+  {
+    "id": "GS-01_002__sec_1_16",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_16.png",
+    "width": 1000,
+    "height": 848,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_16",
+      "image_sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_16.png",
+      "sheet": 1,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-01_002__sec_1_17",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_17.png",
+    "width": 1000,
+    "height": 2067,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          1384.89
+        ],
+        "verified": true,
+        "reason": "상단 사용법 포함, 아래 3개 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_18",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_18.png",
+    "width": 1000,
+    "height": 1799,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          575.68
+        ],
+        "verified": true,
+        "reason": "상단 선케어 라인 설명 포함, 아래 용기 사진 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_19",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_19.png",
+    "width": 1000,
+    "height": 883,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          158.94
+        ],
+        "verified": true,
+        "reason": "상단 카테고리·하단 제품별 설명/해시태그 포함, 가운데 3개 용기 인쇄 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          573.95,
+          1000.0,
+          883.0
+        ],
+        "verified": true,
+        "reason": "상단 카테고리·하단 제품별 설명/해시태그 포함, 가운데 3개 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_20",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8b5a7ed33a648ed81538e1bc9e67aad801910084b4ccbc68cdfeea357a8b41f0",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_20.png",
+    "width": 1000,
+    "height": 825,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          107.25
+        ],
+        "verified": true,
+        "reason": "상단 카테고리·하단 톤업 설명/해시태그 포함, 용기 인쇄 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          519.75,
+          1000.0,
+          825.0
+        ],
+        "verified": true,
+        "reason": "상단 카테고리·하단 톤업 설명/해시태그 포함, 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_21",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "1ba30932fb8a7440cd7399eefa36ce63b086f486c6357f2e769483e7d4d7af65",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_21.png",
+    "width": 1000,
+    "height": 987,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          138.18
+        ],
+        "verified": true,
+        "reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          310.0,
+          138.18,
+          460.0,
+          266.49
+        ],
+        "verified": true,
+        "reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          730.0,
+          138.18,
+          880.0,
+          266.49
+        ],
+        "verified": true,
+        "reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          0.0,
+          542.85,
+          1000.0,
+          987.0
+        ],
+        "verified": true,
+        "reason": "용기 인쇄 제외, 상단 제목·휴대용 스틱형 콜아웃·하단 설명 포함; 콜아웃과 용기 경계 주의"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_22",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_22.png",
+    "width": 1000,
+    "height": 1815,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          217.8,
+          1000.0,
+          526.35
+        ],
+        "verified": true,
+        "reason": "상단 포장 설명·하단 FSC/SOY 별도 설명 포함, 제품 사진과 인증 심볼 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1542.75,
+          1000.0,
+          1815.0
+        ],
+        "verified": true,
+        "reason": "상단 포장 설명·하단 FSC/SOY 별도 설명 포함, 제품 사진과 인증 심볼 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-01_002__sec_1_23",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_23.png",
+    "width": 1000,
+    "height": 2681,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          520.0,
+          187.67,
+          760.0,
+          294.91
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E3",
+        "kind": "exclude",
+        "rect": [
+          170.0,
+          1126.02,
+          460.0,
+          1554.98
+        ],
+        "reason": "제품 사진 내부 인쇄; 오른쪽 검증 설명 보호",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-01_002__sec_1_24",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_24.png",
+    "width": 1000,
+    "height": 1300,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_exclude",
+    "section_evidence": {
+      "id": "GS-01_002__sec_1_24",
+      "image_sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e",
+      "verified": true,
+      "mode": "full_exclude",
+      "reason": "원본의 제품/브랜드만 또는 비텍스트 이미지; 별도 설명 없음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_24.png",
+      "sheet": 1,
+      "position": 3,
+      "exclusion_elements": true
+    }
+  },
+  {
+    "id": "GS-02_001__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 458,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_001__sec_1_01",
+      "image_sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_01.png",
+      "sheet": 1,
+      "position": 4,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_001__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 499,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          531.2,
+          44.91,
+          705.5,
+          184.63
+        ],
+        "verified": true,
+        "reason": "카드 인쇄 제외, 검은 참여고객 전원증정 안내와 아래 금액 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          324.35,
+          830.0,
+          499.0
+        ],
+        "verified": true,
+        "reason": "카드 인쇄 제외, 검은 참여고객 전원증정 안내와 아래 금액 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_001__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 2569,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": []
+  },
+  {
+    "id": "GS-02_001__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_04.png",
+    "width": 830,
+    "height": 1628,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_001__sec_1_04",
+      "image_sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_04.png",
+      "sheet": 1,
+      "position": 6,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_002__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_002\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 2117,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          80.0,
+          508.08,
+          920.0,
+          1291.37
+        ],
+        "reason": "상단 용기 인쇄",
+        "verified": false
+      },
+      {
+        "id": "E2",
+        "kind": "exclude",
+        "rect": [
+          260.0,
+          1376.05,
+          770.0,
+          1778.28
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "X1",
+        "kind": "exclude",
+        "rect": [
+          100.0,
+          42.34,
+          900.0,
+          169.36
+        ],
+        "reason": "협업 표기",
+        "verified": false
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          720.0,
+          677.44,
+          990.0,
+          1100.84
+        ],
+        "reason": "판매순위 및 모공 탄력 별도 안내",
+        "verified": false
+      },
+      {
+        "id": "I2",
+        "kind": "include",
+        "rect": [
+          460.0,
+          1587.75,
+          530.0,
+          1672.43
+        ],
+        "reason": "두 제품 사이 구성 + 표시",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-02_003__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_003\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 641,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_003__sec_1_01",
+      "image_sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_003\\sections\\sec_1_01.png",
+      "sheet": 1,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_004__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_004\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 3470,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          485.8
+        ],
+        "verified": true,
+        "reason": "3개 피부 사진 제외, 제목·각 사진 아래 후기 인용/상세 설명 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          763.4,
+          830.0,
+          1388.0
+        ],
+        "verified": true,
+        "reason": "3개 피부 사진 제외, 제목·각 사진 아래 후기 인용/상세 설명 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1769.7,
+          830.0,
+          2359.6
+        ],
+        "verified": true,
+        "reason": "3개 피부 사진 제외, 제목·각 사진 아래 후기 인용/상세 설명 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          0.0,
+          2741.3,
+          830.0,
+          3470.0
+        ],
+        "verified": true,
+        "reason": "3개 피부 사진 제외, 제목·각 사진 아래 후기 인용/상세 설명 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_004__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_004\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 397,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_004__sec_1_02",
+      "image_sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_004\\sections\\sec_1_02.png",
+      "sheet": 2,
+      "position": 1,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_005__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_005\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 760,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "verified": true,
+      "image_sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22",
+      "source": "source-decisions.json:GS-02_005__sec_1_01",
+      "reason": "흡수 개선 그래프 전체가 수치 설명 패널; 축 좌표·단위도 포함, 별도 로고/사진 없음",
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_006__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 586,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_006__sec_1_01",
+      "image_sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_01.png",
+      "sheet": 2,
+      "position": 3,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_006__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 1314,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          630.72
+        ],
+        "verified": true,
+        "reason": "상단 핀홀 설명과 사진 우상단 관측 설명 포함, 현미경 사진 자체 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          473.1,
+          683.28,
+          755.3,
+          775.26
+        ],
+        "verified": true,
+        "reason": "상단 핀홀 설명과 사진 우상단 관측 설명 포함, 현미경 사진 자체 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_006__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 483,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_006__sec_1_03",
+      "image_sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "별도 사진·로고 없는 흡수 기술 설명 패널; 전체 포함",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_03.png",
+      "sheet": 2,
+      "position": 5,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_007__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 230,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_007__sec_1_01",
+      "image_sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_01.png",
+      "sheet": 2,
+      "position": 6,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_007__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 2457,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          540.54
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          348.6,
+          810.81,
+          630.8,
+          884.52
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          464.8,
+          909.09,
+          664.0,
+          982.8
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          481.4,
+          1007.37,
+          672.3,
+          1081.08
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          514.6,
+          1081.08,
+          730.4,
+          1154.79
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T6",
+        "kind": "include",
+        "rect": [
+          514.6,
+          1179.36,
+          713.8,
+          1253.07
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T7",
+        "kind": "include",
+        "rect": [
+          539.5,
+          1277.64,
+          747.0,
+          1351.35
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T8",
+        "kind": "include",
+        "rect": [
+          489.7,
+          1375.92,
+          705.5,
+          1449.63
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T9",
+        "kind": "include",
+        "rect": [
+          473.1,
+          1474.2,
+          688.9,
+          1547.91
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T10",
+        "kind": "include",
+        "rect": [
+          356.9,
+          1572.48,
+          705.5,
+          1670.76
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      },
+      {
+        "id": "T11",
+        "kind": "include",
+        "rect": [
+          0.0,
+          2014.74,
+          830.0,
+          2457.0
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 상단 설명·얼굴 위 효능 수치·하단 각주 포함; 겹친 콜아웃 경계 필요"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_007__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 1635,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          441.45
+        ],
+        "verified": true,
+        "reason": "상단 모공 설명·하단 출고량 각주 포함, 용기 인쇄 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1471.5,
+          498.0,
+          1569.6
+        ],
+        "verified": true,
+        "reason": "상단 모공 설명·하단 출고량 각주 포함, 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_008__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 2419,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          387.04
+        ],
+        "verified": true,
+        "reason": "상단 입자 수치·하단 효능표 포함, 중간 용기 인쇄 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1838.44,
+          830.0,
+          2419.0
+        ],
+        "verified": true,
+        "reason": "상단 입자 수치·하단 효능표 포함, 중간 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_008__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 1132,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          452.8
+        ],
+        "verified": true,
+        "reason": "상단 설명·성분 수치·사진 내 현미경 스케일은 별도 의미 확인 필요; 비텍스트 도해 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          33.2,
+          498.08,
+          431.6,
+          781.08
+        ],
+        "verified": true,
+        "reason": "상단 설명·성분 수치·사진 내 현미경 스케일은 별도 의미 확인 필요; 비텍스트 도해 제외"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          431.6,
+          815.04,
+          830.0,
+          1098.04
+        ],
+        "verified": true,
+        "reason": "상단 설명·성분 수치·사진 내 현미경 스케일은 별도 의미 확인 필요; 비텍스트 도해 제외"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          33.2,
+          1075.4,
+          431.6,
+          1120.68
+        ],
+        "verified": true,
+        "reason": "상단 설명·성분 수치·사진 내 현미경 스케일은 별도 의미 확인 필요; 비텍스트 도해 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_008__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 444,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          415.0,
+          444.0
+        ],
+        "verified": true,
+        "reason": "왼쪽 매트릭실 설명 포함, 오른쪽 성분 사진 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_008__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_04.png",
+    "width": 830,
+    "height": 3077,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          141.1,
+          584.63,
+          738.7,
+          800.02
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "X1",
+        "kind": "exclude",
+        "rect": [
+          91.3,
+          1446.19,
+          755.3,
+          1784.66
+        ],
+        "reason": "논문 상단 묶음: 본문 제외, 제목·저자·본문·표·캡션 제외",
+        "verified": false
+      },
+      {
+        "id": "X2",
+        "kind": "exclude",
+        "rect": [
+          41.5,
+          1784.66,
+          788.5,
+          2030.82
+        ],
+        "reason": "참고문헌",
+        "verified": false
+      },
+      {
+        "id": "X3",
+        "kind": "exclude",
+        "rect": [
+          58.1,
+          2123.13,
+          780.2,
+          2892.38
+        ],
+        "reason": "논문 하단 묶음: 논문 전체 제외 위치; 별도 설명은 포함 우선 검토",
+        "verified": false
+      },
+      {
+        "id": "X5",
+        "kind": "include",
+        "rect": [
+          390.1,
+          2381.598,
+          755.3,
+          2510.832
+        ],
+        "reason": "논문 위 눈가주름 설명",
+        "verified": false
+      },
+      {
+        "id": "X6",
+        "kind": "include",
+        "rect": [
+          49.8,
+          2584.68,
+          423.3,
+          2692.375
+        ],
+        "reason": "논문 위 탄력 설명",
+        "verified": false
+      },
+      {
+        "id": "X7",
+        "kind": "include",
+        "rect": [
+          49.8,
+          2892.38,
+          780.2,
+          2984.69
+        ],
+        "reason": "상세페이지 원료 각주",
+        "verified": false
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          58.1,
+          2243.1330000000003,
+          381.8,
+          2369.29
+        ],
+        "reason": "논문 위 콜라겐 설명",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-02_008__sec_1_05",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_05.png",
+    "width": 830,
+    "height": 1684,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          170,
+          125,
+          750,
+          520
+        ],
+        "reason": "상단 상세페이지 설명",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          170,
+          650,
+          730,
+          780
+        ],
+        "reason": "현미경 이미지 위 별도 설명",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          90,
+          1155,
+          738,
+          1185
+        ],
+        "reason": "현미경 이미지 아래 WD 수치",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          85,
+          1385,
+          470,
+          1535
+        ],
+        "reason": "특허증 옆 별도 설명",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          40,
+          1585,
+          230,
+          1635
+        ],
+        "reason": "하단 원료 각주",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "DOC",
+        "kind": "exclude",
+        "rect": [
+          485,
+          1385,
+          685,
+          1570
+        ],
+        "reason": "특허증 내부",
+        "verified": true,
+        "overrides": []
+      }
+    ]
+  },
+  {
+    "id": "GS-02_008__sec_1_06",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_06.png",
+    "width": 830,
+    "height": 1211,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          593.39,
+          830.0,
+          1211.0
+        ],
+        "verified": true,
+        "reason": "하단 효능·주의·각주 포함, 상단 피부 단면 그림 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_009__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 1319,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_009__sec_1_01",
+      "image_sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_01.png",
+      "sheet": 3,
+      "position": 3,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_009__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 2611,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          417.76
+        ],
+        "verified": true,
+        "reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          731.08,
+          830.0,
+          913.85
+        ],
+        "verified": true,
+        "reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1279.39,
+          830.0,
+          1462.16
+        ],
+        "verified": true,
+        "reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1801.59,
+          830.0,
+          2010.47
+        ],
+        "verified": true,
+        "reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함"
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          0.0,
+          2349.9,
+          830.0,
+          2611.0
+        ],
+        "verified": true,
+        "reason": "피부 사진 4묶음 제외, 별도 후기 인용문·출처는 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_009__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "126aa7f80fc02a6d80e7463ad253aa3fe83c6d08dbdfcc2cac578ad5c5ce3913",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 868,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "verified": true,
+      "image_sha256": "126aa7f80fc02a6d80e7463ad253aa3fe83c6d08dbdfcc2cac578ad5c5ce3913",
+      "source": "source-decisions.json:GS-02_009__sec_1_03",
+      "reason": "7개 원형은 독립 인증 기관 로고가 아닌 일반 시험 안내; 전체 설명 패널 포함",
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_009__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "39f9cfc72e5b380e743657b61cc802d9bd96be70bbd391462b70885a8145cf97",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_04.png",
+    "width": 830,
+    "height": 1501,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          525.35
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 겹친 개선율 원·사진 캡션·제목/각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          597.6,
+          495.33,
+          788.5,
+          645.43
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 겹친 개선율 원·사진 캡션·제목/각주 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          900.6,
+          830.0,
+          1501.0
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 겹친 개선율 원·사진 캡션·제목/각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_009__sec_1_05",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "c0d4f35bbebac9a2eedd68a880d540dd3fb9607d4814eb54e470ffbdb6e82317",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_05.png",
+    "width": 830,
+    "height": 1778,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          497.84
+        ],
+        "verified": true,
+        "reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          547.8,
+          711.2,
+          755.3,
+          906.78
+        ],
+        "verified": true,
+        "reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          547.8,
+          960.12,
+          755.3,
+          1137.92
+        ],
+        "verified": true,
+        "reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          547.8,
+          1209.04,
+          755.3,
+          1386.84
+        ],
+        "verified": true,
+        "reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1511.3,
+          830.0,
+          1778.0
+        ],
+        "verified": true,
+        "reason": "피부 단면 도해 제외, 세 개 단계별 수치 콜아웃·제목/각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_009__sec_1_06",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_06.png",
+    "width": 830,
+    "height": 1590,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          461.1
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          348.6,
+          683.7,
+          647.4,
+          795.0
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          356.9,
+          922.2,
+          564.4,
+          1017.6
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          489.7,
+          1224.3,
+          730.4,
+          1335.6
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          132.8,
+          1256.1,
+          415.0,
+          1367.4
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함"
+      },
+      {
+        "id": "T6",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1462.8,
+          830.0,
+          1590.0
+        ],
+        "verified": true,
+        "reason": "얼굴 제외, 4개 리프팅 수치 콜아웃·제목/각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_009__sec_1_07",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_07.png",
+    "width": 830,
+    "height": 201,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_009__sec_1_07",
+      "image_sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_07.png",
+      "sheet": 4,
+      "position": 1,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_010__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 235,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_010__sec_1_01",
+      "image_sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_01.png",
+      "sheet": 4,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_010__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 2157,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          539.25
+        ],
+        "verified": true,
+        "reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          949.08,
+          830.0,
+          1035.36
+        ],
+        "verified": true,
+        "reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1337.34,
+          830.0,
+          1423.62
+        ],
+        "verified": true,
+        "reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1509.9,
+          830.0,
+          2157.0
+        ],
+        "verified": true,
+        "reason": "현미경 사진 제외, 사진 캡션·하단 도표/수치와 제목 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_010__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 207,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_010__sec_1_03",
+      "image_sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_03.png",
+      "sheet": 4,
+      "position": 4,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_011__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 306,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_011__sec_1_01",
+      "image_sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_01.png",
+      "sheet": 4,
+      "position": 5,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_011__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 2315,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          578.75
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          597.6,
+          532.45,
+          796.8,
+          694.5
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          949.15,
+          830.0,
+          1134.35
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          597.6,
+          1064.9,
+          796.8,
+          1226.95
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1481.6,
+          830.0,
+          1666.8
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      },
+      {
+        "id": "T6",
+        "kind": "include",
+        "rect": [
+          597.6,
+          1620.5,
+          796.8,
+          1782.55
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      },
+      {
+        "id": "T7",
+        "kind": "include",
+        "rect": [
+          0.0,
+          2037.2,
+          830.0,
+          2315.0
+        ],
+        "verified": true,
+        "reason": "피부 사진 3쌍 제외, 3개 개선율 콜아웃·캡션·각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_011__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 373,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_011__sec_1_03",
+      "image_sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_03.png",
+      "sheet": 4,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_012__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_012\\sections\\sec_1_01.png",
+    "width": 800,
+    "height": 220,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_012__sec_1_01",
+      "image_sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_012\\sections\\sec_1_01.png",
+      "sheet": 5,
+      "position": 0,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_013__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_013\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 1565,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          453.85
+        ],
+        "verified": true,
+        "reason": "상단 제품 설명 포함, 아래 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_013__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_013\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 1660,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          298.8
+        ],
+        "verified": true,
+        "reason": "피부 자극 시험 Certificate 내부 제외, 별도 확대 결론·하단 설명 포함; 다른 인증서 일반 제외로 확대하지 않음"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          66.4,
+          763.6,
+          755.3,
+          896.4
+        ],
+        "verified": true,
+        "reason": "피부 자극 시험 Certificate 내부 제외, 별도 확대 결론·하단 설명 포함; 다른 인증서 일반 제외로 확대하지 않음"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          913.0,
+          830.0,
+          1660.0
+        ],
+        "verified": true,
+        "reason": "피부 자극 시험 Certificate 내부 제외, 별도 확대 결론·하단 설명 포함; 다른 인증서 일반 제외로 확대하지 않음"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_014__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_01.png",
+    "width": 830,
+    "height": 370,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_014__sec_1_01",
+      "image_sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_01.png",
+      "sheet": 5,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_014__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_02.png",
+    "width": 830,
+    "height": 1424,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          320,
+          100,
+          510,
+          175
+        ],
+        "verified": true,
+        "reason": "사진 위 how to use 전체 문구 포함. 기존 y=42.72~128.16이 문구 상단만 덮음. 얼굴과 용기는 제외 유지."
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1082.24,
+          830.0,
+          1424.0
+        ],
+        "verified": true,
+        "reason": "얼굴·용기 인쇄 제외, 사진 위 how to use와 하단 사용법 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_014__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_03.png",
+    "width": 830,
+    "height": 1097,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "verified": true,
+      "image_sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef",
+      "source": "source-decisions.json:GS-02_014__sec_1_03",
+      "reason": "사용량 안내 패널 전체 포함; 방울 도해는 수치 설명 요소이며 별도 라벨/사진 아님",
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_014__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_04.png",
+    "width": 830,
+    "height": 1442,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "verified": true,
+      "image_sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4",
+      "source": "source-decisions.json:GS-02_014__sec_1_04",
+      "reason": "사용량 표 전체 포함; 손가락 도해는 표 셀의 양 설명 요소이며 별도 인물 사진 아님",
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_014__sec_1_05",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_05.png",
+    "width": 830,
+    "height": 1796,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          610.64
+        ],
+        "verified": true,
+        "reason": "상단 세트 설명 포함, 아래 인물·두 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_014__sec_1_06",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_06.png",
+    "width": 830,
+    "height": 2705,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": []
+  },
+  {
+    "id": "GS-02_014__sec_1_07",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_07.png",
+    "width": 830,
+    "height": 366,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_014__sec_1_07",
+      "image_sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_07.png",
+      "sheet": 5,
+      "position": 6,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_014__sec_1_08",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_08.png",
+    "width": 830,
+    "height": 1538,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          830.0,
+          261.46
+        ],
+        "verified": true,
+        "reason": "상단 제목·하단 추천/성분/체크포인트 포함, 가운데 용기 인쇄 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          784.38,
+          830.0,
+          1538.0
+        ],
+        "verified": true,
+        "reason": "상단 제목·하단 추천/성분/체크포인트 포함, 가운데 용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-02_014__sec_1_09",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_09.png",
+    "width": 830,
+    "height": 3272,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          290.5,
+          801.64,
+          547.8,
+          899.8
+        ],
+        "reason": "질문 상자 사이 노출된 용기 인쇄만 제외",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-02_014__sec_1_10",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_10.png",
+    "width": 830,
+    "height": 433,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-02_014__sec_1_10",
+      "image_sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_10.png",
+      "sheet": 5,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-02_014__sec_1_11",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_11.png",
+    "width": 830,
+    "height": 1971,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          91.3,
+          157.68,
+          821.7,
+          689.85
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          564.4,
+          147.825,
+          722.1,
+          216.81
+        ],
+        "reason": "사진 위 the vita A 개발 메모",
+        "verified": false
+      },
+      {
+        "id": "I2",
+        "kind": "include",
+        "rect": [
+          124.5,
+          362.66399999999993,
+          207.5,
+          404.055
+        ],
+        "reason": "사진 위 retinal 메모",
+        "verified": false
+      },
+      {
+        "id": "I3",
+        "kind": "include",
+        "rect": [
+          448.2,
+          404.055,
+          572.7,
+          467.12699999999995
+        ],
+        "reason": "사진 위 tightening 메모",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-03_001__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "de344705fe7be6e652358b4285fdf40e9dd0f2df249e18e3a67321ae264eb0c0",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_001\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 455,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          610.0,
+          455.0
+        ],
+        "verified": true,
+        "reason": "왼쪽 추천 설명 포함, 우측 원형 인물 사진 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_002__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5470a91012da041f763291d45cae0be0785500576253e3802b7ef937364b985f",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 2671,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          390.0,
+          133.55,
+          620.0,
+          267.1
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E2",
+        "kind": "exclude",
+        "rect": [
+          620.0,
+          1335.5,
+          1000.0,
+          2110.09
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-03_002__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "aca85d646e594955a1b2302c3f2148416a8229f299146d18cb273496ccfb136e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_02.png",
+    "width": 1000,
+    "height": 1241,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          285.43
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 제목과 4개 피부 문제 설명 콜아웃 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          50.0,
+          384.71,
+          320.0,
+          483.99
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 제목과 4개 피부 문제 설명 콜아웃 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          720.0,
+          335.07,
+          940.0,
+          434.35
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 제목과 4개 피부 문제 설명 콜아웃 포함"
+      },
+      {
+        "id": "T4",
+        "kind": "include",
+        "rect": [
+          60.0,
+          980.39,
+          230.0,
+          1079.67
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 제목과 4개 피부 문제 설명 콜아웃 포함"
+      },
+      {
+        "id": "T5",
+        "kind": "include",
+        "rect": [
+          710.0,
+          781.83,
+          960.0,
+          881.11
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 제목과 4개 피부 문제 설명 콜아웃 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_002__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f8461d1c76042be7acdf6927eca093cc315ca45b339028105b7637979145a3ef",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_03.png",
+    "width": 1000,
+    "height": 1399,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_002__sec_1_03",
+      "image_sha256": "f8461d1c76042be7acdf6927eca093cc315ca45b339028105b7637979145a3ef",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_03.png",
+      "sheet": 6,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_002__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_04.png",
+    "width": 1000,
+    "height": 2856,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          390.0,
+          228.48,
+          610.0,
+          342.72
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E2",
+        "kind": "exclude",
+        "rect": [
+          80.0,
+          1199.52,
+          500.0,
+          1999.2
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E3",
+        "kind": "exclude",
+        "rect": [
+          400.0,
+          856.8,
+          940.0,
+          1742.16
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "X1",
+        "kind": "exclude",
+        "rect": [
+          740.0,
+          1428.0,
+          980.0,
+          2199.12
+        ],
+        "reason": "수상 배지",
+        "verified": false
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          120.0,
+          1056.72,
+          490.0,
+          1170.96
+        ],
+        "reason": "별도 BODY BRIGHTENING",
+        "verified": false
+      },
+      {
+        "id": "I2",
+        "kind": "include",
+        "rect": [
+          360.0,
+          856.8,
+          600.0,
+          928.2
+        ],
+        "reason": "별도 TONE UP",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-03_002__sec_1_05",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2858eb810c9ec6c152d6a17c0f18f543e218a3d2666f50a7a2e2356e8e0e4e70",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_05.png",
+    "width": 1000,
+    "height": 2062,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          701.08
+        ],
+        "verified": true,
+        "reason": "상단 설명·2주/24H 콜아웃 포함, 손·용기 인쇄 제외"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          80.0,
+          866.04,
+          380.0,
+          1010.38
+        ],
+        "verified": true,
+        "reason": "상단 설명·2주/24H 콜아웃 포함, 손·용기 인쇄 제외"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          550.0,
+          1608.36,
+          960.0,
+          1835.18
+        ],
+        "verified": true,
+        "reason": "상단 설명·2주/24H 콜아웃 포함, 손·용기 인쇄 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_002__sec_1_06",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "6ce84c620bd3eaaf202abfba7c01ee28ebf1cf19376cb3b98d075e12596dc4ae",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_06.png",
+    "width": 1000,
+    "height": 2775,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          60.0,
+          1221.0,
+          560.0,
+          1914.75
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-03_002__sec_1_07",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f21f7b01f14ed818325ab4a8275ce1afd233463188bf0dc2fa4601281a43145f",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_07.png",
+    "width": 1000,
+    "height": 421,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_002__sec_1_07",
+      "image_sha256": "f21f7b01f14ed818325ab4a8275ce1afd233463188bf0dc2fa4601281a43145f",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_07.png",
+      "sheet": 6,
+      "position": 3,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_003__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "61b782edc765b9b9a50c654c8c331de78f2280425cb815806050d24f4e2b8b30",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_003\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 540,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_exclude",
+    "section_evidence": {
+      "id": "GS-03_003__sec_1_01",
+      "image_sha256": "61b782edc765b9b9a50c654c8c331de78f2280425cb815806050d24f4e2b8b30",
+      "verified": true,
+      "mode": "full_exclude",
+      "reason": "원본의 제품/브랜드만 또는 비텍스트 이미지; 별도 설명 없음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_003\\sections\\sec_1_01.png",
+      "sheet": 6,
+      "position": 4,
+      "exclusion_elements": true
+    }
+  },
+  {
+    "id": "GS-03_004__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "53c256ff9fd36f0558c28a17b0dfa65453f6b7b8edbc6165d371c8151b82c731",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_004\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 1760,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          211.2
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 상단 수치·캡션·하단 그래프/각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          598.4,
+          1000.0,
+          1760.0
+        ],
+        "verified": true,
+        "reason": "피부 사진 제외, 상단 수치·캡션·하단 그래프/각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_005__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_005\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 2040,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "E-user",
+        "kind": "exclude",
+        "rect": [
+          0,
+          750,
+          1000,
+          1780
+        ],
+        "verified": true,
+        "reason": "사용자 제외 판정: 제형 숫자 3",
+        "policy_evidence": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\preparations\\ocr-v6-review-ui-20261109\\user-review-chat.json#6d17bd80af4ee98ef05f90a5cc152ceb07aaf75bf8e284aa4ebb1a6a34cc1088"
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          70,
+          200,
+          930,
+          730
+        ],
+        "verified": true,
+        "overrides": [],
+        "reason": "원본에서 별도 설명·각주 확인. 배경 제외가 전경 설명을 지우지 않음"
+      },
+      {
+        "id": "I2",
+        "kind": "include",
+        "rect": [
+          380,
+          1785,
+          620,
+          1855
+        ],
+        "verified": true,
+        "overrides": [],
+        "reason": "원본에서 별도 설명·각주 확인. 배경 제외가 전경 설명을 지우지 않음"
+      }
+    ],
+    "section_type": "mixed",
+    "unresolved_connections": [
+      "oversized_ocr_3_crosses_retained_footnote"
+    ]
+  },
+  {
+    "id": "GS-03_006__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "95077b17459c40d4b5990da6859f17fb0ec8b7ab1865f24c607ea774f3964c44",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_006\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 679,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_006__sec_1_01",
+      "image_sha256": "95077b17459c40d4b5990da6859f17fb0ec8b7ab1865f24c607ea774f3964c44",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_006\\sections\\sec_1_01.png",
+      "sheet": 6,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_007__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "09995a2f9f6022f159065fe96b40f8b99960897c4a4d69abb961843d6f287ca7",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_007\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 710,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_exclude",
+    "section_evidence": {
+      "id": "GS-03_007__sec_1_01",
+      "image_sha256": "09995a2f9f6022f159065fe96b40f8b99960897c4a4d69abb961843d6f287ca7",
+      "verified": true,
+      "mode": "full_exclude",
+      "reason": "원본의 제품/브랜드만 또는 비텍스트 이미지; 별도 설명 없음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_007\\sections\\sec_1_01.png",
+      "sheet": 7,
+      "position": 0,
+      "exclusion_elements": true
+    }
+  },
+  {
+    "id": "GS-03_008__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "e2a476ae35dae98333a3a85756b69b80badffb53e44d7e1f7a6ec7b8ef5ce14f",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_008\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 959,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          735,
+          75,
+          940,
+          190
+        ],
+        "verified": true,
+        "reason": "우측 성분 콜아웃 VITAMIN C 및 비타민C 모두 포함. 기존 y=134.26 시작은 영문 전체와 한글 상단을 누락."
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          90.0,
+          450.73,
+          320.0,
+          546.63
+        ],
+        "verified": true,
+        "reason": "성분 구형 그림 제외, 두 성분 콜아웃과 아래 영문 설명 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          190.0,
+          594.58,
+          870.0,
+          757.61
+        ],
+        "verified": true,
+        "reason": "성분 구형 그림 제외, 두 성분 콜아웃과 아래 영문 설명 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_008__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f99f91e318632c62d84a6ef7a6163274185bc3323ebd122762da10a12e7d0880",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_008\\sections\\sec_1_02.png",
+    "width": 1000,
+    "height": 617,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_008__sec_1_02",
+      "image_sha256": "f99f91e318632c62d84a6ef7a6163274185bc3323ebd122762da10a12e7d0880",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_008\\sections\\sec_1_02.png",
+      "sheet": 7,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_009__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "bb2f1c7ecb7ad0c7c47897131b89984f9e237aa6c16992b08ce4c0356645202b",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_009\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 710,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_009__sec_1_01",
+      "image_sha256": "bb2f1c7ecb7ad0c7c47897131b89984f9e237aa6c16992b08ce4c0356645202b",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_009\\sections\\sec_1_01.png",
+      "sheet": 7,
+      "position": 3,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_010__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "580756cc6e7a024a7f559e4c234ed2aa7bc473b423861cd9458f15868c7ec983",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 343,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_010__sec_1_01",
+      "image_sha256": "580756cc6e7a024a7f559e4c234ed2aa7bc473b423861cd9458f15868c7ec983",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_01.png",
+      "sheet": 7,
+      "position": 4,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_010__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "f01aef4d5608979b8b1db38c72c9561afd70059f0932ecbc2163c0a793748b4b",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_02.png",
+    "width": 1000,
+    "height": 1576,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          756.48
+        ],
+        "verified": true,
+        "reason": "각질 사진 제외, 위 개선율·아래 사진 캡션/각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1229.28,
+          1000.0,
+          1576.0
+        ],
+        "verified": true,
+        "reason": "각질 사진 제외, 위 개선율·아래 사진 캡션/각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_010__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "175191fee359ed1fcc0b1afdd07bf22eebc61fbb024f18429fc3795fcc0f217c",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_03.png",
+    "width": 1000,
+    "height": 2781,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          556.2
+        ],
+        "verified": true,
+        "reason": "인물·용기 인쇄 제외, 상단 캡슐 설명·하단 비교표 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1835.46,
+          1000.0,
+          2781.0
+        ],
+        "verified": true,
+        "reason": "인물·용기 인쇄 제외, 상단 캡슐 설명·하단 비교표 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_011__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "37d5857f6c90cd7b58b4467bf90dfd9ee31beb65a4fdbf02a104e90210d4fdea",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_011\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 1720,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          739.6
+        ],
+        "verified": true,
+        "reason": "제형/스푼 사진 제외, 상단 설명·DERMATOLOGICALLY TESTED 별도 콜아웃 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          80.0,
+          739.6,
+          440.0,
+          825.6
+        ],
+        "verified": true,
+        "reason": "제형/스푼 사진 제외, 상단 설명·DERMATOLOGICALLY TESTED 별도 콜아웃 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_012__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_012\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 830,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_012__sec_1_01",
+      "image_sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_012\\sections\\sec_1_01.png",
+      "sheet": 7,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_013__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_013\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 2350,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          611.0
+        ],
+        "verified": true,
+        "reason": "레몬·용기 사진 제외, 상단 향 설명·하단 만족도/각주 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          1786.0,
+          1000.0,
+          2350.0
+        ],
+        "verified": true,
+        "reason": "레몬·용기 사진 제외, 상단 향 설명·하단 만족도/각주 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_014__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 1239,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          85,
+          205,
+          950,
+          655
+        ],
+        "reason": "상단 제목·효능 설명",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          85,
+          675,
+          915,
+          724
+        ],
+        "reason": "보고서 위 별도 영문 제목과 +",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "DOC1",
+        "kind": "exclude",
+        "rect": [
+          85,
+          724,
+          465,
+          1239
+        ],
+        "reason": "왼쪽 시험성적서",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "DOC2",
+        "kind": "exclude",
+        "rect": [
+          539,
+          724,
+          920,
+          1239
+        ],
+        "reason": "오른쪽 시험성적서",
+        "verified": true,
+        "overrides": []
+      },
+      {
+        "id": "QUOTE1",
+        "kind": "include",
+        "rect": [
+          53,
+          1025,
+          495,
+          1123
+        ],
+        "reason": "왼쪽 별도 확대 인용문",
+        "verified": true,
+        "overrides": [
+          "DOC1"
+        ]
+      },
+      {
+        "id": "QUOTE2",
+        "kind": "include",
+        "rect": [
+          510,
+          1025,
+          945,
+          1123
+        ],
+        "reason": "오른쪽 별도 확대 인용문",
+        "verified": true,
+        "overrides": [
+          "DOC2"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "GS-03_014__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "7b53f338648a1d30b82105ab38c8c4259a143cc9687c19865aeb9a8f89a9db2e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_02.png",
+    "width": 1000,
+    "height": 436,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_014__sec_1_02",
+      "image_sha256": "7b53f338648a1d30b82105ab38c8c4259a143cc9687c19865aeb9a8f89a9db2e",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_02.png",
+      "sheet": 8,
+      "position": 0,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_014__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_03.png",
+    "width": 1000,
+    "height": 1677,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "E-user",
+        "kind": "exclude",
+        "rect": [
+          0,
+          280,
+          1000,
+          850
+        ],
+        "verified": true,
+        "reason": "사용자 제외 판정: 옅은 배경 b3+",
+        "policy_evidence": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.worktrees\\ai-pipeline-evaluation-metrics\\docs\\ai-baseline\\preparations\\ocr-v6-review-ui-20261109\\user-review-chat.json#6d17bd80af4ee98ef05f90a5cc152ceb07aaf75bf8e284aa4ebb1a6a34cc1088"
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          60,
+          85,
+          650,
+          200
+        ],
+        "verified": true,
+        "overrides": [
+          "E-user"
+        ],
+        "reason": "원본에서 별도 설명·각주 확인. 배경 제외가 전경 설명을 지우지 않음"
+      },
+      {
+        "id": "I2",
+        "kind": "include",
+        "rect": [
+          100,
+          280,
+          900,
+          525
+        ],
+        "verified": true,
+        "overrides": [
+          "E-user"
+        ],
+        "reason": "원본에서 별도 설명·각주 확인. 배경 제외가 전경 설명을 지우지 않음"
+      },
+      {
+        "id": "I3",
+        "kind": "include",
+        "rect": [
+          610,
+          850,
+          850,
+          1020
+        ],
+        "verified": true,
+        "overrides": [
+          "E-user"
+        ],
+        "reason": "원본에서 별도 설명·각주 확인. 배경 제외가 전경 설명을 지우지 않음"
+      },
+      {
+        "id": "I4",
+        "kind": "include",
+        "rect": [
+          220,
+          1090,
+          930,
+          1200
+        ],
+        "verified": true,
+        "overrides": [
+          "E-user"
+        ],
+        "reason": "원본에서 별도 설명·각주 확인. 배경 제외가 전경 설명을 지우지 않음"
+      }
+    ],
+    "section_type": "mixed",
+    "unresolved_connections": [
+      "background_b3_overlaps_foreground_heading"
+    ]
+  },
+  {
+    "id": "GS-03_015__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "a86672e4ab5f6244cb4138596f2a2c00de08a6c78e2c493ec29b1b93f98fa4b9",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_015\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 800,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_015__sec_1_01",
+      "image_sha256": "a86672e4ab5f6244cb4138596f2a2c00de08a6c78e2c493ec29b1b93f98fa4b9",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_015\\sections\\sec_1_01.png",
+      "sheet": 8,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_016__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_016\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 403,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          570.0,
+          141.05,
+          1000.0,
+          403.0
+        ],
+        "verified": true,
+        "reason": "우측 HOW TO USE 제목 포함, 좌하단 제형 사진 제외"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_017__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "dacea444c9853e23c3fa09504513a86bad73ac5d2dc10a140578d09ee958b032",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_017\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 960,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          470.0,
+          0.0,
+          900.0,
+          86.4
+        ],
+        "verified": true,
+        "reason": "손·용기 인쇄 제외, 상단 TO USE 및 왼쪽 영문 사용법 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          259.2,
+          350.0,
+          566.4
+        ],
+        "verified": true,
+        "reason": "손·용기 인쇄 제외, 상단 TO USE 및 왼쪽 영문 사용법 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_018__sec_1_01",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "00a2c9bfdfbfd679e2f201b1e5456bebe77f89a55e2ada13be235d9f17c27abe",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_01.png",
+    "width": 1000,
+    "height": 369,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_01",
+      "image_sha256": "00a2c9bfdfbfd679e2f201b1e5456bebe77f89a55e2ada13be235d9f17c27abe",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_01.png",
+      "sheet": 8,
+      "position": 4,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_02",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5e742d34922941547603e88531af546d9728f23a92fa0941f082f2b5a0a8adf4",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_02.png",
+    "width": 1000,
+    "height": 428,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_02",
+      "image_sha256": "5e742d34922941547603e88531af546d9728f23a92fa0941f082f2b5a0a8adf4",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_02.png",
+      "sheet": 8,
+      "position": 5,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_03",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "62af86c714c4977bd07088824062ac523850775bfad945447c5b167fa8a031a9",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_03.png",
+    "width": 1000,
+    "height": 850,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_03",
+      "image_sha256": "62af86c714c4977bd07088824062ac523850775bfad945447c5b167fa8a031a9",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_03.png",
+      "sheet": 8,
+      "position": 6,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_04",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5de0e3566d2345081b1487e031576aa71aa8d00e3486f10fdd3acf6b49efe167",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_04.png",
+    "width": 1000,
+    "height": 694,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_04",
+      "image_sha256": "5de0e3566d2345081b1487e031576aa71aa8d00e3486f10fdd3acf6b49efe167",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_04.png",
+      "sheet": 8,
+      "position": 7,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_05",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "fbc50ce42b261752db0536d9e62ee292dbfed642e36b12325a76ed3f9ec53caa",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_05.png",
+    "width": 1000,
+    "height": 400,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_05",
+      "image_sha256": "fbc50ce42b261752db0536d9e62ee292dbfed642e36b12325a76ed3f9ec53caa",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_05.png",
+      "sheet": 9,
+      "position": 0,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_06",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "5024e9f79b078992426c96cb2da8e817f0d844104c44f119502dbaf75a7d117c",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_06.png",
+    "width": 1000,
+    "height": 1304,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_06",
+      "image_sha256": "5024e9f79b078992426c96cb2da8e817f0d844104c44f119502dbaf75a7d117c",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_06.png",
+      "sheet": 9,
+      "position": 1,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_07",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "00da1632cf5265828ee7065d08470a689709f514ff345c391ef19f1706bab416",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_07.png",
+    "width": 1000,
+    "height": 454,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_07",
+      "image_sha256": "00da1632cf5265828ee7065d08470a689709f514ff345c391ef19f1706bab416",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_07.png",
+      "sheet": 9,
+      "position": 2,
+      "exclusion_elements": false
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_08",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_08.png",
+    "width": 1000,
+    "height": 2994,
+    "default": "unknown",
+    "coverage_verified": false,
+    "regions": [
+      {
+        "id": "E1",
+        "kind": "exclude",
+        "rect": [
+          200.0,
+          1047.9,
+          930.0,
+          1766.46
+        ],
+        "reason": "제품 용기·패키지 인쇄/독립 상품 브랜드 위치 안내; 사각형 내 모든 텍스트 제외를 보장하지 않음",
+        "verified": false
+      },
+      {
+        "id": "E2",
+        "kind": "exclude",
+        "rect": [
+          120.0,
+          1946.1,
+          900.0,
+          2335.32
+        ],
+        "reason": "하단 3개 용기만; 아래 제품 설명 보호",
+        "verified": false
+      },
+      {
+        "id": "I1",
+        "kind": "include",
+        "rect": [
+          90.0,
+          1137.72,
+          360.0,
+          1257.48
+        ],
+        "reason": "사진 옆 BRIGHTENING 설명",
+        "verified": false
+      },
+      {
+        "id": "I2",
+        "kind": "include",
+        "rect": [
+          80.0,
+          1317.36,
+          320.0,
+          1437.12
+        ],
+        "reason": "별도 BODY LOTION",
+        "verified": false
+      }
+    ]
+  },
+  {
+    "id": "GS-03_018__sec_1_09",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "acc2d6f9d37da9add4d1ca621be50e17cb3e7d2916b2c46bd7cbb368ea4f8748",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_09.png",
+    "width": 1000,
+    "height": 243,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_exclude",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_09",
+      "image_sha256": "acc2d6f9d37da9add4d1ca621be50e17cb3e7d2916b2c46bd7cbb368ea4f8748",
+      "verified": true,
+      "mode": "full_exclude",
+      "reason": "원본의 제품/브랜드만 또는 비텍스트 이미지; 별도 설명 없음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_09.png",
+      "sheet": 9,
+      "position": 3,
+      "exclusion_elements": true
+    }
+  },
+  {
+    "id": "GS-03_018__sec_1_10",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "39fb52cd582ec5b2f6e4f4942dc87c68844fbce2a9225b03a15dd3e041df2a45",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_10.png",
+    "width": 1000,
+    "height": 1419,
+    "default": "exclude",
+    "coverage_verified": true,
+    "regions": [
+      {
+        "id": "T1",
+        "kind": "include",
+        "rect": [
+          0.0,
+          0.0,
+          1000.0,
+          411.51
+        ],
+        "verified": true,
+        "reason": "두 용기 인쇄 제외, 제목·표 머리·제품 특징 레이블·하단 추천/미백/톤업 표 포함"
+      },
+      {
+        "id": "T2",
+        "kind": "include",
+        "rect": [
+          0.0,
+          411.51,
+          130.0,
+          808.83
+        ],
+        "verified": true,
+        "reason": "두 용기 인쇄 제외, 제목·표 머리·제품 특징 레이블·하단 추천/미백/톤업 표 포함"
+      },
+      {
+        "id": "T3",
+        "kind": "include",
+        "rect": [
+          0.0,
+          823.02,
+          1000.0,
+          1419.0
+        ],
+        "verified": true,
+        "reason": "두 용기 인쇄 제외, 제목·표 머리·제품 특징 레이블·하단 추천/미백/톤업 표 포함"
+      }
+    ],
+    "section_type": "mixed"
+  },
+  {
+    "id": "GS-03_018__sec_1_11",
+    "scope_version": "source-scope-v6-user-exclusions-20261109-1",
+    "policy_version": "ocr-v6-user-policy-20261109-final",
+    "image_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+    "image_path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_11.png",
+    "width": 1000,
+    "height": 1630,
+    "default": "unknown",
+    "coverage_verified": true,
+    "regions": [],
+    "section_type": "full_include",
+    "section_evidence": {
+      "id": "GS-03_018__sec_1_11",
+      "image_sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e",
+      "verified": true,
+      "mode": "full_include",
+      "reason": "원본의 설명·표·각주 패널; 별도 제외 요소 확인되지 않음",
+      "source": "원본 이미지 직접 개요 재검토 2026-11-09; 기존 scope-annotations.json 대조",
+      "source_image": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_11.png",
+      "sheet": 9,
+      "position": 4,
+      "exclusion_elements": false
+    }
+  }
+]

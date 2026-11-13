@@ -1,0 +1,19 @@
+{
+  "status": "structural_integrity_pass_not_scoring_approval",
+  "images_sha256_verified": 112,
+  "mixed_sections": 33,
+  "gt_lines_id_text_hash_verified": 969,
+  "ocr_regions_source_verified": 1193,
+  "priority_candidates_identity_verified": 82,
+  "protected_files_unchanged": 232,
+  "markdown_local_links": "pass",
+  "browser_visual_validation": "not_performed",
+  "mixed_sections_ready_for_scoring": 0,
+  "blocked_reasons": [
+    "GT semantic scope undetermined 35",
+    "OCR scope unverified 1111; priority scope undetermined 3",
+    "coarse geometry and GT completeness not approved"
+  ],
+  "ocr_inference": false,
+  "cer_scoring": false
+}

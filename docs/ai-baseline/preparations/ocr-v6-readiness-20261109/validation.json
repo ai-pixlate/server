@@ -1,0 +1,19 @@
+{
+  "before": {
+    "검증 완료": 104,
+    "기술적 연결 차단": 8
+  },
+  "after": {
+    "검증 완료": 107,
+    "채점 차단": 5
+  },
+  "newly_ready": [
+    "GS-02_001__sec_1_03",
+    "GS-02_008__sec_1_04",
+    "GS-03_018__sec_1_08"
+  ],
+  "protected_files": 232,
+  "source_hashes": 159,
+  "cer_called": false,
+  "gt_changed": false
+}

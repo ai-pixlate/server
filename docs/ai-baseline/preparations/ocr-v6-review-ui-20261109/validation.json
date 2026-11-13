@@ -1,0 +1,12 @@
+{
+  "protected_files": 232,
+  "source_files": 159,
+  "hashes_pass": true,
+  "browser_visual_check": "not_performed_prior_safety_stop",
+  "old_browser_storage": "reset_on_open_not_verified",
+  "new_initial_records": 0,
+  "policy_questions": 2,
+  "ai_policy_resolved": 1,
+  "technical_pending": 58,
+  "cer_executed": false
+}

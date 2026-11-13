@@ -1,0 +1,7508 @@
+[
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L001",
+    "text": "디자인 리뉴얼 안내",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L002",
+    "text": "구달 맑은 어성초 진정 무기자차 선크림 50ml 1+1 기획",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L003",
+    "text": "제품 디자인이 리뉴얼 되었습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L004",
+    "text": "내용물의 성분 및 용량은 기존과 동일합니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L005",
+    "text": "저자극",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L006",
+    "text": "무기자차",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L007",
+    "text": "ONLY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L008",
+    "text": "올리브영",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L009",
+    "text": "어성초 무기자차 선크림",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L010",
+    "text": "1+1",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L011",
+    "text": "올리브영",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L012",
+    "text": "ONLY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L013",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L014",
+    "text": "Calming",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L015",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L016",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L017",
+    "text": "CLEAN BEAUTY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L018",
+    "text": "OLIVE YOUNG",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L019",
+    "text": "SPF 50+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L020",
+    "text": "PA++++",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L021",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L022",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L023",
+    "text": "Calming",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L024",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L025",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L026",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L027",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L028",
+    "text": "Calming",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L029",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L030",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L031",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L032",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L033",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L034",
+    "text": "어성초 무기자차 선 50ml 1+1 기획",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L035",
+    "text": "민감 진정",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L036",
+    "text": "어성초 무기자차 선",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L037",
+    "text": "1+1",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L038",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L039",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L040",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L041",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L042",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L043",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L044",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L045",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L046",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L047",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L048",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L049",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L050",
+    "text": "SPF 50+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L051",
+    "text": "PA++++",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L052",
+    "text": "SPF 50+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L053",
+    "text": "PA++++",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L054",
+    "text": "+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L055",
+    "text": "SPF 50+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L056",
+    "text": "PA++++",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L057",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L058",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L059",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L060",
+    "text": "기존 디자인",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L061",
+    "text": "신규 디자인",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L062",
+    "text": "리뉴얼 진행 중인 상품으로 주문 시점에 따라",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-bottom"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L063",
+    "text": "발송되는 제품의 디자인이 상이할 수 있습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-bottom"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L064",
+    "text": "*디자인 변경으로 인한 교환, 환불은 어려운 점 양해 부탁드립니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-bottom"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "gt",
+    "id": "L065",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-logo"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "디자인 리뉴얼 안내",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "구달 맑은 어성초 진정 무기자차 선크림 50m1+1 기획",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "제품 디자인이 리뉴얼 되었습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "내용물의 성분 및 용량은 기존과 동일합니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "저자극",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "어성초무기자차선50m1±1기획",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "ONLY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "민감 진정",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "무기자차",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "올리브영",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "1+1",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "HEARTLEAS",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "어성초무기자차선",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "Calming",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "어성초무기자차선크림",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "1+1",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "MNERAL RUTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "SNCREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "Cndre",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "MNERAL RUTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "ONLY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "HEARTLEAI",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "MSUN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "MIMEMAL FUER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "SNCREAN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "MMLRI",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "33:reg_0034",
+    "text": "BMOM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "34:reg_0035",
+    "text": "Caralrg",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "35:reg_0036",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "36:reg_0037",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "37:reg_0038",
+    "text": "foondal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "38:reg_0039",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "39:reg_0040",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "40:reg_0041",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "41:reg_0042",
+    "text": "기존 디자인",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "42:reg_0043",
+    "text": "신규 디자인",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "43:reg_0044",
+    "text": "리뉴얼 진행 중인 상품으로 주문 시점에 따라",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-bottom"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "44:reg_0045",
+    "text": "발송되는 제품의 디자인이 상이할 수 있습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-bottom"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "45:reg_0046",
+    "text": "*디자인 변경으로 인한 교환,환불은 어려운 점 양해 부탁드립니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-bottom"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_001__sec_1_01",
+    "kind": "ocr",
+    "id": "46:reg_0047",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-logo"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L001",
+    "text": "민감피부도 순하게",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L002",
+    "text": "진정 집중",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L003",
+    "text": "무기자차",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L004",
+    "text": "구달 어성초 진정 무기자차 선크림 50ml",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L005",
+    "text": "",
+    "decision": "exclude",
+    "reason": "empty_gt_no_characters",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L006",
+    "text": "산뜻",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-fresh"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L007",
+    "text": "밀착",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-fresh"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L008",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L009",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L010",
+    "text": "VEGAN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-certified"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L011",
+    "text": "CERTIFIED",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-certified"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L012",
+    "text": "MINERAL FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L013",
+    "text": "SUN CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L014",
+    "text": "SPF 50+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L015",
+    "text": "PA++++",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "gt",
+    "id": "L016",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "민감피부도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "순하게",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "진정",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "집중",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "무기자차",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "구달 어성초 진정 무기자차 선크림 50m",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-top"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "산뜻",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-fresh"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "밀착",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-fresh"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "HEARTLEAF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "Soothing",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "VEGAN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-certified"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "CERTIFIED",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-certified"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "MINERAL",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "FILTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "SUN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "CREAM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "SPF50+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "PA++++",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_01",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "goodal",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L001",
+    "text": "POINT 03",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L002",
+    "text": "바다 산호초를 생각하는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L003",
+    "text": "#Reef Safe",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L004",
+    "text": "선크림",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L005",
+    "text": "건강한 해양생태계를 위해 산호초에 영향을 주는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L006",
+    "text": "자외선 차단 원료*(옥시벤존, 옥티노세이트)를 배제하였습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L007",
+    "text": "*옥시벤존(벤조페논-3), 옥티노세이트(에칠헥실메톡시신나메이트) 불검출 시험 완료",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L008",
+    "text": "Reef Safe",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-reef"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L009",
+    "text": "내 피부는 물론, 바다 환경까지",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "gt",
+    "id": "L010",
+    "text": "생각하는 배려 깊은 당신을 위해",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "POINT",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "03",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "바다산호초를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "생각하는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "#Reef",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "Safe",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "선크림",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "건강한",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "해양생태계를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "위해",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "산호초에",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "영향을 주는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "자외선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "차단",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "원료*(옥시벤존",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "옥티노세이트)를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "배제하였습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "*옥시벤존(벤조페논-3),",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "옥티노세이트(에칠헥실메톡시신나메이트)불검출 시험 완료",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "Reef Safe",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-reef"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "내",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "피부는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "물론,",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "바다",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "환경까지",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "생각하는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "배려",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "깊은",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "당신을",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_15",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "위해",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-close"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_18",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "Heartleaf Calming",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_18",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "Sun",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_18",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "Care",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_21",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "HEARTLE",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_21",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "Calming",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-01_002__sec_1_21",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "COOLING SUN STICK",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "-28.54%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "눈가 주름",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "-7.80%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "-13.13%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T6"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "팔자 주름",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T8"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "입꼬리 리프팅",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T9"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_007__sec_1_02",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "피부 3단 깊이 탄력",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T10"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_02",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "WD: 5.62 mm",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_02",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "\"모공을 조여주는 느낌이 들어서 너무 좋았습니다.피부가",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_02",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "\"2주 만에 피부가 환해지고 은은한 광이 돌면서 판판해지는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_02",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "\"모공이 조금씩 차오르는 게 보였어요.매끄러워진 피부결에",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_02",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "\"사진 보시면 알겠지만 아예 주름이 없어지진 않아도 전보다",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_05",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "1단 깊이 탄력",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_05",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "+7.21%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_05",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "2단 깊이 탄력",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_05",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "+7.38%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_05",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "3단깊이 탄력",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_05",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "+7.54%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_06",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "볼 부위 피부각도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_06",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "-3.32%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_06",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "턱 선 부위 피부각도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "exclude"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_06",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "입가 부위 피부각도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T5"
+    ],
+    "before": "exclude"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_06",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "-2.46%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_009__sec_1_06",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "-3.21%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "제품",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "미도포",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "제품",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "미도포 7일 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "제품 도포",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "제품 도포 7일 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_010__sec_1_02",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "피부(각질층) 턴오버 개선율(%)",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L001",
+    "text": "함께 쓰면 더 확실한 변화를 느낄 수 있어요",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L002",
+    "text": "레티놀 샷 세럼 +",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L003",
+    "text": "레티날 샷 부스터",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L004",
+    "text": "함께 사용 시, 눈가주름 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L005",
+    "text": "-23.24%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L006",
+    "text": "감소",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L007",
+    "text": "사용 전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L008",
+    "text": "2주 사용 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L009",
+    "text": "함께 사용 시, 모공볼륨 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L010",
+    "text": "-37.99%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L011",
+    "text": "개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L012",
+    "text": "사용 전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L013",
+    "text": "2주 사용 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L014",
+    "text": "모공깊이 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L015",
+    "text": "-14.80% ▼",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L016",
+    "text": "모공면적 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L017",
+    "text": "-28.74% ▼",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L018",
+    "text": "함께 사용 시, 리프팅 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L019",
+    "text": "-9.02%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L020",
+    "text": "감소",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L021",
+    "text": "19.972°",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-angle1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L022",
+    "text": "19.349°",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-angle2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L023",
+    "text": "사용 전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L024",
+    "text": "2주 사용 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L025",
+    "text": "“셀리맥스 레티놀 샷 타이트닝 세럼”과“셀리맥스 레티날 샷 타이트닝 부스터”의 병행 사용 시 눈가 주름, 피부 모",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L026",
+    "text": "공, 안면 리프팅 개선에 대한 인체적용시험 / (주)스킨메드 임상시험센터 / 2024.05.20~2024.06.04 / 성인남",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "gt",
+    "id": "L027",
+    "text": "녀 21명 / 개인차 있음",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "함께 쓰면 더 확실한 변화를 느낄 수 있어요",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "레티놀 샷 세럼",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "1+",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "레티날 샷 부스터",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "함께 사용 시, 눈가주름 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "-23.24%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "감소",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "사용전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "2주 사용 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "함께 사용 시, 모공볼륨 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "-37.99%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "사용전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "2주사용후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "모공깊이 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "-14.80%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "모공면적개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "-28.74%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-metrics"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "함께사용시,리프팅개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "-9.02%",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "감소",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-badge3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "19.972°",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-angle1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "19.349°",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-angle2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "사용전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "2주 사용 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-caption3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "\"셀리맥스 레티놀 샷 타이트닝 세럼\"과\"셀리맥스 레티날 샷 타이트닝 부스터\"의 병행 사용 시 눈가 주름,피부 모",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "공,안면 리프팅 개선에 대한 인체적용시험/(주)스킨메드 임상시험센터/2024.05.20~2024.06.04/성인남",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_06",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "녀21명/개인차 있음",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_08",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "*불규칙적으로 늘어진 다양한 모공의 형태를 의미",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_08",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "이런 분에게 추천드려요",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L001",
+    "text": "셀리맥스 레티날 샷",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L002",
+    "text": "타이트닝 부스터 Q&A",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L003",
+    "text": "Q) 아침, 저녁 모두 사용해도 되나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L004",
+    "text": "A) 레티날 성분은 빛과 열에 약하므로 저녁",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L005",
+    "text": "사용을 권장드립니다. 다만, 아침에 사용을 할",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L006",
+    "text": "경우엔 자외선 차단제를 꼭 발라주시는 것이",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L007",
+    "text": "좋습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L008",
+    "text": "",
+    "decision": "include",
+    "reason": "empty_gt_no_characters",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L009",
+    "text": "Q) 첫 사용 시 자극이 없으면",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L010",
+    "text": "더 많이 사용해도 되나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L011",
+    "text": "A) 첫 사용 시 자극이 없더라도 레티날에 의한",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L012",
+    "text": "피부 적응 반응이 뒤늦게 나타날 수 있습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L013",
+    "text": "반응이 나타나지 않더라도 사용량이나 빈도를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L014",
+    "text": "늘리지 말고 초기 2주까지는 올바른 사용법에",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L015",
+    "text": "맞춰 사용하시길 권장드립니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L016",
+    "text": "Q) 레티날 적응 반응은 어떤 증상으로",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L017",
+    "text": "나타나나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L018",
+    "text": "A) 레티날을 처음 사용한다면 2주까지 피부",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L019",
+    "text": "적응 과정을 가져야 합니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L020",
+    "text": "적응 기간 동안 일시적으로 붉어짐, 각질탈락,",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L021",
+    "text": "간지러움, 화끈거림, 따가움 등의 피부 반응이",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L022",
+    "text": "나타날 수 있습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L023",
+    "text": "Q) 임산부도 사용 가능한가요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L024",
+    "text": "A) 임산부, 수유부는 호르몬 변화로 인하여",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L025",
+    "text": "피부가 예민해지는 시기로 인해 사용을",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L026",
+    "text": "권장하지 않습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L027",
+    "text": "Q) 같이 쓰면 안되는 성분이 있나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L028",
+    "text": "A) 고함량의 비타민 C 혹은 스크럽제 및",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L029",
+    "text": "각질제거 성분이 포함된 제품과 동시 사용은",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L030",
+    "text": "권장하지 않습니다. 함께 사용할 경우 사용",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L031",
+    "text": "주기를 알맞게 조절하여 (격일) 사용하실 것을",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "gt",
+    "id": "L032",
+    "text": "권장 드립니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "셀리맥스",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "레티날샷",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "타이트닝 부스터 Q&A",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-title"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "Q) 아침, 저녁 모두 사용해도 되나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "A)레티날성분은빛과열에약하므로저녁",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "사용을권장드립니다.다만, 아침에 사용을할",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "경우엔 자외선 차단제를 꼭발라주시는 것이",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "좋습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "3000",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "Q)첫사용시자극이없으면",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "더 많이 사용해도 되나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "A) 첫사용시자극이없더라도레티날에의한",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "피부 적응 반응이 뒤늦게 나타날 수 있습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "반응이나타나지않더라도 사용량이나 빈도를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "늘리지말고초기2주까지는올바른사용법에",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "맞춰 사용하시길권장드립니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "Q)레티날 적응반응은어떤증상으로",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "나타나나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "A) 레티날을 처음사용한다면2주까지피부",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "적응 과정을 가져야 합니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "적응기간동안일시적으로붉어짐,각질탈락,",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "간지러움,화끈거림,따가움등의 피부 반응이",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "나타날 수 있습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "Q) 임산부도 사용 가능한가요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "A)임산부,수유부는호르몬변화로인하여",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "피부가예민해지는시기로인해사용을",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "권장하지 않습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a4"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "Q) 같이 쓰면 안되는 성분이 있나요?",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-q5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "A)고함량의 비타민 C 혹은스크럽제 및",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "각질제거 성분이 포함된 제품과동시 사용은",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "권장하지 않습니다.함께 사용할 경우 사용",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "주기를알맞게 조절하여(격일) 사용하실것을",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_09",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "권장드립니다",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-a5"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L001",
+    "text": "the vita A",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-note1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L002",
+    "text": "retinal",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-note2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L003",
+    "text": "tightening",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-note3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L004",
+    "text": "0.1",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L005",
+    "text": "0.05",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L006",
+    "text": "0.01",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L007",
+    "text": "0.03",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L008",
+    "text": "RETINAL SHOT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L009",
+    "text": "TIGHTENING BOOSTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L010",
+    "text": "RETINAL SHOT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L011",
+    "text": "TIGHTENING BOOSTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L012",
+    "text": "RETINAL SHOT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L013",
+    "text": "TIGHTENING BOOSTER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L014",
+    "text": "피부 탄력이 필요할 땐,",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L015",
+    "text": "레티날 샷 타이트닝 부스터로 해결해 보세요.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L016",
+    "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L017",
+    "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L018",
+    "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L019",
+    "text": "‘ 레티날 샷 타이트닝 부스터’를 개발했습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L020",
+    "text": "실제로 체감할 수 있는 피부 변화를 위해",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L021",
+    "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L022",
+    "text": "성분까지 고함량으로 배합하여",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L023",
+    "text": "더 효과적인 탄력케어를 할수있어요.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L024",
+    "text": "탄력이 고민일 때, 레티날 샷 타이트닝 부스터로",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L025",
+    "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "gt",
+    "id": "L026",
+    "text": "감사합니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "the vita A",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-note1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "RETIN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "GHTENIN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "A4.05",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "324",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "-0.03",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "15",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "20.1",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "0.0",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-label"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "31003",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "retinal",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-note2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "tightening",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-note3"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "RETNA.S-OT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "TORENVGNOOSTE",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "AETMLOOT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "RETINL SHOT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "피부 탄력이 필요할 땐,",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "레티날 샷 타이트닝 부스터로 해결해 보세요.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "개발기간 약 455일간 피부 탄력 저하로 인해 발생이되는",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "다양한 형태의 주름 그리고 모공의 근본적인 문제를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "해결하기 위하여 각종 논문자료와 연구자료를 찾아보며",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "'레티날 샷 타이트닝 부스터'를 개발했습니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "실제로 체감할 수 있는 피부 변화를 위해",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "고기능성 비타민 A 나노 레티날과 탄력 부스팅을 위한",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "성분까지 고함량으로 배합하여",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "더 효과적인 탄력케어를 할수있어요.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "탄력이 고민일 때,레티날 샷 타이트닝 부스터로",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "매끄럽고 탄탄하게 변화하는 피부를 직접 경험해 보세요.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-02_014__sec_1_11",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "감사합니다.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L001",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-logo"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L002",
+    "text": "2주 미백 & 내추럴 톤업",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L003",
+    "text": "2 in 1 톤코렉팅",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L004",
+    "text": "신개념 미백 바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L005",
+    "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L006",
+    "text": "b3+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-background"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L007",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L008",
+    "text": "b3+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L009",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L010",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L011",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L012",
+    "text": "M.E.L.A Spotless EX™",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L013",
+    "text": "Niacinamide 5%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L014",
+    "text": "+Glutathione & Vitamin C",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L015",
+    "text": "BRIGHTENING",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L016",
+    "text": "It takes care of",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L017",
+    "text": "the body skin",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L018",
+    "text": "brightly.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L019",
+    "text": "단 2주* 만에",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L020",
+    "text": "착색 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L021",
+    "text": "바른 직후*",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L022",
+    "text": "각질 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L023",
+    "text": "24H",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-clock"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L024",
+    "text": "내추럴 톤업**",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L025",
+    "text": "24시간* 지속",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L026",
+    "text": "*시험기관: 엘리드, 시험기간: 26.04.08~26.05.07, 대상: 25~59세 여성 31명 / 개인차 있음",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "gt",
+    "id": "L027",
+    "text": "**커버에 의한 톤업 효과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-logo"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "2주 미백& 내추럴 톤업",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "2in1",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "톤코렉팅",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "신개념",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "미백",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "비클리닉스",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "브라이트닝",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "세럼 톤 코렉팅 바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "b3",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "M.E.L.A Spotless Ex\"",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "BRIGHTENING",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "Niacinamide 5%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "It takes care of",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "+Glutathione&Vitaminc",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-product"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "the body skin",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "brightly.",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-english"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "24H",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-clock"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "√",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "단2주'만에",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "바른 직후*",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "내추럴 톤업\"",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "착색 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "각질 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "24시간*지속",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-benefits"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "*시험기관:엘리드,시험기간: 26.04.08~26.05.07,대상:25~59세 여성 31명/개인차 있음",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_01",
+    "kind": "ocr",
+    "id": "33:reg_0034",
+    "text": "*커버에 의한 톤업 효과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L001",
+    "text": "SOLUTION",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-solution"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L002",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-logo"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L003",
+    "text": "내추럴 톤업*부터 착색 케어까지",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L004",
+    "text": "브라이트닝 세럼",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L005",
+    "text": "톤 코렉팅 바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L006",
+    "text": "TONE UP",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-tone"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L007",
+    "text": "BODY",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L008",
+    "text": "BRIGHTENING",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L009",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L010",
+    "text": "b3+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L011",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L012",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L013",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L014",
+    "text": "TXA-MA",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L015",
+    "text": "M.E.L.A Spotless Ex™",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L016",
+    "text": "BODY CARE",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L017",
+    "text": "Niacinamide 5%,",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L018",
+    "text": "+Glutathione & Vitamin C",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L019",
+    "text": "올리브영",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L020",
+    "text": "1위",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L021",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L022",
+    "text": "b3+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L023",
+    "text": "2024",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L024",
+    "text": "OLIVE YOUNG",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L025",
+    "text": "AWARDS",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L026",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L027",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L028",
+    "text": "TXA-MA",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L029",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L030",
+    "text": "MD'S PICK",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L031",
+    "text": "M.E.L.A Spotless Ex™",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L032",
+    "text": "바디보습",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L033",
+    "text": "올리브영 매출(23.07~24.06)+내부 기준 적용",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L034",
+    "text": "Niacinamide 5%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L035",
+    "text": "+Glutathione & Vitamin C",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L036",
+    "text": "BEST OF BEAUTY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L037",
+    "text": "KOREA",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L038",
+    "text": "allure",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L039",
+    "text": "BEAUTY & STYLE EXPERT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L040",
+    "text": "2024",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L041",
+    "text": "AWARD WINNER",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L042",
+    "text": "올리브영 바디케어 판매랭킹 1위**",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L043",
+    "text": "2024년 올리브영 어워즈",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L044",
+    "text": "바디 보습 부문 MD'S PICK 수상",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L045",
+    "text": "2024년 allure 어워즈",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L046",
+    "text": "바디로션 WINNER 선정",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L047",
+    "text": "*커버에 의한 톤업 효과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "gt",
+    "id": "L048",
+    "text": "**2025.7.11 올리브영 온라인몰 판매 랭킹 바디케어 카테고리 일간 1위",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "SOLUTION",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-solution"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-logo"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "내추럴 톤업'부터 착색",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "먹 케어까지",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "브라이트닝",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "세럼",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "톤",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "코렉팅",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "바디로션",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "TONE",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-tone"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": ":UP",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-tone"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "BODY",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "BRIGHTENING",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-body"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "b3",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "Niacinamide s%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "+Glutathione&Vitamin C",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "CARE",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "BODY",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "b3",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "올리브영",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "1위",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "TK-VXN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "TXA-MA",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "2024",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "OLIVE YOUNG",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "33:reg_0034",
+    "text": "AWARDS",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "34:reg_0035",
+    "text": "M.E.L.A Spotless Ex\"",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "35:reg_0036",
+    "text": "Niacinamide 5%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "36:reg_0037",
+    "text": "MD'S PICK",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "37:reg_0038",
+    "text": "+Glutathione&Vitamin C",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "38:reg_0039",
+    "text": "바디보습",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "39:reg_0040",
+    "text": "820023",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "40:reg_0041",
+    "text": "V기9",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "41:reg_0042",
+    "text": "OF",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "42:reg_0043",
+    "text": "KOREA",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "43:reg_0044",
+    "text": "allure",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "44:reg_0045",
+    "text": "BEST",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "45:reg_0046",
+    "text": "×",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "46:reg_0047",
+    "text": "BEAUTY & STYLE EXPERT",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "47:reg_0048",
+    "text": "2024",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-products-badges"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "48:reg_0049",
+    "text": "올리브영 바디케어 판매랭킹 1위'",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "49:reg_0050",
+    "text": "**",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "50:reg_0051",
+    "text": "2024년 올리브영 어워즈",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "51:reg_0052",
+    "text": "바디 보습 부문 N",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "52:reg_0053",
+    "text": "MD'S PICK수상",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "53:reg_0054",
+    "text": "2024년 allure 어워즈",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "54:reg_0055",
+    "text": "바디로션 WINNER 선정",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-results"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "55:reg_0056",
+    "text": "*커버에 의한 톤업 효과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_04",
+    "kind": "ocr",
+    "id": "56:reg_0057",
+    "text": "**2025.7.11올리브영 온라인몰 판매 랭킹 바디케어 카테고리 일간 1위",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_05",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "MN-RXS",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L001",
+    "text": "인체적용시험으로 증명된",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L002",
+    "text": "2주 착색 미백 효과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L003",
+    "text": "마찰로 생긴 팔꿈치 착색부터 등, 가슴의 잡티 흔적까지",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L004",
+    "text": "착색 고민 부위를 빠르고 정밀하게 케어",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L005",
+    "text": "2WEEKS",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-weeks"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L006",
+    "text": "팔꿈치 톤 균일도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L007",
+    "text": "13.2% 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L008",
+    "text": "목 뒤 톤 균일도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L009",
+    "text": "9.9% 개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L010",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L011",
+    "text": "b3+",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L012",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L013",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L014",
+    "text": "TONE CORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L015",
+    "text": "M.E.L.A Spotless EX™",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L016",
+    "text": "Niacinamide 5%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L017",
+    "text": "+Glutathione & Vitamin C",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L018",
+    "text": "TXA-MA",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L019",
+    "text": "등, 가슴 부위 잡티 흔적 개선*",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-testhead"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L020",
+    "text": "사용 전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L021",
+    "text": "2주 사용 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L022",
+    "text": "*가슴 또는 등 부위의 피부톤 평가 테스트",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "gt",
+    "id": "L023",
+    "text": "[시험기관: 엘리드 / 시험기간: 26.04.08~26.05.07 / 대상: 25~59세 여성 31명 / top 14위, 개인차 있음]",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "인체적용시험으로",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "증명된",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "2주",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "착색",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "미백",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "5:reg_0006",
+    "text": "효과",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "6:reg_0007",
+    "text": "마찰로",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "7:reg_0008",
+    "text": "생긴",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "8:reg_0009",
+    "text": "팔꿈치",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "9:reg_0010",
+    "text": "착색부터 등, 가슴의 잡티 흔적까지",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "10:reg_0011",
+    "text": "착색",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "11:reg_0012",
+    "text": "고민",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "12:reg_0013",
+    "text": "부위를",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "13:reg_0014",
+    "text": "빠르고",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "14:reg_0015",
+    "text": "정밀하게 케어",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-head"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "15:reg_0016",
+    "text": "2WEEKS",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-weeks"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "16:reg_0017",
+    "text": "팔꿈치 톤 균일도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "17:reg_0018",
+    "text": "13.2%개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "18:reg_0019",
+    "text": "목뒤톤균일도",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "19:reg_0020",
+    "text": "9.99",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "20:reg_0021",
+    "text": "%개선",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-call2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "21:reg_0022",
+    "text": "b.clinicx",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "22:reg_0023",
+    "text": "b3",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "23:reg_0024",
+    "text": "BRIGHTENING SERUM",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "24:reg_0025",
+    "text": "BODY LOTION",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "25:reg_0026",
+    "text": "TONECORRECTING",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "26:reg_0027",
+    "text": "M.E.L.A Spotless Ex",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "27:reg_0028",
+    "text": "+Glutathione&VitaminC",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "28:reg_0029",
+    "text": "Niacinamide s%",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "29:reg_0030",
+    "text": "MK-RIAN",
+    "decision": "exclude",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "E-package"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "30:reg_0031",
+    "text": "등, 가슴 부위 잡티 흔적 개선*",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-testhead"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "31:reg_0032",
+    "text": "사용전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "32:reg_0033",
+    "text": "2주사용후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-captions"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "33:reg_0034",
+    "text": "*가슴 또는 등 부위의 피부톤 평가 테스트",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_002__sec_1_06",
+    "kind": "ocr",
+    "id": "34:reg_0035",
+    "text": "[시험기관:엘리드/시험기간:26.04.08~26.05.07/대상:25~59세 여성 31명/top 14위,개인차있음]",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "I-foot"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_004__sec_1_01",
+    "kind": "ocr",
+    "id": "2:reg_0003",
+    "text": "사용전",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "exclude"
+  },
+  {
+    "section_id": "GS-03_004__sec_1_01",
+    "kind": "ocr",
+    "id": "3:reg_0004",
+    "text": "사용 직후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_004__sec_1_01",
+    "kind": "ocr",
+    "id": "4:reg_0005",
+    "text": "사용 24시간 후",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T2"
+    ],
+    "before": "exclude"
+  },
+  {
+    "section_id": "GS-03_016__sec_1_01",
+    "kind": "ocr",
+    "id": "1:reg_0002",
+    "text": "TOSF",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ],
+    "before": "hold"
+  },
+  {
+    "section_id": "GS-03_017__sec_1_01",
+    "kind": "ocr",
+    "id": "0:reg_0001",
+    "text": "..-",
+    "decision": "include",
+    "reason": "fixed_source_region",
+    "region_ids": [
+      "T1"
+    ],
+    "before": "hold"
+  }
+]

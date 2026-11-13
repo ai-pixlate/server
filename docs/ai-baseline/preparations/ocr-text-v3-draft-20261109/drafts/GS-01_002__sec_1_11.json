@@ -1,0 +1,200 @@
+{
+  "id": "GS-01_002__sec_1_11",
+  "sample": "GS-01_002",
+  "section_key": "sec_1_11",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_11.png",
+    "sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943",
+    "width": 1000,
+    "height": 2020
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "POINT 02"
+    },
+    {
+      "line_id": "L002",
+      "text": "건조함 걱정 없이"
+    },
+    {
+      "line_id": "L003",
+      "text": "산뜻 보송한"
+    },
+    {
+      "line_id": "L004",
+      "text": "데일리 진정 선케어"
+    },
+    {
+      "line_id": "L005",
+      "text": "부드럽게 터치되며 뭉침없이 고르게 펴발려,"
+    },
+    {
+      "line_id": "L006",
+      "text": "메이크업을 해도 밀리지 않는 산뜻한 제형이에요."
+    },
+    {
+      "line_id": "L007",
+      "text": "SP"
+    },
+    {
+      "line_id": "L008",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L009",
+      "text": "goodal"
+    }
+  ],
+  "parent_text_sha256": "4d993d50a0fa064512581cbb113dab7217b6de02003654e67e4c106241fd6a81",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "POINT 02"
+    },
+    {
+      "line_id": "L002",
+      "text": "건조함 걱정 없이"
+    },
+    {
+      "line_id": "L003",
+      "text": "산뜻 보송한"
+    },
+    {
+      "line_id": "L004",
+      "text": "데일리 진정 선케어"
+    },
+    {
+      "line_id": "L005",
+      "text": "부드럽게 터치되며 뭉침없이 고르게 펴발려,"
+    },
+    {
+      "line_id": "L006",
+      "text": "메이크업을 해도 밀리지 않는 산뜻한 제형이에요."
+    },
+    {
+      "line_id": "L007",
+      "text": "SP"
+    },
+    {
+      "line_id": "L008",
+      "text": "PA++++"
+    },
+    {
+      "line_id": "L009",
+      "text": "goodal"
+    }
+  ],
+  "text_sha256": "4d993d50a0fa064512581cbb113dab7217b6de02003654e67e4c106241fd6a81",
+  "changes": [],
+  "unresolved": [
+    "L007 SP는 화면 오른쪽 경계에서 잘린 부분 전사. 보이지 않는 F/수치를 복원하지 않음. 부분 글자 포함 범위 사용자 확인"
+  ],
+  "note": "오른쪽 경계에서 잘린 SPF 표기\nL007 SP는 화면 오른쪽 경계에서 잘린 부분 전사. 보이지 않는 F/수치를 복원하지 않음. 부분 글자 포함 범위 사용자 확인",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "POINT 02"
+          },
+          {
+            "line_id": "L002",
+            "text": "건조함 걱정 없이"
+          },
+          {
+            "line_id": "L003",
+            "text": "산뜻 보송한"
+          },
+          {
+            "line_id": "L004",
+            "text": "데일리 진정 선케어"
+          },
+          {
+            "line_id": "L005",
+            "text": "부드럽게 터치되며 뭉침없이 고르게 펴발려,"
+          },
+          {
+            "line_id": "L006",
+            "text": "메이크업을 해도 밀리지 않는 산뜻한 제형이에요."
+          },
+          {
+            "line_id": "L007",
+            "text": "SP"
+          },
+          {
+            "line_id": "L008",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L009",
+            "text": "goodal"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "POINT 02"
+          },
+          {
+            "line_id": "L002",
+            "text": "건조함 걱정 없이"
+          },
+          {
+            "line_id": "L003",
+            "text": "산뜻 보송한"
+          },
+          {
+            "line_id": "L004",
+            "text": "데일리 진정 선케어"
+          },
+          {
+            "line_id": "L005",
+            "text": "부드럽게 터치되며 뭉침없이 고르게 펴발려,"
+          },
+          {
+            "line_id": "L006",
+            "text": "메이크업을 해도 밀리지 않는 산뜻한 제형이에요."
+          },
+          {
+            "line_id": "L007",
+            "text": "SP"
+          },
+          {
+            "line_id": "L008",
+            "text": "PA++++"
+          },
+          {
+            "line_id": "L009",
+            "text": "goodal"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

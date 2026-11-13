@@ -1,0 +1,50 @@
+{
+  "independent_edit_backtraces": true,
+  "all_characters_consumed_once": true,
+  "independent_group_totals": {
+    "GS-01": {
+      "S": 16,
+      "D": 124,
+      "I": 12,
+      "N": 3161
+    },
+    "GS-02": {
+      "S": 111,
+      "D": 168,
+      "I": 29,
+      "N": 8421
+    },
+    "GS-03": {
+      "S": 53,
+      "D": 48,
+      "I": 23,
+      "N": 5160
+    }
+  },
+  "protected_hashes_verified": 377,
+  "counts": {
+    "measured": 105,
+    "not_applicable": 4,
+    "undetermined": 3
+  },
+  "started_utc": "2026-11-10T05:47:09.514812+00:00",
+  "elapsed_seconds": 5.773288200143725,
+  "python": "3.12.10",
+  "unicode": "15.0.0",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "additional_ocr_calls": 0,
+  "external_api_calls": 0,
+  "additional_paid_cost": 0,
+  "measurement_approved_by": "user_chat_20261110",
+  "scoring_code": {
+    "version": "ocr-v6-candidate-1",
+    "unicode": "15.0.0",
+    "files": {
+      "ocr_v6.py": "9b279f1b60415ec75f2a0aa66704915d3124897f09d497bd28ba3ccf1656a56d",
+      "ocr_scope.py": "f7a03a7e3c42541f78122455125a3f0258521a810ffd05c8f0f2c10707781a58",
+      "ocr_v5.py": "02c4d9adbb542c5d64a11887a02e09d35b2ad1c78879bd660be19cf914e6c3e2",
+      "ocr.py": "44e83a50228242c72775fb2253236a55ec66fa124eae370395b9d3ae17f068be"
+    }
+  },
+  "adapter_sha256": "5b2e9a2920c48de46df1129a5502242fcd1be284a169478122e82c9e33996e78"
+}

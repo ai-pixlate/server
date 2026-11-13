@@ -1,0 +1,770 @@
+{
+  "id": "GS-03_014__sec_1_01",
+  "sample": "GS-03_014",
+  "section_key": "sec_1_01",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_01.png",
+    "sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2",
+    "width": 1000,
+    "height": 1239
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "TEST"
+    },
+    {
+      "line_id": "L002",
+      "text": "안심하고 사용할 수 있는"
+    },
+    {
+      "line_id": "L003",
+      "text": "바디로션"
+    },
+    {
+      "line_id": "L004",
+      "text": "항산화 테스트 완료¹⁾"
+    },
+    {
+      "line_id": "L005",
+      "text": "피부 대상"
+    },
+    {
+      "line_id": "L006",
+      "text": "저자극 테스트 완료²⁾"
+    },
+    {
+      "line_id": "L007",
+      "text": "Antioxidant testing"
+    },
+    {
+      "line_id": "L008",
+      "text": "+"
+    },
+    {
+      "line_id": "L009",
+      "text": "External patch testing"
+    },
+    {
+      "line_id": "L010",
+      "text": "+"
+    },
+    {
+      "line_id": "L011",
+      "text": "LG H&H"
+    },
+    {
+      "line_id": "L012",
+      "text": "CONFIDENTIAL"
+    },
+    {
+      "line_id": "L013",
+      "text": "5. 결론 및 요약"
+    },
+    {
+      "line_id": "L014",
+      "text": "㈜LG 생활건강 신개념연구팀에서는 ㈜LG 생활건강 크로스뷰티연구팀의 의뢰를 받아"
+    },
+    {
+      "line_id": "L015",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션의 ORAC 지수를 평가하기 위한 연구를"
+    },
+    {
+      "line_id": "L016",
+      "text": "수행하였다."
+    },
+    {
+      "line_id": "L017",
+      "text": "ORAC 지수를 측정하기 위하여 Trolox를 검량선(y = 0.4178x + 1.431)에 시료의 Net AUC 값을"
+    },
+    {
+      "line_id": "L018",
+      "text": "대입한 뒤 최석배수를 곱하였다."
+    },
+    {
+      "line_id": "L019",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+    },
+    {
+      "line_id": "L020",
+      "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+    },
+    {
+      "line_id": "L021",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+    },
+    {
+      "line_id": "L022",
+      "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+    },
+    {
+      "line_id": "L023",
+      "text": "본 연구는 ㈜LG 생활건강 기술연구원의 표준 작업 절차서(SOP ORAC assay)에 따라"
+    },
+    {
+      "line_id": "L024",
+      "text": "수행되었으며, 그 결과와 최종 보고서의 내용은 절차에 따라 감사 완료되었다."
+    },
+    {
+      "line_id": "L025",
+      "text": "1. 결과 보고서 요약문 (국문)"
+    },
+    {
+      "line_id": "L026",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+    },
+    {
+      "line_id": "L027",
+      "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+    },
+    {
+      "line_id": "L028",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+    },
+    {
+      "line_id": "L029",
+      "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+    },
+    {
+      "line_id": "L030",
+      "text": "정상 성인 30명(남 2명, 여 28명, 평균연령 42.2±4.8)을 대상으로, “비클리닉스"
+    },
+    {
+      "line_id": "L031",
+      "text": "브라이트닝 세럼 톤 코렉팅 바디로션”을 포함한 23종의 시제품을 48시간 폐쇄형"
+    },
+    {
+      "line_id": "L032",
+      "text": "첩포시험으로 적용하여 피부 안전성을 평가한 결과 유의한 수준의 피부자극지수를"
+    },
+    {
+      "line_id": "L033",
+      "text": "보인 시료는 없어 안전하게 활용될 것으로 사료된다."
+    },
+    {
+      "line_id": "L034",
+      "text": "12"
+    },
+    {
+      "line_id": "L035",
+      "text": "Ecoderm, inc."
+    },
+    {
+      "line_id": "L036",
+      "text": "www.ecoderm.co.kr"
+    }
+  ],
+  "parent_text_sha256": "35ae2beeda7b0c353a4b89e558c0d37dcc695fa7263d9a573b0a2b392ede8f58",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "TEST"
+    },
+    {
+      "line_id": "L002",
+      "text": "안심하고 사용할 수 있는"
+    },
+    {
+      "line_id": "L003",
+      "text": "바디로션"
+    },
+    {
+      "line_id": "L004",
+      "text": "항산화 테스트 완료¹⁾"
+    },
+    {
+      "line_id": "L005",
+      "text": "피부 대상"
+    },
+    {
+      "line_id": "L006",
+      "text": "저자극 테스트 완료²⁾"
+    },
+    {
+      "line_id": "L007",
+      "text": "Antioxidant testing"
+    },
+    {
+      "line_id": "L008",
+      "text": "+"
+    },
+    {
+      "line_id": "L009",
+      "text": "External patch testing"
+    },
+    {
+      "line_id": "L010",
+      "text": "+"
+    },
+    {
+      "line_id": "L011",
+      "text": "LG H&H"
+    },
+    {
+      "line_id": "L012",
+      "text": "CONFIDENTIAL"
+    },
+    {
+      "line_id": "L013",
+      "text": "5. 결론 및 요약"
+    },
+    {
+      "line_id": "L014",
+      "text": "㈜LG 생활건강 신개념연구팀에서는 ㈜LG 생활건강 크로스뷰티연구팀의 의뢰를 받아"
+    },
+    {
+      "line_id": "L015",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션의 ORAC 지수를 평가하기 위한 연구를"
+    },
+    {
+      "line_id": "L016",
+      "text": "수행하였다."
+    },
+    {
+      "line_id": "L017",
+      "text": "ORAC 지수를 측정하기 위하여 Trolox를 검량선(y = 0.4178x + 1.431)에 시료의 Net AUC 값을"
+    },
+    {
+      "line_id": "L018",
+      "text": "대입한 뒤 희석배수를 곱하였다."
+    },
+    {
+      "line_id": "L019",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+    },
+    {
+      "line_id": "L020",
+      "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+    },
+    {
+      "line_id": "L021",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+    },
+    {
+      "line_id": "L022",
+      "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+    },
+    {
+      "line_id": "L023",
+      "text": "본 연구는 ㈜LG 생활건강 기술연구원의 표준 작업 절차서(SOP ORAC assay)에 따라"
+    },
+    {
+      "line_id": "L024",
+      "text": "수행되었으며, 그 결과와 최종 보고서의 내용은 절차에 따라 감사 완료되었다."
+    },
+    {
+      "line_id": "L025",
+      "text": "1. 결과 보고서 요약문 (국문)"
+    },
+    {
+      "line_id": "L037",
+      "text": "시험제목 및 시험 제품"
+    },
+    {
+      "line_id": "L038",
+      "text": "시험목적"
+    },
+    {
+      "line_id": "L039",
+      "text": "시험의뢰기관"
+    },
+    {
+      "line_id": "L040",
+      "text": "의뢰기관: (주) 엘지생활건강"
+    },
+    {
+      "line_id": "L041",
+      "text": "연구기관"
+    },
+    {
+      "line_id": "L042",
+      "text": "기관명: ㈜ 에코덤"
+    },
+    {
+      "line_id": "L043",
+      "text": "시험물품관리책임자"
+    },
+    {
+      "line_id": "L044",
+      "text": "연구원의 구성"
+    },
+    {
+      "line_id": "L026",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+    },
+    {
+      "line_id": "L027",
+      "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+    },
+    {
+      "line_id": "L028",
+      "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+    },
+    {
+      "line_id": "L029",
+      "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+    },
+    {
+      "line_id": "L030",
+      "text": "정상 성인 30명(남 2명, 여 28명, 평균연령 42.2±4.8)을 대상으로, “비클리닉스"
+    },
+    {
+      "line_id": "L031",
+      "text": "브라이트닝 세럼 톤 코렉팅 바디로션”을 포함한 23종의 시제품을 48시간 폐쇄형"
+    },
+    {
+      "line_id": "L032",
+      "text": "첩포시험으로 적용하여 피부 안전성을 평가한 결과 유의한 수준의 피부자극지수를"
+    },
+    {
+      "line_id": "L033",
+      "text": "보인 시료는 없어 안전하게 활용될 것으로 사료된다."
+    },
+    {
+      "line_id": "L034",
+      "text": "12"
+    },
+    {
+      "line_id": "L035",
+      "text": "Ecoderm, inc."
+    },
+    {
+      "line_id": "L036",
+      "text": "www.ecoderm.co.kr"
+    }
+  ],
+  "text_sha256": "40722887c6953fe5737ebdc4b0d9a7c4b63e86066f6e87b66e523bb6d8b666a6",
+  "changes": [
+    {
+      "operation": "replace",
+      "line_id": "L018",
+      "before": "대입한 뒤 최석배수를 곱하였다.",
+      "after": "대입한 뒤 희석배수를 곱하였다.",
+      "reason": "왼쪽 보고서에서 희석배수를 직접 확인; 기존 최석배수 수정"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L037",
+      "before": null,
+      "after": "시험제목 및 시험 제품",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L038",
+      "before": null,
+      "after": "시험목적",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L039",
+      "before": null,
+      "after": "시험의뢰기관",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L040",
+      "before": null,
+      "after": "의뢰기관: (주) 엘지생활건강",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L041",
+      "before": null,
+      "after": "연구기관",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L042",
+      "before": null,
+      "after": "기관명: ㈜ 에코덤",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L043",
+      "before": null,
+      "after": "시험물품관리책임자",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    },
+    {
+      "operation": "insert",
+      "line_id": "L044",
+      "before": null,
+      "after": "연구원의 구성",
+      "after_existing_id": "L025",
+      "reason": "오른쪽 보고서 표의 읽을 수 있는 제목·기관명. 나머지 세부 값은 미완성"
+    }
+  ],
+  "unresolved": [
+    "오른쪽 표의 날짜·담당자·주소·피부자극 시험 방법 세부 값과 하단 결과의 반복 전사 미완료",
+    "기존 L014~L024의 미세 본문, 검량선·농도·ORAC 수치·μ/기호는 사용자 확대 검수 필요",
+    "하단 인증 각주 및 로고의 작은 문자는 확정 불가"
+  ],
+  "note": "시험 보고서 오른쪽 표·하단 결과 누락 및 희석배수 오전사\n오른쪽 표의 날짜·담당자·주소·피부자극 시험 방법 세부 값과 하단 결과의 반복 전사 미완료\n기존 L014~L024의 미세 본문, 검량선·농도·ORAC 수치·μ/기호는 사용자 확대 검수 필요\n하단 인증 각주 및 로고의 작은 문자는 확정 불가",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "TEST"
+          },
+          {
+            "line_id": "L002",
+            "text": "안심하고 사용할 수 있는"
+          },
+          {
+            "line_id": "L003",
+            "text": "바디로션"
+          },
+          {
+            "line_id": "L004",
+            "text": "항산화 테스트 완료¹⁾"
+          },
+          {
+            "line_id": "L005",
+            "text": "피부 대상"
+          },
+          {
+            "line_id": "L006",
+            "text": "저자극 테스트 완료²⁾"
+          },
+          {
+            "line_id": "L007",
+            "text": "Antioxidant testing"
+          },
+          {
+            "line_id": "L008",
+            "text": "+"
+          },
+          {
+            "line_id": "L009",
+            "text": "External patch testing"
+          },
+          {
+            "line_id": "L010",
+            "text": "+"
+          },
+          {
+            "line_id": "L011",
+            "text": "LG H&H"
+          },
+          {
+            "line_id": "L012",
+            "text": "CONFIDENTIAL"
+          },
+          {
+            "line_id": "L013",
+            "text": "5. 결론 및 요약"
+          },
+          {
+            "line_id": "L014",
+            "text": "㈜LG 생활건강 신개념연구팀에서는 ㈜LG 생활건강 크로스뷰티연구팀의 의뢰를 받아"
+          },
+          {
+            "line_id": "L015",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션의 ORAC 지수를 평가하기 위한 연구를"
+          },
+          {
+            "line_id": "L016",
+            "text": "수행하였다."
+          },
+          {
+            "line_id": "L017",
+            "text": "ORAC 지수를 측정하기 위하여 Trolox를 검량선(y = 0.4178x + 1.431)에 시료의 Net AUC 값을"
+          },
+          {
+            "line_id": "L018",
+            "text": "대입한 뒤 최석배수를 곱하였다."
+          },
+          {
+            "line_id": "L019",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+          },
+          {
+            "line_id": "L020",
+            "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+          },
+          {
+            "line_id": "L021",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+          },
+          {
+            "line_id": "L022",
+            "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+          },
+          {
+            "line_id": "L023",
+            "text": "본 연구는 ㈜LG 생활건강 기술연구원의 표준 작업 절차서(SOP ORAC assay)에 따라"
+          },
+          {
+            "line_id": "L024",
+            "text": "수행되었으며, 그 결과와 최종 보고서의 내용은 절차에 따라 감사 완료되었다."
+          },
+          {
+            "line_id": "L025",
+            "text": "1. 결과 보고서 요약문 (국문)"
+          },
+          {
+            "line_id": "L026",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+          },
+          {
+            "line_id": "L027",
+            "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+          },
+          {
+            "line_id": "L028",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+          },
+          {
+            "line_id": "L029",
+            "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+          },
+          {
+            "line_id": "L030",
+            "text": "정상 성인 30명(남 2명, 여 28명, 평균연령 42.2±4.8)을 대상으로, “비클리닉스"
+          },
+          {
+            "line_id": "L031",
+            "text": "브라이트닝 세럼 톤 코렉팅 바디로션”을 포함한 23종의 시제품을 48시간 폐쇄형"
+          },
+          {
+            "line_id": "L032",
+            "text": "첩포시험으로 적용하여 피부 안전성을 평가한 결과 유의한 수준의 피부자극지수를"
+          },
+          {
+            "line_id": "L033",
+            "text": "보인 시료는 없어 안전하게 활용될 것으로 사료된다."
+          },
+          {
+            "line_id": "L034",
+            "text": "12"
+          },
+          {
+            "line_id": "L035",
+            "text": "Ecoderm, inc."
+          },
+          {
+            "line_id": "L036",
+            "text": "www.ecoderm.co.kr"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "TEST"
+          },
+          {
+            "line_id": "L002",
+            "text": "안심하고 사용할 수 있는"
+          },
+          {
+            "line_id": "L003",
+            "text": "바디로션"
+          },
+          {
+            "line_id": "L004",
+            "text": "항산화 테스트 완료¹⁾"
+          },
+          {
+            "line_id": "L005",
+            "text": "피부 대상"
+          },
+          {
+            "line_id": "L006",
+            "text": "저자극 테스트 완료²⁾"
+          },
+          {
+            "line_id": "L007",
+            "text": "Antioxidant testing"
+          },
+          {
+            "line_id": "L008",
+            "text": "+"
+          },
+          {
+            "line_id": "L009",
+            "text": "External patch testing"
+          },
+          {
+            "line_id": "L010",
+            "text": "+"
+          },
+          {
+            "line_id": "L011",
+            "text": "LG H&H"
+          },
+          {
+            "line_id": "L012",
+            "text": "CONFIDENTIAL"
+          },
+          {
+            "line_id": "L013",
+            "text": "5. 결론 및 요약"
+          },
+          {
+            "line_id": "L014",
+            "text": "㈜LG 생활건강 신개념연구팀에서는 ㈜LG 생활건강 크로스뷰티연구팀의 의뢰를 받아"
+          },
+          {
+            "line_id": "L015",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션의 ORAC 지수를 평가하기 위한 연구를"
+          },
+          {
+            "line_id": "L016",
+            "text": "수행하였다."
+          },
+          {
+            "line_id": "L017",
+            "text": "ORAC 지수를 측정하기 위하여 Trolox를 검량선(y = 0.4178x + 1.431)에 시료의 Net AUC 값을"
+          },
+          {
+            "line_id": "L018",
+            "text": "대입한 뒤 희석배수를 곱하였다."
+          },
+          {
+            "line_id": "L019",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+          },
+          {
+            "line_id": "L020",
+            "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+          },
+          {
+            "line_id": "L021",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+          },
+          {
+            "line_id": "L022",
+            "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+          },
+          {
+            "line_id": "L023",
+            "text": "본 연구는 ㈜LG 생활건강 기술연구원의 표준 작업 절차서(SOP ORAC assay)에 따라"
+          },
+          {
+            "line_id": "L024",
+            "text": "수행되었으며, 그 결과와 최종 보고서의 내용은 절차에 따라 감사 완료되었다."
+          },
+          {
+            "line_id": "L025",
+            "text": "1. 결과 보고서 요약문 (국문)"
+          },
+          {
+            "line_id": "L037",
+            "text": "시험제목 및 시험 제품"
+          },
+          {
+            "line_id": "L038",
+            "text": "시험목적"
+          },
+          {
+            "line_id": "L039",
+            "text": "시험의뢰기관"
+          },
+          {
+            "line_id": "L040",
+            "text": "의뢰기관: (주) 엘지생활건강"
+          },
+          {
+            "line_id": "L041",
+            "text": "연구기관"
+          },
+          {
+            "line_id": "L042",
+            "text": "기관명: ㈜ 에코덤"
+          },
+          {
+            "line_id": "L043",
+            "text": "시험물품관리책임자"
+          },
+          {
+            "line_id": "L044",
+            "text": "연구원의 구성"
+          },
+          {
+            "line_id": "L026",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 0.1%) 처리군에서는 2.839 Net AUC를"
+          },
+          {
+            "line_id": "L027",
+            "text": "나타내었으며 Trolox 검량선에 Net AUC 값을 대입한 뒤 희석배수(×1000)를 곱한 결과"
+          },
+          {
+            "line_id": "L028",
+            "text": "비클리닉스 브라이트닝 세럼 톤 코렉팅 바디로션 (농도 100%) 은 3371.07 의 ORAC"
+          },
+          {
+            "line_id": "L029",
+            "text": "지수(μmole TE/L)가 산출 되었으며, 위 수치에 해당하는 항산화력을 가진 것으로 사료된다."
+          },
+          {
+            "line_id": "L030",
+            "text": "정상 성인 30명(남 2명, 여 28명, 평균연령 42.2±4.8)을 대상으로, “비클리닉스"
+          },
+          {
+            "line_id": "L031",
+            "text": "브라이트닝 세럼 톤 코렉팅 바디로션”을 포함한 23종의 시제품을 48시간 폐쇄형"
+          },
+          {
+            "line_id": "L032",
+            "text": "첩포시험으로 적용하여 피부 안전성을 평가한 결과 유의한 수준의 피부자극지수를"
+          },
+          {
+            "line_id": "L033",
+            "text": "보인 시료는 없어 안전하게 활용될 것으로 사료된다."
+          },
+          {
+            "line_id": "L034",
+            "text": "12"
+          },
+          {
+            "line_id": "L035",
+            "text": "Ecoderm, inc."
+          },
+          {
+            "line_id": "L036",
+            "text": "www.ecoderm.co.kr"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

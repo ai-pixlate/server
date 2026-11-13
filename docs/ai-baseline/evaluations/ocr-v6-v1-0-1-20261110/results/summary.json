@@ -1,0 +1,87 @@
+{
+  "overall": {
+    "counts": {
+      "measured": 105,
+      "not_applicable": 4,
+      "undetermined": 3
+    },
+    "measured_totals": {
+      "S": 180,
+      "D": 340,
+      "I": 64,
+      "N": 16742
+    },
+    "measured_subset_cer_percent": 3.4882331859992832,
+    "complete": false,
+    "overall_cer_percent": null,
+    "official": false,
+    "display_reason": null
+  },
+  "groups": {
+    "GS-01": {
+      "counts": {
+        "measured": 23,
+        "not_applicable": 1,
+        "undetermined": 1
+      },
+      "measured_totals": {
+        "S": 16,
+        "D": 124,
+        "I": 12,
+        "N": 3161
+      },
+      "measured_subset_cer_percent": 4.808604871875988,
+      "complete": false,
+      "overall_cer_percent": null,
+      "official": false,
+      "display_reason": null
+    },
+    "GS-02": {
+      "counts": {
+        "measured": 48
+      },
+      "measured_totals": {
+        "S": 111,
+        "D": 168,
+        "I": 29,
+        "N": 8421
+      },
+      "measured_subset_cer_percent": 3.657522859517872,
+      "complete": true,
+      "overall_cer_percent": 3.657522859517872,
+      "official": false,
+      "display_reason": null
+    },
+    "GS-03": {
+      "counts": {
+        "measured": 34,
+        "not_applicable": 3,
+        "undetermined": 2
+      },
+      "measured_totals": {
+        "S": 53,
+        "D": 48,
+        "I": 23,
+        "N": 5160
+      },
+      "measured_subset_cer_percent": 2.4031007751937983,
+      "complete": false,
+      "overall_cer_percent": null,
+      "official": false,
+      "display_reason": null
+    }
+  },
+  "implementation": {
+    "version": "ocr-v6-candidate-1",
+    "unicode": "15.0.0",
+    "files": {
+      "ocr_v6.py": "9b279f1b60415ec75f2a0aa66704915d3124897f09d497bd28ba3ccf1656a56d",
+      "ocr_scope.py": "f7a03a7e3c42541f78122455125a3f0258521a810ffd05c8f0f2c10707781a58",
+      "ocr_v5.py": "02c4d9adbb542c5d64a11887a02e09d35b2ad1c78879bd660be19cf914e6c3e2",
+      "ocr.py": "44e83a50228242c72775fb2253236a55ec66fa124eae370395b9d3ae17f068be"
+    }
+  },
+  "fixed_plan_sha256": "2116a572f09ff4ae7cc0be25da56491bec972533bd6ec95e70ccc432564b9a92",
+  "fixed_partial_complete": true,
+  "fixed_partial_cer_percent": 3.4882331859992832
+}

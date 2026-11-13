@@ -1,0 +1,690 @@
+[
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0001",
+    "output_index": 0,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0002",
+    "output_index": 1,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0003",
+    "output_index": 2,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0004",
+    "output_index": 3,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0005",
+    "output_index": 4,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0006",
+    "output_index": 5,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0007",
+    "output_index": 6,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0008",
+    "output_index": 7,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0009",
+    "output_index": 8,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0010",
+    "output_index": 9,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0011",
+    "output_index": 10,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0012",
+    "output_index": 11,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0013",
+    "output_index": 12,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0014",
+    "output_index": 13,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0015",
+    "output_index": 14,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0016",
+    "output_index": 15,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0017",
+    "output_index": 16,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0018",
+    "output_index": 17,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0019",
+    "output_index": 18,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0020",
+    "output_index": 19,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-02_008__sec_1_05",
+    "region_key": "reg_0021",
+    "output_index": 20,
+    "output_sha256": "0a91e0416c8b80e96498002d69488bc829f38850537dc870c1372dfdfbf681d1",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0001",
+    "output_index": 0,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0002",
+    "output_index": 1,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0003",
+    "output_index": 2,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0004",
+    "output_index": 3,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0005",
+    "output_index": 4,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0006",
+    "output_index": 5,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0007",
+    "output_index": 6,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0008",
+    "output_index": 7,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0009",
+    "output_index": 8,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0010",
+    "output_index": 9,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0011",
+    "output_index": 10,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0012",
+    "output_index": 11,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0013",
+    "output_index": 12,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0014",
+    "output_index": 13,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0015",
+    "output_index": 14,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0016",
+    "output_index": 15,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0017",
+    "output_index": 16,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0018",
+    "output_index": 17,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0019",
+    "output_index": 18,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0020",
+    "output_index": 19,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0021",
+    "output_index": 20,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0022",
+    "output_index": 21,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0023",
+    "output_index": 22,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0024",
+    "output_index": 23,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0025",
+    "output_index": 24,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0026",
+    "output_index": 25,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0027",
+    "output_index": 26,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0028",
+    "output_index": 27,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0029",
+    "output_index": 28,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0030",
+    "output_index": 29,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0031",
+    "output_index": 30,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0032",
+    "output_index": 31,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0033",
+    "output_index": 32,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0034",
+    "output_index": 33,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0035",
+    "output_index": 34,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0036",
+    "output_index": 35,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0037",
+    "output_index": 36,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0038",
+    "output_index": 37,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0039",
+    "output_index": 38,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0040",
+    "output_index": 39,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0041",
+    "output_index": 40,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0042",
+    "output_index": 41,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0043",
+    "output_index": 42,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0044",
+    "output_index": 43,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0045",
+    "output_index": 44,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0046",
+    "output_index": 45,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0047",
+    "output_index": 46,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0048",
+    "output_index": 47,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0049",
+    "output_index": 48,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0050",
+    "output_index": 49,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0051",
+    "output_index": 50,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0052",
+    "output_index": 51,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0053",
+    "output_index": 52,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0054",
+    "output_index": 53,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0055",
+    "output_index": 54,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0056",
+    "output_index": 55,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0057",
+    "output_index": 56,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0058",
+    "output_index": 57,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0059",
+    "output_index": 58,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0060",
+    "output_index": 59,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0061",
+    "output_index": 60,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0062",
+    "output_index": 61,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0063",
+    "output_index": 62,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0064",
+    "output_index": 63,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  },
+  {
+    "section_id": "GS-03_014__sec_1_01",
+    "region_key": "reg_0065",
+    "output_index": 64,
+    "output_sha256": "53565e3dd24cb65a77fe3abcb6037ff3e3f8897f945b13a65e28950c485d1f97",
+    "scope": "undetermined",
+    "reason": "문서 내부/별도 인용 대칭 경계 연결 재검증 필요; 출력 텍스트로 범위 추정 금지"
+  }
+]

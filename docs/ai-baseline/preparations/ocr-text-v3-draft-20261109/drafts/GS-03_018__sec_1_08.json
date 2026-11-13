@@ -1,0 +1,1353 @@
+{
+  "id": "GS-03_018__sec_1_08",
+  "sample": "GS-03_018",
+  "section_key": "sec_1_08",
+  "image": {
+    "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_08.png",
+    "sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b",
+    "width": 1000,
+    "height": 2994
+  },
+  "version": "ocr-text-v3-draft-20261109",
+  "status": "needs_attention",
+  "revision": 1,
+  "parent_version": "ocr-text-v2-20261109",
+  "parent_lines": [
+    {
+      "line_id": "L001",
+      "text": "b3 BRIGHTENING"
+    },
+    {
+      "line_id": "L002",
+      "text": "함께 쓰면 효과 UP!"
+    },
+    {
+      "line_id": "L003",
+      "text": "비클리닉스"
+    },
+    {
+      "line_id": "L004",
+      "text": "b3 바디 브라이트닝 루틴"
+    },
+    {
+      "line_id": "L005",
+      "text": "BODY MIST"
+    },
+    {
+      "line_id": "L006",
+      "text": "BODY"
+    },
+    {
+      "line_id": "L007",
+      "text": "WASH"
+    },
+    {
+      "line_id": "L008",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L009",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L010",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L011",
+      "text": "BODY MIST"
+    },
+    {
+      "line_id": "L012",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L013",
+      "text": "Niacinamide"
+    },
+    {
+      "line_id": "L014",
+      "text": "+ Vit C. Derivative"
+    },
+    {
+      "line_id": "L015",
+      "text": "BRIGHTENING"
+    },
+    {
+      "line_id": "L016",
+      "text": "It takes care of"
+    },
+    {
+      "line_id": "L017",
+      "text": "the body skin"
+    },
+    {
+      "line_id": "L018",
+      "text": "brightly."
+    },
+    {
+      "line_id": "L019",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L020",
+      "text": "b3"
+    },
+    {
+      "line_id": "L021",
+      "text": "ACNE CARE+BRIGHTENING"
+    },
+    {
+      "line_id": "L022",
+      "text": "BODY WASH"
+    },
+    {
+      "line_id": "L023",
+      "text": "Vitamin B3 2%"
+    },
+    {
+      "line_id": "L024",
+      "text": "+ AHA·BHA·PHA"
+    },
+    {
+      "line_id": "L025",
+      "text": "FOR ACNE-PRONE"
+    },
+    {
+      "line_id": "L026",
+      "text": "AND DISCOLORED SKIN"
+    },
+    {
+      "line_id": "L027",
+      "text": "BODY"
+    },
+    {
+      "line_id": "L028",
+      "text": "LOTION"
+    },
+    {
+      "line_id": "L029",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L030",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L031",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L032",
+      "text": "BODY LOTION"
+    },
+    {
+      "line_id": "L033",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L034",
+      "text": "M.E.L.A Spotless EX™"
+    },
+    {
+      "line_id": "L035",
+      "text": "Niacinamide 5%"
+    },
+    {
+      "line_id": "L036",
+      "text": "+Glutathione & Vitamin C"
+    },
+    {
+      "line_id": "L037",
+      "text": "TXA-MA"
+    },
+    {
+      "line_id": "L038",
+      "text": "LV.0"
+    },
+    {
+      "line_id": "L039",
+      "text": "LV.1"
+    },
+    {
+      "line_id": "L040",
+      "text": "LV.2"
+    },
+    {
+      "line_id": "L041",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L042",
+      "text": "b3"
+    },
+    {
+      "line_id": "L043",
+      "text": "ACNE CARE+BRIGHTENING"
+    },
+    {
+      "line_id": "L044",
+      "text": "BODY WASH"
+    },
+    {
+      "line_id": "L045",
+      "text": "Vitamin B3 2%"
+    },
+    {
+      "line_id": "L046",
+      "text": "+ AHA·BHA·PHA"
+    },
+    {
+      "line_id": "L047",
+      "text": "FOR ACNE-PRONE"
+    },
+    {
+      "line_id": "L048",
+      "text": "AND DISCOLORED SKIN"
+    },
+    {
+      "line_id": "L049",
+      "text": "아크네 클리어"
+    },
+    {
+      "line_id": "L050",
+      "text": "바디워시"
+    },
+    {
+      "line_id": "L051",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L052",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L053",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L054",
+      "text": "BODY LOTION"
+    },
+    {
+      "line_id": "L055",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L056",
+      "text": "M.E.L.A Spotless EX™"
+    },
+    {
+      "line_id": "L057",
+      "text": "Niacinamide 5%"
+    },
+    {
+      "line_id": "L058",
+      "text": "+Glutathione & Vitamin C"
+    },
+    {
+      "line_id": "L059",
+      "text": "TXA-MA"
+    },
+    {
+      "line_id": "L060",
+      "text": "데일리 톤 코렉팅"
+    },
+    {
+      "line_id": "L061",
+      "text": "바디로션"
+    },
+    {
+      "line_id": "L062",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L063",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L064",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L065",
+      "text": "BODY MIST"
+    },
+    {
+      "line_id": "L066",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L067",
+      "text": "Niacinamide"
+    },
+    {
+      "line_id": "L068",
+      "text": "+ Vit C. Derivative"
+    },
+    {
+      "line_id": "L069",
+      "text": "인텐시브 톤업"
+    },
+    {
+      "line_id": "L070",
+      "text": "바디미스트"
+    },
+    {
+      "line_id": "L071",
+      "text": "Brightening effect up"
+    },
+    {
+      "line_id": "L072",
+      "text": "Increase in absorption"
+    },
+    {
+      "line_id": "L073",
+      "text": "로션 단독 사용 대비"
+    },
+    {
+      "line_id": "L074",
+      "text": "착색 부위 개선 효과"
+    },
+    {
+      "line_id": "L075",
+      "text": "최대 118.9%¹⁾ UP"
+    },
+    {
+      "line_id": "L076",
+      "text": "동시 사용 시"
+    },
+    {
+      "line_id": "L077",
+      "text": "나이아신아마이드 흡수율"
+    },
+    {
+      "line_id": "L078",
+      "text": "2배로²⁾ UP"
+    },
+    {
+      "line_id": "L079",
+      "text": "¹⁾시험기관: 엘리드 | 비클리닉스 바디워시 바디로션 단독 및 병행 적용 팔꿈치 톤 균일도 4주 후 개선 평가"
+    },
+    {
+      "line_id": "L080",
+      "text": "시험기간: 26.04.08~26.05.07 | 대상: 25~59세 여성 31명 | 개인차 있음"
+    },
+    {
+      "line_id": "L081",
+      "text": "²⁾LG생활건강 기술연구원 | 비클리닉스 바디미스트 바디로션 복합사용 나이아신아마이드 피부투과 비교평가"
+    }
+  ],
+  "parent_text_sha256": "574340f35d2f2990198ac18324718eb636f473bf631ea195bf40d8281157d335",
+  "lines": [
+    {
+      "line_id": "L001",
+      "text": "b3 BRIGHTENING"
+    },
+    {
+      "line_id": "L002",
+      "text": "함께 쓰면 효과 UP!"
+    },
+    {
+      "line_id": "L003",
+      "text": "비클리닉스"
+    },
+    {
+      "line_id": "L004",
+      "text": "b3 바디 브라이트닝 루틴"
+    },
+    {
+      "line_id": "L005",
+      "text": "BODY MIST"
+    },
+    {
+      "line_id": "L006",
+      "text": "BODY"
+    },
+    {
+      "line_id": "L007",
+      "text": "WASH"
+    },
+    {
+      "line_id": "L008",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L009",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L010",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L011",
+      "text": "BODY MIST"
+    },
+    {
+      "line_id": "L012",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L013",
+      "text": "Niacinamide"
+    },
+    {
+      "line_id": "L014",
+      "text": "+ Vit C. Derivative"
+    },
+    {
+      "line_id": "L015",
+      "text": "BRIGHTENING"
+    },
+    {
+      "line_id": "L016",
+      "text": "It takes care of"
+    },
+    {
+      "line_id": "L017",
+      "text": "the body skin"
+    },
+    {
+      "line_id": "L018",
+      "text": "brightly."
+    },
+    {
+      "line_id": "L019",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L020",
+      "text": "b3"
+    },
+    {
+      "line_id": "L021",
+      "text": "ACNE CARE+BRIGHTENING"
+    },
+    {
+      "line_id": "L022",
+      "text": "BODY WASH"
+    },
+    {
+      "line_id": "L023",
+      "text": "Vitamin B3 2%"
+    },
+    {
+      "line_id": "L024",
+      "text": "+ AHA·BHA·PHA"
+    },
+    {
+      "line_id": "L025",
+      "text": "FOR ACNE-PRONE"
+    },
+    {
+      "line_id": "L026",
+      "text": "AND DISCOLORED SKIN"
+    },
+    {
+      "line_id": "L027",
+      "text": "BODY"
+    },
+    {
+      "line_id": "L028",
+      "text": "LOTION"
+    },
+    {
+      "line_id": "L029",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L030",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L031",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L032",
+      "text": "BODY LOTION"
+    },
+    {
+      "line_id": "L033",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L034",
+      "text": "M.E.L.A Spotless EX™"
+    },
+    {
+      "line_id": "L035",
+      "text": "Niacinamide 5%"
+    },
+    {
+      "line_id": "L036",
+      "text": "+Glutathione & Vitamin C"
+    },
+    {
+      "line_id": "L037",
+      "text": "TXA-MA"
+    },
+    {
+      "line_id": "L038",
+      "text": "LV.0"
+    },
+    {
+      "line_id": "L039",
+      "text": "LV.1"
+    },
+    {
+      "line_id": "L040",
+      "text": "LV.2"
+    },
+    {
+      "line_id": "L041",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L042",
+      "text": "b3"
+    },
+    {
+      "line_id": "L043",
+      "text": "ACNE CARE+BRIGHTENING"
+    },
+    {
+      "line_id": "L044",
+      "text": "BODY WASH"
+    },
+    {
+      "line_id": "L045",
+      "text": "Vitamin B3 2%"
+    },
+    {
+      "line_id": "L046",
+      "text": "+ AHA·BHA·PHA"
+    },
+    {
+      "line_id": "L047",
+      "text": "FOR ACNE-PRONE"
+    },
+    {
+      "line_id": "L048",
+      "text": "AND DISCOLORED SKIN"
+    },
+    {
+      "line_id": "L049",
+      "text": "아크네 클리어"
+    },
+    {
+      "line_id": "L050",
+      "text": "바디워시"
+    },
+    {
+      "line_id": "L051",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L052",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L053",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L054",
+      "text": "BODY LOTION"
+    },
+    {
+      "line_id": "L055",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L056",
+      "text": "M.E.L.A Spotless EX™"
+    },
+    {
+      "line_id": "L057",
+      "text": "Niacinamide 5%"
+    },
+    {
+      "line_id": "L058",
+      "text": "+Glutathione & Vitamin C"
+    },
+    {
+      "line_id": "L059",
+      "text": "TXA-MA"
+    },
+    {
+      "line_id": "L060",
+      "text": "데일리 톤 코렉팅"
+    },
+    {
+      "line_id": "L061",
+      "text": "바디로션"
+    },
+    {
+      "line_id": "L062",
+      "text": "b.clinicx"
+    },
+    {
+      "line_id": "L063",
+      "text": "b3+"
+    },
+    {
+      "line_id": "L064",
+      "text": "BRIGHTENING SERUM"
+    },
+    {
+      "line_id": "L065",
+      "text": "BODY MIST"
+    },
+    {
+      "line_id": "L066",
+      "text": "TONE CORRECTING"
+    },
+    {
+      "line_id": "L067",
+      "text": "Niacinamide"
+    },
+    {
+      "line_id": "L068",
+      "text": "+ Vit C. Derivative"
+    },
+    {
+      "line_id": "L069",
+      "text": "인텐시브 톤업"
+    },
+    {
+      "line_id": "L070",
+      "text": "바디미스트"
+    },
+    {
+      "line_id": "L071",
+      "text": "Brightening effect up"
+    },
+    {
+      "line_id": "L072",
+      "text": "Increase in absorption"
+    },
+    {
+      "line_id": "L073",
+      "text": "로션 단독 사용 대비"
+    },
+    {
+      "line_id": "L074",
+      "text": "착색 부위 개선 효과"
+    },
+    {
+      "line_id": "L075",
+      "text": "최대 118.9%¹⁾ UP"
+    },
+    {
+      "line_id": "L076",
+      "text": "동시 사용 시"
+    },
+    {
+      "line_id": "L077",
+      "text": "나이아신아마이드 흡수율"
+    },
+    {
+      "line_id": "L078",
+      "text": "2배로²⁾ UP"
+    },
+    {
+      "line_id": "L079",
+      "text": "¹⁾시험기관: 엘리드 | 비클리닉스 바디워시 바디로션 단독 및 병행 적용 팔꿈치 톤 균일도 4주 후 개선 평가"
+    },
+    {
+      "line_id": "L080",
+      "text": "시험기간: 26.04.08~26.05.07 | 대상: 25~59세 여성 31명 | 개인차 있음"
+    },
+    {
+      "line_id": "L081",
+      "text": "²⁾LG생활건강 기술연구원 | 비클리닉스 바디미스트 바디로션 복합사용 나이아신아마이드 피부투과 비교평가"
+    }
+  ],
+  "text_sha256": "574340f35d2f2990198ac18324718eb636f473bf631ea195bf40d8281157d335",
+  "changes": [],
+  "unresolved": [
+    "상단 제품 아래 반사된 글자와 세 제품의 작은 성분/함량 라벨 전체는 확정 불가",
+    "하단 LV.0~2 제품의 반복 인쇄·미스트 라벨 작은 기호 및 시험 각주 재확인. 읽을 수 없는 반사 문구를 정방향 라벨에서 복사하지 않음"
+  ],
+  "note": "제품 반사 라벨·작은 반복 라벨 및 하단 각주\n상단 제품 아래 반사된 글자와 세 제품의 작은 성분/함량 라벨 전체는 확정 불가\n하단 LV.0~2 제품의 반복 인쇄·미스트 라벨 작은 기호 및 시험 각주 재확인. 읽을 수 없는 반사 문구를 정방향 라벨에서 복사하지 않음",
+  "read_only": false,
+  "human_reviews": [],
+  "approved": false,
+  "frozen": false,
+  "ai_review": {
+    "method": "Codex chat original-image visual review",
+    "exact_model_settings": "unverified",
+    "source": "original section image only; parent GT retained when not changed",
+    "ocr_output_used": false,
+    "cer_used": false,
+    "complete": false,
+    "status": "needs_review"
+  },
+  "history": [
+    {
+      "at": "2026-11-09",
+      "by": "Codex chat",
+      "before": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "b3 BRIGHTENING"
+          },
+          {
+            "line_id": "L002",
+            "text": "함께 쓰면 효과 UP!"
+          },
+          {
+            "line_id": "L003",
+            "text": "비클리닉스"
+          },
+          {
+            "line_id": "L004",
+            "text": "b3 바디 브라이트닝 루틴"
+          },
+          {
+            "line_id": "L005",
+            "text": "BODY MIST"
+          },
+          {
+            "line_id": "L006",
+            "text": "BODY"
+          },
+          {
+            "line_id": "L007",
+            "text": "WASH"
+          },
+          {
+            "line_id": "L008",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L009",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L010",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L011",
+            "text": "BODY MIST"
+          },
+          {
+            "line_id": "L012",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L013",
+            "text": "Niacinamide"
+          },
+          {
+            "line_id": "L014",
+            "text": "+ Vit C. Derivative"
+          },
+          {
+            "line_id": "L015",
+            "text": "BRIGHTENING"
+          },
+          {
+            "line_id": "L016",
+            "text": "It takes care of"
+          },
+          {
+            "line_id": "L017",
+            "text": "the body skin"
+          },
+          {
+            "line_id": "L018",
+            "text": "brightly."
+          },
+          {
+            "line_id": "L019",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L020",
+            "text": "b3"
+          },
+          {
+            "line_id": "L021",
+            "text": "ACNE CARE+BRIGHTENING"
+          },
+          {
+            "line_id": "L022",
+            "text": "BODY WASH"
+          },
+          {
+            "line_id": "L023",
+            "text": "Vitamin B3 2%"
+          },
+          {
+            "line_id": "L024",
+            "text": "+ AHA·BHA·PHA"
+          },
+          {
+            "line_id": "L025",
+            "text": "FOR ACNE-PRONE"
+          },
+          {
+            "line_id": "L026",
+            "text": "AND DISCOLORED SKIN"
+          },
+          {
+            "line_id": "L027",
+            "text": "BODY"
+          },
+          {
+            "line_id": "L028",
+            "text": "LOTION"
+          },
+          {
+            "line_id": "L029",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L030",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L031",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L032",
+            "text": "BODY LOTION"
+          },
+          {
+            "line_id": "L033",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L034",
+            "text": "M.E.L.A Spotless EX™"
+          },
+          {
+            "line_id": "L035",
+            "text": "Niacinamide 5%"
+          },
+          {
+            "line_id": "L036",
+            "text": "+Glutathione & Vitamin C"
+          },
+          {
+            "line_id": "L037",
+            "text": "TXA-MA"
+          },
+          {
+            "line_id": "L038",
+            "text": "LV.0"
+          },
+          {
+            "line_id": "L039",
+            "text": "LV.1"
+          },
+          {
+            "line_id": "L040",
+            "text": "LV.2"
+          },
+          {
+            "line_id": "L041",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L042",
+            "text": "b3"
+          },
+          {
+            "line_id": "L043",
+            "text": "ACNE CARE+BRIGHTENING"
+          },
+          {
+            "line_id": "L044",
+            "text": "BODY WASH"
+          },
+          {
+            "line_id": "L045",
+            "text": "Vitamin B3 2%"
+          },
+          {
+            "line_id": "L046",
+            "text": "+ AHA·BHA·PHA"
+          },
+          {
+            "line_id": "L047",
+            "text": "FOR ACNE-PRONE"
+          },
+          {
+            "line_id": "L048",
+            "text": "AND DISCOLORED SKIN"
+          },
+          {
+            "line_id": "L049",
+            "text": "아크네 클리어"
+          },
+          {
+            "line_id": "L050",
+            "text": "바디워시"
+          },
+          {
+            "line_id": "L051",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L052",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L053",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L054",
+            "text": "BODY LOTION"
+          },
+          {
+            "line_id": "L055",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L056",
+            "text": "M.E.L.A Spotless EX™"
+          },
+          {
+            "line_id": "L057",
+            "text": "Niacinamide 5%"
+          },
+          {
+            "line_id": "L058",
+            "text": "+Glutathione & Vitamin C"
+          },
+          {
+            "line_id": "L059",
+            "text": "TXA-MA"
+          },
+          {
+            "line_id": "L060",
+            "text": "데일리 톤 코렉팅"
+          },
+          {
+            "line_id": "L061",
+            "text": "바디로션"
+          },
+          {
+            "line_id": "L062",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L063",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L064",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L065",
+            "text": "BODY MIST"
+          },
+          {
+            "line_id": "L066",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L067",
+            "text": "Niacinamide"
+          },
+          {
+            "line_id": "L068",
+            "text": "+ Vit C. Derivative"
+          },
+          {
+            "line_id": "L069",
+            "text": "인텐시브 톤업"
+          },
+          {
+            "line_id": "L070",
+            "text": "바디미스트"
+          },
+          {
+            "line_id": "L071",
+            "text": "Brightening effect up"
+          },
+          {
+            "line_id": "L072",
+            "text": "Increase in absorption"
+          },
+          {
+            "line_id": "L073",
+            "text": "로션 단독 사용 대비"
+          },
+          {
+            "line_id": "L074",
+            "text": "착색 부위 개선 효과"
+          },
+          {
+            "line_id": "L075",
+            "text": "최대 118.9%¹⁾ UP"
+          },
+          {
+            "line_id": "L076",
+            "text": "동시 사용 시"
+          },
+          {
+            "line_id": "L077",
+            "text": "나이아신아마이드 흡수율"
+          },
+          {
+            "line_id": "L078",
+            "text": "2배로²⁾ UP"
+          },
+          {
+            "line_id": "L079",
+            "text": "¹⁾시험기관: 엘리드 | 비클리닉스 바디워시 바디로션 단독 및 병행 적용 팔꿈치 톤 균일도 4주 후 개선 평가"
+          },
+          {
+            "line_id": "L080",
+            "text": "시험기간: 26.04.08~26.05.07 | 대상: 25~59세 여성 31명 | 개인차 있음"
+          },
+          {
+            "line_id": "L081",
+            "text": "²⁾LG생활건강 기술연구원 | 비클리닉스 바디미스트 바디로션 복합사용 나이아신아마이드 피부투과 비교평가"
+          }
+        ],
+        "status": "frozen_v2_parent"
+      },
+      "after": {
+        "lines": [
+          {
+            "line_id": "L001",
+            "text": "b3 BRIGHTENING"
+          },
+          {
+            "line_id": "L002",
+            "text": "함께 쓰면 효과 UP!"
+          },
+          {
+            "line_id": "L003",
+            "text": "비클리닉스"
+          },
+          {
+            "line_id": "L004",
+            "text": "b3 바디 브라이트닝 루틴"
+          },
+          {
+            "line_id": "L005",
+            "text": "BODY MIST"
+          },
+          {
+            "line_id": "L006",
+            "text": "BODY"
+          },
+          {
+            "line_id": "L007",
+            "text": "WASH"
+          },
+          {
+            "line_id": "L008",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L009",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L010",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L011",
+            "text": "BODY MIST"
+          },
+          {
+            "line_id": "L012",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L013",
+            "text": "Niacinamide"
+          },
+          {
+            "line_id": "L014",
+            "text": "+ Vit C. Derivative"
+          },
+          {
+            "line_id": "L015",
+            "text": "BRIGHTENING"
+          },
+          {
+            "line_id": "L016",
+            "text": "It takes care of"
+          },
+          {
+            "line_id": "L017",
+            "text": "the body skin"
+          },
+          {
+            "line_id": "L018",
+            "text": "brightly."
+          },
+          {
+            "line_id": "L019",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L020",
+            "text": "b3"
+          },
+          {
+            "line_id": "L021",
+            "text": "ACNE CARE+BRIGHTENING"
+          },
+          {
+            "line_id": "L022",
+            "text": "BODY WASH"
+          },
+          {
+            "line_id": "L023",
+            "text": "Vitamin B3 2%"
+          },
+          {
+            "line_id": "L024",
+            "text": "+ AHA·BHA·PHA"
+          },
+          {
+            "line_id": "L025",
+            "text": "FOR ACNE-PRONE"
+          },
+          {
+            "line_id": "L026",
+            "text": "AND DISCOLORED SKIN"
+          },
+          {
+            "line_id": "L027",
+            "text": "BODY"
+          },
+          {
+            "line_id": "L028",
+            "text": "LOTION"
+          },
+          {
+            "line_id": "L029",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L030",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L031",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L032",
+            "text": "BODY LOTION"
+          },
+          {
+            "line_id": "L033",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L034",
+            "text": "M.E.L.A Spotless EX™"
+          },
+          {
+            "line_id": "L035",
+            "text": "Niacinamide 5%"
+          },
+          {
+            "line_id": "L036",
+            "text": "+Glutathione & Vitamin C"
+          },
+          {
+            "line_id": "L037",
+            "text": "TXA-MA"
+          },
+          {
+            "line_id": "L038",
+            "text": "LV.0"
+          },
+          {
+            "line_id": "L039",
+            "text": "LV.1"
+          },
+          {
+            "line_id": "L040",
+            "text": "LV.2"
+          },
+          {
+            "line_id": "L041",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L042",
+            "text": "b3"
+          },
+          {
+            "line_id": "L043",
+            "text": "ACNE CARE+BRIGHTENING"
+          },
+          {
+            "line_id": "L044",
+            "text": "BODY WASH"
+          },
+          {
+            "line_id": "L045",
+            "text": "Vitamin B3 2%"
+          },
+          {
+            "line_id": "L046",
+            "text": "+ AHA·BHA·PHA"
+          },
+          {
+            "line_id": "L047",
+            "text": "FOR ACNE-PRONE"
+          },
+          {
+            "line_id": "L048",
+            "text": "AND DISCOLORED SKIN"
+          },
+          {
+            "line_id": "L049",
+            "text": "아크네 클리어"
+          },
+          {
+            "line_id": "L050",
+            "text": "바디워시"
+          },
+          {
+            "line_id": "L051",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L052",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L053",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L054",
+            "text": "BODY LOTION"
+          },
+          {
+            "line_id": "L055",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L056",
+            "text": "M.E.L.A Spotless EX™"
+          },
+          {
+            "line_id": "L057",
+            "text": "Niacinamide 5%"
+          },
+          {
+            "line_id": "L058",
+            "text": "+Glutathione & Vitamin C"
+          },
+          {
+            "line_id": "L059",
+            "text": "TXA-MA"
+          },
+          {
+            "line_id": "L060",
+            "text": "데일리 톤 코렉팅"
+          },
+          {
+            "line_id": "L061",
+            "text": "바디로션"
+          },
+          {
+            "line_id": "L062",
+            "text": "b.clinicx"
+          },
+          {
+            "line_id": "L063",
+            "text": "b3+"
+          },
+          {
+            "line_id": "L064",
+            "text": "BRIGHTENING SERUM"
+          },
+          {
+            "line_id": "L065",
+            "text": "BODY MIST"
+          },
+          {
+            "line_id": "L066",
+            "text": "TONE CORRECTING"
+          },
+          {
+            "line_id": "L067",
+            "text": "Niacinamide"
+          },
+          {
+            "line_id": "L068",
+            "text": "+ Vit C. Derivative"
+          },
+          {
+            "line_id": "L069",
+            "text": "인텐시브 톤업"
+          },
+          {
+            "line_id": "L070",
+            "text": "바디미스트"
+          },
+          {
+            "line_id": "L071",
+            "text": "Brightening effect up"
+          },
+          {
+            "line_id": "L072",
+            "text": "Increase in absorption"
+          },
+          {
+            "line_id": "L073",
+            "text": "로션 단독 사용 대비"
+          },
+          {
+            "line_id": "L074",
+            "text": "착색 부위 개선 효과"
+          },
+          {
+            "line_id": "L075",
+            "text": "최대 118.9%¹⁾ UP"
+          },
+          {
+            "line_id": "L076",
+            "text": "동시 사용 시"
+          },
+          {
+            "line_id": "L077",
+            "text": "나이아신아마이드 흡수율"
+          },
+          {
+            "line_id": "L078",
+            "text": "2배로²⁾ UP"
+          },
+          {
+            "line_id": "L079",
+            "text": "¹⁾시험기관: 엘리드 | 비클리닉스 바디워시 바디로션 단독 및 병행 적용 팔꿈치 톤 균일도 4주 후 개선 평가"
+          },
+          {
+            "line_id": "L080",
+            "text": "시험기간: 26.04.08~26.05.07 | 대상: 25~59세 여성 31명 | 개인차 있음"
+          },
+          {
+            "line_id": "L081",
+            "text": "²⁾LG생활건강 기술연구원 | 비클리닉스 바디미스트 바디로션 복합사용 나이아신아마이드 피부투과 비교평가"
+          }
+        ],
+        "status": "needs_attention"
+      },
+      "reason": "원본 이미지 독립 대조; 사용자 승인 전 보완 후보"
+    }
+  ]
+}

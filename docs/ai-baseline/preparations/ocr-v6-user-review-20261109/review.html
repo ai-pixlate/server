@@ -1,0 +1,12 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>OCR v6 사용자 검수</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:15px system-ui;background:#f3f6fa;color:#172638}header{padding:16px;background:white;border-bottom:1px solid #cdd7e3}h1{margin:0 0 8px;font-size:23px}select,button,textarea,input{font:inherit;padding:7px}main{display:grid;grid-template-columns:52% 48%;height:calc(100vh - 175px)}#picture,#detail{overflow:auto;padding:16px}#detail{background:white}svg{width:100%;height:auto}textarea{width:100%;min-height:95px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{border:1px solid #dce2ea;padding:6px;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}.focus{background:#fff0bb}p{line-height:1.6}.note{color:#52667e;font-size:13px}.warn{color:#9c4800}details{margin:12px 0}#message{min-height:24px}rect{vector-effect:non-scaling-stroke}.card{background:#f3f6fa;padding:12px;margin-bottom:12px}a{color:#195ca0}@media(max-width:800px){main{display:block;height:auto}#picture{max-height:65vh}}
+</style>
+<header><h1>OCR v6 미결 판정·GT 보완 검토</h1>
+<select id="item" aria-label="검수 항목"></select> <button id="prev">이전</button> <button id="next">다음</button>
+<label>확대 <select id="zoom"><option>100</option><option>150</option><option>200</option><option>300</option><option>400</option></select>%</label>
+<button id="focus">해당 위치 보기</button> <button id="export">검수 기록 JSON 내보내기</button>
+<label>기록 불러오기 <input id="import" type="file" accept=".json"></label>
+<p class="note">검수 의견만 기록합니다. GT·OCR 수정, 승인·동결, 채점 기능은 없습니다. 추천값은 자동 선택되지 않습니다.</p><div id="message" role="status"></div></header>
+<main><div id="picture"></div><div id="detail"></div></main>
+<script src="data.js"></script><script src="review-state.js"></script><script src="review-ui.js"></script></html>

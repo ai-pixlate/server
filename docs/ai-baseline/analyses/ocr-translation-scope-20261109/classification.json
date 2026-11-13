@@ -1,0 +1,1704 @@
+{
+  "status": "proposal_not_approved",
+  "gt_source_sha256": "6cdd20c8a550c0a082caa4c843ddedbe8bd25bf14f372c1763f49a68abc37840",
+  "classification_basis": "번역할 섹션에 포함됐다는 가정하의 콘텐츠 분류; N3 gate 별도",
+  "counts": {
+    "GS-01": {
+      "혼합": 12,
+      "번역 대상": 12,
+      "번역 비대상": 1
+    },
+    "GS-02": {
+      "번역 대상": 37,
+      "판단 보류": 1,
+      "혼합": 10
+    },
+    "GS-03": {
+      "번역 대상": 27,
+      "혼합": 9,
+      "번역 비대상": 3
+    }
+  },
+  "sections": [
+    {
+      "id": "GS-01_001__sec_1_01",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_001\\sections\\sec_1_01.png",
+        "sha256": "d6d5e2ff213e9dec8300f089f01dd65457ac26374d2c84a519f8c73e949f1385"
+      },
+      "existing_gt_lines": 65,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 제외; 독립 OCR 목적 선택 필요",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_01",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_01.png",
+        "sha256": "2cae0957038c9ddfa6e703566128f18c534ea0c40eb8a4863551dc3157e8d3e4"
+      },
+      "existing_gt_lines": 16,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_02",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_02.png",
+        "sha256": "3f8a439bb7fe90bbfeb4d848863022b2e4d4d8b5210813c77f689bc8d79cdb32"
+      },
+      "existing_gt_lines": 8,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_03",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_03.png",
+        "sha256": "1ebfa25054064802eb24e550aee25e1180431aac97722a6aae717cc3b6ca5136"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_04",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_04.png",
+        "sha256": "21af771a3ff56e1a4425273216efa59ddfb4ee4d40f25125aac949f44123686c"
+      },
+      "existing_gt_lines": 45,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_05",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_05.png",
+        "sha256": "e7370981f5e502a9860bc51dd63c53ab4605ca789b5dd61da7115acc82fe30d7"
+      },
+      "existing_gt_lines": 9,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_06",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_06.png",
+        "sha256": "4c8379a51c409c9da4be498e724d65c78a802e453a1d7861e9896ea33f0986f5"
+      },
+      "existing_gt_lines": 28,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_07",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "인증 배지와 설명. 인증 마크는 상품 브랜드 완전 일치 로고와 다름; 별도 제외는 결정 필요",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_07.png",
+        "sha256": "62f81cea0d6865520cbb3412a40d0555ef5b465e73b670bff4215891f832c07f"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_08",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_08.png",
+        "sha256": "817b6bff235bcfc8cafe8b3115010188aea7de455ea1e94a9f02b795585623eb"
+      },
+      "existing_gt_lines": 21,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_09",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_09.png",
+        "sha256": "0ef096bfdca89b1659f9ec4904075da5a78b4f2e9d35d630ca36170cb37faf61"
+      },
+      "existing_gt_lines": 17,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_10",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_10.png",
+        "sha256": "0e7e8ab1b6be24df6f2af0d290101d38a93890ceb7bd102597fb8b4bfe7af6ae"
+      },
+      "existing_gt_lines": 6,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_11",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_11.png",
+        "sha256": "e20b767bdcbc6dcbd025b3f221b7ea615cbd19d69b551c83de67244b6324a943"
+      },
+      "existing_gt_lines": 9,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_12",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_12.png",
+        "sha256": "2cfe85ca09cafc950fc9f25d9bab590c9e2f64b7afae5b52d91d8120b3438192"
+      },
+      "existing_gt_lines": 19,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_13",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_13.png",
+        "sha256": "122458dcffea18814db40a10e5541b01230ff0aa6e51fb5e45479c17643e41ad"
+      },
+      "existing_gt_lines": 21,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_14",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_14.png",
+        "sha256": "c7ec6bdc37e827b06884f8ad23a8657465291f0e951fa164c9dce6a20380e3b3"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_15",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_15.png",
+        "sha256": "96ceb14c034790b9758bd26c6ca6d48209995ee71becc3c355c80212c98511a8"
+      },
+      "existing_gt_lines": 10,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_16",
+      "gs": "GS-01",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_16.png",
+        "sha256": "5b1917cf8c1a1631b5f7c3de498d14435c95b031424f523cae36b997210a211f"
+      },
+      "existing_gt_lines": 6,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_17",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_17.png",
+        "sha256": "6143a98ead9d86b5c62cde442eafd4cbfbb1da1f0494f79de4a671bc08c8daf2"
+      },
+      "existing_gt_lines": 34,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_18",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_18.png",
+        "sha256": "6caed908d22b55ca8d1ce573e05d3b342f290b033e1cb8fd8e72402661586ba7"
+      },
+      "existing_gt_lines": 53,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_19",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_19.png",
+        "sha256": "7b2570b0d740f0f1816378a5fa910ea3c4a8c46a3d729c2c46435fd8bbf98166"
+      },
+      "existing_gt_lines": 35,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_20",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_20.png",
+        "sha256": "8b5a7ed33a648ed81538e1bc9e67aad801910084b4ccbc68cdfeea357a8b41f0"
+      },
+      "existing_gt_lines": 24,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_21",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_21.png",
+        "sha256": "1ba30932fb8a7440cd7399eefa36ce63b086f486c6357f2e769483e7d4d7af65"
+      },
+      "existing_gt_lines": 26,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_22",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_22.png",
+        "sha256": "cfce41a9fd5b8b88eb57234289aae86726a8bd3b0de4877ab71426b6b5e4b7e3"
+      },
+      "existing_gt_lines": 57,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_23",
+      "gs": "GS-01",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "브랜드 소개·설명과 독립 goodal 로고; Good all과 로고의 블록 경계는 확인 필요",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_23.png",
+        "sha256": "2a63a739647db6911b46fa93733f358771ba77baa1d4c30185d125ff3fc022e2"
+      },
+      "existing_gt_lines": 52,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-01_002__sec_1_24",
+      "gs": "GS-01",
+      "classification_proposal": "번역 비대상",
+      "status": "사용자 결정 전",
+      "basis": "패키지 인쇄와 독립 goodal 브랜드명만 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-01_002\\sections\\sec_1_24.png",
+        "sha256": "507a3e6ed10e73b11cc0a3de60767fa4335ce511e2e9f66169e99643c612281e"
+      },
+      "existing_gt_lines": 8,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "PM 승인 전체 유지",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_001__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_01.png",
+        "sha256": "8a43a77010b5ce329abf8ff4732d9e239bed09a64406ed1622d8a6a16091a783"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_001__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "판단 보류",
+      "status": "사용자 결정 전",
+      "basis": "기프트카드 인쇄를 제품 라벨로 볼지 미정. 주변 가격·이벤트 문구는 대상; 대상/혼합 결정 대기",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_02.png",
+        "sha256": "21e3254a2fec1d7e6359f33807c1990dcd1b32389d78d2f1dede70d88f1485df"
+      },
+      "existing_gt_lines": 8,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_001__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_03.png",
+        "sha256": "9225a4e35555aeee0121a57cf7b19dac4c913812931bf006968e202cc900577a"
+      },
+      "existing_gt_lines": 73,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_001__sec_1_04",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_001\\sections\\sec_1_04.png",
+        "sha256": "1477bf504e8e64484338a135f3e5d646eedaac6eb5c4476b7fb87bb86a308850"
+      },
+      "existing_gt_lines": 38,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_002__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_002\\sections\\sec_1_01.png",
+        "sha256": "84ec84cdd9e325a17453ede1d6018509595715c6ab213c0b3a2457e9b044b716"
+      },
+      "existing_gt_lines": 37,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_003__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_003\\sections\\sec_1_01.png",
+        "sha256": "de42b6e32cc3156594e8f761c8d28cdc99cf1751bd796fbe89290c2cebc8a911"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_004__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_004\\sections\\sec_1_01.png",
+        "sha256": "e46dc48b83c260b8fee89d8cdc82f23092672e62223f1852684c15b5f3d2c212"
+      },
+      "existing_gt_lines": 31,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_004__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_004\\sections\\sec_1_02.png",
+        "sha256": "152637ade07555146476c6a4778537bb87fe70a83eb5594cd37b348fb0269f6e"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_005__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_005\\sections\\sec_1_01.png",
+        "sha256": "96c432f1b2cf2029e5b7be1fb414fd08cd80082881f9e3b25ed6ce069d027b22"
+      },
+      "existing_gt_lines": 29,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_006__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_01.png",
+        "sha256": "948fbad88baf2d6261a115714020e5a168e0b3f6e4518eda35da8e57a9e709fa"
+      },
+      "existing_gt_lines": 11,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_006__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_02.png",
+        "sha256": "b15e34ec75745c21f607fd6acb33fd61027799353259e94631b9d310426ecdc9"
+      },
+      "existing_gt_lines": 6,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_006__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_006\\sections\\sec_1_03.png",
+        "sha256": "acc105eaa984dc3cdb27ab31075abd2f11e85d83febcec724c7d2af31cd297c6"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_007__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_01.png",
+        "sha256": "603169b96ade9ed8efca22849904de57bb7077d8f14ef0d739ccb4e9caefc3d2"
+      },
+      "existing_gt_lines": 3,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_007__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_02.png",
+        "sha256": "8650bb087b5e226649fe498293e45cb8aa00236f43e2fd99b65caf2f02a3895e"
+      },
+      "existing_gt_lines": 32,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_007__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_007\\sections\\sec_1_03.png",
+        "sha256": "f86a0dff57c6ebd466208c7b25f17b065a318ef37ee1b8e1575c3c389005beb2"
+      },
+      "existing_gt_lines": 12,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_008__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_01.png",
+        "sha256": "60d64638d9db663e292d13862efdcc35f3445d2a354cddfc89b1bc9d40f780f9"
+      },
+      "existing_gt_lines": 31,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_008__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_02.png",
+        "sha256": "613f34386c78adb7df9a778dad97ea042d9c24e2af101ba9fad3d0bed119e303"
+      },
+      "existing_gt_lines": 11,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_008__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_03.png",
+        "sha256": "f92554ce4ec4bed1037d9698990fbf51bf024491b98262f51943eb8232794216"
+      },
+      "existing_gt_lines": 3,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_008__sec_1_04",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "홍보·논문 본문·표·참고문헌은 대상 후보; 위쪽 튜브 인쇄는 비대상. 논문 제외 정책 없음",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_04.png",
+        "sha256": "2d7458b9fb136b4b3a16d241b7307ce4ca15c117a8554f1f63419cedfc79debe"
+      },
+      "existing_gt_lines": 31,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_008__sec_1_05",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "설명·현미경 캡션·특허 문서 포함 후보; 문서 캡처라는 이유로 제외 불가",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_05.png",
+        "sha256": "f9f506d4edfa1a6fd8548ba4674106374783188df942f3570820b59d447cac23"
+      },
+      "existing_gt_lines": 15,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_008__sec_1_06",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_008\\sections\\sec_1_06.png",
+        "sha256": "9d8b9dde83cd8330678ca8a2da5cef874fcfea16b5fc5332e25c2694a846e140"
+      },
+      "existing_gt_lines": 7,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_01.png",
+        "sha256": "45d4629c0beb998944c235b6c74fb046743f2d6214ff7fc5f22bf620a2c40f10"
+      },
+      "existing_gt_lines": 14,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_02.png",
+        "sha256": "3c19cff2cad7d37e608df4b311d31ddca2a92827faf92e1cda03cca9cd68b024"
+      },
+      "existing_gt_lines": 14,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_03.png",
+        "sha256": "126aa7f80fc02a6d80e7463ad253aa3fe83c6d08dbdfcc2cac578ad5c5ce3913"
+      },
+      "existing_gt_lines": 9,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_04",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_04.png",
+        "sha256": "39f9cfc72e5b380e743657b61cc802d9bd96be70bbd391462b70885a8145cf97"
+      },
+      "existing_gt_lines": 16,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_05",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_05.png",
+        "sha256": "c0d4f35bbebac9a2eedd68a880d540dd3fb9607d4814eb54e470ffbdb6e82317"
+      },
+      "existing_gt_lines": 15,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_06",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_06.png",
+        "sha256": "eed5665470f74a9589cb24e3b946884aed5cda4f2af6f7b0e59d0376e86d5900"
+      },
+      "existing_gt_lines": 13,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_009__sec_1_07",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_009\\sections\\sec_1_07.png",
+        "sha256": "f1c330fd2404b17a26867c91e1631434bcee5a605b2dd73ac88f7cc51830adac"
+      },
+      "existing_gt_lines": 1,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_010__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_01.png",
+        "sha256": "3df7e8ef2ba4182b86fc8753c067f73f99f155d8d9da8937ef59112220defda7"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_010__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_02.png",
+        "sha256": "2a6f14ddae0b8b1140b519e2447c09a88d9cf719b14d06854b11053b985dc1d2"
+      },
+      "existing_gt_lines": 12,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_010__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_010\\sections\\sec_1_03.png",
+        "sha256": "c970eb6a42214f3e6e0525daf0d15d1d9e4b328aedaf549b4f73278b30d6e9d6"
+      },
+      "existing_gt_lines": 1,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_011__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_01.png",
+        "sha256": "46603fd3dfa521b3e18501e5a61109e6cabb28004cf546e404caec1a65ad43ce"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_011__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_02.png",
+        "sha256": "0f5c17723f1045a7474c76b349beac8e9744800d2ef012c6d4e8a3ff6bb7a06f"
+      },
+      "existing_gt_lines": 20,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_011__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_011\\sections\\sec_1_03.png",
+        "sha256": "2405d7b851dac8d4b58bef9c4ca534f835347f51868c6b90f72c098696652f19"
+      },
+      "existing_gt_lines": 3,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_012__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_012\\sections\\sec_1_01.png",
+        "sha256": "dc3266b0a74ce0bdebcbce4cca99aad08267b89588f357943e523ec8715c4007"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_013__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_013\\sections\\sec_1_01.png",
+        "sha256": "8901feba2b82d963bad86d5db8a78d6bb83ffdd4ad12f10a314f8a83b0cfc389"
+      },
+      "existing_gt_lines": 10,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_013__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "인증서·설명·시험 각주 포함 후보; 인증서 상세 전사 완전성 미확인",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_013\\sections\\sec_1_02.png",
+        "sha256": "2f0ac540bb9a78cb94ae92c9a85f033d840f5efc6b1a31d770bdd4c0f54683b0"
+      },
+      "existing_gt_lines": 26,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_01",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_01.png",
+        "sha256": "9aa225a12aa427149ddc65e522e54bbec1cc50d2b991b3f6cb0f398d86fee4c2"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_02",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_02.png",
+        "sha256": "fd8f37c08ae1d0057bb9abe2dd22582338f3da90584766bb527c398fb4ca14a1"
+      },
+      "existing_gt_lines": 11,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_03",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_03.png",
+        "sha256": "5c42541761a6cd22da367461c31d56ef46ee1e2d7a2e11f89bb3282f1231d1ef"
+      },
+      "existing_gt_lines": 12,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_04",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_04.png",
+        "sha256": "0fdaeb89655f5b85b44ee1997125be8a593b45196c88ee1b6b85269b42467df4"
+      },
+      "existing_gt_lines": 34,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_05",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_05.png",
+        "sha256": "8e542ff580ef8187727766499d69ea65b62bb4d7e0b4ed4e303b8b22115d8b43"
+      },
+      "existing_gt_lines": 15,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_06",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_06.png",
+        "sha256": "e1e2e3ae201123ea3bf21c1afd7d135c8f3ad897bca7919d3aff9b5b08d72135"
+      },
+      "existing_gt_lines": 27,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_07",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_07.png",
+        "sha256": "8e9321f48035e65ec9cbdb324570d9852a9c6b60086f22f724ea62abc1391d6a"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_08",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_08.png",
+        "sha256": "25145396de5664706de724f125543b812ad28536b563fe0a505acfdaa8b7f8cf"
+      },
+      "existing_gt_lines": 22,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_09",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_09.png",
+        "sha256": "bdec30e823169062ff7f839751441ab7c1d10939744333523ec224554aeb2b86"
+      },
+      "existing_gt_lines": 32,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_10",
+      "gs": "GS-02",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_10.png",
+        "sha256": "8666a025de7810eb6bb5f8ac8e75b49b2cf5f991b0e5922026f704ed3700513e"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-02_014__sec_1_11",
+      "gs": "GS-02",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "개발 설명은 대상; 사진 속 제품 인쇄는 비대상; 사진 속 손글씨 메모는 제외 정책 없음",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-02_014\\sections\\sec_1_11.png",
+        "sha256": "ae605ba9ce84d8bc7d6cb22e4eaae1f9303be7422158e900f8c70cc0450b119d"
+      },
+      "existing_gt_lines": 26,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_001__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_001\\sections\\sec_1_01.png",
+        "sha256": "de344705fe7be6e652358b4285fdf40e9dd0f2df249e18e3a67321ae264eb0c0"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_01.png",
+        "sha256": "5470a91012da041f763291d45cae0be0785500576253e3802b7ef937364b985f"
+      },
+      "existing_gt_lines": 27,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_02",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_02.png",
+        "sha256": "aca85d646e594955a1b2302c3f2148416a8229f299146d18cb273496ccfb136e"
+      },
+      "existing_gt_lines": 10,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_03",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_03.png",
+        "sha256": "f8461d1c76042be7acdf6927eca093cc315ca45b339028105b7637979145a3ef"
+      },
+      "existing_gt_lines": 8,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_04",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_04.png",
+        "sha256": "2fcbfb14638bc646199111d2782211cb93676dd877e7061e05112d203b6b5056"
+      },
+      "existing_gt_lines": 48,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_05",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_05.png",
+        "sha256": "2858eb810c9ec6c152d6a17c0f18f543e218a3d2666f50a7a2e2356e8e0e4e70"
+      },
+      "existing_gt_lines": 17,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_06",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_06.png",
+        "sha256": "6ce84c620bd3eaaf202abfba7c01ee28ebf1cf19376cb3b98d075e12596dc4ae"
+      },
+      "existing_gt_lines": 23,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_002__sec_1_07",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_002\\sections\\sec_1_07.png",
+        "sha256": "f21f7b01f14ed818325ab4a8275ce1afd233463188bf0dc2fa4601281a43145f"
+      },
+      "existing_gt_lines": 3,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_003__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 비대상",
+      "status": "사용자 결정 전",
+      "basis": "인물·도포 사진, 텍스트 없음 후보",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_003\\sections\\sec_1_01.png",
+        "sha256": "61b782edc765b9b9a50c654c8c331de78f2280425cb815806050d24f4e2b8b30"
+      },
+      "existing_gt_lines": 0,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_004__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_004\\sections\\sec_1_01.png",
+        "sha256": "53c256ff9fd36f0558c28a17b0dfa65453f6b7b8edbc6165d371c8151b82c731"
+      },
+      "existing_gt_lines": 13,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_005__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_005\\sections\\sec_1_01.png",
+        "sha256": "248873c84712f9266b5cbb6a7d955a47fb685480b4e36ea3c5cdfcca6946f37b"
+      },
+      "existing_gt_lines": 8,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_006__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_006\\sections\\sec_1_01.png",
+        "sha256": "95077b17459c40d4b5990da6859f17fb0ec8b7ab1865f24c607ea774f3964c44"
+      },
+      "existing_gt_lines": 6,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_007__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 비대상",
+      "status": "사용자 결정 전",
+      "basis": "성분 캡슐 그림, 텍스트 없음 후보",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_007\\sections\\sec_1_01.png",
+        "sha256": "09995a2f9f6022f159065fe96b40f8b99960897c4a4d69abb961843d6f287ca7"
+      },
+      "existing_gt_lines": 0,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_008__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_008\\sections\\sec_1_01.png",
+        "sha256": "e2a476ae35dae98333a3a85756b69b80badffb53e44d7e1f7a6ec7b8ef5ce14f"
+      },
+      "existing_gt_lines": 7,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_008__sec_1_02",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_008\\sections\\sec_1_02.png",
+        "sha256": "f99f91e318632c62d84a6ef7a6163274185bc3323ebd122762da10a12e7d0880"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_009__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_009\\sections\\sec_1_01.png",
+        "sha256": "bb2f1c7ecb7ad0c7c47897131b89984f9e237aa6c16992b08ce4c0356645202b"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_010__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_01.png",
+        "sha256": "580756cc6e7a024a7f559e4c234ed2aa7bc473b423861cd9458f15868c7ec983"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_010__sec_1_02",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_02.png",
+        "sha256": "f01aef4d5608979b8b1db38c72c9561afd70059f0932ecbc2163c0a793748b4b"
+      },
+      "existing_gt_lines": 11,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_010__sec_1_03",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_010\\sections\\sec_1_03.png",
+        "sha256": "175191fee359ed1fcc0b1afdd07bf22eebc61fbb024f18429fc3795fcc0f217c"
+      },
+      "existing_gt_lines": 31,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_011__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_011\\sections\\sec_1_01.png",
+        "sha256": "37d5857f6c90cd7b58b4467bf90dfd9ee31beb65a4fdbf02a104e90210d4fdea"
+      },
+      "existing_gt_lines": 6,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_012__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_012\\sections\\sec_1_01.png",
+        "sha256": "7db3b2771e8e67e3a4b1e2e8af65552055efce9d2b9abc6875013c25468169de"
+      },
+      "existing_gt_lines": 6,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_013__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_013\\sections\\sec_1_01.png",
+        "sha256": "d90a1d0ba7d972b1330468db3529c52b6414f89d55168c929273f4483efc0b9b"
+      },
+      "existing_gt_lines": 14,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_014__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "시험성적서·표·주석 포함 후보; 미세 글씨 GT 완전성 확인 필요",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_01.png",
+        "sha256": "5e5f9b4d206bc59d82b63dddeca6d89e84dc51a9d18af940fc21c4c9e84e07d2"
+      },
+      "existing_gt_lines": 36,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_014__sec_1_02",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_02.png",
+        "sha256": "7b53f338648a1d30b82105ab38c8c4259a143cc9687c19865aeb9a8f89a9db2e"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_014__sec_1_03",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_014\\sections\\sec_1_03.png",
+        "sha256": "2b83a3843d53e7157e1f9179dd71cc0fd2d347e25f679b23df861cf97fd20de2"
+      },
+      "existing_gt_lines": 14,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_015__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_015\\sections\\sec_1_01.png",
+        "sha256": "a86672e4ab5f6244cb4138596f2a2c00de08a6c78e2c493ec29b1b93f98fa4b9"
+      },
+      "existing_gt_lines": 14,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_016__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "잘린 HOW TO USE도 의미 있는 문구; 영문/장식이라는 이유로 제외하지 않음",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_016\\sections\\sec_1_01.png",
+        "sha256": "6a768b3a51a1a87458c8bb09b66ab6bdde2d5eeeef5f2cb2480b6b855afc38c4"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_017__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "사용법·장식 영문은 대상 후보; 하단 용기 b.clinicx는 비대상",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_017\\sections\\sec_1_01.png",
+        "sha256": "dacea444c9853e23c3fa09504513a86bad73ac5d2dc10a140578d09ee958b032"
+      },
+      "existing_gt_lines": 8,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_01",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_01.png",
+        "sha256": "00a2c9bfdfbfd679e2f201b1e5456bebe77f89a55e2ada13be235d9f17c27abe"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_02",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_02.png",
+        "sha256": "5e742d34922941547603e88531af546d9728f23a92fa0941f082f2b5a0a8adf4"
+      },
+      "existing_gt_lines": 2,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_03",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_03.png",
+        "sha256": "62af86c714c4977bd07088824062ac523850775bfad945447c5b167fa8a031a9"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_04",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_04.png",
+        "sha256": "5de0e3566d2345081b1487e031576aa71aa8d00e3486f10fdd3acf6b49efe167"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_05",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_05.png",
+        "sha256": "fbc50ce42b261752db0536d9e62ee292dbfed642e36b12325a76ed3f9ec53caa"
+      },
+      "existing_gt_lines": 4,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_06",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_06.png",
+        "sha256": "5024e9f79b078992426c96cb2da8e817f0d844104c44f119502dbaf75a7d117c"
+      },
+      "existing_gt_lines": 14,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_07",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_07.png",
+        "sha256": "00da1632cf5265828ee7065d08470a689709f514ff345c391ef19f1706bab416"
+      },
+      "existing_gt_lines": 5,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_08",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_08.png",
+        "sha256": "df943304620ea8d6907da1f9001db52cc7fd5ce575d4279a3392ada264cf3f3b"
+      },
+      "existing_gt_lines": 81,
+      "prior_gt_scope_warning": true,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_09",
+      "gs": "GS-03",
+      "classification_proposal": "번역 비대상",
+      "status": "사용자 결정 전",
+      "basis": "독립 b.clinicx 브랜드명만 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_09.png",
+        "sha256": "acc2d6f9d37da9add4d1ca621be50e17cb3e7d2916b2c46bd7cbb368ea4f8748"
+      },
+      "existing_gt_lines": 1,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_10",
+      "gs": "GS-03",
+      "classification_proposal": "혼합",
+      "status": "사용자 결정 전",
+      "basis": "페이지 설명/홍보 문구와 제품 용기·패키지 인쇄 또는 독립 브랜드 로고가 함께 보임",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_10.png",
+        "sha256": "39fb52cd582ec5b2f6e4f4942dc87c68844fbce2a9225b03a15dd3e041df2a45"
+      },
+      "existing_gt_lines": 36,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    },
+    {
+      "id": "GS-03_018__sec_1_11",
+      "gs": "GS-03",
+      "classification_proposal": "번역 대상",
+      "status": "사용자 결정 전",
+      "basis": "홍보·설명·주의·표/각주 등 의미 있는 텍스트, 명확한 패키지 인쇄/독립 브랜드 로고를 개요에서 찾지 못함",
+      "image": {
+        "path": "C:\\Users\\Yeram\\Documents\\pixlate-server\\pipeline\\out\\ocr_input\\v1\\GS-03_018\\sections\\sec_1_11.png",
+        "sha256": "34e414c161f4c7933cbc86525be3981b605c9161e8e71fcdeee99375c56bdc6e"
+      },
+      "existing_gt_lines": 48,
+      "prior_gt_scope_warning": false,
+      "n3_reference_gate": "이번 조사에서 사용자 승인된 섹션별 포함 범위 미확정",
+      "review_method": "원본 개요 시각 조사; 경계 사례 개별 원본 확인; 전사/줄별 범위 검수 아님"
+    }
+  ]
+}

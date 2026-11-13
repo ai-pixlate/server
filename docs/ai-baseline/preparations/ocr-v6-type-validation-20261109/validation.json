@@ -1,0 +1,18 @@
+{
+  "before": {
+    "사용자 확인 필요": 109,
+    "채점 차단": 1,
+    "검증 완료": 2
+  },
+  "after": {
+    "사용자 확인 필요": 65,
+    "검증 완료": 46,
+    "채점 차단": 1
+  },
+  "full_include_verified": 40,
+  "full_exclude_verified": 4,
+  "protected_files_unchanged": 232,
+  "cer_called": false,
+  "filter_sha256": "971ebfdd07158d1416ea2e8177713142ff17e27420b23c5f06b940ff3ee11f83",
+  "source_review_sha256": "8fddb3aaa898115b641af81e67859dd41f3edf30c18bae3aba21f0eb485860a8"
+}

@@ -1,0 +1,23 @@
+{
+  "version": "ocr-v6-freeze-approval-20261110",
+  "approved_by": "user",
+  "approved_on": "2026-11-10 Asia/Seoul",
+  "authorization": "OCR v6 GT 및 고정 평가 범위의 최종 동결을 승인해",
+  "scope": "GT·고정 평가 범위·v6 명세 및 관련 버전 동결만 승인",
+  "measurement_authorized": false,
+  "review_history": {
+    "existing_v1_sections": 12,
+    "new_sections": 100,
+    "human_reviewed": 47,
+    "ai_only": 53,
+    "zero_errors_report_applies_to": 47
+  },
+  "additional_review": "L045 @ 사용자 육안 판독; 좌표형 L005/L006 비활성화 승인",
+  "limitations": [
+    "53개는 사람 전수검수 미완료",
+    "기존 16개 미전사 수용 이력 보존; 최신 범위 제외 정책 적용",
+    "v5 A2 분리·병합은 휴리스틱이며 전역 최적 대응 보장 아님",
+    "전체 112개 CER 아님; 고정 105개 부분 CER만 허용"
+  ],
+  "source_candidate_sha256": "f4daf76546bdbaface1c2d668ebbc40746385bf1d75ead950ad65f17086e4124"
+}

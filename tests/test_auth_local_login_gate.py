@@ -18,7 +18,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from tests.exec_db import bound_app_db, fresh_database, requires_db
+from tests import exec_db
+from tests.exec_db import bound_app_db, fresh_database
 
 ROOT = Path(__file__).resolve().parents[1]
 ENV = "PIXLATE_AUTH_LOCAL_LOGIN"
@@ -27,6 +28,9 @@ CSRF = {"X-Requested-With": "XMLHttpRequest", "Origin": "https://fe.pixlate.test
 
 @pytest.fixture(scope="module")
 def dburl():
+    # DB 가 필요한 시험만 건너뛴다(설정 검증 import 시험은 DB 없이 돈다). CI 필수 시험 판정은 건너뜀을 실패로 본다.
+    if not exec_db.ADMIN_URL:
+        pytest.skip("PIXLATE_TEST_DATABASE_URL 없음")
     with fresh_database() as u:
         with bound_app_db(u):
             yield u

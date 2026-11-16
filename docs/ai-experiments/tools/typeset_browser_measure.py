@@ -735,11 +735,13 @@ def compare(before_dir: Path, after_dir: Path, out: Path, allow_condition_diff: 
         if x is None or y is None:
             rows.append({"key": k, "status": "only_before" if y is None else "only_after"})
             continue
-        if x["text"] != y["text"] or x["role"] != y["role"]:
+        # 줄바꿈 위치만 바꾼 변형(공백 · 개행만 다름)은 같은 문구로 본다 — 글자는 하나도 바뀌지 않는다(자동 축약 없음, 6.4)
+        same_words = x["text"].split() == y["text"].split()
+        if not same_words or x["role"] != y["role"]:
             rows.append({"key": k, "status": "text_or_role_changed"})  # 같은 입력의 전후가 아니다
             continue
         px, py = x["primary"], y["primary"]
-        changed = [f for f in ("box", "style") if x[f] != y[f]]
+        changed = [f for f in ("box", "style") if x[f] != y[f]] + (["lineBreak"] if x["text"] != y["text"] else [])
         row = {"key": k, "status": "changed_input" if changed else "same_input", "changedFields": changed,
                "box": [x["box"], y["box"]], "fontScale": [x["style"]["fontScale"], y["style"]["fontScale"]],
                "fontPx": [px.get("fontPx"), py.get("fontPx")], "lines": [len(px.get("lines") or []), len(py.get("lines") or [])],

@@ -76,9 +76,13 @@ python docs/ai-experiments/tools/typeset_browser_review.py aggregate --run $OUT/
 fit 6, 키 순 같은 간격) 40건이고 순서는 섞는다. 도구 분류는 사용자가 펼칠 때만 보인다. 그림은 ① 판단용(측정한 블록을 글자색만 검정으로
 바꿔 흰 바탕에 DPR 2로 촬영, 덧그림 없음) · ② 실제 화면(배경 · 글자색 그대로, 섹션 밖까지)이고, 배치 영역은 영역 바깥쪽 1px 빨간 선으로만
 표시한다. 입력은 브라우저에만 저장되며 TSV로 내려받는다. 집계는 TSV의 지문 · 표본 · 판단값 · 중복을 검사하고 어기면 결과를 만들지 않는다.
+검토 지문은 측정 환경(브라우저 · OS · TextMetrics 특성 · DPR · 폰트 · 실행기 · FE 모듈 · 입력) · 사례별 분류와 측정값(엔진 ink · 넘침 · 픽셀 경계) ·
+검수 그림 바이트를 묶은 해시다 — 다시 측정해 하나라도 바뀌면 이전 검토는 받지 않는다(PR #140 리뷰 반영).
 `baseline/review/index.html`은 491블록 전체의 측정 결과 열람용 목록이다(검토 화면이 아니다).
 
-`compare`는 FE 모듈 · 폰트 · 브라우저 버전 · DPR · 실행기 파일이 다르면 비교를 거절한다. 블록마다 입력이 같은지(`same_input`) · 박스나
+`compare`는 FE 모듈 · 폰트 · 브라우저 버전 · DPR · 실행기 파일 · OS(종류 · 릴리스 · 아키텍처) · 이 환경의 TextMetrics 특성(`metricsProbe`)이
+다르면 비교를 거절하고, 환경 기록(OS · `metricsProbe`)이 없는 결과도 비교하지 않는다(PR #140 리뷰 반영 — OS가 다르면 글꼴 래스터라이저와
+TextMetrics가 달라 환경 차이가 조정 효과로 섞인다). OS 빌드 번호는 기록만 한다. 블록마다 입력이 같은지(`same_input`) · 박스나
 style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결과가 다르면 `same_input_result_differs`(재현성 문제 — 조정 효과로 읽지 않음)로 둔다.
 
 ## 4. 결과
@@ -151,6 +155,10 @@ style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결�
   — 이 PC의 정수화 측정이 만든 넘침이라는 해석과 맞는다. 판단 불가 2건은 아주 작은 숫자 한 글자 블록이다(GS-02 #446 `6` 영역 15×15px ·
   GS-02 #545 `1` 글자 6.3px — 원문과 같은 숫자. 10-30 검수의 판단 불가도 같은 종류였다).
 - overflow_subpixel 2건(엔진 초과 ≤ 0.5px)은 사람 눈으로 안이다. 합의(D-02)상 넘침이 맞고, 이 결과는 허용 오차를 두는 근거가 아니다.
+- 검토 지문 변경과의 관계: 이 검토는 처음 지문 방식(입력 · 분류만, `e4c2aaa3b28d8e66`)으로 받고 집계했다. 지문을 강화한 뒤 같은 입력 · 조건으로
+  다시 측정한 결과, 검수 그림 980개(판단용 · 실제 화면)가 검토 시점과 SHA-256까지 같고(`baseline/check/images-at-review.sha256`), 491블록의
+  측정값 · 픽셀 경계 · 분류도 모두 같았다 — 위 표는 현재 `final/baseline` 결과에 대한 검토다. 새 지문은 `bc41a54aa73be609`이고, 처음 TSV는
+  새 지문 검사에서 의도대로 거절된다. 이후 측정 결과가 바뀌면 다시 검토한다.
 
 시각 자료: `baseline/check/index.html`(사람 확인 페이지 — 3절) · `baseline/review/index.html`(전체 측정 결과 열람 — 분류 · flag 필터, 블록별 픽셀 대조 그림 · 섹션 합성 crop · 수치), `baseline/sections/*.annotated.png`
 (섹션 밖까지 · 배치 영역 · ink · DOM 줄 조각 · 섹션 경계), `*.clean.png`(섹션 크기로 자른 합성), `derive-demo/compare/review/index.html`.
@@ -186,4 +194,5 @@ style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결�
 
 없음 — 정본 · 코드 · config 변경 없음. 실험 도구 · 시험(`tests/test_typeset_browser_measure_tool.py` · `test_typeset_browser_review_tool.py`) ·
 이 기록만 추가했다. 2026-11-16 같은 날 사람 확인 페이지(`typeset_browser_review.py`)와 검토용 그림을 추가하고, 사용자 검토 40사례 결과를
-4 · 5절에 반영했다.
+4 · 5절에 반영했다. 같은 날 PR #140 리뷰를 반영해 전후 비교 조건에 OS · TextMetrics 특성을 넣고 검토 지문에 측정 환경 · 측정값 ·
+검수 그림 해시를 넣었다(재측정 결과 · 그림은 검토 시점과 같음).

@@ -62,6 +62,7 @@ import io
 import json
 import math
 import os
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -495,7 +496,7 @@ def measure_sections(inp: dict[str, Any], fe_root: Path, out: Path, dpr: float, 
             "fe": {"git": bundle.fe_git, "modules": bundle.fe_manifest}, "toolAssets": bundle.assets,
             "fonts": {"package": bundle.font_package, "faces": bundle.fonts,
                       "note": "FE 화면은 같은 릴리스의 CDN 웹폰트(static CSS)를 쓴다 — 파일 동일성 미확인"},
-            "browser": meta_browser, "metricsProbe": metrics, "quantAllowPx": QUANT_ALLOW, "dpr": dpr, "checkDpr": check_dpr, "renderDpr": check_dpr if check_dpr is not None else dpr,
+            "browser": meta_browser, "platform": platform_info(), "metricsProbe": metrics, "quantAllowPx": QUANT_ALLOW, "dpr": dpr, "checkDpr": check_dpr, "renderDpr": check_dpr if check_dpr is not None else dpr,
             "viewport": {"width": 1400, "height": 1000}, "verifyTolerancePx": TOL, "pixelDarkThreshold": PIXEL_DARK,
             "server": git_info(ROOT), "consoleProblems": problems,
             "path": "minimal-page: FE 공통 조판 모듈(타입만 제거) + 최소 HTML. FE 앱 셸 · 서버 Playwright 공통 렌더가 아니다"}
@@ -544,6 +545,11 @@ def classify(rows: list[dict[str, Any]], quantized: bool, out: Path) -> None:
         r["flags"] = flags
         name = r["key"].replace("/", "_")
         r["images"] = {k: f"blocks/{name}.{k}.png" for k in ("pixel", "context", "review", "scene") if (out / "blocks" / f"{name}.{k}.png").exists()}
+
+
+def platform_info() -> dict[str, str]:
+    """측정을 실행한 OS · 아키텍처. 글꼴 래스터라이저 · TextMetrics 특성이 OS마다 다를 수 있어 비교 조건에 쓴다."""
+    return {"system": platform.system(), "release": platform.release(), "version": platform.version(), "machine": platform.machine()}
 
 
 def _playwright_version() -> str | None:
@@ -698,7 +704,11 @@ a.hidden=v&&(v.startsWith('f:')?!a.dataset.f.split(' ').includes(v.slice(2)):a.d
 
 # ───────────────────────── compare ─────────────────────────
 
-CONDITION_KEYS = (("fe", "modules"), ("fonts", "faces"), ("browser", "version"), ("dpr",), ("checkDpr",), ("toolAssets",), ("tool",))
+# 전후 비교가 같은 측정 조건인지 — 측정 코드 · 폰트 · 브라우저 · 배율 · 실행기 · OS(래스터라이저) · 이 환경의 TextMetrics 특성.
+# OS 빌드 번호(platform.version)는 기록만 하고 비교하지 않는다. 환경 기록(platform · metricsProbe)이 없는 결과는 비교를 거절한다
+REQUIRED_ENV = (("platform",), ("metricsProbe",))
+CONDITION_KEYS = (("fe", "modules"), ("fonts", "faces"), ("browser", "version"), ("dpr",), ("checkDpr",), ("toolAssets",), ("tool",),
+                  ("platform", "system"), ("platform", "release"), ("platform", "machine"), ("metricsProbe",))
 
 
 def _get(d: dict[str, Any], path: tuple[str, ...]) -> Any:
@@ -712,6 +722,9 @@ def _get(d: dict[str, Any], path: tuple[str, ...]) -> Any:
 def compare(before_dir: Path, after_dir: Path, out: Path, allow_condition_diff: bool) -> dict[str, Any]:
     A = json.loads((before_dir / "measure.json").read_text(encoding="utf-8"))
     B = json.loads((after_dir / "measure.json").read_text(encoding="utf-8"))
+    missing = [f"{side}:{'.'.join(p)}" for side, M in (("before", A), ("after", B)) for p in REQUIRED_ENV if _get(M["meta"], p) is None]
+    if missing and not allow_condition_diff:
+        raise SystemExit(f"측정 환경 기록이 없다 — 최신 도구로 다시 측정하거나 --allow-condition-diff: {missing}")
     diffs = [".".join(p) for p in CONDITION_KEYS if _get(A["meta"], p) != _get(B["meta"], p)]
     if diffs and not allow_condition_diff:
         raise SystemExit(f"측정 조건이 다르다 — 같은 조건에서 다시 측정하거나 --allow-condition-diff: {diffs}")
@@ -739,7 +752,7 @@ def compare(before_dir: Path, after_dir: Path, out: Path, allow_condition_diff: 
             row["status"] = "same_input_result_differs"  # 측정 재현성 문제 — 조정 효과로 읽지 않는다
         rows.append(row)
     C = collections.Counter
-    summary = {"conditionDiffs": diffs, "status": dict(C(r["status"] for r in rows)),
+    summary = {"conditionDiffs": diffs, "missingEnvironment": missing, "status": dict(C(r["status"] for r in rows)),
                "transitions_changed": dict(C(f"{r['judgement'][0]} -> {r['judgement'][1]}" for r in rows if r["status"] == "changed_input")),
                "overflow_changed": dict(C(f"{r['overflow'][0]} -> {r['overflow'][1]}" for r in rows if r["status"] == "changed_input"))}
     res = {"before": {"dir": str(before_dir), "variant": A["meta"]["inputVariant"], "inputSha256": A["meta"]["inputSha256"]},

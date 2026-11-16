@@ -83,13 +83,19 @@ def test_derive_rejects_invalid(assign):
         tbm.derive(_inp(), [("GS-01/s3/b40", assign)], "after")
 
 
+WIN = {"system": "Windows", "release": "11", "version": "10.0.26200", "machine": "AMD64"}
+
+
 def _measure_dir(tmp_path, name, meta_overrides=None, box=None, over=False, ink=None):
     d = tmp_path / name
     d.mkdir()
     meta = {"tool": tbm.TOOL_VERSION, "inputVariant": name, "inputSha256": name, "dpr": 2.0, "checkDpr": 1.0, "toolAssets": {"a": "1"},
             "fe": {"modules": {"modules": {"typeset-rules": {"source_sha256": "x"}}}}, "fonts": {"faces": {"400": {"sha256": "f"}}},
-            "browser": {"version": "149"}}
+            "browser": {"version": "149"}, "platform": dict(WIN), "metricsProbe": {"quantized": True, "rows": [{"text": "P", "ascent": 12}]}}
     meta.update(meta_overrides or {})
+    for k, v in list(meta.items()):
+        if v is None:
+            del meta[k]
     blk = {"key": "GS-01/s3/b40", "text": "Hello", "role": "body", "box": box or dict(BOX), "style": {"fontScale": 1.0},
            "primary": {"ok": True, "fontPx": 16, "lines": [{}], "overflow": {"any": over}, "excess": {"max": 1.0 if over else 0.0},
                        "ink": ink or _ink()},
@@ -98,11 +104,23 @@ def _measure_dir(tmp_path, name, meta_overrides=None, box=None, over=False, ink=
     return d
 
 
-def test_compare_refuses_condition_diff(tmp_path):
+@pytest.mark.parametrize("override", [
+    {"browser": {"version": "157"}},
+    {"platform": {"system": "Linux", "release": "6.8", "version": "#1", "machine": "x86_64"}},  # OS가 다르면 같은 조건이 아니다
+    {"metricsProbe": {"quantized": False, "rows": [{"text": "P", "ascent": 11.62}]}},  # TextMetrics 특성이 다르면 같은 조건이 아니다
+    {"platform": None},  # 환경 기록이 없는 결과는 비교하지 않는다
+])
+def test_compare_refuses_condition_diff(tmp_path, override):
     a = _measure_dir(tmp_path, "a")
-    b = _measure_dir(tmp_path, "b", {"browser": {"version": "157"}})
+    b = _measure_dir(tmp_path, "b", override)
     with pytest.raises(SystemExit):
         tbm.compare(a, b, tmp_path / "c", allow_condition_diff=False)
+
+
+def test_compare_ignores_os_build_number(tmp_path):
+    a = _measure_dir(tmp_path, "a")
+    b = _measure_dir(tmp_path, "b", {"platform": {**WIN, "version": "10.0.26201"}})
+    assert tbm.compare(a, b, tmp_path / "c", allow_condition_diff=False)["summary"]["conditionDiffs"] == []
 
 
 def test_compare_marks_changed_input_and_reproducibility(tmp_path):

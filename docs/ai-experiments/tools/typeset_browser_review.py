@@ -14,6 +14,8 @@
 - 대조: 도구가 실제 넘침(overflow_confirmed)으로 본 것 · 정상(fit)으로 본 것 일부(키 순으로 같은 간격 추출). 질문 · 그림이
   제대로 작동하는지와 도구가 한쪽으로 치우치지 않았는지 본다.
 - 순서는 키의 SHA-256 순으로 섞는다. 도구 분류는 기본으로 숨기고, 사용자가 펼칠 때만 보인다. 미리 선택된 값은 없다.
+- 검토 지문(TSV의 review_fingerprint): 측정 환경(브라우저 · OS · TextMetrics 특성 · DPR · 폰트 · 실행기 · FE 모듈 · 입력) · 사례별 분류와
+  측정값 · 검수 그림 바이트의 SHA-256. 측정을 다시 해서 하나라도 달라지면 이전 검토는 집계에서 거절된다(다시 검토한다).
 
 그림:
 - ① 판단용: 측정에 쓴 블록 요소를 글자색만 검정으로 바꿔 흰 바탕에 DPR 2로 찍은 그대로(줄바꿈 · 글자 위치는 실제와 같다).
@@ -65,9 +67,30 @@ def pick(blocks: list[dict]) -> list[dict]:
     return sorted(out, key=lambda r: hashlib.sha256(r["key"].encode()).hexdigest())
 
 
-def fingerprint(meta: dict, cases: list[dict]) -> str:
-    raw = json.dumps({"input": meta.get("inputSha256"), "cases": [[r["key"], r["judgement"]] for r in cases]},
-                     ensure_ascii=False, separators=(",", ":"))
+# 지문에 넣는 측정 환경(measure.json meta). 하나라도 다르면 다른 측정 결과다
+ENV_KEYS = ("tool", "inputSha256", "browser", "platform", "metricsProbe", "dpr", "checkDpr", "fonts", "toolAssets")
+
+
+def _image_sha(run: Path, rel: str | None) -> str | None:
+    if not rel:
+        return None
+    path = run / rel
+    if not path.is_file():
+        raise SystemExit(f"검수 그림이 없다: {path} — 측정 출력과 검토 페이지가 맞지 않는다")
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def fingerprint(meta: dict, cases: list[dict], run: Path) -> str:
+    """검토 지문 — 측정 환경 · FE 모듈 · 사례별 분류와 실제 측정값(엔진 ink · 넘침 · 픽셀 경계) · 검수 그림(판단용 · 실제 화면) 바이트.
+    이 중 하나라도 바뀌면 지문이 달라져 이전 검토 TSV를 새 결과의 검토로 받지 않는다(다시 검토한다)."""
+    env = {k: meta.get(k) for k in ENV_KEYS}
+    env["feModules"] = {k: v.get("source_sha256") for k, v in ((meta.get("fe") or {}).get("modules") or {}).get("modules", {}).items()}
+    items = []
+    for r in cases:
+        p, px = r.get("primary") or {}, r.get("pixel") or {}
+        items.append([r["key"], r["judgement"], p.get("ink"), p.get("overflow"), px.get("ink"),
+                      _image_sha(run, r["images"].get("review")), _image_sha(run, r["images"].get("scene"))])
+    raw = json.dumps({"scheme": 2, "env": env, "cases": items}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -93,7 +116,7 @@ def build_page(run: Path) -> Path:
     cases = pick(m["blocks"])
     if not cases:
         raise SystemExit("검토할 사례가 없다(measure 출력에 검수용 그림이 없으면 최신 도구로 measure를 다시 실행한다)")
-    fp = fingerprint(m["meta"], cases)
+    fp = fingerprint(m["meta"], cases, run)
     key = f"typeset-browser-review:{fp}"
     data = []
     for n, r in enumerate(cases, 1):
@@ -116,7 +139,7 @@ def load_review(run: Path, tsv: Path) -> tuple[list[dict], dict[str, dict]]:
     """TSV를 검증해 읽는다 — 열 · 지문 · 표본 · 판단값 · 중복 중 하나라도 어기면 종료(다른 입력의 검토를 섞지 않는다)."""
     m = json.loads((run / "measure.json").read_text(encoding="utf-8"))
     cases = pick(m["blocks"])
-    fp = fingerprint(m["meta"], cases)
+    fp = fingerprint(m["meta"], cases, run)
     keys = {r["key"] for r in cases}
     with tsv.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f, delimiter="\t"))

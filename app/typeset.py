@@ -8,12 +8,16 @@
   (측정값이 있는 항목은 그대로, NULL 항목만 기본값, ⑦ 실패면 세 항목 모두 기본값, 계약 위반은 STYLE_RESULT_INVALID).
   자료·폰트를 쓸 수 없으면 StyleDefaultsUnavailable — 임의 값이나 내장 기본값으로 그리지 않는다.
   실제 적용값과 출처(measured / role_default)는 측정값과 분리해 렌더 기록에 남긴다(5.12).
-- overflow: 실제 조판 결과 기준. 폭(가장 긴 단어가 영역 폭 초과) 또는 높이(줄 합계가 영역 높이 초과)면 true(6.2).
-  문장을 축약하지 않는다. 글자 수 제한(char_limit)과는 별개다.
+- overflow: 실제 조판 결과 기준(6.2 · 조판 D-01 · D-02의 서버 Pillow 근사 — #89). 그린 위치 그대로 각 줄의 글리프 잉크 상자
+  (`textbbox`, 그리기와 같은 기준점)를 합쳐, 가로 · 세로 어느 쪽이든 배치 영역을 넘으면 true. 경계와 같으면 정상, 허용 오차 없음,
+  좌표는 소수 그대로. 줄 상자 높이(줄 수 × 행간) · advance width 만으로 판정하지 않는다. 잉크가 섹션 이미지 밖으로 나가 잘리는
+  경우도 true(배치 영역이 섹션 안이면 이미 영역 밖이다 — 영역이 섹션을 벗어난 입력에서도 잘림을 놓치지 않게 따로 본다).
+  판정만 정하고 그리기(줄바꿈 · 크기 · 행간 · 정렬 · 위치)는 바꾸지 않는다. 브라우저 측정(Canvas TextMetrics)과의 차이는
+  Pillow 근사의 한계다. 자동 축소 · 세로 보정 없음. 문장을 축약하지 않는다. 글자 수 제한(char_limit)과는 별개다.
 - 폰트: 승인 폰트(Pretendard) 역할별 굵기 — 검증을 마친 설정 자료의 `role_spec` → `font_path` OTF(title·price SemiBold,
   body·caption·caution Regular)를 적용 크기(소수 허용)로 연다(be-handoff 6.2·6.6 ③). 블록마다 폰트 객체 하나로 줄바꿈·폭 측정·
   그리기를 한다. 시스템·내장 폰트로 대체하지 않는다(검증 실패는 StyleDefaultsUnavailable).
-  자간·행간 적용과 넘침 기준 변경(6.6 ③④ 나머지), 렌더 기록 6.4 형식 확장(⑦)은 아직 하지 않았다 — 기본값은 글자색·크기·정렬
+  자간·행간 적용(6.6 ③ 나머지), 렌더 기록 6.4 형식 확장(⑦)은 아직 하지 않았다 — 기본값은 글자색·크기·정렬
   세 항목에만 쓴다.
 """
 from __future__ import annotations
@@ -28,7 +32,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pipeline.handoff import style_defaults as sd
 
-RENDERER_VERSION = f"pillow-typeset/2+pillow-{PIL.__version__}"  # 2: 역할별 Pretendard·소수 크기(1: Pillow 내장 폰트·정수 크기)
+# 3: 넘침 = 글리프 잉크 기준(그림은 2와 같음) · 2: 역할별 Pretendard·소수 크기 · 1: Pillow 내장 폰트·정수 크기
+RENDERER_VERSION = f"pillow-typeset/3+pillow-{PIL.__version__}"
 ROLES = ("title", "body", "caption", "price", "caution")
 STYLE_FIELDS = ("font_color", "est_font_px", "align")
 LINE_SPACING = 1.2  # 줄 높이 = 글자 크기 × 1.2 (조판 구현 상수, 렌더러 버전에 포함)
@@ -146,7 +151,8 @@ def _rgb(hex_color: str) -> tuple[int, int, int]:
 
 
 def _wrap(draw: ImageDraw.ImageDraw, text: str, font, max_w: int) -> tuple[list[str], bool]:
-    """단어 단위 줄바꿈. 원문 줄바꿈은 유지한다. 한 단어가 폭을 넘으면 그대로 두고 폭 초과로 표시한다."""
+    """단어 단위 줄바꿈. 원문 줄바꿈은 유지한다. 한 단어가 폭을 넘으면 그대로 두고 폭 초과(advance 기준)로 표시한다.
+    폭 초과 표시는 넘침 판정에 쓰지 않는다(판정은 `_ink_overflow`) — 조사 도구(docs/ai-experiments/tools)가 읽는 값이라 남긴다."""
     lines, too_wide = [], False
     for para in text.split("\n"):
         words = para.split()
@@ -165,6 +171,21 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, font, max_w: int) -> tuple[list[
                 cur = w
         lines.append(cur)
     return lines, too_wide
+
+
+def _ink_overflow(draw: ImageDraw.ImageDraw, size: tuple[int, int], placed: list[tuple[float, float, str]], font,
+                  box: dict[str, float]) -> bool:
+    """그린 줄들의 글리프 잉크 상자 합이 배치 영역(또는 섹션 이미지)을 넘는가. 경계와 같으면 정상(허용 오차 없음).
+    잉크 상자 = `draw.textbbox((x, y), 줄)` — `draw.text` 와 같은 기준점(la)·같은 폰트 객체라 그린 위치와 같다. 빈 줄은 잉크가 없다.
+    잉크가 하나도 없으면(그릴 글자가 없음) false."""
+    ink = [draw.textbbox((x, y), line, font=font) for x, y, line in placed if line]
+    if not ink:
+        return False
+    left, top = min(i[0] for i in ink), min(i[1] for i in ink)
+    right, bottom = max(i[2] for i in ink), max(i[3] for i in ink)
+    outside_box = left < box["x"] or top < box["y"] or right > box["x"] + box["w"] or bottom > box["y"] + box["h"]
+    clipped = left < 0 or top < 0 or right > size[0] or bottom > size[1]
+    return bool(outside_box or clipped)
 
 
 def _has_visible_ink(size: tuple[int, int], placed: list[tuple[float, float, str]], font) -> bool:
@@ -194,9 +215,8 @@ def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefau
         # (DecompressionBombError·OSError) — 삼키지 않는다. 호출자의 렌더 실패 경로가 받는다
         font = _font(defaults, b.role, px)
         bx = b.box
-        lines, too_wide = _wrap(draw, b.text, font, max(1, bx["w"]))
+        lines, _ = _wrap(draw, b.text, font, max(1, bx["w"]))
         line_h = px * LINE_SPACING
-        total_h = line_h * len(lines)
         y = bx["y"]
         placed = []
         for line in lines:
@@ -210,7 +230,7 @@ def render(background_png: bytes, blocks: list[RenderBlock], defaults: RoleDefau
             draw.text((x, y), line, font=font, fill=_rgb(applied["font_color"]))
             placed.append((x, y, line))
             y += line_h
-        overflow = bool(too_wide or total_h > bx["h"])
+        overflow = _ink_overflow(draw, img.size, placed, font, bx)
         # 그리기는 끝났는데 글자 픽셀이 섹션 안에 없으면 기록만 한다. 실패로 볼지는 PM 확인 전이라 판정을 바꾸지 않는다(넘침)
         ink = _has_visible_ink(img.size, placed, font) if overflow else True
         out.blocks[b.id] = BlockRender(overflow=overflow, applied=applied, source=source, lines=len(lines), ink_visible=ink)

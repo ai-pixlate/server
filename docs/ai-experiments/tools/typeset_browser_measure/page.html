@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>typeset browser measure</title>
+<style>
+/* 폰트 파일은 실행기가 승인 설정 자료(pipeline/data/style_defaults.json)의 face 파일을 그대로 넘긴다 — SHA-256 은 measure.json meta */
+@font-face { font-family: "Pretendard"; font-weight: 400; font-style: normal; src: url("/fonts/400.otf") format("opentype"); }
+@font-face { font-family: "Pretendard"; font-weight: 600; font-style: normal; src: url("/fonts/600.otf") format("opentype"); }
+html, body { margin: 0; padding: 0; background: #ffffff; }
+#status { display: none; }
+#probe-host { position: absolute; left: 0; top: 0; }
+#stage { position: absolute; left: 0; top: 0; background: #ffffff; }
+#stage[hidden] { display: none; }
+.section { position: absolute; background-size: 100% 100%; background-repeat: no-repeat; }
+.overlay { position: absolute; pointer-events: none; }
+.overlay > div { position: absolute; box-sizing: border-box; }
+.o-section { border: 1px dashed #808080; }
+.o-box { border: 1px solid rgba(230, 0, 0, 0.85); }
+.o-over { border: 2px solid rgb(255, 0, 0); }
+.o-ink { border: 1px solid rgba(0, 90, 255, 0.95); }
+.o-line { border: 1px dashed rgba(0, 160, 60, 0.8); }
+</style>
+</head>
+<body>
+<p id="status">ready</p>
+<div id="probe-host"></div>
+<div id="stage" hidden></div>
+<script type="module" src="/runner.js"></script>
+</body>
+</html>

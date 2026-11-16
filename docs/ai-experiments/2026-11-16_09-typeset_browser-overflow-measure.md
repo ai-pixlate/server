@@ -64,6 +64,20 @@ python docs/ai-experiments/tools/typeset_browser_measure.py measure --input $OUT
 python docs/ai-experiments/tools/typeset_browser_measure.py compare --before $OUT/baseline --after $OUT/after --out $OUT/compare
 ```
 
+사람 확인(측정 오차 의심 사례를 사람 눈으로 가린다):
+
+```bash
+python docs/ai-experiments/tools/typeset_browser_review.py page --run $OUT/baseline        # → $OUT/baseline/check/index.html
+python docs/ai-experiments/tools/typeset_browser_review.py aggregate --run $OUT/baseline --tsv <내려받은 TSV>
+```
+
+검토 페이지는 이미지를 넣은 HTML 한 파일이다. 사례마다 질문 하나("검정 글자가 빨간 선 안쪽에 들어가나요?" — 안에 들어감 · 밖으로 나감 ·
+판단 불가)를 한 화면에 하나씩 보여 준다. 대상은 측정 오차 의심 전수(overflow_quantized 26 · overflow_subpixel 2)와 대조(overflow_confirmed 6 ·
+fit 6, 키 순 같은 간격) 40건이고 순서는 섞는다. 도구 분류는 사용자가 펼칠 때만 보인다. 그림은 ① 판단용(측정한 블록을 글자색만 검정으로
+바꿔 흰 바탕에 DPR 2로 촬영, 덧그림 없음) · ② 실제 화면(배경 · 글자색 그대로, 섹션 밖까지)이고, 배치 영역은 영역 바깥쪽 1px 빨간 선으로만
+표시한다. 입력은 브라우저에만 저장되며 TSV로 내려받는다. 집계는 TSV의 지문 · 표본 · 판단값 · 중복을 검사하고 어기면 결과를 만들지 않는다.
+`baseline/review/index.html`은 491블록 전체의 측정 결과 열람용 목록이다(검토 화면이 아니다).
+
 `compare`는 FE 모듈 · 폰트 · 브라우저 버전 · DPR · 실행기 파일이 다르면 비교를 거절한다. 블록마다 입력이 같은지(`same_input`) · 박스나
 style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결과가 다르면 `same_input_result_differs`(재현성 문제 — 조정 효과로 읽지 않음)로 둔다.
 
@@ -98,7 +112,8 @@ style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결�
   아래 · 오른쪽 넘침이 함께 있어 바뀌지 않지만, 축별 상세(`width_overflow` 축 구분, #89)나 자동 조정의 축 선택에 쓰면 틀린다.
 - 보조 DPR 1 측정과 넘침 여부 · 줄 수가 다른 블록 0(`dpr_sensitive` 0).
 - 재현성: 같은 입력을 따로 두 번 전체 측정(도구 수정 중 첫 실행 · `final/`)한 결과가 491/491 블록에서 ink 좌표와 분류까지 같다.
-  전체 측정 시간 72초(491블록 · 픽셀 대조 · 보조 DPR · 섹션 합성 66개 포함).
+  전체 측정 시간 72초(491블록 · 픽셀 대조 · 보조 DPR · 섹션 합성 66개 포함). 검토용 그림을 더한 뒤 같은 입력으로 다시 측정한 `final/`(92초)도
+  분류 집계가 같다.
 - 한 줄 블록(브라우저 1줄) 93: fit 34 · overflow_confirmed 43(픽셀로 확인된 방향 오른쪽 43 · 아래 7) · overflow_quantized 16.
   **fit 34건은 모두 줄 상자(글자 크기 × 1.2)가 영역 높이를 넘지만 글자는 영역 안**(`line_box_only` 34) — 한 줄이라서 넘침으로 판정되지 않는다.
   남은 한 줄 넘침 43건은 픽셀로 확인된 실제 넘침이다(예: `98%` GS-01 #72 오른쪽 11.1px, `#DarkSpotCoverage` GS-01 #271 오른쪽 약 10px).
@@ -120,7 +135,24 @@ style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결�
   (`same_input` 34, 결과 차이 0). 바꾼 3블록: GS-01 #258 영역 높이 44 → 96 · overflow_confirmed → fit, GS-01 #72 영역 폭 170 → 200 ·
   → fit, GS-01 #271 배율 1.0 → 0.9 · 오른쪽 넘침은 사라졌으나 **왼쪽 1px(정수화)로 여전히 넘침**(overflow_quantized). 그림으로는 영역 안이다.
 
-시각 자료: `baseline/review/index.html`(분류 · flag 필터, 블록별 픽셀 대조 그림 · 섹션 합성 crop · 수치), `baseline/sections/*.annotated.png`
+사람 확인(사용자, 2026-11-16 — `baseline/check/index.html` 40사례 전부 검토, 지문 `e4c2aaa3b28d8e66`, TSV는 `baseline/check/`에 보존,
+집계 `typeset_browser_review.py aggregate`). 질문은 "검정 글자가 빨간 선 안쪽에 들어가나요?" 하나이고 도구 분류는 기본으로 가렸다.
+표본 안의 결과이며 491블록 전체로 넓히지 않는다:
+
+| 도구 분류 | 사례 | 안에 들어감 | 밖으로 나감 | 판단 불가 |
+|---|---:|---:|---:|---:|
+| overflow_quantized(측정 오차 의심 — 전수) | 26 | **24** | **0** | 2 |
+| overflow_subpixel(0.5px 이하 — 전수) | 2 | 2 | 0 | 0 |
+| overflow_confirmed(대조) | 6 | 0 | **6** | 0 |
+| fit(대조) | 6 | **6** | 0 | 0 |
+
+- 대조 12사례는 도구 분류와 사람 판단이 모두 같다 — 질문 · 그림이 의도대로 작동했고, 픽셀로 확인된 넘침 · 정상이 사람 눈과 맞는다.
+- 측정 오차 의심 28사례 중 사람이 "밖으로 나감"으로 본 사례는 0이다. overflow_quantized 26건은 사람 눈으로는 영역 안(24) 또는 판단 불가(2)였다
+  — 이 PC의 정수화 측정이 만든 넘침이라는 해석과 맞는다. 판단 불가 2건은 아주 작은 숫자 한 글자 블록이다(GS-02 #446 `6` 영역 15×15px ·
+  GS-02 #545 `1` 글자 6.3px — 원문과 같은 숫자. 10-30 검수의 판단 불가도 같은 종류였다).
+- overflow_subpixel 2건(엔진 초과 ≤ 0.5px)은 사람 눈으로 안이다. 합의(D-02)상 넘침이 맞고, 이 결과는 허용 오차를 두는 근거가 아니다.
+
+시각 자료: `baseline/check/index.html`(사람 확인 페이지 — 3절) · `baseline/review/index.html`(전체 측정 결과 열람 — 분류 · flag 필터, 블록별 픽셀 대조 그림 · 섹션 합성 crop · 수치), `baseline/sections/*.annotated.png`
 (섹션 밖까지 · 배치 영역 · ink · DOM 줄 조각 · 섹션 경계), `*.clean.png`(섹션 크기로 자른 합성), `derive-demo/compare/review/index.html`.
 
 ## 5. 판단
@@ -130,7 +162,8 @@ style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결�
 
 다만 **이 PC(Windows)의 측정 결과로 자동 조정의 효과를 결론 내리지 않는다.** TextMetrics 정수화로 왼쪽 · 오른쪽에 최대 약 2px의 넘침이
 생기고, 그림으로는 들어간 블록도 넘침으로 남는다(#271 시연). 이 상태로 "넘침이 없어질 때까지 줄이는" 조정을 돌리면 왼쪽 정렬 블록이
-필요 이상으로 줄어드는 편향이 생긴다. 서버 기준 환경에서 정수화가 있는지 먼저 확인해야 한다.
+필요 이상으로 줄어드는 편향이 생긴다. 서버 기준 환경에서 정수화가 있는지 먼저 확인해야 한다. 사람 확인에서도 정수화 의심 26건 중
+밖으로 나간 사례는 없었다(안 24 · 판단 불가 2) — 이 26건은 실제 넘침이 아니라 이 환경의 측정 오류로 다룬다(표본 = 해당 분류 전수).
 
 한 줄 블록: 브라우저 측정에서는 줄 상자 높이로 넘침이 되지 않는다(1줄 fit 34건 모두 `line_box_only`). 10-30의 leading 40건 중 실제 넘침은 없고
 11건은 정수화 측정 오류다. 한 줄 넘침 43건은 픽셀로도 확인된 실제 넘침이다. 따라서 "한 줄이면 오판"이 아니라 "줄 상자 기준이면 오판"이다.
@@ -151,4 +184,6 @@ style이 바뀌었는지(`changed_input`)를 나누고, 입력이 같은데 결�
 
 ## 6. 반영
 
-없음 — 정본 · 코드 · config 변경 없음. 실험 도구 · 시험(`tests/test_typeset_browser_measure_tool.py`) · 이 기록만 추가했다.
+없음 — 정본 · 코드 · config 변경 없음. 실험 도구 · 시험(`tests/test_typeset_browser_measure_tool.py` · `test_typeset_browser_review_tool.py`) ·
+이 기록만 추가했다. 2026-11-16 같은 날 사람 확인 페이지(`typeset_browser_review.py`)와 검토용 그림을 추가하고, 사용자 검토 40사례 결과를
+4 · 5절에 반영했다.

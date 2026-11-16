@@ -58,14 +58,14 @@ window.__tbm = {
   },
 
   // 섹션 합성 — 배경 위에 FE 표시 CSS 로 모든 블록을 그린다. mode='clean'이면 섹션 밖을 잘라(섹션 PNG crop 과 같은 경계) 표시만,
-  // 'annotated'면 섹션 밖도 보이게 두고 배치 영역(빨강) · 측정 ink(파랑) · DOM 줄 조각(초록 점선) · 섹션 경계(회색 점선)를 덧그린다.
+  // 'plain'이면 섹션 밖도 보이게 두고 덧그림 없이(사람 검수용 장면), 'annotated'면 섹션 밖도 보이게 두고 배치 영역(빨강) · 측정 ink(파랑) · DOM 줄 조각(초록 점선) · 섹션 경계(회색 점선)를 덧그린다.
   async renderSection(section, measured, mode, margin) {
     const img = new Image();
     img.src = section.backgroundUrl;
     await img.decode();
     stage.replaceChildren();
     stage.hidden = false;
-    const m = mode === 'annotated' ? margin : 0;
+    const m = mode === 'clean' ? 0 : margin;
     Object.assign(stage.style, { left: '0px', top: '0px', width: `${section.width + 2 * m}px`, height: `${section.height + 2 * m}px` });
     const sec = document.createElement('div');
     sec.className = 'section';

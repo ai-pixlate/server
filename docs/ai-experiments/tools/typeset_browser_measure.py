@@ -357,6 +357,10 @@ def pixel_probe(page, res: dict[str, Any], box: dict[str, float], dpr: float, ou
         out["diffVsEngine"] = diff
         out["maxAbsDiff"] = max(abs(v) for v in diff.values())
     if out_png is not None:
+        # 사람 검수용: 덧그림 없는 촬영 + 배치 영역을 바깥쪽 1 디바이스 픽셀에 빨간 선으로만(영역 안 픽셀을 가리지 않는다)
+        rv = im.copy()
+        outline_outside(rv, box, dx, dy, dpr)
+        rv.save(out_png.with_name(out_png.name.replace(".pixel.png", ".review.png")))
         d = ImageDraw.Draw(im)
 
         def draw(r, color):
@@ -368,6 +372,15 @@ def pixel_probe(page, res: dict[str, Any], box: dict[str, float], dpr: float, ou
         draw(ink, (0, 170, 60))
         im.save(out_png)
     return out
+
+
+def outline_outside(im: Image.Image, box: dict[str, float], dx: float, dy: float, scale: float) -> None:
+    """배치 영역을 영역 바깥쪽 1px 선으로 그린다 — 소수 경계는 바깥으로 올려 선이 영역 안 픽셀을 덮지 않게 한다."""
+    x0 = math.floor((box["x"] + dx) * scale) - 1
+    y0 = math.floor((box["y"] + dy) * scale) - 1
+    x1 = math.ceil((box["x"] + box["w"] + dx) * scale)
+    y1 = math.ceil((box["y"] + box["h"] + dy) * scale)
+    ImageDraw.Draw(im).rectangle([x0, y0, x1, y1], outline=(230, 0, 0), width=1)
 
 
 def judge(primary: dict[str, Any], pixel: dict[str, Any] | None, quantized: bool) -> str:
@@ -530,7 +543,7 @@ def classify(rows: list[dict[str, Any]], quantized: bool, out: Path) -> None:
         r["judgement"] = judge(pr, px, quantized)
         r["flags"] = flags
         name = r["key"].replace("/", "_")
-        r["images"] = {k: f"blocks/{name}.{k}.png" for k in ("pixel", "context") if (out / "blocks" / f"{name}.{k}.png").exists()}
+        r["images"] = {k: f"blocks/{name}.{k}.png" for k in ("pixel", "context", "review", "scene") if (out / "blocks" / f"{name}.{k}.png").exists()}
 
 
 def _playwright_version() -> str | None:
@@ -555,11 +568,15 @@ def render_sections(page, inp: dict[str, Any], measured: dict[str, dict[str, Any
         name = s["key"].replace("/", "_")
         page.evaluate("([s, m]) => window.__tbm.renderSection(s, m, 'clean', 0)", [sec, mres])
         page.locator("#stage").screenshot(path=str(out / "sections" / f"{name}.clean.png"), scale="device", animations="disabled")
+        page.evaluate("([s, m, g]) => window.__tbm.renderSection(s, m, 'plain', g)", [sec, mres, margin])
+        plain_path = out / "sections" / f"{name}.plain.png"
+        page.locator("#stage").screenshot(path=str(plain_path), scale="device", animations="disabled")
         page.evaluate("([s, m, g]) => window.__tbm.renderSection(s, m, 'annotated', g)", [sec, mres, margin])
         ann_path = out / "sections" / f"{name}.annotated.png"
         page.locator("#stage").screenshot(path=str(ann_path), scale="device", animations="disabled")
         page.evaluate("window.__tbm.hideStage()")
         ann = Image.open(ann_path).convert("RGB")
+        plain = Image.open(plain_path).convert("RGB")
         for b in s["blocks"]:
             r = mres[str(b["blockId"])]
             bx = box_rect(b["box"])
@@ -571,6 +588,10 @@ def render_sections(page, inp: dict[str, Any], measured: dict[str, dict[str, Any
             crop = ann.crop(c)
             crop.thumbnail((900, 600))
             crop.save(out / "blocks" / f"{s['key'].replace('/', '_')}_b{b['blockId']}.context.png")
+            # 사람 검수용 장면: 실제 배경 · 글자색 그대로(덧그림 없음) + 배치 영역만 바깥쪽 빨간 선. 축소하지 않는다
+            scene = plain.crop(c)
+            outline_outside(scene, b["box"], margin - c[0] / dpr, margin - c[1] / dpr, dpr)
+            scene.save(out / "blocks" / f"{s['key'].replace('/', '_')}_b{b['blockId']}.scene.png")
 
 
 # ───────────────────────── 집계 · 보고 ─────────────────────────
@@ -657,12 +678,13 @@ def write_review(m: dict[str, Any], s: dict[str, Any], out: Path) -> None:
             f'<div class="imgs">{imgs}</div><p class="d">{detail}<br><span class="ref">참고(정답 아님): 보존본 기록 '
             f'{ref.get("recordedOverflow")} · 현행 Pillow {ref.get("pillowOverflow")}</span></p></article>')
     meta = m["meta"]
-    doc = f"""<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>조판 넘침 측정 검토</title><style>
+    doc = f"""<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>조판 넘침 측정 결과 목록</title><style>
 body{{font:14px/1.5 "Malgun Gothic",sans-serif;margin:16px;color:#1d2b33;background:#f4f6f7}}article{{background:#fff;border:1px solid #d5dde0;
 border-radius:8px;padding:10px 14px;margin:10px 0}}h3{{margin:0;font-size:14px}}.flags{{color:#a05000;margin:2px 0}}.t{{white-space:pre-wrap;
 background:#f0f3f4;padding:4px 8px}}.imgs{{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}}.imgs img{{max-width:440px;
 border:1px solid #ccd}}.d{{font:12px/1.6 Consolas,"Malgun Gothic",monospace}}.ref{{color:#777}}header{{position:sticky;top:0;background:#f4f6f7;
-padding:8px 0}}</style></head><body><header><b>조판 넘침 측정 검토</b> — {html.escape(meta['path'])}<br>
+padding:8px 0}}</style></head><body><header><b>측정 결과 전체 목록(열람용)</b> — 사람이 판단할 사례만 모은 화면은
+<a href="../check/index.html">사람 확인 페이지</a>(`typeset_browser_review.py page`로 만든다)<br>{html.escape(meta['path'])}<br>
 입력 {html.escape(str(meta['inputVariant']))} · FE {html.escape(str(meta['fe']['git'].get('commit'))[:10])} · Chromium {html.escape(meta['browser']['version'])}
 · DPR {meta['dpr']} (확인 {meta['checkDpr']}) · 검증 허용치 {TOL}px(판정 허용 오차 아님)<br>
 그림: pixel = 흰 바탕 검정 글자 촬영(빨강 영역 · 파랑 엔진 ink · 초록 픽셀 경계) / context = 섹션 합성(빨강 영역 · 굵은 빨강 넘침 · 파랑 ink · 초록 점선 줄 · 회색 점선 섹션 경계)<br>

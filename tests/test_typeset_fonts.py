@@ -67,7 +67,7 @@ def font_calls(monkeypatch):
 
 
 def test_renderer_version_marks_font_change():
-    assert typeset.RENDERER_VERSION.startswith("pillow-typeset/2+pillow-")
+    assert typeset.RENDERER_VERSION.startswith("pillow-typeset/3+pillow-")  # 3: 넘침 판정 기준 변경(그림은 2와 같음)
 
 
 @pytest.mark.parametrize("role", list(FACE))

@@ -1364,11 +1364,13 @@ components:
         **현행 서버는 Pillow 조판**(`pillow-typeset/…`)이며 공통 렌더 번들(HTML/CSS)을 쓰지 않는다 — `bundleId = null`.
         Pillow 조판은 자간(`style.letterSpacingEm`)을 적용하지 않고 행간은 비율 1.2를 쓴다. 그래서 `renderInput`을 FE 공통 렌더 코드로 그린 로컬 미리보기는
         서버 이미지와 다를 수 있다 — 넘침·최신 판정은 서버 값(`render.result.overflow`·`render.isCurrent`)만 쓴다.
+        서버 넘침 판정(`pillow-typeset/3`부터)은 서버 렌더 이미지에 실제로 배치된 글리프 잉크 경계가 배치 영역을 가로·세로로 넘는지다(경계와 같으면 정상) —
+        줄 상자 높이(줄 수 × 행간)로 판정하던 `/2` 결과는 렌더러가 달라 최신이 아니다. 브라우저 측정(Canvas TextMetrics) 구현이 아니라 Pillow 근사다.
         **FE·서버 렌더 일치는 아직 아니다**: 서버 HTML/Playwright 공통 렌더 연결(번들 반입·측정 규칙 버전)은 2차 의존 작업으로 남아 있고, 연결되면 `rendererId`가 바뀌고 `bundleId`가 생긴다.
       properties:
         rendererId:
           type: string
-          description: '서버 렌더·측정 실행 환경 식별자. 현행 값은 `pillow-typeset/2+pillow-<Pillow 버전>` 문자열 그대로다. FE는 파싱하지 않고 같은지 비교(`render.result.rendererId`)와 진단에만 쓴다(FE 11-05).'
+          description: '서버 렌더·측정 실행 환경 식별자. 현행 값은 `pillow-typeset/3+pillow-<Pillow 버전>` 문자열 그대로다. FE는 파싱하지 않고 같은지 비교(`render.result.rendererId`)와 진단에만 쓴다(FE 11-05).'
         bundleId:
           type: [string, 'null']
           description: '공통 렌더 번들 식별자 — 서버가 공통 번들을 쓰지 않는 렌더러(현행 Pillow)면 null'
@@ -3326,7 +3328,7 @@ paths:
                   description: '`render.isCurrent = true` — 결과 이미지를 표시하고 `result.overflow`로 넘침을 표시한다. rendererId는 현행 형식의 가상 값.'
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
-                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
                         renderInput: { section: { id: 12, width: 860, height: 1240,
@@ -3335,7 +3337,7 @@ paths:
                                                    style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
                         inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', inputError: null,
                         render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
-                                  result: { taskId: 9183, inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', rendererId: 'pillow-typeset/2+pillow-12.3.0', overflow: { '301': false } },
+                                  result: { taskId: 9183, inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', rendererId: 'pillow-typeset/3+pillow-12.3.0', overflow: { '301': false } },
                                   isCurrent: true },
                         signals: [] } ] }
                 preparingWithFailedAttempt:
@@ -3345,12 +3347,12 @@ paths:
                     이전 성공 결과(9183)는 표시할 수 있지만 `isCurrent = false`라 최신이 아니고 `overflow = null`이다. 번역이 채택되면 서버가 새 시도를 등록한다.
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
-                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
                         renderInput: null, inputFingerprint: null, inputError: null,
                         render: { attempt: { taskId: 9240, status: failed, errorCode: PREVIEW_FAILED, retryable: false },
-                                  result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/2+pillow-12.3.0', overflow: null },
+                                  result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/3+pillow-12.3.0', overflow: null },
                                   isCurrent: false },
                         signals: [] } ] }
                 inputError:
@@ -3360,12 +3362,12 @@ paths:
                     이전 결과는 최신 아님으로 표시할 수 있고 넘침은 쓰지 않는다. /blocks의 `sectionInputFingerprint`도 null(비교 불가)이다.
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
-                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
                         renderInput: null, inputFingerprint: null, inputError: { code: RENDER_INPUT_INVALID, blockIds: [301] },
                         render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
-                                  result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/2+pillow-12.3.0', overflow: null },
+                                  result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/3+pillow-12.3.0', overflow: null },
                                   isCurrent: false },
                         signals: [] } ] }
                 pendingWithoutResult:
@@ -3373,7 +3375,7 @@ paths:
                   description: '`result = null`·`renderedUrl = null`이고 `attempt`가 pending이므로 렌더 대기로 표시한다. `attempt.taskId`를 /tasks로 추적하고 끝나면 재조회한다.'
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
-                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 1, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: null,
                         renderInput: { section: { id: 12, width: 860, height: 1240,
@@ -3390,7 +3392,7 @@ paths:
                     `attempt`가 done이므로 d에 따라 한 번 재조회하고, 그대로면 원본 + 미리보기 없음으로 표시한다. 이유 필드는 없고 구분은 서버 로그로만 한다.
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
-                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: null,
                         renderInput: { section: { id: 12, width: 860, height: 1240,
@@ -3405,7 +3407,7 @@ paths:
                   description: '`renderInput`·`inputFingerprint`·`inputError`·`render` 모두 null — 렌더 상태를 판정하지 않는다. `renderedUrl`은 현행 그대로(제외 전 이미지가 있으면 낸다)이며 판정에 쓰지 않는다.'
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
-                      renderer: { rendererId: 'pillow-typeset/2+pillow-12.3.0', bundleId: null },
+                      renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 1, sectionOrder: 1, bucket: exclude, excludedStage: N5, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
                         renderInput: null, inputFingerprint: null, inputError: null, render: null,

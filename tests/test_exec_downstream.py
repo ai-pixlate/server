@@ -1826,7 +1826,7 @@ def test_preview_render_input_fingerprint_current_result_and_blocks(env):
     pv = _pv(c, job)
     assert _db_marks(job) == marks  # 조회만 — 시도·인계·섹션·블록·작업 행이 바뀌지 않는다
     assert pv["renderer"] == {"rendererId": typeset.RENDERER_VERSION, "bundleId": None}
-    assert re.fullmatch(r"pillow-typeset/2\+pillow-\S+", pv["renderer"]["rendererId"])  # 현행 문자열(FE는 파싱하지 않음)
+    assert re.fullmatch(r"pillow-typeset/3\+pillow-\S+", pv["renderer"]["rendererId"])  # 현행 문자열(FE는 파싱하지 않음)
     blocks = c.get(f"/v1/jobs/{job}/blocks").json()
     assert pv["sections"]
     for s in pv["sections"]:

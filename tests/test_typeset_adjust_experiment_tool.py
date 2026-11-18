@@ -242,3 +242,55 @@ def test_provenance_refuses_condition_diff_unless_allowed(tmp_path, target):
     with pytest.raises(SystemExit):
         ae.check_provenance(out, before, False)
     assert list(ae.check_provenance(out, before, True)["conditionDiffs"]) == [f"quant_aware/S90:{target}"]
+
+
+# ── 폭 우선(아래 넘침) ──
+
+class WrapEval:
+    """글 폭 100px(배율 1) — 줄 수 = ceil(100 / 박스 폭), 줄 높이 10px. 넘치면 아래로 넘친다."""
+
+    def __call__(self, sec, blk, st):
+        import math
+        w = st["box"]["w"]
+        lines = math.ceil(100 * st["scale"] / w - 1e-9)
+        over_b = max(0.0, lines * 10 - st["box"]["h"])
+        ex = {"left": 0.0, "right": 0.0, "top": 0.0, "bottom": over_b, "max": over_b}
+        return {"ok": True, "over": over_b > 0, "sides": ["bottom"] if over_b > 0 else [], "lines": lines, "excess": ex, "pr": {}}
+
+
+def _wblk(align, x=100.0):
+    return {"blockId": 9, "text": "x", "box": {"x": x, "y": 10.0, "w": 40.0, "h": 20.0}, "style": {"align": align, "fontScale": 1.0}}
+
+
+@pytest.mark.parametrize("align, mode, expect_x", [("left", "align", 100.0), ("right", "align", 90.0), ("center", "align", 95.0),
+                                                   ("left", "both", 100 - 10 * 100 / 360)])
+def test_widen_reaches_two_lines_with_minimal_width(align, mode, expect_x):
+    E, blk = WrapEval(), _wblk(align)
+    st = {"text": "x", "box": dict(blk["box"]), "scale": 1.0}  # 폭 40 → 3줄(30px) · 높이 20 — 아래로 10px 넘침
+    ctx = {"obstacles": [], "ignore": {9}}
+    st2, ev, info = ae.step_widen(E, {"width": 400, "height": 300}, blk, st, E(None, blk, st), {"mode": mode}, ctx)
+    assert info["applied"] and info["fullFit"] and not ev["over"] and ev["lines"] == 2
+    assert 50 <= st2["box"]["w"] <= 50.5  # 2줄이 되는 최소 폭(정밀도 0.5px)
+    assert st2["box"]["x"] == pytest.approx(expect_x, abs=0.5) and st2["box"]["h"] == 20.0
+
+
+def test_widen_both_uses_room_in_proportion_and_partial_lines():
+    E, blk = WrapEval(), _wblk("left", x=20.0)
+    blk["box"]["h"] = 5.0  # 한 줄도 안 들어간다 — 줄 수만 최소로 줄이고 남은 넘침은 다음 단계 몫
+    st = {"text": "x", "box": dict(blk["box"]), "scale": 1.0}
+    ctx = {"obstacles": [_o(1, 90, 0, 10, 50)], "ignore": {9}}  # 오른쪽 여백 30 · 왼쪽 20
+    st2, ev, info = ae.step_widen(E, {"width": 400, "height": 300}, blk, st, E(None, blk, st), {"mode": "both"}, ctx)
+    assert info["applied"] and not info["fullFit"] and ev["over"] and ev["lines"] == 2
+    b = st2["box"]
+    assert b["x"] >= 0 and b["x"] + b["w"] <= 90 + 1e-9  # 장애물 · 섹션 경계 안
+    assert (20 - b["x"]) / (b["x"] + b["w"] - 60) == pytest.approx(20 / 30, rel=0.02)  # 양쪽 여백 비례
+
+
+def test_widen_skips_without_vertical_overflow_or_gain():
+    E, blk = WrapEval(), _wblk("left")
+    ctx = {"obstacles": [], "ignore": {9}}
+    st = {"text": "x", "box": {**blk["box"], "h": 40.0}, "scale": 1.0}
+    assert ae.step_widen(E, {"width": 400, "height": 300}, blk, st, E(None, blk, st), {"mode": "align"}, ctx)[2]["why"] == "fit"
+    ctx = {"obstacles": [_o(1, 140, 0, 10, 50)], "ignore": {9}}  # 오른쪽이 바로 막힘
+    st = {"text": "x", "box": dict(blk["box"]), "scale": 1.0}
+    assert ae.step_widen(E, {"width": 400, "height": 300}, blk, st, E(None, blk, st), {"mode": "align"}, ctx)[2]["why"] == "no_room"

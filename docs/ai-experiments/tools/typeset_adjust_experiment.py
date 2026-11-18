@@ -22,7 +22,10 @@
   **저장 계약의 시스템 조정(`layout_adjust.system`)에는 박스 필드가 없다** — 계약 공백이며 실험 후보로만 쓴다.
 - S 폰트 축소: 시스템 배율(`font_scale`)을 하한(floor)까지 내려 넘침이 없어지는 가장 큰 배율을 이분 탐색(정밀도 0.005)한다.
   하한 후보 0.90(PRD −10% 잠정) · 0.80(PoC V6 비교용). 사용자 배율과의 합성 규칙은 미정이며 이 표본(v1.0.1)에는 사용자 조정이 없다.
+- W 폭 우선(2026-11-18 추가): 아래(위)로 넘친 블록도 높이를 늘리기 전에 같은 여백 규칙 안에서 폭을 넓혀 줄 수를 줄인다.
+  align = 정렬 방향(E의 가로 확장과 같음), both = 양쪽 여백에 비례(왼쪽 · 오른쪽 정렬은 글자 시작 위치가 움직인다). 폭 한도는 두지 않는다.
 후보(STRATEGIES): 단독 S90 · S80 · B · E, 조합 BES90(PRD 「축소는 최후 수단」 순서) · BSE90, 진단 NEED(하한 0.30까지 필요 배율만 잰다).
+갱신 장애물 후보(DYNAMIC): BES90D · FIT · FITI · FITI_BES90D · 폭 우선 BWES90D(align) · BW2ES90D(both).
 하한 · 한도 · 간격 · 순서는 모두 실험용 후보값이며 정책이 아니다. 블록마다 「해소될 때만 적용」한다(후보 규칙) — 끝까지 넘치면
 조정 입력에는 원래 값을 두고, 시도한 최종 상태와 남은 원인은 decisions.jsonl에만 남긴다. NEED는 진단이라 측정하지 않는다.
 
@@ -45,7 +48,7 @@ import math
 import sys
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
@@ -256,7 +259,66 @@ def step_expand(E, sec, blk, st, cur, _p, ctx):
     return st, cur, info
 
 
-STEPS = {"linebreak": step_linebreak, "shrink": step_shrink, "expand": step_expand}
+def widen_box(box0: dict[str, float], lim: dict[str, float], align: str, mode: str) -> tuple[float, Callable[[float], dict[str, float]]]:
+    """폭을 넓힌 박스 — (최대 폭, 폭 → 박스). 높이 · y는 그대로.
+    align: 정렬 방향(left → 오른쪽, right → 왼쪽, center → 양쪽 같은 만큼 — 좁은 쪽 여백까지).
+    both: 정렬과 상관없이 양쪽 여백에 비례해 넓힌다(최대 폭이면 양쪽 여백을 다 쓴다 — 왼쪽 · 오른쪽 정렬은 글자 시작 위치가 움직인다)."""
+    x0, w0 = box0["x"], box0["w"]
+    room_l, room_r = max(0.0, x0 - lim["left"]), max(0.0, lim["right"] - (x0 + w0))
+    if mode == "both":
+        wmax = w0 + room_l + room_r
+        share = room_l / (room_l + room_r) if room_l + room_r > 0 else 0.0
+
+        def at(w):
+            return {**box0, "x": max(lim["left"], x0 - (w - w0) * share), "w": w}
+        return wmax, at
+    if align == "left":
+        wmax = w0 + room_r
+    elif align == "right":
+        wmax = w0 + room_l
+    else:
+        wmax = w0 + 2 * min(room_l, room_r)
+
+    def at(w):
+        x = x0 if align == "left" else (x0 + w0 - w) if align == "right" else x0 - (w - w0) / 2
+        x = max(lim["left"], x)
+        return {**box0, "x": x, "w": min(w, lim["right"] - x)}
+    return wmax, at
+
+
+def step_widen(E, sec, blk, st, cur, p, ctx):
+    """아래(위)로 넘친 블록 — 높이를 늘리기 전에 겹치지 않는 여백 안에서 폭을 넓혀 줄 수를 줄인다(2026-11-18 추가).
+    최대 폭에서 다 들어가면 들어가는 최소 폭, 아니면 최대 폭과 같은 줄 수가 되는 최소 폭(남은 넘침은 다음 단계 몫). 줄 수가 줄지 않고
+    넘침도 줄지 않으면 넓히지 않는다. 가로 넘침은 expand의 폭 확장이 맡는다."""
+    if not cur["over"] or not any(s in cur["sides"] for s in V_SIDES):
+        return st, cur, {"applied": False, "why": "fit" if not cur["over"] else "no_vertical"}
+    box0 = st["box"]
+    lim = free_limits(box0, ctx["obstacles"], sec["width"], sec["height"], ctx["ignore"])
+    wmax, at = widen_box(box0, lim, blk["style"]["align"], p["mode"])
+    if wmax <= box0["w"] + WIDTH_PRECISION:
+        return st, cur, {"applied": False, "why": "no_room", "widthLimited": True}
+    ev_max = E(sec, blk, {**st, "box": at(wmax)})
+    if not ev_max["ok"] or (ev_max["lines"] >= cur["lines"] and _max_excess(ev_max) >= _max_excess(cur)):
+        return st, cur, {"applied": False, "why": "no_gain", "widthLimited": True}
+    full = not ev_max["over"]
+
+    def good(ev):
+        return ev["ok"] and (not ev["over"] if full else ev["lines"] <= ev_max["lines"])
+
+    lo, hi, best = box0["w"], wmax, ev_max
+    while hi - lo > WIDTH_PRECISION:
+        mid = (lo + hi) / 2
+        ev = E(sec, blk, {**st, "box": at(mid)})
+        if good(ev):
+            hi, best = mid, ev
+        else:
+            lo = mid
+    return {**st, "box": at(hi)}, best, {"applied": True, "mode": p["mode"], "width": [box0["w"], hi],
+                                         "linesBefore": cur["lines"], "linesAfter": best["lines"], "fullFit": full,
+                                         "widthLimited": not full}
+
+
+STEPS = {"linebreak": step_linebreak, "shrink": step_shrink, "expand": step_expand, "widen": step_widen}
 
 # ───────────────────────── 박스 자동 맞춤 · 갱신 장애물(2026-11-16 추가) ─────────────────────────
 # 위 STRATEGIES는 장애물을 원래 박스로 고정한다(PR #141 결과 재현용, 그대로 둔다). 아래 후보는 블록을 조정할 때마다 그 블록이 실제로
@@ -266,6 +328,9 @@ DYNAMIC: dict[str, dict[str, Any]] = {
     "FIT": {"fit": "layout", "steps": []},                   # 맞춤만 — 높이 = 줄 수 × 행간(FE Auto Height와 같은 기준)
     "FITI": {"fit": "ink", "steps": []},                     # 맞춤만 — 높이 = 줄 상자와 글자 ink 아래 끝 중 큰 값
     "FITI_BES90D": {"fit": "ink", "steps": STRATEGIES["BES90"]},  # 맞춤 뒤 넘친 블록 조정
+    # 폭 우선(2026-11-18) — 아래로 넘친 블록도 높이보다 폭을 먼저 넓혀 줄 수를 줄인다. 확장 한도는 정하지 않고(여백 끝까지) 폭 증가를 기록한다
+    "BWES90D": {"fit": None, "steps": [("linebreak", {}), ("widen", {"mode": "align"}), ("expand", {}), ("shrink", {"floor": 0.90})]},
+    "BW2ES90D": {"fit": None, "steps": [("linebreak", {}), ("widen", {"mode": "both"}), ("expand", {}), ("shrink", {"floor": 0.90})]},
 }
 
 
@@ -422,7 +487,7 @@ def unresolved_causes(sec, blk, st, ev, steps_info) -> list[str]:
     for op, info in steps_info:
         if op == "shrink" and info.get("need_below_floor"):
             out.append("shrink_floor")
-        if op == "expand" and (info.get("widthLimited") or info.get("heightLimited")):
+        if op in ("expand", "widen") and (info.get("widthLimited") or info.get("heightLimited")):
             out.append("space_blocked")
     return out or ["no_applicable_means"]
 

@@ -497,7 +497,10 @@ def search(inp_path: Path, fe: Path, out: Path, criterion: str, strategies: list
             with (sdir / "decisions.jsonl").open("w", encoding="utf-8") as f:
                 for r in rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            meta = {"tool": "typeset-adjust-experiment/2", "criterion": criterion, "strategy": name, "plan": plan,
+            meta = {"tool": SEARCH_TOOL, "criterion": criterion, "strategy": name, "plan": plan,
+                    "afterInputSha256": tbm.input_sha256(after),
+                    "decisionsSha256": tbm.sha256_bytes((sdir / "decisions.jsonl").read_bytes()),
+                    "fonts": {"faces": bundle.fonts}, "toolAssets": bundle.assets,
                     "dynamicObstacles": name in DYNAMIC,
                     "candidateValues": {"precisionScale": PRECISION, "precisionWidthPx": WIDTH_PRECISION, "gapPx": 0,
                                         "quantAllowPx": tbm.QUANT_ALLOW, "verifyTolerancePx": tbm.TOL},
@@ -602,12 +605,80 @@ def new_overlaps(A: dict[str, dict[str, Any]], B: dict[str, dict[str, Any]], obs
     return {"blocks": hits, "deeperThanQuantAllow": deep, "depthPx": _q(depths)}
 
 
-def report(out: Path, before_dir: Path) -> dict[str, Any]:
+SEARCH_TOOL = "typeset-adjust-experiment/3"
+# 탐색 기록의 실행 환경 ↔ 기준 측정 — 탐색 판단(측정기 · 배율 · TextMetrics 특성)이 집계에 쓰는 측정과 같은 조건이었는가.
+# 폰트 · 실행기 자산은 /3부터 기록한다(이전 탐색 기록에는 없어 비교에서 빠진다)
+SEARCH_CONDITION_KEYS = (("fe", "modules"), ("browser", "version"), ("dpr",), ("platform", "system"), ("platform", "release"),
+                         ("platform", "machine"), ("metricsProbe",))
+SEARCH_CONDITION_KEYS_V3 = SEARCH_CONDITION_KEYS + (("fonts", "faces"), ("toolAssets",))
+
+
+def check_provenance(out: Path, before_dir: Path, allow_condition_diff: bool) -> dict[str, Any]:
+    """집계 전에 기준 입력 · 기준 측정 · 탐색 기록 · 조정 입력 · 재측정이 한 줄로 이어지는지, 측정 조건이 같은지 확인한다.
+    연결이 끊긴 것(다른 입력의 결과)은 언제나 거절하고, 측정 조건 차이는 allow_condition_diff일 때만 기록하고 넘어간다.
+    반환: 회차 단위 결과 + 전략별 {'searchLink', 'afterMeasure'} — 전략별 결과는 report가 그대로 싣는다."""
+    base_path = out.parent / "input.json"
+    base_raw = base_path.read_bytes()
+    base = json.loads(base_raw)
+    before = json.loads((before_dir / "measure.json").read_text(encoding="utf-8"))["meta"]
+    broken: list[str] = []
+    cond: dict[str, list[str]] = {}
+    if before.get("inputSha256") != tbm.input_sha256(base):
+        broken.append(f"기준 측정({before_dir})이 {base_path}의 결과가 아니다")
+    per: dict[str, dict[str, str]] = {}
+    for meta_path in sorted(out.glob("*/*/meta.json")):
+        sdir = meta_path.parent
+        name = f"{sdir.parent.name}/{sdir.name}"
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        after_path = sdir / "after-input.json"
+        after = json.loads(after_path.read_text(encoding="utf-8"))
+        origin = (after.get("derivedFrom") or [{}])[-1]
+        if meta.get("inputSha256") != tbm.sha256_bytes(base_raw):
+            broken.append(f"{name}: 탐색 입력이 {base_path}와 다르다")
+        if origin.get("sha256") != tbm.sha256_bytes(tbm.canon(base).encode()) or \
+                origin.get("adjust", {}).get("strategy") != meta.get("strategy") or origin.get("adjust", {}).get("criterion") != meta.get("criterion"):
+            broken.append(f"{name}: 조정 입력이 이 탐색 · 기준 입력에서 나온 것이 아니다")
+        if "afterInputSha256" in meta:  # /3부터 — 탐색 기록 · 조정 입력 · 결정 기록이 한 번의 실행에서 나왔는가
+            ok = meta["afterInputSha256"] == tbm.input_sha256(after) and \
+                meta.get("decisionsSha256") == tbm.sha256_bytes((sdir / "decisions.jsonl").read_bytes())
+            if not ok:
+                broken.append(f"{name}: 조정 입력 · 결정 기록이 탐색 기록(meta.json)과 다른 실행의 것이다")
+            link = "verified"
+        else:
+            link = "unverified_old_meta"  # /2 이하 — 세 파일은 같은 실행에서 연달아 쓰지만 지문이 없어 대조하지 못한다
+        search_env = {**meta, "browser": {"version": meta.get("browser")}}
+        missing, diffs = tbm.condition_problems(before, search_env,
+                                                SEARCH_CONDITION_KEYS_V3 if "toolAssets" in meta else SEARCH_CONDITION_KEYS)
+        if missing or diffs:
+            cond[f"{name}:search"] = missing + diffs
+        mpath = sdir / "measure" / "measure.json"
+        if mpath.exists():
+            am = json.loads(mpath.read_text(encoding="utf-8"))["meta"]
+            if am.get("inputSha256") != tbm.input_sha256(after):
+                broken.append(f"{name}: 재측정이 지금의 조정 입력({after_path.name})의 결과가 아니다 — 탐색 뒤 다시 측정해야 한다")
+            missing, diffs = tbm.condition_problems(before, am)
+            if missing or diffs:
+                cond[f"{name}:measure"] = missing + diffs
+            measured = "verified"
+        else:
+            measured = "absent"
+        per[name] = {"searchLink": link, "afterMeasure": measured}
+    if broken:
+        raise SystemExit("집계 거절 — 입력 연결이 끊겼다:\n  " + "\n  ".join(broken))
+    if cond and not allow_condition_diff:
+        raise SystemExit("집계 거절 — 측정 조건이 다르다(같은 조건에서 다시 실행하거나 --allow-condition-diff):\n  "
+                         + "\n  ".join(f"{k}: {v}" for k, v in cond.items()))
+    return {"baseInputSha256": tbm.sha256_bytes(base_raw), "beforeInputSha256": before["inputSha256"],
+            "conditionDiffs": cond, "strategies": per}
+
+
+def report(out: Path, before_dir: Path, allow_condition_diff: bool = False) -> dict[str, Any]:
+    prov = check_provenance(out, before_dir, allow_condition_diff)
     B = {r["key"]: r for r in json.loads((before_dir / "measure.json").read_text(encoding="utf-8"))["blocks"]}
     obstacles = json.loads((out / "obstacles.json").read_text(encoding="utf-8"))
     bgs = Backgrounds(json.loads((out.parent / "input.json").read_text(encoding="utf-8")))
     C = collections.Counter
-    res: dict[str, Any] = {"before": str(before_dir), "strategies": {}}
+    res: dict[str, Any] = {"before": str(before_dir), "provenance": {k: v for k, v in prov.items() if k != "strategies"}, "strategies": {}}
     for meta_path in sorted(out.glob("*/*/meta.json")):
         sdir = meta_path.parent
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
@@ -618,7 +689,8 @@ def report(out: Path, before_dir: Path) -> dict[str, Any]:
         tried = [k for k in target if dec.get(k, {}).get("status") in ("resolved", "unresolved")]
         applied = [k for k in tried if dec[k]["status"] == "resolved"]  # 해소될 때만 적용(못 고친 블록은 원래 입력)
         s: dict[str, Any] = {"criterion": meta["criterion"], "plan": meta["plan"], "searchStatus": meta["status"],
-                             "baselineEngineOverflow": len(target), "tried": len(tried), "applied": len(applied)}
+                             "baselineEngineOverflow": len(target), "tried": len(tried), "applied": len(applied),
+                             "provenance": prov["strategies"][f"{sdir.parent.name}/{sdir.name}"]}
         # 탐색 비용
         costs = [dec[k] for k in tried]
         s["cost"] = {"measuresPerBlock": _q([c["measures"] for c in costs]), "probesPerBlock": _q([c["probes"] for c in costs]),
@@ -720,11 +792,12 @@ def main() -> None:
     a = sub.add_parser("report")
     a.add_argument("--out", type=Path, required=True)
     a.add_argument("--before", type=Path, required=True)
+    a.add_argument("--allow-condition-diff", action="store_true", help="측정 조건 차이를 기록만 하고 집계한다(입력 연결 끊김은 언제나 거절)")
     args = ap.parse_args()
     if args.cmd == "search":
         search(args.input, args.fe, args.out, args.criterion, args.strategy or list(STRATEGIES), args.dpr)
     else:
-        print(json.dumps(report(args.out, args.before), ensure_ascii=False, indent=1))
+        print(json.dumps(report(args.out, args.before, args.allow_condition_diff), ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

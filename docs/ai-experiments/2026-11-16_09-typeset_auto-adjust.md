@@ -90,6 +90,12 @@ python $M compare --before $R/before --after $R/search/quant_aware/BES90/measure
 python $A report --out $R/search --before $R/before
 ```
 
+`report`는 집계 전에 기준 입력(`input.json`) → 기준 측정(`before/`) → 탐색 기록(`meta.json`) → 조정 입력(`after-input.json`) →
+재측정(`measure/`)의 입력 지문이 이어지는지와, 탐색 · 재측정의 측정 조건(FE 모듈 · 브라우저 · OS · 배율 · TextMetrics 특성)이 기준 측정과
+같은지 확인한다. 탐색을 다시 돌리고 재측정을 빠뜨린 경우처럼 연결이 끊기면 집계하지 않고, 조건 차이는 `--allow-condition-diff`일 때만
+`report.json`의 `provenance`에 남기고 집계한다. 이 기록의 탐색은 결정 기록 지문이 생기기 전(도구 /2)에 돌려 탐색 기록 ↔ 조정 입력 · 결정
+기록은 `unverified_old_meta`로 표시된다(세 파일은 한 실행에서 연달아 쓴다). 나머지 연결과 조건은 모든 후보에서 맞았다.
+
 ## 4. 결과
 
 판정 기준: 「해소」는 탐색 기준으로 넘침이 없어져 조정을 적용한 블록이다. 조정 입력을 `measure`로 다시 잰 결과는 합의 기준(엔진 정상)과

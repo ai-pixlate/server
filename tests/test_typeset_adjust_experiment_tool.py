@@ -161,3 +161,84 @@ def test_new_overlaps_counts_only_new_and_depth():
     r = ae.new_overlaps(A, B, {}, ["a"])
     assert r["blocks"] == 1 and r["deeperThanQuantAllow"] == 1
     assert ae.new_overlaps(B, B, {}, ["a"])["blocks"] == 0
+
+
+# ── 집계 전 연결 · 조건 검사 ──
+
+import json  # noqa: E402
+
+WIN = {"system": "Windows", "release": "11", "version": "10.0.26200", "machine": "AMD64"}
+ENV = {"fe": {"modules": {"modules": {"typeset-rules": {"source_sha256": "x"}}}}, "dpr": 2.0, "platform": WIN,
+       "metricsProbe": {"quantized": True, "rows": [{"text": "P", "ascent": 12}]}}
+
+
+def _run(tmp_path, old_meta=False):
+    """기준 입력 → 기준 측정 → 탐색(조정 입력 · 결정 · meta) → 재측정이 맞게 이어진 최소 회차."""
+    base = {"variant": "baseline", "sections": [{"key": "GS-01/s1", "width": 400, "height": 300, "blocks": [
+        {"blockId": 9, "text": "a", "box": {"x": 0, "y": 0, "w": 10, "h": 10}, "style": {"fontScale": 1.0}}]}]}
+    (tmp_path / "input.json").write_text(json.dumps(base), encoding="utf-8")
+    raw = (tmp_path / "input.json").read_bytes()
+    meas = {"tool": "m/1", "fonts": {"faces": {"400": {"sha256": "f"}}}, "toolAssets": {"a": "1"}, "browser": {"version": "149"},
+            "checkDpr": 1.0, **ENV}
+    (tmp_path / "before").mkdir()
+    (tmp_path / "before" / "measure.json").write_text(json.dumps({"meta": {**meas, "inputSha256": ae.tbm.input_sha256(base)}, "blocks": []}),
+                                                      encoding="utf-8")
+    out = tmp_path / "search"
+    sdir = out / "quant_aware" / "S90"
+    (sdir / "measure").mkdir(parents=True)
+    (out / "obstacles.json").write_text("{}", encoding="utf-8")
+    after = {**base, "variant": "adjust:quant_aware:S90", "derivedFrom": [{"variant": "baseline", "sha256": ae.tbm.sha256_bytes(ae.tbm.canon(base).encode()),
+                                                                            "adjust": {"criterion": "quant_aware", "strategy": "S90"}}]}
+    (sdir / "after-input.json").write_text(json.dumps(after), encoding="utf-8")
+    (sdir / "decisions.jsonl").write_text("", encoding="utf-8")
+    meta = {"tool": ae.SEARCH_TOOL, "criterion": "quant_aware", "strategy": "S90", "inputSha256": ae.tbm.sha256_bytes(raw),
+            "browser": "149", **ENV}
+    if not old_meta:
+        meta.update(afterInputSha256=ae.tbm.input_sha256(after), decisionsSha256=ae.tbm.sha256_bytes(b""),
+                    fonts=meas["fonts"], toolAssets=meas["toolAssets"])
+    (sdir / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    (sdir / "measure" / "measure.json").write_text(json.dumps({"meta": {**meas, "inputSha256": ae.tbm.input_sha256(after)}, "blocks": []}),
+                                                   encoding="utf-8")
+    return out, tmp_path / "before", sdir
+
+
+def _edit(path, fn):
+    d = json.loads(path.read_text(encoding="utf-8"))
+    fn(d)
+    path.write_text(json.dumps(d), encoding="utf-8")
+
+
+def test_provenance_ok_and_old_meta_marked(tmp_path):
+    out, before, _ = _run(tmp_path)
+    assert ae.check_provenance(out, before, False)["strategies"] == {"quant_aware/S90": {"searchLink": "verified", "afterMeasure": "verified"}}
+    (tmp_path / "old").mkdir()
+    out2, before2, _ = _run(tmp_path / "old", old_meta=True)
+    assert ae.check_provenance(out2, before2, False)["strategies"]["quant_aware/S90"]["searchLink"] == "unverified_old_meta"
+
+
+@pytest.mark.parametrize("breaker", [
+    # 탐색을 다시 돌려 조정 입력이 바뀌었는데 재측정을 빠뜨렸다
+    lambda out, before, sdir: _edit(sdir / "after-input.json", lambda d: d["sections"][0]["blocks"][0]["style"].update(fontScale=0.9)),
+    # 기준 입력이 바뀌었다(탐색 · 기준 측정은 예전 입력)
+    lambda out, before, sdir: _edit(out.parent / "input.json", lambda d: d.update(variant="other")),
+    # 결정 기록만 다른 실행의 것
+    lambda out, before, sdir: (sdir / "decisions.jsonl").write_text('{"key": "x"}\n', encoding="utf-8"),
+])
+def test_provenance_refuses_broken_link_even_when_allowed(tmp_path, breaker):
+    out, before, sdir = _run(tmp_path)
+    breaker(out, before, sdir)
+    with pytest.raises(SystemExit):
+        ae.check_provenance(out, before, True)
+
+
+@pytest.mark.parametrize("target", ["measure", "search"])
+def test_provenance_refuses_condition_diff_unless_allowed(tmp_path, target):
+    out, before, sdir = _run(tmp_path)
+    linux = {"system": "Linux", "release": "6.8", "version": "#1", "machine": "x86_64"}
+    if target == "measure":
+        _edit(sdir / "measure" / "measure.json", lambda d: d["meta"].update(platform=linux))
+    else:
+        _edit(sdir / "meta.json", lambda d: d.update(platform=linux))
+    with pytest.raises(SystemExit):
+        ae.check_provenance(out, before, False)
+    assert list(ae.check_provenance(out, before, True)["conditionDiffs"]) == [f"quant_aware/S90:{target}"]

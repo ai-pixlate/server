@@ -258,6 +258,155 @@ def step_expand(E, sec, blk, st, cur, _p, ctx):
 
 STEPS = {"linebreak": step_linebreak, "shrink": step_shrink, "expand": step_expand}
 
+# ───────────────────────── 박스 자동 맞춤 · 갱신 장애물(2026-11-16 추가) ─────────────────────────
+# 위 STRATEGIES는 장애물을 원래 박스로 고정한다(PR #141 결과 재현용, 그대로 둔다). 아래 후보는 블록을 조정할 때마다 그 블록이 실제로
+# 차지하는 자리(최종 박스 ∪ 글자 ink)로 장애물을 갱신한다 — 두 블록이 같은 빈자리로 넓어지거나 이웃의 넘친 글자 위로 넓어지는 것을 막는다.
+DYNAMIC: dict[str, dict[str, Any]] = {
+    "BES90D": {"fit": None, "steps": STRATEGIES["BES90"]},   # 지난 순서를 갱신 장애물로 다시
+    "FIT": {"fit": "layout", "steps": []},                   # 맞춤만 — 높이 = 줄 수 × 행간(FE Auto Height와 같은 기준)
+    "FITI": {"fit": "ink", "steps": []},                     # 맞춤만 — 높이 = 줄 상자와 글자 ink 아래 끝 중 큰 값
+    "FITI_BES90D": {"fit": "ink", "steps": STRATEGIES["BES90"]},  # 맞춤 뒤 넘친 블록 조정
+}
+
+
+def ink_rect(ink: dict[str, float]) -> dict[str, float]:
+    return {"x": ink["left"], "y": ink["top"], "w": ink["right"] - ink["left"], "h": ink["bottom"] - ink["top"]}
+
+
+def occupied(bid: int, box: dict[str, float], ev: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """블록이 차지하는 자리 = 박스 ∪ 글자 ink(넘친 글자도 자리를 차지한다)."""
+    out = [{"blockId": bid, **{k: float(box[k]) for k in ("x", "y", "w", "h")}}]
+    if ev and ev.get("ok") and ev["pr"].get("ink"):
+        out.append({"blockId": bid, **ink_rect(ev["pr"]["ink"])})
+    return out
+
+
+def fit_box(blk: dict[str, Any], st: dict[str, Any], ev: dict[str, Any], mode: str) -> dict[str, float] | None:
+    """줄바꿈 · 글자 위치를 바꾸지 않고 박스를 글에 맞춰 줄인다(넘치지 않는 블록용 — 원래 박스 안으로만).
+    폭: DOM 줄 조각과 글자 ink를 모두 담는 최소 폭, 정렬 기준변 고정(left 왼쪽 변 · right 오른쪽 변 · center 가운데). 이 폭이면 각 줄은
+    여전히 들어가고 다음 단어는 여전히 안 들어가 줄바꿈이 같다. 높이: 위쪽 변 고정, layout = 줄 수 × 행간(px), ink = 그것과 ink 아래 끝 중 큰 값.
+    줄어드는 것이 없으면 None."""
+    pr, box = ev["pr"], st["box"]
+    if not pr["lines"]:
+        return None
+    rects = [ln["rect"] for ln in pr["lines"]] + ([pr["ink"]] if pr["ink"] else [])
+    left, right = min(r["left"] for r in rects), max(r["right"] for r in rects)
+    al = blk["style"]["align"]
+    if al == "left":
+        x0, x1 = box["x"], right
+    elif al == "right":
+        x0, x1 = left, box["x"] + box["w"]
+    else:
+        c = box["x"] + box["w"] / 2
+        half = max(c - left, right - c)
+        x0, x1 = c - half, c + half
+    x0, x1 = max(x0, box["x"]), min(x1, box["x"] + box["w"])
+    h = len(pr["lines"]) * pr["fontPx"] * blk["style"]["lineHeightRatio"]
+    if mode == "ink" and pr["ink"]:
+        h = max(h, pr["ink"]["bottom"] - box["y"])
+    h = min(h, box["h"])
+    nb = {"x": x0, "y": box["y"], "w": x1 - x0, "h": h}
+    if nb["w"] <= 0 or nb["h"] <= 0 or nb["w"] * nb["h"] >= box["w"] * box["h"] - 1e-9:
+        return None
+    return nb
+
+
+def run_dynamic(E, inp: dict[str, Any], after: dict[str, Any], name: str, criterion: str,
+                obstacles: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
+    spec = DYNAMIC[name]
+    rows: dict[str, dict[str, Any]] = {}
+    states: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
+    cost: dict[str, list[float]] = collections.defaultdict(lambda: [0, 0, 0.0])
+
+    def spend(k, m0, p0, t0):
+        c = cost[k]
+        c[0] += E.measures - m0
+        c[1] += E.probes - p0
+        c[2] += (time.perf_counter() - t0) * 1000
+
+    pairs = [(s, so, b, bo) for s, so in zip(inp["sections"], after["sections"]) for b, bo in zip(s["blocks"], so["blocks"])]
+    # 0) 조정 전 측정
+    for s, _so, b, _bo in pairs:
+        k = f"{s['key']}/b{b['blockId']}"
+        m0, p0, t0 = E.measures, E.probes, time.perf_counter()
+        st = {"text": b["text"], "box": dict(b["box"]), "scale": b["style"]["fontScale"]}
+        ev = E(s, b, st)
+        spend(k, m0, p0, t0)
+        states[k] = (st, ev)
+        rows[k] = {"key": k, "before": {"over": ev["over"], "sides": ev.get("sides"), "ok": ev["ok"]}}
+    # 갱신 장애물: 조판 대상이 아닌 블록(라벨 · 로고 · 번역 없음)은 원래 박스, 조판 블록은 박스 ∪ ink
+    typeset = {s["key"]: {b["blockId"] for b in s["blocks"]} for s in inp["sections"]}
+    dyn = {sk: [dict(o) for o in lst if o["blockId"] not in typeset.get(sk, set())] for sk, lst in obstacles.items()}
+    for s, _so, b, _bo in pairs:
+        st, ev = states[f"{s['key']}/b{b['blockId']}"]
+        dyn.setdefault(s["key"], []).extend(occupied(b["blockId"], st["box"], ev))
+
+    def replace(sk, bid, rects):
+        dyn[sk] = [o for o in dyn[sk] if o["blockId"] != bid] + rects
+
+    # 1) 맞춤 — 넘치지 않는 블록의 박스를 글에 맞춰 줄인다(줄바꿈 · 글자 위치가 그대로일 때만)
+    if spec["fit"]:
+        for s, _so, b, bo in pairs:
+            k = f"{s['key']}/b{b['blockId']}"
+            st, ev = states[k]
+            if not ev["ok"] or ev["over"]:
+                continue
+            m0, p0, t0 = E.measures, E.probes, time.perf_counter()
+            nb = fit_box(b, st, ev, spec["fit"])
+            if nb is None:
+                rows[k]["fit"] = {"applied": False, "why": "no_gain"}
+                continue
+            ev2 = E(s, b, {**st, "box": nb})
+            spend(k, m0, p0, t0)
+            same = ev2["ok"] and [ln["text"] for ln in ev2["pr"]["lines"]] == [ln["text"] for ln in ev["pr"]["lines"]] \
+                and ev2["pr"]["ink"] == ev["pr"]["ink"]
+            ok = same and (spec["fit"] == "layout" or not ev2["over"])
+            rows[k]["fit"] = {"applied": ok, "box": nb, "areaRatio": nb["w"] * nb["h"] / (b["box"]["w"] * b["box"]["h"]),
+                              "sameLayout": same, "overAfter": ev2["over"], "engineSidesAfter": ev2.get("engine_sides")}
+            if ok:
+                states[k] = ({**st, "box": nb}, ev2)
+                bo["box"] = nb
+                bo.setdefault("aux", {})["fit"] = {"mode": spec["fit"], "originalBox": b["box"]}
+                replace(s["key"], b["blockId"], occupied(b["blockId"], nb, ev2))
+    # 2) 넘친 블록 조정 — 블록 순서대로, 결과를 바로 장애물에 반영
+    for s, _so, b, bo in pairs:
+        k = f"{s['key']}/b{b['blockId']}"
+        st, cur = states[k]
+        row = rows[k]
+        if not cur["ok"]:
+            row["status"] = "measure_failed"
+            continue
+        if not cur["over"]:
+            row["status"] = "fitted" if row.get("fit", {}).get("applied") else "not_needed"
+            continue
+        if not spec["steps"]:
+            row["status"] = "over_untouched"
+            continue
+        m0, p0, t0 = E.measures, E.probes, time.perf_counter()
+        sk = s["key"]
+        ctx = {"obstacles": dyn[sk], "ignore": {b["blockId"]} | {o["blockId"] for o in dyn[sk] if intersects(o, b["box"])}}
+        info_steps = []
+        for op, params in spec["steps"]:
+            st, cur, info = STEPS[op](E, s, b, st, cur, params, ctx)
+            info_steps.append((op, info))
+        spend(k, m0, p0, t0)
+        row.update(status="resolved" if not cur["over"] else "unresolved", steps=info_steps,
+                   final={"scale": st["scale"], "box": st["box"], "lineBreakApplied": st["text"] != b["text"],
+                          "sides": cur.get("sides"), "lines": cur.get("lines")})
+        if cur["over"]:
+            row["causes"] = unresolved_causes(s, b, st, cur, info_steps)
+            continue
+        bo["text"], bo["box"] = st["text"], st["box"]
+        bo["style"] = {**bo["style"], "fontScale": st["scale"]}
+        bo.setdefault("aux", {})["adjust"] = {"strategy": name, "criterion": criterion, "systemFontScale": st["scale"],
+                                              "lineBreakApplied": st["text"] != b["text"], "originalBox": b["box"]}
+        replace(sk, b["blockId"], occupied(b["blockId"], st["box"], cur))
+    out = []
+    for k, r in rows.items():
+        m, p, ms = cost[k]
+        out.append({**r, "measures": m, "probes": p, "ms": round(ms, 2)})
+    return out
+
 
 def unresolved_causes(sec, blk, st, ev, steps_info) -> list[str]:
     """조정 뒤에도 넘치는 원인(복수 가능). 측정 실패 · 한 단어 폭 초과 · 축소 하한 · 여백 부족 · 수단 없음."""
@@ -297,7 +446,7 @@ def search(inp_path: Path, fe: Path, out: Path, criterion: str, strategies: list
         bench = page.evaluate("""([w, b]) => { const t0 = performance.now(); for (let i = 0; i < 50; i++) window.__tbm.measure(w, b);
             return (performance.now() - t0) / 50; }""", [inp["sections"][0]["width"], inp["sections"][0]["blocks"][0]])
         for name in strategies:
-            plan = STRATEGIES[name]
+            plan = STRATEGIES.get(name) or DYNAMIC[name]
             E = Evaluator(page, dpr, metrics["quantized"], criterion)
             after = copy.deepcopy(inp)
             after["variant"] = f"adjust:{criterion}:{name}"
@@ -307,7 +456,9 @@ def search(inp_path: Path, fe: Path, out: Path, criterion: str, strategies: list
             sdir.mkdir(parents=True, exist_ok=True)
             rows = []
             t_all = time.perf_counter()
-            for s_in, s_out in zip(inp["sections"], after["sections"]):
+            if name in DYNAMIC:
+                rows = run_dynamic(E, inp, after, name, criterion, obstacles)
+            for s_in, s_out in ([] if name in DYNAMIC else zip(inp["sections"], after["sections"])):
                 for blk, blk_out in zip(s_in["blocks"], s_out["blocks"]):
                     m0, p0, t0 = E.measures, E.probes, time.perf_counter()
                     st = {"text": blk["text"], "box": dict(blk["box"]), "scale": blk["style"]["fontScale"]}
@@ -346,7 +497,8 @@ def search(inp_path: Path, fe: Path, out: Path, criterion: str, strategies: list
             with (sdir / "decisions.jsonl").open("w", encoding="utf-8") as f:
                 for r in rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            meta = {"tool": "typeset-adjust-experiment/1", "criterion": criterion, "strategy": name, "plan": plan,
+            meta = {"tool": "typeset-adjust-experiment/2", "criterion": criterion, "strategy": name, "plan": plan,
+                    "dynamicObstacles": name in DYNAMIC,
                     "candidateValues": {"precisionScale": PRECISION, "precisionWidthPx": WIDTH_PRECISION, "gapPx": 0,
                                         "quantAllowPx": tbm.QUANT_ALLOW, "verifyTolerancePx": tbm.TOL},
                     "input": str(inp_path), "inputSha256": tbm.sha256_bytes(inp_path.read_bytes()),
@@ -409,6 +561,45 @@ class Backgrounds:
         hist = crop.histogram()
         outside = sum(hist) - hist[128]
         return None if outside <= 0 else hist[255] / outside
+
+
+def _occ_rows(rows: dict[str, dict[str, Any]], obstacles: dict[str, list[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
+    """섹션별 차지 자리 — 조판 블록은 측정 결과의 박스 ∪ ink, 조판 대상이 아닌 블록은 원래 박스."""
+    occ: dict[str, list[dict[str, Any]]] = collections.defaultdict(list)
+    typeset = collections.defaultdict(set)
+    for r in rows.values():
+        typeset[r["sectionKey"]].add(r["blockId"])
+        ink = r["primary"].get("ink") if r["primary"]["ok"] else None
+        occ[r["sectionKey"]] += [{"blockId": r["blockId"], **r["box"]}] + ([{"blockId": r["blockId"], **ink_rect(ink)}] if ink else [])
+    for sk, lst in obstacles.items():
+        occ[sk] += [o for o in lst if o["blockId"] not in typeset[sk]]
+    return occ
+
+
+def new_overlaps(A: dict[str, dict[str, Any]], B: dict[str, dict[str, Any]], obstacles, keys) -> dict[str, Any]:
+    """조정 뒤 블록 글자(ink)가 다른 블록의 차지 자리(최종 박스 ∪ ink)와 새로 겹치는가 — 조정 전에도 겹치던 쌍은 뺀다.
+    겹침 깊이(짧은 변)가 정수화 범위(QUANT_ALLOW) 이하인지 따로 센다."""
+    oa, ob = _occ_rows(A, obstacles), _occ_rows(B, obstacles)
+    hits, deep, depths = 0, 0, []
+    for k in keys:
+        a = A[k]
+        if not a["primary"]["ok"] or not a["primary"].get("ink"):
+            continue
+        r = ink_rect(a["primary"]["ink"])
+        pre = {o["blockId"] for o in ob[a["sectionKey"]] if o["blockId"] != a["blockId"]
+               and any(intersects(x, o) for x in [B[k]["box"]] + ([ink_rect(B[k]["primary"]["ink"])] if B[k]["primary"].get("ink") else []))}
+        d = 0.0
+        for o in oa[a["sectionKey"]]:
+            if o["blockId"] == a["blockId"] or o["blockId"] in pre or not intersects(r, o):
+                continue
+            ox = min(r["x"] + r["w"], o["x"] + o["w"]) - max(r["x"], o["x"])
+            oy = min(r["y"] + r["h"], o["y"] + o["h"]) - max(r["y"], o["y"])
+            d = max(d, min(ox, oy))
+        if d > 0:
+            hits += 1
+            depths.append(d)
+            deep += d > tbm.QUANT_ALLOW
+    return {"blocks": hits, "deeperThanQuantAllow": deep, "depthPx": _q(depths)}
 
 
 def report(out: Path, before_dir: Path) -> dict[str, Any]:
@@ -485,6 +676,23 @@ def report(out: Path, before_dir: Path) -> dict[str, Any]:
             s["sideEffects"]["spill"] = {"outsideOriginalBox": len(sv), "overTextured": sum(v >= BUSY_RATIO for v in sv),
                                          "busyRatio": _q(sv), "edgeLevel": EDGE_LEVEL, "busyRatioCut": BUSY_RATIO,
                                          "texturedKeys": sorted(k for k, v in spill.items() if v is not None and v >= BUSY_RATIO)}
+            # 조정 · 맞춤 뒤 블록끼리 새로 겹치는가(최종 자리 기준) — 고정 장애물 후보는 이것을 막지 않았다
+            fitted = [k for k, d in dec.items() if d.get("fit", {}).get("applied") and k in A]
+            s["sideEffects"]["newOverlapFinal"] = new_overlaps(A, B, obstacles, sorted(set(applied) | set(fitted)))
+            if fitted:
+                ar = [dec[k]["fit"]["areaRatio"] for k in fitted]
+                s["fit"] = {
+                    "fitted": len(fitted), "areaRatio": _q(ar),
+                    "freedAreaPx": round(sum(B[k]["box"]["w"] * B[k]["box"]["h"] * (1 - dec[k]["fit"]["areaRatio"]) for k in fitted)),
+                    "sameLayout": sum(1 for k in fitted if A[k]["primary"]["ok"] and B[k]["primary"]["ok"]
+                                      and A[k]["primary"]["ink"] == B[k]["primary"]["ink"]
+                                      and [ln["text"] for ln in A[k]["primary"]["lines"]] == [ln["text"] for ln in B[k]["primary"]["lines"]]),
+                    "engineOverflowAfter": sum(1 for k in fitted if A[k]["primary"]["ok"] and A[k]["primary"]["overflow"]["any"]),
+                    "judgementAfter": dict(C(A[k]["judgement"] for k in fitted)),
+                    "sidesAfter": dict(C(sd_ for k in fitted if A[k]["primary"]["ok"] for sd_ in SIDES if A[k]["primary"]["overflow"][sd_])),
+                    "rejected": dict(C("layout_changed" if not d["fit"].get("sameLayout") else "over_after"
+                                       for d in dec.values() if d.get("fit") and not d["fit"].get("applied") and "sameLayout" in d["fit"])),
+                }
         res["strategies"][f"{meta['criterion']}/{meta['strategy']}"] = s
     for crit in ("quant_aware", "engine"):
         p = out / crit / "NEED" / "decisions.jsonl"
@@ -507,7 +715,7 @@ def main() -> None:
     a.add_argument("--fe", type=Path, required=True)
     a.add_argument("--out", type=Path, required=True)
     a.add_argument("--criterion", choices=("quant_aware", "engine"), default="quant_aware")
-    a.add_argument("--strategy", action="append", choices=sorted(STRATEGIES))
+    a.add_argument("--strategy", action="append", choices=sorted(STRATEGIES) + sorted(DYNAMIC))
     a.add_argument("--dpr", type=float, default=2.0)
     a = sub.add_parser("report")
     a.add_argument("--out", type=Path, required=True)

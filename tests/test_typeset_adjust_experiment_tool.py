@@ -111,3 +111,53 @@ def test_unresolved_causes_long_word_and_floor():
     ev = FakeEval()(SEC, blk, st)
     causes = ae.unresolved_causes(SEC, blk, st, ev, [("shrink", {"need_below_floor": True})])
     assert causes == ["long_word", "shrink_floor"]
+
+
+# ── 박스 자동 맞춤 · 갱신 장애물 ──
+
+def _ev(lines, ink, font_px=10.0):
+    return {"ok": True, "over": False, "sides": [], "lines": len(lines),
+            "pr": {"lines": [{"text": f"l{i}", "rect": r} for i, r in enumerate(lines)], "ink": ink, "fontPx": font_px}}
+
+
+BOX = {"x": 100.0, "y": 50.0, "w": 200.0, "h": 60.0}
+LINES = [{"left": 140.0, "right": 260.0, "top": 50.0, "bottom": 62.0}, {"left": 160.0, "right": 240.0, "top": 62.0, "bottom": 74.0}]
+INK = {"left": 141.0, "right": 259.0, "top": 52.0, "bottom": 75.0}
+
+
+@pytest.mark.parametrize("align, x, w", [("center", 140.0, 120.0), ("left", 100.0, 160.0), ("right", 140.0, 160.0)])
+def test_fit_box_keeps_alignment_anchor(align, x, w):
+    blk = {"style": {"align": align, "lineHeightRatio": 1.2}}
+    nb = ae.fit_box(blk, {"box": dict(BOX)}, _ev(LINES, INK), "layout")
+    assert nb["x"] == pytest.approx(x) and nb["w"] == pytest.approx(w)
+    assert nb["y"] == 50.0 and nb["h"] == pytest.approx(24.0)  # 줄 2 × 10px × 1.2 — 위쪽 변 고정
+
+
+def test_fit_box_ink_mode_covers_descender_and_never_grows():
+    blk = {"style": {"align": "center", "lineHeightRatio": 1.2}}
+    nb = ae.fit_box(blk, {"box": dict(BOX)}, _ev(LINES, INK), "ink")
+    assert nb["h"] == pytest.approx(25.0)  # ink 아래 끝(75) − 위(50) > 줄 상자 24
+    tall = {**INK, "bottom": 200.0}
+    assert ae.fit_box(blk, {"box": dict(BOX)}, _ev(LINES, tall), "ink")["h"] == 60.0  # 원래 높이를 넘지 않는다
+    full = [{"left": 100.0, "right": 300.0, "top": 50.0, "bottom": 110.0}]
+    assert ae.fit_box(blk, {"box": dict(BOX)}, _ev(full, {**INK, "left": 100.0, "right": 300.0, "bottom": 110.0}), "ink") is None
+
+
+def test_occupied_includes_spilled_ink():
+    ev = _ev(LINES, {**INK, "bottom": 140.0})
+    rects = ae.occupied(7, BOX, ev)
+    assert len(rects) == 2 and rects[1]["h"] == pytest.approx(88.0) and all(r["blockId"] == 7 for r in rects)
+
+
+def _row(bid, box, ink):
+    return {"sectionKey": "GS-01/s1", "blockId": bid, "box": box, "primary": {"ok": True, "ink": ink}}
+
+
+def test_new_overlaps_counts_only_new_and_depth():
+    b1 = {"x": 0, "y": 0, "w": 100, "h": 20}
+    b2 = {"x": 0, "y": 30, "w": 100, "h": 20}
+    B = {"a": _row(1, b1, {"left": 0, "right": 90, "top": 2, "bottom": 18}), "b": _row(2, b2, {"left": 0, "right": 90, "top": 32, "bottom": 48})}
+    A = {"a": _row(1, {**b1, "h": 40}, {"left": 0, "right": 90, "top": 2, "bottom": 35}), "b": B["b"]}  # a의 글자가 b 자리로 5px 들어감
+    r = ae.new_overlaps(A, B, {}, ["a"])
+    assert r["blocks"] == 1 and r["deeperThanQuantAllow"] == 1
+    assert ae.new_overlaps(B, B, {}, ["a"])["blocks"] == 0

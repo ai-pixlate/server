@@ -20,6 +20,12 @@
   라우트 의존성으로 본문 필드 검증보다 먼저 판정한다(빈 본문·필드 누락도 404). JSON 문법 오류는 본문 읽기 단계라 기존 422 그대로다.
 - 이미 발급된 세션(local 포함)·refresh·logout·me·소셜 로그인은 바꾸지 않는다(기존 local 세션 정리는 별도 운영 작업).
 - 그 밖의 값(빈 문자열 포함)은 이 모듈 import 때 오류 → API 기동 실패. 메시지에는 설정 이름과 허용 값만 싣고 입력값은 싣지 않는다.
+
+로그인 허용 목록(PM 11-18, 시험 기간 운영 설정 — app.auth_allowlist): 스위치 PIXLATE_AUTH_ALLOWLIST(미설정 = disabled)가 켜져 있으면
+- 간이 로그인: 요청 이메일이 목록 밖이면 401 account_not_allowed — 판매자·세션·쿠키를 만들지 않고 이전 쿠키의 세션도 건드리지 않는다.
+- refresh: 세션의 판매자 이메일이 목록 밖이면 회전하지 않고 그 세션을 폐기한 뒤 401 account_not_allowed(다른 거절과 같이 Set-Cookie 없음).
+  이미 발급된 access 는 수명(JWT_TTL)까지 쓸 수 있다 — 막는 지점은 로그인과 갱신이다(PM 11-18 「매 로그인과 세션 갱신 때」).
+- 스위치 값이 허용 값 밖이면 이 모듈 import 때 오류 → API 기동 실패(간이 로그인 설정과 같은 방식).
 """
 import logging
 import os
@@ -31,7 +37,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import auth_sessions, social_auth
+from app import auth_allowlist, auth_sessions, social_auth
 from app.db import get_db
 from app.errors import error_body
 from app.security import active_session, get_current_seller, issue_access, session_unavailable, verify_signature
@@ -62,6 +68,13 @@ def local_login_enabled() -> bool:
 
 
 local_login_enabled()  # 시작 시 검증 — 잘못된 값이면 이 모듈을 불러오는 API 가 기동하지 않는다(워커는 이 모듈을 불러오지 않는다)
+auth_allowlist.enabled()  # 허용 목록 스위치도 같은 방식으로 시작 시 검증
+
+
+def account_not_allowed() -> HTTPException:
+    """허용 목록 밖 계정 — 401 UNAUTHORIZED + reason account_not_allowed(간이 로그인·소셜 완료·refresh 공통)."""
+    return HTTPException(status_code=401, detail={"code": "UNAUTHORIZED", "message": "account not allowed",
+                                                  "reason": auth_allowlist.REASON})
 
 
 def _require_local_login_enabled() -> None:
@@ -132,6 +145,9 @@ def login(body: LoginRequest, request: Request, response: Response, db: Session 
     if not email:
         raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "email is required",
                                                     "fields": [{"loc": ["body", "email"], "msg": "email is required"}]})
+    if not auth_allowlist.is_allowed(email):  # 판매자·세션을 만들기 전에 — 목록 밖 이메일로 계정이 생기지 않게
+        log.warning("auth.login_not_allowed provider=local")
+        raise account_not_allowed()
 
     r = db.execute(  # local 계정만 — 같은 이메일의 소셜 계정은 고르지 않는다(같은 이메일 local 이 여럿일 때의 선택은 이 변경 전과 같음)
         text("SELECT id, email FROM seller WHERE auth_provider = 'local' AND email = :e"), {"e": email},
@@ -183,6 +199,14 @@ def refresh(request: Request, response: Response, x_requested_with: str = Header
             except auth_sessions.Unavailable:
                 pass
             raise HTTPException(status_code=404, detail={"code": "SELLER_NOT_FOUND", "message": "seller not found"})
+        if not auth_allowlist.is_allowed(r["email"]):
+            # 회전하지 않고 그 세션을 끝낸다(서명이 맞는 쿠키가 가리키는 세션 — 세대와 관계없이). 폐기를 확인하지 못하면 503
+            try:
+                auth_sessions.revoke(current.sid)
+            except auth_sessions.Unavailable:
+                raise session_unavailable()
+            log.warning("auth.refresh_not_allowed session_revoked=1")
+            raise account_not_allowed()
     try:
         rot = auth_sessions.rotate(cookie)
     except auth_sessions.Unavailable:

@@ -6,6 +6,10 @@
 - 계정: (제공자, 회원번호)로 찾고 없으면 만든다(자동 가입). 이메일로 찾거나 합치지 않는다.
   이메일·이름 저장 = 확인된 값만(카카오 is_email_valid·is_email_verified, Google email_verified), 제공자가 철회·무효를 명시하면 지우고,
   필드 누락·조회 실패면 기존 값을 그대로 둔다(계약 정리 2.1 BE 안). 255자를 넘는 값은 저장하지 않는다.
+- 허용 목록(PM 11-18, app.auth_allowlist): 켜져 있으면 제공자 확인 뒤·계정 조회/생성 전에 판정한다. 목록 밖이면 계정을 만들거나 고치지 않고
+  세션도 만들지 않는다 → 401 account_not_allowed(시도는 실패로 닫는다 — 같은 코드 재전송은 state_invalid).
+  판정 이메일 = 이번에 제공자가 확인한 이메일(set). 제공자가 이번에 값을 주지 않았으면(keep — 필드 누락·카카오 조회 실패) 저장된 계정 이메일,
+  철회·무효(clear)면 없음 → 거절.
 """
 import logging
 from typing import Literal, Optional
@@ -17,9 +21,10 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app import auth_sessions, social_auth
+from app import auth_allowlist, auth_sessions, social_auth
 from app.db import get_db
-from app.routers.auth import REFRESH_COOKIE, _cookie_path, _cookie_secure, _require_allowed_origin, _set_refresh_cookie
+from app.routers.auth import (REFRESH_COOKIE, _cookie_path, _cookie_secure, _require_allowed_origin, _set_refresh_cookie,
+                              account_not_allowed)
 from app.security import issue_access, session_unavailable
 
 router = APIRouter(tags=["Auth"])
@@ -78,6 +83,17 @@ def _find(db: Session, provider: str, subject: str):
                       {"p": provider, "s": subject}).mappings().first()
 
 
+def _allowlist_email(db: Session, ident: social_auth.Identity) -> Optional[str]:
+    """허용 목록 판정에 쓸 이메일 — 이번에 확인된 값 > (값을 받지 못했으면) 저장된 계정 이메일 > 없음."""
+    email, status = ident.email
+    if status == "set":
+        return email
+    if status == "keep":
+        row = _find(db, ident.provider, ident.subject)
+        return row["email"] if row else None
+    return None
+
+
 def _account(db: Session, ident: social_auth.Identity):
     """(제공자, 회원번호) 계정 — 없으면 만든다. 동시 첫 로그인은 유일 인덱스(uq_seller_provider_subject)로 한 행만 남는다."""
     (email, email_st), (name, name_st) = ident.email, ident.name
@@ -126,6 +142,9 @@ def social_complete(body: SocialLoginRequest, request: Request, x_requested_with
             ident = social_auth.kakao_identity(cfg, body.code, c.verifier, lambda sub: _find(db, "kakao", sub) is not None)
         else:
             ident = social_auth.google_identity(cfg, body.code, c.verifier, c.nonce)
+        if auth_allowlist.enabled() and not auth_allowlist.is_allowed(_allowlist_email(db, ident)):
+            log.warning("oauth.login_not_allowed provider=%s", cfg.provider)
+            raise account_not_allowed()  # 아래 `except Exception` 이 시도를 닫는다(fail) — 계정·세션은 만들지 않았다
         seller = _account(db, ident)
     except social_auth.AuthFailed:
         social_auth.fail(c)

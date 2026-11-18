@@ -76,6 +76,11 @@ info:
       개발용 이메일 간이 로그인(`authLogin`)은 환경별 FE 전환·검증 뒤 끈다(환경마다 따로). 서버 설정 `PIXLATE_AUTH_LOCAL_LOGIN` = `enabled`·`disabled`(미설정 = `enabled`)이고,
       `disabled`인 환경에서는 authLogin이 404 `NOT_FOUND`다(새 간이 로그인 발급만 막는다 — 이미 발급된 세션·refresh·로그아웃·소셜 로그인은 그대로).
       팀원용 session 환경은 `disabled`를 명시하고 외부 공개 전에 실제 차단을 확인한다. [간이 로그인 차단(U7) · 구현(`fix/auth-local-login-gate`) · dev 환경 미적용]
+      **로그인 허용 목록**(시험 기간 운영 설정 — PM 11-18, 12/7 최종 발표까지. PRD 밖) [계약 확정(PM 11-18 · FE 11-18) · 구현(`fix/auth-allowlist`) · dev 미적용]:
+      서버 설정 스위치 `PIXLATE_AUTH_ALLOWLIST` = `enabled`·`disabled`(미설정 = `disabled` — 기존 동작, 허용 값 밖이면 서버가 기동하지 않는다)와 허용 이메일 목록(서버 설정)을 따로 둔다.
+      켜져 있으면 목록 밖 계정은 로그인(authSocial·authLogin)과 세션 갱신(authRefresh)에서 401 `UNAUTHORIZED` + `details.reason: account_not_allowed`다. **스위치가 켜져 있고 목록이 비어 있으면 아무도 허용하지 않는다.**
+      비교는 대소문자를 구분하지 않는 이메일 일치다 — 소셜은 제공자가 확인한 이메일(이번 로그인에서 값을 받지 못했으면 저장된 계정 이메일), 갱신은 계정 이메일, 간이 로그인은 요청 이메일. 확인된 이메일이 없으면 거절이다.
+      막는 지점은 로그인과 갱신이다 — 목록에서 빼기만 하면 이미 발급된 access는 수명(`JWT_TTL`, 기본 15분)까지 쓸 수 있다. 갱신이 `account_not_allowed`로 거절되면 그 세션이 폐기되므로 수명이 남은 그 세션의 access도 다음 요청부터 401이다(같은 계정의 다른 세션은 각자 갱신 때 거절). FE 안내 문구(FE 11-18 합의): 「허용되지 않은 계정입니다」.
     - **소유 검증**: 남의 `/jobs/{jobId}/**`·`/brands/{brandId}/**` 접근은 존재 은닉 위해 **404 NOT_FOUND**.
     - **Error**: 전 엔드포인트 4xx/5xx는 `Error` 컴포넌트(`{ error: { code, message, retryable, details?, traceId } }`). `code`는 15종 enum(§14-1). HTTP `error.code`(15종) / task `errorCode`(자유 텍스트·HTTP 200) / signal `code`(계약 §6)는 서로 다른 값 공간 — 번역·렌더 실패는 error.code가 아니라 task/signal로 전달.
     - **presigned URL**: 이미지·파일 URL은 응답 시 발급(만료 5분), DB엔 S3 키만 저장. `format: uri`.
@@ -498,6 +503,7 @@ components:
                 [소셜 로그인 · 계약 확정(PM 11-09·11-10 · FE 11-10) · BE 병합·dev 배포 완료(release/1.1.0) · production FE 세션 연결은 로컬 가짜 제공자 검증 완료(P1) · 실제 제공자·배포 HTTPS 미검증] **인증 사유** — `error.code`는 15종 공통 코드이고 `details.reason`은 그 안의 구분이다(새 `error.code`를 만들지 않는다).
                 UNAUTHORIZED `state_invalid` → 로그인 시도 없음·만료·이미 사용·state 불일치·로그아웃 전 시작 시도 — 처음부터 다시 로그인 /
                 UNAUTHORIZED `provider_auth_failed` → 제공자가 코드를 거절했거나 회원 확인 실패 — 인증 실패 안내 /
+                UNAUTHORIZED `account_not_allowed` → 로그인 허용 목록 밖 계정(공통 규칙 「로그인 허용 목록」 — 계약 확정 PM·FE 11-18) — 「허용되지 않은 계정입니다」 안내, 자동 재시도 없음(authSocial·authLogin·authRefresh) /
                 UNAUTHORIZED `origin_not_allowed` → Origin이 허용 목록 밖 — 안내만, 자동 재시도 없음(refresh·로그아웃과 같은 값) /
                 DUPLICATE `login_in_progress` → 같은 로그인 시도를 다른 요청이 처리 중 — 먼저 보낸 요청 결과 대기 /
                 SERVICE_UNAVAILABLE `provider_unavailable` → 제공자 일시 장애 — start부터 새 로그인. 사유 없는 SERVICE_UNAVAILABLE(`details: null`) = 세션·시도 저장소 장애 또는 켰지만 필수 설정 오류 — 안내만, 자동 반복 없음.
@@ -1652,6 +1658,8 @@ paths:
         [간이 로그인 차단(U7) · 구현(`fix/auth-local-login-gate`) · dev 환경 미적용] 서버 설정 `PIXLATE_AUTH_LOCAL_LOGIN`이 `disabled`인 환경에서는 404 `NOT_FOUND`(`details: null`)다 —
         본문 필드 검증보다 먼저 판정한다(빈 본문·필드 누락도 404, JSON 문법 오류는 기존 422). 판매자·세션·refresh 쿠키를 만들지 않고, 요청에 실린 이전 쿠키의 세션도 폐기하지 않는다.
         미설정 = `enabled`(기존 동작). 허용 값 밖(빈 문자열 포함)이면 서버가 기동하지 않는다(설정 오류).
+        [로그인 허용 목록 · 계약 확정(PM·FE 11-18) · 구현(`fix/auth-allowlist`)] 허용 목록이 켜져 있고 요청 이메일이 목록 밖이면 401 `UNAUTHORIZED` + `account_not_allowed` —
+        판매자·세션·refresh 쿠키를 만들지 않고 이전 쿠키의 세션도 폐기하지 않는다(공통 규칙 「로그인 허용 목록」).
       security: []
       requestBody:
         required: true
@@ -1686,6 +1694,8 @@ paths:
         - `refresh_rotated`: 직전 refresh가 회전 뒤 30초 안에 다시 옴(경합·응답 유실). 세션은 그대로.
         - `refresh_reused`: 직전 refresh가 30초 뒤에 옴, 또는 **그보다 더 오래전에 발급한 refresh**가 옴. 그 세션만 폐기한다(그 계정의 다른 세션은 그대로).
         - `refresh_invalid`: 쿠키 없음·형식 오류·**서명 불일치**(변조·임의 값·다른 세션으로 옮긴 값·access를 넣은 경우 — 어떤 세션도 바꾸지 않는다)·발급한 적 없는 세대·폐기된 세션·비활성 7일 또는 30일 지난 세션(되살리지 않는다).
+        - `account_not_allowed` [로그인 허용 목록 · 계약 확정(PM·FE 11-18) · 구현(`fix/auth-allowlist`)]: 허용 목록이 켜져 있고 세션의 계정 이메일이 목록 밖(이메일 없음 포함).
+          회전하지 않고 **그 세션을 폐기한다**(다른 거절과 같이 Set-Cookie 없음 — 같은 쿠키의 다음 갱신은 `refresh_invalid`). FE(11-18 합의): 자동 갱신·재시도 중단 → FE 인증 상태 초기화 → G1, 「허용되지 않은 계정입니다」 안내.
         refresh 값은 세션·세대·용도가 서버 서명으로 묶인 불투명 값이다(쿠키 `pxl_refresh` — FE는 읽거나 만들지 않는다). 서명 키를 바꾸면 모든 refresh가 `refresh_invalid`가 되어 다시 로그인한다.
         CSRF 헤더가 없으면 422 `VALIDATION_ERROR`. **`Origin`이 허용 목록(서버 설정)과 정확히 같지 않으면**(누락·`null`·목록 밖) 401 `UNAUTHORIZED` `origin_not_allowed` — 회전·쿠키 변경 없음.
         (`origin_not_allowed`와 HTTP 401은 FE 11-10 회신으로 합의 — FE는 안내만 하고 자동 재시도하지 않는다.) 허용 목록이 비어 있으면 모두 거절한다.
@@ -1907,6 +1917,7 @@ paths:
         - 완료·실패로 끝난 시도에 다시 오는 요청: `state_invalid`.
         오류별 처리(`error.code` / `details.reason` → FE, FE 11-10 합의):
         401 `UNAUTHORIZED` / `state_invalid` → 처음부터 다시 로그인 · / `provider_auth_failed` → 인증 실패 안내 · / `origin_not_allowed` → 안내만, 자동 재시도 없음 ·
+        / `account_not_allowed` → 「허용되지 않은 계정입니다」 안내, 자동 재시도 없음(로그인 허용 목록 — FE 11-18 합의: G1에 남아 안내. 계정·세션을 만들지 않고 시도는 닫힌다) ·
         409 `DUPLICATE` / `login_in_progress` → 먼저 보낸 요청 결과 대기(대기 종료는 FE 요청 timeout) ·
         503 `SERVICE_UNAVAILABLE` / `provider_unavailable` → start부터 새 로그인 · / 없음 → 안내만, 자동 반복 없음, 다시 할 때는 start부터 ·
         404 `NOT_FOUND` / 없음 → 이 환경에서 소셜 로그인을 쓸 수 없음 · 422 `VALIDATION_ERROR` → CSRF 헤더 누락·요청 본문 형식 오류(FE 버그).
@@ -1945,10 +1956,15 @@ paths:
             `state_invalid` — 시도 없음·만료·이미 사용·쿠키 없음·state 불일치·로그아웃 전 시작 시도 → 처음부터 다시 로그인.
             `provider_auth_failed` — 제공자가 코드를 거절했거나 회원 확인 실패 → 인증 실패 안내.
             `origin_not_allowed` — Origin이 허용 목록 밖. 안내만, 자동 재시도 없음(FE 11-10 합의).
+            `account_not_allowed` — 로그인 허용 목록 밖 계정(계약 확정 PM·FE 11-18). 계정·세션을 만들지 않고 시도를 닫는다 → 「허용되지 않은 계정입니다」 안내.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
               examples:
+                accountNotAllowed:
+                  summary: '(가상 값) 로그인 허용 목록 밖 계정'
+                  value:
+                    error: { code: UNAUTHORIZED, message: 'account not allowed', retryable: false, details: { reason: account_not_allowed }, traceId: 'example-trace-0117' }
                 stateInvalid:
                   summary: '(가상 값) 시도 만료·이미 사용 등 — 처음부터 다시 로그인'
                   value:

@@ -24,7 +24,8 @@
 로그인 허용 목록(PM 11-18, 시험 기간 운영 설정 — app.auth_allowlist): 스위치 PIXLATE_AUTH_ALLOWLIST(미설정 = disabled)가 켜져 있으면
 - 간이 로그인: 요청 이메일이 목록 밖이면 401 account_not_allowed — 판매자·세션·쿠키를 만들지 않고 이전 쿠키의 세션도 건드리지 않는다.
 - refresh: 세션의 판매자 이메일이 목록 밖이면 회전하지 않고 그 세션을 폐기한 뒤 401 account_not_allowed(다른 거절과 같이 Set-Cookie 없음).
-  이미 발급된 access 는 수명(JWT_TTL)까지 쓸 수 있다 — 막는 지점은 로그인과 갱신이다(PM 11-18 「매 로그인과 세션 갱신 때」).
+  막는 지점은 로그인과 갱신이다(PM 11-18 「매 로그인과 세션 갱신 때」). 목록에서 빼기만 하면 이미 발급된 access 는 수명(JWT_TTL)까지 쓸 수 있다.
+  갱신 거절로 세션이 폐기되면 그 세션의 access 도 다음 요청부터 401 이다(요청마다 세션 생존 확인 — app.security.active_session).
 - 스위치 값이 허용 값 밖이면 이 모듈 import 때 오류 → API 기동 실패(간이 로그인 설정과 같은 방식).
 """
 import logging

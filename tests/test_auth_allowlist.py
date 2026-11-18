@@ -20,7 +20,7 @@ import pytest
 
 from tests.exec_db import requires_db
 from tests.test_auth_social import (  # noqa: F401 — 고정물은 이름으로 가져와야 이 모듈에서 쓸 수 있다
-    Browser, _google, _kakao, _no_cookies, _post, _reason, _seller, _sessions, _uid,
+    Browser, _google, _kakao, _me, _no_cookies, _post, _reason, _seller, _sessions, _uid,
     client, clock, dburl, env, other_key, prov, rds, requires_redis, rsa_key,
 )
 
@@ -165,25 +165,43 @@ def test_social_existing_account_without_fresh_email_uses_stored_email(client, p
 # ───────────────────────────── refresh ─────────────────────────────
 
 @stack
-def test_refresh_not_in_list_revokes_session_without_set_cookie(client, prov, rds, monkeypatch):
+def test_refresh_not_in_list_revokes_only_that_session_without_set_cookie(client, prov, rds, monkeypatch):
+    uid, start = _uid(), _sessions(rds)
     b = Browser(client, prov)
-    b.login("kakao", _kakao(_uid(), email="was-member@example.com"))  # 스위치 꺼진 상태에서 로그인
-    before = _sessions(rds)
+    mine_login = b.login("kakao", _kakao(uid, email="was-member@example.com"))  # 스위치 꺼진 상태에서 로그인
+    mine = _sessions(rds) - start
+    other = Browser(client, prov)  # 같은 계정 · 다른 브라우저
+    other_login = other.login("kakao", _kakao(uid, email="was-member@example.com"))
+    theirs = _sessions(rds) - start - mine
+    assert len(mine) == 1 and len(theirs) == 1
+    mine_access, other_access = mine_login.json()["accessToken"], other_login.json()["accessToken"]
     _on(monkeypatch, "member@example.com")
+    assert _me(client, mine_access).status_code == 200  # 목록에서 빼기만 하면 access 는 수명까지 유효(한계)
     r = _post(client, "/v1/auth/refresh", b.jar())
     assert r.status_code == 401 and _reason(r) == "account_not_allowed" and _no_cookies(r), r.text
-    assert len(before - _sessions(rds)) == 1  # 그 세션만 폐기
+    after = _sessions(rds)
+    assert not (mine & after) and theirs <= after  # 그 세션만 폐기 — 같은 계정의 다른 세션은 남는다
+    assert _me(client, mine_access).status_code == 401  # 폐기된 세션의 access 는 다음 요청부터 거절
+    assert _me(client, other_access).status_code == 200  # 다른 세션은 자기 갱신 때 거절된다
     again = _post(client, "/v1/auth/refresh", b.jar())
     assert again.status_code == 401 and _reason(again) == "refresh_invalid"
+    r = _post(client, "/v1/auth/refresh", other.jar())
+    assert r.status_code == 401 and _reason(r) == "account_not_allowed" and _no_cookies(r), r.text
+    assert not (theirs & _sessions(rds)) and _me(client, other_access).status_code == 401
 
 
 @stack
-def test_refresh_in_list_rotates(client, prov, monkeypatch):
+def test_refresh_in_list_keeps_rotating(client, prov, monkeypatch):
     b = Browser(client, prov)
     b.login("kakao", _kakao(_uid(), email="member@example.com"))
     _on(monkeypatch, "member@example.com")
-    r = _post(client, "/v1/auth/refresh", b.jar())
-    assert r.status_code == 200 and r.json()["accessToken"], r.text
+    for _ in range(3):  # 새 refresh 로 연속 갱신 — 회전마다 새 refresh · 쓸 수 있는 access
+        old = b.refresh
+        r = _post(client, "/v1/auth/refresh", b.jar())
+        assert r.status_code == 200, r.text
+        b.absorb(r)
+        assert b.refresh and b.refresh != old
+        assert _me(client, r.json()["accessToken"]).status_code == 200
 
 
 @stack

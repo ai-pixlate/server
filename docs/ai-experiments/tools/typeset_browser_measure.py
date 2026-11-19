@@ -99,6 +99,12 @@ def canon(v: Any) -> str:
     return json.dumps(v, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
+def input_sha256(inp: dict[str, Any]) -> str:
+    """측정 입력의 지문(measure.json meta.inputSha256) — 실행 중에 붙는 내부 필드(_*, 섹션 _bg)는 뺀다."""
+    return sha256_bytes(canon({k: v for k, v in inp.items() if not k.startswith("_")}
+                              | {"sections": [{k: v for k, v in s.items() if k != "_bg"} for s in inp["sections"]]}).encode())
+
+
 def block_input_sha(b: dict[str, Any]) -> str:
     """측정 결과에 영향을 주는 블록 입력(문구 · 적용 박스 · style 8키 · 역할)의 지문. 전후 비교에서 무엇이 바뀌었는지 가린다."""
     return sha256_bytes(canon({k: b[k] for k in ("role", "text", "box", "style")}).encode())
@@ -489,9 +495,7 @@ def measure_sections(inp: dict[str, Any], fe_root: Path, out: Path, dpr: float, 
                           "lines": len(cs["lines"]) if cs["ok"] else None, "reason": cs.get("reason")}
     classify(rows, quantized, out)
 
-    meta = {"tool": TOOL_VERSION, "inputVariant": inp.get("variant"), "inputSha256": sha256_bytes(canon(
-        {k: v for k, v in inp.items() if not k.startswith("_")} | {"sections": [{k: v for k, v in s.items() if k != "_bg"}
-                                                                                for s in inp["sections"]]}).encode()),
+    meta = {"tool": TOOL_VERSION, "inputVariant": inp.get("variant"), "inputSha256": input_sha256(inp),
             "inputOrigin": inp.get("origin"), "derivedFrom": inp.get("derivedFrom"),
             "fe": {"git": bundle.fe_git, "modules": bundle.fe_manifest}, "toolAssets": bundle.assets,
             "fonts": {"package": bundle.font_package, "faces": bundle.fonts,
@@ -719,13 +723,18 @@ def _get(d: dict[str, Any], path: tuple[str, ...]) -> Any:
     return d
 
 
+def condition_problems(ma: dict[str, Any], mb: dict[str, Any], keys=CONDITION_KEYS, required=REQUIRED_ENV) -> tuple[list[str], list[str]]:
+    """두 측정 기록이 같은 조건인지 — (환경 기록이 빠진 항목, 값이 다른 항목)."""
+    missing = [f"{side}:{'.'.join(p)}" for side, M in (("before", ma), ("after", mb)) for p in required if _get(M, p) is None]
+    return missing, [".".join(p) for p in keys if _get(ma, p) != _get(mb, p)]
+
+
 def compare(before_dir: Path, after_dir: Path, out: Path, allow_condition_diff: bool) -> dict[str, Any]:
     A = json.loads((before_dir / "measure.json").read_text(encoding="utf-8"))
     B = json.loads((after_dir / "measure.json").read_text(encoding="utf-8"))
-    missing = [f"{side}:{'.'.join(p)}" for side, M in (("before", A), ("after", B)) for p in REQUIRED_ENV if _get(M["meta"], p) is None]
+    missing, diffs = condition_problems(A["meta"], B["meta"])
     if missing and not allow_condition_diff:
         raise SystemExit(f"측정 환경 기록이 없다 — 최신 도구로 다시 측정하거나 --allow-condition-diff: {missing}")
-    diffs = [".".join(p) for p in CONDITION_KEYS if _get(A["meta"], p) != _get(B["meta"], p)]
     if diffs and not allow_condition_diff:
         raise SystemExit(f"측정 조건이 다르다 — 같은 조건에서 다시 측정하거나 --allow-condition-diff: {diffs}")
     a, b = {r["key"]: r for r in A["blocks"]}, {r["key"]: r for r in B["blocks"]}
@@ -735,11 +744,13 @@ def compare(before_dir: Path, after_dir: Path, out: Path, allow_condition_diff: 
         if x is None or y is None:
             rows.append({"key": k, "status": "only_before" if y is None else "only_after"})
             continue
-        if x["text"] != y["text"] or x["role"] != y["role"]:
+        # 줄바꿈 위치만 바꾼 변형(공백 · 개행만 다름)은 같은 문구로 본다 — 글자는 하나도 바뀌지 않는다(자동 축약 없음, 6.4)
+        same_words = x["text"].split() == y["text"].split()
+        if not same_words or x["role"] != y["role"]:
             rows.append({"key": k, "status": "text_or_role_changed"})  # 같은 입력의 전후가 아니다
             continue
         px, py = x["primary"], y["primary"]
-        changed = [f for f in ("box", "style") if x[f] != y[f]]
+        changed = [f for f in ("box", "style") if x[f] != y[f]] + (["lineBreak"] if x["text"] != y["text"] else [])
         row = {"key": k, "status": "changed_input" if changed else "same_input", "changedFields": changed,
                "box": [x["box"], y["box"]], "fontScale": [x["style"]["fontScale"], y["style"]["fontScale"]],
                "fontPx": [px.get("fontPx"), py.get("fontPx")], "lines": [len(px.get("lines") or []), len(py.get("lines") or [])],

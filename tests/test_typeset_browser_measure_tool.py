@@ -123,6 +123,24 @@ def test_compare_ignores_os_build_number(tmp_path):
     assert tbm.compare(a, b, tmp_path / "c", allow_condition_diff=False)["summary"]["conditionDiffs"] == []
 
 
+def test_compare_treats_whitespace_only_change_as_line_break(tmp_path):
+    a = _measure_dir(tmp_path, "a", over=True)
+    b = _measure_dir(tmp_path, "b", over=False)
+    data = json.loads((b / "measure.json").read_text(encoding="utf-8"))
+    data["blocks"][0]["text"] = "Hel lo"  # 글자가 바뀌면 같은 입력이 아니다
+    (b / "measure.json").write_text(json.dumps(data), encoding="utf-8")
+    assert tbm.compare(a, b, tmp_path / "c", allow_condition_diff=False)["summary"]["status"] == {"text_or_role_changed": 1}
+    for d in (a,):
+        data = json.loads((d / "measure.json").read_text(encoding="utf-8"))
+        data["blocks"][0]["text"] = "Hello\nWorld"
+        (d / "measure.json").write_text(json.dumps(data), encoding="utf-8")
+    data = json.loads((b / "measure.json").read_text(encoding="utf-8"))
+    data["blocks"][0]["text"] = "Hello World"  # 개행만 풀었다
+    (b / "measure.json").write_text(json.dumps(data), encoding="utf-8")
+    r = tbm.compare(a, b, tmp_path / "d", allow_condition_diff=False)
+    assert r["summary"]["status"] == {"changed_input": 1} and r["blocks"][0]["changedFields"] == ["lineBreak"]
+
+
 def test_compare_marks_changed_input_and_reproducibility(tmp_path):
     a = _measure_dir(tmp_path, "a", over=True)
     b = _measure_dir(tmp_path, "b", box={**BOX, "h": 40.0}, over=False)

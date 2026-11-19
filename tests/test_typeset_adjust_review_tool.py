@@ -121,3 +121,31 @@ def test_summarize_splits_control_and_rejected():
     assert s["spill"]["verdicts"] == {"사진 · 무늬 위 어림": {"읽기 어렵거나 그림을 가림": 1}, "대조(단색 여백 어림)": {"문제없음": 1}}
     assert s["spill"]["reviewed"] == 2 and s["spill"]["memos"] == [{"key": f"{SEC}/b1", "verdict": "읽기 어렵거나 그림을 가림", "note": "사진 위"}]
     assert s["fit"]["verdicts"] == {"적용": {"미검토": 1}, "기각 제안": {"미검토": 1}}
+
+
+# ── 검토 지문: FE 모듈 · 원본 섹션 그림 ──
+
+def _fp_case(tmp_path):
+    plain, clean = tmp_path / "s.plain.png", tmp_path / "s.clean.png"
+    plain.write_bytes(b"plain-1")
+    clean.write_bytes(b"clean-1")
+    meta = {"tool": "m/1", "inputSha256": "i", "renderDpr": 1.0,
+            "fe": {"modules": {"modules": {"typeset-rules": {"source_sha256": "a"}}}}}
+    L = {"meta": {"before": dict(meta), ar.MAIN: dict(meta)}}
+    c = {"group": "widen", "key": f"{SEC}/b1", "left": "before", "right": ar.MAIN, "rects": [], "info": "", "crop": {"x": 0},
+         "src": {"L": plain, "R": plain}, "thumbSrc": clean}
+    return L, [c], plain, clean
+
+
+def test_fingerprint_changes_with_fe_module_and_source_images(tmp_path):
+    L, cases, plain, clean = _fp_case(tmp_path)
+    fp = ar.fingerprint(L, cases)
+    assert ar.fingerprint(L, cases) == fp
+    L["meta"][ar.MAIN]["fe"] = {"modules": {"modules": {"typeset-rules": {"source_sha256": "b"}}}}  # FE 엔진만 바꿔 재측정
+    assert ar.fingerprint(L, cases) != fp
+    L, cases, plain, clean = _fp_case(tmp_path)
+    plain.write_bytes(b"plain-2")  # 재측정으로 섹션 합성 그림이 바뀜
+    assert ar.fingerprint(L, cases) != fp
+    L, cases, plain, clean = _fp_case(tmp_path)
+    clean.write_bytes(b"clean-2")  # 섹션 전체 보기 그림도 대상
+    assert ar.fingerprint(L, cases) != fp

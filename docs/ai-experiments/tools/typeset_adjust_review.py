@@ -238,7 +238,9 @@ def crop_region(c: dict[str, Any], L: dict[str, Any], sec: dict[str, Any], margi
             min(sec["width"] + margin, max(xs) + pad), min(sec["height"] + margin, max(ys) + pad))
 
 
-def make_images(L: dict[str, Any], cases: list[dict[str, Any]], out: Path) -> None:
+def plan_images(L: dict[str, Any], cases: list[dict[str, Any]]) -> None:
+    """사례마다 그림의 원본(섹션 합성 plain · 섹션 전체 clean 파일)과 잘라 낼 자리를 정한다 — 파일은 쓰지 않는다.
+    페이지 생성과 집계가 같은 계획을 쓴다(집계는 이 계획의 원본 파일 해시로 지문을 다시 낸다)."""
     from PIL import Image
     run = L["run"]
     secs = {s["key"]: s for s in L["inp"]["sections"]}
@@ -246,6 +248,36 @@ def make_images(L: dict[str, Any], cases: list[dict[str, Any]], out: Path) -> No
     for v in L["V"]:
         if L["meta"][v]["renderDpr"] != rdpr:
             raise SystemExit(f"그림 배율이 다르다: before {rdpr} · {v} {L['meta'][v]['renderDpr']}")
+    widths: dict[Path, int] = {}
+
+    def width(p: Path) -> int:
+        if p not in widths:
+            if not p.is_file():
+                raise SystemExit(f"섹션 그림이 없다: {p} — 측정을 다시 실행한다")
+            with Image.open(p) as im:
+                widths[p] = im.width
+        return widths[p]
+
+    for c in cases:
+        sk = L["B"][c["key"]]["sectionKey"]
+        sec = secs[sk]
+        srcs = {side: _section_png(run, v, sk, "plain") for side, v in (("L", c["left"]), ("R", c["right"])) if v}
+        margin = min((width(p) / rdpr - sec["width"]) / 2 for p in srcs.values())
+        x0, y0, x1, y1 = crop_region(c, L, sec, margin)
+        c["crop"] = {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0, "dpr": rdpr}
+        c["src"] = srcs
+        c["img"] = {side: f"img/{c['group']}_{c['key'].replace('/', '_')}.{side}.png" for side in srcs}
+        if c.get("thumb"):
+            p = _section_png(run, c["thumb"], sk, "clean")
+            width(p)
+            c["thumbSrc"] = p
+            c["thumbImg"] = {"src": Path("..", p.relative_to(run)).as_posix(), "w": sec["width"], "h": sec["height"]}
+
+
+def make_images(L: dict[str, Any], cases: list[dict[str, Any]], out: Path) -> None:
+    from PIL import Image
+    plan_images(L, cases)
+    secs = {s["key"]: s for s in L["inp"]["sections"]}
     (out / "img").mkdir(parents=True, exist_ok=True)
     cache: dict[Path, Any] = {}
 
@@ -257,24 +289,13 @@ def make_images(L: dict[str, Any], cases: list[dict[str, Any]], out: Path) -> No
         return cache[p]
 
     for c in cases:
-        sk = L["B"][c["key"]]["sectionKey"]
-        sec = secs[sk]
-        margin = min((im(_section_png(run, v, sk, "plain")).width / rdpr - sec["width"]) / 2 for v in (c["left"], c["right"]) if v)
-        x0, y0, x1, y1 = crop_region(c, L, sec, margin)
-        c["crop"] = {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0, "dpr": rdpr}
-        c["img"] = {}
-        for side, v in (("L", c["left"]), ("R", c["right"])):
-            if not v:
-                continue
-            src = im(_section_png(run, v, sk, "plain"))
+        sec = secs[L["B"][c["key"]]["sectionKey"]]
+        cr, rdpr = c["crop"], c["crop"]["dpr"]
+        for side, p in c["src"].items():
+            src = im(p)
             g = (src.width / rdpr - sec["width"]) / 2
-            box = tuple(round((a + g) * rdpr) for a in (x0, y0, x1, y1))
-            name = f"img/{c['group']}_{c['key'].replace('/', '_')}.{side}.png"
-            src.crop(box).save(out / name)
-            c["img"][side] = name
-        if c.get("thumb"):
-            p = _section_png(run, c["thumb"], sk, "clean")
-            c["thumbImg"] = {"src": Path("..", p.relative_to(run)).as_posix(), "w": sec["width"], "h": sec["height"]}
+            box = tuple(round((a + g) * rdpr) for a in (cr["x"], cr["y"], cr["x"] + cr["w"], cr["y"] + cr["h"]))
+            src.crop(box).save(out / c["img"][side])
 
 
 # ───────────────────────── 지문 · 페이지 ─────────────────────────
@@ -282,14 +303,30 @@ def make_images(L: dict[str, Any], cases: list[dict[str, Any]], out: Path) -> No
 ENV_KEYS = ("tool", "inputSha256", "browser", "platform", "metricsProbe", "dpr", "renderDpr", "fonts", "toolAssets")
 
 
-def fingerprint(L: dict[str, Any], cases: list[dict[str, Any]], out: Path | None) -> str:
-    """검토 지문 — 사용한 측정들의 환경 · 입력 지문, 사례(묶음 · 키 · 선 · 보여 준 사실), 확대 그림 바이트. 하나라도 바뀌면 이전 TSV를 거절한다."""
-    env = {v: {k: m.get(k) for k in ENV_KEYS} for v, m in sorted(L["meta"].items())}
+def fe_modules(meta: dict[str, Any]) -> dict[str, Any]:
+    """측정에 쓴 FE 공통 모듈의 원본 해시(모듈 이름 → source_sha256)."""
+    return {k: v.get("source_sha256") for k, v in ((meta.get("fe") or {}).get("modules") or {}).get("modules", {}).items()}
+
+
+def fingerprint(L: dict[str, Any], cases: list[dict[str, Any]]) -> str:
+    """검토 지문 — 사용한 측정들의 환경 · 입력 지문 · FE 모듈 해시, 사례(묶음 · 키 · 선 · 보여 준 사실 · 잘라 낸 자리),
+    사례가 보여 준 원본 그림(섹션 합성 plain · 섹션 전체 clean) 파일 바이트. 측정을 다시 하면 원본 그림이 바뀌므로 페이지를
+    다시 만들지 않은 이전 검토는 집계에서 거절된다. plan_images를 먼저 불러야 한다."""
+    env = {v: {**{k: m.get(k) for k in ENV_KEYS}, "feModules": fe_modules(m)} for v, m in sorted(L["meta"].items())}
+    hashes: dict[Path, str] = {}
+
+    def sha(p: Path) -> str:
+        if p not in hashes:
+            hashes[p] = hashlib.sha256(p.read_bytes()).hexdigest()
+        return hashes[p]
+
     items = []
     for c in cases:
-        imgs = {s: hashlib.sha256((out / p).read_bytes()).hexdigest() for s, p in sorted(c.get("img", {}).items())} if out else None
-        items.append([c["group"], c["key"], c["left"], c["right"], c["rects"], c["info"], c.get("lines"), imgs])
-    raw = json.dumps({"scheme": 1, "env": env, "cases": items}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        srcs = {s: sha(p) for s, p in sorted(c["src"].items())}
+        if c.get("thumbSrc"):
+            srcs["thumb"] = sha(c["thumbSrc"])
+        items.append([c["group"], c["key"], c["left"], c["right"], c["rects"], c["info"], c.get("lines"), c["crop"], srcs])
+    raw = json.dumps({"scheme": 2, "env": env, "cases": items}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -303,7 +340,7 @@ def build_page(run: Path, main: str = MAIN) -> Path:
     cases = pick(L, bg.spill_busy)
     out = run / "check"
     make_images(L, cases, out)
-    fp = fingerprint(L, cases, out)
+    fp = fingerprint(L, cases)
     n_in: collections.Counter = collections.Counter()
     data = []
     for c in cases:
@@ -334,16 +371,12 @@ TSV_COLUMNS = ("case_no", "group", "key", "verdict", "note", "review_fingerprint
 
 
 def load_review(run: Path, tsv: Path, main: str = MAIN) -> tuple[list[dict[str, Any]], dict[str, dict[str, str]], str]:
-    """TSV를 검증해 읽는다 — 열 · 지문 · 사례 · 판단값 · 중복 중 하나라도 어기면 종료. 지문은 페이지를 만들 때 쓴 그림까지 다시 계산한다."""
+    """TSV를 검증해 읽는다 — 열 · 지문 · 사례 · 판단값 · 중복 중 하나라도 어기면 종료. 지문은 지금 회차 자료(측정 meta · FE 모듈 ·
+    사례 · 원본 섹션 그림)로 다시 계산한다 — 페이지(check/)에 남은 그림은 쓰지 않는다."""
     L = load(run, main)
     cases = pick(L, ae.Backgrounds(L["inp"]).spill_busy)
-    out = run / "check"
-    for c in cases:  # 그림 이름은 make_images와 같은 규칙 — 다시 만들지 않고 있는 그림의 바이트로 지문을 낸다
-        c["img"] = {s: f"img/{c['group']}_{c['key'].replace('/', '_')}.{s}.png" for s, v in (("L", c["left"]), ("R", c["right"])) if v}
-        for p in c["img"].values():
-            if not (out / p).is_file():
-                raise SystemExit(f"검토 그림이 없다: {out / p} — page를 다시 만들고 다시 검토한다")
-    fp = fingerprint(L, cases, out)
+    plan_images(L, cases)
+    fp = fingerprint(L, cases)
     return cases, read_tsv(tsv, fp, {case_id(c) for c in cases}), fp
 
 

@@ -107,7 +107,7 @@ def _account(db: Session, ident: social_auth.Identity):
              "n": name if name_st == "set" else None}).mappings().first()
         if row is not None:
             db.commit()
-            log.info("oauth.account_created provider=%s", ident.provider)
+            log.info("oauth.account_created provider=%s seller=%s%s", ident.provider, row["id"], auth_allowlist.log_email(row["email"]))
             return row
         row = _find(db, ident.provider, ident.subject)  # 다른 요청이 먼저 만들었다 — 그 행에 아래 갱신 규칙을 적용
     sets, params = [], {"id": row["id"]}
@@ -142,9 +142,11 @@ def social_complete(body: SocialLoginRequest, request: Request, x_requested_with
             ident = social_auth.kakao_identity(cfg, body.code, c.verifier, lambda sub: _find(db, "kakao", sub) is not None)
         else:
             ident = social_auth.google_identity(cfg, body.code, c.verifier, c.nonce)
-        if auth_allowlist.enabled() and not auth_allowlist.is_allowed(_allowlist_email(db, ident)):
-            log.warning("oauth.login_not_allowed provider=%s", cfg.provider)
-            raise account_not_allowed()  # 아래 `except Exception` 이 시도를 닫는다(fail) — 계정·세션은 만들지 않았다
+        if auth_allowlist.enabled():
+            judged = _allowlist_email(db, ident)
+            if not auth_allowlist.is_allowed(judged):
+                log.warning("oauth.login_not_allowed provider=%s%s", cfg.provider, auth_allowlist.log_email(judged))  # 계정 생성 전 — 판매자 id 없음
+                raise account_not_allowed()  # 아래 `except Exception` 이 시도를 닫는다(fail) — 계정·세션은 만들지 않았다
         seller = _account(db, ident)
     except social_auth.AuthFailed:
         social_auth.fail(c)
@@ -171,7 +173,7 @@ def social_complete(body: SocialLoginRequest, request: Request, x_requested_with
         raise session_unavailable()
     if status != "ok":  # 점유 상한·시도 수명이 지났거나, 그 사이 로그아웃·새 시작이 있었다 — 세션을 만들지 않았다
         raise _unauthorized("state_invalid")
-    log.info("oauth.login provider=%s", cfg.provider)
+    log.info("oauth.login provider=%s seller=%s%s", cfg.provider, seller["id"], auth_allowlist.log_email(seller["email"]))
     resp = JSONResponse({"accessToken": issue_access(session, seller["email"]), "seller": {"id": seller["id"], "email": seller["email"]}},
                         headers={"Cache-Control": "no-store"})
     _set_refresh_cookie(resp, refresh_token, session)

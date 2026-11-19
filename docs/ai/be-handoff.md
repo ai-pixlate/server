@@ -410,10 +410,10 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 | E1 | 활성 검사에 `llm`을 넣어 `translation_review`를 등록 · 실행 · 채택한다(8.1~8.8 원칙 그대로) | 설명이 만들어지는 유일한 경로. 3차 LLM 연결 제안(#83)의 일정 확인 | BE |
 | E2 | LLM 결과 유효성 키로 `review.review_input_keys(request, cfg)`를 쓴다(contract 5.3) | N5 수정 · 분류 변경 뒤 이전 설명을 현재 결과로 보이지 않게 | BE(저장 위치) |
 | E3 | 채택 때 `translation_llm_review` flag에 같은 블록 · 같은 `external_id` 판정의 `reason` · `unverified_conditions`를 함께 저장한다(BE가 채택 payload에서 복사, AI 보고 형식 그대로). 대안: AI flag 후보에 두 필드를 추가(AI 출력 · 검증기 변경) | LLM 판단 이유는 사전 행 · `section_verdict`에 없어 7.1 중복 저장 금지의 대상이 아니다. 조회 때 채택 payload를 다시 읽지 않게 | BE(`compliance_flags` JSON 확장) · 대안이면 AI |
-| E4 | LLM flag를 `prohibited_expression` 신호로 내고 `reason`에 판단 이유를, `condition_unverifiable`이면 확인할 조건을 함께 싣는다. `basisArticle`은 판정이 단 evidence의 조문(`supplied_items` 스냅샷). 신호 단위는 블록 × 사전 항목(위치는 묶음)이고 같은 블록 · 같은 항목의 조건부 경고와는 하나로 보인다(8.11) | 판단 이유는 항목마다 1개. 8.11 조건 표시 · 중복 통합 결정을 따르는 최소 변경 | BE · FE(같은 코드 신호가 블록에 여러 개 올 수 있음) |
+| E4 | LLM flag를 `prohibited_expression` 신호로 내고 `reason`에 판단 이유를, `condition_unverifiable`이면 확인할 조건을 함께 싣는다. `basisArticle`은 판정이 단 evidence의 조문(`supplied_items` 스냅샷)으로 BE가 채운다 — 판단 이유 문장에는 조문을 넣지 않고(AI 프롬프트 실험 · 사용자 검수 2026-11-19), 화면은 "판단 이유 (출처)"로 보인다(FE 통합 브랜치가 이미 `reason (basisArticle)`로 표시). 정할 것: `basisArticle`에 조문만 넣을지(현 OpenAPI "조문 식별자만") 출처 이름까지 넣을지(예: "FDA 경고 서한 201(g)(1)" — API 설명 변경) · 근거가 여러 개일 때 고르는 규칙(대표 근거 우선 후보). 신호 단위는 블록 × 사전 항목(위치는 묶음)이고 같은 블록 · 같은 항목의 조건부 경고와는 하나로 보인다(8.11) | 판단 이유는 항목마다 1개. 8.11 조건 표시 · 중복 통합 결정을 따르는 최소 변경 | BE · FE(같은 코드 신호가 블록에 여러 개 올 수 있음) |
 | E5 | `insufficient_evidence` · `insufficient_context`는 표시가 정해질 때까지(#81) 신호로 내지 않는다. `basis_summary=dictionary_only` risk는 판정 구분 필드(#82)가 정해질 때까지 위반 확정처럼 보이지 않게 한다 | 기존 미결을 앞당겨 정하지 않으면서 근거가 약한 결과를 단정 표시하지 않게 | BE · FE · PM |
 | E6 | 규칙 검사 신호의 `reason`(현재 null)을 사전 사유로 채울지 정한다 | 규칙 · LLM 결과는 같은 등급 한 신호(8.11) — 한쪽만 설명이 있으면 화면이 고르지 않다. AI 생성 설명이 아닌 선택 사항 | BE · PM |
-| E7 | LLM 호출 시간 제한 · 재시도 운영값을 정한다 | 실측에서 개발 잠정값 60초로 화장품 섹션 호출 4회 중 2회 실패 — 실패면 설명 대신 「⚠ 검사하지 못했습니다」 | BE(실행 정책) · AI(config 기본값은 사용자 확정) |
+| E7 | LLM 호출 시간 제한 · 출력 상한 · 분할 크기 · 재시도 운영값을 정한다 | 실측에서 개발 잠정값 60초로 화장품 섹션 호출 4회 중 2회 시간 초과, 출력 상한 16,384로 40회 중 11회 응답 잘림(같은 설정 재시도 불가) — 실패면 설명 대신 「⚠ 검사하지 못했습니다」 | BE(실행 정책) · AI(config 기본값은 사용자 확정) |
 
 **합의 전에 완료할 수 없는 것**: 운영 LLM 실행 · 판단 이유 저장 · API 신호 변환 · 화면 표시 확인, 같은 코드 다중 신호의 경고 확인 식별(#82 warningKey), LLM 최종 실패의 확인 절차(#81).
 

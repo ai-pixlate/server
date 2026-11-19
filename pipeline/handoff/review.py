@@ -17,7 +17,8 @@
 - 결과는 문제없음 · 경고 등급 · 확정 허용을 뜻하지 않는다. 신호 코드 · 표시 · 확인 정책은 BE · FE가 정한다.
 요청 지문 — `review_manifest(request, cfg)`는 실행 없이 고정 요청 지문(revision 포함)을 계산한다. BE가 등록 때
 expected_input_manifest_sha256으로 고정해 요청 · 시도 정합성 검증에 쓴다(최신 DB 사전으로 바꾸지 않는다). 현재 결과 유효성(`check.inputKey`)에는
-쓰지 않는다 — 배치만 바뀐 저장에도 값이 바뀐다. LLM 판정의 블록별 의미 입력 키(섹션 문맥 포함) 함수는 아직 없다.
+쓰지 않는다 — 배치만 바뀐 저장에도 값이 바뀐다. 현재 결과 유효성은 블록별 의미 입력 키 `review_input_keys(request, cfg)`(섹션 문맥 포함,
+revision 제외)로 판단한다.
 """
 from __future__ import annotations
 
@@ -46,6 +47,7 @@ from pipeline.types import TextBlock
 from pipeline.vlm import JudgeAssistant
 
 REVIEW_ADAPTER_VERSION = "translation-review-handoff@2026-10-12.1"
+REVIEW_INPUT_KEY_VERSION = "translation-review-input-key@2026-11-19.1"
 PRODUCER = "translation_llm_review"
 CHECK_VERDICTS = ("regulated", "conditional")
 
@@ -256,6 +258,48 @@ def review_manifest(raw: Any, cfg: dict[str, Any]) -> tuple[dict[str, Any], str]
     except _Fail as e:
         raise ValueError(f"{e.kind}: {e}") from e
     return p.manifest, p.msha
+
+
+def _semantic_context(p: _Prepared) -> list[dict[str, Any]]:
+    """LLM이 읽는 섹션 문맥에서 저장 revision · 배치를 뺀 것(순서 · 역할 · 원문 · 대상 여부 · 라벨/로고 · 대상 번역문)."""
+    tmap = {t.block_key: t for t in p.req.targets}
+    return [{"block_key": s.block_key, "block_order": s.block_order, "role": s.role, "source_sha256": sha256_text(s.source_ko),
+             "is_target": s.block_key in tmap, "is_product_label": s.is_product_label, "is_brand_logo": s.is_brand_logo,
+             "translation_sha256": sha256_text(tmap[s.block_key].text) if s.block_key in tmap else None}
+            for s in sorted(p.section, key=lambda s: (s.block_order, s.block_key))]
+
+
+def review_input_key_material(raw: Any, cfg: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """`review_input_keys`가 해시하는 블록별 재료(감사 · 디버깅용). 요청 · 설정 · 묶음 · 입력 불변식이 잘못되면 ValueError —
+    그 입력은 검사할 수 없으므로 키를 추정해 만들지 않는다."""
+    try:
+        _, p = _prepare(raw, cfg)
+    except _Fail as e:
+        raise ValueError(f"{e.kind}: {e}") from e
+    common = {
+        "key_version": REVIEW_INPUT_KEY_VERSION, "target": {"country": p.req.target_country, "lang": p.req.target_lang},
+        "class_basis": p.class_basis, "section_key": p.req.section_key, "context": _semantic_context(p),
+        "items": {"check": [item_snapshot(i) for i in p.checks], "reference": [item_snapshot(i) for i in p.refs]},
+        "model": p.impl["model"], "prompt_sha256": p.impl["prompt_sha256"], "limits": p.manifest["limits"],
+        "implementation": {"adapter": REVIEW_ADAPTER_VERSION, "review_rules": rv.REVIEW_IMPL_VERSION},
+    }
+    return {t.block_key: {**common, "block_key": t.block_key} for t in p.req.targets}
+
+
+def review_input_keys(raw: Any, cfg: dict[str, Any]) -> dict[str, str]:
+    """LLM 판정 결과의 현재 유효성을 판단하는 블록별 의미 입력 키(불투명 문자열 — 같은지만 비교한다). 실행 · API 키 없이 계산한다.
+    규칙 검사의 `translation.text_check_input_keys`에 대응한다(contract 5.3 검사별 의미 입력).
+
+    - 고정 요청 · 시도 검증(`review_manifest` · `expected_input_manifest_sha256` · `validate_report`)과 별개다. 그 검증과 lease ·
+      현재 시도 · 취소/확정 보호를 대신하지 않으며, 블록별 키는 섹션 보고의 부분 채택을 허용하지 않는다.
+    - 포함: 블록 키 · 대상 국가 · 대상 언어 · 선택/적용 규제 분류 · 섹션 전체 문맥(순서 · 역할 · 원문 · 대상/비대상 · 라벨/로고 ·
+      대상 번역문) · 실제 소비한 검사/참고 항목 스냅샷 · 모델 설정 · 프롬프트 SHA · 구현 버전 · 분할 상한 · 키 버전.
+      섹션 문맥을 소비하므로 같은 섹션의 다른 블록이 바뀌어도 모든 대상 블록의 키가 바뀐다(contract 7.2).
+    - 제외: 저장 revision · 배치 · 배율 · 스타일 · 렌더 · 시도 식별 · 적용 분류 밖 항목 · 묶음의 다른 행(현지 사전 등) · 용어집 ·
+      `active_checks`. 모델 설정은 고정 요청 지문과 같은 범위(모델 · 온도 · 시간 제한 · 출력 상한)를 넣는다 — 설정이 바뀐 뒤의 과거
+      결과를 현재 결과로 추정하지 않는다.
+    - 외부 저장 · 전달 형식(필드명 · 타입 · 저장 위치)은 BE와의 연결 계약에서 정한다(`be-handoff.md` 8.12)."""
+    return {k: sha256_canonical(m) for k, m in review_input_key_material(raw, cfg).items()}
 
 
 # ---------------------------------------------------------------------------

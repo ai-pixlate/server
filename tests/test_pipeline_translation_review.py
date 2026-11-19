@@ -12,6 +12,7 @@ import pytest
 
 from pipeline.handoff import examples as ex
 from pipeline.handoff import review, translation
+from pipeline.handoff.bundle import bundle_content_sha256
 from pipeline.handoff.canonical import sha256_canonical
 from pipeline.handoff.check_aggregate import AggregateError, CheckInput, aggregate_block_checks
 from pipeline.handoff.validate import validate_report
@@ -271,6 +272,112 @@ def test_manifest_ignores_attempt_identity(cases, cfg):
     r2 = copy.deepcopy(req)
     r2["attempt_id"] = "a-9"
     assert review.review_manifest(copy.deepcopy(req), cfg)[1] == review.review_manifest(r2, cfg)[1]
+
+
+# ---------------------------------------------------------------------------
+# LLM 판정 의미 입력 키(contract 5.3 · 7.2) — 고정 요청 지문과 별개, revision · 배치 제외, 섹션 문맥 포함
+# ---------------------------------------------------------------------------
+def _keys(req, cfg):
+    return review.review_input_keys(copy.deepcopy(req), cfg)
+
+
+def test_input_keys_cover_targets_only_and_are_opaque(cases, cfg):
+    req, _ = cases["translation_review.completed"]
+    keys = _keys(req, cfg)
+    assert list(keys) == [t["block_key"] for t in req["targets"]]
+    assert all(len(v) == 64 and int(v, 16) >= 0 for v in keys.values())
+    assert len(set(keys.values())) == len(keys)  # 블록마다 다르다
+    assert keys == _keys(req, cfg)  # 결정적
+
+
+def _move_bbox(r, c):
+    for b in r["blocks"]:
+        b["bbox"] = {k: v + 3 for k, v in b["bbox"].items()}
+
+
+def _attempt(r, c):
+    r["attempt_id"] = "a-9"
+
+
+def _reg_row(r, external_id):
+    return next(e for e in r["bundle"]["regulation"]["entries"] if e["external_id"] == external_id)
+
+
+def _reseal(r):  # 묶음을 바꾼 뒤 BE가 다시 고정한 묶음처럼 지문을 갱신한다
+    r["bundle"]["bundle_sha256"] = bundle_content_sha256(r["bundle"])
+
+
+def _out_of_scope_row(r, c):  # 화장품 요청의 적용 분류 밖 OTC 행 — LLM이 소비하지 않는다
+    _reg_row(r, "RG-906")["reason"] = "합성: 바뀐 OTC 사유"
+    _reseal(r)
+
+
+def _local_dict(r, c):  # 현지 사전 행 — LLM 판정이 소비하지 않는다
+    r["bundle"]["local"]["entries"][0]["seller_message"] = "합성: 바뀐 셀러 안내"
+    _reseal(r)
+
+
+@pytest.mark.parametrize("change", [_change_target_revision, _change_context_revision, _move_bbox, _attempt, _out_of_scope_row,
+                                    _local_dict])
+def test_input_keys_ignore_revision_layout_and_unconsumed_rows(cases, cfg, change):
+    req, _ = cases["translation_review.completed"]
+    r2, c2 = copy.deepcopy(req), copy.deepcopy(cfg)
+    change(r2, c2)
+    if change in (_change_target_revision, _change_context_revision):
+        assert review.review_manifest(r2, c2)[1] != review.review_manifest(copy.deepcopy(req), cfg)[1]  # 요청 지문은 바뀐다
+    assert _keys(r2, c2) == _keys(req, cfg)
+
+
+def _other_target_text(r, c):
+    r["targets"][1]["text"] = r["targets"][1]["text"] + "!"
+
+
+def _target_becomes_context(r, c):
+    t = r["targets"].pop()
+    r["context"].append({"block_key": t["block_key"], "revision": t["revision"], "is_product_label": False, "is_brand_logo": False})
+
+
+def _check_row_reason(r, c):
+    _reg_row(r, "RG-901")["reason"] = "합성: 바뀐 사유"
+    _reseal(r)
+
+
+def _reference_row(r, c):
+    _reg_row(r, "RG-905")["variant_en"] = ["no fake cure ever"]
+    _reseal(r)
+
+
+def _change_lang(r, c):
+    r["target_lang"] = "en-US"
+
+
+@pytest.mark.parametrize("change", [_other_target_text, _change_context_label, _change_neighbor_source, _target_becomes_context,
+                                    _check_row_reason, _reference_row, _change_class, _change_lang, _change_model, _change_limits])
+def test_input_keys_change_for_every_target_when_consumed_input_changes(cases, cfg, change):
+    req, _ = cases["translation_review.completed"]
+    base = _keys(req, cfg)
+    r2, c2 = copy.deepcopy(req), copy.deepcopy(cfg)
+    change(r2, c2)
+    other = _keys(r2, c2)
+    assert all(other[k] != v for k, v in base.items() if k in other)  # 섹션 문맥을 소비하므로 남은 대상 블록 모두 바뀐다
+
+
+def test_input_keys_change_with_prompt_content(cases, cfg, tmp_path):
+    req, _ = cases["translation_review.completed"]
+    base = _keys(req, cfg)
+    p = tmp_path / "prompt.md"
+    p.write_text(Path(rv.REPO_ROOT / cfg["translation_review"]["prompt_path"]).read_text(encoding="utf-8") + "\n추가", encoding="utf-8")
+    cfg["translation_review"]["prompt_path"] = str(p)
+    assert all(_keys(req, cfg)[k] != v for k, v in base.items())
+
+
+def test_input_keys_refuse_invalid_input(cases, cfg):
+    req, _ = cases["translation_review.completed"]
+    bad = copy.deepcopy(req)
+    del bad["targets"][0]["is_product_label"]  # 누락을 false로 추정하지 않는다
+    with pytest.raises(ValueError):
+        review.review_input_keys(bad, cfg)
+
 
 
 # ---------------------------------------------------------------------------

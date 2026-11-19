@@ -549,22 +549,33 @@ class GeminiTranslationReviewAssistant(GeminiJudgeAssistant):
     response_schema = TRANSLATION_REVIEW_RESPONSE_SCHEMA
     stage_name = "⑧ 번역문 LLM 규제 판정"
 
-    def __init__(self, model: str, temperature: float, timeout_s: float, max_output_tokens: int) -> None:
+    def __init__(self, model: str, temperature: float, timeout_s: float, max_output_tokens: int,
+                 thinking_level: str | None = None) -> None:
         super().__init__(model, temperature, timeout_s)
         self.config = {**self.config, "max_output_tokens": max_output_tokens}
+        if thinking_level is not None:  # 없으면 모델 기본 사고량(이전 동작)
+            self.config["thinking_level"] = thinking_level
+
+    def generate_config(self) -> Any:
+        """요청 설정. 사고 토큰도 출력 상한에 포함되므로 thinking_level이 있으면 사고 단계를 정해 답할 자리를 남긴다."""
+        from google.genai import types as gtypes  # noqa: PLC0415
+
+        extra: dict[str, Any] = {}
+        if "thinking_level" in self.config:
+            extra["thinking_config"] = gtypes.ThinkingConfig(thinking_level=gtypes.ThinkingLevel[self.config["thinking_level"].upper()])
+        return gtypes.GenerateContentConfig(
+            temperature=self.config["temperature"],
+            max_output_tokens=self.config["max_output_tokens"],
+            response_mime_type="application/json",
+            response_schema=self.response_schema,
+            automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
+            **extra,
+        )
 
     def __call__(self, prompt: str, payload: str, image: Image.Image | None) -> LlmReply:
         try:
             client = self._client_or_raise()
-            from google.genai import types as gtypes  # noqa: PLC0415
-
-            config = gtypes.GenerateContentConfig(
-                temperature=self.config["temperature"],
-                max_output_tokens=self.config["max_output_tokens"],
-                response_mime_type="application/json",
-                response_schema=self.response_schema,
-                automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
-            )
+            config = self.generate_config()
             resp = client.models.generate_content(model=self.config["model"], contents=[prompt, payload], config=config)
             text = resp.text or ""
             um = getattr(resp, "usage_metadata", None)

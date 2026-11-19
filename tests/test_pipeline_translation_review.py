@@ -371,6 +371,53 @@ def test_input_keys_change_with_prompt_content(cases, cfg, tmp_path):
     assert all(_keys(req, cfg)[k] != v for k, v in base.items())
 
 
+def _with_level(cfg, level):
+    c = copy.deepcopy(cfg)
+    c["translation_review"]["thinking_level"] = level
+    return c
+
+
+def test_thinking_level_repo_default_is_low(cfg):
+    assert cfg["translation_review"]["thinking_level"] == "low"  # 사용자 확정 2026-11-19
+    assert cfg["translation_review"]["max_pairs_per_call"] == 40
+
+
+def test_thinking_level_default_keeps_previous_call_and_fingerprints(cases, cfg):
+    """"default" · 키 없음은 설정하지 않음 — 사고 설정을 보내지 않고, 호출 설정 · 요청 지문 · 의미 키가 같다."""
+    req, _ = cases["translation_review.completed"]
+    unset = _with_level(cfg, "default")
+    rv.validate_config(unset, need_api_key=False)
+    assert "thinking_level" not in rv.model_config(unset)
+    assert rv.default_assistant(unset).generate_config().thinking_config is None
+    absent = copy.deepcopy(unset)
+    del absent["translation_review"]["thinking_level"]
+    rv.validate_config(absent, need_api_key=False)
+    assert review.review_manifest(copy.deepcopy(req), absent)[1] == review.review_manifest(copy.deepcopy(req), unset)[1]
+    assert _keys(req, absent) == _keys(req, unset)
+
+
+def test_thinking_level_is_sent_and_changes_fingerprints(cases, cfg):
+    from google.genai import types as gtypes
+
+    req, _ = cases["translation_review.completed"]
+    unset = _with_level(cfg, "default")
+    base_manifest, base_keys = review.review_manifest(copy.deepcopy(req), unset)[1], _keys(req, unset)
+    c2 = _with_level(cfg, "low")
+    rv.validate_config(c2, need_api_key=False)
+    assert rv.model_config(c2)["thinking_level"] == "low"
+    assert rv.default_assistant(c2).generate_config().thinking_config.thinking_level == gtypes.ThinkingLevel.LOW
+    assert review.review_manifest(copy.deepcopy(req), c2)[1] != base_manifest  # 설정이 바뀐 시도는 다른 요청이다
+    assert all(_keys(req, c2)[k] != v for k, v in base_keys.items())  # 이전 설정의 결과를 현재 결과로 보지 않는다
+
+
+@pytest.mark.parametrize("bad", ["LOW", "none", "", 1, None, True])
+def test_thinking_level_rejects_unknown_value(cfg, bad):
+    c2 = copy.deepcopy(cfg)
+    c2["translation_review"]["thinking_level"] = bad
+    with pytest.raises(ValueError, match="thinking_level"):
+        rv.validate_config(c2, need_api_key=False)
+
+
 def test_input_keys_refuse_invalid_input(cases, cfg):
     req, _ = cases["translation_review.completed"]
     bad = copy.deepcopy(req)

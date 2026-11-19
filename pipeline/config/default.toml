@@ -130,5 +130,6 @@ prompt_path = "pipeline/prompts/translation_review.md"   # 초안 v1(실측 전)
 temperature = 0                # 개발용 잠정값
 timeout_s = 60                 # 분할 1회 호출 시간 제한(초). 개발용 — 운영 시간 · 재시도 한도는 BE 실행 정책
 max_input_chars = 60000        # 분할 1회 입력(프롬프트 원문 + 직렬화 페이로드)의 Unicode 코드 포인트 상한. 토큰 한도를 보장하지 않는다
-max_pairs_per_call = 120       # 분할 1회의 (대상 × 검사 항목) 쌍 상한. 개발용
+max_pairs_per_call = 40        # 분할 1회의 (대상 × 검사 항목) 쌍 상한. 사용자 확정 2026-11-19(120 → 40 — 120에서 큰 섹션 60초 시간 초과, 실험 기록 2026-11-19_08 4.8)
 max_output_tokens = 16384      # 응답 출력 상한. 이 한도로 잘린 응답은 같은 설정 재시도 불가 실패(response_invalid · retryable=false)
+thinking_level = "low"         # 사고 단계: default(설정 안 함 — 모델 기본) · minimal · low · medium · high. 사용자 확정 2026-11-19(사고 토큰이 출력 상한을 채워 답이 잘리던 문제, 실험 기록 2026-11-19_08 4.8)

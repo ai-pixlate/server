@@ -147,7 +147,7 @@ def login(body: LoginRequest, request: Request, response: Response, db: Session 
         raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "email is required",
                                                     "fields": [{"loc": ["body", "email"], "msg": "email is required"}]})
     if not auth_allowlist.is_allowed(email):  # 판매자·세션을 만들기 전에 — 목록 밖 이메일로 계정이 생기지 않게
-        log.warning("auth.login_not_allowed provider=local")
+        log.warning("auth.login_not_allowed provider=local%s", auth_allowlist.log_email(email))  # 판매자 생성 전 — 판매자 id 없음
         raise account_not_allowed()
 
     r = db.execute(  # local 계정만 — 같은 이메일의 소셜 계정은 고르지 않는다(같은 이메일 local 이 여럿일 때의 선택은 이 변경 전과 같음)
@@ -169,6 +169,7 @@ def login(body: LoginRequest, request: Request, response: Response, db: Session 
         raise session_unavailable()
     if replaced_seller is not None:
         log.info("auth.login_replaced_browser_session same_seller=%s", replaced_seller == r["id"])
+    log.info("auth.login provider=local seller=%s%s", r["id"], auth_allowlist.log_email(r["email"]))
     _set_refresh_cookie(response, refresh_token, session)
     return {"accessToken": issue_access(session, r["email"]), "seller": {"id": r["id"], "email": r["email"]}}
 
@@ -206,7 +207,7 @@ def refresh(request: Request, response: Response, x_requested_with: str = Header
                 auth_sessions.revoke(current.sid)
             except auth_sessions.Unavailable:
                 raise session_unavailable()
-            log.warning("auth.refresh_not_allowed session_revoked=1")
+            log.warning("auth.refresh_not_allowed seller=%s%s session_revoked=1", r["id"], auth_allowlist.log_email(r["email"]))
             raise account_not_allowed()
     try:
         rot = auth_sessions.rotate(cookie)

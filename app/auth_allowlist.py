@@ -12,6 +12,8 @@
 판정 대상 이메일은 호출부가 정한다 — 소셜 로그인은 제공자가 확인한 이메일(없으면 저장된 계정 이메일), 갱신·간이 로그인은 계정 이메일.
 이메일이 없으면(None·빈 값) 목록과 맞출 수 없으므로 켜진 상태에서는 거절이다.
 요청마다 환경 변수를 읽는다(다른 인증 설정과 같은 방식) — 재기동 없이 값을 바꾸는 운영은 하지 않지만 시험에서 바꿔 끼울 수 있다.
+로그인 기록 로그(사용자 11-19): 스위치가 켜져 있을 때만 로그인 · 계정 생성 · 거절 로그에 판정 · 처리에 쓴 이메일을 남긴다(log_email).
+목록 설정값 자체는 로그에 남기지 않는다. 스위치를 꺼도 이미 남은 로그는 지워지지 않는다.
 """
 import os
 from typing import Optional
@@ -47,3 +49,10 @@ def is_allowed(email: Optional[str]) -> bool:
     if not isinstance(email, str) or not email.strip():
         return False
     return email.strip().lower() in allowed_emails()
+
+
+def log_email(email: Optional[str]) -> str:
+    """로그인 기록 로그에 붙일 이메일 조각(사용자 11-19 결정 — 「허용 목록 활성화 시 이메일 기록」, dev 전용 규칙이 아니다).
+    스위치가 켜져 있으면 ` email=<repr>` — 판정·처리에 쓴 이메일을 %r 로(따옴표 안, 줄바꿈·제어문자는 이스케이프되어 한 줄 유지),
+    꺼져 있으면 빈 문자열(이메일 필드 자체를 생략). 스위치를 꺼도 이미 남은 로그는 지워지지 않는다."""
+    return f" email={email!r}" if enabled() else ""

@@ -21,7 +21,7 @@ import pytest
 from tests.exec_db import requires_db
 from tests.test_auth_social import (  # noqa: F401 — 고정물은 이름으로 가져와야 이 모듈에서 쓸 수 있다
     Browser, _google, _kakao, _me, _no_cookies, _post, _reason, _seller, _sessions, _uid,
-    client, clock, dburl, env, other_key, prov, rds, requires_redis, rsa_key,
+    client, clock, dburl, env, live_logs, other_key, prov, rds, requires_redis, rsa_key,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -233,3 +233,125 @@ def test_local_login_not_in_list_creates_nothing(client, rds, dburl, monkeypatch
     assert _sessions(rds) == before
     ok = _post(client, "/v1/auth/login", json={"email": "Member@example.com", "password": "x"})
     assert ok.status_code == 200, ok.text
+
+
+# ───────────────────────────── 로그인 기록 로그(사용자 11-19 — 「허용 목록 활성화 시 이메일 기록」) ─────────────────────────────
+# 스위치 on: 로그인 · 계정 생성 · 거절 로그에 판정 · 처리에 쓴 이메일을 %r 로. off: 이메일 필드 자체를 생략. 판매자 id 는 있을 때만(거절 전 계정 생성 없음).
+
+def _log_text(caplog) -> str:
+    return " ".join(m.getMessage() for m in caplog.records)
+
+
+@stack
+def test_social_login_logs_omit_email_when_switch_off(client, prov, dburl, caplog, live_logs):
+    import logging
+
+    uid = _uid()
+    with caplog.at_level(logging.INFO, logger="pixlate.auth.social"):
+        Browser(client, prov).login("kakao", _kakao(uid, email="first@example.com"))
+    sid = _seller(dburl, "kakao", uid)[0]["id"]
+    text = _log_text(caplog)
+    assert f"oauth.account_created provider=kakao seller={sid}" in text and f"oauth.login provider=kakao seller={sid}" in text
+    assert "email=" not in text and "first@example.com" not in text
+
+
+@stack
+@pytest.mark.parametrize("switch", ["disabled"])
+def test_social_login_logs_omit_email_when_switch_disabled_explicitly(client, prov, dburl, caplog, live_logs, monkeypatch, switch):
+    import logging
+
+    monkeypatch.setenv(SWITCH, switch)
+    uid = _uid()
+    with caplog.at_level(logging.INFO, logger="pixlate.auth.social"):
+        Browser(client, prov).login("kakao", _kakao(uid, email="first@example.com"))
+    text = _log_text(caplog)
+    assert "oauth.login provider=kakao seller=" in text and "email=" not in text and "first@example.com" not in text
+
+
+@stack
+def test_social_login_logs_seller_and_email_when_switch_on(client, prov, dburl, caplog, live_logs, monkeypatch):
+    import logging
+
+    _on(monkeypatch, "first@example.com")
+    uid = _uid()
+    with caplog.at_level(logging.INFO, logger="pixlate.auth.social"):
+        Browser(client, prov).login("kakao", _kakao(uid, email="First@Example.com"))
+    sid = _seller(dburl, "kakao", uid)[0]["id"]
+    text = _log_text(caplog)
+    assert f"oauth.account_created provider=kakao seller={sid} email='First@Example.com'" in text
+    assert f"oauth.login provider=kakao seller={sid} email='First@Example.com'" in text
+    caplog.clear()
+    with caplog.at_level(logging.INFO, logger="pixlate.auth.social"):
+        Browser(client, prov).login("kakao", _kakao(uid, email="First@Example.com"))
+    text = _log_text(caplog)
+    assert "oauth.account_created" not in text and f"oauth.login provider=kakao seller={sid} email='First@Example.com'" in text
+
+
+@stack
+def test_social_not_allowed_logs_judged_email_without_seller(client, prov, caplog, live_logs, monkeypatch):
+    import logging
+
+    _on(monkeypatch, "member@example.com")
+    with caplog.at_level(logging.INFO, logger="pixlate.auth.social"):
+        _attempt(Browser(client, prov), "google", _google(f"g-{uuid.uuid4().hex[:12]}", email="Outsider@Example.com"))
+    text = _log_text(caplog)
+    assert "oauth.login_not_allowed provider=google email='Outsider@Example.com'" in text
+    assert "seller=" not in text  # 계정을 만들기 전 거절 — 판매자 id 를 만들어 넣지 않는다
+    assert "oauth.login " not in text and "oauth.account_created" not in text
+
+
+@stack
+def test_social_not_allowed_without_verified_email_logs_none(client, prov, caplog, live_logs, monkeypatch):
+    import logging
+
+    _on(monkeypatch, "member@example.com")
+    with caplog.at_level(logging.INFO, logger="pixlate.auth.social"):
+        _attempt(Browser(client, prov), "kakao", _kakao(_uid(), email="member@example.com", verified=False))
+    assert "oauth.login_not_allowed provider=kakao email=None" in _log_text(caplog)
+
+
+@stack
+def test_refresh_not_allowed_logs_seller_and_email(client, prov, dburl, caplog, live_logs, monkeypatch):
+    import logging
+
+    uid = _uid()
+    b = Browser(client, prov)
+    b.login("kakao", _kakao(uid, email="was-member@example.com"))
+    sid = _seller(dburl, "kakao", uid)[0]["id"]
+    _on(monkeypatch, "member@example.com")
+    with caplog.at_level(logging.INFO, logger="pixlate.auth"):
+        r = _post(client, "/v1/auth/refresh", b.jar())
+    assert r.status_code == 401 and _reason(r) == "account_not_allowed"
+    assert f"auth.refresh_not_allowed seller={sid} email='was-member@example.com' session_revoked=1" in _log_text(caplog)
+
+
+@stack
+def test_local_login_logs_email_only_when_switch_on(client, caplog, live_logs, monkeypatch):
+    import logging
+
+    off_email = f"off-{uuid.uuid4().hex[:8]}@example.com"
+    with caplog.at_level(logging.INFO, logger="pixlate.auth"):
+        off = _post(client, "/v1/auth/login", json={"email": off_email, "password": "x"})
+    assert off.status_code == 200
+    text = _log_text(caplog)
+    assert f"auth.login provider=local seller={off.json()['seller']['id']}" in text and "email=" not in text and off_email not in text
+    caplog.clear()
+    _on(monkeypatch, "member@example.com")
+    with caplog.at_level(logging.INFO, logger="pixlate.auth"):
+        bad = _post(client, "/v1/auth/login", json={"email": "Out@Example.com", "password": "x"})
+        ok = _post(client, "/v1/auth/login", json={"email": "Member@example.com", "password": "x"})
+    assert bad.status_code == 401 and ok.status_code == 200
+    text = _log_text(caplog)
+    assert "auth.login_not_allowed provider=local email='out@example.com'" in text and "seller=None" not in text
+    assert f"auth.login provider=local seller={ok.json()['seller']['id']} email='member@example.com'" in text
+
+
+def test_log_email_escapes_control_characters(monkeypatch):
+    from app import auth_allowlist as al
+
+    assert al.log_email("a@b.com") == ""  # 미설정 = 생략
+    _on(monkeypatch, "a@b.com")
+    for v in ("x@y.com\nFAKE oauth.login provider=google seller=1", "c@d.com\r\x1b[31m", "e@f.com g"):
+        out = al.log_email(v)
+        assert out.startswith(" email=") and "\n" not in out and "\r" not in out and "\x1b" not in out and " " not in out
+    assert al.log_email(None) == " email=None"

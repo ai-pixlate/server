@@ -475,6 +475,7 @@ is_product_label OR is_brand_logo
 - 규칙의 regulated·conditional 매칭은 `type=regulatory`로 보존하며 `dictionary_verdict_status`·사전 ID·span을 유지한다. 매칭을 위반 확정으로 표시하지 않는다. Notion A9에 따라 내부 원판정·조건·근거를 보존한다. 2차 공개 신호는 금지·조건부 모두 `prohibited_expression`으로 FE·PM 확정이며, 두 판정을 구별할 공개 필드의 이름·값은 미정이다. 강제 용어 미적용은 `type=mandatory_term_unapplied`이며 `producer=glossary_validation`이 소유·교체한다. A9의 확정 전 확인 대상 제외 제안은 Notion에서 PM 미승인이다. 이 제안과 별도로 OpenAPI의 2차 ConfirmRequest는 포함 섹션의 `translation_failed`만 필수 확인 대상으로 명시한다. 강제 용어 근거는 보존한다. [BE–AI §3.3 A9]
 - producer별 소유·교체 원칙은 BE–AI 채택이다. 아래 LLM 예제의 추가 필드(`judgment` · `undetermined_reason` · `location_key`)와 위치 네 필드의 null 표현은 AI 내부 형식이며 외부 저장/API 스키마는 공동 확정 전이다. [통합 D12] [BE–AI §3.3]
 - `translation_llm_review` 항목은 `detected_by: "llm"`이며 `judgment`(risk · undetermined) · `undetermined_reason` · `location_key`를 더 갖는다. no_risk는 항목을 만들지 않는다. 위치마다 1건이고 위치 없는 undetermined는 `problem_text` · `start` · `end` · `location_key` 네 필드가 모두 null인 1건이다(네 필드는 모두 있거나 모두 null). `location_key`는 한 보고의 블록 결과 안에서만 유일하므로 시도와 함께 식별한다. 근거 ID는 원본 `external_id`로 받으며 DB id 변환은 BE가 한다. [통합 D12]
+- LLM 판단 이유(`reason`) · 미확인 조건(`unverified_conditions`)은 위 flag 항목에 없고 보고의 블록 판정(`judgments[]`)에만 있다 — 같은 블록 · 같은 `external_id`의 판정 1건이 대응한다. 이를 저장하고 화면 신호로 전달하는 형식은 **정하지 않았다**(미합의 제안 `be-handoff.md` 8.13, `open-questions.md` #91). [통합 D12]
 
 ```json
 {"type": "regulatory", "producer": "translation_llm_review", "revision": 4, "external_id": "RG-001",

@@ -379,6 +379,29 @@ def test_input_keys_refuse_invalid_input(cases, cfg):
         review.review_input_keys(bad, cfg)
 
 
+# ---------------------------------------------------------------------------
+# 판단 이유 전달 — 현재 보고만으로 flag 후보마다 판정 1건(판단 이유 · 미확인 조건 · 근거)을 찾을 수 있는지
+# (flag 형식은 바꾸지 않는다. 외부 저장 · API 연결 형식은 미합의 — contract 7.1 제안)
+# ---------------------------------------------------------------------------
+def test_every_llm_flag_joins_one_judgment_with_reason(cases):
+    _, rep = _run(cases, "translation_review.completed")
+    n = 0
+    for b in rep.payload["blocks"]:
+        for f in b["flags"]:
+            js = [j for j in b["judgments"] if j["external_id"] == f["external_id"]]
+            assert len(js) == 1  # (블록, 항목)마다 판정 1건
+            j = js[0]
+            assert j["judgment"] == f["judgment"] != "no_risk" and j["reason"].strip()
+            if f["location_key"] is None:
+                assert not j["locations"]
+            else:
+                loc = [x for x in j["locations"] if x["location_key"] == f["location_key"]]
+                assert len(loc) == 1 and (loc[0]["quote"], loc[0]["start"], loc[0]["end"]) == (f["problem_text"], f["start"], f["end"])
+            if j["undetermined_reason"] == "condition_unverifiable":
+                assert j["unverified_conditions"]
+            n += 1
+    assert n > 0
+
 
 # ---------------------------------------------------------------------------
 # 검증기 — 판정 ↔ 분할 · 실패 payload 혼입

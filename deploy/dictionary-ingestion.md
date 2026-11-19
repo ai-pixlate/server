@@ -328,7 +328,10 @@ dict_recheck
 - 채널 행의 규정 원문 · `evidence_article` · `evidence_url` → 근거 표 대표 근거 1행. **새 내부 저장 규칙:** `evidence_source_type = 'channel_policy'`,
   근거 `external_id` = 사전 항목 ID(`CH-01` 등 — 파일에 근거 ID 가 없다), `evidence_document` NULL. 국가 행에 이 세 열 값이 있으면 버리지 않고 오류.
 - 저장하지 않는 열: `구역` · `상태` · `kr_freq` · `kr_corpus`(데이터 지정 검토용 · 근거용). 원본 파일을 보관한다.
-- **적재 ≠ 서비스 판정.** 현재 분석 묶음(`app/dictionary_bundle.py`)은 v9 현지 판정값을 `skipped` 로 두고(현지 묶음 `unavailable`) 채널 행은 조회하지 않는다. 현지 · 채널 판정은 3차.
+- **적재 ≠ 서비스 판정.** 채널 행은 분석 묶음(`app/dictionary_bundle.py`)이 조회하지 않는다 — 채널 판정은 3차.
+  - 현지 v9 판정값(`must_fix` · `needs_check`)은 분석 묶음이 의미 대응(`docs/ai/contract.md` 4.2 — `irrelevant` ↔ `must_fix`, `needs_fix` ↔ `needs_check`)으로 서비스 판정값(`irrelevant` · `needs_fix`)으로 바꿔 공급한다(`LOCAL_V9_SERVICE`, 사용자 결정 2026-11-19 — 2차 유지).
+  - DB 사전 행은 v9 원값 그대로다. 판정값 이름 이관(AI 인계 형식 · DB 판정 · 공개 API enum · FE 표시)은 3차.
+  - 이전(이 대응 전) 동작: v9 현지 판정값을 `skipped` 로 두어 현지 묶음이 `unavailable` 이었다 — 11-10 dev 사전 전체 교체 뒤 만든 작업은 현지 판정 없이(`not_inspected`) 분석됐다. 그 작업들은 다시 분석하지 않는 한 그대로다.
 
 ### 카테고리 v3(`app/category_load.py`)
 - `02_표시카테고리` 148행 → 노드 200(대 10 · 중 54 · 소 136, 리프 148) · 매핑 148. 파일 순서 = id 순(FE 형제 순서).

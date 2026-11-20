@@ -12,6 +12,7 @@ import pytest
 
 from pipeline.handoff import examples as ex
 from pipeline.handoff import review, translation
+from pipeline.handoff.bundle import bundle_content_sha256
 from pipeline.handoff.canonical import sha256_canonical
 from pipeline.handoff.check_aggregate import AggregateError, CheckInput, aggregate_block_checks
 from pipeline.handoff.validate import validate_report
@@ -271,6 +272,182 @@ def test_manifest_ignores_attempt_identity(cases, cfg):
     r2 = copy.deepcopy(req)
     r2["attempt_id"] = "a-9"
     assert review.review_manifest(copy.deepcopy(req), cfg)[1] == review.review_manifest(r2, cfg)[1]
+
+
+# ---------------------------------------------------------------------------
+# LLM 판정 의미 입력 키(contract 5.3 · 7.2) — 고정 요청 지문과 별개, revision · 배치 제외, 섹션 문맥 포함
+# ---------------------------------------------------------------------------
+def _keys(req, cfg):
+    return review.review_input_keys(copy.deepcopy(req), cfg)
+
+
+def test_input_keys_cover_targets_only_and_are_opaque(cases, cfg):
+    req, _ = cases["translation_review.completed"]
+    keys = _keys(req, cfg)
+    assert list(keys) == [t["block_key"] for t in req["targets"]]
+    assert all(len(v) == 64 and int(v, 16) >= 0 for v in keys.values())
+    assert len(set(keys.values())) == len(keys)  # 블록마다 다르다
+    assert keys == _keys(req, cfg)  # 결정적
+
+
+def _move_bbox(r, c):
+    for b in r["blocks"]:
+        b["bbox"] = {k: v + 3 for k, v in b["bbox"].items()}
+
+
+def _attempt(r, c):
+    r["attempt_id"] = "a-9"
+
+
+def _reg_row(r, external_id):
+    return next(e for e in r["bundle"]["regulation"]["entries"] if e["external_id"] == external_id)
+
+
+def _reseal(r):  # 묶음을 바꾼 뒤 BE가 다시 고정한 묶음처럼 지문을 갱신한다
+    r["bundle"]["bundle_sha256"] = bundle_content_sha256(r["bundle"])
+
+
+def _out_of_scope_row(r, c):  # 화장품 요청의 적용 분류 밖 OTC 행 — LLM이 소비하지 않는다
+    _reg_row(r, "RG-906")["reason"] = "합성: 바뀐 OTC 사유"
+    _reseal(r)
+
+
+def _local_dict(r, c):  # 현지 사전 행 — LLM 판정이 소비하지 않는다
+    r["bundle"]["local"]["entries"][0]["seller_message"] = "합성: 바뀐 셀러 안내"
+    _reseal(r)
+
+
+@pytest.mark.parametrize("change", [_change_target_revision, _change_context_revision, _move_bbox, _attempt, _out_of_scope_row,
+                                    _local_dict])
+def test_input_keys_ignore_revision_layout_and_unconsumed_rows(cases, cfg, change):
+    req, _ = cases["translation_review.completed"]
+    r2, c2 = copy.deepcopy(req), copy.deepcopy(cfg)
+    change(r2, c2)
+    if change in (_change_target_revision, _change_context_revision):
+        assert review.review_manifest(r2, c2)[1] != review.review_manifest(copy.deepcopy(req), cfg)[1]  # 요청 지문은 바뀐다
+    assert _keys(r2, c2) == _keys(req, cfg)
+
+
+def _other_target_text(r, c):
+    r["targets"][1]["text"] = r["targets"][1]["text"] + "!"
+
+
+def _target_becomes_context(r, c):
+    t = r["targets"].pop()
+    r["context"].append({"block_key": t["block_key"], "revision": t["revision"], "is_product_label": False, "is_brand_logo": False})
+
+
+def _check_row_reason(r, c):
+    _reg_row(r, "RG-901")["reason"] = "합성: 바뀐 사유"
+    _reseal(r)
+
+
+def _reference_row(r, c):
+    _reg_row(r, "RG-905")["variant_en"] = ["no fake cure ever"]
+    _reseal(r)
+
+
+def _change_lang(r, c):
+    r["target_lang"] = "en-US"
+
+
+@pytest.mark.parametrize("change", [_other_target_text, _change_context_label, _change_neighbor_source, _target_becomes_context,
+                                    _check_row_reason, _reference_row, _change_class, _change_lang, _change_model, _change_limits])
+def test_input_keys_change_for_every_target_when_consumed_input_changes(cases, cfg, change):
+    req, _ = cases["translation_review.completed"]
+    base = _keys(req, cfg)
+    r2, c2 = copy.deepcopy(req), copy.deepcopy(cfg)
+    change(r2, c2)
+    other = _keys(r2, c2)
+    assert all(other[k] != v for k, v in base.items() if k in other)  # 섹션 문맥을 소비하므로 남은 대상 블록 모두 바뀐다
+
+
+def test_input_keys_change_with_prompt_content(cases, cfg, tmp_path):
+    req, _ = cases["translation_review.completed"]
+    base = _keys(req, cfg)
+    p = tmp_path / "prompt.md"
+    p.write_text(Path(rv.REPO_ROOT / cfg["translation_review"]["prompt_path"]).read_text(encoding="utf-8") + "\n추가", encoding="utf-8")
+    cfg["translation_review"]["prompt_path"] = str(p)
+    assert all(_keys(req, cfg)[k] != v for k, v in base.items())
+
+
+def _with_level(cfg, level):
+    c = copy.deepcopy(cfg)
+    c["translation_review"]["thinking_level"] = level
+    return c
+
+
+def test_thinking_level_repo_default_is_low(cfg):
+    assert cfg["translation_review"]["thinking_level"] == "low"  # 사용자 확정 2026-11-19
+    assert cfg["translation_review"]["max_pairs_per_call"] == 40
+
+
+def test_thinking_level_default_keeps_previous_call_and_fingerprints(cases, cfg):
+    """"default" · 키 없음은 설정하지 않음 — 사고 설정을 보내지 않고, 호출 설정 · 요청 지문 · 의미 키가 같다."""
+    req, _ = cases["translation_review.completed"]
+    unset = _with_level(cfg, "default")
+    rv.validate_config(unset, need_api_key=False)
+    assert "thinking_level" not in rv.model_config(unset)
+    assert rv.default_assistant(unset).generate_config().thinking_config is None
+    absent = copy.deepcopy(unset)
+    del absent["translation_review"]["thinking_level"]
+    rv.validate_config(absent, need_api_key=False)
+    assert review.review_manifest(copy.deepcopy(req), absent)[1] == review.review_manifest(copy.deepcopy(req), unset)[1]
+    assert _keys(req, absent) == _keys(req, unset)
+
+
+def test_thinking_level_is_sent_and_changes_fingerprints(cases, cfg):
+    from google.genai import types as gtypes
+
+    req, _ = cases["translation_review.completed"]
+    unset = _with_level(cfg, "default")
+    base_manifest, base_keys = review.review_manifest(copy.deepcopy(req), unset)[1], _keys(req, unset)
+    c2 = _with_level(cfg, "low")
+    rv.validate_config(c2, need_api_key=False)
+    assert rv.model_config(c2)["thinking_level"] == "low"
+    assert rv.default_assistant(c2).generate_config().thinking_config.thinking_level == gtypes.ThinkingLevel.LOW
+    assert review.review_manifest(copy.deepcopy(req), c2)[1] != base_manifest  # 설정이 바뀐 시도는 다른 요청이다
+    assert all(_keys(req, c2)[k] != v for k, v in base_keys.items())  # 이전 설정의 결과를 현재 결과로 보지 않는다
+
+
+@pytest.mark.parametrize("bad", ["LOW", "none", "", 1, None, True])
+def test_thinking_level_rejects_unknown_value(cfg, bad):
+    c2 = copy.deepcopy(cfg)
+    c2["translation_review"]["thinking_level"] = bad
+    with pytest.raises(ValueError, match="thinking_level"):
+        rv.validate_config(c2, need_api_key=False)
+
+
+def test_input_keys_refuse_invalid_input(cases, cfg):
+    req, _ = cases["translation_review.completed"]
+    bad = copy.deepcopy(req)
+    del bad["targets"][0]["is_product_label"]  # 누락을 false로 추정하지 않는다
+    with pytest.raises(ValueError):
+        review.review_input_keys(bad, cfg)
+
+
+# ---------------------------------------------------------------------------
+# 판단 이유 전달 — 현재 보고만으로 flag 후보마다 판정 1건(판단 이유 · 미확인 조건 · 근거)을 찾을 수 있는지
+# (flag 형식은 바꾸지 않는다. 외부 저장 · API 연결 형식은 미합의 — contract 7.1 제안)
+# ---------------------------------------------------------------------------
+def test_every_llm_flag_joins_one_judgment_with_reason(cases):
+    _, rep = _run(cases, "translation_review.completed")
+    n = 0
+    for b in rep.payload["blocks"]:
+        for f in b["flags"]:
+            js = [j for j in b["judgments"] if j["external_id"] == f["external_id"]]
+            assert len(js) == 1  # (블록, 항목)마다 판정 1건
+            j = js[0]
+            assert j["judgment"] == f["judgment"] != "no_risk" and j["reason"].strip()
+            if f["location_key"] is None:
+                assert not j["locations"]
+            else:
+                loc = [x for x in j["locations"] if x["location_key"] == f["location_key"]]
+                assert len(loc) == 1 and (loc[0]["quote"], loc[0]["start"], loc[0]["end"]) == (f["problem_text"], f["start"], f["end"])
+            if j["undetermined_reason"] == "condition_unverifiable":
+                assert j["unverified_conditions"]
+            n += 1
+    assert n > 0
 
 
 # ---------------------------------------------------------------------------

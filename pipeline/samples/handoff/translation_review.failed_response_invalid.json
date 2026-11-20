@@ -655,16 +655,17 @@
         "model": "gemini-3.8-flash",
         "temperature": 0,
         "timeout_s": 60,
-        "max_output_tokens": 16384
+        "max_output_tokens": 16384,
+        "thinking_level": "low"
       },
       "prompt_sha256": "d0e46ec72c1aa83b49a0868b7a5035e26d6ef40f2abf59b1efe546cfab01d7d3",
       "limits": {
         "max_input_chars": 60000,
-        "max_pairs_per_call": 120,
+        "max_pairs_per_call": 40,
         "unit": "code_points"
       }
     },
-    "input_manifest_sha256": "ab13d28b66705e559114cdd1e3f1646a240fb85f0d1998e55fa975c4ac6dc056",
+    "input_manifest_sha256": "219e303da2177b2dbf47b024944545ddf826fc57675590e7e0899f5013b65bdf",
     "outcome": "failed",
     "target_count": 3,
     "skip_reason": null,
@@ -818,7 +819,8 @@
         "model": "gemini-3.8-flash",
         "temperature": 0,
         "timeout_s": 60,
-        "max_output_tokens": 16384
+        "max_output_tokens": 16384,
+        "thinking_level": "low"
       },
       "prompt_sha256": "d0e46ec72c1aa83b49a0868b7a5035e26d6ef40f2abf59b1efe546cfab01d7d3"
     },

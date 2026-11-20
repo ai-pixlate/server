@@ -384,6 +384,38 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 | 검사와 확정의 동시성 — 합의된 job 잠금·종료 보호·N4→N5 조건의 BE 연결 | 8.2 · 8.5 | — |
 | API · 화면 연결 — 정의된 2차 검사 상태·거절 응답의 구현 연결 및 추가 신호·경고 확인 식별 | 8.10 · 8.11 | #82 |
 | 통합 테스트 — BE 통합 시험 · 실제 Gemini 스키마 수용 확인 · 실측 | 8.10 | #84 |
+| LLM 판단 이유의 저장 · 신호 전달 — **미합의 제안** | 8.13 | #91 |
+
+### 8.13 LLM 판단 이유의 사용자 전달 — 미합의 제안(2026-11-19)
+
+> **BE · FE 미합의 제안이다.** 확정 계약(`contract.md` 5.3 · 7.1, 이 문서 8.1~8.12)을 바꾸지 않으며 합의 전에는 코드 · API · DB에 반영하지 않는다. 합의 시점: 3차 최종 통합(11/27) 전 BE 합의(사용자 일정, 합의 요청 전). 조사 기준: server develop `599e551`, client `integration/second-round-20261106`(client PR #47, 열림). 실측 근거는 `docs/ai-experiments/2026-11-19_08-review_explanation-probe.md`.
+
+**현재 경로(코드 대조 사실)**
+
+| 구간 | 상태 | 위치 |
+|---|---|---|
+| AI 생성 | 판정마다 판단 이유 `reason`(한국어 한두 문장) · `unverified_conditions` · `basis` · `basis_summary`를 보고 `payload.blocks[].judgments[]`에 낸다. 실제 모델 소규모 실측에서 생성 확인 | `pipeline/handoff/review.py` `judgment_out` |
+| AI flag 후보 | `blocks[].flags[]`(contract 7.1 LLM 항목)에는 판단 이유 · 미확인 조건이 없다. 같은 블록 · 같은 `external_id`의 판정 1건으로 찾는다(테스트 `test_every_llm_flag_joins_one_judgment_with_reason`) | `review.flags_of` |
+| BE 실행 | LLM 검사를 등록 · 호출하지 않는다 — 2차 활성 검사는 rule만 | `app/flows/text_check.py` `SUPPORTED_CHECKS` |
+| BE 신호 | 규칙 검사 flag만 `prohibited_expression` · `mandatory_term_unapplied`로 바꾸고 `reason` · `basisArticle`은 null, 블록 · 코드당 1개로 묶는다. `translation_llm_review`는 대응하지 않는다 | `text_check.check_signals` · `_flag_signal_code` |
+| API | `ReviewSignal.reason` · `basisArticle` 필드가 있다 | `docs/openapi.yaml` ReviewSignal |
+| FE | 신호 `reason`이 있으면 블록 번호 아래 「[라벨] 사유」 행으로 보인다. 브라우저 실행은 미확인 | client `lib/n5/adapter.ts` · `n5-section-status.tsx` |
+
+설명은 AI에서 생성되지만 BE가 LLM 검사를 부르지 않아 운영에서는 만들어지지 않는다(1차 단절). 부르더라도 flag 저장 · 신호 변환에서 판단 이유가 빠진다(2차 단절). FE는 `reason`이 오면 표시할 경로가 있다.
+
+**제안**
+
+| # | 제안 | 이유 | 영향 |
+|---|---|---|---|
+| E1 | 활성 검사에 `llm`을 넣어 `translation_review`를 등록 · 실행 · 채택한다(8.1~8.8 원칙 그대로) | 설명이 만들어지는 유일한 경로. 3차 LLM 연결 제안(#83)의 일정 확인 | BE |
+| E2 | LLM 결과 유효성 키로 `review.review_input_keys(request, cfg)`를 쓴다(contract 5.3) | N5 수정 · 분류 변경 뒤 이전 설명을 현재 결과로 보이지 않게 | BE(저장 위치) |
+| E3 | 채택 때 `translation_llm_review` flag에 같은 블록 · 같은 `external_id` 판정의 `reason` · `unverified_conditions`를 함께 저장한다(BE가 채택 payload에서 복사, AI 보고 형식 그대로). 대안: AI flag 후보에 두 필드를 추가(AI 출력 · 검증기 변경) | LLM 판단 이유는 사전 행 · `section_verdict`에 없어 7.1 중복 저장 금지의 대상이 아니다. 조회 때 채택 payload를 다시 읽지 않게 | BE(`compliance_flags` JSON 확장) · 대안이면 AI |
+| E4 | LLM flag를 `prohibited_expression` 신호로 내고 `reason`에 판단 이유를, `condition_unverifiable`이면 확인할 조건을 함께 싣는다. 판단 이유 문장에는 조문 · 출처를 넣지 않는다(AI 프롬프트 실험 · 사용자 검수 2026-11-19). **확정(사용자 2026-11-20): 지금은 화면 괄호에 출처를 붙이지 않는다** — 그래서 LLM 신호의 `basisArticle`은 null로 둔다(FE 통합 브랜치는 값이 있으면 `reason (basisArticle)`로 괄호를 붙인다). 출처 표시는 API 문서가 수정된 뒤에 넣는다. 그때의 안(미합의): 판정이 단 evidence(`supplied_items` 스냅샷)에서 BE가 코드로 붙여 화면에 "판단 이유 (출처: 문서 이름 조문)"로 보인다. OI-58 구분을 따른다: `basisArticle`은 조문 식별자만, 사람이 읽는 출처는 `verdict_basis`(근거 요약 + 링크) — `verdict_basis`는 OpenAPI · DB에 아직 없다. 출처 이름은 사전 근거의 문서 이름(DB `expression_dictionary_evidence.evidence_document`)에서 가져온다 — 규제사전 xlsx에 이 열이 없어 지금은 비어 있고, 근거 종류(`evidence_source_type`, 예: "Warning Letter")는 문서 이름이 아니다. 근거가 여러 개면 기존 규칙대로 대표 근거(`is_primary`)를 쓴다(contract 표 "판정 근거와 표시 조문"). 출처를 넣기 전에 정할 것: `verdict_basis` 추가(OpenAPI `ReviewSignal` · `SectionVerdict`, DB) · 사전에 문서 이름 채우기와 표기 언어 · FE 괄호 표시를 `basisArticle`에서 출처로 바꾸기. 공유 시트 "화면 예시 B"의 출처 이름("FDA 경고 서한" 등)은 사전 값이 아니라 실험 스크립트가 근거 종류를 임의로 옮긴 표기라 근거로 쓰지 않는다. 신호 단위는 블록 × 사전 항목(위치는 묶음)이고 같은 블록 · 같은 항목의 조건부 경고와는 하나로 보인다(8.11) | 판단 이유는 항목마다 1개. 8.11 조건 표시 · 중복 통합 결정을 따르는 최소 변경. 출처를 모델이 쓰지 않고 사전 값에서 붙이면 지어내거나 잘못 표기할 여지가 없다 | BE(`verdict_basis` · 신호 변환) · FE(같은 코드 신호가 블록에 여러 개 올 수 있음 · 괄호 표시) · 사전 데이터(근거 문서 이름) |
+| E5 | `insufficient_evidence` · `insufficient_context`는 표시가 정해질 때까지(#81) 신호로 내지 않는다. `basis_summary=dictionary_only` risk는 판정 구분 필드(#82)가 정해질 때까지 위반 확정처럼 보이지 않게 한다 | 기존 미결을 앞당겨 정하지 않으면서 근거가 약한 결과를 단정 표시하지 않게 | BE · FE · PM |
+| E6 | 규칙 검사 신호의 `reason`(현재 null)을 사전 사유로 채울지 정한다 | 규칙 · LLM 결과는 같은 등급 한 신호(8.11) — 한쪽만 설명이 있으면 화면이 고르지 않다. AI 생성 설명이 아닌 선택 사항 | BE · PM |
+| E7 | LLM 호출 시간 제한 · 출력 상한 · 분할 크기 · 재시도 운영값을 정한다 | 실측에서 개발 잠정값 60초로 화장품 섹션 호출 4회 중 2회 시간 초과, 출력 상한 16,384로 40회 중 11회 응답 잘림(같은 설정 재시도 불가) — 실패면 설명 대신 「⚠ 검사하지 못했습니다」 | BE(실행 정책) · AI(config 기본값은 사용자 확정) |
+
+**합의 전에 완료할 수 없는 것**: 운영 LLM 실행 · 판단 이유 저장 · API 신호 변환 · 화면 표시 확인, 같은 코드 다중 신호의 경고 확인 식별(#82 warningKey), LLM 최종 실패의 확인 절차(#81).
 
 ## 9. 긴 섹션 타일 OCR 인계(2026-10-13)
 

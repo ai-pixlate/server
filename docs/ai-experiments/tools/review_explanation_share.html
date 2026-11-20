@@ -1,0 +1,204 @@
+<title>규제 판정 설명 사례</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* 레이아웃: 위에서 아래로 읽는 사례집 — 요약 → 보기 전환 → 섹션별 경고 카드(왼쪽 문장, 오른쪽 판정 · 설명, 아래 근거) */
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--ink:#18202d;--muted:#5a6475;--line:#d9dee6;--accent:#25588a;--accent-bg:#e8eff7;
+  --risk:#a8261f;--risk-bg:#fbeceb;--cond:#875400;--cond-bg:#fbf2df;--ok:#2d6a3b;--ok-bg:#e7f3ea;--mark:#ffe39a;--mark-ink:#18202d;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161d;--surface:#1a2029;--ink:#e6eaf0;--muted:#9aa4b4;--line:#2d3542;--accent:#8db6e4;--accent-bg:#1f2c3c;
+  --risk:#f08a82;--risk-bg:#3a1f1e;--cond:#e6b45c;--cond-bg:#3a2e17;--ok:#86c795;--ok-bg:#1d3324;--mark:#6b5414;--mark-ink:#fff6dc;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161d;--surface:#1a2029;--ink:#e6eaf0;--muted:#9aa4b4;--line:#2d3542;--accent:#8db6e4;--accent-bg:#1f2c3c;
+  --risk:#f08a82;--risk-bg:#3a1f1e;--cond:#e6b45c;--cond-bg:#3a2e17;--ok:#86c795;--ok-bg:#1d3324;--mark:#6b5414;--mark-ink:#fff6dc;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-body)}
+.wrap{max-width:1120px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
+h2{font-size:18px;font-weight:600;margin:0;text-wrap:balance}
+p{margin:0}.muted{color:var(--muted)}
+.lead{max-width:68ch;color:var(--muted)}
+.facts{display:flex;flex-wrap:wrap;gap:8px 20px;margin:14px 0 4px;font-size:13px;color:var(--muted)}
+.facts b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.howto{margin:18px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.howto div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;min-width:0}
+.howto h3{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;font-weight:600}
+.howto ul{margin:0;padding-left:18px}.howto li{margin:2px 0}
+.controls{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:13px;border:0;background:transparent;color:var(--muted);padding:5px 11px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.seg button:focus-visible,.nav a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ctl-label{font-size:12px;color:var(--muted);margin-right:6px}
+.nav{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;width:100%}
+.nav a{color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--surface)}
+.nav a .n{color:var(--muted);font-variant-numeric:tabular-nums}
+section.sec{margin-top:30px;scroll-margin-top:120px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:6px}
+.tag{font-size:12px;border-radius:6px;padding:1px 7px;background:var(--accent-bg);color:var(--accent)}
+.tag.synth{background:var(--cond-bg);color:var(--cond)}
+.fail{font-size:13px;color:var(--risk)}
+details.ctx{margin:4px 0 12px;font-size:13.5px}
+details.ctx summary{cursor:pointer;color:var(--accent)}
+.ctx-scroll{overflow-x:auto;margin-top:6px}
+.ctx table{border-collapse:collapse;width:100%;min-width:520px}
+.ctx td,.ctx th{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.ctx th{font-size:12px;color:var(--muted);font-weight:500}
+.ctx td.en{font-family:var(--f-mono);font-size:12.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px 22px}
+@media (max-width:820px){.card{grid-template-columns:minmax(0,1fr)}}
+.lbl{font-size:12px;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}
+.text{white-space:pre-wrap;overflow-wrap:anywhere}
+.text.en{font-family:var(--f-mono);font-size:14px;line-height:1.55}
+.stack{display:flex;flex-direction:column;gap:12px;min-width:0}
+mark{background:var(--mark);color:var(--mark-ink);border-radius:3px;padding:0 2px}
+.issue{font-size:13px;color:var(--muted)}.issue b{color:var(--ink);font-weight:600}
+.verdicts{display:flex;flex-direction:column;gap:10px}
+.v{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.v-head{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin-bottom:5px}
+.who{font-size:12px;color:var(--muted);font-weight:500}
+.pill{font-size:12.5px;font-weight:600;border-radius:999px;padding:1px 9px}
+.p-risk{background:var(--risk-bg);color:var(--risk)}.p-cond{background:var(--cond-bg);color:var(--cond)}
+.p-ok{background:var(--ok-bg);color:var(--ok)}.p-und{background:var(--accent-bg);color:var(--accent)}
+.runs{font-size:12px;color:var(--muted)}
+.shaky{font-size:12px;color:var(--cond);font-weight:600}
+.reason{font-size:14.5px}
+.cond-list{margin-top:4px;font-size:13px;color:var(--cond)}
+.basis{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:10px 22px}
+@media (max-width:820px){.basis{grid-template-columns:minmax(0,1fr)}}
+.ev{margin:0;padding-left:18px;font-size:13.5px}.ev li{margin:2px 0;overflow-wrap:anywhere}
+.ev a{color:var(--accent)}
+.ev q{font-family:var(--f-mono);font-size:12.5px}
+footer{margin-top:40px;font-size:13px;color:var(--muted);max-width:75ch}
+footer ul{padding-left:18px;margin:6px 0}
+[hidden]{display:none!important}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>규제 판정 설명 사례</h1>
+    <p class="lead">번역문을 AI가 미국 화장품 · 선크림 광고 규제 관점에서 검사한 결과입니다. 문제가 될 수 있다고 본 문장마다 원문, 번역문, AI가 쓴 설명, 그리고 판단에 쓴 사전 사유와 근거를 함께 모았습니다.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <div class="howto">
+    <div><h3>판정 읽는 법</h3><ul>
+      <li><span class="pill p-risk">문제 가능</span> 규제 문제가 될 수 있는 표현</li>
+      <li><span class="pill p-cond">조건 확인 필요</span> 시험 결과 같은 상품 정보가 있어야 쓸 수 있는 표현</li>
+      <li><span class="pill p-ok">문제 없음</span> 관련 표현은 있지만 해당하지 않는다고 본 경우</li>
+    </ul></div>
+    <div><h3>설명 두 가지</h3><ul>
+      <li><b>현재 설명</b> 지금 서비스 코드의 프롬프트</li>
+      <li><b>개선안 설명</b> 판매자가 읽기 쉽게 설명 쓰는 법만 바꾼 실험 프롬프트. 판정 기준은 같습니다</li>
+      <li>같은 문장을 프롬프트마다 2번씩 검사했습니다. 판정이 갈리면 <span class="shaky">판정 흔들림</span>으로 표시합니다</li>
+    </ul></div>
+    <div><h3>주의</h3><ul>
+      <li>AI 1차 결과이고 정답 판정이 아닙니다</li>
+      <li>사전 사유 · 근거는 서비스 규제사전(로컬 사본)에서 온 원문입니다. AI가 쓴 글은 설명뿐입니다</li>
+      <li>합성 문장은 일부러 만든 시험용 문구입니다</li>
+    </ul></div>
+  </div>
+
+  <div class="controls" role="toolbar" aria-label="보기 설정">
+    <div><span class="ctl-label">문장</span><span class="seg" id="seg-set">
+      <button type="button" data-v="all" aria-pressed="true">전체</button>
+      <button type="button" data-v="real" aria-pressed="false">실제 상세페이지</button>
+      <button type="button" data-v="synth" aria-pressed="false">합성 문장</button></span></div>
+    <div><span class="ctl-label">설명</span><span class="seg" id="seg-exp">
+      <button type="button" data-v="both" aria-pressed="true">둘 다</button>
+      <button type="button" data-v="v1" aria-pressed="false">현재</button>
+      <button type="button" data-v="v2" aria-pressed="false">개선안</button></span></div>
+    <nav class="nav" id="nav" aria-label="섹션"></nav>
+  </div>
+
+  <main id="list"></main>
+
+  <footer>
+    <b>실험 조건</b>
+    <ul>
+      <li>모델 gemini-3.8-flash, 온도 0, 호출 시간 제한 180초. 프롬프트마다 같은 문장을 2번씩 검사했습니다</li>
+      <li>실제 상세페이지 문장은 골든셋 원문을 서비스 번역 함수로 번역한 것입니다. 표현 순화 지시는 현재 운영에서 꺼져 있어 넣지 않았습니다</li>
+      <li>규제사전은 v9 계열 로컬 사본이고, 상품 분류(화장품 · 선크림)는 실험용 가정입니다</li>
+      <li>경고로 보지 않은 문장은 싣지 않았습니다. 섹션의 전체 문장은 각 섹션의 "섹션 전체 문장 보기"에서 볼 수 있습니다</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/[];
+const J = {"risk":["문제 가능","p-risk"],"undetermined/cond":["조건 확인 필요","p-cond"],"undetermined":["판단 불가","p-und"],"no_risk":["문제 없음","p-ok"]};
+const WHO = {v1:"현재 설명", v2:"개선안 설명"};
+let state = {set:"all", exp:"both"};
+try { const s = JSON.parse(localStorage.getItem("reg-explain-share") || "{}"); state = {...state, ...s}; } catch (e) {}
+
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function marked(text, spans){
+  const cps = Array.from(text); let out = "", pos = 0;
+  for (const [s, e] of spans) { if (s < pos) continue; out += esc(cps.slice(pos, s).join("")) + "<mark>" + esc(cps.slice(s, e).join("")) + "</mark>"; pos = e; }
+  return out + esc(cps.slice(pos).join(""));
+}
+function verdictBlock(v, p){
+  if (!p || !p.judgments.length) return `<div class="v"><div class="v-head"><span class="who">${WHO[v]}</span><span class="runs">결과 없음(실행 실패)</span></div></div>`;
+  const counts = {}; p.judgments.forEach(j => counts[j] = (counts[j] || 0) + 1);
+  const keys = Object.keys(counts); const main = p.judgments.find(j => j !== "no_risk") || p.judgments[0];
+  const pill = J[main] || [main, "p-und"];
+  const runs = keys.length === 1 ? `${p.judgments.length}회 모두 같음` : keys.map(k => `${(J[k] || [k])[0]} ${counts[k]}회`).join(" · ");
+  const quotes = p.quotes.length ? `<div class="issue">문제 표현 <b>${p.quotes.map(esc).join(", ")}</b></div>` : "";
+  const conds = p.conditions.length ? `<div class="cond-list">확인할 조건: ${p.conditions.map(esc).join(" / ")}</div>` : "";
+  return `<div class="v" data-exp="${v}"><div class="v-head"><span class="who">${WHO[v]}</span><span class="pill ${pill[1]}">${pill[0]}</span>
+    <span class="runs">${runs}</span>${keys.length > 1 ? '<span class="shaky">판정 흔들림</span>' : ""}</div>
+    <p class="reason">${esc(p.reason)}</p>${conds}${quotes}</div>`;
+}
+function render(){
+  const list = document.getElementById("list"), nav = document.getElementById("nav");
+  let html = "", navHtml = "", total = 0;
+  for (const s of DATA) {
+    if (state.set === "real" && !s.real) continue;
+    if (state.set === "synth" && s.real) continue;
+    total += s.items.length;
+    navHtml += `<a href="#${s.id}">${esc(s.label)} <span class="n">${s.items.length}</span></a>`;
+    const fails = Object.entries(s.runs).filter(([, r]) => r.failed).map(([v, r]) => `${WHO[v]} ${r.failed}/${r.total}회 실패(시간 초과 등)`);
+    const ctx = s.context.map(c => `<tr><td>${esc(c.block)}</td>${s.real ? `<td class="text">${esc(c.source)}</td>` : ""}<td class="en text">${c.translation == null ? '<span class="muted">검사 대상 아님</span>' : esc(c.translation)}</td></tr>`).join("");
+    const cards = s.items.map(it => `<article class="card">
+      <div class="stack">
+        ${s.real ? `<div><div class="lbl">원문</div><div class="text">${esc(it.source)}</div></div>` : ""}
+        <div><div class="lbl">번역문</div><div class="text en">${marked(it.translation, it.spans)}</div></div>
+        <div class="issue">검사 항목 <b>${esc(it.expression)}</b></div>
+      </div>
+      <div class="verdicts">${["v1","v2"].filter(v => state.exp === "both" || state.exp === v).map(v => verdictBlock(v, it.per[v])).join("")}</div>
+      <div class="basis">
+        <div><div class="lbl">사전 사유</div><p>${esc(it.dict_reason)}</p></div>
+        <div><div class="lbl">근거</div>${it.evidence.length ? `<ul class="ev">${it.evidence.map(e => `<li>${esc(e.type || "출처")}${e.article ? " · " + esc(e.article) : ""}${e.quote ? ` · <q>${esc(e.quote)}</q>` : ""}${e.url ? ` · <a href="${esc(e.url)}" target="_blank" rel="noopener">원문 보기</a>` : ""}</li>`).join("")}</ul>` : '<p class="muted">사전에 등록된 외부 근거 없음</p>'}</div>
+      </div></article>`).join("");
+    html += `<section class="sec" id="${s.id}"><div class="sec-head"><h2>${esc(s.label)}</h2>
+      <span class="tag ${s.real ? "" : "synth"}">${s.real ? "실제 상세페이지" : "합성 문장"}</span><span class="muted">${esc(s.class)}</span>
+      ${fails.length ? `<span class="fail">${fails.join(" · ")}</span>` : ""}</div>
+      <details class="ctx"><summary>섹션 전체 문장 보기 (${s.context.length})</summary><div class="ctx-scroll"><table>
+      <thead><tr><th>블록</th>${s.real ? "<th>원문</th>" : ""}<th>번역문</th></tr></thead><tbody>${ctx}</tbody></table></div></details>
+      ${cards || '<p class="muted">이 섹션에서는 경고로 본 문장이 없습니다.</p>'}</section>`;
+  }
+  list.innerHTML = html; nav.innerHTML = navHtml;
+  const real = DATA.filter(s => s.real).length, synth = DATA.length - real;
+  document.getElementById("facts").innerHTML = `<span>경고 <b>${total}</b>건</span><span>실제 상세페이지 섹션 <b>${real}</b></span><span>합성 섹션 <b>${synth}</b></span><span>섹션마다 프롬프트 2종 × 2회 검사</span>`;
+}
+function bind(id, key){
+  const seg = document.getElementById(id);
+  seg.querySelectorAll("button").forEach(b => {
+    b.setAttribute("aria-pressed", String(b.dataset.v === state[key]));
+    b.addEventListener("click", () => {
+      state[key] = b.dataset.v;
+      seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      try { localStorage.setItem("reg-explain-share", JSON.stringify(state)); } catch (e) {}
+      render();
+    });
+  });
+}
+bind("seg-set", "set"); bind("seg-exp", "exp"); render();
+</script>

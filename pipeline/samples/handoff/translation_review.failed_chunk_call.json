@@ -655,7 +655,8 @@
         "model": "gemini-3.8-flash",
         "temperature": 0,
         "timeout_s": 60,
-        "max_output_tokens": 16384
+        "max_output_tokens": 16384,
+        "thinking_level": "low"
       },
       "prompt_sha256": "d0e46ec72c1aa83b49a0868b7a5035e26d6ef40f2abf59b1efe546cfab01d7d3",
       "limits": {
@@ -664,7 +665,7 @@
         "unit": "code_points"
       }
     },
-    "input_manifest_sha256": "999c835de9094dd3db80ffd41fe2b19f9f91303155f7e95031d45ffc0ba563af",
+    "input_manifest_sha256": "9f8dfc8888c4da2100abb8a7ec728ed0272c8159f79662b477877f8e6695a25a",
     "outcome": "failed",
     "target_count": 3,
     "skip_reason": null,
@@ -920,7 +921,8 @@
         "model": "gemini-3.8-flash",
         "temperature": 0,
         "timeout_s": 60,
-        "max_output_tokens": 16384
+        "max_output_tokens": 16384,
+        "thinking_level": "low"
       },
       "prompt_sha256": "d0e46ec72c1aa83b49a0868b7a5035e26d6ef40f2abf59b1efe546cfab01d7d3"
     },

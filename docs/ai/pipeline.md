@@ -126,7 +126,8 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ⑧ | `translate.temperature` / `translate.timeout_s` | 섹션 1회 호출 설정. 운영 시간 제한 · 재시도 상한은 BE 실행 정책에서 정하며 이 값을 운영 최댓값으로 쓰지 않는다 | 개발용 잠정 | [통합 D9] [`open-questions.md` #11] |
 | ⑧ 검사 | `translation_review.model` / `translation_review.prompt_path` | 번역문 LLM 규제 판정 모델 · 프롬프트 위치 — 번역기와 독립된 호출. 모델은 설정으로 고르며 번역 모델과 같을 필요 없다 | 개발용 잠정 · 프롬프트 초안 v1 | [통합 D12] |
 | ⑧ 검사 | `translation_review.temperature` / `translation_review.timeout_s` | 분할 1회 호출 설정. 운영 시간 제한 · 재시도 한도는 BE 실행 정책 | 개발용 잠정 | [통합 D12] |
-| ⑧ 검사 | `translation_review.max_input_chars` / `translation_review.max_pairs_per_call` / `translation_review.max_output_tokens` | 분할 상한(입력 코드 포인트 · 쌍 수)과 출력 상한. 문자 수는 토큰 한도를 보장하지 않는다. 출력 상한으로 잘린 응답은 같은 설정 재시도 불가 | 개발용 잠정 | [통합 D12] |
+| ⑧ 검사 | `translation_review.max_input_chars` / `translation_review.max_pairs_per_call` / `translation_review.max_output_tokens` | 분할 상한(입력 코드 포인트 · 쌍 수)과 출력 상한. 문자 수는 토큰 한도를 보장하지 않는다. 출력 상한으로 잘린 응답은 같은 설정 재시도 불가 | `max_pairs_per_call` 확정(사용자 2026-11-19, 큰 섹션 시간 초과로 하향) · 나머지 개발용 잠정 | [통합 D12] [사용자 결정 2026-11-19] |
+| ⑧ 검사 | `translation_review.thinking_level` | 모델 사고 단계(default · minimal · low · medium · high). 사고 토큰도 출력 상한에 들어가 답이 잘리는 원인이 된다(실측 2026-11-19). default = 설정 안 함(모델 기본). 사고 토큰 수 상한은 이 모델이 지키지 않아 쓰지 않는다. 설정하면 요청 지문 · 의미 입력 키가 바뀐다 | 확정(사용자 2026-11-19) — 실측 표본에서 low도 사고 0토큰이었다(`docs/ai-experiments/2026-11-19_08-review_explanation-probe.md` 4.8) | [사용자 결정 2026-11-19] |
 | 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | 실행마다 `event_log.payload`에 기록 | — | [계약 9장] |
 
 ## 4. 순서를 바꾸면 안 되는 지점

@@ -42,6 +42,7 @@ from pipeline.vlm import GeminiTranslationReviewAssistant, JudgeAssistant, VlmEr
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 API_KEY_ENV = "GEMINI_API_KEY"
+THINKING_LEVELS = ("default", "minimal", "low", "medium", "high")  # default = 설정 안 함(모델 기본)
 # 판정 규칙(항목 선정 · 응답 구조 규칙 · 위치 · 근거 참조 · 분할)의 버전. 바꾸면 올린다(입력 지문에 들어간다)
 REVIEW_IMPL_VERSION = "translation-review@2026-10-12.1"
 
@@ -199,6 +200,9 @@ def validate_config(cfg: dict[str, Any], *, need_api_key: bool) -> str:
     for k in ("max_input_chars", "max_pairs_per_call", "max_output_tokens"):
         if not _pos_int(t[k]):
             errors.append(f"translation_review.{k}={t[k]!r} — 양의 정수")
+    if "thinking_level" in t:  # "default" · 키 없음 = 설정하지 않음(모델 기본 사고량, 이전 동작). 사고 토큰이 출력 상한을 채워 답이 잘리는 것을 막으려고 둔다
+        if t["thinking_level"] not in THINKING_LEVELS:
+            errors.append(f"translation_review.thinking_level={t['thinking_level']!r} — {' · '.join(THINKING_LEVELS)} 중 하나")
     prompt = ""
     p = Path(t["prompt_path"]) if isinstance(t["prompt_path"], str) else None
     if p is None:
@@ -219,8 +223,12 @@ def validate_config(cfg: dict[str, Any], *, need_api_key: bool) -> str:
 
 
 def model_config(cfg: dict[str, Any]) -> dict[str, Any]:
+    """호출 설정. thinking_level은 설정했을 때("default" 밖)만 넣는다 — "default" · 키 없음이면 요청 지문 · 의미 입력 키가 이전과 같다."""
     t = cfg["translation_review"]
-    return {"model": t["model"], "temperature": t["temperature"], "timeout_s": t["timeout_s"], "max_output_tokens": t["max_output_tokens"]}
+    out = {"model": t["model"], "temperature": t["temperature"], "timeout_s": t["timeout_s"], "max_output_tokens": t["max_output_tokens"]}
+    if t.get("thinking_level", "default") != "default":
+        out["thinking_level"] = t["thinking_level"]
+    return out
 
 
 def limits_config(cfg: dict[str, Any]) -> dict[str, Any]:
@@ -231,7 +239,7 @@ def limits_config(cfg: dict[str, Any]) -> dict[str, Any]:
 def default_assistant(cfg: dict[str, Any]) -> GeminiTranslationReviewAssistant:
     c = model_config(cfg)
     return GeminiTranslationReviewAssistant(model=c["model"], temperature=c["temperature"], timeout_s=c["timeout_s"],
-                                            max_output_tokens=c["max_output_tokens"])
+                                            max_output_tokens=c["max_output_tokens"], thinking_level=c.get("thinking_level"))
 
 
 # ---------------------------------------------------------------------------

@@ -6,8 +6,10 @@
 - `render.result` = 지금 섹션에 걸린 이미지(`section.render_image_key`)를 실제로 만든 채택 기록. 최신 성공 시도를 고르지 않는다 —
   현재 분석에 연결된 최신 하류 실행의 ⑨ 시도이고, 그 인계가 채택(adopted)됐으며, 채택된 산출물의 불변 키가 지금 이미지 키와 같을 때만
   결과로 인정한다. 근거가 없으면(이전 실행·채택되지 않은 보고·최종 렌더가 덮은 이미지·실행 기록 이전 데이터) result = null.
-- 렌더러: 현행 서버는 Pillow(`typeset.RENDERER_VERSION`)로 그리고 공통 렌더 번들을 쓰지 않는다(`bundleId = null`).
-  Pillow 조판은 자간(`letterSpacingEm`)을 적용하지 않는다 — style 8키를 싣는 것은 공통 렌더 입력을 내는 것일 뿐 FE·서버 렌더 일치가 아니다.
+- 렌더러: 서버는 FE 내부 렌더 경로(N5 와 같은 HTML/CSS 조판)를 Chromium 으로 열어 그린다(`app/html_render.py`, `typeset.RENDERER_VERSION`).
+  renderInput 의 style 8키는 서버 렌더와 같은 함수(`app/render_input.py`)로 만든다 — N5 가 그리는 값 = 서버가 그리는 값.
+  `bundleId` = 고정한 FE 빌드(`html_render.BUNDLE_ID` = `fe-<FE 전체 SHA 40자>`, 계약 6.7 합의 11-21). 두 값 모두 렌더 고정 입력에 들어가
+  `inputFingerprint` 를 바꾼다 — 그래서 결과에 bundleId 를 따로 싣지 않아도 FE 빌드가 바뀌면 `isCurrent = false` 다.
 """
 from __future__ import annotations
 
@@ -18,7 +20,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import execution, s3, typeset
+from app import execution, html_render, render_input, s3, typeset
 from app.flows import downstream
 from app.flows.common import json_value, section_key
 from app.flows.status import retryable as task_retryable
@@ -43,7 +45,7 @@ def read_snapshot(db: Session) -> None:
 
 
 def renderer() -> dict[str, Any]:
-    return {"rendererId": typeset.RENDERER_VERSION, "bundleId": None}
+    return {"rendererId": typeset.RENDERER_VERSION, "bundleId": html_render.BUNDLE_ID}
 
 
 class PreviewContext:
@@ -111,7 +113,6 @@ def section_input(ctx: PreviewContext, sid: int) -> dict[str, Any]:
     if "unavailable" in m["style_defaults"]:
         return {"state": "error", "inputError": {"code": STYLE_DEFAULTS_UNAPPROVED, "blockIds": []}}
     rows = {r["id"]: r for r in downstream._block_rows(db, sid)}
-    data, mapping = ctx.defaults.data, ctx.defaults.data.data.pipeline_mapping
     bad_style, bad_box, blocks = [], [], []
     for b in m["blocks"]:
         r = rows[b["block_id"]]
@@ -119,19 +120,17 @@ def section_input(ctx: PreviewContext, sid: int) -> dict[str, Any]:
             bad_box.append(r["id"])
             continue
         try:
-            res = sd.resolve_block(sd.BlockInput(id=r["id"], role=r["role"], is_excluded=r["is_excluded"], source_ko=r["source_ko"],
-                                                 text=r["trans_1"], style=json_value(r["style"]), style_stage=m["style_stage"]),
-                                   width, data)
+            # 서버 렌더(downstream._render_section)와 같은 함수 — N5 가 받는 style 8키 = 서버가 그리는 style 8키
+            built = render_input.build_block(block_id=r["id"], revision=r["revision"], role=r["role"], is_excluded=r["is_excluded"],
+                                             source_ko=r["source_ko"], text=r["trans_1"], style=json_value(r["style"]),
+                                             style_stage=m["style_stage"], box=b["box"],
+                                             font_scale=b.get("font_scale", DEFAULT_FONT_SCALE), section_width=width,
+                                             defaults=ctx.defaults.data)
         except sd.StyleInputInvalid:
             bad_style.append(r["id"])
             continue
-        a = res.applied
-        blocks.append({
-            "blockId": r["id"], "revision": r["revision"], "text": r["trans_1"], "box": dict(b["box"]),
-            "style": {"fontFamily": a["font_family"], "fontWeight": a["font_weight"], "fontSizePx": a["font_size_px"],
-                      "fontScale": b.get("font_scale", DEFAULT_FONT_SCALE), "fontColor": a["font_color"], "align": a["align"],
-                      "letterSpacingEm": a["letter_spacing_em"], "lineHeightRatio": mapping.line_height_ratio},
-        })
+        if built is not None:  # 고정 입력의 블록은 이미 조판 대상만 남아 있다(_render_inputs) — 방어
+            blocks.append(built.api)
     if bad_box:
         return {"state": "error", "inputError": {"code": RENDER_INPUT_INVALID, "blockIds": sorted(bad_box)}}
     if bad_style:

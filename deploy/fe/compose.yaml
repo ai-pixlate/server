@@ -1,6 +1,6 @@
 # EC2 FE 컨테이너(pixlate-fe) 하나만 선언한다. API·cpu 워커·복구·Redis 는 start-pixlate.sh 가 관리한다
 # (같은 컨테이너를 Compose 와 배포 스크립트가 함께 관리하지 않는다). 직접 부르지 않고 pixlate-fe.sh 로 다룬다.
-# 값은 /etc/pixlate/fe.env(fe.env.example) — 비밀 값 없음. 이미지는 digest 로만 지정한다.
+# 값은 /etc/pixlate/fe.env(fe.env.example) — 비밀 값은 내부 렌더 토큰 하나(root 600). 이미지는 digest 로만 지정한다.
 name: pixlate-fe
 services:
   fe:
@@ -16,6 +16,9 @@ services:
     ports:
       - "${FE_PORT:-3000}:3000"
     mem_limit: ${FE_MEM_LIMIT:-384m}
+    # 서버 렌더 전용 내부 경로 토큰(FE proxy.ts 가 확인). 없으면 내부 경로는 404 — 일반 화면에는 영향 없음
+    environment:
+      PIXLATE_INTERNAL_RENDER_TOKEN: ${PIXLATE_INTERNAL_RENDER_TOKEN:-}
     logging:
       driver: json-file
       options: { max-size: "10m", max-file: "3" }

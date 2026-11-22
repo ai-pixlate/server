@@ -32,8 +32,13 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pipeline.handoff import style_defaults as sd
 
+from app import html_render
+
 # 3: 넘침 = 글리프 잉크 기준(그림은 2와 같음) · 2: 역할별 Pretendard·소수 크기 · 1: Pillow 내장 폰트·정수 크기
-RENDERER_VERSION = f"pillow-typeset/3+pillow-{PIL.__version__}"
+PILLOW_RENDERER_VERSION = f"pillow-typeset/3+pillow-{PIL.__version__}"
+# 운영 렌더러(⑨ 미리보기 · N6 최종 공통, 2026-11-19~): 서버 HTML/CSS 렌더(app/html_render.py). 아래 Pillow `render` 는 운영 경로에서
+# 쓰지 않는다 — 되돌림은 이미지(이전 release)로 한다. 이 값이 바뀌면 전환 전 고정 입력은 INPUT_CHANGED(common.renderer_mismatch).
+RENDERER_VERSION = html_render.RENDERER_VERSION
 ROLES = ("title", "body", "caption", "price", "caution")
 STYLE_FIELDS = ("font_color", "est_font_px", "align")
 LINE_SPACING = 1.2  # 줄 높이 = 글자 크기 × 1.2 (조판 구현 상수, 렌더러 버전에 포함)

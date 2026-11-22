@@ -397,7 +397,7 @@ def test_render_input_changed_when_style_defaults_fingerprint_differs(monkeypatc
     bg = png_bytes(100, 100)
     monkeypatch.setattr(downstream, "get_store", lambda: type("S", (), {"get": staticmethod(lambda k: bg)})())
     m = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done", "renderer": typeset.RENDERER_VERSION,
-         "style_defaults": {**typeset.style_inputs(), "rule": "role-style-rule/0"}}  # 고정 당시 규칙 버전이 다름
+         "bundle": None, "style_defaults": {**typeset.style_inputs(), "rule": "role-style-rule/0"}}  # 고정 당시 규칙 버전이 다름
     with pytest.raises(AdoptionRejected) as e:
         downstream._render_section(m, {}, {}, {})
     assert e.value.code == "INPUT_CHANGED" and "스타일" in str(e.value)
@@ -1609,8 +1609,11 @@ def test_render_section_checks_renderer_match_mismatch_missing(monkeypatch):
     bg = png_bytes(100, 100)
     monkeypatch.setattr(downstream, "get_store", lambda: type("S", (), {"get": staticmethod(lambda k: bg)})())
     base = {"background": {"key": "k", "sha256": None}, "blocks": [], "style_stage": "done", "style_defaults": typeset.style_inputs()}
-    assert downstream._render_section({**base, "renderer": typeset.RENDERER_VERSION}, {}, {}, {}).png  # 일치 → 그린다
-    for m, why in (({**base, "renderer": "pillow-typeset/0+old"}, "pillow-typeset/0+old"), (base, "기록 없음")):
+    cur = {**base, "renderer": typeset.RENDERER_VERSION, "bundle": None}  # 시험 환경 bundleId = null
+    assert downstream._render_section(cur, {}, {}, {}).png  # 둘 다 일치 → 그린다
+    no_bundle = {k: v for k, v in cur.items() if k != "bundle"}
+    for m, why in (({**cur, "renderer": "pillow-typeset/0+old"}, "pillow-typeset/0+old"), (base, "기록 없음"),
+                   ({**cur, "bundle": "fe-" + "2" * 40}, "FE 번들"), (no_bundle, "FE 번들이 고정 입력과 다르다(고정 입력 기록 없음")):
         with pytest.raises(AdoptionRejected) as e:
             downstream._render_section(m, {}, {}, {})
         assert e.value.code == "INPUT_CHANGED" and e.value.retryable is False and why in str(e.value)
@@ -1638,21 +1641,127 @@ def test_final_render_renderer_mismatch_fails_and_retry_is_rejected_before_creat
     assert c.post(f"/v1/jobs/{job}/save").status_code == 409
 
 
-def test_final_render_missing_renderer_is_rejected_like_mismatch(env, monkeypatch):
+@pytest.mark.parametrize("key, why", [("renderer", "렌더러"), ("bundle", "FE 번들")])
+def test_final_render_missing_renderer_is_rejected_like_mismatch(env, monkeypatch, key, why):
+    """최종 렌더 고정 입력에 renderer 또는 bundle 기록이 없으면 현재 값으로 보지 않는다(섹션 렌더에 그대로 넘긴다)."""
     from app.flows import final
 
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
     real = final._final_inputs
-    monkeypatch.setattr(final, "_final_inputs", lambda db, j: {k: v for k, v in real(db, j).items() if k != "renderer"})
+    monkeypatch.setattr(final, "_final_inputs", lambda db, j: {k: v for k, v in real(db, j).items() if k != key})
     c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
     env["q"].drain()
     _, cur = _final(job)
     a = _attempt(cur["id"])
     assert (a["status"], a["error_code"]) == ("failed", "INPUT_CHANGED") and "기록 없음" in a["error_message"]
+    assert why in a["error_message"]
     assert _item(c, job, cur["id"])["retryable"] is False
     assert c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry").status_code == 409
     assert _final_counts(job) == {"runs": 1, "attempts": 1}
+
+
+NEW_BUNDLE = "fe-" + "1" * 40
+
+
+def test_final_render_bundle_change_is_rejected_like_renderer(env, monkeypatch):
+    """bundleId(FE 빌드)만 바뀌어도 렌더러가 바뀐 것과 같다 — 큐에 있던 최종 렌더는 INPUT_CHANGED, 재시도·[다시 렌더링]은 생성 전 409."""
+    from app import html_render
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})  # 고정 입력 = 현재 bundle, 큐 대기
+    monkeypatch.setattr(html_render, "BUNDLE_ID", NEW_BUNDLE)  # FE 재배포로 bundle 이 바뀐 상황
+    env["q"].drain()
+    runs, cur = _final(job)
+    a = _attempt(cur["id"])
+    assert (a["status"], a["error_code"], a["retry_count"]) == ("failed", "INPUT_CHANGED", 0) and "FE 번들" in a["error_message"]
+    assert [r["status"] for r in runs] == ["running"] and env["q"].messages == []
+    before = _final_counts(job)
+    for r in (c.post(f"/v1/jobs/{job}/tasks/{cur['id']}/retry"), c.post(f"/v1/jobs/{job}/render")):
+        assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert _final_counts(job) == before
+
+
+def test_preview_bundle_change_changes_fingerprint_and_rerenders(env, monkeypatch):
+    """bundleId 는 미리보기 고정 입력 · 지문에 들어간다: 바뀌면 /preview inputFingerprint 가 바뀌어 이전 결과는 isCurrent=false,
+    옛 bundle 로 큐에 있던 시도는 INPUT_CHANGED 이고 진행 처리가 새 bundle 로 시도 하나를 등록한다(재시도 한도 미사용)."""
+    from app import html_render, tasks
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b.get("trans1")][0]
+    t1 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]}).json()["rerenderTaskId"]
+    assert _q("SELECT input_manifest FROM job_async_task WHERE id = :t", t=t1)[0]["input_manifest"]["bundle"] is None
+    before = {s["id"]: s["inputFingerprint"] for s in _pv(c, job)["sections"] if s["inputFingerprint"]}
+    assert blk["sectionId"] in before
+    monkeypatch.setattr(html_render, "BUNDLE_ID", NEW_BUNDLE)
+    pv = _pv(c, job)
+    assert pv["renderer"]["bundleId"] == NEW_BUNDLE
+    after = {s["id"]: s for s in pv["sections"] if s["id"] in before}
+    assert set(after) == set(before)
+    for sid, s in after.items():
+        assert s["inputFingerprint"] != before[sid] and s["render"]["isCurrent"] is False
+    env["q"].messages.clear()
+    tasks.run_preview(t1)
+    env["q"].drain(skip={"app.tasks.run_preview"})
+    a = _attempt(t1)
+    assert (a["status"], a["error_code"]) == ("failed", "INPUT_CHANGED") and "FE 번들" in a["error_message"]
+    auto = _q("SELECT id, supersedes_task_id, retry_origin, input_manifest FROM job_async_task "
+              "WHERE stage = 'preview' AND unit_id = :s AND is_current", s=blk["sectionId"])[0]
+    assert (auto["supersedes_task_id"], auto["retry_origin"]) == (t1, "auto") and auto["input_manifest"]["bundle"] == NEW_BUNDLE
+    tasks.run_preview(auto["id"])
+    env["q"].drain()
+    assert _attempt(auto["id"])["status"] == "done"
+
+
+def test_preview_is_deferred_while_fe_not_ready_and_redispatched_by_recovery(env, monkeypatch, html_render_session):
+    """D.3: FE 내부 렌더 경로가 준비 전이면 미리보기 시도를 잡지 않는다 — pending 그대로, 실패 · 재시도 소모 · 렌더 없음.
+    복구 sweep(_pending)이 다시 보내고, FE 가 준비되면 정상으로 그린다."""
+    from app import recovery, tasks
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    blk = [b for b in c.get(f"/v1/jobs/{job}/blocks").json() if b.get("trans1")][0]
+    t1 = c.patch(f"/v1/jobs/{job}/blocks/{blk['id']}", json={"trans1": "Gentle care", "revision": blk["revision"]}).json()["rerenderTaskId"]
+    before = _attempt(t1)
+    html_render_session.not_ready = "FE 내부 렌더 경로 응답 502"
+    html_render_session.calls.clear()
+    env["q"].drain()
+    a = _attempt(t1)
+    assert (a["status"], a["error_code"], a["retry_count"]) == ("pending", None, before["retry_count"])
+    assert html_render_session.calls == [] and html_render_session.ready_calls >= 1
+    assert _q("SELECT count(*) AS n FROM task_handoff WHERE task_id = :t", t=t1)[0]["n"] == 0
+    monkeypatch.setenv("PIXLATE_DISPATCH_STALE_S", "0")
+    recovery._pending(stats := {"redispatched": 0})
+    assert stats["redispatched"] >= 1 and ("app.tasks.run_preview", [t1]) in env["q"].messages
+    env["q"].messages.clear()
+    html_render_session.not_ready = None
+    tasks.run_preview(t1)
+    env["q"].drain()
+    a = _attempt(t1)
+    assert (a["status"], a["retry_count"]) == ("done", before["retry_count"]) and html_render_session.calls
+
+
+def test_final_render_is_deferred_while_fe_not_ready_and_keeps_retry_budget(env, html_render_session):
+    """D.3: N6 최종 렌더도 FE 준비 전에는 시도를 잡지 않는다 — RENDER_UNEXPECTED · 재시도 소모가 없고, 준비 뒤 같은 시도가 그대로 끝난다."""
+    from app import tasks
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    html_render_session.not_ready = "고정할 FE revision 설정 없음(PIXLATE_FE_RENDER_REVISION)"
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].drain()
+    runs, cur = _final(job)
+    assert [r["status"] for r in runs] == ["running"]
+    assert (cur["status"], cur["error_code"], cur["retry_count"]) == ("pending", None, 0)
+    assert c.get(f"/v1/jobs/{job}/deliverables").json()["deliverables"] == []
+    html_render_session.not_ready = None
+    tasks.run_render(cur["id"])
+    env["q"].drain()
+    runs, done = _final(job)
+    assert done["id"] == cur["id"] and (done["status"], done["retry_count"]) == ("done", 0)
+    assert c.get(f"/v1/jobs/{job}/deliverables").json()["deliverables"][0]["renderStatus"] == "done"
 
 
 def test_preview_renderer_mismatch_and_missing(env, monkeypatch):
@@ -1826,7 +1935,8 @@ def test_preview_render_input_fingerprint_current_result_and_blocks(env):
     pv = _pv(c, job)
     assert _db_marks(job) == marks  # 조회만 — 시도·인계·섹션·블록·작업 행이 바뀌지 않는다
     assert pv["renderer"] == {"rendererId": typeset.RENDERER_VERSION, "bundleId": None}
-    assert re.fullmatch(r"pillow-typeset/3\+pillow-\S+", pv["renderer"]["rendererId"])  # 현행 문자열(FE는 파싱하지 않음)
+    # 합의 형식(계약 6.7, 11-21) — FE는 파싱하지 않음. 시험 환경은 FE revision 이 없어 bundleId = null
+    assert re.fullmatch(r"html-typeset/1\+chromium-[0-9.]+", pv["renderer"]["rendererId"])
     blocks = c.get(f"/v1/jobs/{job}/blocks").json()
     assert pv["sections"]
     for s in pv["sections"]:

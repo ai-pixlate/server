@@ -67,7 +67,7 @@ def font_calls(monkeypatch):
 
 
 def test_renderer_version_marks_font_change():
-    assert typeset.RENDERER_VERSION.startswith("pillow-typeset/3+pillow-")  # 3: 넘침 판정 기준 변경(그림은 2와 같음)
+    assert typeset.PILLOW_RENDERER_VERSION.startswith("pillow-typeset/3+pillow-")  # 3: 넘침 판정 기준 변경(그림은 2와 같음)
 
 
 @pytest.mark.parametrize("role", list(FACE))
@@ -178,25 +178,39 @@ def test_font_file_gone_after_verification_stops_with_existing_error(monkeypatch
 # 미리보기·최종 렌더 두 경로(실제 PostgreSQL) — 같은 조판 함수·같은 폰트·같은 렌더러 버전
 # ---------------------------------------------------------------------------------------------------------
 @requires_db
-def test_preview_and_final_render_use_pretendard(env, font_calls):
+def test_preview_and_final_render_use_n5_render_input(env, font_calls, html_render_session):
+    """⑨ 미리보기 · N6 최종 렌더가 서버 HTML 렌더에 넣는 블록 = /preview renderInput 블록(N5 가 그리는 입력) 그대로(계약 6.4).
+    운영 경로는 Pillow 조판을 쓰지 않는다(폰트 열기 0). 렌더러 버전은 서버 HTML 렌더 값.
+    대역 세션의 호출 기록(calls)으로 그린 입력을 보므로 실제 렌더 모드에서는 건너뛴다(그 모드의 같은 확인은 test_block_layout_adjust)."""
+    if os.getenv("PIXLATE_TEST_REAL_HTML_RENDER") == "1":
+        pytest.skip("대역 세션의 호출 기록을 보는 시험 — 실제 렌더 모드에서는 test_block_layout_adjust 가 같은 흐름을 본다")
+    from app import html_render
+
     ids = _to_n3(env)
-    c = ids["c"]
-    assert c.post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code == 202
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
     env["q"].drain()
     assert _step(ids) == ("review", "N5")
-    preview_fonts = {f.getname() for _, _, f in font_calls["open"]}
     pv = _q("SELECT a.status, a.input_manifest, h.impl_version FROM job_async_task a JOIN task_handoff h ON h.task_id = a.id "
-            "AND h.state = 'adopted' WHERE a.job_id = :j AND a.stage = 'preview' AND a.is_current", j=ids["job"])
+            "AND h.state = 'adopted' WHERE a.job_id = :j AND a.stage = 'preview' AND a.is_current", j=job)
     assert pv and all(p["status"] == "done" for p in pv)
     assert all(p["input_manifest"]["renderer"] == p["impl_version"] == typeset.RENDERER_VERSION for p in pv)
-    assert preview_fonts and preview_fonts <= {("Pretendard", "Regular"), ("Pretendard", "SemiBold")}
+    assert all("bundle" in p["input_manifest"] and p["input_manifest"]["bundle"] == html_render.BUNDLE_ID for p in pv)
+    assert typeset.RENDERER_VERSION.startswith("html-typeset/1+chromium-")
+    n5 = sorted((b for s in c.get(f"/v1/jobs/{job}/preview").json()["sections"] if s["renderInput"] for b in s["renderInput"]["blocks"]),
+                key=lambda b: b["blockId"])
+    drawn = sorted((b for call in html_render_session.calls for b in call["blocks"]), key=lambda b: b["blockId"])
+    assert n5 and drawn == n5  # style 8키 · 박스 · 글 · revision 이 같다
+    assert {b["style"]["fontFamily"] for b in drawn} == {"Pretendard"} and {b["style"]["fontWeight"] for b in drawn} <= {400, 600}
 
-    font_calls["open"].clear()
-    assert c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    html_render_session.calls.clear()
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
     env["q"].drain()
     fin = _q("SELECT a.status, a.input_manifest, h.impl_version FROM job_async_task a JOIN task_handoff h ON h.task_id = a.id "
-             "AND h.state = 'adopted' WHERE a.job_id = :j AND a.stage = 'final_render' AND a.is_current", j=ids["job"])
+             "AND h.state = 'adopted' WHERE a.job_id = :j AND a.stage = 'final_render' AND a.is_current", j=job)
     assert [f["status"] for f in fin] == ["done"]
     assert fin[0]["input_manifest"]["renderer"] == fin[0]["impl_version"] == typeset.RENDERER_VERSION
-    final_fonts = {f.getname() for _, _, f in font_calls["open"]}
-    assert final_fonts == preview_fonts  # 최종 렌더가 미리보기와 같은 역할별 폰트를 쓴다
+    assert "bundle" in fin[0]["input_manifest"] and fin[0]["input_manifest"]["bundle"] == html_render.BUNDLE_ID
+    final = sorted((b for call in html_render_session.calls for b in call["blocks"]), key=lambda b: b["blockId"])
+    assert final == n5  # 최종 렌더가 N5 와 같은 입력으로 그린다
+    assert font_calls["open"] == []  # Pillow 조판 경로를 타지 않는다

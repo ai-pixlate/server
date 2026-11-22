@@ -79,15 +79,21 @@ def json_value(v: Any) -> Any:
 
 
 def renderer_mismatch(manifest: Any) -> str | None:
-    """렌더 고정 입력의 renderer 가 지금 렌더러(typeset.RENDERER_VERSION 전체 값)와 다르거나 없으면 사유, 같으면 None.
-    기록이 없는 고정 입력을 현재 버전으로 간주하지 않는다. 실행 시점 검사(_render_section)와 재시도 생성 전 검사가 같이 쓴다."""
-    from app import typeset
+    """렌더 고정 입력의 renderer(rendererId) · bundle(bundleId)이 지금 값(typeset.RENDERER_VERSION · html_render.BUNDLE_ID)과
+    다르거나 기록이 없으면 사유, 둘 다 같으면 None. 기록이 없는 고정 입력을 현재 버전으로 간주하지 않는다(키가 없으면 불일치).
+    실행 시점 검사(_render_section)와 재시도 생성 전 검사가 같이 쓴다."""
+    from app import html_render, typeset
 
     m = json_value(manifest)
-    got = m.get("renderer") if isinstance(m, dict) else None
-    if got == typeset.RENDERER_VERSION:
-        return None
-    return f"렌더러가 고정 입력과 다르다(고정 입력 {got or '기록 없음'} · 실행 {typeset.RENDERER_VERSION})"
+    if not isinstance(m, dict) or "renderer" not in m:
+        return f"렌더러가 고정 입력과 다르다(고정 입력 기록 없음 · 실행 {typeset.RENDERER_VERSION})"
+    if m["renderer"] != typeset.RENDERER_VERSION:
+        return f"렌더러가 고정 입력과 다르다(고정 입력 {m['renderer'] or '기록 없음'} · 실행 {typeset.RENDERER_VERSION})"
+    if "bundle" not in m:
+        return f"FE 번들이 고정 입력과 다르다(고정 입력 기록 없음 · 실행 {html_render.BUNDLE_ID or '설정 없음'})"
+    if m["bundle"] != html_render.BUNDLE_ID:
+        return f"FE 번들이 고정 입력과 다르다(고정 입력 {m['bundle'] or '없음'} · 실행 {html_render.BUNDLE_ID or '설정 없음'})"
+    return None
 
 
 class Heartbeat:

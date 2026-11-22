@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import logging
 import math
@@ -21,10 +22,11 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from PIL import Image
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import ai_adapters, artifacts, execution, layout_adjust, typeset
+from app import ai_adapters, artifacts, execution, html_render, layout_adjust, render_input, typeset
 from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
 from app.flows import common, text_check
@@ -32,6 +34,7 @@ from app.flows.common import block_key, failed_envelope, json_value, report, sec
 from app.dictionary_bundle import ai_alternatives, entries_by_ref
 from app.manifest import fingerprint, sha256_bytes, sha256_text, stable_hash
 from app.storage import ObjectMissing, get_store
+from pipeline.handoff import style_defaults as sd
 
 log = logging.getLogger(__name__)
 
@@ -920,7 +923,7 @@ def _render_inputs(db: Session, run_id: int, sid: int, *, style_defaults: dict[s
     ).scalar()
     return {"stage": "preview", "section_id": sid, "background": {"key": bg_key, "sha256": bg_sha,
                                                                     "source": "inpaint" if bg_key != sec["image_key"] else "original"},
-            "blocks": blocks, "style_stage": style_stage, "renderer": typeset.RENDERER_VERSION,
+            "blocks": blocks, "style_stage": style_stage, "renderer": typeset.RENDERER_VERSION, "bundle": html_render.BUNDLE_ID,
             "style_defaults": typeset.style_inputs() if style_defaults is None else style_defaults}
 
 
@@ -937,10 +940,23 @@ def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, 
     if current != m.get("style_defaults"):  # 설정 자료·폰트·규칙 버전 중 하나라도 다르면(6.6 ⑤)
         raise AdoptionRejected("스타일 기본값 자료가 고정 입력과 다르다", code="INPUT_CHANGED")
     defaults = typeset.load_role_defaults()
-    rbs = [typeset.RenderBlock(id=b["block_id"], role=b["role"], text=texts[b["block_id"]], box=b["box"], style=styles[b["block_id"]],
-                               style_stage=m.get("style_stage"), source_ko=sources[b["block_id"]], font_scale=b.get("font_scale", 1.0))
-           for b in m["blocks"]]
-    return typeset.render(data, rbs, defaults)
+    # 원본 폭(기본 크기 환산 기준) = 섹션 배경 폭 — Pillow 렌더와 같은 기준(MVP 섹션은 원본 전체 폭)
+    with Image.open(io.BytesIO(data)) as im:
+        section_width = im.width
+    blocks = []
+    for b in m["blocks"]:
+        try:
+            # /preview renderInput 과 같은 함수 — N5 가 그린 style 8키를 서버도 그대로 쓴다(계약 6.4)
+            built = render_input.build_block(block_id=b["block_id"], revision=b["revision"], role=b["role"], is_excluded=False,
+                                             source_ko=sources[b["block_id"]], text=texts[b["block_id"]], style=styles[b["block_id"]],
+                                             style_stage=m.get("style_stage"), box=b["box"],
+                                             font_scale=b.get("font_scale", render_input.DEFAULT_FONT_SCALE),
+                                             section_width=section_width, defaults=defaults.data)
+        except sd.StyleInputInvalid as e:
+            raise typeset.StyleInputInvalid(str(e)) from e
+        if built is not None:
+            blocks.append(built)
+    return html_render.render(data, blocks)
 
 
 def execute_preview(attempt_id: int) -> dict[str, Any]:

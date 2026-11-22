@@ -7,6 +7,9 @@
 # To change a version: edit this file in its own PR (diff shows exactly what moves) and rerun CI.
 # pillow also sets app.typeset.RENDERER_VERSION: changing it makes preview/final-render inputs
 # fixed before the switch fail with INPUT_CHANGED when run or retried afterwards. Plan that first.
+# playwright sets the server HTML renderer (app/html_render.py): its version fixes the Chromium build
+# (CHROMIUM_VERSION, checked at runtime) and is part of RENDERER_VERSION. Same caution as pillow.
+# playwright + greenlet added 2026-11-19 (fix/n6-html-renderer), versions from the built image freeze.
 # Comments are ASCII on purpose (some pip versions read this file with the locale encoding).
 alembic==1.20.0
 amqp==5.4.1
@@ -30,6 +33,7 @@ et_xmlfile==2.0.0
 fastapi==0.143.0
 google-auth==2.61.0
 google-genai==2.29.0
+greenlet==3.5.6
 h11==0.16.0
 httpcore==1.0.9
 httptools==0.9.0
@@ -46,6 +50,7 @@ opentelemetry-api==1.45.1
 packaging==26.3
 pillow==12.3.0
 pip==25.0.1
+playwright==1.65.2
 pluggy==1.6.0
 prompt_toolkit==3.0.53
 psycopg==3.3.6

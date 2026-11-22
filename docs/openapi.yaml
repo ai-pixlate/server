@@ -1367,19 +1367,18 @@ components:
       required: [rendererId, bundleId]
       description: >
         [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현 완료·서버 배포 대기] 지금 서버가 미리보기를 그리는 렌더러. FE는 두 값을 파싱하지 않고 같은지만 본다.
-        **현행 서버는 Pillow 조판**(`pillow-typeset/…`)이며 공통 렌더 번들(HTML/CSS)을 쓰지 않는다 — `bundleId = null`.
-        Pillow 조판은 자간(`style.letterSpacingEm`)을 적용하지 않고 행간은 비율 1.2를 쓴다. 그래서 `renderInput`을 FE 공통 렌더 코드로 그린 로컬 미리보기는
-        서버 이미지와 다를 수 있다 — 넘침·최신 판정은 서버 값(`render.result.overflow`·`render.isCurrent`)만 쓴다.
-        서버 넘침 판정(`pillow-typeset/3`부터)은 서버 렌더 이미지에 실제로 배치된 글리프 잉크 경계가 배치 영역을 가로·세로로 넘는지다(경계와 같으면 정상) —
-        줄 상자 높이(줄 수 × 행간)로 판정하던 `/2` 결과는 렌더러가 달라 최신이 아니다. 브라우저 측정(Canvas TextMetrics) 구현이 아니라 Pillow 근사다.
-        **FE·서버 렌더 일치는 아직 아니다**: 서버 HTML/Playwright 공통 렌더 연결(번들 반입·측정 규칙 버전)은 2차 의존 작업으로 남아 있고, 연결되면 `rendererId`가 바뀌고 `bundleId`가 생긴다.
+        **[fix/n6-html-renderer · 서버 배포 대기] 서버는 FE 내부 렌더 경로(N5와 같은 HTML/CSS 조판 · 측정 엔진)를 서버 Chromium으로 열어 그린다**(`html-typeset/…`).
+        서버가 그리는 블록 입력은 이 응답의 `renderInput` 블록과 같은 함수로 만든 같은 값이다(style 8키 · 박스 · 글) — 자간 · 행간 · 줄바꿈이 N5와 같다.
+        서버 넘침 판정은 FE 측정 엔진 결과(배치된 글리프 ink 경계가 배치 영역을 가로·세로로 넘는지, 경계와 같으면 정상 — 계약 6.2 D-01 · D-02)이고,
+        넘침·최신 판정은 서버 값(`render.result.overflow`·`render.isCurrent`)만 쓴다. 렌더러가 바뀌면 전환 전 고정 입력의 결과는 최신이 아니다.
+        이전 값: `pillow-typeset/3+pillow-12.3.0`(Pillow 근사 · 자간 미적용 · 공백 단위 줄바꿈, `bundleId = null`).
       properties:
         rendererId:
           type: string
-          description: '서버 렌더·측정 실행 환경 식별자. 현행 값은 `pillow-typeset/3+pillow-<Pillow 버전>` 문자열 그대로다. FE는 파싱하지 않고 같은지 비교(`render.result.rendererId`)와 진단에만 쓴다(FE 11-05).'
+          description: '서버 렌더·측정 실행 환경 식별자 `html-typeset/<규칙판>+chromium-<Chromium 전체 버전>`(예 `html-typeset/1+chromium-159.0.8154.6`, 계약 6.7 · FE·AI 합의 11-21). 규칙판은 서버 고정본 글꼴·글꼴 힌팅·내부 경로 입출력 형식·넘침·줄 수 변환·글자 크기 대조 규칙·출력 배율 중 하나가 바뀌면 올린다. FE는 파싱하지 않고 같은지 비교(`render.result.rendererId`)와 진단에만 쓴다(FE 11-05).'
         bundleId:
           type: [string, 'null']
-          description: '공통 렌더 번들 식별자 — 서버가 공통 번들을 쓰지 않는 렌더러(현행 Pillow)면 null'
+          description: '서버가 그릴 때 여는 FE 빌드 식별자 `fe-<FE 전체 SHA 40자>`(계약 6.7 · FE·AI 합의 11-21). 렌더 고정 입력에 들어가므로 바뀌면 `inputFingerprint`가 바뀌고 이전 결과는 `isCurrent = false`다. 서버에 FE revision 설정이 없거나 전체 SHA 40자가 아니면 null(그때 서버 렌더는 실패한다). FE는 파싱하지 않고 같은지만 본다'
     PreviewRenderInput:
       type: object
       required: [section, blocks]

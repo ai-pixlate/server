@@ -1,0 +1,80 @@
+{
+  "initial_commit": "815acc7a8d2eb42071a3659cd8ed326540c35153",
+  "initial_git_files_byte_identical": 25,
+  "expected_pm_counts_match": true,
+  "independent_adopted_row_recount_passed": true,
+  "active_defect_counts_match_tables": true,
+  "a_sample_hash_selection_verified": true,
+  "zero_denominator_reasons_distinguished": true,
+  "tests_passed": 32,
+  "test_commands": [
+    "python -B -m unittest tests.test_baseline_evaluation_prepare tests.test_baseline_protocol",
+    "python -B -m unittest discover -s tests -p test_baseline_scope.py"
+  ],
+  "pm_reconfirmation_pending": true,
+  "final_script_replay_byte_identical": true,
+  "replayed_outputs": [
+    {
+      "path": "a-sample-review.json",
+      "sha256": "2ba3f1c5818f51388b595577763cbf6180e4fa615086aa836fd770eaf1ffc636"
+    },
+    {
+      "path": "adopted-defects.jsonl",
+      "sha256": "e9f6795da2bd3b2ec133b8da749212f9f4630a8b386c48c44e7f0c36a4161ef6"
+    },
+    {
+      "path": "adopted-evaluations.jsonl",
+      "sha256": "917fd0977084b84b4184e769b4474a72e99f6cec0c3467b3188c5c8de366e9f7"
+    },
+    {
+      "path": "aggregation-basis.json",
+      "sha256": "1f05eac97ac178fd1afec9a2ab909d13e4fb7b21d4077120e3952745ab0b6f63"
+    },
+    {
+      "path": "defect-additions.jsonl",
+      "sha256": "85d0b17c9d80d2af779a69c4532a216961c76cbbbfbdd5611df260bdf0122544"
+    },
+    {
+      "path": "defect-inventory.md",
+      "sha256": "2131c38ccca53ec49b4f7291b2811d4477f3b58cfdebd4683766b7d2d8afa641"
+    },
+    {
+      "path": "evaluation-additions.jsonl",
+      "sha256": "70970be8542fe71c47a2a416c69aa43e27e4199767ae0a4dbfc7660b8f69e6d0"
+    },
+    {
+      "path": "h04-review-table.md",
+      "sha256": "d2828f242b6d12350b01355b0c6f39a7d21c0120e0c91a4e6a8302c4e91da048"
+    },
+    {
+      "path": "human_review.csv",
+      "sha256": "d6c2f8734653bcf31f24f1ec6663a5ffd69b6e058de61c454d56449cdb952efd"
+    },
+    {
+      "path": "issues.json",
+      "sha256": "34d05f2eceb835e7f444ff98f11b5f5d646a7392465a8eccd1d323b767207cbc"
+    },
+    {
+      "path": "metrics.csv",
+      "sha256": "9a4a8279f4e58aa8286bd4524739a6bd49d94fbd983dbd45c6f22ef1c7b79f92"
+    },
+    {
+      "path": "metrics.jsonl",
+      "sha256": "3a7a6e9074189c0195eef58e10561eab91d78c95019ebb1f86d49bc90cace602"
+    },
+    {
+      "path": "model-confirmation.json",
+      "sha256": "5f8c2567ec2217227ae2f6ea6b597fe28b46848b3ead4bcfb806979d91019748"
+    },
+    {
+      "path": "source-results.md",
+      "sha256": "fc25640ac1c282fc46c6528c2a751a6c95f33590106c4d567517a28e12459dd6"
+    },
+    {
+      "path": "validation.json",
+      "sha256": "ed25e500c95c9952a78bc0b0c8edc94395cb6e56bcc5013f29591467feaf9861"
+    }
+  ],
+  "new_pm_defect_ai_value_null_count": 10,
+  "protocol_validation_issues": []
+}

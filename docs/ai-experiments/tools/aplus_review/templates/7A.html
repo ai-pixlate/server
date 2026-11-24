@@ -1,0 +1,13 @@
+{# 7A 브랜드 · S1 · Single Left/Right Image
+   라벨 "OUR STORY"(12, 56,44) · 제목(32, 브랜드명 1줄, 56,70) · 본문(15, 최대 6줄, 56,126)
+   오른쪽: 사진 구역 485~970, 300×300 #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}{% set al = 'center' if c.layout == 'center' else 'left' %}{% set vg = c.layout == 'vcenter' %}
+<div class="zone" style="{{ B.zone.css }}"></div>
+{{ m.photo(B.image, c.image, st, area=A.image) }}
+{{ m.text(B.label, c.label, fs.label, 1, "label", area=A.label, cls="label" ~ (" pill-label" if st.label == 'pill' else ""), extra=True, align=al, vg=vg) }}
+{{ m.text(B.headline, c.headline, fs.headline, 1, "headline", area=A.headline, cls="h", align=al, vg=vg, underline=st.headline_underline) }}
+{{ m.text(B.body, c.body, fs.body, 6, "body", area=A.body, cls="b", lh=1.5, align=al, vg=vg) }}
+{% endblock %}

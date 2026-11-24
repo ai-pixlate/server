@@ -1,0 +1,14 @@
+{# 5A 옵션 · S5 통짜 나열형 · 자체 배치
+   제목(선택, 24, 40,22). 스와치 원 2~12개: 6개 이하 지름 96 한 줄 / 7~12개 지름 64 두 줄
+   아래 색상명(14). 스와치는 color(색 코드) 또는 image(이미지 경로) #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+{{ m.text(B.headline, c.headline, fs.headline, 1, "headline", area=A.headline, cls="h", lh=1.15, underline=st.headline_underline) }}
+{% for it in items %}
+{% set i = loop.index0 %}
+<div class="swatch{% if c.layout == 'chips' %} chip{% endif %}" data-name="items[{{ i }}].swatch"{% if A.swatches %} data-area="{{ A.swatches }}"{% endif %} style="{{ it.sw.css }};{% if it.color %}background:{{ it.color }}{% endif %}">{% if it.image %}<img src="{{ it.image.uri }}" alt="">{% endif %}</div>
+{{ m.text(it.cbox, it.title, fs.caption, 1, "items[" ~ i ~ "].title", area=A.captions, cls="sh", align="center", lh=1.3) }}
+{% endfor %}
+{% endblock %}

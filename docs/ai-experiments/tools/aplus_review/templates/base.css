@@ -1,0 +1,97 @@
+/* 모든 템플릿 공통. 색은 theme 값이 :root 변수로 들어온다. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 970px; height: 300px; overflow: hidden; }
+body {
+  position: relative;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
+}
+:root {
+  --muted: color-mix(in srgb, var(--text) 72%, var(--bg));
+  --tint: color-mix(in srgb, var(--accent) 14%, var(--bg));
+}
+
+/* 배경 구역 · 이미지 */
+.zone { position: absolute; background: var(--photo-bg); }
+.img { position: absolute; overflow: hidden; }
+.img img { display: block; width: 100%; height: 100%; }
+.img.round { border-radius: 50%; }
+
+/* 글 칸: 상자 크기는 고정, 넘친 글은 잘리지 않고 그대로 보인다(overflow: visible) */
+.fit { position: absolute; overflow: visible; }
+.fit .t { width: 100%; white-space: pre-line; overflow-wrap: normal; word-break: normal; }
+.fit.vc { display: flex; align-items: center; }
+
+/* 위에서부터 쌓는 글 칸 (1A·3A) */
+.flow { position: absolute; display: flex; flex-direction: column; overflow: visible; }
+.flow .slot { position: relative; flex: none; }
+.flow .fit { position: relative; width: 100%; }
+
+.h { font-weight: 700; letter-spacing: -0.01em; }
+.sh { font-weight: 600; }
+.b { font-weight: 400; color: var(--muted); }
+.label { font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent-text); }
+
+/* 추가 요소: 체크 원 · 번호 원 */
+.dot { position: absolute; border-radius: 50%; background: var(--accent); color: #fff;
+       display: flex; align-items: center; justify-content: center; }
+.dot svg { width: 58%; height: 58%; }
+.num { font-weight: 700; font-size: 14px; line-height: 1; }
+.ph { position: absolute; border-radius: 50%; background: var(--tint); color: var(--accent-text);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; }
+.arrow { position: absolute; color: var(--accent); }
+/* 뜻 아이콘(11-12): 틀 없음, 칸 크기 그대로 (아이콘 안쪽 여백은 그림 자체에 있음) */
+.glyph { position: absolute; color: var(--accent); display: flex; align-items: center; justify-content: center; }
+.glyph svg { width: 100%; height: 100%; display: block; }
+.arrow svg { width: 100%; height: 100%; display: block; }
+.mt { font-weight: 700; letter-spacing: -0.01em; }  /* 모듈 제목(가운데) */
+.swatch { position: absolute; border-radius: 50%; overflow: hidden;
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.swatch img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.panel { position: absolute; border-radius: 6px;
+         background: color-mix(in srgb, var(--bg) 84%, transparent); }
+.pill .t { display: inline-block; width: auto; max-width: 100%; padding: 3px 12px; border-radius: 14px;
+           background: rgba(0, 0, 0, 0.55); color: #fff; font-weight: 700;
+           text-transform: uppercase; letter-spacing: 0.08em; }
+.pill { display: flex; align-items: flex-end; }
+.markring { position: absolute; border-radius: 50%; border: 3px solid var(--accent); color: var(--accent);
+            display: flex; align-items: center; justify-content: center; }
+.markring svg { width: 46%; height: 46%; }
+
+/* ---- 2026-11-10 추가: 사진 처리·장식(style) · 배치 변형(layout). 옵션을 안 주면 아래 클래스는 쓰이지 않는다 ---- */
+:root { --bdc: color-mix(in srgb, var(--accent) 18%, var(--photo-bg)); }
+.img.shape-rounded { border-radius: 16px; }
+.img.shape-circle { border-radius: 50%; }
+.img.shape-arch { border-radius: 50% 50% 0 0 / 38% 38% 0 0; }
+.img.bordered { outline: 1px solid color-mix(in srgb, var(--text) 25%, transparent); outline-offset: -1px; }
+.backdrop { position: absolute; pointer-events: none; }
+.bd-circle { background: radial-gradient(circle at 50% 50%, var(--bdc) 0 39%, transparent 39.6%); }
+.bd-gradient { background: radial-gradient(circle at 50% 55%, var(--bdc) 0%, transparent 70%); }
+.bd-arch::before { content: ""; position: absolute; left: 18%; right: 18%; top: 8%; bottom: 0;
+                   background: var(--bdc); border-radius: 999px 999px 0 0; }
+.bd-blob svg { position: absolute; left: 7%; top: 7%; width: 86%; height: 86%; fill: var(--bdc); }
+.pill-label .t { display: inline-block; width: auto; max-width: 100%; padding: 2px 10px; border-radius: 10px;
+                 background: var(--tint); }
+.uline { position: absolute; background: var(--accent); pointer-events: none; }
+.uline.line { background: color-mix(in srgb, var(--accent) 55%, var(--bg)); }
+.uline-flow { height: 3px; width: 40px; margin-top: 6px; background: var(--accent); }
+.uline-flow.line { height: 1px; width: 100%; background: color-mix(in srgb, var(--accent) 55%, var(--bg)); }
+.ta-center .uline-flow.bar { margin-left: auto; margin-right: auto; }
+.num-outline { background: var(--bg); border: 2px solid var(--accent); color: var(--accent-text); }
+.num-square { border-radius: 6px; }
+.num-big { background: transparent; color: color-mix(in srgb, var(--accent) 50%, var(--bg));
+           font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.conn { position: absolute; left: 0; top: 0; color: color-mix(in srgb, var(--accent) 70%, var(--bg));
+        pointer-events: none; overflow: visible; }
+.cardbg { position: absolute; border-radius: 12px; background: color-mix(in srgb, var(--accent) 7%, var(--bg)); }
+.tline { position: absolute; background: color-mix(in srgb, var(--accent) 45%, var(--bg)); }
+.swatch.chip { border-radius: 16px; }
+.flow.vcenter { justify-content: center; }
+.mdeco { position: absolute; pointer-events: none; }
+.mdeco.dots { background-image: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, var(--bg)) 0 2px, transparent 2.5px);
+              background-size: 10px 10px; }
+.mdeco.corner { border-color: color-mix(in srgb, var(--accent) 55%, var(--bg)); border-style: solid; border-width: 0; }
+.mdeco.circle { border-radius: 50%; background: color-mix(in srgb, var(--accent) 9%, var(--bg)); }

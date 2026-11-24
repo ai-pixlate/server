@@ -1,0 +1,15 @@
+{# 7B 브랜드 · S2 · Four Images & Text
+   모듈 제목(30, 가운데). 아래 2~4칸: 아이콘 80×80, 제목(16, 1줄), 설명(13, 최대 2줄) #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+{{ m.text(B.title, c.headline, fs.title, 1, "headline", area=A.title, cls="mt", align="center", extra=True, underline=st.headline_underline) }}
+{% if st.card %}{% for it in items %}{{ m.card(it.card) }}{% endfor %}{% endif %}
+{% for it in items %}
+{% set i = loop.index0 %}
+{{ m.icon(it.img, it.image, loop.index, name="items[" ~ i ~ "].image", area=A.images, shape=st.item_image_shape, glyph=it.glyph) }}
+{{ m.text(it.tbox, it.title, fs.item, 1, "items[" ~ i ~ "].title", area=A.titles, cls="sh", align="center", lh=1.25) }}
+{{ m.text(it.bbox, it.body, fs.body, 2, "items[" ~ i ~ "].body", area=A.bodies, cls="b", align="center", lh=1.35) }}
+{% endfor %}
+{% endblock %}

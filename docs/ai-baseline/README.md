@@ -30,11 +30,14 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 5 | [aggregation.md](protocols/v1/aggregation.md) | AI 파이프라인 평가 지표 3개 그룹·공통 결함 분석·파생 분석의 계산·예외·비교 |
 | 6 | [execution.md](protocols/v1/execution.md) | 실행 환경·입력·비용 승인·보관 원칙·후속 실행 설계 제안 |
 | OCR 평가 | [ocr-current.md](protocols/v1/ocr-current.md) | OCR01 v6 고정 부분 CER·v4/v5 이력·OCR02 보류 |
+| 번역 자연스러움 | [tq03.md](protocols/v1/tq03.md) | TQ03 공식 관리·기존 실험 대조·최종판 비교 전 고정 사항 |
 | OCR 자료 점검 | [ocr-preflight.md](ocr-preflight.md) | 12개 정답 초안·입력 해시·최초 OCR 출력 재사용 가능 범위·후속 작업 |
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |
 
-[AI 파이프라인 평가 지표](protocols/v1/aggregation.md#ai-파이프라인-평가-지표-분류)는 서비스 성과 지표(H01~H05), 단계별 기술 품질 지표(OCR01·OCR02(보류)·OI-54·NFR-15 등), 운영 성능 지표(OP01~OP07)의 3개 그룹으로 구분하며 공통 결함 분석은 별도로 유지한다. 지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리한다. GS-02·03은 PR #93의 11/15~11/20 PM 최종 의견을 반영한 281개 후보(기존 273개·신규 8개)이며 미동결이다. [반영 내역·검토표](runs/reference-preparation-20261027/README.md)에서 확인한다. 초기 초안·사전·기존 동결본·평가 결과는 보존했다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
+[AI 파이프라인 평가 지표](protocols/v1/aggregation.md#ai-파이프라인-평가-지표-분류)는 서비스 성과 지표(H01~H05), 단계별 기술 품질 지표(TQ01~TQ06; TQ02 측정 보류·TQ04 보류), 운영 성능 지표(OP01~OP07)의 3개 그룹으로 구분하며 공통 결함 분석은 별도로 유지한다. [기존 ID 대응](protocols/v1/aggregation.md#현재-id와-기존-id의-대응)은 명세에만 적용하며 기존 결과 ID·실측값은 변경하지 않는다. 지표 명칭과 계산 정의는 aggregation.md를 소유 문서로 하고, 다른 문서는 링크로 참조한다. 사람 검수 담당자·종료 조건과 A등급 표본 추천안은 [사람 검수 프로토콜](protocols/v1/evaluation.md#7단계-사람-검수-프로토콜)을 따른다. [34장 기준 자료 초안](runs/reference-preparation-20261027/README.md) 중 GS-01 2장·58개는 [PM 승인 부분 동결본](references/gs-v1/gs01-v1-20261103/README.md)으로 관리한다. GS-02·03은 PR #93의 11/15~11/20 PM 최종 의견을 반영한 281개 후보(기존 273개·신규 8개)이며 미동결이다. [반영 내역·검토표](runs/reference-preparation-20261027/README.md)에서 확인한다. 초기 초안·사전·기존 동결본·평가 결과는 보존했다. 생성은 허용하고 공식 채점은 동결 후 진행한다.
+
+2026-11-24 사용자 요청으로 [TQ03 번역 자연스러움](protocols/v1/tq03.md)을 공식 기술 품질 지표로 관리한다. **단일 평가모델(M-Prometheus 7B) · 독립 검증 없음 · 출력 형식 완전 충족 0개 · 점수 확보 449/491개**라는 기존 Baseline 한계를 항상 병기하며, 절대 성능 주장이 아닌 v1.0.1과 최종판의 변화 비교에 사용한다. 기존 독립 실험 파일이나 H01~H04 준비·채점 결과를 수정하지 않는다.
 
 [기존 측정 도구 안내](../../tools/baseline/README.md)는 기존 구현의 사용법·검증 범위만 설명한다. 도구 출력이 최신 명세와 일치한다고 가정하지 않으며 도구 정비·실행은 별도 작업이다.
 

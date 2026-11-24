@@ -1,0 +1,31 @@
+{
+  "record_kind": "execution_failure",
+  "logical_execution_id": "GS-03-job-3-N2",
+  "affected_sources": [
+    "GS-03-IMG-001",
+    "GS-03-IMG-002",
+    "GS-03-IMG-003",
+    "GS-03-IMG-004",
+    "GS-03-IMG-005",
+    "GS-03-IMG-006",
+    "GS-03-IMG-007",
+    "GS-03-IMG-008",
+    "GS-03-IMG-009",
+    "GS-03-IMG-010",
+    "GS-03-IMG-011",
+    "GS-03-IMG-012",
+    "GS-03-IMG-013",
+    "GS-03-IMG-014",
+    "GS-03-IMG-015",
+    "GS-03-IMG-016",
+    "GS-03-IMG-017",
+    "GS-03-IMG-018"
+  ],
+  "stage": "N2 상품 분석",
+  "error_code": "ANALYZE_UNEXPECTED",
+  "observed_error": "VlmError / 504 DEADLINE_EXCEEDED",
+  "evidence": "generation/evidence/GS-03.json: job 3 failed/current_step N2; current task 489 attempt_no 3 failed",
+  "effect": "최초·최종 결과 18장 미생성. H01 분모 유지, H02/H03 no_output 각18, H04 no_output 각67. 정답상 H04 미적용 각11은 별도.",
+  "quality_defects_created": 0,
+  "root_cause_limit": "실패 응답은 확인; 제공자 내부 시간초과 원인은 미확정. 추가 호출·재생성하지 않음."
+}

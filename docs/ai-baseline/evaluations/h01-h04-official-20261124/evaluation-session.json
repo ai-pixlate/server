@@ -1,0 +1,16 @@
+{
+  "session_id": "codex-h01-h04-20261124-initial",
+  "channel": "Codex 채팅",
+  "started_at": "2026-11-24T04:49:00+00:00",
+  "started_at_basis": "입력 복원·시각 확인 착수 시각(세션 자체 생성 시각은 미확인)",
+  "model_name": null,
+  "model_settings": null,
+  "model_evidence_ref": null,
+  "instruction_path": "scoring/instruction.md",
+  "instruction_sha256": "104046e53c6f1ae154cabd873c408a5e9526fa254184f8d8e4c348187efb8e3c",
+  "conversation_ref": "Codex 현재 채팅: v1.0.1 Baseline H01~H04 공식 채점 요청",
+  "transcript_path": "scoring/response-record.md",
+  "transcript_sha256": "32f6031bb6556812ef5ac96f000d6932862bed4452cc9c44f0b666a89d877ff8",
+  "unavailable_reason": "정확한 채팅 모델 식별자·생성 설정·전체 채팅 내보내기 파일은 제공되지 않음. response-record는 관찰·판정 응답 기록이며 전체 대화 원문으로 주장하지 않음.",
+  "scoring_tool_commit": "f2b66dc0ca4968104c6499aeafef2774b8f6ab87"
+}

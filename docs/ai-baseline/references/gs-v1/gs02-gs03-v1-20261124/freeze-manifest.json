@@ -1,0 +1,70 @@
+{
+  "reference_version": "gs-v1-gs02-gs03-20261124-v1",
+  "status": "사용자가 전달한 PM 구두 승인에 따른 로컬 동결 · GitHub 반영 전",
+  "frozen_at": "2026-11-24T01:09:20.351210+00:00",
+  "approved_review_commit": "ce8b35b467b3a508ac3453d61fb831a37523a0c5",
+  "draft_commit": "ce8b35b467b3a508ac3453d61fb831a37523a0c5",
+  "draft_sha256": "8c6ec2d4c4e40cba4a5192d773a663a3f071da56b4ff8bada4231e4936ffbf1a",
+  "candidate_path": "../../../runs/reference-preparation-20261027/artifacts/reference_units.pm-revised-20261123.jsonl",
+  "scope_source_keys": [
+    "GS-02-IMG-001",
+    "GS-02-IMG-002",
+    "GS-02-IMG-003",
+    "GS-02-IMG-004",
+    "GS-02-IMG-005",
+    "GS-02-IMG-006",
+    "GS-02-IMG-007",
+    "GS-02-IMG-008",
+    "GS-02-IMG-009",
+    "GS-02-IMG-010",
+    "GS-02-IMG-011",
+    "GS-02-IMG-012",
+    "GS-02-IMG-013",
+    "GS-02-IMG-014",
+    "GS-03-IMG-001",
+    "GS-03-IMG-002",
+    "GS-03-IMG-003",
+    "GS-03-IMG-004",
+    "GS-03-IMG-005",
+    "GS-03-IMG-006",
+    "GS-03-IMG-007",
+    "GS-03-IMG-008",
+    "GS-03-IMG-009",
+    "GS-03-IMG-010",
+    "GS-03-IMG-011",
+    "GS-03-IMG-012",
+    "GS-03-IMG-013",
+    "GS-03-IMG-014",
+    "GS-03-IMG-015",
+    "GS-03-IMG-016",
+    "GS-03-IMG-017",
+    "GS-03-IMG-018"
+  ],
+  "unit_count": 281,
+  "case_counts": {
+    "GS-02": 144,
+    "GS-03": 137
+  },
+  "verified_by": "은다빈 (i-dAb-i) — 사용자 예람이 PM 구두 승인 전달",
+  "verified_at": "2026-11-24T01:09:20.351210+00:00",
+  "evidence_ref": {
+    "path": "pm-approval.json",
+    "sha256": "2d514ff800c661327dc460894304e8504035b435ed7291fcd0efdf84f8005a38"
+  },
+  "reference_file": {
+    "path": "reference_units.jsonl",
+    "sha256": "25489c39ba5c763465f7759110b65502ff7a02e334ef2db7d9fdb34c83574e4c"
+  },
+  "basis_refs_base": "동결 디렉터리",
+  "transformations": [
+    "reference_version과 승인 메타데이터 설정",
+    "human_confirmation_required=false: 사용자 전달 PM 승인에 근거",
+    "basis_refs 경로를 동결 디렉터리 기준으로 재배치, 대상 바이트·해시 불변"
+  ],
+  "notes": [
+    "expected_value.note의 미동결 문구는 후보 작성 당시 이력이며 현재 상태는 이 manifest를 따른다.",
+    "verified_at은 승인 전달 기록 시각이며 PM 구두 승인 시각은 미확인이다.",
+    "GS-01 기존 동결본은 별도 유지한다.",
+    "규제사전 갱신·제품 규제 적합성 인증·공식 품질 채점·PR 병합을 뜻하지 않는다."
+  ]
+}

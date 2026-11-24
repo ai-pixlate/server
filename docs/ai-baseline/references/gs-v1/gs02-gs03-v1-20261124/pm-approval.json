@@ -1,0 +1,19 @@
+{
+  "approval_kind": "PM 구두 승인 — 사용자 전달",
+  "approved_by": "은다빈 (i-dAb-i)",
+  "relayed_by": "사용자 예람",
+  "reported_date": "2026-11-24",
+  "pm_oral_approved_at": null,
+  "recorded_at": "2026-11-24T01:09:20.351210+00:00",
+  "timestamp_note": "verified_at은 구두 승인 시각이 아니라 사용자 전달 승인 기록 시각이다. PM 직접 GitHub 승인 리뷰가 아니다.",
+  "approved_commit": "ce8b35b467b3a508ac3453d61fb831a37523a0c5",
+  "approved_units": 281,
+  "user_instruction": "사용자가 전달한 PM 구두 승인임을 PR #149에 기록하고, ce8b35b 기준 GS-02·03 281개 기준 자료를 동결해. 기존 동결본과 실측 결과는 보존하고, 아직 PR 병합이나 공식 채점은 하지 마.",
+  "github_record": {
+    "id": 7118789508,
+    "html_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7118789508",
+    "created_at": "2026-11-24T01:08:05Z",
+    "body": "사용자 예람이 PM의 구두 동결·승인을 전달했으며, 2026-11-24 이 채팅에서 `ce8b35b467b3a508ac3453d61fb831a37523a0c5` 기준 GS-02·03 기준 자료 281개(GS-02 144개·GS-03 137개)의 동결을 명시적으로 요청했습니다.\n\n승인 출처는 **사용자가 전달한 PM 구두 승인**입니다. PM이 GitHub에 직접 작성한 동결 승인이나 GitHub Approve 리뷰로 기록하지 않으며, 실제 구두 승인 시각은 확인되지 않았습니다. 기존 PM 서면 검토와 ce8b35b의 괄호 설명 5건 정정 이력은 함께 보존합니다.\n\n이 승인에 따라 별도 버전으로 로컬 동결하고 해시·승인 출처를 기록합니다. 기존 GS-01/OCR 동결본·실측 결과·사전은 유지하며, PR #149는 Draft 상태를 유지합니다. PR 병합, PR #93 종료 및 H01~H04 공식 채점은 진행하지 않습니다. 새 동결본의 커밋·push는 별도 요청 전 진행하지 않습니다.\r\n"
+  },
+  "preceding_pm_review": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891"
+}

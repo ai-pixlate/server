@@ -1,7 +1,7 @@
 # AI 파이프라인 평가 지표 — Baseline
 
 > 최신 승인 상태: **$50·최대 1,367회·호출당 예약 $1.04 승인**. 동결 전 생성 허용·동결 후 H01~H04 채점. N3·N5 확인은 예람. 과거 승인 보류 문구보다 [현재 승인 범위](cost-estimate.md#pr-제출-시-승인-상태)를 우선한다. 이번 작업은 리뷰 반영까지만 수행하며 생성·채점은 실행하지 않는다.
-> 상태: 34장·339개 기준 자료 동결·H01~H04 공식 평가 입력 준비 완료 · 공식 채점·PM 평가 검수 미시작 · TQ ID 통일·TQ03 공식 관리 반영
+> 상태: 34장·339개 기준 자료 동결·H01~H04 공식 평가 입력 준비 완료 · 공식 채점·PM 평가 검수 미시작 · TQ ID 통일·기존 방식으로 TQ03 측정 기준 확정
 
 릴리즈 1.0.1과 후속 고도화 버전의 품질을 같은 평가셋과 방법으로 비교하기 위한 문서다. 제품 버전과 평가 명세 버전은 구분한다.
 
@@ -30,7 +30,7 @@ PR #89의 과거 입력본은 [Notion 1~5단계 확정안](https://app.notion.co
 | 5 | [aggregation.md](protocols/v1/aggregation.md) | AI 파이프라인 평가 지표 3개 그룹·공통 결함 분석·파생 분석의 계산·예외·비교 |
 | 6 | [execution.md](protocols/v1/execution.md) | 실행 환경·입력·비용 승인·보관 원칙·후속 실행 설계 제안 |
 | OCR 평가 | [ocr-current.md](protocols/v1/ocr-current.md) | OCR01 v6 고정 부분 CER·v4/v5 이력·OCR02 보류 |
-| 번역 자연스러움 | [tq03.md](protocols/v1/tq03.md) | TQ03 공식 관리·기존 실험 대조·최종판 비교 전 고정 사항 |
+| 번역 자연스러움 | [tq03.md](protocols/v1/tq03.md) | TQ03 공식 관리·기존 방식의 측정 규칙 확정·별도 확인 상태 |
 | OCR 자료 점검 | [ocr-preflight.md](ocr-preflight.md) | 12개 정답 초안·입력 해시·최초 OCR 출력 재사용 가능 범위·후속 작업 |
 | 필요 시 | [runs/README.md](runs/README.md) | 8단계 결과 구조·필드·연결 관계·실제 회차 결과 |
 | 필요 시 | [comparisons/README.md](comparisons/README.md) | 버전 비교 결과 |

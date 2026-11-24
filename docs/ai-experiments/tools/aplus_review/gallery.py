@@ -173,7 +173,8 @@ def _limit_rows(m: AplusModule, spec: AplusSpec, block_sources: dict[str, str]) 
             text = getattr(m, c.field).text
         ko = " / ".join(" ".join(block_sources[k].split()) for k in c.origin_block_keys if k in block_sources)
         rows.append(f"<tr{cls}><th>{e(c.field)}</th><td>{e(text)}<div class='ko'>{e(ko)}</div></td><td class='n'>{c.chars} / {lim}"
-                    f"{' (+' + str(c.over) + ')' if c.over else ''}</td><td class='k'>{e(', '.join(c.origin_block_keys)) or '—'}</td></tr>")
+                    f"{' (+' + str(c.over) + ')' if c.over else ''}"
+                    f"{'<br>가이드 상한 ' + str(c.guide_max_chars) + ' 초과' if c.over_guide else ''}</td><td class='k'>{e(', '.join(c.origin_block_keys)) or '—'}</td></tr>")
     return "".join(rows)
 
 
@@ -314,7 +315,7 @@ def entries_from_plan(plan: Any, spec: AplusSpec, cutout: Any = None) -> list[En
     for x in (cutout.items if cutout is not None else []):
         by_slot.setdefault(x.slot, []).append(x)
     reason_ko = {"limit": "한도 직전에서 중단", "not_candidate": "그 칸 라벨의 섹션이 아님", "already_used": "다른 곳에서 이미 씀",
-                 "unknown": "보낸 적 없는 블록 ID"}
+                 "unknown": "보낸 적 없는 블록 ID", "role": "블록 역할이 그 칸에 들어갈 수 없음"}
     out: list[Entry] = []
     for s in plan.slots:
         notes = [f"고른 이유: {s.why}"] if s.why else []

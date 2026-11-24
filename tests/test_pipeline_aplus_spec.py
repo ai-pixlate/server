@@ -1,0 +1,240 @@
+"""A+ 규격 데이터 · 슬롯 내용 검사 — 개발용 v1(open-questions.md 2.9절). 모델 호출 · 렌더 없음.
+
+규격 데이터(pipeline/data/aplus/spec.json)가 참고 자료에서 옮긴 그대로인지(템플릿 14 · 라벨 19 · 구역 67, 출처 해시 기록),
+한도 조회가 조건이 많이 맞는 규칙을 고르는지, 자료에 없는 한도를 만들지 않는지, 슬롯 내용 검사가 참고 렌더러 규칙과 같은지 본다.
+"""
+import copy
+import json
+
+import pytest
+from pydantic import ValidationError
+
+from pipeline.aplus import content
+from pipeline.aplus.spec import SPEC_PATH, AplusSpecError, load_spec
+from pipeline.types import AplusImage, AplusItem, AplusModule, AplusText, BBox
+
+SPEC = load_spec()
+ONE_SIDED = {"1A", "2A", "2B", "3A", "3B", "4A", "6B", "7A"}
+
+
+def T(text: str, *keys: str) -> AplusText:
+    return AplusText(text=text, origin_block_keys=list(keys))
+
+
+def IMG(fit: str = "contain") -> AplusImage:
+    return AplusImage(section_key="sec_1_01", bbox=BBox(x=0, y=0, w=300, h=300), fit=fit)
+
+
+def minimal(tid: str, n: int = 3) -> AplusModule:
+    """템플릿마다 필수 칸만 채운 최소 내용."""
+    req = SPEC.requirements(tid)
+    kw: dict = {"template": tid}
+    for name in req.required:
+        if name == "image":
+            kw["image"] = IMG()
+        elif name == "items":
+            item: dict = {}
+            for need in req.items.required:
+                first = need.split("|")[0]
+                item[first] = "#AABBCC" if first == "color" else IMG() if first == "image" else T("Item title")
+            kw["items"] = [AplusItem(**item) for _ in range(max(n, req.items.min))]
+        else:
+            kw[name] = T("Headline")
+    return AplusModule(**kw)
+
+
+# ---------------------------------------------------------------- 규격 데이터
+def test_spec_shape_and_source():
+    raw = SPEC.raw
+    assert SPEC.version == "aplus-spec@2026-11-23.1"
+    assert raw["canvas"] == {"width": 970, "height": 300}
+    assert len(SPEC.template_ids) == 14 and len(raw["labels"]) == 19
+    assert sum(len(t["regions"]) for t in raw["templates"].values()) == 67
+    assert {tid for tid, t in raw["templates"].items() if t["one_sided"]} == ONE_SIDED
+    assert sum(t["amazon_module"] is not None for t in raw["templates"].values()) == 11  # 표준 모듈과 같은 모양 11개, 자체 배치 3개
+    assert {tid for tid, t in raw["templates"].items() if t["amazon_module"] is None} == {"1B", "3B", "5A"}
+    src = raw["source"]
+    assert src["renderer"]["commit"].startswith("a889a0c") and src["converter"]["commit"].startswith("c9d3297")
+    assert all(len(h) == 64 for part in ("renderer", "converter") for h in src[part]["files"].values())
+
+
+def test_slots_and_labels():
+    for n in range(1, 8):
+        assert SPEC.templates_for_slot(n) == (f"{n}A", f"{n}B")
+    assert SPEC.labels_for_slot(4) == ("PROOF", "COMPARE", "CERT")
+    assert SPEC.labels_for_slot(5) == ("LINEUP", "VARIANT") and SPEC.labels_for_slot(6) == ("HOWTO", "ROUTINE")
+    assert [SPEC.slot_of_label(c) for c in ("HERO", "BENEFIT", "INGREDIENT", "BRAND")] == [1, 2, 3, 7]
+    outside = {c for c, v in SPEC.raw["labels"].items() if v["slot"] is None}
+    assert outside == {"SOCIAL", "TEXTURE", "FEATURE", "TARGET", "PROBLEM", "LOGO", "FAQ", "OTHER"}
+    assert {c for c, v in SPEC.raw["labels"].items() if v["photo_banned"]} == {"SOCIAL", "FAQ", "LOGO"}
+    assert {c for c, v in SPEC.raw["labels"].items() if v["fill_only"]} == {"FEATURE", "TARGET", "TEXTURE"}
+    with pytest.raises(KeyError):
+        SPEC.slot_of_label("REVIEW")
+
+
+def test_char_limit_picks_most_specific_rule():
+    assert SPEC.char_limit("2A", "headline") == 28
+    assert SPEC.char_limit("2A", "headline", layout="single") == 40
+    assert SPEC.char_limit("2A", "body", layout="single") == 160
+    assert SPEC.char_limit("2A", "items.title", items=3) == 45 and SPEC.char_limit("2A", "items.title", items=4) == 40
+    assert SPEC.char_limit("3B", "items.body", items=4) == 32
+    assert SPEC.char_limit("4B", "items.title", items=2) == 30
+    assert SPEC.char_limit("4B", "items.title", items=2, mode="before_after") == 12
+    assert SPEC.char_limit("6B", "items.body", items=2) == 150 and SPEC.char_limit("6B", "items.body", items=3) == 60
+    assert SPEC.char_limit("6B", "body", layout="prose") == 320
+    assert SPEC.char_limit("7A", "body") == 330
+
+
+def test_char_limit_missing_in_source_stays_none():
+    """자료에 값이 없는 조합은 None — 가까운 값으로 채우지 않는다(#95)."""
+    assert SPEC.char_limit("2A", "items.title", items=2) is None
+    assert SPEC.char_limit("3B", "items.title", items=2) is None
+    assert SPEC.char_limit("5B", "items.title", items=4) is None
+    assert SPEC.char_limit("6B", "items.body", items=4) is None
+    assert SPEC.char_limit("6B", "body") is None  # 줄글형에서만 쓰는 칸
+    assert all(SPEC.char_limit("5A", f, items=3) is None for f in ("headline", "items.title"))
+    with pytest.raises(KeyError):
+        SPEC.char_limit("2A", "items.color")
+
+
+def test_requirements_follow_variants():
+    assert SPEC.requirements("2A").required == ("headline", "image", "items")
+    single = SPEC.requirements("2A", layout="single")
+    assert single.items is None and "items" not in single.allowed and single.required == ("headline", "image")
+    prose = SPEC.requirements("6B", layout="prose")
+    assert prose.items is None and "body" in prose.required
+    assert "body" not in SPEC.requirements("6B").allowed
+    ba = SPEC.requirements("4B", mode="before_after")
+    assert (ba.items.min, ba.items.max, ba.items.required) == (2, 2, ("title", "image"))
+    assert SPEC.forbidden_layouts("4B", mode="before_after") == ("cards",) and SPEC.forbidden_layouts("4B", mode=None) == ()
+    assert SPEC.requirements("5A").items.required == ("color|image",) and SPEC.requirements("5A").items.max == 12
+
+
+def test_load_spec_rejects_broken_data(tmp_path):
+    raw = json.loads(SPEC_PATH.read_text(encoding="utf-8"))
+    cases = []
+    a = copy.deepcopy(raw)
+    a["templates"]["1A"]["regions"][0]["w"] = 2000
+    cases.append((a, "캔버스"))
+    b = copy.deepcopy(raw)
+    b["templates"]["2A"]["char_limits"][0]["field"] = "items.color"
+    cases.append((b, "모르는 칸"))
+    c = copy.deepcopy(raw)
+    c["labels"]["HERO"]["slot"] = 8
+    cases.append((c, "1~7"))
+    d = copy.deepcopy(raw)
+    del d["templates"]["7B"]
+    cases.append((d, "templates"))
+    for i, (data, word) in enumerate(cases):
+        p = tmp_path / f"spec{i}.json"
+        p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        with pytest.raises(AplusSpecError) as e:
+            load_spec(p)
+        assert any(word in r for r in e.value.reasons), e.value.reasons
+    bad = tmp_path / "bad.json"
+    bad.write_text("{", encoding="utf-8")
+    with pytest.raises(AplusSpecError):
+        load_spec(bad)
+
+
+# ---------------------------------------------------------------- 슬롯 내용 타입
+def test_types_reject_blank_text_duplicate_origin_and_unknown_keys():
+    with pytest.raises(ValidationError):
+        AplusText(text="  ")
+    with pytest.raises(ValidationError):
+        AplusText(text="a", origin_block_keys=["blk_001", "blk_001"])
+    with pytest.raises(ValidationError):
+        AplusImage(section_key="sec_1_01", bbox=BBox(x=0, y=0, w=0, h=10), fit="contain")
+    with pytest.raises(ValidationError):
+        AplusItem(color="#aabbcc")  # 대문자 #RRGGBB만
+    with pytest.raises(ValidationError):
+        AplusModule(template="1A", theme={"bg": "#FFFFFF"})
+    with pytest.raises(ValidationError):
+        AplusModule(template="4B", mode="split")
+    assert AplusModule.model_validate_json(minimal("3B").model_dump_json()) == minimal("3B")
+
+
+# ---------------------------------------------------------------- 슬롯 내용 검사
+@pytest.mark.parametrize("tid", SPEC.template_ids)
+def test_minimal_content_passes(tid):
+    assert content.validate_module(minimal(tid), SPEC) == []
+
+
+@pytest.mark.parametrize("tid", SPEC.template_ids)
+def test_each_required_field_is_enforced(tid):
+    for name in SPEC.requirements(tid).required:
+        m = minimal(tid).model_copy(update={name: [] if name == "items" else None})
+        assert f"필수 칸 없음: {name}" in content.validate_module(m, SPEC)
+
+
+def test_unknown_template_layout_mode():
+    assert "없는 템플릿" in content.validate_module(AplusModule(template="8A"), SPEC)[0]
+    assert "layout 'cards'" in content.validate_module(minimal("1A").model_copy(update={"layout": "cards"}), SPEC)[0]
+    assert "mode 'before_after'" in content.validate_module(minimal("5B").model_copy(update={"mode": "before_after"}), SPEC)[0]
+    m = minimal("4B", n=2).model_copy(update={"mode": "before_after", "layout": "cards"})
+    assert content.validate_module(m, SPEC) == ["4B mode 'before_after'에는 layout 'cards'을 쓸 수 없다"]
+
+
+def test_items_count_and_item_fields():
+    assert content.validate_module(minimal("2A", n=5), SPEC) == ["items 개수 5개 — 2A는 2~4개"]
+    one = minimal("2A").model_copy(update={"items": [AplusItem(title=T("only"))]})
+    assert content.validate_module(one, SPEC) == ["items 개수 1개 — 2A는 2~4개"]
+    assert content.validate_module(minimal("5A", n=12), SPEC) == []
+    assert content.validate_module(minimal("5A", n=13), SPEC) == ["items 개수 13개 — 5A는 2~12개"]
+    no_img = minimal("4B").model_copy(update={"items": [AplusItem(title=T("a")), AplusItem(title=T("b"), image=IMG())]})
+    assert content.validate_module(no_img, SPEC) == ["items[0]에 image 없음"]
+    swatch = minimal("5A").model_copy(update={"items": [AplusItem(image=IMG("cover")), AplusItem(title=T("Rose"))]})
+    assert content.validate_module(swatch, SPEC) == ["items[1]에 color 또는 image 없음"]
+    stray = minimal("2A").model_copy(update={"items": [AplusItem(title=T("a"), body=T("b")), AplusItem(title=T("c"))]})
+    assert content.validate_module(stray, SPEC) == ["items[0]: 이 템플릿은 쓰지 않는 칸에 값이 있다: body"]
+
+
+def test_before_after_needs_exactly_two():
+    ok = minimal("4B", n=2).model_copy(update={"mode": "before_after"})
+    assert content.validate_module(ok, SPEC) == []
+    three = minimal("4B", n=3).model_copy(update={"mode": "before_after"})
+    assert content.validate_module(three, SPEC) == ["items 개수 3개 — 4B는 2~2개"]
+
+
+def test_variant_changes_required_and_forbidden_fields():
+    single = AplusModule(template="2A", layout="single", headline=T("One big benefit"), body=T("Short paragraph."), image=IMG())
+    assert content.validate_module(single, SPEC) == []
+    with_items = single.model_copy(update={"items": minimal("2A").items})
+    assert content.validate_module(with_items, SPEC) == ["이 배치 변형에서는 쓰지 않는 칸에 값이 있다: items"]
+    prose = AplusModule(template="6B", layout="prose", headline=T("How to use"), image=IMG())
+    assert content.validate_module(prose, SPEC) == ["필수 칸 없음: body"]
+    assert content.validate_module(prose.model_copy(update={"body": T("Apply evenly.")}), SPEC) == []
+
+
+def test_fields_the_template_does_not_draw_are_errors():
+    """참고 렌더러는 조용히 무시하지만, 채운 문구가 결과에 보이지 않는 것을 놓치지 않게 오류로 본다."""
+    m = minimal("2A").model_copy(update={"subheadline": T("not drawn")})
+    assert content.validate_module(m, SPEC) == ["이 템플릿은 쓰지 않는 칸에 값이 있다: subheadline"]
+    m = minimal("6B").model_copy(update={"body": T("prose only")})
+    assert content.validate_module(m, SPEC) == ["이 템플릿은 쓰지 않는 칸에 값이 있다: body"]
+    assert content.validate_module(minimal("4A").model_copy(update={"mark": IMG()}), SPEC) == []
+    assert content.validate_module(minimal("1A").model_copy(update={"mark": IMG()}), SPEC) == ["이 템플릿은 쓰지 않는 칸에 값이 있다: mark"]
+
+
+# ---------------------------------------------------------------- 글자 수 한도
+def test_limit_checks_report_without_cutting():
+    long_title = "x" * 46
+    m = AplusModule(template="2A", headline=T("h" * 28, "blk_001"), body=T("b" * 61, "blk_002", "blk_003"), image=IMG(),
+                    items=[AplusItem(title=T(long_title, "blk_004")), AplusItem(title=T("ok")), AplusItem(title=T("ok"))])
+    checks = {c.field: c for c in content.limit_checks(m, SPEC)}
+    assert set(checks) == {"headline", "body", "items[0].title", "items[1].title", "items[2].title"}
+    assert (checks["headline"].chars, checks["headline"].max_chars, checks["headline"].over) == (28, 28, 0)
+    over = content.limit_excesses(m, SPEC)
+    assert [(c.field, c.chars, c.max_chars, c.over, c.origin_block_keys) for c in over] == [
+        ("body", 61, 60, 1, ("blk_002", "blk_003")), ("items[0].title", 46, 45, 1, ("blk_004",))]
+    assert m.items[0].title.text == long_title  # 자르지 않는다
+
+
+def test_limit_depends_on_item_count_and_unknown_stays_none():
+    four = minimal("2A", n=4).model_copy(update={"items": [AplusItem(title=T("y" * 41))] + minimal("2A", n=3).items})
+    assert [(c.field, c.max_chars) for c in content.limit_excesses(four, SPEC)] == [("items[0].title", 40)]
+    two = minimal("2A").model_copy(update={"items": [AplusItem(title=T("z" * 200)), AplusItem(title=T("ok"))]})
+    checks = [c for c in content.limit_checks(two, SPEC) if c.field.startswith("items")]
+    assert all(c.max_chars is None and c.over == 0 for c in checks)  # 항목 2개의 한도는 자료에 없다
+    assert content.limit_excesses(two, SPEC) == []
+    assert content.count_chars("72-hour hydration") == 17  # 공백 포함

@@ -1,0 +1,1500 @@
+{
+  "version": "aplus-spec@2026-11-23.1",
+  "status": "개발용 v1 — 운영 계약 아님. 정본 위치·DB module_spec 관계는 open-questions.md #92",
+  "site": "amazon_us_aplus",
+  "source": {
+    "repository": "ai-pixlate/seed-builder",
+    "note": "두 PR 모두 미병합(2026-11-23 확인). 아래 커밋의 파일을 옮겼다. 글자 수 한도의 아마존 기준은 원 작성자가 대행사 가이드로 확인했고 셀러센트럴 화면은 미확인이라고 적었다.",
+    "renderer": {
+      "pull_request": 3,
+      "commit": "a889a0c3f488649b8f64c0816eac92fe09ffc192",
+      "files": {
+        "aplus_renderer/spec/templates_spec.json": "f1cd9864ff1263d5d01a5eb5108c7b99b759475345ebb34978a0cbe80fdd2806",
+        "aplus_renderer/renderer/spec.py": "edcbe7131d4a6f71be8586fd4b5b092653a1d30f11d95d749515fdd3cfc32c7a"
+      }
+    },
+    "converter": {
+      "pull_request": 2,
+      "commit": "c9d3297101be7a522364a642d52fbc76298a34b7",
+      "files": {
+        "aplus_auto/step4_fill.py": "4366618588b39595fd4ceec297350448c40f9d53ffb7980e7cbd4c8fa5f23e0e",
+        "aplus_auto/step3_label.py": "c5f387ec3ede8fb2636389c704f6853c57f7ac1497ec61dfbbcab9660c048993",
+        "aplus_auto/zigzag.py": "465ca8f6543ebd72ff81a0ac3a19df14446bbc9e48a45a2e667a3911e9058549",
+        "aplus_auto/docs/A+내용종류_분류가이드_v1.4.md": "41f1d355b5ab98d687c9bdf6eee04ade214801c7c63f1cc239037c1f991cc14b"
+      }
+    }
+  },
+  "canvas": {
+    "width": 970,
+    "height": 300
+  },
+  "global_notes": {
+    "canvas": "970x300",
+    "margin": "좌우 40~56px, 위 22~28px",
+    "font": {
+      "title": "30~36px",
+      "item_title": "16~20px",
+      "body": "15~16px",
+      "item_body": "13~14px",
+      "label": "12px"
+    },
+    "repeat": "2~4개(기본 3), 스와치 ≤6 한 줄 / 7~12 두 줄",
+    "photo": "표준 모듈 매칭 템플릿은 정사각형(PDF 비율), 970×300에서 최대 300×300"
+  },
+  "slots": {
+    "1": {
+      "name_ko": "제품 소개",
+      "templates": [
+        "1A",
+        "1B"
+      ]
+    },
+    "2": {
+      "name_ko": "효능",
+      "templates": [
+        "2A",
+        "2B"
+      ]
+    },
+    "3": {
+      "name_ko": "성분",
+      "templates": [
+        "3A",
+        "3B"
+      ]
+    },
+    "4": {
+      "name_ko": "신뢰·증명",
+      "templates": [
+        "4A",
+        "4B"
+      ]
+    },
+    "5": {
+      "name_ko": "옵션·라인업",
+      "templates": [
+        "5A",
+        "5B"
+      ]
+    },
+    "6": {
+      "name_ko": "사용법·루틴",
+      "templates": [
+        "6A",
+        "6B"
+      ]
+    },
+    "7": {
+      "name_ko": "브랜드",
+      "templates": [
+        "7A",
+        "7B"
+      ]
+    }
+  },
+  "labels": {
+    "HERO": {
+      "name_ko": "제품 소개",
+      "slot": 1,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "BENEFIT": {
+      "name_ko": "핵심 효능·특징",
+      "slot": 2,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "INGREDIENT": {
+      "name_ko": "성분·기술",
+      "slot": 3,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "PROOF": {
+      "name_ko": "효과 증명",
+      "slot": 4,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "COMPARE": {
+      "name_ko": "비교",
+      "slot": 4,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "HOWTO": {
+      "name_ko": "사용법",
+      "slot": 6,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "ROUTINE": {
+      "name_ko": "루틴·함께 쓰기",
+      "slot": 6,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "LINEUP": {
+      "name_ko": "라인업",
+      "slot": 5,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "VARIANT": {
+      "name_ko": "색상·옵션",
+      "slot": 5,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "TEXTURE": {
+      "name_ko": "제형·사용감·향",
+      "slot": null,
+      "photo_banned": false,
+      "fill_only": true
+    },
+    "FEATURE": {
+      "name_ko": "제품 디테일·구성",
+      "slot": null,
+      "photo_banned": false,
+      "fill_only": true
+    },
+    "TARGET": {
+      "name_ko": "추천 대상·사용 상황",
+      "slot": null,
+      "photo_banned": false,
+      "fill_only": true
+    },
+    "PROBLEM": {
+      "name_ko": "고민 제시",
+      "slot": null,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "CERT": {
+      "name_ko": "인증·검증",
+      "slot": 4,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "SOCIAL": {
+      "name_ko": "신뢰·평판",
+      "slot": null,
+      "photo_banned": true,
+      "fill_only": false
+    },
+    "BRAND": {
+      "name_ko": "브랜드 이야기",
+      "slot": 7,
+      "photo_banned": false,
+      "fill_only": false
+    },
+    "LOGO": {
+      "name_ko": "브랜드 로고 띠",
+      "slot": null,
+      "photo_banned": true,
+      "fill_only": false
+    },
+    "FAQ": {
+      "name_ko": "질문·주의 안내",
+      "slot": null,
+      "photo_banned": true,
+      "fill_only": false
+    },
+    "OTHER": {
+      "name_ko": "기타·판단 불가",
+      "slot": null,
+      "photo_banned": false,
+      "fill_only": false
+    }
+  },
+  "templates": {
+    "1A": {
+      "slot": 1,
+      "frame": "S1 글·사진 좌우형",
+      "amazon_module": "Single Left/Right Image",
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image"
+      ],
+      "optional": [
+        "label",
+        "subheadline",
+        "body"
+      ],
+      "items": null,
+      "layouts": [
+        "default",
+        "vcenter",
+        "center"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "label",
+          "max_chars": 20
+        },
+        {
+          "field": "headline",
+          "max_chars": 40
+        },
+        {
+          "field": "subheadline",
+          "max_chars": 36
+        },
+        {
+          "field": "body",
+          "max_chars": 120
+        }
+      ],
+      "regions": [
+        {
+          "name": "사진 구역 (배경)",
+          "x": 485,
+          "y": 0,
+          "w": 485,
+          "h": 300,
+          "kind": "zone",
+          "note": "사진·배경색이 채우는 영역"
+        },
+        {
+          "name": "Add Image",
+          "x": 577,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300 (PDF 규격)"
+        },
+        {
+          "name": "브랜드명 (추가 요소)",
+          "x": 56,
+          "y": 60,
+          "w": 240,
+          "h": 16,
+          "kind": "extra",
+          "note": "12px 대문자 라벨"
+        },
+        {
+          "name": "한 줄 설명 (추가 요소)",
+          "x": 56,
+          "y": 142,
+          "w": 380,
+          "h": 22,
+          "kind": "extra",
+          "note": "18px · 1줄"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 56,
+          "y": 86,
+          "w": 380,
+          "h": 44,
+          "kind": "text",
+          "note": "32px · 1~2줄"
+        },
+        {
+          "name": "Body Text - Main",
+          "x": 56,
+          "y": 176,
+          "w": 380,
+          "h": 72,
+          "kind": "text",
+          "note": "16px · 최대 3줄"
+        }
+      ]
+    },
+    "1B": {
+      "slot": 1,
+      "frame": "S3 통짜 사진형",
+      "amazon_module": null,
+      "one_sided": false,
+      "required": [
+        "headline",
+        "image"
+      ],
+      "optional": [
+        "body"
+      ],
+      "items": null,
+      "layouts": [
+        "default"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 22
+        },
+        {
+          "field": "body",
+          "max_chars": 85
+        }
+      ],
+      "regions": [
+        {
+          "name": "Add Image - 970×300",
+          "x": 0,
+          "y": 0,
+          "w": 970,
+          "h": 300,
+          "kind": "image",
+          "note": "모델·라이프스타일 사진 전체"
+        },
+        {
+          "name": "글 얹기 상자",
+          "x": 56,
+          "y": 70,
+          "w": 420,
+          "h": 140,
+          "kind": "zone",
+          "note": "반투명 배경(선택)"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 80,
+          "y": 92,
+          "w": 372,
+          "h": 44,
+          "kind": "text",
+          "note": "36px · 1줄"
+        },
+        {
+          "name": "Body Text - Main",
+          "x": 80,
+          "y": 146,
+          "w": 372,
+          "h": 48,
+          "kind": "text",
+          "note": "16px · 최대 2줄"
+        }
+      ]
+    },
+    "2A": {
+      "slot": 2,
+      "frame": "S4 글·나열+사진형",
+      "amazon_module": "Single Image & Highlights",
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image",
+        "items"
+      ],
+      "optional": [
+        "body"
+      ],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title"
+        ],
+        "fields": [
+          "title"
+        ]
+      },
+      "layouts": [
+        "default",
+        "single"
+      ],
+      "variants": [
+        {
+          "when": {
+            "layout": "single"
+          },
+          "items": "forbidden",
+          "required": [
+            "headline",
+            "image"
+          ]
+        }
+      ],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 28
+        },
+        {
+          "field": "body",
+          "max_chars": 60
+        },
+        {
+          "field": "items.title",
+          "max_chars": 45,
+          "when": {
+            "items": 3
+          }
+        },
+        {
+          "field": "items.title",
+          "max_chars": 40,
+          "when": {
+            "items": 4
+          }
+        },
+        {
+          "field": "headline",
+          "max_chars": 40,
+          "when": {
+            "layout": "single"
+          }
+        },
+        {
+          "field": "body",
+          "max_chars": 160,
+          "when": {
+            "layout": "single"
+          }
+        }
+      ],
+      "regions": [
+        {
+          "name": "제품 사진 구역",
+          "x": 582,
+          "y": 0,
+          "w": 388,
+          "h": 300,
+          "kind": "zone",
+          "note": ""
+        },
+        {
+          "name": "Add Image",
+          "x": 626,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 48,
+          "y": 28,
+          "w": 500,
+          "h": 40,
+          "kind": "text",
+          "note": "30px · 1줄"
+        },
+        {
+          "name": "Body Text - Main",
+          "x": 48,
+          "y": 74,
+          "w": 500,
+          "h": 22,
+          "kind": "text",
+          "note": "15px · 1줄"
+        },
+        {
+          "name": "Bullet Point 1~3(4)",
+          "x": 88,
+          "y": 114,
+          "w": 460,
+          "h": 160,
+          "kind": "text",
+          "note": "17px · 2~4개, 기본 3 · 칸 높이 ÷ 개수"
+        },
+        {
+          "name": "체크 아이콘 (추가 요소)",
+          "x": 48,
+          "y": 114,
+          "w": 30,
+          "h": 160,
+          "kind": "extra",
+          "note": "28px 원 · 줄마다"
+        }
+      ]
+    },
+    "2B": {
+      "slot": 2,
+      "frame": "S6 사진+나열형",
+      "amazon_module": "Single Image & Specs Detail",
+      "one_sided": true,
+      "required": [
+        "image",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title"
+        ],
+        "fields": [
+          "title",
+          "body",
+          "image",
+          "icon"
+        ]
+      },
+      "layouts": [
+        "default",
+        "zigzag"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "items.title",
+          "max_chars": 30
+        },
+        {
+          "field": "items.body",
+          "max_chars": 55
+        }
+      ],
+      "regions": [
+        {
+          "name": "사진 구역",
+          "x": 582,
+          "y": 0,
+          "w": 388,
+          "h": 300,
+          "kind": "zone",
+          "note": ""
+        },
+        {
+          "name": "Add Image",
+          "x": 626,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300"
+        },
+        {
+          "name": "아이콘 1~3 (추가 요소)",
+          "x": 40,
+          "y": 36,
+          "w": 52,
+          "h": 228,
+          "kind": "extra",
+          "note": "52px 원 · 세로 3개"
+        },
+        {
+          "name": "Subheadline - 1~3",
+          "x": 110,
+          "y": 36,
+          "w": 440,
+          "h": 228,
+          "kind": "text",
+          "note": "20px 제목 + 15px 설명 1줄 · 2~4개, 기본 3"
+        }
+      ]
+    },
+    "3A": {
+      "slot": 3,
+      "frame": "S1 글·사진 좌우형",
+      "amazon_module": "Single Left/Right Image",
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image"
+      ],
+      "optional": [
+        "label",
+        "subheadline",
+        "body"
+      ],
+      "items": null,
+      "layouts": [
+        "default",
+        "vcenter",
+        "center"
+      ],
+      "variants": [],
+      "default_label": "KEY INGREDIENT",
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 20
+        },
+        {
+          "field": "subheadline",
+          "max_chars": 36
+        },
+        {
+          "field": "body",
+          "max_chars": 120
+        }
+      ],
+      "regions": [
+        {
+          "name": "사진 구역 (배경)",
+          "x": 485,
+          "y": 0,
+          "w": 485,
+          "h": 300,
+          "kind": "zone",
+          "note": "사진·배경색이 채우는 영역"
+        },
+        {
+          "name": "Add Image",
+          "x": 577,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300 (PDF 규격)"
+        },
+        {
+          "name": "\"KEY INGREDIENT\" (추가 요소)",
+          "x": 56,
+          "y": 60,
+          "w": 240,
+          "h": 16,
+          "kind": "extra",
+          "note": "12px 대문자 라벨"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 56,
+          "y": 86,
+          "w": 380,
+          "h": 44,
+          "kind": "text",
+          "note": "32px · 1~2줄"
+        },
+        {
+          "name": "한 줄 설명 (추가 요소)",
+          "x": 56,
+          "y": 142,
+          "w": 380,
+          "h": 22,
+          "kind": "extra",
+          "note": "18px · 1줄"
+        },
+        {
+          "name": "Body Text - Main",
+          "x": 56,
+          "y": 176,
+          "w": 380,
+          "h": 72,
+          "kind": "text",
+          "note": "16px · 최대 3줄"
+        }
+      ]
+    },
+    "3B": {
+      "slot": 3,
+      "frame": "S4 글·나열+사진형",
+      "amazon_module": null,
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title"
+        ],
+        "fields": [
+          "title",
+          "body",
+          "image",
+          "icon"
+        ]
+      },
+      "layouts": [
+        "default"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 30
+        },
+        {
+          "field": "items.title",
+          "max_chars": 18,
+          "when": {
+            "items": 3
+          }
+        },
+        {
+          "field": "items.title",
+          "max_chars": 13,
+          "when": {
+            "items": 4
+          }
+        },
+        {
+          "field": "items.body",
+          "max_chars": 45,
+          "when": {
+            "items": 3
+          }
+        },
+        {
+          "field": "items.body",
+          "max_chars": 32,
+          "when": {
+            "items": 4
+          }
+        }
+      ],
+      "regions": [
+        {
+          "name": "제품 사진 구역",
+          "x": 582,
+          "y": 0,
+          "w": 388,
+          "h": 300,
+          "kind": "zone",
+          "note": ""
+        },
+        {
+          "name": "Add Image",
+          "x": 626,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300"
+        },
+        {
+          "name": "Headline Text - Module",
+          "x": 40,
+          "y": 28,
+          "w": 520,
+          "h": 40,
+          "kind": "text",
+          "note": "30px · 1줄"
+        },
+        {
+          "name": "Add Image 1~3 (아이콘)",
+          "x": 40,
+          "y": 100,
+          "w": 520,
+          "h": 80,
+          "kind": "image",
+          "note": "80×80 정사각형 × 3 · 칸 너비 173"
+        },
+        {
+          "name": "Headline Text - 1~3",
+          "x": 40,
+          "y": 192,
+          "w": 520,
+          "h": 22,
+          "kind": "text",
+          "note": "16px · 1줄, 가운데"
+        },
+        {
+          "name": "Body Text - 1~3",
+          "x": 40,
+          "y": 218,
+          "w": 520,
+          "h": 44,
+          "kind": "text",
+          "note": "13px · 최대 2줄"
+        }
+      ]
+    },
+    "4A": {
+      "slot": 4,
+      "frame": "S1 글·사진 좌우형",
+      "amazon_module": "Single Left/Right Image",
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image"
+      ],
+      "optional": [
+        "body",
+        "mark"
+      ],
+      "items": null,
+      "layouts": [
+        "default",
+        "vcenter",
+        "center"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 30
+        },
+        {
+          "field": "body",
+          "max_chars": 120
+        }
+      ],
+      "regions": [
+        {
+          "name": "사진 구역",
+          "x": 485,
+          "y": 0,
+          "w": 485,
+          "h": 300,
+          "kind": "zone",
+          "note": ""
+        },
+        {
+          "name": "Add Image",
+          "x": 577,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300"
+        },
+        {
+          "name": "인증 마크 (추가 요소)",
+          "x": 56,
+          "y": 48,
+          "w": 96,
+          "h": 96,
+          "kind": "extra",
+          "note": "96px 원"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 170,
+          "y": 64,
+          "w": 280,
+          "h": 72,
+          "kind": "text",
+          "note": "30px · 핵심 근거 1~2줄"
+        },
+        {
+          "name": "Body Text - Main",
+          "x": 56,
+          "y": 176,
+          "w": 380,
+          "h": 72,
+          "kind": "text",
+          "note": "16px · 근거 설명·조건·출처 최대 3줄"
+        }
+      ]
+    },
+    "4B": {
+      "slot": 4,
+      "frame": "S2 제목+나열형",
+      "amazon_module": "Four Images & Text",
+      "one_sided": false,
+      "required": [
+        "headline",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title",
+          "image"
+        ],
+        "fields": [
+          "title",
+          "image"
+        ]
+      },
+      "layouts": [
+        "default",
+        "cards"
+      ],
+      "variants": [
+        {
+          "when": {
+            "mode": "before_after"
+          },
+          "items": {
+            "min": 2,
+            "max": 2,
+            "required": [
+              "title",
+              "image"
+            ]
+          },
+          "forbidden_layouts": [
+            "cards"
+          ]
+        }
+      ],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 38
+        },
+        {
+          "field": "items.title",
+          "max_chars": 30
+        },
+        {
+          "field": "items.title",
+          "max_chars": 12,
+          "when": {
+            "mode": "before_after"
+          }
+        }
+      ],
+      "regions": [
+        {
+          "name": "모듈 제목 (추가 요소)",
+          "x": 135,
+          "y": 24,
+          "w": 700,
+          "h": 40,
+          "kind": "extra",
+          "note": "30px · 1줄, 가운데"
+        },
+        {
+          "name": "Add Image 1~4",
+          "x": 60,
+          "y": 96,
+          "w": 850,
+          "h": 120,
+          "kind": "image",
+          "note": "120×120 정사각형 × 4 · 칸 너비 212"
+        },
+        {
+          "name": "Headline - 1~4",
+          "x": 60,
+          "y": 228,
+          "w": 850,
+          "h": 40,
+          "kind": "text",
+          "note": "16px · 최대 2줄, 가운데"
+        },
+        {
+          "name": "전후일 때",
+          "x": 60,
+          "y": 96,
+          "w": 850,
+          "h": 172,
+          "kind": "note",
+          "note": "Add Image 2칸 400×172 (전 / 후)"
+        }
+      ]
+    },
+    "5A": {
+      "slot": 5,
+      "frame": "S5 통짜 나열형",
+      "amazon_module": null,
+      "one_sided": false,
+      "required": [
+        "items"
+      ],
+      "optional": [
+        "headline"
+      ],
+      "items": {
+        "min": 2,
+        "max": 12,
+        "required": [
+          "color|image"
+        ],
+        "fields": [
+          "title",
+          "color",
+          "image"
+        ]
+      },
+      "layouts": [
+        "default",
+        "chips"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [],
+      "regions": [
+        {
+          "name": "Headline - Main (선택)",
+          "x": 40,
+          "y": 22,
+          "w": 400,
+          "h": 28,
+          "kind": "text",
+          "note": "24px · 1줄"
+        },
+        {
+          "name": "Add Image 1~n (스와치)",
+          "x": 40,
+          "y": 70,
+          "w": 890,
+          "h": 150,
+          "kind": "image",
+          "note": "≤6개: 지름 96 한 줄 / 7~12개: 지름 64 두 줄"
+        },
+        {
+          "name": "Caption 1~n",
+          "x": 40,
+          "y": 228,
+          "w": 890,
+          "h": 40,
+          "kind": "text",
+          "note": "14px · 색상명 1줄"
+        }
+      ]
+    },
+    "5B": {
+      "slot": 5,
+      "frame": "S2 제목+나열형",
+      "amazon_module": "Four Images & Text",
+      "one_sided": false,
+      "required": [
+        "headline",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title",
+          "image"
+        ],
+        "fields": [
+          "title",
+          "body",
+          "image"
+        ]
+      },
+      "layouts": [
+        "default",
+        "cards"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 38
+        },
+        {
+          "field": "items.title",
+          "max_chars": 26,
+          "when": {
+            "items": 3
+          }
+        },
+        {
+          "field": "items.body",
+          "max_chars": 40
+        }
+      ],
+      "regions": [
+        {
+          "name": "모듈 제목 (추가 요소)",
+          "x": 135,
+          "y": 22,
+          "w": 700,
+          "h": 40,
+          "kind": "extra",
+          "note": "30px · 1줄, 가운데"
+        },
+        {
+          "name": "Add Image 1~4",
+          "x": 60,
+          "y": 80,
+          "w": 850,
+          "h": 140,
+          "kind": "image",
+          "note": "140×140 정사각형 × 4 · 칸 너비 212"
+        },
+        {
+          "name": "Headline - 1~4",
+          "x": 60,
+          "y": 226,
+          "w": 850,
+          "h": 22,
+          "kind": "text",
+          "note": "16px · 제품명 1줄"
+        },
+        {
+          "name": "Body Text - 1~4",
+          "x": 60,
+          "y": 250,
+          "w": 850,
+          "h": 36,
+          "kind": "text",
+          "note": "13px · 최대 2줄"
+        }
+      ]
+    },
+    "6A": {
+      "slot": 6,
+      "frame": "S2 제목+나열형",
+      "amazon_module": "Three Images & Text",
+      "one_sided": false,
+      "required": [
+        "headline",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title"
+        ],
+        "fields": [
+          "title",
+          "body",
+          "image"
+        ]
+      },
+      "layouts": [
+        "default",
+        "zigzag",
+        "timeline"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 38
+        },
+        {
+          "field": "items.title",
+          "max_chars": 20
+        },
+        {
+          "field": "items.body",
+          "max_chars": 40
+        }
+      ],
+      "regions": [
+        {
+          "name": "Headline Text - Module",
+          "x": 135,
+          "y": 22,
+          "w": 700,
+          "h": 40,
+          "kind": "text",
+          "note": "30px · 1줄, 가운데"
+        },
+        {
+          "name": "Add Image 1~3",
+          "x": 90,
+          "y": 80,
+          "w": 790,
+          "h": 120,
+          "kind": "image",
+          "note": "120×120 × 3 · 칸 너비 263"
+        },
+        {
+          "name": "번호 원·화살표 (추가 요소)",
+          "x": 90,
+          "y": 80,
+          "w": 790,
+          "h": 120,
+          "kind": "note",
+          "note": "번호 30px · 칸 사이 화살표"
+        },
+        {
+          "name": "Headline Text - 1~3",
+          "x": 90,
+          "y": 208,
+          "w": 790,
+          "h": 22,
+          "kind": "text",
+          "note": "16px · STEP 이름"
+        },
+        {
+          "name": "Body Text - 1~3",
+          "x": 90,
+          "y": 232,
+          "w": 790,
+          "h": 44,
+          "kind": "text",
+          "note": "13px · 최대 2줄"
+        }
+      ]
+    },
+    "6B": {
+      "slot": 6,
+      "frame": "S4 글·나열+사진형",
+      "amazon_module": "Single Image & Highlights",
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title"
+        ],
+        "fields": [
+          "title",
+          "body"
+        ]
+      },
+      "layouts": [
+        "default",
+        "timeline",
+        "prose"
+      ],
+      "variants": [
+        {
+          "when": {
+            "layout": "prose"
+          },
+          "items": "forbidden",
+          "required": [
+            "headline",
+            "image",
+            "body"
+          ]
+        }
+      ],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 28
+        },
+        {
+          "field": "items.title",
+          "max_chars": 40
+        },
+        {
+          "field": "items.body",
+          "max_chars": 60,
+          "when": {
+            "items": 3
+          }
+        },
+        {
+          "field": "items.body",
+          "max_chars": 150,
+          "when": {
+            "items": 2
+          }
+        },
+        {
+          "field": "body",
+          "max_chars": 320,
+          "when": {
+            "layout": "prose"
+          }
+        }
+      ],
+      "regions": [
+        {
+          "name": "사진 구역",
+          "x": 582,
+          "y": 0,
+          "w": 388,
+          "h": 300,
+          "kind": "zone",
+          "note": ""
+        },
+        {
+          "name": "Add Image",
+          "x": 626,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 48,
+          "y": 28,
+          "w": 500,
+          "h": 40,
+          "kind": "text",
+          "note": "30px · 1줄"
+        },
+        {
+          "name": "번호 원 (추가 요소)",
+          "x": 48,
+          "y": 108,
+          "w": 30,
+          "h": 170,
+          "kind": "extra",
+          "note": "30px × 3"
+        },
+        {
+          "name": "Subheadline·Body Text - Main/2/3",
+          "x": 92,
+          "y": 104,
+          "w": 460,
+          "h": 176,
+          "kind": "text",
+          "note": "17px 단계명 + 14px 설명 · 2~4단계, 기본 3"
+        }
+      ]
+    },
+    "7A": {
+      "slot": 7,
+      "frame": "S1 글·사진 좌우형",
+      "amazon_module": "Single Left/Right Image",
+      "one_sided": true,
+      "required": [
+        "headline",
+        "image"
+      ],
+      "optional": [
+        "label",
+        "body"
+      ],
+      "items": null,
+      "layouts": [
+        "default",
+        "vcenter",
+        "center"
+      ],
+      "variants": [],
+      "default_label": "OUR STORY",
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 20
+        },
+        {
+          "field": "body",
+          "max_chars": 330
+        }
+      ],
+      "regions": [
+        {
+          "name": "사진 구역",
+          "x": 485,
+          "y": 0,
+          "w": 485,
+          "h": 300,
+          "kind": "zone",
+          "note": ""
+        },
+        {
+          "name": "Add Image",
+          "x": 577,
+          "y": 0,
+          "w": 300,
+          "h": 300,
+          "kind": "image",
+          "note": "정사각형 300×300"
+        },
+        {
+          "name": "\"OUR STORY\" (추가 요소)",
+          "x": 56,
+          "y": 44,
+          "w": 240,
+          "h": 16,
+          "kind": "extra",
+          "note": "12px 대문자 라벨"
+        },
+        {
+          "name": "Headline - Main",
+          "x": 56,
+          "y": 70,
+          "w": 380,
+          "h": 44,
+          "kind": "text",
+          "note": "32px · 1줄"
+        },
+        {
+          "name": "Body Text - Main",
+          "x": 56,
+          "y": 126,
+          "w": 380,
+          "h": 150,
+          "kind": "text",
+          "note": "15px · 최대 6줄 (긴 글)"
+        }
+      ]
+    },
+    "7B": {
+      "slot": 7,
+      "frame": "S2 제목+나열형",
+      "amazon_module": "Four Images & Text",
+      "one_sided": false,
+      "required": [
+        "headline",
+        "items"
+      ],
+      "optional": [],
+      "items": {
+        "min": 2,
+        "max": 4,
+        "required": [
+          "title"
+        ],
+        "fields": [
+          "title",
+          "body",
+          "image",
+          "icon"
+        ]
+      },
+      "layouts": [
+        "default",
+        "cards"
+      ],
+      "variants": [],
+      "default_label": null,
+      "char_limits": [
+        {
+          "field": "headline",
+          "max_chars": 38
+        },
+        {
+          "field": "items.title",
+          "max_chars": 20
+        },
+        {
+          "field": "items.body",
+          "max_chars": 40
+        }
+      ],
+      "regions": [
+        {
+          "name": "모듈 제목 (추가 요소)",
+          "x": 135,
+          "y": 24,
+          "w": 700,
+          "h": 40,
+          "kind": "extra",
+          "note": "30px · 1줄, 가운데"
+        },
+        {
+          "name": "Add Image 1~4 (아이콘)",
+          "x": 60,
+          "y": 96,
+          "w": 850,
+          "h": 80,
+          "kind": "image",
+          "note": "80×80 × 4 · 칸 너비 212"
+        },
+        {
+          "name": "Headline - 1~4",
+          "x": 60,
+          "y": 188,
+          "w": 850,
+          "h": 22,
+          "kind": "text",
+          "note": "16px · 1줄, 가운데"
+        },
+        {
+          "name": "Body Text - 1~4",
+          "x": 60,
+          "y": 214,
+          "w": 850,
+          "h": 44,
+          "kind": "text",
+          "note": "13px · 최대 2줄"
+        }
+      ]
+    }
+  }
+}

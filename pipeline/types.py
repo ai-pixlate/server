@@ -1132,3 +1132,231 @@ def parse_style_result(data: Any) -> "StyleResult | StyleResultV1":
     if model is None:
         raise ValueError(f"알 수 없는 ⑦ 결과 버전 {v!r} — 지원 {sorted(STYLE_RESULT_MODELS)}")
     return model.model_validate(data)  # type: ignore[return-value]
+
+
+# ---------------------------------------------------------------------------
+# A+ 규격 변경 템플릿 모듈 — [잠정 · 개발용 v1, 사용자 결정 2026-11-23, 운영 계약 아님]
+# ---------------------------------------------------------------------------
+# 아마존 A+ 한 사이트의 모듈 한 장에 들어갈 슬롯 내용. 규격(템플릿 · 필수 칸 · 글자 수 한도)의 정본은
+# pipeline/data/aplus/spec.json 이고 이 타입은 형태만 정한다 — 템플릿별 규칙 검사는 pipeline/aplus/content.py.
+# 저장 필드 · 인계 형식 · 렌더 담당은 정하지 않았다(open-questions.md #92 · #93 · #97). BE 계약으로 읽지 않는다.
+APLUS_SCHEMA_VERSION = "1"  # [잠정] A+ 슬롯 내용(AplusModule) 전용 버전
+
+AplusFit = Literal["contain", "cover"]  # 이미지 칸 맞춤: contain = 전체가 보이게, cover = 칸을 꽉 채우고 넘치면 자름
+
+
+class AplusText(_Model):
+    """글 칸 하나. `origin_block_keys` = 이 문구를 이룬 1차 번역 블록(넣은 순서). 블록에서 오지 않은 문구면 빈 목록."""
+
+    text: str
+    origin_block_keys: list[str] = Field(default_factory=list)
+
+    @field_validator("text")
+    @classmethod
+    def _not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("빈 문구는 칸을 비워 두는 것으로 표현한다(None)")
+        return v
+
+    @field_validator("origin_block_keys")
+    @classmethod
+    def _unique_origin(cls, v: list[str]) -> list[str]:
+        if len(set(v)) != len(v):
+            raise ValueError(f"origin_block_keys에 같은 블록이 두 번 있다: {v}")
+        return v
+
+
+class AplusImage(_Model):
+    """이미지 칸 하나 — 원본 섹션에서 자를 자리(섹션 로컬 픽셀). `cutout` = 배경을 지워 대상만 남겨도 되는 사진이라는
+    7칸 구성의 판단(누끼 요청, #98). 칸을 꽉 채우는 사진(`cover`)은 누끼하지 않는다. 누끼 결과는 `AplusCutout`에 따로 있다."""
+
+    section_key: str
+    bbox: BBox
+    fit: AplusFit
+    cutout: StrictBool = False
+
+    @model_validator(mode="after")
+    def _area(self) -> "AplusImage":
+        if self.bbox.w <= 0 or self.bbox.h <= 0:
+            raise ValueError(f"자를 자리의 넓이가 0이다: {self.bbox}")
+        if self.cutout and self.fit != "contain":
+            raise ValueError("누끼(cutout)는 fit=contain인 사진에만 요청한다")
+        return self
+
+
+class AplusItem(_Model):
+    """반복 칸 하나. 템플릿마다 쓰는 칸이 다르다(spec.json `items.fields`)."""
+
+    title: AplusText | None = None
+    body: AplusText | None = None
+    image: AplusImage | None = None
+    color: str | None = Field(default=None, pattern=HEX_COLOR_PATTERN)  # 5A 스와치 색
+
+
+class AplusModule(_Model):
+    """A+ 모듈 한 장(970×300)의 슬롯 내용. `template`은 spec.json의 템플릿 ID(1A~7B), `layout` · `mode`는 그 템플릿의 변형.
+    `mirror`는 좌우 반전(사진이 한쪽에 있는 템플릿: True = 사진 왼쪽, 1B: True = 글 상자 오른쪽)."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    template: str
+    layout: str = "default"
+    mode: Literal["before_after"] | None = None
+    mirror: StrictBool = False
+    label: AplusText | None = None
+    headline: AplusText | None = None
+    subheadline: AplusText | None = None
+    body: AplusText | None = None
+    image: AplusImage | None = None
+    mark: AplusImage | None = None
+    items: list[AplusItem] = Field(default_factory=list)
+
+
+class AplusSectionLabel(_Model):
+    """섹션 하나의 내용 라벨 — A+ 모듈 안의 내부 계산이다(#93). `label`은 spec.json `labels`의 코드(19종) 중 하나,
+    `sub`는 눈에 띄게 따로 있는 보조 내용 0~2개. 허용 코드는 규격 데이터가 정본이라 여기서는 문자열로 받고
+    pipeline/aplus/label.py가 검사한다."""
+
+    section_key: str
+    label: str
+    sub: list[str] = Field(default_factory=list, max_length=2)
+    confidence: Literal["high", "low"]
+    reason: str
+
+    @model_validator(mode="after")
+    def _sub(self) -> "AplusSectionLabel":
+        if len(set(self.sub)) != len(self.sub) or self.label in self.sub:
+            raise ValueError(f"보조 라벨이 겹치거나 주 라벨과 같다: {self.label} / {self.sub}")
+        return self
+
+
+class AplusLabelChecked(_Model):
+    """라벨 분류가 무엇을 보고 했는지. `input_fingerprint`는 보낸 섹션 · 블록 전체의 지문."""
+
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+    sent_section_keys: list[str]
+
+
+class AplusLabelResult(_Model):
+    """상품 하나(섹션 전체)의 라벨 분류 결과. 실패는 전체 실패다 — 일부 섹션만 성공으로 내보내지 않는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    labels: list[AplusSectionLabel] | None
+    checked: AplusLabelChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusLabelResult":
+        if self.status == "ok" and (self.labels is None or self.error is not None):
+            raise ValueError("status=ok면 labels가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.labels is not None or not self.error):
+            raise ValueError("status=failed면 labels가 없고 error가 있어야 한다")
+        if self.labels is not None:
+            keys = [x.section_key for x in self.labels]
+            if keys != self.checked.sent_section_keys:
+                raise ValueError("labels의 섹션 순서 · 집합이 보낸 섹션과 다르다")
+        return self
+
+
+class AplusDropped(_Model):
+    """모델이 고른 블록 가운데 코드가 넣지 않은 것과 그 이유(검수용). `reason`: `limit` 한도 직전에서 중단 ·
+    `not_candidate` 그 칸 라벨의 섹션이 아님 · `already_used` 다른 칸에서 이미 씀 · `unknown` 보낸 적 없는 블록 ID."""
+
+    field: str
+    block_keys: list[str]
+    reason: Literal["limit", "not_candidate", "already_used", "unknown"]
+
+
+class AplusSlotPlan(_Model):
+    """7칸 중 한 칸의 결과. `template`이 None이면 빈 칸(`module`도 None). `errors`는 템플릿 규칙 위반(있으면 그릴 수 없다),
+    `flags`는 코드가 바로잡았거나 사람이 확인할 점, `sources`는 글 재료로 쓴 섹션."""
+
+    slot: int = Field(ge=1, le=7)
+    template: str | None
+    why: str
+    module: AplusModule | None
+    sources: list[str] = Field(default_factory=list)
+    dropped: list[AplusDropped] = Field(default_factory=list)
+    flags: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "AplusSlotPlan":
+        if (self.template is None) != (self.module is None):
+            raise ValueError("template과 module은 함께 있거나 함께 없어야 한다")
+        if self.module is not None and self.module.template != self.template:
+            raise ValueError(f"module.template {self.module.template!r} != template {self.template!r}")
+        return self
+
+
+class AplusPlanChecked(_Model):
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+
+
+class AplusPlan(_Model):
+    """상품 하나의 7칸 구성 결과. 실패(호출 · 응답 구조)는 전체 실패다. 칸 안의 규칙 위반은 그 칸의 `errors`에 남는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    slots: list[AplusSlotPlan] | None
+    checked: AplusPlanChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusPlan":
+        if self.status == "ok" and (self.slots is None or self.error is not None):
+            raise ValueError("status=ok면 slots가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.slots is not None or not self.error):
+            raise ValueError("status=failed면 slots가 없고 error가 있어야 한다")
+        if self.slots is not None and [s.slot for s in self.slots] != list(range(1, 8)):
+            raise ValueError("slots는 1~7 칸이 순서대로 하나씩 있어야 한다")
+        return self
+
+
+class AplusCutout(_Model):
+    """누끼를 요청한 이미지 칸 하나의 결과(#98). `field`: `image` · `mark` · `items[i].image`. `source` = 자른 원천
+    (`erased` 글자를 지운 섹션 · `original` 원본 섹션). `crop_bbox` = 넓혀 자른 자리, `subject_bbox` = 남은 대상의 자리
+    (둘 다 섹션 로컬 픽셀). `image_path` = 배경이 투명한 PNG(`width` × `height`, 투명 여백 포함).
+    실패(`failed`)면 `subject_bbox` · `image_path` · 크기가 없고 그 칸은 원본 크롭을 쓴다."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    section_key: str
+    status: Literal["ok", "failed"]
+    source: Literal["erased", "original"]
+    crop_bbox: BBox
+    subject_bbox: BBox | None = None
+    image_path: str | None = None
+    width: int | None = Field(default=None, gt=0)
+    height: int | None = Field(default=None, gt=0)
+    flags: list[str] = Field(default_factory=list)
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusCutout":
+        outs = (self.subject_bbox, self.image_path, self.width, self.height)
+        if self.status == "ok" and (any(v is None for v in outs) or self.error is not None):
+            raise ValueError("status=ok면 subject_bbox · image_path · 크기가 있고 error가 없어야 한다")
+        if self.status == "failed" and (any(v is not None for v in outs) or not self.error):
+            raise ValueError("status=failed면 결과가 없고 error가 있어야 한다")
+        return self
+
+
+class AplusCutoutResult(_Model):
+    """상품 하나의 누끼 결과 — 7칸 구성이 누끼를 요청한 이미지 칸마다 하나(칸 순서 → 큰 사진 · 마크 · 항목 순).
+    요청이 없으면 빈 목록이다. `matting_config` = 쓴 전경 분리 모델의 설정(요청이 없어 모델을 부르지 않았으면 None)."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    items: list[AplusCutout] = Field(default_factory=list)
+    matting_config: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _unique(self) -> "AplusCutoutResult":
+        keys = [(x.slot, x.field) for x in self.items]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 이미지 칸이 두 번 있다")
+        return self

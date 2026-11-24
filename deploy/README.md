@@ -205,7 +205,9 @@ push 후 ECR digest가 빌드한 이미지 ID와 같은지 확인하고, 그 dig
 - 의존성 버전은 저장소 루트 `constraints.txt`(운영 이미지 `bfa3b70`의 `pip freeze --all`)로 고정합니다. `requirements.txt`·`pipeline/requirements.txt`에는 버전을 적지 않습니다.
   - CI는 러너·이미지 각각 설치 결과를 `constraints.txt`와 대조합니다(`.github/scripts/assert_freeze.py`). 목록에 없는 패키지·버전 차이·누락 중 하나라도 있으면 실패하고, 시험·게시가 막힙니다.
   - 버전을 올리거나 패키지를 추가할 때는 `constraints.txt`를 고치는 **별도 PR**로 합니다. 새 패키지는 `requirements`와 `constraints.txt`에 함께 넣어야 대조를 통과합니다.
-  - `pillow`는 렌더러 버전(`app/typeset.py`의 `RENDERER_VERSION`)에 들어갑니다. 바꾸면 전환 전에 만들어진 미리보기·최종 렌더 고정 입력이 전환 뒤 실행·재시도에서 `INPUT_CHANGED`가 됩니다. 처리 방법을 먼저 정합니다.
+  - 렌더 고정 입력에는 `rendererId`(`app/html_render.py` `RENDERER_VERSION` = `html-typeset/<규칙판>+chromium-<playwright가 고정하는 Chromium 버전>`)와 `bundleId`(`fe-<PIXLATE_FE_RENDER_REVISION 전체 SHA 40자>`)가 함께 들어갑니다. Chromium 버전 · 규칙판(글꼴 고정본 · 힌팅 · 입출력 형식 · 넘침 · 줄 수 · 글자 크기 대조 · 출력 배율) · FE revision 중 하나를 바꾸면 전환 전에 만들어진 미리보기·최종 렌더 고정 입력이 전환 뒤 실행·재시도에서 `INPUT_CHANGED`가 됩니다(열린 미리보기는 복구 sweep 이 다시 렌더). 처리 방법을 먼저 정합니다. `pillow`는 Pillow 조판(운영 경로에서 쓰지 않음)의 `PILLOW_RENDERER_VERSION`에만 들어갑니다.
+  - FE 내부 렌더 경로가 준비되기 전(FE 미기동 · 재시작 중 · revision 불일치 · 토큰 env 누락)에는 worker-cpu가 미리보기 · 최종 렌더 시도를 **잡지 않고 미룹니다**(`app/tasks.py` `_defer_render`). 시도는 `pending` 그대로이고 실패 기록 · 재시도 소모가 없으며, 복구 sweep이 마지막 전달 뒤 `PIXLATE_DISPATCH_STALE_S`(기본 300초)마다 다시 보냅니다. 그래서 BE live 직후 FE가 늦게 떠도 렌더가 실패하지 않습니다.
+  - 미룸은 워커 로그에 `렌더 미룸(FE 내부 렌더 준비 안 됨) … 연속 N회 사유=…`로 남습니다(토큰 값은 남기지 않음). live 공개 확인 때 이 줄이 계속 늘지 않는지 봅니다. 설정 오류(revision 불일치 · 토큰 누락)는 실패가 아니라 미룸으로 보이므로, 계속되면 maintenance로 바꾸고 원인을 확인합니다.
 
 ### 전환 도구(준비 중 — 아직 기동 스크립트·배포 절차에 연결되지 않음)
 

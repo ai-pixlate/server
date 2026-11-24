@@ -188,4 +188,4 @@ def test_only_judgement_changes_drawing_is_same_as_plain_draw():
 
 
 def test_renderer_version_marks_overflow_rule_change():
-    assert typeset.RENDERER_VERSION.startswith("pillow-typeset/3+pillow-")
+    assert typeset.PILLOW_RENDERER_VERSION.startswith("pillow-typeset/3+pillow-")

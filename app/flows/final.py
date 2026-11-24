@@ -19,7 +19,7 @@ from PIL import Image
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import artifacts, execution, typeset
+from app import artifacts, execution, html_render, typeset
 from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
 from app.flows import common
@@ -227,6 +227,7 @@ def _final_inputs(db: Session, job_id: int) -> dict[str, Any]:
                          "height": s["height"], "background": m["background"], "blocks": m["blocks"], "style_stage": m["style_stage"]})
     # 미리보기와 같은 로더·같은 지문(6.6 ⑥) — 최종 렌더가 다른 설정을 읽을 수 없게 한다
     return {"stage": "final_render", "job_id": job_id, "sections": sections, "renderer": typeset.RENDERER_VERSION,
+            "bundle": html_render.BUNDLE_ID,
             "style_defaults": typeset.style_inputs()}
 
 
@@ -275,7 +276,9 @@ def execute_final_render(attempt_id: int) -> dict[str, Any]:
                     raise AdoptionRejected("최종 렌더 입력이 확정 당시와 다르다", code="INPUT_CHANGED")
                 texts[b["block_id"]], styles[b["block_id"]], sources[b["block_id"]] = (
                     r["trans_1"], json_value(r["style"]), r["source_ko"])
-            res = _render_section({**s, "style_defaults": m["style_defaults"], "renderer": m.get("renderer")}, texts, styles, sources)
+            # 고정 입력의 renderer · bundle 을 그대로 넘긴다(키가 없던 옛 고정 입력은 없는 채로 → 불일치, common.renderer_mismatch)
+            pinned = {k: m[k] for k in ("renderer", "bundle") if k in m}
+            res = _render_section({**s, "style_defaults": m["style_defaults"], **pinned}, texts, styles, sources)
             files[("render_image", f"sec_{s['section_id']}")] = res.png
             renders[str(s["section_id"])] = {"width": res.width, "height": res.height,
                                              "overflow": {str(k): v.overflow for k, v in res.blocks.items()},

@@ -35,6 +35,23 @@ def _block_real_s3(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def html_render_session(monkeypatch):
+    """서버 HTML 렌더의 브라우저 세션 대역(tests/html_render_fake.py) — 시험 환경에는 FE · Chromium 이 없다.
+    실제 세션 코드를 보는 시험(tests/test_html_render.py)은 `app.html_render._Session` 을 직접 만들어 쓴다.
+    PIXLATE_TEST_REAL_HTML_RENDER=1 이면 대역을 끼우지 않는다 — 실제 FE 내부 경로 · Chromium 으로 같은 흐름 시험을 돌릴 때(로컬 확인용,
+    PIXLATE_FE_INTERNAL_ORIGIN · PIXLATE_FE_RENDER_REVISION · PIXLATE_INTERNAL_RENDER_TOKEN 필요). CI 는 대역을 쓴다."""
+    from app import html_render
+    from tests.html_render_fake import FakeSession
+
+    if os.getenv("PIXLATE_TEST_REAL_HTML_RENDER") == "1":
+        yield html_render._SESSION
+        return
+    fake = FakeSession()
+    monkeypatch.setattr(html_render, "_SESSION", fake)
+    yield fake
+
+
+@pytest.fixture(autouse=True)
 def _block_real_oauth_providers():
     """소셜 로그인(C): 시험은 실제 카카오·Google 을 부르지 않는다 — 제공자 HTTP 를 「부르면 실패」로 막는다(시험이 대역을 끼우면 그쪽이 우선)."""
     import httpx

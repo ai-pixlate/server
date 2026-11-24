@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T02:00:21.095960+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_820",
+        "outcome": "completed",
+        "translation": "When your skin needs elasticity,\nsolve it with Retinal Shot Tightening Booster.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_821",
+        "outcome": "completed",
+        "translation": "Over a development period of approximately 455 days, we examined numerous research papers and studies to address the root causes of various types of wrinkles and pores caused by declining skin elasticity, developing the 'Retinal Shot Tightening Booster.'",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_822",
+        "outcome": "completed",
+        "translation": "To deliver noticeable skin transformation,\nwe formulated high concentrations of high-performance Vitamin A nano-retinal\nalong with elasticity-boosting ingredients\nfor more effective elasticity care.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_823",
+        "outcome": "completed",
+        "translation": "When elasticity is your concern, experience skin transforming\ninto smooth and firm skin firsthand with Retinal Shot Tightening Booster.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_824",
+        "outcome": "completed",
+        "translation": "Thank you.",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "6ac78ddf1178bc2fa0bf0007387277f42e25d52cdec56dfa948a9177f415db1f",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "3b24dac146682026e400501b1923ba3976acf0bd0bedc16ac71a2c5e749a8550",
+      "usage": {
+        "candidates_token_count": 246,
+        "prompt_token_count": 980,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 980
+          }
+        ],
+        "thoughts_token_count": 1016,
+        "total_token_count": 2242
+      }
+    }
+  ],
+  "seconds": 10.625
+}

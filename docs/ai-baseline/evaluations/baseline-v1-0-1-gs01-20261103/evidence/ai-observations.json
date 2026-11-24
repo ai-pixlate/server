@@ -1,0 +1,582 @@
+{
+  "kind": "Codex 채팅 AI 최초 시각 평가의 구조화 기록; 전체 채팅 원문 export 아님",
+  "evaluated_at": "2026-11-03T11:07:34.131516+00:00",
+  "viewed_pairs": [
+    "evidence/views/pair-00.png",
+    "evidence/views/pair-01.png",
+    "evidence/views/pair-02.png",
+    "evidence/views/pair-03.png",
+    "evidence/views/pair-04.png",
+    "evidence/views/pair-05.png",
+    "evidence/views/pair-06.png",
+    "evidence/views/pair-07.png",
+    "evidence/views/pair-08.png",
+    "evidence/views/pair-09.png",
+    "evidence/views/pair-10.png",
+    "evidence/views/pair-11.png",
+    "evidence/views/pair-12.png",
+    "evidence/views/pair-13.png",
+    "evidence/views/pair-14.png",
+    "evidence/views/pair-15.png",
+    "evidence/views/pair-16.png",
+    "evidence/views/pair-17.png",
+    "evidence/views/pair-18.png",
+    "evidence/views/pair-19.png",
+    "evidence/views/pair-20.png",
+    "evidence/views/pair-21.png",
+    "evidence/views/pair-22.png",
+    "evidence/views/pair-23.png",
+    "evidence/views/pair-24.png",
+    "evidence/views/pair-25.png",
+    "evidence/views/pair-26.png"
+  ],
+  "additional_view": "evidence/views/cooling-detail.png",
+  "coverage": "GS-01_002 원본/최종 0..37665 전영역, machine_snapshot 23개 대응 영역 픽셀 동일 검증",
+  "observations": [
+    [
+      "critical",
+      "readability_or_layout",
+      "렌더·배치",
+      2,
+      [
+        200,
+        160,
+        1000,
+        1030
+      ],
+      [
+        1,
+        3,
+        43
+      ],
+      "과대 제목이 제품명 줄과 겹치고 산뜻 밀착 번역은 오른쪽 밖으로 잘리며 인증 마크 위로 침범한다.",
+      "제품명·배지 가독성과 보호 마크 유지"
+    ],
+    [
+      "critical",
+      "content_wrong",
+      "OCR",
+      2,
+      [
+        260,
+        550,
+        730,
+        670
+      ],
+      [
+        2
+      ],
+      "원본 50ml가 블록 41 source_lines/source_ko 및 trans_1에서 50m으로 누락되고 이미지에도 50m으로 표시된다.",
+      "용량 50ml의 숫자와 단위 보존"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      3,
+      [
+        170,
+        2520,
+        860,
+        2929
+      ],
+      [
+        1
+      ],
+      "제품명 제목이 설명 본문을 덮는다.",
+      "제목과 본문이 겹치지 않게 보존"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      4,
+      [
+        650,
+        2929,
+        1000,
+        3188
+      ],
+      [
+        39
+      ],
+      "No White Cast 해시태그가 아래 시험 각주와 겹친다.",
+      "해시태그와 각주 분리"
+    ],
+    [
+      "critical",
+      "readability_or_layout",
+      "렌더·배치",
+      5,
+      [
+        50,
+        3188,
+        950,
+        4610
+      ],
+      [
+        4,
+        5,
+        6,
+        7
+      ],
+      "설문 제목이 배지 위에 겹치고 95%의 Refreshing/breathable/after use가 중첩돼 의미 연결의 가독성이 손상된다. 200명·98%·96%는 별도 본문에서 판독 가능하다.",
+      "설문 항목과 비율의 판독 가능한 대응"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      6,
+      [
+        45,
+        6320,
+        955,
+        6600
+      ],
+      [
+        10,
+        11,
+        14,
+        40
+      ],
+      "SPF/PA 표 머리글 Protection Factor가 시험값 행에 겹친다. 숫자·± 및 각주는 판독 가능하다.",
+      "표 머리글과 시험값 행 분리"
+    ],
+    [
+      "major",
+      "render_missing_or_clipped",
+      "렌더·배치",
+      7,
+      [
+        80,
+        8400,
+        970,
+        10194
+      ],
+      [
+        16,
+        17,
+        44
+      ],
+      "POINT 제목·본문이 서로 겹치며 마지막 ***** 각주의 성분 괄호 내용이 섹션 아래에서 잘린다.",
+      "POINT 4개와 다섯 각주의 연결 및 전체 내용 보존"
+    ],
+    [
+      "major",
+      "render_missing_or_clipped",
+      "렌더·배치",
+      8,
+      [
+        450,
+        10194,
+        980,
+        10671
+      ],
+      [
+        46
+      ],
+      "Certified Vegan 제목과 본문이 겹치고 animal-derived 다음 ingredients가 섹션 아래로 잘린다.",
+      "인증 설명 전체 보존; 미국 인증 추가 없음"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      9,
+      [
+        180,
+        10850,
+        990,
+        12600
+      ],
+      [
+        17,
+        21
+      ],
+      "징크 제목과 설명, 원 안의 성분명·효과 설명이 중첩한다.",
+      "성분과 설명의 읽을 수 있는 대응"
+    ],
+    [
+      "critical",
+      "readability_or_layout",
+      "렌더·배치",
+      10,
+      [
+        100,
+        13200,
+        900,
+        13700
+      ],
+      [
+        18,
+        19,
+        20
+      ],
+      "긴 제목이 차트에 침범하고 15.92% 글자 일부가 흰 바탕으로 넘쳐 거의 구분되지 않는다.",
+      "핵심 개선율의 온전한 가독성"
+    ],
+    [
+      "minor",
+      "readability_or_layout",
+      "렌더·배치",
+      11,
+      [
+        200,
+        14300,
+        900,
+        14700
+      ],
+      [
+        22
+      ],
+      "본문 마지막 skin이 아래 도해 영역까지 내려간다. 내용 판독은 가능하다.",
+      "본문과 도해 여백 유지"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      12,
+      [
+        160,
+        15800,
+        960,
+        16400
+      ],
+      [],
+      "Daily Soothing Sun Care 제목이 설명 문장과 겹친다.",
+      "주요 제목·본문 분리"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      13,
+      [
+        70,
+        17680,
+        970,
+        18220
+      ],
+      [
+        26
+      ],
+      "저자극 제목이 3개 테스트 배지를 덮고 배지별 시험 설명이 서로 겹친다.",
+      "각 테스트와 배지·각주 대응 보존"
+    ],
+    [
+      "minor",
+      "text_not_removed",
+      "undetermined",
+      13,
+      [
+        650,
+        17850,
+        950,
+        18020
+      ],
+      [
+        26
+      ],
+      "오른쪽 시험 배지의 인체적용 테스트 완료 한국어 일부가 남아 있다.",
+      "보호 대상 아닌 한국어 시험 설명을 번역"
+    ],
+    [
+      "critical",
+      "readability_or_layout",
+      "렌더·배치",
+      14,
+      [
+        60,
+        19850,
+        650,
+        20140
+      ],
+      [
+        23,
+        24,
+        25
+      ],
+      "사용 전/직후 차트 라벨이 서로 겹치고 6.78% 및 cooling effect의 밝은 글자가 흰 바탕으로 넘친다. 32.26 값과 after 1 use는 확대에서 판독 가능하다.",
+      "시험값·시점·효과의 가독성 보존"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      15,
+      [
+        100,
+        20500,
+        950,
+        22220
+      ],
+      [],
+      "긴 제목이 제형 사진 안까지 침범하고 아래 설명이 원료적 특성 한정 각주와 겹친다.",
+      "제형 사진과 설명·한정 각주의 분리"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      16,
+      [
+        80,
+        22700,
+        980,
+        23350
+      ],
+      [
+        28,
+        29,
+        30,
+        41,
+        45
+      ],
+      "Reef Safe 제목의 Sunscreen이 본문 첫 줄과 겹친다. 불검출 시험 성분명과 각주는 판독 가능하다.",
+      "환경 주장과 근거 문맥 가독성 유지"
+    ],
+    [
+      "critical",
+      "translation_fact_error",
+      "번역·현지화",
+      17,
+      [
+        100,
+        24800,
+        950,
+        25000
+      ],
+      [
+        39
+      ],
+      "블록 187 원문 자외선차단지수 검증 완료에 없는 verified broad spectrum SPF를 trans_1과 이미지에 추가했다.",
+      "원문 범위를 넘어선 검증/규제 주장 추가 금지"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      18,
+      [
+        200,
+        25500,
+        950,
+        26000
+      ],
+      [
+        32
+      ],
+      "How to Use 제목이 얼굴·바디 안내 소제목과 겹친다. 상세 용법 문장은 온전히 읽힌다.",
+      "소제목과 상세 용법 분리"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      19,
+      [
+        170,
+        27500,
+        900,
+        28200
+      ],
+      [
+        33
+      ],
+      "선케어 라인 제목이 영문 부제와 겹치며 제품 사진까지 침범한다.",
+      "제목·부제·제품 사진 분리"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      20,
+      [
+        80,
+        29174,
+        990,
+        30057
+      ],
+      [
+        33
+      ],
+      "3개 제품 설명·해시태그가 중첩하고 흰 글자가 흰 바탕으로 넘친다.",
+      "제품별 설명·해시태그 판독 가능"
+    ],
+    [
+      "major",
+      "background_artifact",
+      "undetermined",
+      20,
+      [
+        95,
+        29800,
+        950,
+        30020
+      ],
+      [
+        33
+      ],
+      "해시태그의 길쭉한 배경 배지가 불규칙한 작은 덩어리로 변형돼 남는다. 최초 원인은 중간 마스크까지 직접 대조하지 않아 미확정이다.",
+      "배지/배경의 자연스러운 복원"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      21,
+      [
+        80,
+        30057,
+        990,
+        31740
+      ],
+      [
+        33,
+        47
+      ],
+      "톤업/스틱 카드의 제목·제품명·해시태그가 중첩한다. DarkSpotCoverage는 치료 주장 없이 판독 가능하다.",
+      "카드별 번역 글자의 가독성"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      22,
+      [
+        100,
+        31980,
+        900,
+        32400
+      ],
+      [
+        33
+      ],
+      "Sustainable Packaging/Small Steps for Nature 제목이 소개 문장과 겹친다.",
+      "제목과 소개 문장 분리"
+    ],
+    [
+      "major",
+      "protected_content_damaged",
+      "제품 라벨·브랜드 로고 판정",
+      22,
+      [
+        250,
+        33280,
+        800,
+        33550
+      ],
+      [
+        33
+      ],
+      "FSC 및 SOYINK 마크 안 글자를 일반 글자로 재렌더해 원래 구성과 경계가 훼손된다.",
+      "보호 마크 원형 보존"
+    ],
+    [
+      "critical",
+      "protected_content_damaged",
+      "제품 라벨·브랜드 로고 판정",
+      23,
+      [
+        220,
+        33820,
+        800,
+        34150
+      ],
+      [
+        34,
+        38,
+        42
+      ],
+      "Good all goodal 보호 로고를 일반 텍스트로 다시 쓰면서 타원 윤곽 대부분이 지워지고 작은 고리만 남는다. 블록 309 is_brand_logo=false.",
+      "브랜드 로고의 형상과 정체성 보존"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      23,
+      [
+        550,
+        34880,
+        990,
+        35720
+      ],
+      [
+        35,
+        36,
+        42
+      ],
+      "검증 설명 및 18 Free 제목이 각각 본문·각주와 겹친다. 18개/4분류 사실 자체는 판독 가능하다.",
+      "제목·본문·각주 분리"
+    ],
+    [
+      "major",
+      "readability_or_layout",
+      "렌더·배치",
+      23,
+      [
+        80,
+        35720,
+        990,
+        36365
+      ],
+      [
+        37,
+        42
+      ],
+      "18 Free 목록에서 보존제 마지막 행과 가소제 제목, 계면활성제 각주와 자외선차단제 제목이 겹친다.",
+      "18개 성분을 원자화하지 않고 4분류와 목록 전체의 관계 보존"
+    ],
+    [
+      "major",
+      "decision_wrong",
+      "undetermined",
+      6,
+      [
+        0,
+        5808,
+        1000,
+        6774
+      ],
+      [
+        15,
+        39
+      ],
+      "조건부 판정(section 4/6/17)은 DB에 존재하나 실제 N5 전달 JSON에는 translation_failed 2건과 폭 초과 신호만 있고 조건부 SPF 경고가 없다. 전달 경로의 최초 누락 위치는 미확정이다.",
+      "REF-015 및 REF-039 지정 위치의 필요한 N5 조건부 경고 표시"
+    ]
+  ],
+  "H04_failed_ids": {
+    "1": [
+      true,
+      false,
+      "첫 제품명 줄이 거대 제목과 중첩되어 안정적으로 읽기 어렵다."
+    ],
+    "2": [
+      false,
+      true,
+      "50ml의 l이 빠져 50m으로 표시됨. 블록 41의 원문 인식에도 누락."
+    ],
+    "7": [
+      true,
+      false,
+      "95%는 있으나 Refreshing/breathable/after use가 다른 항목과 겹쳐 항목 의미의 가독성 손상."
+    ],
+    "20": [
+      true,
+      false,
+      "15.92%가 강조 배경을 벗어나 흰 바탕과 섞여 핵심 비율의 가독성이 손상됨."
+    ],
+    "25": [
+      true,
+      false,
+      "6.78%와 cooling effect가 강조 배경을 벗어나 흰 바탕에 매우 밝게 표시됨."
+    ]
+  },
+  "H04_remaining": "28개 중 나머지 23개 정확·가독; GS-01_001 핵심 사실 4개 미적용",
+  "PM_review": "아직 수행하지 않음. 가독성 경계 사례와 severity 전부 재검수 필요",
+  "unverified": "실제 미국 시험/인증 적합성, N5 경고 누락 최초 원인, 배경 배지 훼손 최초 원인, 잔존 한국어 최초 원인; 모델 표시명/설정 증빙 없음"
+}

@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:58:19.244265+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_590",
+        "outcome": "completed",
+        "translation": "Why celimax Retinal Shot is Even More Special ②",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_591",
+        "outcome": "completed",
+        "translation": "6 times thinner than pores\nMicro A-Shot®\n20,250 shots",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_592",
+        "outcome": "completed",
+        "translation": "Seamless and dense coverage with A-Shot,\nhomogenized through high-purity separation and purification",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_593",
+        "outcome": "completed",
+        "translation": "WD: 5.34 mm",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_594",
+        "outcome": "completed",
+        "translation": "WD: 5.62 mm",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_595",
+        "outcome": "completed",
+        "translation": "WD: 5.28 mm",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_596",
+        "outcome": "completed",
+        "translation": "Patent Application (No. 10-2270816)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_597",
+        "outcome": "completed",
+        "translation": "Patent Certificate",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_598",
+        "outcome": "completed",
+        "translation": "4",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_599",
+        "outcome": "completed",
+        "translation": "1-2",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_600",
+        "outcome": "completed",
+        "translation": "Method for manufacturing natural cosmetics containing micro-spicules",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_602",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 원문이 의미를 파악할 수 없는 불완전한 문자열(OCR 오인식)입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_606",
+        "outcome": "completed",
+        "translation": "*Limited to the characteristics of the raw ingredient",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "34b94297a90480fd0e2f0ee8d419480e3c05db44efc59cec7ce572a78e6e5023",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "0ea0f56b4f4bbfda606df34a7c53d225733281f599432c8851df380aef16952a",
+      "usage": {
+        "candidates_token_count": 449,
+        "prompt_token_count": 1209,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1209
+          }
+        ],
+        "thoughts_token_count": 1220,
+        "total_token_count": 2878
+      }
+    }
+  ],
+  "seconds": 13.641000000061467
+}

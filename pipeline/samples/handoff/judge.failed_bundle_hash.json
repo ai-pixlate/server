@@ -265,11 +265,11 @@
     "section_images": {
       "sec_1_01": {
         "path": "/srv/pixlate-work/judge/sections/sec_1_01.png",
-        "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+        "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
       },
       "sec_1_02": {
         "path": "/srv/pixlate-work/judge/sections/sec_1_02.png",
-        "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+        "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
       }
     },
     "bundle": {

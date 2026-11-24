@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:52:37.027531+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_673",
+        "outcome": "completed",
+        "translation": "**Satisfaction survey results among 22 clinical study participants / Individual results may vary / Percentage of subjects who responded positively with 3 points or higher (%), based on mean values / Clinical study on the improvement of stratum corneum pigmentation (turnover improvement) by Celimax Retinal Shot Tightening Booster / SkinMed Clinical Trial Center Co., Ltd. / 2024.05.27~2024.06.05 / 22 adult men and women / Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "2e9e1f3481ef3cd2155f7858d6d6f1bd4a47a68412d5db0dfbac55af7e57663f",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "160b354b448e30c2ad990b4a4bb33b649312f4d2449fd03532546f86e6e06f36",
+      "usage": {
+        "candidates_token_count": 118,
+        "prompt_token_count": 846,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 846
+          }
+        ],
+        "thoughts_token_count": 3227,
+        "total_token_count": 4191
+      }
+    }
+  ],
+  "seconds": 25.312000000150874
+}

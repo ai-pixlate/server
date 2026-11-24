@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-30T00:26:46.677566+00:00",
+  "launcher_sha256": "c2af57401d7c45945713b6306e20fe0f113ed1756ba718b70daa9b17fcd0ecac",
+  "environment": {
+    "PADDLE_PDX_CACHE_HOME": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-connection-check-20261028\\paddlex-cache",
+    "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK": "True",
+    "HF_HUB_OFFLINE": "1",
+    "MODELSCOPE_OFFLINE": "1",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "AWS_EC2_METADATA_DISABLED": "true",
+    "TEMP": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp",
+    "TMP": "C:\\Users\\Yeram\\Documents\\pixlate-server\\.cache\\baseline-pr-check\\tmp"
+  },
+  "secret_values_recorded": false
+}

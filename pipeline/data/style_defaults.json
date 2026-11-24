@@ -1,10 +1,10 @@
 {
-  "schema_version": "1",
-  "defaults_version": "role-style@2026-10-12.1",
+  "schema_version": "2",
+  "defaults_version": "role-style@2026-11-05.2",
   "approval": {
-    "decision": "docs/ai/integration-decisions.md D11",
+    "decision": "docs/ai/integration-decisions.md D11 · 역할별 기본 정렬(사용자 결정 2026-11-05, 같은 날 caption center로 재검토, pipeline.md 7.7절)",
     "approved_by": "user",
-    "approved_on": "2026-10-12",
+    "approved_on": "2026-11-05",
     "pm_reply_recorded": false
   },
   "type_tokens": {
@@ -19,11 +19,17 @@
   },
   "pipeline_mapping": {
     "source": "user_approved",
-    "note": "역할↔토큰 대응과 보완값(폰트·기준 폭·글자색·정렬·행간·자간 단위)은 사용자 승인안이다. 디자인 이미지가 명시한 값으로 기록하지 않는다.",
+    "note": "역할↔토큰 대응과 보완값(폰트·기준 폭·글자색·정렬·행간·자간 단위)은 사용자 승인안이다. 디자인 이미지가 명시한 값으로 기록하지 않는다. 정렬은 역할별 값이다(2026-11-05).",
     "font_family": "Pretendard",
     "reference_width_px": 375,
     "font_color": "#222222",
-    "align": "left",
+    "align": {
+      "title": "center",
+      "body": "left",
+      "caption": "center",
+      "price": "center",
+      "caution": "left"
+    },
     "line_height_ratio": 1.2,
     "roles": {
       "title": "Heading / H2",

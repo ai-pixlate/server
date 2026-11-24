@@ -1,0 +1,361 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:21.236708+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_67",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_755",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_756",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_757",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_758",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_759",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_760",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_761",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_762",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_763",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_764",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_765",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_766",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_767",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_768",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_769",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_770",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_771",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_772",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_773",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_774",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_775",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_776",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_67",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "55c15c96762ed27ad5d92a6c4e1533f58d163803429061786af4204f9b3e137a",
+      "label_fingerprint": "bba8286bdfea8aaad4d12894d4012d5021cbe5bfb3d943962bd83487a57feb2c",
+      "label_input_fingerprint": "55c15c96762ed27ad5d92a6c4e1533f58d163803429061786af4204f9b3e137a",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 22,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 22,
+        "compared": 22
+      },
+      "decisions": [
+        {
+          "block_key": "blk_755",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "함께쓰면더확실한변화를느낄수있어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_756",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "레티놀샷세럼레티날샷부스터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_757",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "1+",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_758",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "함께사용시눈가주름개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_759",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "2324감소",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_760",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_761",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "2주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_762",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "함께사용시모공볼륨개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_763",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "3799개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_764",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_765",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "2주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_766",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "모공깊이개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_767",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "1480",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_768",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "모공면적개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_769",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "2874",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_770",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "함께사용시리프팅개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_771",
+          "block_order": 17,
+          "is_product_label": false,
+          "normalized": "902감소",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_772",
+          "block_order": 18,
+          "is_product_label": false,
+          "normalized": "19349°",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_773",
+          "block_order": 19,
+          "is_product_label": false,
+          "normalized": "19972°",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_774",
+          "block_order": 20,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_775",
+          "block_order": 21,
+          "is_product_label": false,
+          "normalized": "2주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_776",
+          "block_order": 22,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티놀샷타이트닝세럼과셀리맥스레티날샷타이트닝부스터의병행사용시눈가주름피부모공안면리프팅개선에대한인체적용시험주스킨메드임상시험센터20240520~20240604성인남녀21명개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

@@ -16,7 +16,7 @@ from pipeline import config as cfgmod
 from pipeline import jsonio
 from pipeline import run as cli
 from pipeline.errors import AnalyzeError
-from pipeline.stages import ocr, ocr_tile
+from pipeline.stages import ocr, ocr_overlap, ocr_tile
 from pipeline.types import BBox, Section, SourceImage, SplitResult
 from pipeline.vlm import VlmError
 
@@ -287,7 +287,13 @@ def test_different_readings_trigger_one_supplement_that_confirms_one_tile(monkey
     res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
     assert texts(res) == ["보습크림", "다른 줄"]
     n_tiles = len(d["tiles"])
-    assert len(eng.calls) == n_tiles + 1 and d["engine_calls"] == {"tiles": n_tiles, "supplements": 1, "supplement_limit": n_tiles - 1}
+    # 전체 검출 OCR(타일 + 보완)과 국소 재인식을 따로 센다. 이 대역 엔진은 인식 전용 메서드가 없어 재인식은 0회다.
+    assert len(eng.calls) == n_tiles + 1 and d["engine_calls"] == {
+        "tiles": n_tiles, "supplements": 1, "supplement_limit": n_tiles - 1,
+        "overlap_rec": 0, "overlap_rec_cache_hits": 0, "overlap_rec_limit": cfg["ocr"]["overlap_rec_max_calls"]}
+    assert not hasattr(eng, "recognize_crops")
+    assert d["overlap_rec"]["enabled"] is False and d["overlap_rec"]["disabled_reason"] == "engine_has_no_recognition_only_call"
+    assert d["overlap_rec"]["units"] == [] and d["overlap_rec"]["replaced"] == {}
     sup = d["supplements"][0]
     cl = sup["clusters"][0]
     assert sup["status"] == "resolved" and cl["rule"] == "supplement_confirms_tile" and cl["use_tile"] == 0
@@ -869,6 +875,224 @@ def test_handoff_reports_tile_conflict_as_failed_not_retryable(tmp_path, monkeyp
     assert rep.payload == {"analyze_error": {"code": "OCR_FAILED", "retryable": False, "source_image_id": 1,
                                              "message": "OCR 타일 경계 충돌 미해결 section=sec_1_01 — 경계 0 y1800~1830 readings_conflict"}}
     assert not rep.artifacts
+
+
+# ---- 겹친 검출 재인식 · 호출별 중복 제거 — 타일 흐름 연결(#32 · #40) ------------------------------------
+# 대역: LayoutEngine에 인식 전용 메서드(recognize_crops)를 붙이고, crop 생성(ocr_overlap.build_crop)은 회전 사각형만 기록하는
+# 가짜로 바꾼다 — 판독은 그 crop의 섹션 좌표(왼쪽 x)로 정한다. 실제 방향 보정 · 인식은 tests/test_pipeline_ocr_overlap.py와
+# docs/ai-experiments 기록에서 확인한다(여기 결과는 대역 검증).
+LINE = (100, 1800, 260, 1830)  # 첫 경계 겹침 띠(~[1649, 1999)) 안의 한 줄 — 위 · 아래 타일 모두 잘림 없이 본다
+FRAG = [(100, 1800, 160, 1830, "9.99"), (150, 1800, 260, 1830, "%개선")]  # 이웃 % 조각이 숫자 crop에 섞인 겹친 검출
+FRAG2 = [(101, 1800, 161, 1830, "9.99"), (151, 1800, 261, 1830, "%개선")]  # 같은 오류 · 다른 crop(보완 OCR)
+
+
+class RecEngine(LayoutEngine):
+    def __init__(self, boxes, reader, box_log):
+        super().__init__(boxes)
+        self.reader, self.box_log, self.rec_calls = reader, box_log, 0
+
+    def recognize_crops(self, crops):
+        self.rec_calls += len(crops)
+        return [self.reader(self.box_log[-1]) for _ in crops]
+
+
+def rec_case(monkeypatch, pieces, reader=lambda box: ("9.9%개선", 0.95)):
+    """pieces: 역할(upper · lower · supplement) → 그 호출이 LINE 자리에서 내는 검출 목록."""
+    box_log = []
+
+    def fake_build(image, box):
+        box_log.append(np.asarray(box, dtype=float))
+        w, h = ocr_overlap.crop_size(box)
+        return np.zeros((max(h, 1), max(w, 1), 3), np.uint8), {
+            "box": np.asarray(box).tolist(), "roi": [0, 0, 1, 1], "roi_clamped": False, "size": [w, h], "rotated_90": False}
+
+    monkeypatch.setattr(ocr_overlap, "build_crop", fake_build)
+
+    def render(y0, y1, n):
+        if y0 > LINE[1] or y1 < LINE[3]:
+            return None
+        return pieces[role(n)]
+
+    boxes = [box(*LINE, "9.9%개선", render=render)]
+    return draw(4600, boxes), RecEngine(boxes, reader, box_log)
+
+
+def left_x(box):
+    return int(round(float(np.asarray(box)[:, 0].min())))
+
+
+def replaced_sides(d):
+    return [s for u in d["overlap_rec"]["units"] for s in u["sides"] if s.get("decision") == "replaced"]
+
+
+def test_overlap_rec_replaces_fragment_group_and_recomputes_matching(monkeypatch, cfg, tmp_path):
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(102, 1801, 258, 1829, "9.9%개선")], "supplement": []})
+    d = {}
+    res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert texts(res) == ["9.9%개선"]
+    assert d["engine_calls"]["supplements"] == 0 and d["engine_calls"]["overlap_rec"] == eng.rec_calls == 2
+    # 교체 → 대응 · 분류 재계산: 재계산 전에는 충돌, 뒤에는 동등(보완 OCR 없음)
+    assert any(c["kind"] == "conflict" for c in d["components_before_overlap_rec"])
+    assert [c["kind"] for c in d["components"]] == ["equivalent"]
+    (side,) = replaced_sides(d)
+    orig = side["original"]
+    assert [o["text"] for o in orig] == ["9.99", "%개선"] and [o["score"] for o in orig] == [0.9, 0.9]
+    assert [o["poly"] for o in orig] == [[[100, 1800], [160, 1800], [160, 1830], [100, 1830]],
+                                         [[150, 1800], [260, 1800], [260, 1830], [150, 1830]]]  # 교체 전 원시 poly(섹션 로컬)
+    assert side["contacts"] == [True] and side["explain"]["removed"] == [{"junction": 0, "where": "end_of_left", "chars": "9"}]
+    # 참조 관계: 원시 검출 → 재인식 검출 → 최종 영역
+    new_id = side["new_det"]
+    assert d["overlap_rec"]["replaced"] == {str(o["id"]): new_id for o in orig}
+    (region,) = d["regions"]
+    assert region["det"] == new_id and region["rerec_of"] == [o["id"] for o in orig]
+    dets = {x["id"]: x for x in d["detections"]}
+    assert all(o["id"] in dets for o in orig) and dets[new_id]["rerec_of"] == region["rerec_of"]
+    # 교체 영역: 실제 재인식 점수 · crop에 쓴 회전 사각형(섹션 로컬) · bbox 일치
+    r = res.regions[0]
+    assert r.score == 0.95 and r.poly == [(100, 1800), (260, 1800), (260, 1830), (100, 1830)]
+    assert r.bbox == BBox.from_poly(r.poly) == BBox(x=100, y=1800, w=160, h=30)
+    json.dumps(d, ensure_ascii=False)  # 진단은 JSON으로 쓸 수 있어야 한다
+
+
+def test_same_crop_is_one_evidence_and_unresolved_number_conflict_still_fails(monkeypatch, cfg, tmp_path):
+    # 아래 타일 검출이 위 타일 묶음과 같은 사각형 → 같은 crop. 보완도 같은 오류를 같은 자리에서 반복한다.
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(*LINE, "9.9%개선")], "supplement": FRAG})
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict") as ei:
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert ei.value.code == "OCR_FAILED" and ei.value.retryable is False  # 기존 실패 정책 그대로
+    units = d["overlap_rec"]["units"]
+    assert [u.get("reason") for u in units] == ["insufficient_independent_crops"] * 2  # 타일 단계 · 보완 단계
+    assert eng.rec_calls == d["overlap_rec"]["calls"] == 1 and d["overlap_rec"]["cache_hits"] >= 2  # 같은 crop은 한 번만 읽는다
+    assert d["overlap_rec"]["replaced"] == {} and d["engine_calls"]["supplements"] == 1
+    json.dumps(d, ensure_ascii=False)
+
+
+def test_disagreeing_rereads_are_not_settled_by_majority(monkeypatch, cfg, tmp_path):
+    # crop 3개 중 2개는 9.9, 아래 타일 crop 하나는 9.99로 읽는다 → 다수결 없이 교체하지 않고 기존 판정(실패)으로 간다
+    reader = lambda box: ("9.99%개선", 0.97) if left_x(box) == 102 else ("9.9%개선", 0.95)
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(102, 1801, 258, 1829, "9.9%개선")], "supplement": FRAG2},
+                        reader)
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict") as ei:
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert ei.value.retryable is False
+    assert [(u["stage"], u["reason"]) for u in d["overlap_rec"]["units"]] == [
+        ("tile", "rereads_disagree"), ("supplement", "rereads_disagree")]
+    assert d["overlap_rec"]["calls"] == 3 and d["overlap_rec"]["replaced"] == {}
+
+
+def test_overlap_rec_call_limit_stops_recovery_and_keeps_existing_processing(monkeypatch, cfg, tmp_path):
+    cfg["ocr"]["overlap_rec_max_calls"] = 1
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(102, 1801, 258, 1829, "9.9%개선")],
+                                      "supplement": [(101, 1800, 259, 1830, "9.9%개선")]})
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    rr = d["overlap_rec"]
+    assert rr["limit_reached"] is True and rr["calls"] == eng.rec_calls == 1 and rr["limit"] == 1
+    assert [(u["stage"], u["decision"], u["reason"]) for u in rr["units"]] == [
+        ("tile", "stopped", "limit_reached"), ("supplement", "skipped", "limit_reached")]
+    assert d["engine_calls"]["supplements"] == 1 and d["engine_calls"]["overlap_rec"] == 1  # 전체 검출 OCR과 따로 센다
+
+
+def test_supplement_stage_replacement_leaves_no_old_detection(monkeypatch, cfg, tmp_path):
+    # 타일 단계는 같은 crop뿐이라 근거 부족 → 보완 OCR이 다른 crop을 더해 위 타일 · 보완 묶음을 함께 교체한다
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(*LINE, "9.9%개선")], "supplement": FRAG2})
+    d = {}
+    res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert texts(res) == ["9.9%개선"]  # 옛 검출(9.99 · %개선) · 보완 검출이 남지 않는다
+    rr = d["overlap_rec"]
+    assert [(u["stage"], u["decision"]) for u in rr["units"]] == [("tile", "rejected"), ("supplement", "replaced")]
+    sides = replaced_sides(d)
+    assert sorted(s["call"] for s in sides) == ["supplement:0", "tile:0"]
+    old = {o["id"] for s in sides for o in s["original"]}
+    assert set(map(int, rr["replaced"])) == old and len(old) == 4
+    (region,) = d["regions"]
+    assert region["det"] not in old and region["det"] in {s["new_det"] for s in sides}
+    assert not set(d["dropped"]) & old  # 교체된 검출은 버린 목록이 아니라 replaced에만 있다
+    assert d["supplements"][0]["clusters"][0]["status"] == "resolved"
+    assert rr["calls"] == 2  # 타일 단계 1(같은 crop 재사용) + 보완 crop 1
+    json.dumps(d, ensure_ascii=False)
+
+
+def test_rerecognized_detection_is_evidence_only_in_supplement_stage(monkeypatch, cfg, tmp_path):
+    # 위 타일 묶음은 타일 단계에서 교체되지만 아래 타일이 다른 글자(개션)로 읽어 충돌이 남는다 → 보완 단계에서 재인식 검출은
+    # 다시 읽지 않고 근거로만 쓴다
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(102, 1801, 258, 1829, "9.9%개션")],
+                                      "supplement": [(101, 1800, 259, 1830, "9.9%개선")]})
+    d = {}
+    res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert texts(res) == ["9.9%개선"]
+    rr = d["overlap_rec"]
+    tile_unit, sup_unit = rr["units"]
+    assert tile_unit["decision"] == "replaced"
+    assert [s["call"] for s in sup_unit["sides"] if s.get("evidence_only")] == ["tile:0"]
+    assert sup_unit["reason"] == "no_partial_overlap" and rr["calls"] == eng.rec_calls == 2  # 재인식 결과를 다시 읽지 않는다
+
+
+def test_engine_without_recognition_only_call_skips_overlap_rec(monkeypatch, cfg, tmp_path):
+    img, rec_eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(102, 1801, 258, 1829, "9.9%개선")], "supplement": FRAG2})
+    eng = LayoutEngine(rec_eng.boxes)  # 같은 배치 · 인식 전용 메서드 없음
+    d = {}
+    with pytest.raises(AnalyzeError, match="numbers_conflict"):
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert d["overlap_rec"]["enabled"] is False and d["overlap_rec"]["units"] == []
+    assert d["engine_calls"]["overlap_rec"] == 0 and d["engine_calls"]["supplements"] == 1
+
+
+def test_invalid_recognition_only_output_is_ocr_failed_retryable(monkeypatch, cfg, tmp_path):
+    img, eng = rec_case(monkeypatch, {"upper": FRAG, "lower": [(102, 1801, 258, 1829, "9.9%개선")], "supplement": []},
+                        reader=lambda box: ("9.9%개선", 1.5))
+    with pytest.raises(AnalyzeError) as ei:
+        run_ocr(monkeypatch, cfg, img, eng, tmp_path)
+    assert ei.value.code == "OCR_FAILED" and ei.value.retryable is True and ei.value.reason == "ocr_output_invalid"
+
+
+def test_tile_call_duplicate_is_removed_with_section_local_record(monkeypatch, cfg, tmp_path):
+    dup = (50, 1800, 300, 1830, "겹침 띠 문구")
+
+    def render(y0, y1, n):
+        if y0 > 1800 or y1 < 1830:
+            return None
+        return [dup, dup] if n == 0 else [dup]  # 위 타일 호출이 같은 자리를 두 번 낸다
+
+    boxes = [box(50, 1800, 300, 1830, "겹침 띠 문구", render=render)]
+    img, eng = _band_case(boxes)
+    d = {}
+    res = run_ocr(monkeypatch, cfg, img, eng, tmp_path, d)
+    assert texts(res) == ["겹침 띠 문구"] and d["engine_calls"]["supplements"] == 0
+    (call,) = d["dedup"]
+    (rec,) = call["records"]
+    assert (call["origin"], call["crop"], call["raw_count"], call["removed"], call["coords"]) == ("tile", 0, 2, 1, "section_local")
+    assert rec["action"] == "removed" and rec["poly"] == [[50, 1800], [300, 1800], [300, 1830], [50, 1830]]
+    assert rec["bbox"] == [50, 1800, 250, 30]
+    rep = rec["representative_det"]
+    assert rep in {x["id"] for x in d["detections"]}
+    assert rec["representative_raw"] == {"text": "겹침 띠 문구", "score": 0.9, "poly": rec["poly"]}
+    json.dumps(d, ensure_ascii=False)
+
+
+def test_short_section_duplicate_removed_and_region_keys_renumbered(monkeypatch, cfg, tmp_path):
+    def render(y0, y1, n):
+        return [(50, 100, 300, 130, "보습크림"), (50, 100, 300, 130, "보습크림"),  # 같은 자리 두 번
+                (310, 100, 560, 130, "보습크림"),  # 바로 옆 반복 문구
+                (50, 300, 300, 330, ""), (50, 300, 300, 330, ""),  # 같은 자리 빈 문자열 두 번 — 지우지 않는다
+                (50, 200, 300, 230, "보습")]  # 부분 문구
+
+    boxes = [box(50, 100, 560, 330, "", render=render)]
+    eng = LayoutEngine(boxes)
+    d = {}
+    res = run_ocr(monkeypatch, cfg, draw(1000, boxes), eng, tmp_path, d)
+    assert texts(res) == ["보습크림", "보습크림", "", "", "보습"]
+    assert [r.region_key for r in res.regions] == [f"reg_{i:04d}" for i in range(1, 6)]
+    assert d["tiled"] is False and d["regions"] == [{"region_key": f"reg_{i:04d}", "raw_order": o}
+                                                    for i, o in enumerate([0, 2, 3, 4, 5], 1)]
+    (call,) = d["dedup"]
+    assert call["removed"] == 1 and [(r["order"], r["representative"]) for r in call["records"]] == [(1, 0)]
+    # 대표의 원시 값은 그 raw_order의 최종 영역 그대로다
+    assert res.regions[0].poly == [tuple(q) for q in call["records"][0]["poly"]]
+    json.dumps(d, ensure_ascii=False)
 
 
 # ---- 실제 PaddleOCR (설치된 환경에서만) ---------------------------------------------------------

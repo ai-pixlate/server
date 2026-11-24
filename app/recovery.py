@@ -42,7 +42,8 @@ def purge_window_h() -> int:
 
 
 def sweep() -> dict[str, Any]:
-    stats = {"redispatched": 0, "adoptions": 0, "expired": 0, "cancelled": 0, "progressed": 0, "purged_jobs": 0, "locked": False,
+    stats = {"redispatched": 0, "adoptions": 0, "expired": 0, "cancelled": 0, "progressed": 0, "purged_jobs": 0, "purge_failed_jobs": 0,
+             "purged_edit_idempotency": 0, "locked": False,
              "_adopt_sent": set()}
     conn = app_db.engine.connect()
     try:
@@ -56,6 +57,7 @@ def sweep() -> dict[str, Any]:
             _pending(stats)
             _stuck_runs(stats)
             _purge_archived(stats)
+            _purge_edit_idempotency(stats)
             stats.pop("_adopt_sent", None)
         finally:
             conn.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": LOCK_KEY})
@@ -183,13 +185,33 @@ def _stuck_runs(stats: dict[str, Any]) -> None:
         execution.dispatch(ids)
 
 
+def _purge_edit_idempotency(stats: dict[str, Any]) -> None:
+    """보관 기한(24시간)이 지난 편집 저장 멱등 기록을 지운다. 조회는 기한을 보므로 지우기 전에도 재전송에 쓰이지 않는다."""
+    from app.edit_idempotency import purge_expired
+
+    db = app_db.SessionLocal()
+    try:
+        stats["purged_edit_idempotency"] = purge_expired(db)
+        db.commit()
+    finally:
+        db.close()
+
+
 def _purge_archived(stats: dict[str, Any]) -> None:
     from app.flows.cancel import purge_storage
 
-    for r in _rows("SELECT id FROM job WHERE status = 'archived' AND updated_at >= now() - make_interval(hours => :h)",
-                   h=purge_window_h()):
-        purge_storage(r["id"])
-        stats["purged_jobs"] += 1
+    """감시 기간(PIXLATE_PURGE_WINDOW_H) 안의 취소 작업만 다시 지운다. 지우지 못한 작업은 purge_failed_jobs 로 세고(성공으로 세지 않음)
+    다음 주기에 다시 시도한다. 기간 마지막 1시간에도 실패하면 기간 뒤에는 재삭제가 없음을 오류 로그로 남긴다(운영자 처리)."""
+    h = purge_window_h()
+    for r in _rows("SELECT id, updated_at < now() - make_interval(hours => :last) AS closing FROM job "
+                   "WHERE status = 'archived' AND updated_at >= now() - make_interval(hours => :h)", h=h, last=max(h - 1, 0)):
+        res = purge_storage(r["id"])
+        if res["failed"]:
+            stats["purge_failed_jobs"] += 1
+            if r["closing"]:
+                log.error("취소 작업 콘텐츠 재삭제 감시 기간 종료 임박 — 남은 실패 %s건, 기간 뒤 자동 재삭제 없음 job=%s", res["failed"], r["id"])
+        else:
+            stats["purged_jobs"] += 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -209,4 +231,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    # 프로세스 시작 때 한 번 — 만료 처리(after_failure → 번역 뒤 검사 등록)가 API · 워커와 같은 공급자를 쓰게 한다(설정이 없으면 등록 안 함)
+    from app.text_check_supply import install_from_env
+
+    install_from_env()
     raise SystemExit(main())

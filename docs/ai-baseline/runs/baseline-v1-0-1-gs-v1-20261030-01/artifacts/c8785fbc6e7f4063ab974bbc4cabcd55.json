@@ -1,0 +1,221 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:08.328452+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_6",
+      "section_key": "sec_31",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_424",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_425",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_426",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_427",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_428",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_429",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_430",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_431",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_432",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_433",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_434",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_435",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_6",
+      "section_key": "sec_31",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "0d44a0c9a7982d6b618c006280b862bfbd4a1bad6ee3cc3490b51bda538c61d5",
+      "label_fingerprint": "60d44076caff584f0cf1e46a775487b9dbb168201815408466d6e27c139bee7d",
+      "label_input_fingerprint": "0d44a0c9a7982d6b618c006280b862bfbd4a1bad6ee3cc3490b51bda538c61d5",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 12,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 12,
+        "compared": 12
+      },
+      "decisions": [
+        {
+          "block_key": "blk_424",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "직접경험하는강력한탄력효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_425",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "주름모공개선실사용후기",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_426",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "깊게패여서손을쓸수없던목주름이하루하루지나면서조금씩열어졌어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_427",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "잔주름들은거의없어진것같아요실제아무보정없는사진입니다특히얼굴보다는목주름이심각하게고민인상태에요솔직히이정도로기가막힌효과가있을거라곤기대도상상도못했어요레티놀제품을오랫동안사용한사람으로써사실셀리맥스의레티날제품의이컨디션에이가격이말이안되는가격이에요누구에게나강력하게추천할수있어요주름모공고민은이제없을것같아요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_428",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "한기님20일사용악건성피부",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_429",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "아예주름이없어지진않아도전보다덜티나고저는만족스러워요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_430",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "어릴때부터눈아래주름같은걸신경안쓰고방치하고지냈더니이제나이먹으니어느순간부터눈밑잔주름들이너무잘보이고신경쓰여서스트레스수분관리도노력해봤지만별의미없어서좌절해있다가속는셈치고7일간레티놀샷이랑레티날샷돌아가면서꾸준히써봤습니다아예주름이없어지진않아도전보다덜티나고저는만족스러워요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_431",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "정수님1주사용건성피부",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_432",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "콕콕찌르는듯한게피부삽같아요한번발라도모공과주름이개선되네요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_433",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "30대중반에들어가니건성피부임에도하루하루모공이늘어지는게느껴졌어요이마에열지만주름도생기고요바르자마자바늘로약하게콕럭찌르는것같아사용감이재있더라고요피부삽같았어요ᄒᄒ한번발랐는데도두드러졌던모공과주름이일시적이겠지만펴지네요~~",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_434",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "정지님1주사용첫구매건성피부",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_435",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "셀리맥스공식물후기발취",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

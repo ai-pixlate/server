@@ -11,10 +11,17 @@
 | run_inpaint | gpu | ⑥ (원격 GPU 어댑터 — app.flows.gpu_worker) |
 | run_translate | cpu | ⑧ |
 | run_preview | cpu | ⑨ 초기 미리보기(섹션별) |
+| run_text_check | cpu | ⑧ 번역문 규칙 검사(섹션별, 모델 호출 없음) |
 | run_render | cpu | N6 최종 렌더 |
 | run_adopt | cpu | 원격 인계 검증·채택 |
+
+run_preview · run_render 는 시도를 임대하기 전에 FE 내부 렌더 경로 준비를 확인하고, 준비 전이면 시도를 잡지 않고 미룬다(_defer_render).
 """
+import logging
+
 from app.celery_app import celery_app
+
+log = logging.getLogger(__name__)
 
 
 @celery_app.task(name="app.tasks.run_analyze")
@@ -66,17 +73,43 @@ def run_translate(attempt_id: int) -> dict:
     return execute_translate(attempt_id)
 
 
+def _defer_render(stage: str, attempt_id: int) -> dict | None:
+    """⑨ 미리보기 · N6 최종 렌더: 시도를 임대하기 전에 FE 내부 렌더 경로 준비를 본다(D.3).
+    준비되지 않았으면 시도를 잡지 않고 끝낸다 — 시도는 pending 그대로이고 실패 · 재시도 소모 · 이미지 변경이 없다.
+    다시 보내는 것은 복구 sweep(recovery._pending — 마지막 전달 뒤 PIXLATE_DISPATCH_STALE_S, 기본 300초)이다.
+    여기서 다시 큐에 넣지 않는다(대기 시도가 많을 때 메시지가 불어나지 않게). 시도를 잡은 뒤의 실패는 기존 실패 경로로 간다."""
+    from app import html_render
+
+    reason = html_render.ensure_ready()
+    if reason is None:
+        return None
+    log.warning("렌더 미룸(FE 내부 렌더 준비 안 됨) stage=%s attempt=%s 연속 %s회 사유=%s",
+                stage, attempt_id, html_render._DEFERRED["count"], reason)
+    return {"deferred": True, "stage": stage, "attempt_id": attempt_id}
+
+
 @celery_app.task(name="app.tasks.run_preview")
 def run_preview(attempt_id: int) -> dict:
     from app.flows.downstream import execute_preview
 
+    if (deferred := _defer_render("preview", attempt_id)) is not None:
+        return deferred
     return execute_preview(attempt_id)
+
+
+@celery_app.task(name="app.tasks.run_text_check")
+def run_text_check(attempt_id: int) -> dict:
+    from app.flows.text_check import execute_text_check
+
+    return execute_text_check(attempt_id)
 
 
 @celery_app.task(name="app.tasks.run_render")
 def run_render(attempt_id: int) -> dict:
     from app.flows.final import execute_final_render
 
+    if (deferred := _defer_render("final_render", attempt_id)) is not None:
+        return deferred
     return execute_final_render(attempt_id)
 
 

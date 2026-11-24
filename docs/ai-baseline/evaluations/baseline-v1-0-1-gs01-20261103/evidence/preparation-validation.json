@@ -1,0 +1,13 @@
+{
+  "issues": [
+    "근거 파일 없음 또는 해시 불일치: artifacts/dataset-manifest.json"
+  ],
+  "frozen_count": 58,
+  "partial_sources": [
+    "GS-01-IMG-001",
+    "GS-01-IMG-002"
+  ],
+  "original_files_verified": 2028,
+  "parent_unchanged": true,
+  "evaluation_started": false
+}

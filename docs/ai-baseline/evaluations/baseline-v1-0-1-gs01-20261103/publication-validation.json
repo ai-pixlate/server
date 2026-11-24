@@ -1,0 +1,32 @@
+{
+  "reference_version": "gs-v1-gs01-20261103-v1",
+  "frozen_reference_sha256": "3b67ec85b335c96d17b72e9469567ab925139d5e863612a6edc002d8ca88967f",
+  "PM_approval": "https://github.com/ai-pixlate/server/pull/93#issuecomment-6600118259",
+  "PM_result_review": "pending; 0 human_review rows",
+  "logical_files_restored_and_identical": 416,
+  "protocol_validation_errors": [],
+  "saved_aggregate_reproduction": "identical; no new scoring or modified output",
+  "original_run": "2028 files unchanged; referenced at base commit, no duplicated upload",
+  "scope": "GS-01 2 sources only; GS-02/03 untouched",
+  "restore_negative_tests": [
+    "existing output rejected",
+    "tampered PR evidence rejected before output creation"
+  ],
+  "secret_scan_findings": [],
+  "raw_evaluation_files_unchanged": [
+    "evaluations.jsonl",
+    "defects.jsonl",
+    "metrics.csv",
+    "aggregate.ai.json",
+    "manifest.json",
+    "reference_units.jsonl"
+  ],
+  "max_new_file_bytes": 11858202,
+  "known_limitations": [
+    "Codex actual model/settings proof unavailable",
+    "full chat export unavailable",
+    "PM result review not performed",
+    "historical evidence Markdown keeps original-context links"
+  ],
+  "transport": "deduplicated by SHA-256; base_commit and PR_HEAD sources; Git blob bytes verified before commit"
+}

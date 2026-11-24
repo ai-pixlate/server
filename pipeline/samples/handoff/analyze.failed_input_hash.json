@@ -34,11 +34,11 @@
     "failure": {
       "kind": "input_invalid",
       "retryable": false,
-      "message": "원본 1 SHA-256 불일치 — 선언 ffffffffffff… · 실제 6cad9a12d761…",
+      "message": "원본 1 SHA-256 불일치 — 선언 ffffffffffff… · 실제 b29df71e506a…",
       "targets": []
     },
     "implementation": {
-      "adapter": "analyze-handoff@2026-10-08.1",
+      "adapter": "analyze-handoff@2026-11-10.1",
       "analyze_result_schema": "1",
       "models": {
         "section_vlm": "gemini-3.8-flash",

@@ -1,0 +1,95 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T01:02:41.631803+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_242",
+        "outcome": "completed",
+        "translation": "Soothing Daily Sun Care",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_250",
+        "outcome": "completed",
+        "translation": "Heartleaf Soothing\nHyaluron Sun Serum",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_251",
+        "outcome": "completed",
+        "translation": "Heartleaf Moisture Sunscreen",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_252",
+        "outcome": "completed",
+        "translation": "Heartleaf Mineral Sunscreen",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_253",
+        "outcome": "completed",
+        "translation": "#Hypoallergenic",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_254",
+        "outcome": "completed",
+        "translation": "#Waterfull #Moisturizing\n#FeelsLikeMoisturizer",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_255",
+        "outcome": "completed",
+        "translation": "#FreshSeamlessFit\n#IntensiveSoothing",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_256",
+        "outcome": "completed",
+        "translation": "#ElasticityBoost",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_257",
+        "outcome": "completed",
+        "translation": "#PhotoagingCare\n#BurstingMoistureCapsules",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "f8e953816128d6a5ead270f5c46df14bd13fd358a8e01acc440d8178cc617099",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "7447d472982fd3a1a7c23dae943f7f58f2f4b82cf9bc957a18427291cb4a244c",
+      "usage": {
+        "candidates_token_count": 151,
+        "prompt_token_count": 1280,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1280
+          }
+        ],
+        "thoughts_token_count": 1142,
+        "total_token_count": 2573
+      }
+    }
+  ],
+  "seconds": 11.937999999849126
+}

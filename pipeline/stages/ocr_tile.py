@@ -7,30 +7,35 @@
    [c − 2·overlap, c − overlap]의 균일 행 중 c − overlap에 가장 가까운 행(없으면 c − overlap). 균일 행은 글자에서
    min(여백 높이의 절반, overlap // 2)만큼 떨어진 범위에서 고른다(`pick_blank_row`).
    여백에서 잘라도 겹침(≥ overlap)을 유지한다. H − c < overlap이면 현재 타일을 H까지 늘린다.
-2. 좌표 복원 — 타일마다 엔진을 부르고 영역을 타일 범위로 자른 뒤 섹션 로컬 y로 옮긴다. 정리 전에 모든 검출을 복원한다.
+2. 좌표 복원 — 타일마다 엔진을 부르고 영역을 타일 범위로 자른 뒤, 그 호출 안의 명백한 중복을 지우고(`ocr_overlap.dedup`,
+   #40) 섹션 로컬 y로 옮긴다. 정리 전에 모든 검출을 복원한다.
 3. 대응 — 이웃 타일의 겹침 띠에 걸친 검출 사이에만 간선을 둔다(세로 겹침 비율 ≥ `tile_match_min_v_overlap`이고
    가로 교집합 > 0). 텍스트는 대응에 쓰지 않는다. 연결 성분 = 한 영역 대 여러 영역의 대응 묶음.
 4. 분류 — 두 타일 성분은 읽기 순서 텍스트(NFKC · 공백 제거)가 같고 가로 덮음 위치 IoU ≥ `tile_equiv_min_x_iou`일 때만
    동등(덮음은 x 구간 합집합, 글자 높이 이하 간격은 메움 — 길이가 아니라 위치를 비교). 동등하면 한쪽 타일의 검출 묶음 전체를 대표로 고른다: 내부 절단선 `tile_edge_touch_px` 안 접촉이 없는 쪽 →
    절단선에서 더 먼 쪽 → 위 타일. OCR 신뢰도는 쓰지 않는다. 동등하지 않으면 충돌, 한쪽 타일에만 있으면 보존.
+4'. 겹친 검출 재인식(2026-10-27) — 충돌 성분만 줄 · OCR 호출별 묶음으로 나눠, 같은 호출의 부분 겹침 이웃을 더한 묶음을 원본
+   섹션에서 방향 보정 crop으로 다시 읽는다(인식 모델만, `OverlapRec`). 서로 다른 호출의 서로 다른 crop 2개 이상이 같게
+   읽고, 판독 변화가 겹친 이웃 경계 끝의 숫자 조각 삭제만으로 설명될 때만 그 묶음 전체를 재인식 검출 하나로 바꾼다. 바꾸면
+   대응 · 분류를 처음부터 다시 계산한다. 재인식 결과는 다시 재인식하지 않는다.
 5. 보완 OCR — 충돌 · 잘림 의심(대표나 단독 검출이 내부 절단선에 접촉)이 있는 경계마다 최대 1회, 해당 성분을 감싸는
    crop(위아래 `tile_supplement_margin_px` 밖, 여백 우선)으로 다시 OCR한다. 보완 검출과 위치로 대응한 성분 묶음(군집)을
    판정한다(`_judge_supplement`): 보완 판독이 절단선 비접촉 타일 판독을 확인하면(같음, 또는 숫자에 붙지 않은
    문장부호만 다름) 그 타일 묶음 전체를, 깨끗한 타일 판독이 없으면 보완 검출을 남긴다. 한 묶음이 나머지 판독을 위치와
    텍스트(포함) 모두에서 포함하면(덜 검출) 그 묶음을 경고와 함께 남긴다. 군집의 나머지는 버린다(단순 추가 없음, 대응
    없는 보완 검출은 버리고 기록). 그 밖 — 잘림 없는 판독이 같은 자리에서 서로 다르게 읽힌 경우를 포함한 명백한 충돌 —
-   은 OCR_FAILED.
+   은 OCR_FAILED. 보완 검출에도 호출별 중복 제거를 하고, 군집을 판정하기 전에 4'와 같은 채택 조건으로 겹친 검출을 처리한다
+   (타일 묶음 · 보완 묶음, 근거 crop은 타일 단계 판독을 재사용). 판정 기준(숫자 · 판독 충돌)은 바꾸지 않는다.
 6. 정렬 — 최종 영역을 PaddleX `SortQuadBoxes`와 같은 규칙(첫 점 (y, x) 정렬 후 |Δy| < 10 인접 교환)으로 정렬하고
    region_key를 다시 매긴다.
 
 임계값 · 후보값은 실측은 수행했으나 운영 기준값으로 확정하지 않은 잠정값이다(`pipeline/config/default.toml` `[ocr]`,
-open-questions #31 · #32).
+open-questions #31 · #32). 중복 제거 · 재인식 기준(`dedup_*` · `overlap_rec_*`)은 실측 전 잠정 구현값이다(#32 · #40).
 진단(diag)은 계약 값이 아니라 개발 확인용이다(CLI `ocr_debug/<section_key>.json`).
 """
 from __future__ import annotations
 
 import difflib
-import re
 import unicodedata
 from collections import Counter
 from dataclasses import dataclass, field
@@ -39,12 +44,13 @@ from typing import Any, Callable
 import numpy as np
 
 from pipeline.errors import ocr_tile_conflict
+from pipeline.stages import ocr_overlap
+from pipeline.stages.ocr_overlap import NUMBER as _NUMBER, OverlapParams, normalize_text
 from pipeline.types import BBox, OcrRegion, Section, region_key
 
 _ROW_CHUNK = 2048  # 행 프로파일 계산 단위(최대 1000×37,665px 섹션의 메모리 제한)
 _SORT_ROW_TOL = 10  # PaddleX SortQuadBoxes의 같은 줄 판정(|Δy| < 10)
 _CONFLICT_REASONS = {"readings_conflict", "numbers_conflict"}  # 잘림 없는 판독끼리 모순 — 성분 종류와 관계없이 실패
-_NUMBER = re.compile(r"\d+(?:[.,]\d+)*")  # 숫자 값 토큰: 50 · 1.5 · 1,000 (구분 기호까지 값의 일부로 본다)
 
 
 # ---- 설정 -------------------------------------------------------------------------------
@@ -188,32 +194,84 @@ class Det:
     bbox: BBox
     touch_top: bool  # crop의 내부(섹션 경계가 아닌) 위 끝에 접촉
     touch_bottom: bool
+    rerec_of: list[int] = field(default_factory=list)  # 겹친 검출 재인식으로 바꾼 원래 검출 id(비면 엔진 검출 그대로)
+    rerec_key: tuple[int, ...] | None = None  # 그 재인식 crop의 키(OverlapRec 캐시)
 
     @property
     def touching(self) -> bool:
         return self.touch_top or self.touch_bottom
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self, with_poly: bool = False) -> dict[str, Any]:
+        """진단용. poly(섹션 로컬 정수, 엔진 · 재인식이 낸 값 그대로)는 재인식 검출과 with_poly일 때만 싣는다 — 모든 검출에
+        싣지 않아 진단 크기를 줄이고, 판정을 재현할 때 필요한 자리(교체 전 원래 검출 · 중복 제거 대표)에서만 요청한다."""
         b = self.bbox
-        return {"id": self.id, "origin": self.origin, "crop": self.crop, "order": self.order, "text": self.text,
-                "score": self.score, "bbox": [b.x, b.y, b.w, b.h], "touch_top": self.touch_top,
-                "touch_bottom": self.touch_bottom}
+        out = {"id": self.id, "origin": self.origin, "crop": self.crop, "order": self.order, "text": self.text,
+               "score": self.score, "bbox": [b.x, b.y, b.w, b.h], "touch_top": self.touch_top,
+               "touch_bottom": self.touch_bottom}
+        if self.rerec_of:
+            out["rerec_of"] = list(self.rerec_of)
+        if self.rerec_of or with_poly:
+            out["poly"] = [list(q) for q in self.poly]
+        return out
+
+
+def _touch(bbox: BBox, y0: int, y1: int, height: int, p: TileParams) -> tuple[bool, bool]:
+    """crop [y0, y1)의 내부(섹션 경계가 아닌) 위 · 아래 끝 접촉 — 섹션 로컬 bbox 기준."""
+    return y0 > 0 and bbox.y - y0 <= p.edge_touch_px, y1 < height and bbox.y2 >= y1 - p.edge_touch_px
 
 
 def restore(regions: list[OcrRegion], y0: int, y1: int, height: int, p: TileParams, origin: str, crop: int,
-            start_id: int) -> list[Det]:
-    """crop 로컬(이미 crop 범위로 자른) 영역 → 섹션 로컬 Det. 접촉은 섹션 경계가 아닌 crop 끝만 본다."""
+            start_id: int, orders: list[int] | None = None) -> list[Det]:
+    """crop 로컬(이미 crop 범위로 자른) 영역 → 섹션 로컬 Det. 접촉은 섹션 경계가 아닌 crop 끝만 본다.
+    orders는 영역마다의 엔진 출력 순서(중복 제거로 빠진 자리를 건너뛴 원래 번호). 없으면 0부터."""
     ch = y1 - y0
     out = []
     for i, r in enumerate(regions):
         poly = [(x, y + y0) for x, y in r.poly]
         out.append(Det(
-            id=start_id + i, origin=origin, crop=crop, order=i, text=r.text, score=r.score, poly=poly,
-            bbox=BBox.from_poly(poly),
+            id=start_id + i, origin=origin, crop=crop, order=i if orders is None else orders[i], text=r.text, score=r.score,
+            poly=poly, bbox=BBox.from_poly(poly),
             touch_top=y0 > 0 and r.bbox.y <= p.edge_touch_px,
             touch_bottom=y1 < height and r.bbox.y2 >= ch - p.edge_touch_px,
         ))
     return out
+
+
+class _Ids:
+    """섹션 실행 안의 검출 id 발급(타일 · 보완 · 재인식 검출이 겹치지 않게)."""
+
+    def __init__(self) -> None:
+        self.n = 0
+
+    def take(self, k: int = 1) -> int:
+        start, self.n = self.n, self.n + k
+        return start
+
+
+def _dedup_call(regions: list[OcrRegion], ov: OverlapParams, origin: str, crop: int, y0: int
+                ) -> tuple[list[OcrRegion], list[int], dict[str, Any]]:
+    """엔진 호출 하나의 명백한 중복 제거(#40). 반환: (남긴 영역, 그 엔진 순서, 진단 기록).
+    판정은 crop 로컬 영역으로 하고(y 평행 이동이라 IoU · 방향이 같다), 기록의 poly · bbox는 섹션 로컬로 옮겨 적는다."""
+    kept, records = ocr_overlap.dedup(regions, ov)
+    for r in records:
+        r["poly"] = [[x, y + y0] for x, y in r["poly"]]
+        r["bbox"] = [r["bbox"][0], r["bbox"][1] + y0, r["bbox"][2], r["bbox"][3]]
+    return [regions[i] for i in kept], kept, {"origin": origin, "crop": crop, "crop_y0": y0, "coords": "section_local",
+                                              "raw_count": len(regions), "removed": ocr_overlap.removed_count(records),
+                                              "records": records}
+
+
+def _link_dedup(rec: dict[str, Any], dets: list[Det]) -> None:
+    """중복 제거 기록의 엔진 순서를 복원한 검출 id로 잇는다(대표 · 판정 보류해 남긴 검출). 대표의 원시 값(text · score · 섹션
+    로컬 poly)도 함께 적는다 — 대표가 뒤의 타일 대응 · 보완 판정에서 버려지면 최종 영역에 남지 않아 판정을 재현할 수 없다."""
+    by_order = {d.order: d for d in dets}
+    for r in rec["records"]:
+        rep = by_order.get(r["representative"]) if "representative" in r else None
+        if rep is not None:
+            r["representative_det"] = rep.id
+            r["representative_raw"] = {"text": rep.text, "score": rep.score, "poly": [list(q) for q in rep.poly]}
+        if r["action"] == "kept":
+            r["det"] = by_order[r["order"]].id if r["order"] in by_order else None
 
 
 # ---- 3·4. 대응 · 분류 ----------------------------------------------------------------------
@@ -224,11 +282,6 @@ def v_overlap(a: BBox, b: BBox) -> float:
 
 def linked(a: BBox, b: BBox, p: TileParams) -> bool:
     return min(a.x2, b.x2) - max(a.x, b.x) > 0 and v_overlap(a, b) >= p.min_v_overlap
-
-
-def normalize_text(text: str) -> str:
-    """텍스트 비교용 — NFKC 후 공백 문자 제거. 대소문자 · 문장부호는 그대로 둔다(다르면 다른 판독)."""
-    return "".join(ch for ch in unicodedata.normalize("NFKC", text) if not ch.isspace())
 
 
 def reading_rows(dets: list[Det], p: TileParams) -> list[list[Det]]:
@@ -434,6 +487,330 @@ def classify(c: Component, tiles: list[Tile], p: TileParams) -> None:
     c.kind = "equivalent_touching" if touch_up and touch_lo else "equivalent"
 
 
+# ---- 4'. 겹친 검출 재인식 ------------------------------------------------------------------
+RecognizeCrop = Callable[[np.ndarray], tuple[str, float]]  # 방향 보정한 BGR crop → (판독, 인식 신뢰도). 인식 모델만 호출
+Call = tuple[str, int]  # (origin, crop) — OCR 호출 하나(타일 번호 또는 보완한 경계 번호)
+
+
+@dataclass
+class _Side:
+    """한 줄 안에서 OCR 호출 하나가 만든 묶음(재구성 후보 한쪽)."""
+
+    call: Call
+    seeds: list[Det]
+    bounds: tuple[int, int]  # 그 호출의 crop 범위 [y0, y1) — 새 검출의 절단선 접촉 판단용
+    dets: list[Det] = field(default_factory=list)  # x 순서
+    contacts: list[bool] = field(default_factory=list)  # dets[j] · dets[j+1] 사이 실제 polygon 부분 겹침
+    rect: ocr_overlap.Rect | None = None
+    excluded: str | None = None
+    evidence_only: bool = False  # 이미 재인식한 검출 하나 — 다시 읽지 않고 그 판독을 근거로만 쓴다
+    reading: dict[str, Any] | None = None
+    rec: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def label(self) -> str:
+        return f"{self.call[0]}:{self.call[1]}"
+
+
+class OverlapRec:
+    """섹션 하나의 겹친 검출 재인식 상태 — crop 판독 재사용 · 국소 재인식 호출 수 · 상한 · 진단 [pipeline.md 7.9절].
+
+    채택 조건(`reconcile`): 서로 다른 OCR 호출의 묶음에서 만든 서로 다른 crop 2개 이상이 같게 읽어야 한다(같은 crop은 근거
+    하나, 다수결 없음). 판독이 원래 묶음과 다르면 그 변화가 실제 polygon이 겹친 이웃 경계 끝의 숫자 조각 삭제만으로 설명될 때만
+    (`ocr_overlap.explain_change`) 그 묶음 전체를 재인식 검출 하나로 바꾼다. 그 밖에는 원래 검출을 그대로 둔다."""
+
+    def __init__(self, image: np.ndarray, p: TileParams, ov: OverlapParams, recognize_crop: RecognizeCrop | None,
+                 ids: _Ids) -> None:
+        self.image, self.p, self.ov, self.recognize_crop, self.ids = image, p, ov, recognize_crop, ids
+        self.height, self.width = image.shape[:2]
+        self.enabled = recognize_crop is not None and ov.rec_max_calls > 0
+        self.disabled_reason = None if self.enabled else (
+            "engine_has_no_recognition_only_call" if recognize_crop is None else "max_calls_zero")
+        self.calls = 0
+        self.cache_hits = 0
+        self.limit_reached = False
+        self.cache: dict[tuple[int, ...], dict[str, Any]] = {}
+        self.units: list[dict[str, Any]] = []
+        self.replaced: dict[int, int] = {}  # 바뀐 원래 검출 id → 재인식 검출 id
+        self.created: list[Det] = []
+
+    def diag(self) -> dict[str, Any]:
+        return {"enabled": self.enabled, "disabled_reason": self.disabled_reason, "params": self.ov.as_dict(),
+                "calls": self.calls, "cache_hits": self.cache_hits, "limit": self.ov.rec_max_calls,
+                "limit_reached": self.limit_reached, "units": self.units,
+                "replaced": {str(k): v for k, v in sorted(self.replaced.items())}}
+
+    def rows(self, members: list[Det]) -> list[dict[Call, list[Det]]]:
+        """검출을 읽기 순서의 줄로 나누고, 줄마다 OCR 호출별로 묶는다."""
+        out = []
+        for row in reading_rows(members, self.p):
+            by: dict[Call, list[Det]] = {}
+            for d in row:
+                by.setdefault((d.origin, d.crop), []).append(d)
+            out.append(dict(sorted(by.items())))
+        return out
+
+    def _partial(self, a: Det, b: Det) -> bool | None:
+        """같은 줄 두 검출의 부분 겹침 — 가로 교집합 > 0 · 좁은 쪽 폭 대비 ≤ rec_max_x_overlap · 실제 polygon 교집합 > 0.
+        겹치지 않으면 False, 포함에 가깝거나 polygon이 볼록이 아니면 None(묶음 제외 사유)."""
+        inter = min(a.bbox.x2, b.bbox.x2) - max(a.bbox.x, b.bbox.x)
+        if inter <= 0:
+            return False
+        narrow = min(a.bbox.w, b.bbox.w)
+        if narrow <= 0 or inter / narrow > self.ov.rec_max_x_overlap:
+            return None
+        area = ocr_overlap.intersection_area(a.poly, b.poly)
+        if area is None:
+            return None
+        return area > 0
+
+    def _prepare(self, s: _Side, pool: list[Det], expand: bool) -> None:
+        rec = s.rec
+        rec.update({"call": s.label, "seeds": [d.id for d in s.seeds]})
+
+        def excl(reason: str, **kw: Any) -> None:
+            s.excluded = reason
+            rec.update({"excluded": reason, **kw})
+
+        if any(d.id in self.replaced for d in s.seeds):
+            return excl("detection_already_replaced")
+        if any(d.rerec_of for d in s.seeds):
+            d0 = s.seeds[0]
+            if len(s.seeds) == 1 and d0.rerec_key in self.cache:
+                s.evidence_only, s.dets = True, [d0]
+                s.reading = {**self.cache[d0.rerec_key], "cached": True}
+                rec.update({"evidence_only": True, "reread": _reading_rec(s.reading)})
+                return None
+            return excl("already_rerecognized")
+        group = sorted(s.seeds, key=lambda d: d.id)
+        if expand:  # 같은 호출이 만든 같은 줄의 부분 겹침 이웃
+            seed_ids = {d.id for d in group}
+            grown = True
+            while grown:
+                grown = False
+                span = BBox.union([g.bbox for g in group])
+                have = {g.id for g in group}
+                for x in pool:
+                    if x.id in have or x.rerec_of or v_overlap(span, x.bbox) < self.p.min_v_overlap:
+                        continue
+                    if any(self._partial(g, x) for g in group):
+                        group.append(x)
+                        grown = True
+                        if len(group) > self.ov.rec_max_group:
+                            return excl("group_too_large")
+                        break
+            rec["expanded"] = sorted(g.id for g in group if g.id not in seed_ids)
+        if any(g.id in self.replaced for g in group):
+            return excl("detection_already_replaced")
+        if len(group) > self.ov.rec_max_group:
+            return excl("group_too_large")
+        if len(reading_rows(group, self.p)) > 1:
+            return excl("multiple_rows")
+        if any(g.touching for g in group):
+            return excl("truncated_by_cut", dets=[g.id for g in group if g.touching])
+        if any(g.bbox.w == 0 or g.bbox.h == 0 for g in group):
+            return excl("degenerate_detection")
+        group.sort(key=lambda g: (g.bbox.x, g.bbox.x2, g.id))
+        contacts: list[bool] = []
+        for i, a in enumerate(group):
+            for j in range(i + 1, len(group)):
+                b = group[j]
+                if j > i + 1:  # 이웃이 아닌 검출끼리 가로로 겹치면 여러 검출이 얽힌 경우
+                    if min(a.bbox.x2, b.bbox.x2) > max(a.bbox.x, b.bbox.x):
+                        return excl("complex_overlap", pair=[a.id, b.id])
+                    continue
+                part = self._partial(a, b)
+                if part is None:
+                    return excl("complex_overlap", pair=[a.id, b.id])  # 포함에 가까운 겹침 · 볼록 아님
+                contacts.append(part)
+        rect = ocr_overlap.min_area_rect([q for g in group for q in g.poly])
+        if rect is None:
+            return excl("degenerate_crop")
+        cw, ch = ocr_overlap.crop_size(rect.box)
+        if cw < 1 or ch < 1 or rect.width < rect.height or abs(rect.angle) > self.ov.rec_max_angle_deg:
+            return excl("orientation_ambiguous", angle=round(rect.angle, 3), size=[cw, ch])
+        have = {g.id for g in group}
+        rx0, rx1 = float(rect.box[:, 0].min()), float(rect.box[:, 0].max())
+        for x in pool:  # 묶음 밖 같은 호출 검출이 crop에 섞이는지(다른 줄 · 열)
+            if x.id in have or min(x.bbox.x2, rx1) <= max(x.bbox.x, rx0):
+                continue
+            frac = ocr_overlap.inside_fraction(x.poly, rect.box)
+            if frac > self.ov.rec_max_foreign:
+                return excl("foreign_detection_in_crop", det=x.id, fraction=round(frac, 4))
+        s.dets, s.contacts, s.rect = group, contacts, rect
+        rec.update({"dets": [g.id for g in group], "texts": [g.text for g in group], "contacts": contacts})
+        return None
+
+    def _read(self, rect: ocr_overlap.Rect) -> dict[str, Any] | None:
+        """crop 판독(같은 crop은 재사용). 상한에 닿아 새로 읽을 수 없으면 None."""
+        key = ocr_overlap.crop_key(rect.box)
+        if key in self.cache:
+            self.cache_hits += 1
+            return {**self.cache[key], "cached": True}
+        if self.calls >= self.ov.rec_max_calls:
+            self.limit_reached = True
+            return None
+        crop, info = ocr_overlap.build_crop(self.image, rect.box)
+        assert self.recognize_crop is not None
+        text, score = self.recognize_crop(crop)
+        self.calls += 1
+        entry = {"key": key, **info, "angle": round(rect.angle, 3), "text": text, "score": score}
+        self.cache[key] = entry
+        return {**entry, "cached": False}
+
+    def _new_det(self, s: _Side) -> Det:
+        assert s.rect is not None and s.reading is not None
+        poly = [(int(min(max(round(float(x)), 0), self.width)), int(min(max(round(float(y)), 0), self.height)))
+                for x, y in s.rect.box]
+        bbox = BBox.from_poly(poly)
+        top, bottom = _touch(bbox, s.bounds[0], s.bounds[1], self.height, self.p)
+        new = Det(id=self.ids.take(), origin=s.call[0], crop=s.call[1], order=min(d.order for d in s.dets),
+                  text=s.reading["text"], score=s.reading["score"], poly=poly, bbox=bbox, touch_top=top,
+                  touch_bottom=bottom, rerec_of=[d.id for d in s.dets], rerec_key=s.reading["key"])
+        for d in s.dets:
+            self.replaced[d.id] = new.id
+        self.created.append(new)
+        return new
+
+    def reconcile(self, unit: dict[str, Any], sides: list[_Side], pools: dict[Call, list[Det]],
+                  expand: bool) -> list[tuple[_Side, Det]]:
+        """한 줄의 묶음들을 판정한다. 반환: (바꿀 묶음, 그 자리에 넣을 재인식 검출) 목록 — 교체는 호출자가 한다."""
+        self.units.append(unit)
+        unit["sides"] = [s.rec for s in sides]
+
+        def done(decision: str, reason: str | None = None) -> list[tuple[_Side, Det]]:
+            unit["decision"] = decision
+            if reason:
+                unit["reason"] = reason
+            return []
+
+        for s in sides:
+            s.rec.update({"call": s.label, "seeds": [d.id for d in s.seeds]})
+        if self.limit_reached:
+            return done("skipped", "limit_reached")
+        if len(sides) < 2:
+            return done("skipped", "single_call_row")
+        for s in sides:
+            self._prepare(s, pools.get(s.call, []), expand)
+        usable = [s for s in sides if not s.excluded]
+        if not any(any(s.contacts) for s in usable if not s.evidence_only):
+            return done("skipped", "no_partial_overlap")
+        if len(usable) < 2:
+            return done("skipped", "insufficient_sides")
+        for s in usable:
+            if s.evidence_only:
+                continue
+            assert s.rect is not None
+            r = self._read(s.rect)
+            if r is None:
+                return done("stopped", "limit_reached")
+            s.reading = r
+            s.rec["reread"] = _reading_rec(r)
+        keys = {s.reading["key"] for s in usable if s.reading}
+        unit["distinct_crops"] = len(keys)
+        if len(keys) < 2:  # 같은 crop을 두 번 읽은 것은 근거 하나
+            return done("rejected", "insufficient_independent_crops")
+        forms = {ocr_overlap.comparable([s.reading["text"]]) for s in usable if s.reading}
+        if len(forms) > 1:  # 하나라도 다르게 읽으면 바꾸지 않는다(다수결 없음)
+            return done("rejected", "rereads_disagree")
+        out: list[tuple[_Side, Det]] = []
+        for s in usable:
+            if s.evidence_only:
+                s.rec["decision"] = "evidence_only"
+                continue
+            assert s.reading is not None
+            pieces = [d.text for d in s.dets]
+            if len(s.dets) < 2:
+                same = ocr_overlap.comparable(pieces) == ocr_overlap.comparable([s.reading["text"]])
+                s.rec.update({"decision": "kept", "reason": "unchanged" if same else "single_detection_no_contact"})
+                continue
+            ex = ocr_overlap.explain_change(pieces, s.contacts, s.reading["text"], self.ov.rec_max_fragment_digits)
+            s.rec["explain"] = ex
+            if ex["result"] != "fragment_digits":
+                s.rec.update({"decision": "kept",
+                              "reason": "unchanged" if ex["result"] == "unchanged" else ex["diff"]["reason"]})
+                continue
+            s.rec["original"] = [d.as_dict(with_poly=True) for d in s.dets]  # 교체 전 원시 값(poly 포함, 섹션 로컬)
+            new = self._new_det(s)
+            s.rec.update({"decision": "replaced", "new_det": new.id})
+            out.append((s, new))
+        unit["decision"] = "replaced" if out else "kept"
+        return out
+
+
+def _reading_rec(r: dict[str, Any]) -> dict[str, Any]:
+    return {k: r[k] for k in ("key", "box", "roi", "roi_clamped", "size", "rotated_90", "angle", "text", "score", "cached")
+            if k in r}
+
+
+def _tile_bounds(tiles: list[Tile], t: int) -> tuple[int, int]:
+    return tiles[t].y0, tiles[t].y1
+
+
+def overlap_rec_tiles(rr: OverlapRec, comps: list[Component], dets: list[Det], tiles: list[Tile], p: TileParams,
+                      d: dict[str, Any]) -> tuple[list[Component], list[Det]]:
+    """타일 단계 — 충돌 성분(세 타일 이상 걸친 것 제외)의 겹친 검출을 재인식하고, 바뀌면 대응 · 분류를 처음부터 다시 계산한다."""
+    if not rr.enabled:
+        return comps, dets
+    targets = [c for c in comps if c.kind == "conflict" and c.rule != "spans_more_than_two_tiles"]
+    if not targets:
+        return comps, dets
+    before = [c.as_dict() for c in comps if len(c.members) > 1 or c.kind != "single"]
+    cur = {x.id: x for x in dets}
+    changed = False
+    for c in targets:
+        for row in rr.rows(c.members):
+            sides = [_Side(call, seeds, _tile_bounds(tiles, call[1])) for call, seeds in row.items()]
+            pools = {call: [x for x in cur.values() if x.crop == call[1]] for call in row}
+            unit = {"stage": "tile", "component": c.id, "boundary": c.boundary}
+            for side, new in rr.reconcile(unit, sides, pools, expand=True):
+                for m in side.dets:
+                    cur.pop(m.id, None)
+                cur[new.id] = new
+                changed = True
+    if not changed:
+        return comps, dets
+    d["components_before_overlap_rec"] = before  # 재계산 전 성분(이 id는 재계산 뒤 성분 id와 다르다)
+    dets = sorted(cur.values(), key=lambda x: x.id)
+    return build_components(dets, tiles, p), dets
+
+
+def _overlap_rec_cluster(rr: OverlapRec, b: int, cl_comps: list[Component], ss: list[Det], sdets: list[Det],
+                         dets_by_id: dict[int, Det], comp_of: dict[int, Component], tiles: list[Tile],
+                         sup_bounds: tuple[int, int]) -> list[Det]:
+    """보완 단계 — 판정 전 군집(타일 묶음 + 보완 묶음)의 겹친 검출을 같은 채택 조건으로 처리한다. 군집 밖 검출로 묶음을 넓히지
+    않는다. 바뀐 타일 검출은 성분 · 대응표에서, 바뀐 보완 검출은 ss · sdets에서 교체한다. 반환: 새 ss."""
+    if not rr.enabled:
+        return ss
+    members = [m for c in cl_comps for m in c.members]
+    for row in rr.rows(members + ss):
+        sides = [_Side(call, seeds, sup_bounds if call[0] == "supplement" else _tile_bounds(tiles, call[1]))
+                 for call, seeds in row.items()]
+        pools = {call: (list(sdets) if call[0] == "supplement" else [x for x in dets_by_id.values() if x.crop == call[1]])
+                 for call in row}
+        unit = {"stage": "supplement", "boundary": b, "components": [c.id for c in cl_comps]}
+        for side, new in rr.reconcile(unit, sides, pools, expand=False):
+            gid = {m.id for m in side.dets}
+            if side.call[0] == "supplement":
+                ss = sorted([x for x in ss if x.id not in gid] + [new], key=lambda x: x.id)
+                sdets[:] = [x for x in sdets if x.id not in gid] + [new]
+                continue
+            holder = next(c for c in cl_comps if any(m.id in gid for m in c.members))
+            had_keep = any(k.id in gid for c in cl_comps for k in c.keep)
+            for c in cl_comps:
+                c.members = [m for m in c.members if m.id not in gid]
+                c.keep = [k for k in c.keep if k.id not in gid]
+            holder.members = sorted(holder.members + [new], key=lambda x: x.id)
+            if had_keep:
+                holder.keep = holder.keep + [new]
+            holder.detail.setdefault("overlap_rec_replaced", []).append({"dets": sorted(gid), "by": new.id})
+            for i in gid:
+                dets_by_id.pop(i, None)
+                comp_of.pop(i, None)
+            dets_by_id[new.id], comp_of[new.id] = new, holder
+    return ss
+
+
 # ---- 5. 보완 OCR -------------------------------------------------------------------------
 Recognize = Callable[[int, int], list[OcrRegion]]  # (y0, y1) → crop 로컬 영역(엔진 호출 + 형식 검증)
 
@@ -457,8 +834,12 @@ def supplement_crop(comps: list[Component], runs: list[tuple[int, int]], height:
 
 def resolve_boundary(b: int, comps: list[Component], all_comps: list[Component], dets_by_id: dict[int, Det],
                      comp_of: dict[int, Component], tiles: list[Tile], runs: list[tuple[int, int]], height: int,
-                     p: TileParams, recognize: Recognize, next_id: int) -> tuple[dict[str, Any], list[Det]]:
-    """경계 b의 의심 성분을 보완 OCR 1회로 해결한다. 반환: (진단, 새 보완 검출)."""
+                     p: TileParams, recognize: Recognize, ids: _Ids, ov: OverlapParams,
+                     rr: OverlapRec) -> tuple[dict[str, Any], list[Det]]:
+    """경계 b의 의심 성분을 보완 OCR 1회로 해결한다. 반환: (진단, 새 보완 검출).
+
+    보완 검출에도 호출별 명백한 중복 제거를 하고, 군집마다 판정 전에 겹친 검출을 같은 채택 조건으로 처리한다(rr). 바뀐 타일
+    검출은 dets_by_id · comp_of · 성분에서 바로 교체된다."""
     ra, rb = supplement_crop(comps, runs, height, p)
     rec: dict[str, Any] = {"boundary": b, "crop": [ra, rb], "components": [c.id for c in comps], "clusters": [],
                            "discarded": []}
@@ -469,8 +850,12 @@ def resolve_boundary(b: int, comps: list[Component], all_comps: list[Component],
         return rec, []
     regions = recognize(ra, rb)
     rec["called"] = True
-    sdets = restore(regions, ra, rb, height, p, "supplement", b, next_id)
-    rec["detections"] = [d.as_dict() for d in sdets]  # 채택 여부와 관계없이 보완 검출 전체를 남긴다
+    kept_regions, orders, drec = _dedup_call(regions, ov, "supplement", b, ra)
+    sdets = restore(kept_regions, ra, rb, height, p, "supplement", b, ids.take(len(kept_regions)), orders)
+    _link_dedup(drec, sdets)
+    rec["dedup"] = drec
+    rec["detections"] = [d.as_dict() for d in sdets]  # 채택 여부와 관계없이 보완 검출 전체를 남긴다(중복 제거 뒤)
+    pool = list(sdets)  # 재인식 교체가 반영되는 보완 검출 목록
     # 보완 검출 ↔ 기존 타일 검출(위치 대응) → 성분 단위 군집
     uf = _UF()
     for c in comps:
@@ -506,6 +891,8 @@ def resolve_boundary(b: int, comps: list[Component], all_comps: list[Component],
             crec["status"] = "unresolved"
             crec["reason"] = f"overlaps_other_suspect_components {foreign}"
         else:
+            ss = _overlap_rec_cluster(rr, b, cl_comps, ss, pool, dets_by_id, comp_of, tiles, (ra, rb))
+            crec["supplement"] = [s.id for s in ss]
             crec.update(_judge_supplement(cl_comps, ss, tiles, p))
         if crec["status"] == "resolved":
             for c in cl_comps:
@@ -672,11 +1059,13 @@ def sort_like_paddle(dets: list[Det]) -> list[Det]:
     return out
 
 
-def run_tiled(section: Section, image: np.ndarray, p: TileParams, recognize: Recognize,
-              diag: dict[str, Any] | None = None) -> list[OcrRegion]:
-    """타일 OCR → 좌표 복원 → 중복 정리 → 보완 OCR → 정렬. 충돌이 남으면 OCR_FAILED.
+def run_tiled(section: Section, image: np.ndarray, p: TileParams, ov: OverlapParams, recognize: Recognize,
+              recognize_crop: RecognizeCrop | None = None, diag: dict[str, Any] | None = None) -> list[OcrRegion]:
+    """타일 OCR → 호출별 중복 제거 · 좌표 복원 → 대응 · 분류 → 충돌 성분 겹친 검출 재인식(바뀌면 재계산) → 보완 OCR(보완 결과에도
+    중복 제거 · 겹친 검출 처리) → 정렬. 충돌이 남으면 OCR_FAILED.
 
-    recognize(y0, y1)는 image[y0:y1]을 OCR해 crop 로컬로 자른 영역을 돌려준다(엔진 오류 · 형식 오류는 그쪽에서 던진다)."""
+    recognize(y0, y1)는 image[y0:y1]을 OCR해 crop 로컬로 자른 영역을 돌려준다(엔진 오류 · 형식 오류는 그쪽에서 던진다).
+    recognize_crop(crop)은 방향 보정한 crop을 인식 모델만으로 읽는다. None이면 겹친 검출 재인식을 건너뛴다."""
     d = diag if diag is not None else {}
     height = image.shape[0]
     std = row_std(image)
@@ -684,33 +1073,55 @@ def run_tiled(section: Section, image: np.ndarray, p: TileParams, recognize: Rec
     tiles = plan_tiles(std, p)
     d.update({"tiled": True, "section_key": section.section_key, "height": height, "width": image.shape[1],
               "params": p.as_dict(), "tiles": [t.as_dict() for t in tiles],
-              "engine_calls": {"tiles": 0, "supplements": 0, "supplement_limit": len(tiles) - 1}})
+              "engine_calls": {"tiles": 0, "supplements": 0, "supplement_limit": len(tiles) - 1,
+                               "overlap_rec": 0, "overlap_rec_cache_hits": 0, "overlap_rec_limit": ov.rec_max_calls}})
+    ids = _Ids()
     dets: list[Det] = []
+    dedup_log: list[dict[str, Any]] = []
+    d["dedup"] = dedup_log  # 호출별 명백한 중복 제거 기록(제거 · 판정 보류가 있는 호출만, 보완 OCR은 supplements[].dedup)
     for t in tiles:
         regions = recognize(t.y0, t.y1)
         d["engine_calls"]["tiles"] += 1
-        dets.extend(restore(regions, t.y0, t.y1, height, p, "tile", t.index, len(dets)))
-    comps = build_components(dets, tiles, p)
-    comp_of = {m.id: c for c in comps for m in c.members}
-    dets_by_id = {x.id: x for x in dets}
-    supplements: list[dict[str, Any]] = []
-    all_dets = list(dets)
-    d["detections"] = [x.as_dict() for x in all_dets]
-    for b in range(len(tiles) - 1):
-        targets = [c for c in comps if c.suspect and c.boundary == b]
-        if not targets:
-            continue
-        rec, added = resolve_boundary(b, targets, comps, dets_by_id, comp_of, tiles, runs, height, p, recognize,
-                                      len(all_dets))
-        if rec.get("called"):
-            d["engine_calls"]["supplements"] += 1
-        all_dets.extend(added)
-        supplements.append(rec)
-    d["detections"] = [x.as_dict() for x in all_dets]
+        kept_regions, orders, drec = _dedup_call(regions, ov, "tile", t.index, t.y0)
+        tdets = restore(kept_regions, t.y0, t.y1, height, p, "tile", t.index, ids.take(len(kept_regions)), orders)
+        _link_dedup(drec, tdets)
+        if drec["records"]:
+            dedup_log.append(drec)
+        dets.extend(tdets)
+    created: dict[int, Det] = {x.id: x for x in dets}  # 진단용: 이 실행에서 만든 모든 검출(교체된 원래 검출 포함)
+    d["detections"] = [x.as_dict() for x in dets]
+    rr = OverlapRec(image, p, ov, recognize_crop, ids)
+
+    def calls() -> None:
+        d["engine_calls"].update({"overlap_rec": rr.calls, "overlap_rec_cache_hits": rr.cache_hits})
+        d["overlap_rec"] = rr.diag()
+
+    try:
+        comps = build_components(dets, tiles, p)
+        comps, dets = overlap_rec_tiles(rr, comps, dets, tiles, p, d)
+        comp_of = {m.id: c for c in comps for m in c.members}
+        dets_by_id = {x.id: x for x in dets}
+        supplements: list[dict[str, Any]] = []
+        for b in range(len(tiles) - 1):
+            targets = [c for c in comps if c.suspect and c.boundary == b]
+            if not targets:
+                continue
+            rec, added = resolve_boundary(b, targets, comps, dets_by_id, comp_of, tiles, runs, height, p, recognize,
+                                          ids, ov, rr)
+            if rec.get("called"):
+                d["engine_calls"]["supplements"] += 1
+            created.update({x.id: x for x in added})
+            supplements.append(rec)
+    finally:
+        created.update({x.id: x for x in rr.created})
+        d["detections"] = [x.as_dict() for _, x in sorted(created.items())]
+        calls()
+    dets = list(dets_by_id.values())  # 보완 단계 교체까지 반영한 현재 타일 검출
     d["components"] = [c.as_dict() for c in comps if len(c.members) > 1 or c.kind != "single"]
     d["supplements"] = supplements
     # 충돌 성분의 미해결, 그리고 성분 종류와 관계없이 잘림 없는 판독끼리 모순(판독 · 숫자 충돌)으로 끝난 미해결은 실패다.
     # 그 밖의 미해결(보완 근거 없음 · 잘림 없는 판독 없음 등, 충돌 아님)은 원래 검출을 보존하고 경고로 남긴다.
+    # 겹친 검출 재인식은 이 판정을 바꾸지 않는다 — 교체된 묶음은 교체된 판독으로, 나머지는 원래 판독으로 판정받는다.
     failed = [c for c in comps if "unresolved" in c.detail
               and (c.kind == "conflict" or c.detail["unresolved"] in _CONFLICT_REASONS)]
     failed_ids = {c.id for c in failed}
@@ -724,11 +1135,15 @@ def run_tiled(section: Section, image: np.ndarray, p: TileParams, recognize: Rec
     dropped = sorted({x.id for x in dets} - {x.id for x in kept})
     d["dropped"] = dropped
     if failed:
+        # 보완 단계 교체로 구성원이 빈 성분은 위치를 군집의 다른 성분이 대신 보고한다(y는 빈 범위 대신 null)
         d["failed"] = [{"component": c.id, "boundary": c.boundary, "rule": c.rule, "reason": c.detail["unresolved"],
-                        "y": [min(m.bbox.y for m in c.members), max(m.bbox.y2 for m in c.members)]} for c in failed]
-        summary = ", ".join(f"경계 {f['boundary']} y{f['y'][0]}~{f['y'][1]} {f['reason']}" for f in d["failed"])
+                        "y": [min(m.bbox.y for m in c.members), max(m.bbox.y2 for m in c.members)] if c.members else None}
+                       for c in failed]
+        summary = ", ".join(f"경계 {f['boundary']} y{f['y'][0]}~{f['y'][1]} {f['reason']}" if f["y"] else
+                            f"경계 {f['boundary']} {f['reason']}" for f in d["failed"])
         raise ocr_tile_conflict(section.section_key, section.source_image_id, summary)  # 재시도 불가(errors.py 표, #33)
     ordered = sort_like_paddle(kept)
-    d["regions"] = [{"region_key": region_key(i), "det": x.id} for i, x in enumerate(ordered, 1)]
+    d["regions"] = [{"region_key": region_key(i), "det": x.id, **({"rerec_of": x.rerec_of} if x.rerec_of else {})}
+                    for i, x in enumerate(ordered, 1)]
     return [OcrRegion(region_key=region_key(i), text=x.text, score=x.score, poly=x.poly, bbox=x.bbox)
             for i, x in enumerate(ordered, 1)]

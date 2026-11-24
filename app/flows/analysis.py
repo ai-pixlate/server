@@ -52,9 +52,25 @@ LOCAL_DICT_UNAVAILABLE = "LOCAL_DICT_UNAVAILABLE"
 
 
 class StartRejected(Exception):
-    def __init__(self, status: int, code: str, message: str):
+    def __init__(self, status: int, code: str, message: str, fields: list[dict[str, Any]] | None = None):
         super().__init__(message)
-        self.status, self.code, self.message = status, code, message
+        self.status, self.code, self.message, self.fields = status, code, message, fields
+
+
+def _require_leaf_category(db: Session, category_id: int | None) -> None:
+    """최초 분석의 카테고리 조건(PRD F-SRC-04 J41① N1 필수 · ②leaf만) — 저장된 categoryId가 있고, 지금 마스터에 있으며 is_leaf여야 한다.
+
+    오류는 작업 생성·수정의 categoryId 거절과 같은 400 VALIDATION_ERROR · details.fields(loc body.categoryId — 그 값을 넣는
+    N1 필드). 매핑 없는 leaf는 통과한다(내부 분류 NULL → 용어집 common만 · F-SRC-04b).
+    """
+    if category_id is None:
+        message, msg = "categoryId is required", "category is required"
+    else:
+        leaf = db.execute(text("SELECT is_leaf FROM category_master WHERE id = :c"), {"c": category_id}).scalar()
+        if leaf is True:
+            return
+        message, msg = "invalid categoryId", ("unknown category" if leaf is None else "category is not a leaf")
+    raise StartRejected(400, "VALIDATION_ERROR", message, fields=[{"loc": ["body", "categoryId"], "msg": msg}])
 
 
 def _content_allowlist() -> set[str] | None:
@@ -104,6 +120,12 @@ def start_analysis(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
             except ObjectMissing as e:
                 raise StartRejected(409, "INVALID_STATE", f"원본 이미지 파일 없음(source_image {r['id']})") from e
             db.execute(text("UPDATE source_image SET sha256 = :h WHERE id = :i AND sha256 IS NULL"), {"h": r["sha256"], "i": r["id"]})
+    # 카테고리는 기존 게이트(상태 → 상품명 → 규제 분류 → 국가 → 원본)를 모두 통과한 뒤, 실행·시도를 만들거나 큐에 보내기 전에 본다.
+    # 최초 분석(N1 — [중단]으로 N1에 돌아온 작업 포함)에만 적용한다. N2 실패 [다시 시도]는 기존 작업의 재시도 호환을 위한 예외로
+    # 확인하지 않는다(재시도는 고정 입력을 재사용하지 않고 현재 job 값으로 새 실행을 만든다 — 예외 근거는 입력 재사용이 아니다).
+    # 거절이면 호출자가 rollback 한다(위 sha256 보충도 되돌아간다).
+    if job["current_step"] == "N1":
+        _require_leaf_category(db, job["display_category_id"])
     sources = [{"source_image_id": r["id"], "upload_order": r["upload_order"], "key": r["file_url"], "sha256": r["sha256"],
                 "width": r["width"], "height": r["height"]} for r in rows]
     manifest = {

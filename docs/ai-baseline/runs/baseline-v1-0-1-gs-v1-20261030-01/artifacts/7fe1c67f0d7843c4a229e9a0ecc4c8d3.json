@@ -1,0 +1,263 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:14.517491+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_13",
+      "section_key": "sec_57",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_674",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_675",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_676",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_677",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_678",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_679",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_680",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_681",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_682",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_683",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_684",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_685",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_686",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_687",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_688",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_13",
+      "section_key": "sec_57",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "b3a42ab0a75e1e52fc5220e7d2cc34549e0b6900bebd0b4feba9fd8b96890bd1",
+      "label_fingerprint": "9fc1f8bab48340bb5f38e9f65b0b47627cda30ff46c1c6f5fa6cd27d4301b142",
+      "label_input_fingerprint": "b3a42ab0a75e1e52fc5220e7d2cc34549e0b6900bebd0b4feba9fd8b96890bd1",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 15,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 15,
+        "compared": 15
+      },
+      "decisions": [
+        {
+          "block_key": "blk_674",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "smab524m27139ver02",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_675",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "속탄력을끌어올려깊게패인주름까지개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_676",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "깊게패인이마주름개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_677",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "2854감소",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_678",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_679",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "2주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_680",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "깊게패인눈가주름개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_681",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "1431감소",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_682",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_683",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "2주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_684",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "깊게패인팔자주름개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_685",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "1849감소",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_686",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_687",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "2주사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_688",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "깊게패인주름이마눈가주름개선에대한인체적용시험주스킨메드임상시험센터20240527~20240613성인남녀21명개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

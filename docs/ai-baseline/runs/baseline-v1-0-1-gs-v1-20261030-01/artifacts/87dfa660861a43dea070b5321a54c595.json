@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-01",
+  "stage": "translate",
+  "at": "2026-10-30T00:59:00.736978+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_39",
+        "outcome": "completed",
+        "translation": "Gentle Even on Sensitive Skin",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_40",
+        "outcome": "completed",
+        "translation": "Intensive Soothing\nMineral Sunscreen",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_41",
+        "outcome": "completed",
+        "translation": "goodal Heartleaf Soothing Mineral Sun Cream 50m",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_42",
+        "outcome": "completed",
+        "translation": "Fresh &\nSeamless Blend",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_45",
+        "outcome": "completed",
+        "translation": "VEGAN\nCERTIFIED",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "ddc0e14d37c9579009323b9e57314e6087dba8d90e648fd090984adb85cabe8b",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "9661615428f94307058e5f571c390110b6a49392c9fd2a191a6bcfcd644b052f",
+      "usage": {
+        "candidates_token_count": 161,
+        "prompt_token_count": 1074,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1074
+          }
+        ],
+        "thoughts_token_count": 886,
+        "total_token_count": 2121
+      }
+    }
+  ],
+  "seconds": 11.186999999918044
+}

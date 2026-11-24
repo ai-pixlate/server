@@ -68,7 +68,8 @@ def list_brands(db: Session = Depends(get_db), seller_id: int = Depends(get_curr
 @router.post("/brands", status_code=201, summary="API-BRD-02 브랜드 등록 (DB)")
 def create_brand(body: BrandCreate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     if not body.nameEn.strip():
-        raise HTTPException(status_code=400, detail="nameEn is required")
+        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "nameEn is required",
+                                                     "fields": [{"loc": ["body", "nameEn"], "msg": "nameEn is required"}]})
     r = db.execute(
         text(
             "INSERT INTO brand (seller_id, name_ko, name_en, brand_overview, core_audience) "
@@ -97,7 +98,8 @@ def get_brand(brand_id: int, db: Session = Depends(get_db), seller_id: int = Dep
 def update_brand(brand_id: int, body: BrandUpdate, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     # nameEn 을 빈값/null 로 바꾸는 요청은 차단 (규격 F-BRD-07)
     if body.nameEn is not None and not body.nameEn.strip():
-        raise HTTPException(status_code=400, detail="nameEn must not be empty")
+        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "nameEn must not be empty",
+                                                     "fields": [{"loc": ["body", "nameEn"], "msg": "nameEn must not be empty"}]})
 
     fields: dict = {}
     if body.nameKo is not None:

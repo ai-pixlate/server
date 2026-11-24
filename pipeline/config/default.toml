@@ -34,6 +34,15 @@ tile_equiv_min_x_iou = 0.9       # 동등 판정: 양쪽 가로 덮음 구간(x 
 tile_edge_touch_px = 3           # 검출 bbox가 타일 내부 절단선에서 이 거리 안이면 접촉(잘림 의심)
 tile_box_jitter_px = 3           # 위치 비교(가로 덮음 IoU · 포함)에서 검출 박스 흔들림으로 보고 넓혀 주는 거리
 tile_supplement_margin_px = 150  # 보완 OCR crop: 의심 성분 위아래로 이만큼 밖(그 너머 같은 폭 안의 여백 우선)에서 자른다
+# 호출별 명백한 중복 제거(#40) · 겹친 검출 재인식(#32), 2026-10-27 구현(pipeline.md 7.9절). 아래 값은 실측 전 잠정 구현값이며 운영 기본값이 아니다
+dedup_min_poly_iou = 0.9           # 같은 엔진 호출 안 텍스트가 같은 두 검출의 실제 polygon IoU가 이 값 이상이면 중복 후보
+dedup_max_angle_diff_deg = 5.0     # 중복 후보 두 polygon의 윗변(첫 점 → 둘째 점) 방향 차 상한(도)
+overlap_rec_max_calls = 12         # 섹션당 국소 재인식(인식 모델만) 호출 상한. 같은 crop 재사용은 세지 않는다. 0이면 재인식 안 함
+overlap_rec_max_group = 4          # 재구성 묶음 한쪽(한 OCR 호출 · 한 줄)의 검출 수 상한
+overlap_rec_max_x_overlap = 0.5    # 부분 겹침: 이웃 검출의 가로 교집합 / 좁은 쪽 폭이 0 초과 · 이 값 이하(넘으면 포함에 가까워 후보 제외)
+overlap_rec_max_angle_deg = 10.0   # crop 최소 회전 사각형 윗변의 기울기 상한(도)
+overlap_rec_max_foreign = 0.1      # 묶음 밖 같은 호출 검출이 crop 사각형 안에 들어온 면적 / 그 검출 면적의 상한
+overlap_rec_max_fragment_digits = 1  # 이웃 접촉 부분 한쪽 끝에서 조각으로 보고 지울 수 있는 숫자 수 상한
 
 [merge]                        # ③ 줄·문단 병합 + 역할 분류
 line_gap = 0.7
@@ -53,6 +62,14 @@ caption_pct = 25
 title_max_lines = 2
 caption_max_chars = 25
 price_max_chars = 40
+# OCR 후처리 — 기능 채택 확정 · 값 잠정(open-questions #86, pipeline.md 7.1절). 기본값 xycut · num_o 켬, fullwidth 끔(2026-10-26 결정).
+# 운영 배포(main · release)는 후속 연동 뒤 — 그 전에는 운영 배포 보류 또는 운영 설정(PIXLATE_PIPELINE_CONFIG)에서 끈다(develop · dev 이미지는 허용). 모두 끄면 위 규칙만 돈다
+xycut = true                   # 여백(XY-cut) 문단 후보 영역 분리 + 세로 중심 가로줄 정렬을 함께 켠다
+fullwidth = false              # Line.text · source_ko의 전각 영문·숫자·기호(U+FF01~FF5E) · 전각 공백(U+3000)만 반각으로. xycut과 독립. 현재 인식 모델에서 효과 없어 끔(모델 변경 시 재평가)
+num_o = true                   # Line.text · source_ko의 숫자 덩어리 안 영문 o/O → 0(전각 변환 뒤). xycut · fullwidth와 독립(2026-10-26 채택)
+xycut_gap_ratio = 0.8          # 최소 여백 = 이 비율 × 섹션 전체 텍스트 영역 높이 중앙값
+line_center_tol = 0.5          # 같은 가로줄 허용치 = 이 비율 × 후보 영역 텍스트 높이 중앙값
+line_center_tol_min_px = 8     # 같은 가로줄 허용치의 하한(px)
 llm_model = "gemini-3.8-flash"
 llm_temperature = 0
 llm_split = false              # 분할 금지 고정
@@ -97,7 +114,8 @@ kill_grace_s = 5               # 시간 초과 후 종료 요청 → 이 시간 
 [style]                        # ⑦ 스타일 추출
 method = "otsu_border"
 em_ratio = 0.9                 # 잠정값(사용자 결정 2026-10-15, open-questions #85). 개발계획 6장 1.35는 OCR bbox가 em보다 커서 약 1.5배 과대
-align_tolerance = 0.12
+align_section_tolerance = 0.005 # 섹션 기준 정렬 허용 오차(섹션 폭 비율). 확정(사용자 결정 2026-11-05, 실측 docs/ai-experiments/2026-11-05_07-style_section-align.md)
+align_tolerance = 0.12         # 줄 진단(이전 규칙) 전용 — 판정에 쓰지 않는다
 
 [translate]                    # ⑧ 로컬라이징 번역
 model = "gemini-3.8-flash"
@@ -105,3 +123,12 @@ glossary = "rag"               # 용어는 BE가 검색해 실행 입력으로 �
 prompt_path = "pipeline/prompts/translate.md"   # 초안 v1(실측 전). 확정은 #11 기술검증 후. 상대 경로는 레포 루트 기준
 temperature = 0                # 개발용 잠정값(③-1 · ④와 같은 계열)
 timeout_s = 60                 # 섹션 1회 호출 시간 제한(초). 개발용 잠정값 — 운영값 아님(BE 실행 정책에서 정한다)
+
+[translation_review]           # ⑧ 번역문 LLM 규제 판정 — 번역기와 독립된 호출 · 프롬프트(사용자 결정 2026-10-12). 아래 값은 모두 개발용 잠정값(운영 확정값 아님)
+model = "gemini-3.8-flash"     # 개발용. 모델 선택은 이 설정으로 바꾼다(번역 모델과 같을 필요 없음)
+prompt_path = "pipeline/prompts/translation_review.md"   # 초안 v1(실측 전). 상대 경로는 레포 루트 기준
+temperature = 0                # 개발용 잠정값
+timeout_s = 60                 # 분할 1회 호출 시간 제한(초). 개발용 — 운영 시간 · 재시도 한도는 BE 실행 정책
+max_input_chars = 60000        # 분할 1회 입력(프롬프트 원문 + 직렬화 페이로드)의 Unicode 코드 포인트 상한. 토큰 한도를 보장하지 않는다
+max_pairs_per_call = 120       # 분할 1회의 (대상 × 검사 항목) 쌍 상한. 개발용
+max_output_tokens = 16384      # 응답 출력 상한. 이 한도로 잘린 응답은 같은 설정 재시도 불가 실패(response_invalid · retryable=false)

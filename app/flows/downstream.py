@@ -13,24 +13,28 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import logging
+import math
 import re
 import tempfile
 from pathlib import Path
 from typing import Any
 
+from PIL import Image
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import ai_adapters, artifacts, execution, typeset
+from app import ai_adapters, artifacts, execution, html_render, layout_adjust, render_input, typeset
 from app import db as app_db
 from app.execution import AdoptContext, AdoptionRejected, AdoptOutcome, ArtifactSpec, Envelope
-from app.flows import common
+from app.flows import common, text_check
 from app.flows.common import block_key, failed_envelope, json_value, report, section_key, set_job_state, submit
-from app.dictionary_bundle import entries_by_ref
+from app.dictionary_bundle import ai_alternatives, entries_by_ref
 from app.manifest import fingerprint, sha256_bytes, sha256_text, stable_hash
 from app.storage import ObjectMissing, get_store
+from pipeline.handoff import style_defaults as sd
 
 log = logging.getLogger(__name__)
 
@@ -129,7 +133,7 @@ def _clear_previous(db: Session, section_ids: list[int]) -> None:
     """이전(중단된) 하류 실행이 남긴 파생값을 지운다. N3 단계라 사용자 번역 수정은 없다."""
     db.execute(
         text(
-            "UPDATE text_block SET revision = revision + CASE WHEN trans_1 IS NOT NULL OR auto_adjust IS NOT NULL THEN 1 ELSE 0 END, "
+            "UPDATE text_block SET revision = revision + CASE WHEN trans_1 IS NOT NULL OR layout_adjust IS NOT NULL THEN 1 ELSE 0 END, "
             "is_product_label = NULL, is_brand_logo = NULL, style = NULL, trans_1 = NULL, char_count = NULL, overflow = false, "
             "compliance_flags = NULL, block_status = 'machine', updated_at = now() WHERE section_id = ANY(:ids)"
         ),
@@ -167,6 +171,7 @@ def proceed(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
         "source_image_ids": sorted({s["source_image_id"] for s in secs}),
         "brand": {"id": brand["id"], "name_ko": brand["name_ko"], "name_en": brand["name_en"]},
         "target_lang": job["target_lang"] or "en",
+        "active_checks": text_check.configured_active_checks(),  # 이 실행에서 돌릴 검사(be-handoff 8.1) — 등록·집계·확정이 같은 값
     }
     run_id = execution.create_run(db, job_id, "downstream", scope)
     run = execution.lock_task(db, run_id)
@@ -466,7 +471,7 @@ def execute_style(attempt_id: int) -> dict[str, Any]:
 
 class StyleHandler:
     def adopt(self, db: Session, ctx: AdoptContext) -> AdoptOutcome:
-        from pipeline.types import StyleResult
+        from pipeline.types import parse_style_result
 
         h = ctx.handoff
         p = json_value(h["payload"])
@@ -479,7 +484,12 @@ class StyleHandler:
             if any(r["is_excluded"] is False for r in rows):
                 raise AdoptionRejected("처리 대상이 있는데 정상 생략", code="STYLE_RESULT_INVALID")
             return AdoptOutcome(status="done", skip_reason="no_targets")
-        res = StyleResult.model_validate(p["style"])
+        # 계산 당시 형식(schema_version)대로 검증하고 그때의 측정값을 그대로 채택한다 — 배포 전 계산된 스키마 1 결과도 살린다.
+        # 알 수 없는 버전 · 형식 위반은 거절(인계 rejected · 시도 failed → 스타일 실패 후속). 일시 오류로 다루지 않는다(반복 채택 방지)
+        try:
+            res = parse_style_result(p.get("style"))
+        except ValueError as e:  # pydantic ValidationError 포함
+            raise AdoptionRejected(f"⑦ 결과 형식 오류: {e}"[:1500], code="STYLE_RESULT_INVALID") from e
         by_key = {block_key(r["id"]): r for r in rows}
         keys = [b.block_key for b in res.blocks]
         if sorted(keys) != sorted(by_key):
@@ -510,7 +520,9 @@ def _translate_targets(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
 
 
-ALTERNATIVES_SPLIT = False  # #71 대체 표현 구분 규칙 확정 여부. False 면 원문 문자열 공급·⑧ 표현 지시 없음
+# ⑧ 표현 지시 공급 규칙(#71). 시도 명세 supply 에 이 값이 없는 시도(활성화 전에 만든 시도)는 지시 없이 공급을 다시 만들어
+# 대조·실행한다 — 기존 대기 시도가 INPUT_CHANGED 로 멈추지 않고, 재시도로 새로 만드는 시도부터 지시를 넣는다.
+INSTRUCTIONS_RULE = "translate-instructions@2026-11-03.1"
 _PLACEHOLDER = re.compile(r"\[[^\[\]\n]+\]")  # 템플릿 대체 표현(예: [value]) — 번역 지시로 쓰지 않는다(D9-2, PR #55 규칙과 같음)
 
 
@@ -540,7 +552,8 @@ def select_glossary(rows: list[dict[str, Any]], targets: list[dict[str, Any]], s
 
     try:
         chosen = gl.select([(block_key(r["id"]), r["source_ko"] or "") for r in targets],
-                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"]) for g in rows])
+                           [gl.Entry(str(g["id"]), g["term_ko"], g["term_target"], g["enforcement"], g.get("term_kind"))
+                            for g in rows])  # term_kind = DB 값 그대로(NULL → None, 접두어로 추정하지 않음)
     except gl.GlossaryDataError as e:
         return {"status": "failed", "version": None, "reason": f"용어집 선별 실패: {e}", "terms": []}
     ids = {e.glossary_id for e in chosen}
@@ -560,8 +573,8 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
     cats = _glossary_categories(db, sid)
     selection = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats}
     rows = db.execute(
-        text("SELECT id, term_ko, term_target, enforcement, internal_category, version FROM glossary "
-             "WHERE target_lang = :l AND internal_category = ANY(:c) ORDER BY id"),
+        text("SELECT id, term_ko, term_target, enforcement, internal_category, version, term_kind FROM glossary "
+             "WHERE target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL ORDER BY id"),
         {"l": lang, "c": cats},
     ).mappings().all()
     return select_glossary([dict(r) for r in rows], targets, selection), selection
@@ -569,26 +582,26 @@ def _glossary_supply(db: Session, lang: str, sid: int, targets: list[dict[str, A
 
 def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle: dict[str, Any]) -> list[dict[str, Any]]:
     """표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(regulated) 규제 판정의 매칭을 이번 대상 블록에 한해 넘긴다.
-    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다. 템플릿 대체 표현(RG-021/022 등)은 원문 수치 유지라 넘기지 않는다(D9-2).
-
-    #71 구분 규칙 확정 전에는 대체 표현을 나누지 않은 원문 문자열로 공급하고, AI는 그런 행을 표현 지시로 받지 않는다
-    (PR #55 3217142). 그래서 지금은 지시를 만들지 않는다 — 규칙이 정해져 to_ai_bundle()이 배열을 보내면 이 가드를 푼다."""
-    if not ALTERNATIVES_SPLIT:
-        return []
+    대체 표현 본문은 AI가 고정 묶음에서 꺼낸다(#71 구분 규칙으로 나눈 배열). 템플릿 대체 표현(RG-021/022 등)은 원문 수치
+    유지라 넘기지 않는다(D9-2). 판정 단계에서 억제된 매칭(overlaps kind=suppressed — contained · allowed_wrap 등)은 판정의
+    매칭이 아니므로 지시하지 않는다(audit matches 에는 억제된 원시 매칭도 남아 있다)."""
     det = json_value(db.execute(
         text("SELECT detail FROM audit_log WHERE action_type = :a AND target_type = 'section' AND target_id = :s ORDER BY id DESC LIMIT 1"),
         {"a": common.ACT_ANALYSIS_ADOPTED, "s": sid},
     ).scalar()) or {}
     refs = entries_by_ref(bundle)
+    suppressed = {o["match_key"] for o in det.get("overlaps", []) if o.get("kind") == "suppressed" and o.get("match_key")}
     out: list[dict[str, Any]] = []
     for v in det.get("verdicts", []):
         e = refs.get(v["dictionary_ref"])
-        alt = (e or {}).get("alternative_expression")
-        if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated" or not alt or not alt.strip():
+        if e is None or e["dict_type"] != "regulatory" or v["verdict_status"] != "regulated":
             continue
-        if _PLACEHOLDER.search(alt):
-            continue
+        alts = ai_alternatives(e["alternative_expression"])
+        if not isinstance(alts, list) or not alts or any(_PLACEHOLDER.search(a) for a in alts):
+            continue  # 구분 규칙 위반(원문 문자열) · 대체 표현 없음 · 템플릿은 지시하지 않는다
         for m in det.get("matches", []):
+            if m.get("match_key") in suppressed:
+                continue
             if m["snapshot_key"] == v["dictionary_ref"] and m["finding_key"] == v["finding_key"] and m["block_id"] in target_ids:
                 item = {"block_key": block_key(m["block_id"]), "external_id": v["dictionary_ref"], "matched_text": m["matched_text"]}
                 if item not in out:
@@ -596,20 +609,30 @@ def _translate_instructions(db: Session, sid: int, target_ids: set[int], bundle:
     return out
 
 
-def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]]) -> dict[str, Any]:
+def _translate_supply(db: Session, run_id: int, sid: int, targets: list[dict[str, Any]], *,
+                      instructions: bool = True) -> dict[str, Any]:
+    """instructions=False: 표현 지시 활성화 전 공급 규칙(지시 없음) — 그 전에 만든 시도의 대조·실행에만 쓴다."""
     scope = _run_scope(db, run_id)
     hid, bundle = _analysis_bundle(db, scope["analysis_task_id"])
     glossary, selection = _glossary_supply(db, scope["target_lang"], sid, targets)
-    instructions = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle)
+    ins = _translate_instructions(db, sid, {r["id"] for r in targets}, bundle) if instructions else []
     return {"bundle_handoff_id": hid, "bundle": bundle, "glossary": glossary, "glossary_selection": selection,
-            "instructions": instructions}
+            "instructions": ins, "instructions_rule": INSTRUCTIONS_RULE if instructions else None}
 
 
 def _supply_ref(supply: dict[str, Any]) -> dict[str, Any]:
     """시도 명세에 고정할 공급 지문. 실행 때 다시 만든 공급과 대조한다(5.32 입력 고정)."""
-    return {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
-            "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
-            "instructions": supply["instructions"]}
+    ref = {"bundle_handoff_id": supply["bundle_handoff_id"], "bundle_sha256": supply["bundle"]["sha256"],
+           "glossary_sha256": fingerprint(supply["glossary"]), "glossary_selection": supply["glossary_selection"],
+           "instructions": supply["instructions"]}
+    if supply["instructions_rule"] is not None:  # 활성화 전 시도의 명세에는 이 키가 없다
+        ref["instructions_rule"] = supply["instructions_rule"]
+    return ref
+
+
+def _instructions_enabled(fixed: dict[str, Any] | None) -> bool:
+    """이 시도에 표현 지시를 넣는가. 고정 공급에 instructions_rule 이 없으면 활성화 전에 만든 시도 — 지시 없이 대조·실행한다."""
+    return fixed is None or "instructions_rule" in fixed
 
 
 def _translate_manifest(sid: int, rows: list[dict[str, Any]], targets: list[dict[str, Any]], lang: str,
@@ -638,7 +661,8 @@ def execute_translate(attempt_id: int) -> dict[str, Any]:
                    for r in rows if r["is_excluded"] is False and (r["source_ko"] or "").strip()]
         db = app_db.SessionLocal()
         try:
-            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids])
+            supply = _translate_supply(db, lease.run_id, sec["id"], [r for r in rows if r["id"] in target_ids],
+                                       instructions=_instructions_enabled(m.get("supply")))
         finally:
             db.close()
         if m.get("supply") is not None and _supply_ref(supply) != m["supply"]:
@@ -732,11 +756,13 @@ class TranslateHandler:
                             verify_result=verify, retryable=code == TRANSLATE_ALL_FAILED)
 
     def after_done(self, db, att):
-        return progress(db, att["parent_task_id"], att["unit_id"])
+        # 실제 저장된 문구로 활성 검사 등록(등록 보장 ①②) — 같은 채택 트랜잭션
+        return text_check.after_translate(db, att["parent_task_id"], att["unit_id"]) + progress(db, att["parent_task_id"], att["unit_id"])
 
     def after_failure(self, db, att, code, retryable):
         if code == TRANSLATE_PARTIAL:
-            return progress(db, att["parent_task_id"], att["unit_id"])  # 성공분 보존·실패 칸 비움으로 N5 진행(D9-3)
+            ids = text_check.after_translate(db, att["parent_task_id"], att["unit_id"])  # 저장된 성공분만 검사 대상
+            return ids + progress(db, att["parent_task_id"], att["unit_id"])  # 성공분 보존·실패 칸 비움으로 N5 진행(D9-3)
         return _after_failure(db, att, code, retryable)
 
 
@@ -833,7 +859,35 @@ class InpaintHandler:
 # ---------------------------------------------------------------------------------------------------------
 # ⑨ 초기 미리보기
 # ---------------------------------------------------------------------------------------------------------
-def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
+class RenderInputInvalid(ValueError):
+    """렌더 대상 블록의 적용 박스를 읽을 수 없다(bbox NULL·좌표 키 누락·수가 아닌 값, 배치 조정값 형식 오류).
+    고정 입력을 만들지 않는다 — 임의 값으로 채우거나 KeyError 로 흘리지 않는다(/preview `inputError` RENDER_INPUT_INVALID)."""
+    code = "RENDER_INPUT_INVALID"
+
+    def __init__(self, block_ids: list[int]):
+        super().__init__(f"적용 박스를 읽을 수 없는 블록 {block_ids}")
+        self.block_ids = sorted(block_ids)
+
+
+def _applied_box(r: dict[str, Any]) -> dict[str, Any] | None:
+    """적용 박스 = 셀러 조정 박스(layout_adjust.user)가 있으면 그것, 없으면 원본 bbox. 저장값 그대로(절삭 없음).
+    형식이 맞지 않으면 None(호출자가 RenderInputInvalid 로 모은다). 범위(섹션 안·양의 크기) 검사는 여기서 하지 않는다."""
+    box = layout_adjust.parse(r["layout_adjust"]).placement_source(json_value(r["bbox"]))
+    if not isinstance(box, dict):
+        return None
+    out = {}
+    for k in ("x", "y", "w", "h"):
+        v = box.get(k)
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+            return None
+        out[k] = v
+    return out
+
+
+def _render_inputs(db: Session, run_id: int, sid: int, *, style_defaults: dict[str, Any] | None = None) -> dict[str, Any]:
+    """⑨ 고정 입력(미리보기 시도·최종 렌더·/preview `inputFingerprint` 공통). 지문 = `fingerprint(이 값)`.
+    박스는 저장값 그대로 싣는다(소수 절삭 없음 — 계약 PreviewRenderBlock.box). 정수 값은 JCS 직렬화에서 10 과 10.0 이 같은 "10" 이라
+    정수 좌표 블록의 지문은 절삭하던 때와 같다. style_defaults 는 한 요청에서 여러 섹션을 만들 때 한 번 읽은 값을 넘긴다."""
     sec = _section_row(db, sid)
     rows = _block_rows(db, sid)
     inp = db.execute(
@@ -841,16 +895,25 @@ def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
         {"r": run_id, "s": sid},
     ).scalar()
     bg_key = sec["inpaint_image_url"] if inp == "done" and sec["inpaint_image_url"] else sec["image_key"]
-    blocks = []
+    blocks, bad = [], []
     for r in rows:
         if r["is_excluded"] is not False or not (r["source_ko"] or "").strip() or not (r["trans_1"] or "").strip():
             # 라벨·로고·빈 원문·번역 없음(실패 칸 NULL·빈 문자열·공백만)은 그리지 않는다 — resolve_block 의 조판 제외 규칙
             # (be-handoff 6.3)과 같게 둬야 미리보기 채택의 대상 블록 집합이 렌더 결과와 맞는다
             continue
-        adj = json_value(r["auto_adjust"]) or {}
-        box = adj.get("layout_bbox") or json_value(r["bbox"])
-        blocks.append({"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),
-                       "box": {k: int(box[k]) for k in ("x", "y", "w", "h")}, "style_sha256": stable_hash(json_value(r["style"]))})
+        box = _applied_box(r)
+        if box is None:
+            bad.append(r["id"])
+            continue
+        block = {"block_id": r["id"], "revision": r["revision"], "role": r["role"], "trans_sha256": sha256_text(r["trans_1"]),
+                 "box": box, "style_sha256": stable_hash(json_value(r["style"]))}
+        # 셀러 배율은 있을 때만 싣는다 — 조정하지 않은 블록의 입력·지문은 배치 저장 전과 같다
+        scale = layout_adjust.parse(r["layout_adjust"]).applied_scale
+        if scale != 1:
+            block["font_scale"] = scale
+        blocks.append(block)
+    if bad:
+        raise RenderInputInvalid(bad)
     bg_sha = db.execute(text("SELECT sha256 FROM task_artifact WHERE verified_key = :k OR source_ref->>'key' = :k LIMIT 1"),
                         {"k": bg_key}).scalar()
     # 섹션의 ⑦ 단계 결과 — 기본값 적용 규칙(6.3)이 done / failed 를 나눈다(style 값만으로 판단하지 않는다)
@@ -860,8 +923,8 @@ def _render_inputs(db: Session, run_id: int, sid: int) -> dict[str, Any]:
     ).scalar()
     return {"stage": "preview", "section_id": sid, "background": {"key": bg_key, "sha256": bg_sha,
                                                                     "source": "inpaint" if bg_key != sec["image_key"] else "original"},
-            "blocks": blocks, "style_stage": style_stage, "renderer": typeset.RENDERER_VERSION,
-            "style_defaults": typeset.style_inputs()}
+            "blocks": blocks, "style_stage": style_stage, "renderer": typeset.RENDERER_VERSION, "bundle": html_render.BUNDLE_ID,
+            "style_defaults": typeset.style_inputs() if style_defaults is None else style_defaults}
 
 
 def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, Any],
@@ -877,10 +940,23 @@ def _render_section(m: dict[str, Any], texts: dict[int, str], styles: dict[int, 
     if current != m.get("style_defaults"):  # 설정 자료·폰트·규칙 버전 중 하나라도 다르면(6.6 ⑤)
         raise AdoptionRejected("스타일 기본값 자료가 고정 입력과 다르다", code="INPUT_CHANGED")
     defaults = typeset.load_role_defaults()
-    rbs = [typeset.RenderBlock(id=b["block_id"], role=b["role"], text=texts[b["block_id"]], box=b["box"], style=styles[b["block_id"]],
-                               style_stage=m.get("style_stage"), source_ko=sources[b["block_id"]])
-           for b in m["blocks"]]
-    return typeset.render(data, rbs, defaults)
+    # 원본 폭(기본 크기 환산 기준) = 섹션 배경 폭 — Pillow 렌더와 같은 기준(MVP 섹션은 원본 전체 폭)
+    with Image.open(io.BytesIO(data)) as im:
+        section_width = im.width
+    blocks = []
+    for b in m["blocks"]:
+        try:
+            # /preview renderInput 과 같은 함수 — N5 가 그린 style 8키를 서버도 그대로 쓴다(계약 6.4)
+            built = render_input.build_block(block_id=b["block_id"], revision=b["revision"], role=b["role"], is_excluded=False,
+                                             source_ko=sources[b["block_id"]], text=texts[b["block_id"]], style=styles[b["block_id"]],
+                                             style_stage=m.get("style_stage"), box=b["box"],
+                                             font_scale=b.get("font_scale", render_input.DEFAULT_FONT_SCALE),
+                                             section_width=section_width, defaults=defaults.data)
+        except sd.StyleInputInvalid as e:
+            raise typeset.StyleInputInvalid(str(e)) from e
+        if built is not None:
+            blocks.append(built)
+    return html_render.render(data, blocks)
 
 
 def execute_preview(attempt_id: int) -> dict[str, Any]:
@@ -907,7 +983,8 @@ def execute_preview(attempt_id: int) -> dict[str, Any]:
                        impl_version=typeset.RENDERER_VERSION,
                        payload={"render": {"width": res.width, "height": res.height,
                                            "blocks": {str(k): {"overflow": v.overflow, "applied": v.applied, "source": v.source,
-                                                               "lines": v.lines} for k, v in res.blocks.items()}}},
+                                                               "lines": v.lines, "ink_visible": v.ink_visible}
+                                                      for k, v in res.blocks.items()}}},
                        artifacts=[ArtifactSpec(kind="render_image", part_key=section_key(m["section_id"]), data=res.png)])
         return report(attempt_id, submit(lease, env, {("render_image", section_key(m["section_id"])): res.png}))
 
@@ -998,6 +1075,8 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if not (_final(inp) and _final(sty) and _final(tr)):
             all_ready = False
             continue
+        if text_check.waiting(db, run, sid, by.get(("text_check", sid))):  # 활성 검사가 끝나야 N5(be-handoff 8.2)
+            all_ready = False
         if pv is None:
             m = _render_inputs(db, run_id, sid)
             ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),
@@ -1007,12 +1086,16 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if not _final(pv):
             all_ready = False
             continue
-        # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다
+        # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다.
+        # 현재 시도가 완료든 최종 실패든 지문이 다를 때만 — 같은 입력의 최종 실패는 그대로 둔다(실패 상태·재시도 횟수 보존).
+        # 실행이 진행 중일 때만 여기까지 온다(위 run status 검사) — 취소·종료된 실행은 재개하지 않는다
         m = _render_inputs(db, run_id, sid)
-        if fingerprint(m) != pv["input_fingerprint"] and pv["status"] == "done":
+        if fingerprint(m) != pv["input_fingerprint"]:
             pv_row = execution.lock_task(db, pv["id"])
-            ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),
-                                                supersedes=pv_row, retry_origin="auto", count_retry=False))
+            if pv_row["is_current"] and pv_row["status"] in ("done", "failed"):  # 잠근 뒤 다시 확인 — 중복 호출에서 한 건만
+                ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
+                                                    target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
+                                                    count_retry=False))
     job = db.execute(text("SELECT id, status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
     if job["current_step"] == "N4":
         if blocking and not ids and job["status"] == "processing":
@@ -1020,6 +1103,45 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         elif all_ready and not ids:
             set_job_state(db, job["id"], status="review", step="N5", ufs="reviewing")
     return ids
+
+
+def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int | None:
+    """N5 섹션 복원 뒤: 그 섹션의 현재 입력에 유효한 ⑨ 시도가 있으면 그대로 쓰고, 없을 때만 새로 만든다(호출자가 커밋·dispatch).
+    - 현재 시도의 입력 지문이 지금 입력과 같으면 대기·실행 중·완료·**최종 실패** 어느 것이든 새로 만들지 않는다 —
+      같은 입력의 실패 상태와 재시도 횟수(retry_count)를 보존한다(재시도는 셀러가 /tasks/{taskId}/retry 로).
+    - 지문이 다르거나 현재 시도가 취소됐으면 입력 변경 재렌더(rerender_section 과 같은 방식 — 재시도 한도를 쓰지 않음),
+      현재 시도가 없으면 첫 시도를 만든다.
+    - ⑥⑦⑧ 이 끝나지 않았거나 진행 중인 하류 실행이 없으면 만들지 않는다(입력을 만들 수 없음).
+    제외는 기존 시도를 취소하지 않으므로 보통은 재사용된다."""
+    run = execution.active_run(db, job_id, "downstream")
+    if run is None:
+        return None
+    run = execution.lock_task(db, run["id"])
+    by = {(a["stage"], a["unit_id"]): a for a in execution.current_attempts(db, run["id"])}
+    if not all(_final(by.get((st, section_id))) for st in ("inpaint", "style", "translate")):
+        return None
+    cur = db.execute(
+        text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
+        {"r": run["id"], "s": section_id},
+    ).mappings().first()
+    try:
+        m = _render_inputs(db, run["id"], section_id)
+    except RenderInputInvalid as e:
+        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고 시도만 확보하지 않는다(/preview 가 RENDER_INPUT_INVALID 로 보인다).
+        # 시도를 실패로 기록하는 처리는 미완료 항목(PR #108 본문)
+        log.warning("복원 섹션 %s 미리보기 미확보 — %s", section_id, e)
+        return None
+    if cur is None:
+        return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
+                                        max_retry=MAX_RETRY["preview"])
+    cur = dict(cur)
+    if cur["status"] in ("pending", "running", "done", "failed") and cur["input_fingerprint"] == fingerprint(m):
+        return None  # 현재 입력의 유효한 시도 — 재사용
+    if cur["status"] in ("pending", "running"):
+        db.execute(text("UPDATE job_async_task SET status = 'cancelled', finished_at = now(), lease_epoch = lease_epoch + 1, "
+                        "lease_token_hash = NULL, lease_expires_at = NULL WHERE id = :t"), {"t": cur["id"]})
+    return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
+                                    supersedes=cur, retry_origin="user", count_retry=False)
 
 
 def rerender_section(db: Session, job_id: int, section_id: int) -> int | None:

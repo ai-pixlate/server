@@ -1,0 +1,305 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:19.076729+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_16",
+      "section_key": "sec_65",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_732",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_733",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_734",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_735",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_736",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_737",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_738",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_739",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_740",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_741",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_742",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_743",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_744",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_745",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_746",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_747",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_748",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_749",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_16",
+      "section_key": "sec_65",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "7c8f9a718b992c9639b7c05b50981ba861d60d735f392e57a9791371e36053ee",
+      "label_fingerprint": "b5ec255b4813e4482bbd3c11e9e1bff8558c4ba4ef6b4216bb46f059effeb6e3",
+      "label_input_fingerprint": "7c8f9a718b992c9639b7c05b50981ba861d60d735f392e57a9791371e36053ee",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 18,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 18,
+        "compared": 18
+      },
+      "decisions": [
+        {
+          "block_key": "blk_732",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "레티날적응단계별추천사용법",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_733",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "용량1회용량",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_734",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "사용주기",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_735",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "초반한달간주1~2회사용",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_736",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "쌀알크기로소량",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_737",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "초급자레티놀레티날제품첫사용자",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_738",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "피부반응관찰하며주3~4회로늘려가기",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_739",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "콩알만한크기로적당량",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_740",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "초반한달간격일사용이틀에한번피부반응관찰하며주5~6회로늘려가기",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_741",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "중급자레티놀레티날제품1회이상사용자",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_742",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "yl",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_743",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "매일사용가능",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_744",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "원하는부위또는피부전체에적정량",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_745",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "고급자레티놀레티날제품즐겨쓴사용자",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_746",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "피부타입에따라레티날반응에대한편차가발생할수있으므로초기2주까지는사용가이드에맞취사용하시는것을권장드립니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_747",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "310°c",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_748",
+          "block_order": 17,
+          "is_product_label": false,
+          "normalized": "storeinacoolplace",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_749",
+          "block_order": 18,
+          "is_product_label": false,
+          "normalized": "서늘한곳보관권장",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

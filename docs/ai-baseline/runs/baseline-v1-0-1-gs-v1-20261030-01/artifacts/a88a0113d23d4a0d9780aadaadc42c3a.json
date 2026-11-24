@@ -1,0 +1,109 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:59:43.417904+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_779",
+        "outcome": "completed",
+        "translation": "Effortless Care",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_780",
+        "outcome": "completed",
+        "translation": "#Pure_Retinol #A-Shot (Needle Shot)\n#Improves the look of sagging pores and wrinkles",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_781",
+        "outcome": "completed",
+        "translation": "*Refers to various forms of irregularly stretched pores",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_786",
+        "outcome": "completed",
+        "translation": "Recommended For",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_787",
+        "outcome": "completed",
+        "translation": "√ Those concerned about sagging pores that have lost elasticity",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_788",
+        "outcome": "completed",
+        "translation": "√ Those concerned about fine lines that are getting deeper",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_789",
+        "outcome": "completed",
+        "translation": "√ Those who want to smooth rough texture",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_790",
+        "outcome": "completed",
+        "translation": "Key Ingredients",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_791",
+        "outcome": "completed",
+        "translation": "Pure Retinol, A-Shot (Needle Shot), Peptide Complex",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_792",
+        "outcome": "completed",
+        "translation": "Check Point",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_793",
+        "outcome": "completed",
+        "translation": "√ Tested for improvement in wrinkles, pores, and lifting\n√ Tested for improvement in skin density and layer-by-layer hydration (15 layers)",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "53ae5ffe3b9b93a91efd206291b67ceec749a32c07d68b0a753fbc257ef22d66",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "4cfef8b097d7c8343126d1200d39f01243e13e14fcb34b6cd8496b94774d30af",
+      "usage": {
+        "candidates_token_count": 373,
+        "prompt_token_count": 1358,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1358
+          }
+        ],
+        "thoughts_token_count": 1074,
+        "total_token_count": 2805
+      }
+    }
+  ],
+  "seconds": 13.343000000109896
+}

@@ -7,7 +7,10 @@ block_key는 ③이 섹션 안에서 매긴 번호를 최종 순서(upload_order
 다시 매긴다(dev.md 3절, open-questions #38 H). use_llm이면 out_dir/merge_debug/에 섹션별 llm_assist 기록과
 (section_key, 섹션 최종 블록 키) → 실행 최종 블록 키 대응(block_keys.json)을 남긴다(pipeline.md 7.2절).
 ② 분할 설정도 ① 전에 검증한다. 높이 > ocr.split_threshold_px 섹션(① 대체 섹션 포함)은 타일 OCR로 처리하고
-out_dir/ocr_debug/<section_key>.json에 타일 진단을 남긴다 — 실패(OCR_FAILED)해도 남긴다(pipeline.md 7.9절).
+out_dir/ocr_debug/<section_key>.json에 타일 진단을 남긴다 — 실패(OCR_FAILED)해도 남긴다(pipeline.md 7.9절). 짧은 섹션은
+호출별 중복 제거 기록이 있을 때만 남긴다.
+③ 후처리 스위치(merge.xycut · merge.fullwidth · merge.num_o) 중 하나라도 켜져 있으면 LLM 사용 여부와 관계없이 out_dir/merge_post_debug/에
+섹션별 후처리 진단과 같은 형식의 block_keys.json을 남긴다(pipeline.md 7.1절, open-questions #86). 둘 다 꺼져 있으면 쓰지 않는다.
 """
 from __future__ import annotations
 
@@ -72,12 +75,13 @@ def split_or_whole(
 
 
 def _ocr_section(sec, cfg: dict[str, Any], engine: Any | None, debug_dir: Path):
-    """② 실행. 타일 섹션이면 성공 · 실패와 관계없이 진단을 debug_dir/<section_key>.json에 쓴다."""
+    """② 실행. 타일 섹션(또는 호출별 중복 제거 기록이 있는 짧은 섹션)이면 성공 · 실패와 관계없이 진단을
+    debug_dir/<section_key>.json에 쓴다."""
     diag: dict[str, Any] = {}
     try:
         return ocr.run(sec, cfg, diag=diag) if engine is None else ocr.run(sec, cfg, engine=engine, diag=diag)
     finally:
-        if diag.get("tiled"):
+        if diag:
             debug_dir.mkdir(parents=True, exist_ok=True)
             (debug_dir / f"{sec.section_key}.json").write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -98,6 +102,10 @@ def analyze(
         merge.validate_llm_config(cfg, need_api_key=llm is None)
         llm = llm if llm is not None else merge.default_assistant(cfg)
         recorder = merge.json_recorder(debug_dir)
+    post_dir = out_dir / "merge_post_debug"
+    # 실제 실행은 위 검증으로 세 키가 있다. 검증을 바꿔 끼운 시험(빈 설정)에서도 돌도록 없는 키는 꺼짐으로 본다
+    m = cfg.get("merge", {})
+    post_on = bool(m.get("xycut") or m.get("fullwidth") or m.get("num_o"))
     sections = []
     blocks = []
     warnings: list[AnalyzeWarning] = []
@@ -123,7 +131,8 @@ def analyze(
             ocr_res = _ocr_section(sec, cfg, ocr_engine, out_dir / "ocr_debug")
             text_found = text_found or bool(ocr_res.regions)
             emit("merge_start", region_index, n)
-            merged = merge.run(sec, ocr_res, cfg, use_llm=use_llm, llm=llm, recorder=recorder)
+            merged = merge.run(sec, ocr_res, cfg, use_llm=use_llm, llm=llm, recorder=recorder,
+                               post_recorder=merge.json_recorder(post_dir))
             sections.append(sec)
             blocks.extend(merged.blocks)
             regions_done += 1
@@ -138,11 +147,12 @@ def analyze(
             )
     # 섹션 안 번호 → 실행 전체 번호. 이 시점까지 block_key를 참조하는 결과는 없다(③-1 이후 단계가 새 키를 받는다).
     renumbered = [b.model_copy(update={"block_key": block_key(i)}) for i, b in enumerate(blocks, start=1)]
-    if use_llm:
-        keymap = [
-            {"section_key": b.section_key, "section_block_key": b.block_key, "run_block_key": r.block_key}
-            for b, r in zip(blocks, renumbered)
-        ]
-        debug_dir.mkdir(parents=True, exist_ok=True)
-        (debug_dir / "block_keys.json").write_text(json.dumps(keymap, ensure_ascii=False, indent=2), encoding="utf-8")
+    keymap = [
+        {"section_key": b.section_key, "section_block_key": b.block_key, "run_block_key": r.block_key}
+        for b, r in zip(blocks, renumbered)
+    ]
+    for on, d in ((use_llm, debug_dir), (post_on, post_dir)):
+        if on:
+            d.mkdir(parents=True, exist_ok=True)
+            (d / "block_keys.json").write_text(json.dumps(keymap, ensure_ascii=False, indent=2), encoding="utf-8")
     return AnalyzeResult(sections=sections, blocks=renumbered, warnings=warnings)

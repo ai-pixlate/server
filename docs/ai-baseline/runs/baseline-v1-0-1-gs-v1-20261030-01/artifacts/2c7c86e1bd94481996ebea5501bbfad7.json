@@ -1,0 +1,66 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:53:53.829239+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_458",
+        "outcome": "completed",
+        "translation": "Why It Absorbs Deeper and More Effectively",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_459",
+        "outcome": "completed",
+        "translation": "Pinhole (Center Channel) Spicule",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_460",
+        "outcome": "completed",
+        "translation": "Designed with a hollow center, the pinhole spicules evenly deliver active ingredients into deeper layers along internal pathways.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_461",
+        "outcome": "completed",
+        "translation": "Actual microscopic observation of Retinal Shot Booster Pinhole Spicules",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_462",
+        "outcome": "completed",
+        "translation": "C",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "5c9b3c27da22abd5d5da513490ef9ae0eead03474d46861b4454be556f941901",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "cd5ba3072c6cd08d4edfe0e3fa8129ccd1627342798c11e994216f22cd203a08",
+      "usage": {
+        "candidates_token_count": 175,
+        "prompt_token_count": 825,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 825
+          }
+        ],
+        "total_token_count": 1000
+      }
+    }
+  ],
+  "seconds": 4.312000000150874
+}

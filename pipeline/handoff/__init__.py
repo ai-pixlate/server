@@ -8,7 +8,9 @@
 - bundle.py       BE 고정 사전 묶음 · content_type 대응표 검증
 - judgment.py     ③-1 · ③-1′ run_judgment (현지 8 + 규제 검출 1, 감싸기 억제)
 - downstream.py   ④ run_label · ⑤ run_logo · ⑥ run_inpaint · ⑦ run_style
-- translation.py  ⑧ run_translate · 번역문 검사 run_text_check
+- translation.py  ⑧ run_translate · 번역문 검사 run_text_check · text_check_manifest
+- review.py       ⑧ 번역문 LLM 규제 판정 run_translation_review · review_manifest (규칙 검사와 독립, 2026-10-12)
+- check_aggregate.py  규칙 · LLM 검사의 블록별 두 축 집계(파생 전용)
 - gpu.py          GPU 실행기(BE 제어 인터페이스 Protocol 소비 · 갱신 · 업로드 · 정리)
 - validate.py     BE 채택 전 보고 검증 validate_report
 - examples.py     계약 예제 생성(pipeline/samples/handoff/)

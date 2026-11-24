@@ -1,0 +1,1115 @@
+{
+  "source_id": "GS-01",
+  "stage": "style",
+  "at": "2026-10-30T01:00:07.422553+00:00",
+  "result": {
+    "schema_version": "1",
+    "image_id": "src_2",
+    "section_key": "sec_7",
+    "config": {
+      "method": "otsu_border",
+      "em_ratio": 0.9,
+      "align_tolerance": 0.12
+    },
+    "input_fingerprints": {
+      "blocks": "8649211514f4e55f3a7e93245cf923464fc3cb417595507eb1e943d13d957f87",
+      "label": "d306c07de2b22b78e328c3949896e30fb21847cd601b99543a2b5023356f5975",
+      "logo": "96f6d0ccfd4d041c03ed9a827511d7155c46a03602926351a9648456f8c59afd",
+      "logo_record": "2e26238d8b1b12bf827f13a83a557b8884d494b2fb94429b5c0830c56b036249"
+    },
+    "blocks": [
+      {
+        "block_key": "blk_95",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#33282D",
+        "bg_color": "#E1BEAF",
+        "est_font_px": 504.9,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 73.08,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0001",
+            "line_key": "line_001",
+            "score": 0.400652140378952,
+            "status": "measured",
+            "font_color": "#33282D",
+            "bg_color": "#E1BEAF",
+            "est_font_px": 504.9,
+            "color_error": null,
+            "otsu": {
+              "threshold": 124,
+              "dark_px": 55448,
+              "light_px": 286201,
+              "border_px": 2336,
+              "border_dark": 1044,
+              "border_light": 1292
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_96",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#5E4C4A",
+        "bg_color": "#E1C7BB",
+        "est_font_px": 233.1,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 32.88,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0002",
+            "line_key": "line_002",
+            "score": 0.29502853751182556,
+            "status": "measured",
+            "font_color": "#5E4C4A",
+            "bg_color": "#E1C7BB",
+            "est_font_px": 233.1,
+            "color_error": null,
+            "otsu": {
+              "threshold": 143,
+              "dark_px": 10035,
+              "light_px": 60931,
+              "border_px": 1062,
+              "border_dark": 104,
+              "border_light": 958
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_97",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_98",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_99",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 2,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_100",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_101",
+        "status": "excluded",
+        "excluded_reason": "product_label",
+        "font_color": null,
+        "bg_color": null,
+        "est_font_px": null,
+        "align": null,
+        "align_basis": null,
+        "align_diag": null,
+        "null_reasons": {
+          "font_color": "excluded",
+          "bg_color": "excluded",
+          "est_font_px": "excluded",
+          "align": "excluded"
+        },
+        "counts": {
+          "regions": 1,
+          "measured": 0,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": []
+      },
+      {
+        "block_key": "blk_102",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#C2CA6D",
+        "bg_color": "#FEFDF8",
+        "est_font_px": 71.1,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 94.2,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 5,
+          "measured": 5,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0010",
+            "line_key": "line_008",
+            "score": 0.9836929440498352,
+            "status": "measured",
+            "font_color": "#C2CB6D",
+            "bg_color": "#FEFEFA",
+            "est_font_px": 77.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 220,
+              "dark_px": 2874,
+              "light_px": 8994,
+              "border_px": 444,
+              "border_dark": 0,
+              "border_light": 444
+            }
+          },
+          {
+            "region_key": "reg_0011",
+            "line_key": "line_008",
+            "score": 0.9995979070663452,
+            "status": "measured",
+            "font_color": "#C2CA6D",
+            "bg_color": "#FEFDF8",
+            "est_font_px": 71.1,
+            "color_error": null,
+            "otsu": {
+              "threshold": 219,
+              "dark_px": 2776,
+              "light_px": 6941,
+              "border_px": 400,
+              "border_dark": 0,
+              "border_light": 400
+            }
+          },
+          {
+            "region_key": "reg_0012",
+            "line_key": "line_008",
+            "score": 0.9999343156814575,
+            "status": "measured",
+            "font_color": "#C2CB6D",
+            "bg_color": "#FDFDF6",
+            "est_font_px": 70.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 219,
+              "dark_px": 5789,
+              "light_px": 12307,
+              "border_px": 616,
+              "border_dark": 0,
+              "border_light": 616
+            }
+          },
+          {
+            "region_key": "reg_0013",
+            "line_key": "line_008",
+            "score": 0.999906599521637,
+            "status": "measured",
+            "font_color": "#C2CA6C",
+            "bg_color": "#FEFDF8",
+            "est_font_px": 66.6,
+            "color_error": null,
+            "otsu": {
+              "threshold": 219,
+              "dark_px": 4643,
+              "light_px": 8381,
+              "border_px": 496,
+              "border_dark": 0,
+              "border_light": 496
+            }
+          },
+          {
+            "region_key": "reg_0014",
+            "line_key": "line_008",
+            "score": 0.9999628067016602,
+            "status": "measured",
+            "font_color": "#C1CA6D",
+            "bg_color": "#FDFDF9",
+            "est_font_px": 71.1,
+            "color_error": null,
+            "otsu": {
+              "threshold": 220,
+              "dark_px": 2940,
+              "light_px": 7014,
+              "border_px": 406,
+              "border_dark": 0,
+              "border_light": 406
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_103",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#B4BD58",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 117.9,
+        "align": "center",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 76.0,
+          "std_center": 0.5,
+          "std_right": 75.0,
+          "tolerance_px": 83.28,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 2,
+          "measured": 2,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0015",
+            "line_key": "line_009",
+            "score": 0.9994832277297974,
+            "status": "measured",
+            "font_color": "#B4BD58",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 120.6,
+            "color_error": null,
+            "otsu": {
+              "threshold": 214,
+              "dark_px": 20858,
+              "light_px": 31670,
+              "border_px": 1048,
+              "border_dark": 0,
+              "border_light": 1048
+            }
+          },
+          {
+            "region_key": "reg_0016",
+            "line_key": "line_010",
+            "score": 0.9600003957748413,
+            "status": "measured",
+            "font_color": "#B4BD58",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 115.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 214,
+              "dark_px": 32543,
+              "light_px": 56289,
+              "border_px": 1640,
+              "border_dark": 0,
+              "border_light": 1640
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_104",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#FFFFF9",
+        "bg_color": "#C3CA6C",
+        "est_font_px": 28.8,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 16.56,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0017",
+            "line_key": "line_011",
+            "score": 0.998100757598877,
+            "status": "measured",
+            "font_color": "#FFFFF9",
+            "bg_color": "#C3CA6C",
+            "est_font_px": 28.8,
+            "color_error": null,
+            "otsu": {
+              "threshold": 221,
+              "dark_px": 2400,
+              "light_px": 2016,
+              "border_px": 336,
+              "border_dark": 333,
+              "border_light": 3
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_105",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#424B55",
+        "bg_color": "#FEFFFF",
+        "est_font_px": 46.8,
+        "align": null,
+        "align_basis": null,
+        "align_diag": {
+          "std_left": 304.99981785058316,
+          "std_center": 213.07758107214272,
+          "std_right": 174.9075946511948,
+          "tolerance_px": 81.48,
+          "candidates": []
+        },
+        "null_reasons": {
+          "align": "no_candidate"
+        },
+        "counts": {
+          "regions": 3,
+          "measured": 3,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0018",
+            "line_key": "line_012",
+            "score": 0.9620127081871033,
+            "status": "measured",
+            "font_color": "#424B55",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 52.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 165,
+              "dark_px": 9224,
+              "light_px": 28824,
+              "border_px": 1424,
+              "border_dark": 6,
+              "border_light": 1418
+            }
+          },
+          {
+            "region_key": "reg_0021",
+            "line_key": "line_013",
+            "score": 0.9961865544319153,
+            "status": "measured",
+            "font_color": "#414B55",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 46.8,
+            "color_error": null,
+            "otsu": {
+              "threshold": 163,
+              "dark_px": 6127,
+              "light_px": 9213,
+              "border_px": 690,
+              "border_dark": 0,
+              "border_light": 690
+            }
+          },
+          {
+            "region_key": "reg_0019",
+            "line_key": "line_014",
+            "score": 0.9864029884338379,
+            "status": "measured",
+            "font_color": "#444C55",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 18.9,
+            "color_error": null,
+            "otsu": {
+              "threshold": 163,
+              "dark_px": 125,
+              "light_px": 526,
+              "border_px": 100,
+              "border_dark": 0,
+              "border_light": 100
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_106",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#C2CA6D",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 45.0,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 7.8,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0020",
+            "line_key": "line_015",
+            "score": 0.9981530904769897,
+            "status": "measured",
+            "font_color": "#C2CA6D",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 45.0,
+            "color_error": null,
+            "otsu": {
+              "threshold": 221,
+              "dark_px": 921,
+              "light_px": 2329,
+              "border_px": 226,
+              "border_dark": 0,
+              "border_light": 226
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_107",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#424B55",
+        "bg_color": "#FEFFFF",
+        "est_font_px": 43.2,
+        "align": "right",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 193.29559617332205,
+          "std_center": 107.17217456037737,
+          "std_right": 45.47183194022427,
+          "tolerance_px": 58.56,
+          "candidates": [
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 4,
+          "measured": 4,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0022",
+            "line_key": "line_016",
+            "score": 0.9922084808349609,
+            "status": "measured",
+            "font_color": "#424B55",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 49.5,
+            "color_error": null,
+            "otsu": {
+              "threshold": 165,
+              "dark_px": 5767,
+              "light_px": 14748,
+              "border_px": 852,
+              "border_dark": 5,
+              "border_light": 847
+            }
+          },
+          {
+            "region_key": "reg_0026",
+            "line_key": "line_017",
+            "score": 0.9953001737594604,
+            "status": "measured",
+            "font_color": "#414B56",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 48.6,
+            "color_error": null,
+            "otsu": {
+              "threshold": 163,
+              "dark_px": 9391,
+              "light_px": 15773,
+              "border_px": 1036,
+              "border_dark": 0,
+              "border_light": 1036
+            }
+          },
+          {
+            "region_key": "reg_0024",
+            "line_key": "line_018",
+            "score": 0.9993044137954712,
+            "status": "measured",
+            "font_color": "#424B55",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 37.8,
+            "color_error": null,
+            "otsu": {
+              "threshold": 165,
+              "dark_px": 1043,
+              "light_px": 2359,
+              "border_px": 242,
+              "border_dark": 6,
+              "border_light": 236
+            }
+          },
+          {
+            "region_key": "reg_0023",
+            "line_key": "line_019",
+            "score": 0.9602290987968445,
+            "status": "measured",
+            "font_color": "#444B55",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 17.1,
+            "color_error": null,
+            "otsu": {
+              "threshold": 166,
+              "dark_px": 187,
+              "light_px": 687,
+              "border_px": 126,
+              "border_dark": 0,
+              "border_light": 126
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_108",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#C2CA6D",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 47.7,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 8.4,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0025",
+            "line_key": "line_020",
+            "score": 0.9996033906936646,
+            "status": "measured",
+            "font_color": "#C2CA6D",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 47.7,
+            "color_error": null,
+            "otsu": {
+              "threshold": 221,
+              "dark_px": 1138,
+              "light_px": 2572,
+              "border_px": 242,
+              "border_dark": 0,
+              "border_light": 242
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_109",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#424B55",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 55.35,
+        "align": "left",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 2.5,
+          "std_center": 49.75,
+          "std_right": 102.0,
+          "tolerance_px": 72.6,
+          "candidates": [
+            "left",
+            "center"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 2,
+          "measured": 2,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0027",
+            "line_key": "line_021",
+            "score": 0.9007784724235535,
+            "status": "measured",
+            "font_color": "#424B55",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 61.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 165,
+              "dark_px": 7476,
+              "light_px": 33664,
+              "border_px": 1342,
+              "border_dark": 0,
+              "border_light": 1342
+            }
+          },
+          {
+            "region_key": "reg_0029",
+            "line_key": "line_022",
+            "score": 0.9677279591560364,
+            "status": "measured",
+            "font_color": "#414B56",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 49.5,
+            "color_error": null,
+            "otsu": {
+              "threshold": 164,
+              "dark_px": 7933,
+              "light_px": 13847,
+              "border_px": 898,
+              "border_dark": 0,
+              "border_light": 898
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_110",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#C2CB6E",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 45.9,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 8.16,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0028",
+            "line_key": "line_023",
+            "score": 0.999678373336792,
+            "status": "measured",
+            "font_color": "#C2CB6E",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 45.9,
+            "color_error": null,
+            "otsu": {
+              "threshold": 222,
+              "dark_px": 1121,
+              "light_px": 2347,
+              "border_px": 234,
+              "border_dark": 0,
+              "border_light": 234
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_111",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#424B55",
+        "bg_color": "#FEFFFF",
+        "est_font_px": 45.9,
+        "align": "right",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 286.615111643162,
+          "std_center": 154.22512405211054,
+          "std_right": 29.43920288775949,
+          "tolerance_px": 81.84,
+          "candidates": [
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 3,
+          "measured": 3,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0030",
+            "line_key": "line_024",
+            "score": 0.9510501027107239,
+            "status": "measured",
+            "font_color": "#424B55",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 52.2,
+            "color_error": null,
+            "otsu": {
+              "threshold": 165,
+              "dark_px": 9200,
+              "light_px": 29196,
+              "border_px": 1436,
+              "border_dark": 0,
+              "border_light": 1436
+            }
+          },
+          {
+            "region_key": "reg_0032",
+            "line_key": "line_025",
+            "score": 0.9498119950294495,
+            "status": "measured",
+            "font_color": "#414B55",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 45.9,
+            "color_error": null,
+            "otsu": {
+              "threshold": 163,
+              "dark_px": 12021,
+              "light_px": 19089,
+              "border_px": 1318,
+              "border_dark": 0,
+              "border_light": 1318
+            }
+          },
+          {
+            "region_key": "reg_0033",
+            "line_key": "line_026",
+            "score": 0.8514545559883118,
+            "status": "measured",
+            "font_color": "#434B55",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 15.3,
+            "color_error": null,
+            "otsu": {
+              "threshold": 166,
+              "dark_px": 311,
+              "light_px": 930,
+              "border_px": 176,
+              "border_dark": 0,
+              "border_light": 176
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_112",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#C2CA6D",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 45.0,
+        "align": "left",
+        "align_basis": "default_single_line",
+        "align_diag": {
+          "std_left": 0.0,
+          "std_center": 0.0,
+          "std_right": 0.0,
+          "tolerance_px": 8.16,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 1,
+          "measured": 1,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0031",
+            "line_key": "line_027",
+            "score": 0.999774694442749,
+            "status": "measured",
+            "font_color": "#C2CA6D",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 45.0,
+            "color_error": null,
+            "otsu": {
+              "threshold": 222,
+              "dark_px": 1129,
+              "light_px": 2271,
+              "border_px": 232,
+              "border_dark": 0,
+              "border_light": 232
+            }
+          }
+        ]
+      },
+      {
+        "block_key": "blk_113",
+        "status": "ok",
+        "excluded_reason": null,
+        "font_color": "#B5B5B7",
+        "bg_color": "#FFFFFF",
+        "est_font_px": 23.4,
+        "align": "center",
+        "align_basis": "estimated",
+        "align_diag": {
+          "std_left": 82.67139771408247,
+          "std_center": 0.9273618495495703,
+          "std_right": 83.1105288155478,
+          "tolerance_px": 85.32,
+          "candidates": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "null_reasons": {},
+        "counts": {
+          "regions": 5,
+          "measured": 5,
+          "color_failed": 0,
+          "blank_text": 0
+        },
+        "regions": [
+          {
+            "region_key": "reg_0034",
+            "line_key": "line_028",
+            "score": 0.9706557393074036,
+            "status": "measured",
+            "font_color": "#BCBDBF",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 21.6,
+            "color_error": null,
+            "otsu": {
+              "threshold": 223,
+              "dark_px": 4185,
+              "light_px": 12879,
+              "border_px": 1466,
+              "border_dark": 9,
+              "border_light": 1457
+            }
+          },
+          {
+            "region_key": "reg_0035",
+            "line_key": "line_029",
+            "score": 0.9410359263420105,
+            "status": "measured",
+            "font_color": "#B4B5B7",
+            "bg_color": "#FEFFFF",
+            "est_font_px": 23.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 219,
+              "dark_px": 1905,
+              "light_px": 8157,
+              "border_px": 822,
+              "border_dark": 2,
+              "border_light": 820
+            }
+          },
+          {
+            "region_key": "reg_0036",
+            "line_key": "line_030",
+            "score": 0.9981775879859924,
+            "status": "measured",
+            "font_color": "#B5B5B7",
+            "bg_color": "#FEFEFF",
+            "est_font_px": 18.0,
+            "color_error": null,
+            "otsu": {
+              "threshold": 219,
+              "dark_px": 2695,
+              "light_px": 8565,
+              "border_px": 1162,
+              "border_dark": 44,
+              "border_light": 1118
+            }
+          },
+          {
+            "region_key": "reg_0037",
+            "line_key": "line_031",
+            "score": 0.9625630378723145,
+            "status": "measured",
+            "font_color": "#B4B5B6",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 23.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 220,
+              "dark_px": 1132,
+              "light_px": 5420,
+              "border_px": 552,
+              "border_dark": 0,
+              "border_light": 552
+            }
+          },
+          {
+            "region_key": "reg_0038",
+            "line_key": "line_032",
+            "score": 0.9705590009689331,
+            "status": "measured",
+            "font_color": "#BABBBC",
+            "bg_color": "#FFFFFF",
+            "est_font_px": 23.4,
+            "color_error": null,
+            "otsu": {
+              "threshold": 223,
+              "dark_px": 3749,
+              "light_px": 12423,
+              "border_px": 1292,
+              "border_dark": 10,
+              "border_light": 1282
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "seconds": 0.11000000010244548
+}

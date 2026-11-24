@@ -1,0 +1,33 @@
+{
+  "status": "completed",
+  "checkpoint_ids": {
+    "machine_snapshot": [
+      "94db76bc06f44a14abca7ca98a258981",
+      "950104933986417087b909ef12e46e33",
+      "1f48e7de932a4b5f8df48608009bd622",
+      "62d2b002321a4410baa7ad2feea745b3",
+      "90b0a6bb12a84bd6935b75e90b1b0825",
+      "f11eb33743fd40bab75f4f9dd8831cdf",
+      "97e5a9bfb40646da8144baf0246df33f",
+      "1f2105234ca543cca7e7cb52a639a301",
+      "cc381065f283455fae7a13704f2e29a2",
+      "5c572db520204eb28dca6d6baa88d9a7",
+      "b8e471b0a79142f88a01f740776c1799",
+      "2156dfebf6784a1d96f37d13f0f1015d",
+      "348c417a60f24804a3c762010ac859dc",
+      "054d90500f8b4418ad6abe83fab1ccaa",
+      "a927664c43014e01a8a9e02d96e8bf5f",
+      "0c1fcc56151249ec82585c4c05fb1217",
+      "be7a4fa586414a9889725ffa2bb5498e",
+      "dd3c3a16e08d4d6ebdf49e63b4be0122",
+      "83bc814b5083409f8eac3dc32f3e1de4",
+      "fa4c89c3b6634b93899551c849058ba0",
+      "5203dd0598704883bf4e149bb8b7c2b3",
+      "87662d307fad4cb3ba884140d326893d",
+      "59148da44d044a36899f1b9ca6e0aa71"
+    ],
+    "service_final": [
+      "ac37a0d23d7a4ad9aab9ce5888a80e4f"
+    ]
+  }
+}

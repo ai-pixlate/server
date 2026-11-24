@@ -13,7 +13,8 @@ SUN = "Sunscreens & Tanning Products"
 
 
 class FakeDB:
-    """category_mapping(category_id → internal_category 행 목록)과 브랜드 소유 확인(항상 소유)만 아는 가짜 세션. 실행한 SQL과 rollback을 기록한다."""
+    """category_mapping(category_id → internal_category 행 목록)·category_master leaf 여부와 브랜드 소유 확인(항상 소유)만 아는 가짜 세션.
+    실행한 SQL과 rollback을 기록한다."""
 
     def __init__(self, mapping: dict[int, list[str]]):
         self.mapping = mapping
@@ -23,6 +24,8 @@ class FakeDB:
     def execute(self, stmt, params=None):
         sql = str(stmt)
         self.sql.append(sql)
+        if "FROM category_master" in sql:  # 작업 생성·수정의 leaf 확인(값 = is_leaf, 없는 id 는 행 없음)
+            return _Rows([(params["c"] in LEAF,)] if params["c"] in LEAF | PARENT else [])
         if "FROM category_mapping" in sql:
             return _Rows([(v,) for v in self.mapping.get(params["c"], [])])
         if "FROM brand" in sql:
@@ -43,9 +46,13 @@ class _Rows:
     def first(self):
         return self.rows[0] if self.rows else None
 
+    def scalar(self):
+        return self.rows[0][0] if self.rows else None
+
 
 # category 10 = 하위(선크림, 직접 매핑), 20 = 하위(매핑 없음, 부모 30에만 매핑), 40 = 같은 값 중복, 50 = 서로 다른 값
 MAPPING = {10: [SUN], 30: [SUN], 40: [SUN, SUN], 50: [SUN, "Skincare"]}
+LEAF, PARENT = {10, 20, 40, 50}, {30}
 
 
 @pytest.mark.parametrize("cid, want", [(10, SUN), (None, None), (99, None), (40, SUN), (20, None)])

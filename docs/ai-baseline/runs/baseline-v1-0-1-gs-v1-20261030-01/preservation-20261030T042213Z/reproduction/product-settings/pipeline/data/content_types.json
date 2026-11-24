@@ -1,0 +1,15 @@
+{
+  "version": "content-types@2026-10-08.1",
+  "basis": "integration-decisions.md 5.22 유형 후보 + D9-2(현지 8 + 규제 표현 검출 1, 섹션·항목당 1건). content_type은 검사 대상이며 사전 ID·정책 결론이 아니다(D7). 운영 enum·API 노출 아님",
+  "local": [
+    {"content_type": "local_bundle_offer", "external_id": "LC-01"},
+    {"content_type": "local_contact_info", "external_id": "LC-02"},
+    {"content_type": "local_purchase_gift", "external_id": "LC-03"},
+    {"content_type": "local_return_policy", "external_id": "LC-04"},
+    {"content_type": "local_promotion_event", "external_id": "LC-05"},
+    {"content_type": "local_krw_price", "external_id": "LC-06", "price_suffix_exception": true},
+    {"content_type": "local_sales_authentication", "external_id": "LC-07"},
+    {"content_type": "local_marketplace_listing", "external_id": "LC-08"}
+  ],
+  "regulatory": {"content_type": "regulatory_expression_match"}
+}

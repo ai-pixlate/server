@@ -1,0 +1,143 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:55:04.534437+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_699",
+        "outcome": "completed",
+        "translation": "Overwhelming efficacy,\nminimal irritation",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_700",
+        "outcome": "completed",
+        "translation": "Skin Irritation\nTested",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_701",
+        "outcome": "failed",
+        "translation": null,
+        "error": "모델 명시 실패: 원문 오탈자 또는 OCR 오류로 판독 및 의미 특정이 불가능한 텍스트입니다.",
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_702",
+        "outcome": "completed",
+        "translation": "SKINMED",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_703",
+        "outcome": "completed",
+        "translation": "Certificate",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_704",
+        "outcome": "completed",
+        "translation": "\"celimax The Vita A Retinal Shot Tightening Booster\"",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_705",
+        "outcome": "completed",
+        "translation": "Human Skin Primary Irritation Test",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_706",
+        "outcome": "completed",
+        "translation": "(Skin Primary Irritation Test in Humans)",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_707",
+        "outcome": "completed",
+        "translation": "Average Skin Reaction Score: 0.00",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_708",
+        "outcome": "completed",
+        "translation": "As a result of the 24-hour patch test for celimax The Vita A Retinal Shot Tightening Booster,\nthe average skin reaction score was 0.00, evaluated as low (non-)irritating.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_709",
+        "outcome": "completed",
+        "translation": "Based on the above results, [celimax The Vita A Retinal Shot\nTightening Booster] requested by Absorb Lab Co., Ltd. is evaluated as a hypoallergenic product\nin terms of human skin primary irritation.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_710",
+        "outcome": "completed",
+        "translation": "Conclusion",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_711",
+        "outcome": "completed",
+        "translation": "*Human skin primary irritation test / 2025.07.07–2025.07.09 / 31 adult men and women / Skinmed Clinical Trial Center / Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_712",
+        "outcome": "completed",
+        "translation": "+ Gentle enough for sensitive skin to use with confidence.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_713",
+        "outcome": "completed",
+        "translation": "As a result of the 24-hour patch test on sensitive skin for\nThe Vita A Retinal Shot Tightening Booster,\nthe average skin reaction score was 0.00,\nevaluated as low (non-)irritating.",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_714",
+        "outcome": "completed",
+        "translation": "*Human skin primary irritation test on sensitive skin / 2025.07.09–2025.07.11 /\n31 adult men and women / Skinmed Clinical Trial Center / Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "85a2530bd1d987cce7ed751fc78e1ee91d9dba62bc645cbab0b1d5d63cfdf96c",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "390d43e64cb651652d9152cd6cb1846605eaaf7bafcc3eb7c7880bcddbae767f",
+      "usage": {
+        "candidates_token_count": 702,
+        "prompt_token_count": 1460,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1460
+          }
+        ],
+        "total_token_count": 2162
+      }
+    }
+  ],
+  "seconds": 6.734000000171363
+}

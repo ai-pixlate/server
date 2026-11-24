@@ -1,0 +1,95 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:20.460389+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_10",
+      "section_key": "sec_45",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_607",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_608",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_609",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_10",
+      "section_key": "sec_45",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "f56a9cbf0f7aba9586d6b1a647d5087aefaf4e21679c1779fe24ce0a69fe9497",
+      "label_fingerprint": "4ac8c7355b6ea6cc7067af55b603a0560987307c9786d7b83c711f1ac95ef495",
+      "label_input_fingerprint": "f56a9cbf0f7aba9586d6b1a647d5087aefaf4e21679c1779fe24ce0a69fe9497",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 3,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 3,
+        "compared": 3
+      },
+      "decisions": [
+        {
+          "block_key": "blk_607",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "모공사이사이밀착되어속탄력을깨우는20250ashoto",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_608",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "hydrolyzedsponge하이드라이즈드해면원료적특성에한함",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_609",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "©레티날샷부스터사용시따끔거리는사용감은ashot원료의특성으로자연스러운현상이니안심하고사용하세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

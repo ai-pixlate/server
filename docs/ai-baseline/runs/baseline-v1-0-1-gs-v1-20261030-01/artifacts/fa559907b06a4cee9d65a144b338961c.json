@@ -1,0 +1,109 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:48.476082+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_11",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_141",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_142",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_143",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_144",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_11",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "e16ec9617cbd0fda6964b31c6b6c04e85322b7a7fd5d57958ec3ae9654c864d7",
+      "label_fingerprint": "9cd1f2698d562fd9af51bba2948fcc5bcc42bd64e13db9e55fb91620fe2e41b6",
+      "label_input_fingerprint": "e16ec9617cbd0fda6964b31c6b6c04e85322b7a7fd5d57958ec3ae9654c864d7",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 4,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 4
+      },
+      "decisions": [
+        {
+          "block_key": "blk_141",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "point",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_142",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "피부에흡수될걱정없는논나노무기자외선차단제",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_143",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "논나노크기의자외선차단성분으로피부에잘흡수되지않아순한저자극선케어",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_144",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "소비자이해를돕기위해연출된이미지입니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

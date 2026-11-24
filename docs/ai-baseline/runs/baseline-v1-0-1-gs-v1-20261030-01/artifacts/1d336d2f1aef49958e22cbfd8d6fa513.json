@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:59:25.523804+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_659",
+        "outcome": "completed",
+        "translation": "**\n2-Week Real User Skin Lifting Satisfaction",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "4a45346bdeed17a381ad1e64980960373eb65588c017951aa6f5872520a230a6",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "0a4fc5537d1aecd18fdfaf71863d3f1a4594cc5c6ea0bd8f56bd38f36f0667a4",
+      "usage": {
+        "candidates_token_count": 23,
+        "prompt_token_count": 638,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 638
+          }
+        ],
+        "thoughts_token_count": 304,
+        "total_token_count": 965
+      }
+    }
+  ],
+  "seconds": 6.312999999849126
+}

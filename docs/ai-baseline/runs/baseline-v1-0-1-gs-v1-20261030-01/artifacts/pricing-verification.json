@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-10-30T00:25:26.352954+00:00",
+  "sources": [
+    "https://ai.google.dev/gemini-api/docs/pricing",
+    "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash"
+  ],
+  "model": "gemini-3.8-flash",
+  "input_per_million": 0.75,
+  "output_per_million": 3.75,
+  "max_cost_per_request": 1.032192,
+  "sdk_version": "2.29.0",
+  "sdk_retry_args_none_attempts": 1,
+  "invoice_amount": null
+}

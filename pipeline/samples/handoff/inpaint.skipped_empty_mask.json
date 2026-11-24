@@ -17,7 +17,7 @@
     },
     "section_image": {
       "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
-      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
     },
     "blocks": [
       {
@@ -262,7 +262,7 @@
         "height": 400,
         "width": 600
       },
-      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "image_sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c",
       "blocks": [
         {
           "block_key": "blk_001",
@@ -391,7 +391,7 @@
       },
       "raster_rule": "poly: 정수 좌표 = 픽셀 경계, 픽셀 중심 (x+0.5, y+0.5)가 내부(nonzero) 또는 경계 위면 포함 · bbox: 열 x..x+w-1 · 행 y..y+h-1 · 커널: dx²+dy² ≤ r² · r = ceil(bbox.h × Fraction(str(dilate_ratio))) · 영역별 팽창 후 합집합 → 보호 차감"
     },
-    "input_manifest_sha256": "f8de9a7c6738c4b43c0389ca067b5d6e06ce08543f883039fec3d1e720f4caf5",
+    "input_manifest_sha256": "2d6a28111b631e72eaec973baccf27939331daf1bea5311930a33da459953326",
     "outcome": "skipped",
     "target_count": 0,
     "skip_reason": "empty_mask",
@@ -452,8 +452,8 @@
         "kind": "delete_mask",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/inpaint/empty/1/inpaint_mask/sec_1_01.final.png",
-        "bytes": 313,
-        "sha256": "f42e1e849232bd215ca42f42588df3c3cadabf434130e630a19133c1f0438b60",
+        "bytes": 240539,
+        "sha256": "0f00eb4fd2f566f4e5839525534b69904a8503747479846a871c4f79cbf0d2ae",
         "format": "png",
         "width": 600,
         "height": 400
@@ -462,8 +462,8 @@
         "kind": "protect_mask",
         "part_key": "sec_1_01",
         "path": "/srv/pixlate-work/inpaint/empty/1/inpaint_mask/sec_1_01.protect.png",
-        "bytes": 435,
-        "sha256": "01a85c1f42d7f1c2fcdcc65e672fe4f653fdf54f20e9e6a9e1e5a84e10d42e53",
+        "bytes": 240539,
+        "sha256": "ea044a88252a51b292012c63fc136582c4c47a47d84bcc3b79ae450f9306e544",
         "format": "png",
         "width": 600,
         "height": 400
@@ -474,7 +474,7 @@
         "kind": "background",
         "part_key": "sec_1_01",
         "ref": "section_image",
-        "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+        "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
       }
     ],
     "failure": null,

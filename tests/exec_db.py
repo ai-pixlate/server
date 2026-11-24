@@ -71,8 +71,17 @@ def bound_app_db(url: str):
         eng.dispose()
 
 
-def seed_job(conn, *, regulatory_class: str | None = "cosmetic", name_ko: str = "구달", name_en: str = "goodal") -> dict:
-    """셀러·브랜드·작업 한 벌. 반환: {seller, brand, job}."""
+def seed_job(conn, *, regulatory_class: str | None = "cosmetic", name_ko: str = "구달", name_en: str = "goodal",
+             category: bool = True) -> dict:
+    """셀러·브랜드·작업 한 벌. 반환: {seller, brand, job, category}.
+
+    category=True(기본): 최초 분석 게이트(카테고리 필수·leaf)를 통과하도록 **매핑 없는 leaf** 하나를 만들어 작업에 넣는다.
+    내부 분류는 NULL 그대로라 용어집 공급은 카테고리 없던 이전과 같은 common만이다. 카테고리 미선택을 시험할 때는 category=False.
+    """
+    cat = None
+    if category:
+        cat = conn.execute(text("INSERT INTO category_master (name, is_leaf) VALUES (:n, true) RETURNING id"),
+                           {"n": f"시험 leaf {uuid.uuid4().hex[:8]}"}).scalar()
     email = f"exec-{uuid.uuid4().hex[:8]}@example.com"
     seller = conn.execute(
         text("INSERT INTO seller (cognito_sub, email) VALUES (:sub, :e) RETURNING id"),
@@ -84,9 +93,9 @@ def seed_job(conn, *, regulatory_class: str | None = "cosmetic", name_ko: str = 
     ).scalar()
     job = conn.execute(
         text(
-            "INSERT INTO job (seller_id, brand_id, product_name, target_country, regulatory_class, target_lang) "
-            "VALUES (:s, :b, '수분 크림', 'US', :rc, 'en') RETURNING id"
+            "INSERT INTO job (seller_id, brand_id, product_name, target_country, regulatory_class, target_lang, display_category_id) "
+            "VALUES (:s, :b, '수분 크림', 'US', :rc, 'en', :cat) RETURNING id"
         ),
-        {"s": seller, "b": brand, "rc": regulatory_class},
+        {"s": seller, "b": brand, "rc": regulatory_class, "cat": cat},
     ).scalar()
-    return {"seller": seller, "brand": brand, "job": job, "email": email}
+    return {"seller": seller, "brand": brand, "job": job, "email": email, "category": cat}

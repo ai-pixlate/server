@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.errors import install_error_handlers
 from app.routers import (
     auth,
+    auth_social,
     brands,
     cfm,
     finalize,
@@ -51,6 +52,11 @@ app = FastAPI(
 
 install_error_handlers(app)
 
+# 규칙 검사 공급자(A1 · M3) — PIXLATE_ACTIVE_CHECKS=rule 일 때만 등록(기본 꺼짐). 워커도 같은 함수로 같은 공급자를 등록한다
+from app.text_check_supply import install_from_env as _install_check_providers  # noqa: E402
+
+_install_check_providers()
+
 # CORS — FE(다른 오리진)에서 호출 허용.
 # 환경변수 FRONTEND_ORIGINS(콤마 구분)로 제한 가능. 기본은 전체 허용(테스트용).
 _origins = os.getenv("FRONTEND_ORIGINS", "*").split(",")
@@ -62,6 +68,7 @@ app.add_middleware(
     allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Idempotent-Replayed"],  # 저장 재전송 표시(계약 blockPatch 「저장 공통」) — 교차 출처에서도 읽히게
 )
 
 
@@ -76,5 +83,5 @@ def health():
 
 
 # 도메인별 라우터 등록 (모두 /v1 접두어)
-for module in (auth, brands, master, jobs, source_images, sections, cfm, finalize, library):
+for module in (auth, auth_social, brands, master, jobs, source_images, sections, cfm, finalize, library):
     app.include_router(module.router, prefix=API_PREFIX)

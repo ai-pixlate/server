@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:21.525473+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_11",
+      "section_key": "sec_52",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_659",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_11",
+      "section_key": "sec_52",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "c46f9a8d8f5acd48d5074fbfcef9bb5a1c6e47fbd696bd400ca1e3a31ff8d3e4",
+      "label_fingerprint": "8e91f65e88ae92dcf9665bc9270f92f36a15a1ca06ddc2cbe3e20a2d56190a4d",
+      "label_input_fingerprint": "c46f9a8d8f5acd48d5074fbfcef9bb5a1c6e47fbd696bd400ca1e3a31ff8d3e4",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 1,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 1,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_659",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "2주실사용자피부리프팅만족도",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

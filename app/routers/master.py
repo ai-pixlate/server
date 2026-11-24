@@ -52,18 +52,18 @@ def regulatory_classes(country: str = Query(..., examples=["US"]), db: Session =
 
 @router.get("/master/categories", summary="API-MST-04 카테고리 트리 (DB)")
 def categories(db: Session = Depends(get_db)):
+    """계약 `Category` 평면 배열 — 노드마다 한 원소, 트리는 `parentId`로 잇는다(화면이 조립). 순서는 id.
+
+    선택 가능 여부는 `isLeaf`(category_master.is_leaf)다. 작업 생성·수정의 categoryId 검증도 같은 값을 쓴다.
+    """
     rows = db.execute(
-        text("SELECT id, parent_id, name, is_leaf FROM category_master ORDER BY id"),
+        text("SELECT id, parent_id, name, amazon_node, is_leaf, path FROM category_master ORDER BY id"),
     ).mappings().all()
-    nodes = {r["id"]: {"id": r["id"], "name": r["name"], "isLeaf": r["is_leaf"], "children": []} for r in rows}
-    roots = []
-    for r in rows:
-        node = nodes[r["id"]]
-        if r["parent_id"] and r["parent_id"] in nodes:
-            nodes[r["parent_id"]]["children"].append(node)
-        else:
-            roots.append(node)
-    return roots
+    return [
+        {"id": r["id"], "parentId": r["parent_id"], "name": r["name"], "amazonNode": r["amazon_node"],
+         "isLeaf": r["is_leaf"], "path": r["path"]}
+        for r in rows
+    ]
 
 
 @router.get("/master/channel-specs", summary="API-MST-05 규격(채널) 목록 (DB)")

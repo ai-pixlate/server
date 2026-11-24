@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:51:43.857504+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_465",
+        "outcome": "completed",
+        "translation": "[Absorption rate increase test after 1 use of celimax The Vita A Retinal Shot Tightening Booster\n(Product without spicules vs. Product with spicules)\nclinical study / 2025.08.18-2025.08.22 / 20 adult men and women / Human Skin Clinical Trial Center Co., Ltd.",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "c40f9756b4dee271a43981a061f7725404009a3a02e40765d1e16972e7ab66d6",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "cc821f93d2019c310f5930575588c20796f408c6599ad1dc19c585c7d53fa64d",
+      "usage": {
+        "candidates_token_count": 90,
+        "prompt_token_count": 804,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 804
+          }
+        ],
+        "thoughts_token_count": 1512,
+        "total_token_count": 2406
+      }
+    }
+  ],
+  "seconds": 13.563000000081956
+}

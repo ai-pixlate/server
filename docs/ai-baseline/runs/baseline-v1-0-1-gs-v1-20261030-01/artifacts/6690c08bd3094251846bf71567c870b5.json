@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T02:00:06.824364+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_806",
+        "outcome": "completed",
+        "translation": "Retinal Shot Tightening Booster\\nProduct Development Story",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "886cc2220ce95b8bf6847ef9506439093ae5faf917530e461b13a9161d6c3f6d",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "b0bb8cc62d3939797e946ee10c883a44b5b53720a690753f7669fe44672233f4",
+      "usage": {
+        "candidates_token_count": 27,
+        "prompt_token_count": 640,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 640
+          }
+        ],
+        "thoughts_token_count": 192,
+        "total_token_count": 859
+      }
+    }
+  ],
+  "seconds": 4.452999999979511
+}

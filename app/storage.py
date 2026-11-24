@@ -15,13 +15,23 @@ class ObjectMissing(KeyError):
     pass
 
 
+class DeleteIncomplete(RuntimeError):
+    """접두사 삭제 중 일부 객체를 지우지 못했다(일괄 삭제 응답의 개별 오류). 지운 개수는 deleted, 남은 키 수는 failed."""
+
+    def __init__(self, prefix: str, deleted: int, failed: int, codes: list[str]):
+        super().__init__(f"접두사 {prefix} 삭제 미완료 — 성공 {deleted}건, 실패 {failed}건 {sorted(set(codes))[:5]}")
+        self.prefix, self.deleted, self.failed = prefix, deleted, failed
+
+
 class ObjectStore(Protocol):
     def put_if_absent(self, key: str, data: bytes, content_type: str | None = None) -> bool: ...
     def put(self, key: str, data: bytes, content_type: str | None = None) -> None: ...
     def get(self, key: str) -> bytes: ...
     def exists(self, key: str) -> bool: ...
     def delete(self, key: str) -> None: ...
-    def delete_prefix(self, prefix: str) -> int: ...
+    def delete_prefix(self, prefix: str) -> int:
+        """지운 개수. 하나라도 못 지우면 DeleteIncomplete(성공으로 세지 않는다)."""
+        ...
     def presign_put(self, key: str, ttl: int, content_type: str | None = None) -> str: ...
     def presign_get(self, key: str, ttl: int) -> str: ...
 
@@ -81,13 +91,19 @@ class S3Store:
     def delete_prefix(self, prefix: str) -> int:
         if not prefix or not prefix.endswith("/"):
             raise ValueError(f"접두사 삭제는 '/'로 끝나는 접두사만: {prefix!r}")
-        n = 0
+        n, failed, codes = 0, 0, []
         paginator = self._client.get_paginator("list_objects_v2")
         for page in paginator.paginate(Bucket=self._s3.S3_BUCKET, Prefix=prefix):
             keys = [{"Key": o["Key"]} for o in page.get("Contents", [])]
             for i in range(0, len(keys), 1000):
-                self._client.delete_objects(Bucket=self._s3.S3_BUCKET, Delete={"Objects": keys[i:i + 1000], "Quiet": True})
-                n += len(keys[i:i + 1000])
+                batch = keys[i:i + 1000]
+                resp = self._client.delete_objects(Bucket=self._s3.S3_BUCKET, Delete={"Objects": batch, "Quiet": True})
+                errs = resp.get("Errors") or []  # Quiet 응답은 실패한 키만 돌려준다 — 그 키는 지운 개수에 넣지 않는다
+                n += len(batch) - len(errs)
+                failed += len(errs)
+                codes += [str(e.get("Code")) for e in errs]
+        if failed:
+            raise DeleteIncomplete(prefix, n, failed, codes)
         return n
 
     def presign_put(self, key: str, ttl: int, content_type: str | None = None) -> str:

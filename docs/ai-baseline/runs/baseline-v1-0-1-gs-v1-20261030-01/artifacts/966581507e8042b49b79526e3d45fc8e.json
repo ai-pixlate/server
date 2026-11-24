@@ -1,0 +1,115 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:54:00.104106+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_466",
+        "outcome": "completed",
+        "translation": "Overwhelming Absorption,\nUnmatched Results",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_467",
+        "outcome": "completed",
+        "translation": "Absorbed deeply and thoroughly\nto deliver results beyond professional skincare treatments",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_468",
+        "outcome": "completed",
+        "translation": "Forehead Wrinkles\n-28.54%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_469",
+        "outcome": "completed",
+        "translation": "Stratum Corneum Pigmentation\n-79.63%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_470",
+        "outcome": "completed",
+        "translation": "Eye Wrinkles\n-14.31%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_471",
+        "outcome": "completed",
+        "translation": "Pore Depth\n-7.80%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_472",
+        "outcome": "completed",
+        "translation": "Horizontal Pores\n-13.13%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_473",
+        "outcome": "completed",
+        "translation": "Cheek Lifting\n+3.32%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_474",
+        "outcome": "completed",
+        "translation": "Nasolabial Folds\n-18.49%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_475",
+        "outcome": "completed",
+        "translation": "Lip Corner Lifting\n+3.21%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_476",
+        "outcome": "completed",
+        "translation": "3-Layer Skin Elasticity\n+7.54%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_477",
+        "outcome": "completed",
+        "translation": "· clinical study on immediate (temporary) skin pore improvement / 2024.05.27–2024.05.28 / 22 adult men and women / Skinmed Clinical Trials Center Co., Ltd.\n· clinical study on 3-layer skin elasticity improvement / 2024.05.27–2024.06.13 / 21 adult men and women / Skinmed Clinical Trials Center Co., Ltd.\n- clinical study on skin stratum corneum improvement (turnover improvement) / 2024.05.27–2024.06.05 / 22 adult men and women / Skinmed Clinical Trials Center Co., Ltd.\n· clinical study on deep wrinkle improvement / 2024.05.27–2024.06.13 / 21 adult men and women / Skinmed Clinical Trials Center Co., Ltd.\n· clinical study on skin lifting (outer eye area, cheeks, lip corners, jawline lifting) improvement / 2024.05.27–2024.06.13 / 21 adult men and women / Skinmed Clinical Trials Center",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "44bc024ab30adb8a4e79762b37ed178108c64604db3634fde6d262dee3307585",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "b22f456e146c4d6b587caf4646f115467a3ecc652324542615316b42703e204c",
+      "usage": {
+        "candidates_token_count": 676,
+        "prompt_token_count": 1525,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1525
+          }
+        ],
+        "total_token_count": 2201
+      }
+    }
+  ],
+  "seconds": 6.797000000020489
+}

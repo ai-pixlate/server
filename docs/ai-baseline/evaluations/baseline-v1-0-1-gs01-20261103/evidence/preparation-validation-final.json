@@ -1,0 +1,14 @@
+{
+  "validation_issues": [],
+  "protocol_tests_passed": 15,
+  "partial_H01": [
+    1,
+    1
+  ],
+  "correctly_excluded": 1,
+  "scope_source_count": 2,
+  "frozen_units": 58,
+  "other_cases_aggregated": false,
+  "missing_evaluations_not_graded_A": true,
+  "initial_copy_omission": "dataset-manifest.json was copied from preserved parent with expected SHA-256 before this gate passed"
+}

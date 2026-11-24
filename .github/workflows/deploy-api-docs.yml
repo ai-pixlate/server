@@ -1,10 +1,11 @@
 name: Deploy API Docs
 
-# docs/ 아래 파일이 main에 push될 때마다 OpenAPI 명세를 검증하고
-# Swagger UI를 GitHub Pages로 자동 배포합니다.
+# OpenAPI 명세를 검증하고 Swagger UI를 GitHub Pages로 배포합니다.
+# 배포 대상은 두 브랜치뿐입니다 — develop = 수동 실행(workflow_dispatch), api-tracking = docs 변경 push.
+# 그 밖의 브랜치(release/* 포함)에서 수동 실행해도 배포 job은 건너뜁니다. github-pages 환경의 배포 허용 브랜치도 같게 둡니다.
 on:
   push:
-    branches: [feature/api-tracking]
+    branches: [api-tracking]
     paths:
       - "docs/**"
       - ".github/workflows/deploy-api-docs.yml"
@@ -25,14 +26,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      # 명세 문법 오류를 조기에 잡습니다. 스타일 경고가 있어도 배포는 막지 않습니다.
+      # 명세 오류(error)가 있으면 실패해 배포를 막습니다. 스타일 경고(warning)는 통과합니다(redocly는 경고만 있으면 0으로 끝남).
       - name: Redocly lint
-        continue-on-error: true
         run: npx --yes @redocly/cli@1 lint docs/openapi.yaml
 
   deploy:
     name: GitHub Pages 배포
     needs: validate
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/api-tracking')
     runs-on: ubuntu-latest
     environment:
       name: github-pages

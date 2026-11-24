@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import copy
+import io
 import json
 import math
 import threading
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from pipeline.handoff import analysis, downstream, examples as ex, judgment, translation
 from pipeline.handoff.bundle import BundleError, bundle_content_sha256, check_bundle
@@ -87,6 +89,19 @@ def test_committed_examples_match_regeneration(generated):
         assert a == b, name
 
 
+def test_example_pngs_are_uncompressed(generated):
+    """예제가 해시를 싣는 PNG는 모두 무압축 — 압축 출력은 OS마다 달라 커밋본을 재현하지 못한다(pipeline/pngio.py).
+    새 저장 지점이 save_png를 거치지 않으면 여기서 걸린다."""
+    _, _, work = generated
+    pngs = sorted(work.rglob("*.png"))
+    assert pngs
+    for p in pngs:
+        with Image.open(p) as im:
+            ref = io.BytesIO()
+            im.save(ref, format="PNG", compress_level=0)
+        assert p.read_bytes() == ref.getvalue(), p.relative_to(work).as_posix()
+
+
 def _doc(generated, name):
     out, _, work = generated
     return json.loads((out / f"{name}.json").read_text(encoding="utf-8"))
@@ -99,6 +114,10 @@ def _doc(generated, name):
     ("inpaint.completed", "completed"), ("inpaint.skipped_empty_mask", "skipped"), ("inpaint.failed_model", "failed"),
     ("style.skipped_no_targets", "skipped"), ("translate.failed_partial", "failed"), ("translate.completed_retry_target_only", "completed"),
     ("translate.skipped_no_targets", "skipped"),
+    ("translation_review.completed", "completed"), ("translation_review.completed_no_check_items", "completed"),
+    ("translation_review.skipped_no_targets", "skipped"), ("translation_review.failed_response_invalid", "failed"),
+    ("translation_review.failed_output_truncated", "failed"), ("translation_review.failed_input_too_large", "failed"),
+    ("translation_review.failed_chunk_call", "failed"),
 ])
 def test_example_outcomes(generated, name, outcome):
     assert _doc(generated, name)["report"]["outcome"] == outcome
@@ -333,6 +352,59 @@ def test_text_check_alternative_term_is_unverifiable(generated):
     assert not any(f["type"] == "mandatory_term_unapplied" for f in b["flags"])
 
 
+class _EachAlone:
+    """보낸 프롬프트를 남기고 블록을 하나씩 그대로 돌려주는 가짜 ③ 호출자."""
+
+    config = {"model": "fake", "temperature": 0, "timeout_s": 1}
+
+    def __init__(self):
+        self.prompts = []
+
+    def __call__(self, prompt, payload):
+        self.prompts.append(prompt)
+        ids = [b["id"] for b in json.loads(payload)["blocks"]]
+        return LlmReply(json.dumps({"blocks": [{"members": [i], "role": "body"} for i in ids]}), {})
+
+
+def test_analyze_manifest_merge_prompt_is_the_prompt_actually_sent(generated, cfg):
+    # 5.31: 입력 지문은 실제로 소비한 프롬프트의 내용을 식별해야 한다. xycut(기본 켬)이면 보충 프롬프트가 붙는다
+    from pipeline.handoff.canonical import sha256_file, sha256_text
+    from pipeline.stages import merge
+
+    _, _, work = generated
+    req = next(r for n, r, _ in ex.cases(Path(work).resolve() / "m1") if n == "analyze.completed")
+    req["use_llm"] = True
+    llm = _EachAlone()
+    assert cfg["merge"]["xycut"] is True
+    rep = analysis.run_analyze(req, cfg, llm=llm, ocr_engine=ex.FakeOcr([["가짜치료 크림", "가격"], ["가짜완화"]]))
+    assert rep.outcome == "completed" and llm.prompts
+    sent = llm.prompts[0]
+    region = (merge.REPO_ROOT / merge.REGION_PROMPT_PATH).read_text(encoding="utf-8")
+    assert sent.endswith(region)
+    got = rep.input_manifest["prompts"]["merge"]
+    assert got == sha256_text(sent) != sha256_file(merge.REPO_ROOT / cfg["merge"]["prompt_path"])
+    debug = sorted((Path(req["out_dir"]) / "merge_debug").glob("sec_*.json"))
+    assert debug and {json.loads(p.read_text(encoding="utf-8"))["prompt_sha256"] for p in debug} == {got}  # 실행 기록과 같은 값
+
+
+def test_analyze_manifest_merge_prompt_tracks_switch_and_region_prompt(cfg, monkeypatch, tmp_path):
+    from pipeline.handoff.canonical import sha256_file
+    from pipeline.stages import merge
+
+    base = sha256_file(merge.REPO_ROOT / cfg["merge"]["prompt_path"])
+    off = copy.deepcopy(cfg)
+    off["merge"]["xycut"] = False
+    assert analysis.merge_prompt_sha(off) == base  # 끄면 기본 프롬프트 파일 해시와 같다(이전 값과 호환)
+    on = analysis.merge_prompt_sha(cfg)
+    alt = tmp_path / "region.md"
+    alt.write_text("보충 프롬프트를 바꾼 판\n", encoding="utf-8")
+    monkeypatch.setattr(merge, "REGION_PROMPT_PATH", str(alt))
+    assert analysis.merge_prompt_sha(cfg) not in (on, base)  # 보충 프롬프트만 바뀌어도 지문이 바뀐다
+    bad = copy.deepcopy(cfg)
+    bad["merge"]["prompt_path"] = str(tmp_path / "missing.md")
+    assert analysis.merge_prompt_sha(bad) is None  # 프롬프트를 만들 수 없는 설정 — 실행은 config_invalid
+
+
 def test_analyze_llm_failure_is_not_heuristic_fallback(generated, cfg, monkeypatch):
     class Boom:
         config = {"model": "fake", "temperature": 0, "timeout_s": 1}
@@ -474,7 +546,7 @@ def test_text_check_contained_enforced_term_not_flagged(generated):
     b = next(x for x in rep.payload["blocks"] if x["block_key"] == key)
     assert b["terms"] == [{"glossary_id": "2", "status": "applied"}]
     assert not any(f["type"] == "mandatory_term_unapplied" for f in b["flags"])
-    assert rep.implementation["glossary_select"] == "glossary-select@2026-10-11.1"
+    assert rep.implementation["glossary_select"] == "glossary-select@2026-11-08.1"
 
 
 def test_text_check_normalized_conflict_fails_not_passes(generated):

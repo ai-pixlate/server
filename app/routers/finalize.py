@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import s3
+from app import layout_adjust, s3
 from app.db import get_db
 from app.schemas import ArtifactType
 from app.security import get_current_seller
@@ -212,7 +212,7 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     일부 이미지를 읽지 못하면 성공분만 묶고 실패를 알린다(D9-3)."""
     import zipfile
 
-    from app.flows.common import VISIBLE
+    from app.flows.common import VISIBLE, has_source
     from app.storage import ObjectMissing, get_store
 
     _require_job_owned(db, job_id, seller_id)
@@ -233,17 +233,21 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     if "csv" in wanted:
         blocks = db.execute(
             text(
-                "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1 "
+                "SELECT tb.section_id, tb.block_order, tb.role, tb.source_ko, tb.trans_1, tb.layout_adjust "
                 "FROM text_block tb JOIN section s ON s.id = tb.section_id JOIN job j ON j.id = s.job_id "
                 "WHERE s.job_id = :j AND s.bucket = 'include' AND " + VISIBLE + " ORDER BY tb.section_id, tb.block_order, tb.id"
             ),
             {"j": job_id},
         ).mappings().all()
+        blocks = [b for b in blocks if has_source(b["source_ko"])]  # 빈 원문 블록은 행으로 내보내지 않는다(blockList 와 같은 기준)
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1"])
+        w.writerow(["sectionId", "blockOrder", "role", "sourceKo", "trans1", "layout_x", "layout_y", "layout_w", "layout_h", "font_scale"])
         for b in blocks:
-            w.writerow([b["section_id"], b["block_order"], b["role"], _csv_cell(b["source_ko"]), _csv_cell(b["trans_1"])])
+            # 배치 5열 = 셀러 조정값, 조정하지 않은 항목은 빈칸. 값은 소수 그대로, 수식 주입 방어는 모든 열에 같게
+            adj = layout_adjust.csv_values(layout_adjust.parse(b["layout_adjust"]))
+            w.writerow([b["section_id"], b["block_order"], b["role"], _csv_cell(b["source_ko"]), _csv_cell(b["trans_1"]),
+                        *[_csv_cell(None if v is None else str(v)) for v in adj]])
         data = buf.getvalue().encode("utf-8-sig")  # 엑셀 한글 대비
         created["csv"] = _store_artifact(db, job_id, "csv", "content.csv", data, "text/csv")
         parts["csv"] = ("content.csv", data)

@@ -1,0 +1,186 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:59:12.928531+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_755",
+        "outcome": "completed",
+        "translation": "Experience more visible results when used together",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_756",
+        "outcome": "completed",
+        "translation": "Retinol Shot Serum\nRetinal Shot Booster",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_757",
+        "outcome": "completed",
+        "translation": "1+",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_758",
+        "outcome": "completed",
+        "translation": "Eye Wrinkle Improvement When Used Together",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_759",
+        "outcome": "completed",
+        "translation": "-23.24%\nReduction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_760",
+        "outcome": "completed",
+        "translation": "Before",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_761",
+        "outcome": "completed",
+        "translation": "After 2 Weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_762",
+        "outcome": "completed",
+        "translation": "Pore Volume Improvement When Used Together",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_763",
+        "outcome": "completed",
+        "translation": "-37.99%\nImprovement",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_764",
+        "outcome": "completed",
+        "translation": "Before",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_765",
+        "outcome": "completed",
+        "translation": "After 2 Weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_766",
+        "outcome": "completed",
+        "translation": "Pore Depth Improvement",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_767",
+        "outcome": "completed",
+        "translation": "-14.80%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_768",
+        "outcome": "completed",
+        "translation": "Pore Area Improvement",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_769",
+        "outcome": "completed",
+        "translation": "-28.74%",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_770",
+        "outcome": "completed",
+        "translation": "Facial Lifting Improvement When Used Together",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_771",
+        "outcome": "completed",
+        "translation": "-9.02%\nReduction",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_772",
+        "outcome": "completed",
+        "translation": "19.349°",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_773",
+        "outcome": "completed",
+        "translation": "19.972°",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_774",
+        "outcome": "completed",
+        "translation": "Before",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_775",
+        "outcome": "completed",
+        "translation": "After 2 Weeks",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_776",
+        "outcome": "completed",
+        "translation": "clinical study on the improvement of eye wrinkles, skin pores, and facial lifting with concurrent use of \"celimax Retinol Shot Tightening Serum\" and \"celimax Retinal Shot Tightening Booster\" / SkinMed Clinical Trial Center / 2024.05.20–2024.06.04 / 21 adult males and females / Individual results may vary",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "e2a2b754cce63023bd974a5d701da860f33ae829c1cf7b6a353148c5468872f8",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "631e45705ea87dda202733643cd0b61e61ab19b1ac68933132a133c22c458970",
+      "usage": {
+        "candidates_token_count": 701,
+        "prompt_token_count": 1641,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 1641
+          }
+        ],
+        "thoughts_token_count": 968,
+        "total_token_count": 3310
+      }
+    }
+  ],
+  "seconds": 11.843000000109896
+}

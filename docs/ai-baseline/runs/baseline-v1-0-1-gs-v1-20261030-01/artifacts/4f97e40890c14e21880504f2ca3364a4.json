@@ -1,0 +1,934 @@
+{
+  "source_id": "GS-02",
+  "stage": "merge",
+  "at": "2026-10-30T01:30:37.262786+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_16_11",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_16_11",
+        "block_order": 1,
+        "source_ko": "the vita A",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "the vita A",
+            "bbox": {
+              "x": 571,
+              "y": 141,
+              "w": 133,
+              "h": 65
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "the vita A",
+                "score": 0.9454652070999146,
+                "poly": [
+                  [
+                    571,
+                    159
+                  ],
+                  [
+                    698,
+                    141
+                  ],
+                  [
+                    704,
+                    188
+                  ],
+                  [
+                    577,
+                    206
+                  ]
+                ],
+                "bbox": {
+                  "x": 571,
+                  "y": 141,
+                  "w": 133,
+                  "h": 65
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 571,
+          "y": 141,
+          "w": 133,
+          "h": 65
+        },
+        "role": "title",
+        "ocr_confidence": 0.9454652070999146
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_16_11",
+        "block_order": 2,
+        "source_ko": "RETIN\nGHTENIN",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "RETIN",
+            "bbox": {
+              "x": 794,
+              "y": 177,
+              "w": 36,
+              "h": 40
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "RETIN",
+                "score": 0.9900315999984741,
+                "poly": [
+                  [
+                    805,
+                    177
+                  ],
+                  [
+                    830,
+                    206
+                  ],
+                  [
+                    822,
+                    217
+                  ],
+                  [
+                    794,
+                    189
+                  ]
+                ],
+                "bbox": {
+                  "x": 794,
+                  "y": 177,
+                  "w": 36,
+                  "h": 40
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_003",
+            "text": "GHTENIN",
+            "bbox": {
+              "x": 792,
+              "y": 199,
+              "w": 38,
+              "h": 35
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "GHTENIN",
+                "score": 0.9607049226760864,
+                "poly": [
+                  [
+                    800,
+                    199
+                  ],
+                  [
+                    830,
+                    225
+                  ],
+                  [
+                    822,
+                    234
+                  ],
+                  [
+                    792,
+                    209
+                  ]
+                ],
+                "bbox": {
+                  "x": 792,
+                  "y": 199,
+                  "w": 38,
+                  "h": 35
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 792,
+          "y": 177,
+          "w": 38,
+          "h": 57
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9607049226760864
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_16_11",
+        "block_order": 3,
+        "source_ko": "-0.03",
+        "source_lines": [
+          {
+            "line_key": "line_004",
+            "text": "-0.03",
+            "bbox": {
+              "x": 391,
+              "y": 224,
+              "w": 58,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0006",
+                "text": "-0.03",
+                "score": 0.9508522152900696,
+                "poly": [
+                  [
+                    392,
+                    224
+                  ],
+                  [
+                    449,
+                    226
+                  ],
+                  [
+                    448,
+                    247
+                  ],
+                  [
+                    391,
+                    245
+                  ]
+                ],
+                "bbox": {
+                  "x": 391,
+                  "y": 224,
+                  "w": 58,
+                  "h": 23
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 391,
+          "y": 224,
+          "w": 58,
+          "h": 23
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9508522152900696
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_16_11",
+        "block_order": 4,
+        "source_ko": "374",
+        "source_lines": [
+          {
+            "line_key": "line_005",
+            "text": "374",
+            "bbox": {
+              "x": 335,
+              "y": 231,
+              "w": 25,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0005",
+                "text": "374",
+                "score": 0.6190952062606812,
+                "poly": [
+                  [
+                    335,
+                    231
+                  ],
+                  [
+                    360,
+                    231
+                  ],
+                  [
+                    360,
+                    248
+                  ],
+                  [
+                    335,
+                    248
+                  ]
+                ],
+                "bbox": {
+                  "x": 335,
+                  "y": 231,
+                  "w": 25,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 335,
+          "y": 231,
+          "w": 25,
+          "h": 17
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6190952062606812
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_16_11",
+        "block_order": 5,
+        "source_ko": "2x0.1 A605 0.0",
+        "source_lines": [
+          {
+            "line_key": "line_006",
+            "text": "2x0.1 A605 0.0",
+            "bbox": {
+              "x": 192,
+              "y": 233,
+              "w": 158,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0008",
+                "text": "2x0.1",
+                "score": 0.8346489667892456,
+                "poly": [
+                  [
+                    196,
+                    243
+                  ],
+                  [
+                    239,
+                    252
+                  ],
+                  [
+                    235,
+                    271
+                  ],
+                  [
+                    192,
+                    262
+                  ]
+                ],
+                "bbox": {
+                  "x": 192,
+                  "y": 243,
+                  "w": 47,
+                  "h": 28
+                }
+              },
+              {
+                "region_key": "reg_0004",
+                "text": "A605",
+                "score": 0.5750133991241455,
+                "poly": [
+                  [
+                    261,
+                    233
+                  ],
+                  [
+                    306,
+                    243
+                  ],
+                  [
+                    302,
+                    261
+                  ],
+                  [
+                    257,
+                    251
+                  ]
+                ],
+                "bbox": {
+                  "x": 257,
+                  "y": 233,
+                  "w": 49,
+                  "h": 28
+                }
+              },
+              {
+                "region_key": "reg_0009",
+                "text": "0.0",
+                "score": 0.7374773025512695,
+                "poly": [
+                  [
+                    322,
+                    247
+                  ],
+                  [
+                    350,
+                    252
+                  ],
+                  [
+                    347,
+                    272
+                  ],
+                  [
+                    319,
+                    267
+                  ]
+                ],
+                "bbox": {
+                  "x": 319,
+                  "y": 247,
+                  "w": 31,
+                  "h": 25
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 192,
+          "y": 233,
+          "w": 158,
+          "h": 39
+        },
+        "role": "caption",
+        "ocr_confidence": 0.5750133991241455
+      },
+      {
+        "block_key": "blk_006",
+        "section_key": "sec_16_11",
+        "block_order": 6,
+        "source_ko": "15",
+        "source_lines": [
+          {
+            "line_key": "line_007",
+            "text": "15",
+            "bbox": {
+              "x": 162,
+              "y": 250,
+              "w": 15,
+              "h": 15
+            },
+            "regions": [
+              {
+                "region_key": "reg_0007",
+                "text": "15",
+                "score": 0.9525884389877319,
+                "poly": [
+                  [
+                    162,
+                    250
+                  ],
+                  [
+                    177,
+                    250
+                  ],
+                  [
+                    177,
+                    265
+                  ],
+                  [
+                    162,
+                    265
+                  ]
+                ],
+                "bbox": {
+                  "x": 162,
+                  "y": 250,
+                  "w": 15,
+                  "h": 15
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 162,
+          "y": 250,
+          "w": 15,
+          "h": 15
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9525884389877319
+      },
+      {
+        "block_key": "blk_007",
+        "section_key": "sec_16_11",
+        "block_order": 7,
+        "source_ko": "51003",
+        "source_lines": [
+          {
+            "line_key": "line_008",
+            "text": "51003",
+            "bbox": {
+              "x": 719,
+              "y": 346,
+              "w": 44,
+              "h": 40
+            },
+            "regions": [
+              {
+                "region_key": "reg_0010",
+                "text": "51003",
+                "score": 0.7611088752746582,
+                "poly": [
+                  [
+                    730,
+                    346
+                  ],
+                  [
+                    763,
+                    372
+                  ],
+                  [
+                    752,
+                    386
+                  ],
+                  [
+                    719,
+                    360
+                  ]
+                ],
+                "bbox": {
+                  "x": 719,
+                  "y": 346,
+                  "w": 44,
+                  "h": 40
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 719,
+          "y": 346,
+          "w": 44,
+          "h": 40
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7611088752746582
+      },
+      {
+        "block_key": "blk_008",
+        "section_key": "sec_16_11",
+        "block_order": 8,
+        "source_ko": "retinal",
+        "source_lines": [
+          {
+            "line_key": "line_009",
+            "text": "retinal",
+            "bbox": {
+              "x": 125,
+              "y": 352,
+              "w": 84,
+              "h": 58
+            },
+            "regions": [
+              {
+                "region_key": "reg_0011",
+                "text": "retinal",
+                "score": 0.9429998993873596,
+                "poly": [
+                  [
+                    125,
+                    372
+                  ],
+                  [
+                    199,
+                    352
+                  ],
+                  [
+                    209,
+                    391
+                  ],
+                  [
+                    134,
+                    410
+                  ]
+                ],
+                "bbox": {
+                  "x": 125,
+                  "y": 352,
+                  "w": 84,
+                  "h": 58
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 125,
+          "y": 352,
+          "w": 84,
+          "h": 58
+        },
+        "role": "title",
+        "ocr_confidence": 0.9429998993873596
+      },
+      {
+        "block_key": "blk_009",
+        "section_key": "sec_16_11",
+        "block_order": 9,
+        "source_ko": "tightening",
+        "source_lines": [
+          {
+            "line_key": "line_010",
+            "text": "tightening",
+            "bbox": {
+              "x": 454,
+              "y": 395,
+              "w": 116,
+              "h": 73
+            },
+            "regions": [
+              {
+                "region_key": "reg_0012",
+                "text": "tightening",
+                "score": 0.9441213607788086,
+                "poly": [
+                  [
+                    467,
+                    395
+                  ],
+                  [
+                    570,
+                    428
+                  ],
+                  [
+                    557,
+                    468
+                  ],
+                  [
+                    454,
+                    436
+                  ]
+                ],
+                "bbox": {
+                  "x": 454,
+                  "y": 395,
+                  "w": 116,
+                  "h": 73
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 454,
+          "y": 395,
+          "w": 116,
+          "h": 73
+        },
+        "role": "title",
+        "ocr_confidence": 0.9441213607788086
+      },
+      {
+        "block_key": "blk_010",
+        "section_key": "sec_16_11",
+        "block_order": 10,
+        "source_ko": "RETNA:S-OT\nTONVG POOSTI",
+        "source_lines": [
+          {
+            "line_key": "line_011",
+            "text": "RETNA:S-OT",
+            "bbox": {
+              "x": 326,
+              "y": 515,
+              "w": 59,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0013",
+                "text": "RETNA:S-OT",
+                "score": 0.8420616388320923,
+                "poly": [
+                  [
+                    327,
+                    515
+                  ],
+                  [
+                    385,
+                    521
+                  ],
+                  [
+                    384,
+                    532
+                  ],
+                  [
+                    326,
+                    526
+                  ]
+                ],
+                "bbox": {
+                  "x": 326,
+                  "y": 515,
+                  "w": 59,
+                  "h": 17
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_012",
+            "text": "TONVG POOSTI",
+            "bbox": {
+              "x": 324,
+              "y": 525,
+              "w": 62,
+              "h": 14
+            },
+            "regions": [
+              {
+                "region_key": "reg_0014",
+                "text": "TONVG POOSTI",
+                "score": 0.3789511024951935,
+                "poly": [
+                  [
+                    325,
+                    525
+                  ],
+                  [
+                    386,
+                    532
+                  ],
+                  [
+                    386,
+                    539
+                  ],
+                  [
+                    324,
+                    532
+                  ]
+                ],
+                "bbox": {
+                  "x": 324,
+                  "y": 525,
+                  "w": 62,
+                  "h": 14
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 324,
+          "y": 515,
+          "w": 62,
+          "h": 24
+        },
+        "role": "caption",
+        "ocr_confidence": 0.3789511024951935
+      },
+      {
+        "block_key": "blk_011",
+        "section_key": "sec_16_11",
+        "block_order": 11,
+        "source_ko": "RETMLOOT",
+        "source_lines": [
+          {
+            "line_key": "line_013",
+            "text": "RETMLOOT",
+            "bbox": {
+              "x": 290,
+              "y": 591,
+              "w": 64,
+              "h": 26
+            },
+            "regions": [
+              {
+                "region_key": "reg_0015",
+                "text": "RETMLOOT",
+                "score": 0.7765228152275085,
+                "poly": [
+                  [
+                    290,
+                    606
+                  ],
+                  [
+                    351,
+                    591
+                  ],
+                  [
+                    354,
+                    602
+                  ],
+                  [
+                    293,
+                    617
+                  ]
+                ],
+                "bbox": {
+                  "x": 290,
+                  "y": 591,
+                  "w": 64,
+                  "h": 26
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 290,
+          "y": 591,
+          "w": 64,
+          "h": 26
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7765228152275085
+      },
+      {
+        "block_key": "blk_012",
+        "section_key": "sec_16_11",
+        "block_order": 12,
+        "source_ko": "una",
+        "source_lines": [
+          {
+            "line_key": "line_014",
+            "text": "una",
+            "bbox": {
+              "x": 619,
+              "y": 613,
+              "w": 41,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0016",
+                "text": "una",
+                "score": 0.3262230455875397,
+                "poly": [
+                  [
+                    619,
+                    625
+                  ],
+                  [
+                    644,
+                    613
+                  ],
+                  [
+                    660,
+                    649
+                  ],
+                  [
+                    636,
+                    660
+                  ]
+                ],
+                "bbox": {
+                  "x": 619,
+                  "y": 613,
+                  "w": 41,
+                  "h": 47
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 619,
+          "y": 613,
+          "w": 41,
+          "h": 47
+        },
+        "role": "caption",
+        "ocr_confidence": 0.3262230455875397
+      },
+      {
+        "block_key": "blk_013",
+        "section_key": "sec_16_11",
+        "block_order": 13,
+        "source_ko": "RETINLSHOT\nHOCENtCDOOOTE",
+        "source_lines": [
+          {
+            "line_key": "line_015",
+            "text": "RETINLSHOT",
+            "bbox": {
+              "x": 365,
+              "y": 636,
+              "w": 64,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0017",
+                "text": "RETINLSHOT",
+                "score": 0.9485077857971191,
+                "poly": [
+                  [
+                    365,
+                    636
+                  ],
+                  [
+                    429,
+                    636
+                  ],
+                  [
+                    429,
+                    647
+                  ],
+                  [
+                    365,
+                    647
+                  ]
+                ],
+                "bbox": {
+                  "x": 365,
+                  "y": 636,
+                  "w": 64,
+                  "h": 11
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_016",
+            "text": "HOCENtCDOOOTE",
+            "bbox": {
+              "x": 366,
+              "y": 647,
+              "w": 65,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0018",
+                "text": "HOCENtCDOOOTE",
+                "score": 0.33875152468681335,
+                "poly": [
+                  [
+                    366,
+                    647
+                  ],
+                  [
+                    431,
+                    647
+                  ],
+                  [
+                    431,
+                    654
+                  ],
+                  [
+                    366,
+                    654
+                  ]
+                ],
+                "bbox": {
+                  "x": 366,
+                  "y": 647,
+                  "w": 65,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 365,
+          "y": 636,
+          "w": 66,
+          "h": 18
+        },
+        "role": "caption",
+        "ocr_confidence": 0.33875152468681335
+      }
+    ]
+  },
+  "seconds": 17.437999999849126
+}

@@ -1,0 +1,207 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:09.904645+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_11",
+      "section_key": "sec_46",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_610",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_611",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_612",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_613",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_614",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_615",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_616",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_617",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_618",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_619",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_620",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_11",
+      "section_key": "sec_46",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "6f3a413fb1ba5644a9dedd5fb9e88da577c703420f9d5028784a19ab6f73ff2d",
+      "label_fingerprint": "c1c48c994b3a924fe467e92a6148157b79beb90c2ee7aa74c76023d13f19f0cd",
+      "label_input_fingerprint": "6f3a413fb1ba5644a9dedd5fb9e88da577c703420f9d5028784a19ab6f73ff2d",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 11,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 11,
+        "compared": 11
+      },
+      "decisions": [
+        {
+          "block_key": "blk_610",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "세계적인원료사프랑스세더마의특허성분matrixyl°300o3",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_611",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "matrixyl30003콜라겐생성률",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_612",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "203",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_613",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "158",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_614",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "144",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_615",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "64",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_616",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "콜라겐|",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_617",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "콜라겐iv",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_618",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "콜라겐vi",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_619",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "콜라겐xvii",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_620",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "matrixtyl300o팔미토일트라이펩타이드1팔미토일테트라펩타이드7원료적특성에한함",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

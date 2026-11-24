@@ -1,0 +1,67 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:17.219021+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_12",
+      "section_key": "sec_55",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_672",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_12",
+      "section_key": "sec_55",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "406dd0a97e25dd6c08b2ebd8a32b9c2cd35b78c0d5218da8dd54e971ebda5566",
+      "label_fingerprint": "166574ff5fe44b1307da31c4f6359e6e544067cca2f7d40e659226c5084e5eb9",
+      "label_input_fingerprint": "406dd0a97e25dd6c08b2ebd8a32b9c2cd35b78c0d5218da8dd54e971ebda5566",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 1,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 1,
+        "compared": 1
+      },
+      "decisions": [
+        {
+          "block_key": "blk_672",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "7일실사용자턴오버개선만족도",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

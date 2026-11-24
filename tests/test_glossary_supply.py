@@ -67,13 +67,17 @@ def test_spy_translate_records_are_per_instance():
 
     from tests.exec_fakes import SpyTranslate
 
-    assert "seen" not in vars(SpyTranslate)  # 클래스 공용 목록이 없다
+    assert "seen" not in vars(SpyTranslate) and "instructions" not in vars(SpyTranslate)  # 클래스 공용 목록이 없다
+    ins = [{"id": "b1", "matched_text": "크림", "alternatives": ["cream"]}]
     payload = json.dumps({"blocks": [{"id": "b1", "text": "크림"}, {"text": "문맥"}],
-                          "glossary": [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}]}, ensure_ascii=False)
+                          "glossary": [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}],
+                          "instructions": ins}, ensure_ascii=False)
     first, second = SpyTranslate(), SpyTranslate()
     first("prompt", payload, None)
     assert first.seen == [({"b1"}, [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}])]
+    assert first.instructions == [ins]
     assert second.seen == [] and first.seen is not second.seen
-    second("prompt", payload.replace('"glossary": [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}]',
-                                     '"glossary": []'), None)
+    assert second.instructions == [] and first.instructions is not second.instructions
+    second("prompt", json.dumps({"blocks": [{"id": "b1", "text": "크림"}], "glossary": [], "instructions": []}, ensure_ascii=False), None)
     assert second.seen == [({"b1"}, [])] and len(first.seen) == 1
+    assert second.instructions == [[]] and first.instructions == [ins]

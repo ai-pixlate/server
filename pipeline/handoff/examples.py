@@ -20,11 +20,12 @@ import numpy as np
 from PIL import Image
 
 from pipeline import config as cfgmod
-from pipeline.handoff import analysis, downstream, judgment, translation
+from pipeline.handoff import analysis, downstream, judgment, review, translation
 from pipeline.handoff.bundle import bundle_content_sha256, load_policy_rules
 from pipeline.handoff.canonical import sha256_file
 from pipeline.handoff.envelope import CONTRACT_VERSION, StageReport
 from pipeline.handoff.validate import validate_report
+from pipeline.pngio import save_png, uncompressed
 from pipeline.stages import logo as logo_stage
 from pipeline.types import BBox, Line, OcrRegion, Section, TextBlock
 from pipeline.vlm import LlmReply, VlmError
@@ -49,7 +50,7 @@ def source_image(path: Path, width: int = 600, height: int = 800) -> Path:
     for y in (60, 140, 460, 540):
         a[y:y + 24, 60:360] = (30, 30, 30)
     path.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(a).save(path)
+    save_png(Image.fromarray(a), path)
     return path
 
 
@@ -85,7 +86,7 @@ def section_with_image(root: Path, key: str = "sec_1_01", *, width: int = 600, h
         a[y:y + 24, 60:360] = (20, 20, 20)
     p = root / "sections" / f"{key}.png"
     p.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(a).save(p)
+    save_png(Image.fromarray(a), p)
     return Section(section_key=key, source_image_id=1, section_order=1, top_offset=0, height=height, width=width, image_path=str(p))
 
 
@@ -195,6 +196,47 @@ class FakeTranslate:
                 t = t.replace(k, v)
             out.append({"id": b["id"], "translation": t})
         return LlmReply(text=json.dumps({"blocks": out}, ensure_ascii=False), usage=None)
+
+
+class FakeReview:
+    """번역문 LLM 규제 판정 가짜 모델(D12). 검사 항목의 영어 예시가 번역문에 있으면 mention=present로 보고
+    conditional → undetermined(condition_unverifiable), 근거 행이 있는 regulated → risk(사전 기록 + 근거), 근거 행이 없는 regulated → risk
+    (사전 기록만), 없으면 no_risk(absent). bad_anchor는 위치 오류 응답, finish_reason은 공급자 종료 사유, fail_on_call은 n번째 호출 실패."""
+
+    config = {"model": "fake", "temperature": 0, "timeout_s": 1, "max_output_tokens": 1}
+
+    def __init__(self, *, bad_anchor: bool = False, finish_reason: str | None = "STOP", fail_on_call: int | None = None):
+        self.bad_anchor, self.finish_reason, self.fail_on_call, self.calls = bad_anchor, finish_reason, fail_on_call, 0
+
+    def __call__(self, prompt: str, payload: str, image) -> LlmReply:
+        self.calls += 1
+        if self.fail_on_call == self.calls:
+            raise VlmError("합성: 호출 시간 초과")
+        p = json.loads(payload)
+        texts = {b["id"]: b["translation"] for b in p["section_blocks"] if "id" in b}
+        items = {it["id"]: it for it in p["check_items"]}
+        out = []
+        for t in p["required_pairs"]["targets"]:
+            for r in p["required_pairs"]["items"]:
+                it, text = items[r], texts[t]
+                hit = next((e for e in it["examples_en"] if e.lower() in text.lower()), None)
+                row = {"target": t, "item": r, "undetermined_reason": None, "unverified_conditions": []}
+                if hit is None:
+                    out.append({**row, "judgment": "no_risk", "mention": "absent", "locations": [], "basis": [],
+                                "reason": "합성: 관련 표현 없음"})
+                    continue
+                i = text.lower().find(hit.lower())
+                quote = text[i:i + len(hit)]
+                loc = {"quote": quote, "anchor": "합성: 번역문에 없는 발췌" if self.bad_anchor else quote}
+                if it["verdict_status"] == "conditional":
+                    out.append({**row, "judgment": "undetermined", "mention": "present", "undetermined_reason": "condition_unverifiable",
+                                "locations": [loc], "basis": [r], "unverified_conditions": ["합성: 상품 시험값 확인 필요"],
+                                "reason": "합성: 상품 조건을 확인할 수 없다"})
+                else:
+                    basis = [r] + [e["id"] for e in it["evidence"][:1]]
+                    out.append({**row, "judgment": "risk", "mention": "present", "locations": [loc], "basis": basis,
+                                "reason": "합성: 사전 사유에 해당하는 주장"})
+        return LlmReply(text=json.dumps({"results": out}, ensure_ascii=False), usage=None, finish_reason=self.finish_reason)
 
 
 class FakeInpaintModel:
@@ -339,6 +381,37 @@ def cases(root: Path) -> list[Case]:
                         {"block_key": "blk_004", "revision": 1, "text": "Fake block SPF50 PA++++"}],
             "glossary": glossary, "bundle": bundle()}
     out.append(("text_check.completed_with_flags", creq, lambda r: translation.run_text_check(r)))
+
+    # ⑧ 번역문 LLM 규제 판정(D12) — 검사 항목 RG-901 · RG-902 · RG-903, 참고 항목 RG-905(allowed), 범위 밖 RG-906(otc)
+    def rflags(keys: tuple[str, ...]) -> list[dict[str, Any]]:
+        return [{"block_key": k, "revision": 0, "is_product_label": False, "is_brand_logo": False} for k in keys]
+
+    rtexts = {"blk_001": "Fake cure cream", "blk_002": "The look of fake calm SPF50", "blk_004": "Fake block SPF50 PA++++"}
+    rreq = {**ident("translation_review"), "target_country": "US", "target_lang": "en", "regulatory_class": "cosmetic",
+            "section_key": "sec_1_01", "blocks": tb,
+            "targets": [{"block_key": k, "revision": 1, "text": v, "is_product_label": False, "is_brand_logo": False} for k, v in rtexts.items()],
+            "context": rflags(("blk_003",)), "bundle": bundle()}
+    out.append(("translation_review.completed", rreq, lambda r: review.run_translation_review(r, cfg, llm=FakeReview())))
+    nob = bundle()  # 적용 분류에 regulated · conditional이 없는 묶음 — 검사 항목 0개(호출 없음, 안전 확인 아님)
+    nob["regulation"]["entries"] = [e for e in nob["regulation"]["entries"] if e["external_id"] in ("RG-905", "RG-906")]
+    nob["bundle_sha256"] = bundle_content_sha256(nob)
+    out.append(("translation_review.completed_no_check_items", {**rreq, "bundle": nob},
+                lambda r: review.run_translation_review(r, cfg, llm=FailingLlm())))
+    out.append(("translation_review.skipped_no_targets",
+                {**rreq, "targets": [], "context": rflags(("blk_001", "blk_002", "blk_003", "blk_004"))},
+                lambda r: review.run_translation_review(r, cfg, llm=FailingLlm())))
+    out.append(("translation_review.failed_response_invalid", rreq,
+                lambda r: review.run_translation_review(r, cfg, llm=FakeReview(bad_anchor=True))))
+    out.append(("translation_review.failed_output_truncated", rreq,
+                lambda r: review.run_translation_review(r, cfg, llm=FakeReview(finish_reason="MAX_TOKENS"))))
+    cfg_small = copy.deepcopy(cfg)
+    cfg_small["translation_review"]["max_input_chars"] = 500  # 최소 단위(프롬프트 + 섹션 문맥 + 대상 1 · 항목 1)보다 작다
+    out.append(("translation_review.failed_input_too_large", rreq,
+                lambda r: review.run_translation_review(r, cfg_small, llm=FailingLlm())))
+    cfg_split = copy.deepcopy(cfg)
+    cfg_split["translation_review"]["max_pairs_per_call"] = 3  # 대상 3 × 항목 1씩 세 분할 — 두 번째 호출 실패
+    out.append(("translation_review.failed_chunk_call", rreq,
+                lambda r: review.run_translation_review(r, cfg_split, llm=FakeReview(fail_on_call=2))))
     return out
 
 
@@ -360,16 +433,17 @@ def generate(out_dir: Path, work_root: Path | None = None) -> dict[str, list[str
     saved_unicode = logo_stage.UNICODE_VERSION
     logo_stage.UNICODE_VERSION = EXAMPLE_UNICODE_VERSION  # 실행 Python과 무관하게 예제를 재현한다(합성 값의 정규화는 버전과 무관)
     try:
-        root = str(tmp.resolve())
-        results: dict[str, list[str]] = {}
-        out_dir.mkdir(parents=True, exist_ok=True)
-        for name, req, fn in cases(tmp.resolve()):
-            rep = fn(copy.deepcopy(req))
-            results[name] = validate_report(rep, req)
-            doc = {"case": name, "request": _publicize(req, root), "report": _publicize(rep.model_dump(mode="json"), root),
-                   "be_validation_problems": results[name]}
-            (out_dir / f"{name}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
-        return results
+        with uncompressed():  # 작업 폴더 PNG를 무압축으로 — 예제의 파일 sha256이 OS와 무관하게 같아진다(pipeline/pngio.py)
+            root = str(tmp.resolve())
+            results: dict[str, list[str]] = {}
+            out_dir.mkdir(parents=True, exist_ok=True)
+            for name, req, fn in cases(tmp.resolve()):
+                rep = fn(copy.deepcopy(req))
+                results[name] = validate_report(rep, req)
+                doc = {"case": name, "request": _publicize(req, root), "report": _publicize(rep.model_dump(mode="json"), root),
+                       "be_validation_problems": results[name]}
+                (out_dir / f"{name}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+            return results
     finally:
         logo_stage.UNICODE_VERSION = saved_unicode
         if work_root is None:

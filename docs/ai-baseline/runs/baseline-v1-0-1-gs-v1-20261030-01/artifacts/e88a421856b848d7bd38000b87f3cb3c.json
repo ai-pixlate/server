@@ -1,0 +1,75 @@
+{
+  "source_id": "GS-01",
+  "stage": "label",
+  "at": "2026-10-30T00:57:03.452519+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_13",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_153",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_154",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_155",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_156",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_157",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_158",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_159",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_160",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_161",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "6121215a5c1d5bdf5baacfb246209994a8c405bcc77d46ebc35ceb7218ebde6b",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_153",
+        "blk_154",
+        "blk_155",
+        "blk_156",
+        "blk_157",
+        "blk_158",
+        "blk_159",
+        "blk_160",
+        "blk_161"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 5.530999999959022
+}

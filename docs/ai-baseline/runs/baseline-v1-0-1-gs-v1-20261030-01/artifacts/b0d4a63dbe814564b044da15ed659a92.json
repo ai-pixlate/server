@@ -1,0 +1,93 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:44:59.631761+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_31",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_424",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_425",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_426",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_427",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_428",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_429",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_430",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_431",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_432",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_433",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_434",
+        "is_product_label": false,
+        "basis": "vlm"
+      },
+      {
+        "block_key": "blk_435",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "0d44a0c9a7982d6b618c006280b862bfbd4a1bad6ee3cc3490b51bda538c61d5",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_424",
+        "blk_425",
+        "blk_426",
+        "blk_427",
+        "blk_428",
+        "blk_429",
+        "blk_430",
+        "blk_431",
+        "blk_432",
+        "blk_433",
+        "blk_434",
+        "blk_435"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 7.0
+}

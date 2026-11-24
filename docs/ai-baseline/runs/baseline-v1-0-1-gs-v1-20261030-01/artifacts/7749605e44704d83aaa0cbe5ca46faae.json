@@ -1,0 +1,27 @@
+{
+  "source_id": "GS-02",
+  "stage": "label",
+  "at": "2026-10-30T01:49:18.402554+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_52",
+    "status": "ok",
+    "labels": [
+      {
+        "block_key": "blk_659",
+        "is_product_label": false,
+        "basis": "vlm"
+      }
+    ],
+    "checked": {
+      "input_fingerprint": "c46f9a8d8f5acd48d5074fbfcef9bb5a1c6e47fbd696bd400ca1e3a31ff8d3e4",
+      "llm_called": true,
+      "sent_block_keys": [
+        "blk_659"
+      ],
+      "blank_block_keys": []
+    },
+    "error": null
+  },
+  "seconds": 4.155999999959022
+}

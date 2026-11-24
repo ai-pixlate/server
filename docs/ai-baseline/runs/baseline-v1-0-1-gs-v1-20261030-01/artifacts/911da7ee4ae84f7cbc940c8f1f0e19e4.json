@@ -1,0 +1,165 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:48.695006+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_12",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_145",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_146",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_147",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_148",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_149",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_150",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_151",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_152",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_12",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "9700ec3960ab75fb22e15e467a33407a708a3d80641fda193caccf01ebc4d8e7",
+      "label_fingerprint": "2d01685e2fcfe9e297da9b5b514f9c48d62fb58e6e0e67ca1853d2c44d31071e",
+      "label_input_fingerprint": "9700ec3960ab75fb22e15e467a33407a708a3d80641fda193caccf01ebc4d8e7",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 8,
+      "counts": {
+        "product_label": 2,
+        "empty_text": 2,
+        "exact_match": 0,
+        "no_match": 4,
+        "compared": 6
+      },
+      "decisions": [
+        {
+          "block_key": "blk_145",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "point02",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_146",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "건조함걱정없이",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_147",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "산뜻든보송한데일리진정선케어",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_148",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "부드럽게터치되며뭉침없이고르게펴발려메이크업을해도밀리지않는산뜻한제형이에요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_149",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_150",
+          "block_order": 6,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_151",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_152",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

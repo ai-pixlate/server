@@ -1,0 +1,221 @@
+{
+  "source_id": "GS-01",
+  "stage": "logo",
+  "at": "2026-10-30T00:58:47.800716+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_2",
+      "section_key": "sec_9",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_117",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_118",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_119",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_120",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_121",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_122",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_123",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_124",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_125",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_126",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_127",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_128",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_2",
+      "section_key": "sec_9",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "eb97a6821843031adf04c0775a8e7d51c800f6824deaf4281e4e4c2653bb396e",
+      "label_fingerprint": "2e07b3cec2dda62225656d7c567a2d97b1c745437f21e9c71d0234848231d595",
+      "label_input_fingerprint": "eb97a6821843031adf04c0775a8e7d51c800f6824deaf4281e4e4c2653bb396e",
+      "brand": {
+        "image_group": "job_1",
+        "product_name": null,
+        "name_ko": "구달",
+        "name_en": "goodal",
+        "name_ko_normalized": "구달",
+        "name_en_normalized": "goodal"
+      },
+      "brand_entry_fingerprint": "0b58380bf0ebddba076455f728ac1666185b0bdb175ed0139351aff1909955e9",
+      "blocks": 12,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 12,
+        "compared": 12
+      },
+      "decisions": [
+        {
+          "block_key": "blk_117",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "01point",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_118",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "3가지징크콤플렉스로확실한진정",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_119",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "제주어성초추출물+3가지징크옥사이드",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_120",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "진정을더한저자극자외선차단케어로진정에긴자극받은피부에진정과휴식을선사해줄거에요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_121",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "징크옥사이드",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_122",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "자외선차단피부보호효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_123",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "징크글루코네이트",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_124",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "피부미네랄전달과흡수도움",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_125",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "+",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_126",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "징크락테이트",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_127",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "각질케어효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_128",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "어성초추출물약모밀추출물|원료적특성에한함징크옥사이드+징크글루코네이트+징크락테이트구달맑은어성초진정무기자차선크림의외부자극에의한피부진정에대한인체적용시험한국피부과학연구원|성인여성21명|20221229~20230203|개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

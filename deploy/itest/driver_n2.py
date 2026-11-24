@@ -42,6 +42,8 @@ PENDING_LIMIT_S = 5 * 60
 N2_STAGES = {"analyze", "judge"}
 QUERY_FAIL_LIMIT = 3
 POST_ABORT_WATCH_S = 10 * 60
+# 점검 대상 배포 버전(이 이미지 작업 폴더)의 마이그레이션 — DB revision 과 따로 읽어 비교한다(고정값을 두지 않는다)
+MIGRATIONS = os.environ.get("ITEST_MIGRATIONS", os.path.join(os.getcwd(), "migrations"))
 
 # 이 스크립트가 읽는 열 — precheck 에서 information_schema 와 대조한다(추측 금지)
 COLUMNS = {
@@ -228,6 +230,34 @@ class Monitor:
         return f"{phase}-unsettled"
 
 
+# ---------------------------------------------------------------- 배포 버전 ↔ DB revision(순수 함수)
+def code_head(script_location=None):
+    """점검 대상 코드의 Alembic head. 정확히 하나가 아니면 (None, 문제). DB 에는 접속하지 않는다."""
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    cfg = Config()
+    cfg.set_main_option("script_location", script_location or MIGRATIONS)
+    try:
+        heads = sorted(ScriptDirectory.from_config(cfg).get_heads())
+    except Exception as e:  # noqa: BLE001 — 마이그레이션을 읽지 못하면 점검을 중단한다
+        return None, f"코드 마이그레이션을 읽지 못함: {type(e).__name__}"
+    if len(heads) != 1:
+        return None, f"코드 마이그레이션 head {len(heads)}개 {heads}"
+    return heads[0], None
+
+
+def revision_problem(head, db_revisions):
+    """코드 head 와 DB alembic_version 행(전부)을 비교한다. 행이 정확히 하나이고 head 와 같아야 한다. 문제 문자열 또는 None."""
+    if head is None:
+        return "코드 head 없음"
+    if len(db_revisions) != 1:
+        return f"DB 버전 행 {len(db_revisions)}개 {sorted(db_revisions)}"
+    if db_revisions[0] != head:
+        return f"DB {db_revisions[0]} ≠ 코드 head {head}"
+    return None
+
+
 # ---------------------------------------------------------------- DB·API(운영에서만)
 class Db:
     def __init__(self):
@@ -333,7 +363,7 @@ def stop_text():
 
 
 # ---------------------------------------------------------------- 사전 확인(읽기 전용)
-def precheck(db, api):
+def precheck(db, api, head_of=code_head):
     ok = True
 
     def fail(m):
@@ -349,10 +379,15 @@ def precheck(db, api):
     qs = db.queues()
     act = db.q("SELECT count(*) n FROM job_async_task WHERE status IN ('pending','running')")[0]["n"]
     ho = db.q("SELECT count(*) n FROM task_handoff WHERE state IN ('received','verifying','verified')")[0]["n"]
-    rev = db.q("SELECT version_num v FROM alembic_version")[0]["v"]
-    out(f"precheck queues={qs} active_attempts={act} open_handoffs={ho} db={rev}")
-    if any(qs.values()) or act or ho or rev != "0008":
-        fail("큐·진행 중 시도·열린 인계 0 / DB 0008 아님")
+    revs = [r["v"] for r in db.q("SELECT version_num v FROM alembic_version")]  # 첫 행만 읽지 않는다
+    head, head_bad = head_of()
+    out(f"precheck queues={qs} active_attempts={act} open_handoffs={ho} db={revs} code_head={head}")
+    rev_bad = head_bad or revision_problem(head, revs)
+    if rev_bad:
+        fail("배포 버전과 DB revision 불일치 — " + rev_bad)
+        return False  # 다른 버전의 스키마에서는 이후 점검을 하지 않는다
+    if any(qs.values()) or act or ho:
+        fail("큐·진행 중 시도·열린 인계 0 아님")
     seller = db.q("SELECT id FROM seller WHERE email = :e", e=EMAIL)
     job = db.q("SELECT id, seller_id, status, current_step, target_country, regulatory_class, current_analysis_task_id "
                "FROM job WHERE id = :j", j=JOB_ID)

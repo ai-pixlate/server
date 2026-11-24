@@ -1,0 +1,179 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:13.649702+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_11",
+      "section_key": "sec_47",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_621",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_622",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_623",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_624",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_625",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_626",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_627",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_628",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_629",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_11",
+      "section_key": "sec_47",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "1ae4982612620335b99a69f2d50d55d3f1f62024d572f32bb2f12571842bcc59",
+      "label_fingerprint": "f5e650abca4fefaa0df470637638f01d500d2c30a416c6533f5b9be037f622a6",
+      "label_input_fingerprint": "1ae4982612620335b99a69f2d50d55d3f1f62024d572f32bb2f12571842bcc59",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 9,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 9,
+        "compared": 9
+      },
+      "decisions": [
+        {
+          "block_key": "blk_621",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "보정없는실제고객후기로피부변화를확인해보세요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_622",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "모공을조여주는느낌이들어서너무좋았습니다피부가탄탄하고매끄러워진느낌입니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_623",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "양은고객님",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_624",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "2주만에피부가환해지고은은한광이돌면서판판해지는걸느꼈어요결광이뭔지제눈으로확인했습니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_625",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "김은고객님",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_626",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "모공이조금씩차오르는게보였어요매끄러워진피부결에광이돌아서거울보는게즐거워졌어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_627",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "임건고객님",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_628",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "사진보시면알겠지만아예주름이없어지진않아도전보다덜티나고저는만족스러워요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_629",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "정수고객님",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.015999999828636646
+}

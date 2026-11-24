@@ -1,0 +1,137 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:08.879419+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_8",
+      "section_key": "sec_34",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_452",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_453",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_454",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_455",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_456",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_457",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_8",
+      "section_key": "sec_34",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "61925e3077ce1a3a451271321e0bf09c04a9a071dadb8588663e4792980d6627",
+      "label_fingerprint": "6b5ef88082d11404b690bc4ecc773949e88d72af37e32250fc07b1e134bd8deb",
+      "label_input_fingerprint": "61925e3077ce1a3a451271321e0bf09c04a9a071dadb8588663e4792980d6627",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 6,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 6,
+        "compared": 6
+      },
+      "decisions": [
+        {
+          "block_key": "blk_452",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "깊고확실하게흡수되어특수관리이상의효과를볼수있어요",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_453",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "+각질층착색",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_454",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "+주름리프팅",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_455",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "+모공",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_456",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "+속탄력",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_457",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "셀리맥스더비타a레티날샷타이트닝부스테의1회사용후흡수율증대시험스피클미함유제품사용vs스피클함유제품사용효능평가인체적용시험20250818~20250822성인남녀20명주휴먼피부임상시험센터",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

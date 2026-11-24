@@ -7,7 +7,7 @@ pixlate-redis 컨테이너. 태스크는 app.tasks 에서 자동 로드(include)
   - ocr : N2 ①②③ 분석(PaddleOCR·VLM)          → run_analyze
   - gpu : N4 ⑥ 인페인팅(LaMa, 학교 GPU)         → run_inpaint
   - cpu : ③-1·④⑤⑦⑧·미리보기·N6 렌더·원격 인계 채택 → run_judge, run_label, run_logo, run_style, run_translate,
-          run_preview, run_render, run_adopt
+          run_preview, run_text_check, run_render, run_adopt
 메시지는 시도 id만 담는다(app.execution.dispatch). 라우팅은 task_routes 로 처리한다.
 
 gpu 큐는 EC2가 아니라 학교 GPU 워커가 EC2 Redis로 접속해 소비한다. 학교 서버는
@@ -46,6 +46,18 @@ VISIBILITY_TIMEOUT = int(os.getenv("CELERY_VISIBILITY_TIMEOUT", "3600"))
 # 연결 제한·keepalive·결과 저장소 설정은 바꾸지 않는다. 값을 바꿀 때는 API·EC2 워커·GPU 워커가 같은 값을 쓰게 한다.
 BROKER_SOCKET_TIMEOUT = float(os.getenv("CELERY_BROKER_SOCKET_TIMEOUT", "30"))
 
+from celery.signals import worker_init, worker_process_init  # noqa: E402
+
+
+@worker_init.connect
+@worker_process_init.connect
+def _install_check_providers(**_kw):
+    """규칙 검사 공급자(A1 · M3) — API 와 같은 함수 · 같은 공급자. PIXLATE_ACTIVE_CHECKS=rule 일 때만(기본 꺼짐)."""
+    from app.text_check_supply import install_from_env
+
+    install_from_env()
+
+
 celery_app = Celery(
     "pixlate",
     broker=BROKER_URL,
@@ -75,6 +87,7 @@ celery_app.conf.update(
         "app.tasks.run_style": {"queue": "cpu"},
         "app.tasks.run_translate": {"queue": "cpu"},
         "app.tasks.run_preview": {"queue": "cpu"},
+        "app.tasks.run_text_check": {"queue": "cpu"},
         "app.tasks.run_render": {"queue": "cpu"},
         "app.tasks.run_adopt": {"queue": "cpu"},
     },

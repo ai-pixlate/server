@@ -52,6 +52,12 @@ def test_local_mapping(tmp_path):
     assert "판단 근거" not in rec and "kr_freq" not in rec
 
 
+def test_multi_alternative_passes_split_rule_and_is_stored_as_text(tmp_path):
+    rows = [reg_row(1, "WL-001", alternative_expression="safe 1;calm 1 ; mild 1")]  # #71 구분 규칙: ';' · 공백은 지움
+    vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", rows, [ev_row("WL-001", "RG-001")])), None)
+    assert vr.issues == [] and vr.records[0]["alternative_expression"] == "safe 1;calm 1 ; mild 1"  # DB에는 원문 그대로
+
+
 def test_hangul_in_alternative_is_reported_not_rejected(tmp_path):
     rows = [reg_row(1, "WL-001", verdict_status="conditional", alternative_expression="SPF [시험 결과값]")]
     vr = validate_files(str(write_regulatory(tmp_path / "r.xlsx", rows, [ev_row("WL-001", "RG-001")])), None)
@@ -71,6 +77,9 @@ def test_hangul_in_alternative_is_reported_not_rejected(tmp_path):
     ({"verdict_status": "conditional", "alternative_expression": None}, "alternative_expression"),
     ({"verified_at": None}, "verified_at"),
     ({"variant_expressions.ko": "a; ; b"}, "variant_expressions.ko"),
+    ({"alternative_expression": "a; ; b"}, "alternative_expression"),     # #71 구분 규칙: 빈 조각
+    ({"alternative_expression": "a;;b"}, "alternative_expression"),       # #71 구분 규칙: 빈 조각
+    ({"alternative_expression": "a; b;"}, "alternative_expression"),      # #71 구분 규칙: 끝 구분자(빈 조각)
     ({"variant_expressions.en": None}, "variant_expressions.en"),
     ({"evidence_url": "https://other"}, "evidence_url"),
     ({"evidence_id": "WL-777"}, "evidence_id"),                           # 근거 탭에 없음

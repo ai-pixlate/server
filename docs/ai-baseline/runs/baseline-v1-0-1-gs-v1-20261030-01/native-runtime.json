@@ -1,0 +1,8 @@
+{
+  "import_order": [
+    "torch",
+    "paddle (이후 OCR 초기화 시)"
+  ],
+  "torch": "2.7.1+cu118",
+  "seconds": 7.672000000020489
+}

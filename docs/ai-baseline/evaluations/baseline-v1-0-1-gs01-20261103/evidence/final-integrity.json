@@ -1,0 +1,30 @@
+{
+  "original_run_files": 2028,
+  "original_run_hashes_unchanged": true,
+  "draft_jsonl_unchanged": true,
+  "canonical_units": 58,
+  "GS02_GS03_frozen_or_evaluated": false,
+  "protocol_validation_issues": [],
+  "existing_synthetic_tests_passed": 15,
+  "checked_local_markdown_links": 371,
+  "local_link_issues": [],
+  "evaluation_rows": 68,
+  "defect_rows": 58,
+  "defect_counts_per_checkpoint": {
+    "machine_snapshot": {
+      "critical": 7,
+      "major": 20,
+      "minor": 2
+    },
+    "service_final": {
+      "critical": 7,
+      "major": 20,
+      "minor": 2
+    }
+  },
+  "human_review_rows": 0,
+  "new_model_api_calls": 0,
+  "new_image_generation": false,
+  "git_actions": "none",
+  "snapshot_links_note": "과거 근거 사본의 상대 링크는 원래 위치 기준으로 보존; 현재 문서 링크 검사에서 제외"
+}

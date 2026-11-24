@@ -1,0 +1,2535 @@
+{
+  "source_id": "GS-01",
+  "stage": "merge",
+  "at": "2026-10-30T00:27:33.368618+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_1_01",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_1_01",
+        "block_order": 1,
+        "source_ko": "디자인 리뉴얼 안내",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "디자인 리뉴얼 안내",
+            "bbox": {
+              "x": 205,
+              "y": 94,
+              "w": 592,
+              "h": 104
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "디자인 리뉴얼 안내",
+                "score": 0.9447021484375,
+                "poly": [
+                  [
+                    205,
+                    94
+                  ],
+                  [
+                    797,
+                    94
+                  ],
+                  [
+                    797,
+                    198
+                  ],
+                  [
+                    205,
+                    198
+                  ]
+                ],
+                "bbox": {
+                  "x": 205,
+                  "y": 94,
+                  "w": 592,
+                  "h": 104
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 205,
+          "y": 94,
+          "w": 592,
+          "h": 104
+        },
+        "role": "title",
+        "ocr_confidence": 0.9447021484375
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_1_01",
+        "block_order": 2,
+        "source_ko": "구달 맑은 어성초 진정 무기자차 선크림 50m1+1 기획\n제품 디자인이 리뉴얼 되었습니다.\n내용물의 성분 및 용량은 기존과 동일합니다.",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "구달 맑은 어성초 진정 무기자차 선크림 50m1+1 기획",
+            "bbox": {
+              "x": 146,
+              "y": 225,
+              "w": 706,
+              "h": 41
+            },
+            "regions": [
+              {
+                "region_key": "reg_0002",
+                "text": "구달 맑은 어성초 진정 무기자차 선크림 50m1+1 기획",
+                "score": 0.9726493954658508,
+                "poly": [
+                  [
+                    146,
+                    225
+                  ],
+                  [
+                    852,
+                    226
+                  ],
+                  [
+                    852,
+                    266
+                  ],
+                  [
+                    146,
+                    265
+                  ]
+                ],
+                "bbox": {
+                  "x": 146,
+                  "y": 225,
+                  "w": 706,
+                  "h": 41
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_003",
+            "text": "제품 디자인이 리뉴얼 되었습니다.",
+            "bbox": {
+              "x": 282,
+              "y": 276,
+              "w": 433,
+              "h": 38
+            },
+            "regions": [
+              {
+                "region_key": "reg_0003",
+                "text": "제품 디자인이 리뉴얼 되었습니다.",
+                "score": 0.9884072542190552,
+                "poly": [
+                  [
+                    282,
+                    276
+                  ],
+                  [
+                    715,
+                    276
+                  ],
+                  [
+                    715,
+                    314
+                  ],
+                  [
+                    282,
+                    314
+                  ]
+                ],
+                "bbox": {
+                  "x": 282,
+                  "y": 276,
+                  "w": 433,
+                  "h": 38
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_004",
+            "text": "내용물의 성분 및 용량은 기존과 동일합니다.",
+            "bbox": {
+              "x": 219,
+              "y": 327,
+              "w": 560,
+              "h": 38
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "내용물의 성분 및 용량은 기존과 동일합니다.",
+                "score": 0.9789658188819885,
+                "poly": [
+                  [
+                    219,
+                    327
+                  ],
+                  [
+                    779,
+                    328
+                  ],
+                  [
+                    779,
+                    365
+                  ],
+                  [
+                    219,
+                    364
+                  ]
+                ],
+                "bbox": {
+                  "x": 219,
+                  "y": 327,
+                  "w": 560,
+                  "h": 38
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 146,
+          "y": 225,
+          "w": 706,
+          "h": 140
+        },
+        "role": "body",
+        "ocr_confidence": 0.9726493954658508
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_1_01",
+        "block_order": 3,
+        "source_ko": "goodal 어성초무기자차선50m1±1기획",
+        "source_lines": [
+          {
+            "line_key": "line_005",
+            "text": "goodal 어성초무기자차선50m1±1기획",
+            "bbox": {
+              "x": 667,
+              "y": 525,
+              "w": 166,
+              "h": 15
+            },
+            "regions": [
+              {
+                "region_key": "reg_0006",
+                "text": "goodal",
+                "score": 0.9663770794868469,
+                "poly": [
+                  [
+                    667,
+                    527
+                  ],
+                  [
+                    704,
+                    525
+                  ],
+                  [
+                    705,
+                    537
+                  ],
+                  [
+                    668,
+                    540
+                  ]
+                ],
+                "bbox": {
+                  "x": 667,
+                  "y": 525,
+                  "w": 38,
+                  "h": 15
+                }
+              },
+              {
+                "region_key": "reg_0007",
+                "text": "어성초무기자차선50m1±1기획",
+                "score": 0.9132512807846069,
+                "poly": [
+                  [
+                    710,
+                    526
+                  ],
+                  [
+                    833,
+                    526
+                  ],
+                  [
+                    833,
+                    536
+                  ],
+                  [
+                    710,
+                    536
+                  ]
+                ],
+                "bbox": {
+                  "x": 710,
+                  "y": 526,
+                  "w": 123,
+                  "h": 10
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 667,
+          "y": 525,
+          "w": 166,
+          "h": 15
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9132512807846069
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_1_01",
+        "block_order": 4,
+        "source_ko": "저자극\n무기자차",
+        "source_lines": [
+          {
+            "line_key": "line_006",
+            "text": "저자극",
+            "bbox": {
+              "x": 291,
+              "y": 535,
+              "w": 95,
+              "h": 37
+            },
+            "regions": [
+              {
+                "region_key": "reg_0005",
+                "text": "저자극",
+                "score": 0.9998953938484192,
+                "poly": [
+                  [
+                    291,
+                    535
+                  ],
+                  [
+                    386,
+                    535
+                  ],
+                  [
+                    386,
+                    572
+                  ],
+                  [
+                    291,
+                    572
+                  ]
+                ],
+                "bbox": {
+                  "x": 291,
+                  "y": 535,
+                  "w": 95,
+                  "h": 37
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_007",
+            "text": "무기자차",
+            "bbox": {
+              "x": 291,
+              "y": 570,
+              "w": 94,
+              "h": 28
+            },
+            "regions": [
+              {
+                "region_key": "reg_0010",
+                "text": "무기자차",
+                "score": 0.9997918605804443,
+                "poly": [
+                  [
+                    291,
+                    570
+                  ],
+                  [
+                    385,
+                    570
+                  ],
+                  [
+                    385,
+                    598
+                  ],
+                  [
+                    291,
+                    598
+                  ]
+                ],
+                "bbox": {
+                  "x": 291,
+                  "y": 570,
+                  "w": 94,
+                  "h": 28
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 291,
+          "y": 535,
+          "w": 95,
+          "h": 63
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9997918605804443
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_1_01",
+        "block_order": 5,
+        "source_ko": "민감 진정",
+        "source_lines": [
+          {
+            "line_key": "line_008",
+            "text": "민감 진정",
+            "bbox": {
+              "x": 662,
+              "y": 547,
+              "w": 123,
+              "h": 42
+            },
+            "regions": [
+              {
+                "region_key": "reg_0009",
+                "text": "민감 진정",
+                "score": 0.9178560972213745,
+                "poly": [
+                  [
+                    663,
+                    547
+                  ],
+                  [
+                    785,
+                    550
+                  ],
+                  [
+                    784,
+                    589
+                  ],
+                  [
+                    662,
+                    587
+                  ]
+                ],
+                "bbox": {
+                  "x": 662,
+                  "y": 547,
+                  "w": 123,
+                  "h": 42
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 662,
+          "y": 547,
+          "w": 123,
+          "h": 42
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9178560972213745
+      },
+      {
+        "block_key": "blk_006",
+        "section_key": "sec_1_01",
+        "block_order": 6,
+        "source_ko": "ONLY\n올리브영",
+        "source_lines": [
+          {
+            "line_key": "line_009",
+            "text": "ONLY",
+            "bbox": {
+              "x": 407,
+              "y": 554,
+              "w": 46,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0008",
+                "text": "ONLY",
+                "score": 0.9978417754173279,
+                "poly": [
+                  [
+                    407,
+                    554
+                  ],
+                  [
+                    453,
+                    554
+                  ],
+                  [
+                    453,
+                    572
+                  ],
+                  [
+                    407,
+                    572
+                  ]
+                ],
+                "bbox": {
+                  "x": 407,
+                  "y": 554,
+                  "w": 46,
+                  "h": 18
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_010",
+            "text": "올리브영",
+            "bbox": {
+              "x": 407,
+              "y": 572,
+              "w": 45,
+              "h": 14
+            },
+            "regions": [
+              {
+                "region_key": "reg_0011",
+                "text": "올리브영",
+                "score": 0.9980737566947937,
+                "poly": [
+                  [
+                    407,
+                    572
+                  ],
+                  [
+                    452,
+                    572
+                  ],
+                  [
+                    452,
+                    586
+                  ],
+                  [
+                    407,
+                    586
+                  ]
+                ],
+                "bbox": {
+                  "x": 407,
+                  "y": 572,
+                  "w": 45,
+                  "h": 14
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 407,
+          "y": 554,
+          "w": 46,
+          "h": 32
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9978417754173279
+      },
+      {
+        "block_key": "blk_007",
+        "section_key": "sec_1_01",
+        "block_order": 7,
+        "source_ko": "1+1",
+        "source_lines": [
+          {
+            "line_key": "line_011",
+            "text": "1+1",
+            "bbox": {
+              "x": 789,
+              "y": 567,
+              "w": 46,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0012",
+                "text": "1+1",
+                "score": 0.9965022206306458,
+                "poly": [
+                  [
+                    789,
+                    567
+                  ],
+                  [
+                    835,
+                    567
+                  ],
+                  [
+                    835,
+                    594
+                  ],
+                  [
+                    789,
+                    594
+                  ]
+                ],
+                "bbox": {
+                  "x": 789,
+                  "y": 567,
+                  "w": 46,
+                  "h": 27
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 789,
+          "y": 567,
+          "w": 46,
+          "h": 27
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9965022206306458
+      },
+      {
+        "block_key": "blk_008",
+        "section_key": "sec_1_01",
+        "block_order": 8,
+        "source_ko": "어성초무기자차선",
+        "source_lines": [
+          {
+            "line_key": "line_012",
+            "text": "어성초무기자차선",
+            "bbox": {
+              "x": 666,
+              "y": 588,
+              "w": 116,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0014",
+                "text": "어성초무기자차선",
+                "score": 0.9956135153770447,
+                "poly": [
+                  [
+                    666,
+                    588
+                  ],
+                  [
+                    782,
+                    588
+                  ],
+                  [
+                    782,
+                    605
+                  ],
+                  [
+                    666,
+                    605
+                  ]
+                ],
+                "bbox": {
+                  "x": 666,
+                  "y": 588,
+                  "w": 116,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 666,
+          "y": 588,
+          "w": 116,
+          "h": 17
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9956135153770447
+      },
+      {
+        "block_key": "blk_009",
+        "section_key": "sec_1_01",
+        "block_order": 9,
+        "source_ko": "HEARTLEAS",
+        "source_lines": [
+          {
+            "line_key": "line_013",
+            "text": "HEARTLEAS",
+            "bbox": {
+              "x": 185,
+              "y": 595,
+              "w": 38,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0013",
+                "text": "HEARTLEAS",
+                "score": 0.84605872631073,
+                "poly": [
+                  [
+                    185,
+                    595
+                  ],
+                  [
+                    223,
+                    595
+                  ],
+                  [
+                    223,
+                    605
+                  ],
+                  [
+                    185,
+                    605
+                  ]
+                ],
+                "bbox": {
+                  "x": 185,
+                  "y": 595,
+                  "w": 38,
+                  "h": 10
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 185,
+          "y": 595,
+          "w": 38,
+          "h": 10
+        },
+        "role": "caption",
+        "ocr_confidence": 0.84605872631073
+      },
+      {
+        "block_key": "blk_010",
+        "section_key": "sec_1_01",
+        "block_order": 10,
+        "source_ko": "어성초무기자차선크림",
+        "source_lines": [
+          {
+            "line_key": "line_014",
+            "text": "어성초무기자차선크림",
+            "bbox": {
+              "x": 291,
+              "y": 599,
+              "w": 93,
+              "h": 13
+            },
+            "regions": [
+              {
+                "region_key": "reg_0016",
+                "text": "어성초무기자차선크림",
+                "score": 0.9806685447692871,
+                "poly": [
+                  [
+                    291,
+                    599
+                  ],
+                  [
+                    384,
+                    599
+                  ],
+                  [
+                    384,
+                    612
+                  ],
+                  [
+                    291,
+                    612
+                  ]
+                ],
+                "bbox": {
+                  "x": 291,
+                  "y": 599,
+                  "w": 93,
+                  "h": 13
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 291,
+          "y": 599,
+          "w": 93,
+          "h": 13
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9806685447692871
+      },
+      {
+        "block_key": "blk_011",
+        "section_key": "sec_1_01",
+        "block_order": 11,
+        "source_ko": "HEARTLEAF",
+        "source_lines": [
+          {
+            "line_key": "line_015",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 569,
+              "y": 599,
+              "w": 38,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0017",
+                "text": "HEARTLEAF",
+                "score": 0.9659324288368225,
+                "poly": [
+                  [
+                    569,
+                    599
+                  ],
+                  [
+                    607,
+                    599
+                  ],
+                  [
+                    607,
+                    606
+                  ],
+                  [
+                    569,
+                    606
+                  ]
+                ],
+                "bbox": {
+                  "x": 569,
+                  "y": 599,
+                  "w": 38,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 569,
+          "y": 599,
+          "w": 38,
+          "h": 7
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9659324288368225
+      },
+      {
+        "block_key": "blk_012",
+        "section_key": "sec_1_01",
+        "block_order": 12,
+        "source_ko": "Calming",
+        "source_lines": [
+          {
+            "line_key": "line_016",
+            "text": "Calming",
+            "bbox": {
+              "x": 180,
+              "y": 607,
+              "w": 49,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0015",
+                "text": "Calming",
+                "score": 0.9952039122581482,
+                "poly": [
+                  [
+                    181,
+                    607
+                  ],
+                  [
+                    229,
+                    609
+                  ],
+                  [
+                    228,
+                    624
+                  ],
+                  [
+                    180,
+                    621
+                  ]
+                ],
+                "bbox": {
+                  "x": 180,
+                  "y": 607,
+                  "w": 49,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 180,
+          "y": 607,
+          "w": 49,
+          "h": 17
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9952039122581482
+      },
+      {
+        "block_key": "blk_013",
+        "section_key": "sec_1_01",
+        "block_order": 13,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_017",
+            "text": "Soothing",
+            "bbox": {
+              "x": 560,
+              "y": 612,
+              "w": 57,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0019",
+                "text": "Soothing",
+                "score": 0.9968838095664978,
+                "poly": [
+                  [
+                    561,
+                    612
+                  ],
+                  [
+                    617,
+                    614
+                  ],
+                  [
+                    616,
+                    630
+                  ],
+                  [
+                    560,
+                    627
+                  ]
+                ],
+                "bbox": {
+                  "x": 560,
+                  "y": 612,
+                  "w": 57,
+                  "h": 18
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 560,
+          "y": 612,
+          "w": 57,
+          "h": 18
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9968838095664978
+      },
+      {
+        "block_key": "blk_014",
+        "section_key": "sec_1_01",
+        "block_order": 14,
+        "source_ko": "1+1",
+        "source_lines": [
+          {
+            "line_key": "line_018",
+            "text": "1+1",
+            "bbox": {
+              "x": 414,
+              "y": 613,
+              "w": 31,
+              "h": 19
+            },
+            "regions": [
+              {
+                "region_key": "reg_0018",
+                "text": "1+1",
+                "score": 0.9987624287605286,
+                "poly": [
+                  [
+                    414,
+                    613
+                  ],
+                  [
+                    445,
+                    613
+                  ],
+                  [
+                    445,
+                    632
+                  ],
+                  [
+                    414,
+                    632
+                  ]
+                ],
+                "bbox": {
+                  "x": 414,
+                  "y": 613,
+                  "w": 31,
+                  "h": 19
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 414,
+          "y": 613,
+          "w": 31,
+          "h": 19
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9987624287605286
+      },
+      {
+        "block_key": "blk_015",
+        "section_key": "sec_1_01",
+        "block_order": 15,
+        "source_ko": "MNERAL RUTER\nSNCREAM",
+        "source_lines": [
+          {
+            "line_key": "line_019",
+            "text": "MNERAL RUTER",
+            "bbox": {
+              "x": 181,
+              "y": 623,
+              "w": 48,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0020",
+                "text": "MNERAL RUTER",
+                "score": 0.8428919911384583,
+                "poly": [
+                  [
+                    181,
+                    623
+                  ],
+                  [
+                    229,
+                    623
+                  ],
+                  [
+                    229,
+                    633
+                  ],
+                  [
+                    181,
+                    633
+                  ]
+                ],
+                "bbox": {
+                  "x": 181,
+                  "y": 623,
+                  "w": 48,
+                  "h": 10
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_020",
+            "text": "SNCREAM",
+            "bbox": {
+              "x": 186,
+              "y": 632,
+              "w": 38,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0021",
+                "text": "SNCREAM",
+                "score": 0.9715799689292908,
+                "poly": [
+                  [
+                    186,
+                    632
+                  ],
+                  [
+                    224,
+                    632
+                  ],
+                  [
+                    224,
+                    643
+                  ],
+                  [
+                    186,
+                    643
+                  ]
+                ],
+                "bbox": {
+                  "x": 186,
+                  "y": 632,
+                  "w": 38,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 181,
+          "y": 623,
+          "w": 48,
+          "h": 20
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8428919911384583
+      },
+      {
+        "block_key": "blk_016",
+        "section_key": "sec_1_01",
+        "block_order": 16,
+        "source_ko": "Cndre",
+        "source_lines": [
+          {
+            "line_key": "line_021",
+            "text": "Cndre",
+            "bbox": {
+              "x": 364,
+              "y": 627,
+              "w": 36,
+              "h": 26
+            },
+            "regions": [
+              {
+                "region_key": "reg_0022",
+                "text": "Cndre",
+                "score": 0.4718643128871918,
+                "poly": [
+                  [
+                    370,
+                    627
+                  ],
+                  [
+                    400,
+                    642
+                  ],
+                  [
+                    395,
+                    653
+                  ],
+                  [
+                    364,
+                    638
+                  ]
+                ],
+                "bbox": {
+                  "x": 364,
+                  "y": 627,
+                  "w": 36,
+                  "h": 26
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 364,
+          "y": 627,
+          "w": 36,
+          "h": 26
+        },
+        "role": "caption",
+        "ocr_confidence": 0.4718643128871918
+      },
+      {
+        "block_key": "blk_017",
+        "section_key": "sec_1_01",
+        "block_order": 17,
+        "source_ko": "",
+        "source_lines": [
+          {
+            "line_key": "line_022",
+            "text": "",
+            "bbox": {
+              "x": 419,
+              "y": 628,
+              "w": 21,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0023",
+                "text": "",
+                "score": 0.0,
+                "poly": [
+                  [
+                    420,
+                    628
+                  ],
+                  [
+                    440,
+                    631
+                  ],
+                  [
+                    439,
+                    639
+                  ],
+                  [
+                    419,
+                    636
+                  ]
+                ],
+                "bbox": {
+                  "x": 419,
+                  "y": 628,
+                  "w": 21,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 419,
+          "y": 628,
+          "w": 21,
+          "h": 11
+        },
+        "role": "caption",
+        "ocr_confidence": 0.0
+      },
+      {
+        "block_key": "blk_018",
+        "section_key": "sec_1_01",
+        "block_order": 18,
+        "source_ko": "MNERAL RUTER\nSUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_023",
+            "text": "MNERAL RUTER",
+            "bbox": {
+              "x": 564,
+              "y": 628,
+              "w": 47,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0024",
+                "text": "MNERAL RUTER",
+                "score": 0.9186379909515381,
+                "poly": [
+                  [
+                    564,
+                    628
+                  ],
+                  [
+                    611,
+                    628
+                  ],
+                  [
+                    611,
+                    639
+                  ],
+                  [
+                    564,
+                    639
+                  ]
+                ],
+                "bbox": {
+                  "x": 564,
+                  "y": 628,
+                  "w": 47,
+                  "h": 11
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_024",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 569,
+              "y": 638,
+              "w": 39,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0026",
+                "text": "SUN CREAM",
+                "score": 0.9685550332069397,
+                "poly": [
+                  [
+                    569,
+                    638
+                  ],
+                  [
+                    608,
+                    638
+                  ],
+                  [
+                    608,
+                    648
+                  ],
+                  [
+                    569,
+                    648
+                  ]
+                ],
+                "bbox": {
+                  "x": 569,
+                  "y": 638,
+                  "w": 39,
+                  "h": 10
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 564,
+          "y": 628,
+          "w": 47,
+          "h": 20
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9186379909515381
+      },
+      {
+        "block_key": "blk_019",
+        "section_key": "sec_1_01",
+        "block_order": 19,
+        "source_ko": "HEARTLEAI",
+        "source_lines": [
+          {
+            "line_key": "line_025",
+            "text": "HEARTLEAI",
+            "bbox": {
+              "x": 700,
+              "y": 635,
+              "w": 29,
+              "h": 8
+            },
+            "regions": [
+              {
+                "region_key": "reg_0027",
+                "text": "HEARTLEAI",
+                "score": 0.8964498043060303,
+                "poly": [
+                  [
+                    700,
+                    635
+                  ],
+                  [
+                    729,
+                    635
+                  ],
+                  [
+                    729,
+                    643
+                  ],
+                  [
+                    700,
+                    643
+                  ]
+                ],
+                "bbox": {
+                  "x": 700,
+                  "y": 635,
+                  "w": 29,
+                  "h": 8
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 700,
+          "y": 635,
+          "w": 29,
+          "h": 8
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8964498043060303
+      },
+      {
+        "block_key": "blk_020",
+        "section_key": "sec_1_01",
+        "block_order": 20,
+        "source_ko": "ONLY",
+        "source_lines": [
+          {
+            "line_key": "line_026",
+            "text": "ONLY",
+            "bbox": {
+              "x": 418,
+              "y": 638,
+              "w": 22,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0025",
+                "text": "ONLY",
+                "score": 0.9966889023780823,
+                "poly": [
+                  [
+                    418,
+                    638
+                  ],
+                  [
+                    440,
+                    638
+                  ],
+                  [
+                    440,
+                    649
+                  ],
+                  [
+                    418,
+                    649
+                  ]
+                ],
+                "bbox": {
+                  "x": 418,
+                  "y": 638,
+                  "w": 22,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 418,
+          "y": 638,
+          "w": 22,
+          "h": 11
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9966889023780823
+      },
+      {
+        "block_key": "blk_021",
+        "section_key": "sec_1_01",
+        "block_order": 21,
+        "source_ko": "MSUN",
+        "source_lines": [
+          {
+            "line_key": "line_027",
+            "text": "MSUN",
+            "bbox": {
+              "x": 771,
+              "y": 645,
+              "w": 30,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0029",
+                "text": "MSUN",
+                "score": 0.26301002502441406,
+                "poly": [
+                  [
+                    772,
+                    645
+                  ],
+                  [
+                    801,
+                    649
+                  ],
+                  [
+                    800,
+                    656
+                  ],
+                  [
+                    771,
+                    652
+                  ]
+                ],
+                "bbox": {
+                  "x": 771,
+                  "y": 645,
+                  "w": 30,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 771,
+          "y": 645,
+          "w": 30,
+          "h": 11
+        },
+        "role": "caption",
+        "ocr_confidence": 0.26301002502441406
+      },
+      {
+        "block_key": "blk_022",
+        "section_key": "sec_1_01",
+        "block_order": 22,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_028",
+            "text": "Soothing",
+            "bbox": {
+              "x": 694,
+              "y": 648,
+              "w": 41,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0028",
+                "text": "Soothing",
+                "score": 0.9980095028877258,
+                "poly": [
+                  [
+                    694,
+                    648
+                  ],
+                  [
+                    735,
+                    648
+                  ],
+                  [
+                    735,
+                    659
+                  ],
+                  [
+                    694,
+                    659
+                  ]
+                ],
+                "bbox": {
+                  "x": 694,
+                  "y": 648,
+                  "w": 41,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 694,
+          "y": 648,
+          "w": 41,
+          "h": 11
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9980095028877258
+      },
+      {
+        "block_key": "blk_023",
+        "section_key": "sec_1_01",
+        "block_order": 23,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_029",
+            "text": "Soothing",
+            "bbox": {
+              "x": 765,
+              "y": 655,
+              "w": 41,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0031",
+                "text": "Soothing",
+                "score": 0.9922857880592346,
+                "poly": [
+                  [
+                    766,
+                    655
+                  ],
+                  [
+                    806,
+                    661
+                  ],
+                  [
+                    804,
+                    672
+                  ],
+                  [
+                    765,
+                    666
+                  ]
+                ],
+                "bbox": {
+                  "x": 765,
+                  "y": 655,
+                  "w": 41,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 765,
+          "y": 655,
+          "w": 41,
+          "h": 17
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9922857880592346
+      },
+      {
+        "block_key": "blk_024",
+        "section_key": "sec_1_01",
+        "block_order": 24,
+        "source_ko": "MIMEMAL FUER\nSNCREAN",
+        "source_lines": [
+          {
+            "line_key": "line_030",
+            "text": "MIMEMAL FUER",
+            "bbox": {
+              "x": 697,
+              "y": 660,
+              "w": 36,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0030",
+                "text": "MIMEMAL FUER",
+                "score": 0.8655086159706116,
+                "poly": [
+                  [
+                    697,
+                    660
+                  ],
+                  [
+                    733,
+                    660
+                  ],
+                  [
+                    733,
+                    667
+                  ],
+                  [
+                    697,
+                    667
+                  ]
+                ],
+                "bbox": {
+                  "x": 697,
+                  "y": 660,
+                  "w": 36,
+                  "h": 7
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_031",
+            "text": "SNCREAN",
+            "bbox": {
+              "x": 700,
+              "y": 667,
+              "w": 28,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0032",
+                "text": "SNCREAN",
+                "score": 0.7134007215499878,
+                "poly": [
+                  [
+                    700,
+                    667
+                  ],
+                  [
+                    728,
+                    667
+                  ],
+                  [
+                    728,
+                    674
+                  ],
+                  [
+                    700,
+                    674
+                  ]
+                ],
+                "bbox": {
+                  "x": 700,
+                  "y": 667,
+                  "w": 28,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 697,
+          "y": 660,
+          "w": 36,
+          "h": 14
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7134007215499878
+      },
+      {
+        "block_key": "blk_025",
+        "section_key": "sec_1_01",
+        "block_order": 25,
+        "source_ko": "MMLRI",
+        "source_lines": [
+          {
+            "line_key": "line_032",
+            "text": "MMLRI",
+            "bbox": {
+              "x": 767,
+              "y": 668,
+              "w": 35,
+              "h": 12
+            },
+            "regions": [
+              {
+                "region_key": "reg_0033",
+                "text": "MMLRI",
+                "score": 0.4506670832633972,
+                "poly": [
+                  [
+                    768,
+                    668
+                  ],
+                  [
+                    802,
+                    672
+                  ],
+                  [
+                    801,
+                    680
+                  ],
+                  [
+                    767,
+                    676
+                  ]
+                ],
+                "bbox": {
+                  "x": 767,
+                  "y": 668,
+                  "w": 35,
+                  "h": 12
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 767,
+          "y": 668,
+          "w": 35,
+          "h": 12
+        },
+        "role": "caption",
+        "ocr_confidence": 0.4506670832633972
+      },
+      {
+        "block_key": "blk_026",
+        "section_key": "sec_1_01",
+        "block_order": 26,
+        "source_ko": "BMOM",
+        "source_lines": [
+          {
+            "line_key": "line_033",
+            "text": "BMOM",
+            "bbox": {
+              "x": 769,
+              "y": 676,
+              "w": 30,
+              "h": 10
+            },
+            "regions": [
+              {
+                "region_key": "reg_0034",
+                "text": "BMOM",
+                "score": 0.34185218811035156,
+                "poly": [
+                  [
+                    770,
+                    676
+                  ],
+                  [
+                    799,
+                    679
+                  ],
+                  [
+                    798,
+                    686
+                  ],
+                  [
+                    769,
+                    683
+                  ]
+                ],
+                "bbox": {
+                  "x": 769,
+                  "y": 676,
+                  "w": 30,
+                  "h": 10
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 769,
+          "y": 676,
+          "w": 30,
+          "h": 10
+        },
+        "role": "caption",
+        "ocr_confidence": 0.34185218811035156
+      },
+      {
+        "block_key": "blk_027",
+        "section_key": "sec_1_01",
+        "block_order": 27,
+        "source_ko": "Caralrg",
+        "source_lines": [
+          {
+            "line_key": "line_034",
+            "text": "Caralrg",
+            "bbox": {
+              "x": 426,
+              "y": 705,
+              "w": 38,
+              "h": 30
+            },
+            "regions": [
+              {
+                "region_key": "reg_0035",
+                "text": "Caralrg",
+                "score": 0.6677282452583313,
+                "poly": [
+                  [
+                    433,
+                    705
+                  ],
+                  [
+                    464,
+                    724
+                  ],
+                  [
+                    457,
+                    735
+                  ],
+                  [
+                    426,
+                    717
+                  ]
+                ],
+                "bbox": {
+                  "x": 426,
+                  "y": 705,
+                  "w": 38,
+                  "h": 30
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 426,
+          "y": 705,
+          "w": 38,
+          "h": 30
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6677282452583313
+      },
+      {
+        "block_key": "blk_028",
+        "section_key": "sec_1_01",
+        "block_order": 28,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_035",
+            "text": "goodal",
+            "bbox": {
+              "x": 566,
+              "y": 731,
+              "w": 43,
+              "h": 19
+            },
+            "regions": [
+              {
+                "region_key": "reg_0037",
+                "text": "goodal",
+                "score": 0.9988793730735779,
+                "poly": [
+                  [
+                    566,
+                    735
+                  ],
+                  [
+                    608,
+                    731
+                  ],
+                  [
+                    609,
+                    746
+                  ],
+                  [
+                    567,
+                    750
+                  ]
+                ],
+                "bbox": {
+                  "x": 566,
+                  "y": 731,
+                  "w": 43,
+                  "h": 19
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 566,
+          "y": 731,
+          "w": 43,
+          "h": 19
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9988793730735779
+      },
+      {
+        "block_key": "blk_029",
+        "section_key": "sec_1_01",
+        "block_order": 29,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_036",
+            "text": "goodal",
+            "bbox": {
+              "x": 185,
+              "y": 734,
+              "w": 39,
+              "h": 19
+            },
+            "regions": [
+              {
+                "region_key": "reg_0036",
+                "text": "goodal",
+                "score": 0.9967347979545593,
+                "poly": [
+                  [
+                    185,
+                    738
+                  ],
+                  [
+                    223,
+                    734
+                  ],
+                  [
+                    224,
+                    749
+                  ],
+                  [
+                    187,
+                    753
+                  ]
+                ],
+                "bbox": {
+                  "x": 185,
+                  "y": 734,
+                  "w": 39,
+                  "h": 19
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 185,
+          "y": 734,
+          "w": 39,
+          "h": 19
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9967347979545593
+      },
+      {
+        "block_key": "blk_030",
+        "section_key": "sec_1_01",
+        "block_order": 30,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_037",
+            "text": "goodal",
+            "bbox": {
+              "x": 698,
+              "y": 748,
+              "w": 32,
+              "h": 16
+            },
+            "regions": [
+              {
+                "region_key": "reg_0039",
+                "text": "goodal",
+                "score": 0.9886477589607239,
+                "poly": [
+                  [
+                    698,
+                    752
+                  ],
+                  [
+                    729,
+                    748
+                  ],
+                  [
+                    730,
+                    761
+                  ],
+                  [
+                    700,
+                    764
+                  ]
+                ],
+                "bbox": {
+                  "x": 698,
+                  "y": 748,
+                  "w": 32,
+                  "h": 16
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 698,
+          "y": 748,
+          "w": 32,
+          "h": 16
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9886477589607239
+      },
+      {
+        "block_key": "blk_031",
+        "section_key": "sec_1_01",
+        "block_order": 31,
+        "source_ko": "foondal",
+        "source_lines": [
+          {
+            "line_key": "line_038",
+            "text": "foondal",
+            "bbox": {
+              "x": 365,
+              "y": 758,
+              "w": 35,
+              "h": 26
+            },
+            "regions": [
+              {
+                "region_key": "reg_0038",
+                "text": "foondal",
+                "score": 0.651329517364502,
+                "poly": [
+                  [
+                    371,
+                    758
+                  ],
+                  [
+                    400,
+                    773
+                  ],
+                  [
+                    394,
+                    784
+                  ],
+                  [
+                    365,
+                    769
+                  ]
+                ],
+                "bbox": {
+                  "x": 365,
+                  "y": 758,
+                  "w": 35,
+                  "h": 26
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 365,
+          "y": 758,
+          "w": 35,
+          "h": 26
+        },
+        "role": "caption",
+        "ocr_confidence": 0.651329517364502
+      },
+      {
+        "block_key": "blk_032",
+        "section_key": "sec_1_01",
+        "block_order": 32,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_039",
+            "text": "goodal",
+            "bbox": {
+              "x": 763,
+              "y": 758,
+              "w": 29,
+              "h": 11
+            },
+            "regions": [
+              {
+                "region_key": "reg_0040",
+                "text": "goodal",
+                "score": 0.9952622056007385,
+                "poly": [
+                  [
+                    763,
+                    758
+                  ],
+                  [
+                    792,
+                    758
+                  ],
+                  [
+                    792,
+                    769
+                  ],
+                  [
+                    763,
+                    769
+                  ]
+                ],
+                "bbox": {
+                  "x": 763,
+                  "y": 758,
+                  "w": 29,
+                  "h": 11
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 763,
+          "y": 758,
+          "w": 29,
+          "h": 11
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9952622056007385
+      },
+      {
+        "block_key": "blk_033",
+        "section_key": "sec_1_01",
+        "block_order": 33,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_040",
+            "text": "goodal",
+            "bbox": {
+              "x": 414,
+              "y": 802,
+              "w": 50,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0041",
+                "text": "goodal",
+                "score": 0.997992992401123,
+                "poly": [
+                  [
+                    414,
+                    807
+                  ],
+                  [
+                    462,
+                    802
+                  ],
+                  [
+                    464,
+                    820
+                  ],
+                  [
+                    416,
+                    825
+                  ]
+                ],
+                "bbox": {
+                  "x": 414,
+                  "y": 802,
+                  "w": 50,
+                  "h": 23
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 414,
+          "y": 802,
+          "w": 50,
+          "h": 23
+        },
+        "role": "caption",
+        "ocr_confidence": 0.997992992401123
+      },
+      {
+        "block_key": "blk_034",
+        "section_key": "sec_1_01",
+        "block_order": 34,
+        "source_ko": "신규 디자인",
+        "source_lines": [
+          {
+            "line_key": "line_041",
+            "text": "신규 디자인",
+            "bbox": {
+              "x": 626,
+              "y": 922,
+              "w": 129,
+              "h": 35
+            },
+            "regions": [
+              {
+                "region_key": "reg_0043",
+                "text": "신규 디자인",
+                "score": 0.9519000053405762,
+                "poly": [
+                  [
+                    626,
+                    922
+                  ],
+                  [
+                    755,
+                    922
+                  ],
+                  [
+                    755,
+                    957
+                  ],
+                  [
+                    626,
+                    957
+                  ]
+                ],
+                "bbox": {
+                  "x": 626,
+                  "y": 922,
+                  "w": 129,
+                  "h": 35
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 626,
+          "y": 922,
+          "w": 129,
+          "h": 35
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9519000053405762
+      },
+      {
+        "block_key": "blk_035",
+        "section_key": "sec_1_01",
+        "block_order": 35,
+        "source_ko": "기존 디자인",
+        "source_lines": [
+          {
+            "line_key": "line_042",
+            "text": "기존 디자인",
+            "bbox": {
+              "x": 247,
+              "y": 924,
+              "w": 127,
+              "h": 32
+            },
+            "regions": [
+              {
+                "region_key": "reg_0042",
+                "text": "기존 디자인",
+                "score": 0.9947607517242432,
+                "poly": [
+                  [
+                    247,
+                    924
+                  ],
+                  [
+                    374,
+                    924
+                  ],
+                  [
+                    374,
+                    956
+                  ],
+                  [
+                    247,
+                    956
+                  ]
+                ],
+                "bbox": {
+                  "x": 247,
+                  "y": 924,
+                  "w": 127,
+                  "h": 32
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 247,
+          "y": 924,
+          "w": 127,
+          "h": 32
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9947607517242432
+      },
+      {
+        "block_key": "blk_036",
+        "section_key": "sec_1_01",
+        "block_order": 36,
+        "source_ko": "리뉴얼 진행 중인 상품으로 주문 시점에 따라\n발송되는 제품의 디자인이 상이할 수 있습니다.",
+        "source_lines": [
+          {
+            "line_key": "line_043",
+            "text": "리뉴얼 진행 중인 상품으로 주문 시점에 따라",
+            "bbox": {
+              "x": 251,
+              "y": 1056,
+              "w": 496,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0044",
+                "text": "리뉴얼 진행 중인 상품으로 주문 시점에 따라",
+                "score": 0.9782297015190125,
+                "poly": [
+                  [
+                    251,
+                    1056
+                  ],
+                  [
+                    747,
+                    1056
+                  ],
+                  [
+                    747,
+                    1087
+                  ],
+                  [
+                    251,
+                    1087
+                  ]
+                ],
+                "bbox": {
+                  "x": 251,
+                  "y": 1056,
+                  "w": 496,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_044",
+            "text": "발송되는 제품의 디자인이 상이할 수 있습니다.",
+            "bbox": {
+              "x": 238,
+              "y": 1099,
+              "w": 521,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0045",
+                "text": "발송되는 제품의 디자인이 상이할 수 있습니다.",
+                "score": 0.9852532148361206,
+                "poly": [
+                  [
+                    238,
+                    1100
+                  ],
+                  [
+                    759,
+                    1099
+                  ],
+                  [
+                    759,
+                    1129
+                  ],
+                  [
+                    238,
+                    1130
+                  ]
+                ],
+                "bbox": {
+                  "x": 238,
+                  "y": 1099,
+                  "w": 521,
+                  "h": 31
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 238,
+          "y": 1056,
+          "w": 521,
+          "h": 74
+        },
+        "role": "body",
+        "ocr_confidence": 0.9782297015190125
+      },
+      {
+        "block_key": "blk_037",
+        "section_key": "sec_1_01",
+        "block_order": 37,
+        "source_ko": "*디자인 변경으로 인한 교환,환불은 어려운 점 양해 부탁드립니다.",
+        "source_lines": [
+          {
+            "line_key": "line_045",
+            "text": "*디자인 변경으로 인한 교환,환불은 어려운 점 양해 부탁드립니다.",
+            "bbox": {
+              "x": 205,
+              "y": 1155,
+              "w": 587,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0046",
+                "text": "*디자인 변경으로 인한 교환,환불은 어려운 점 양해 부탁드립니다.",
+                "score": 0.9764125347137451,
+                "poly": [
+                  [
+                    205,
+                    1155
+                  ],
+                  [
+                    792,
+                    1155
+                  ],
+                  [
+                    792,
+                    1182
+                  ],
+                  [
+                    205,
+                    1182
+                  ]
+                ],
+                "bbox": {
+                  "x": 205,
+                  "y": 1155,
+                  "w": 587,
+                  "h": 27
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 205,
+          "y": 1155,
+          "w": 587,
+          "h": 27
+        },
+        "role": "caution",
+        "ocr_confidence": 0.9764125347137451
+      },
+      {
+        "block_key": "blk_038",
+        "section_key": "sec_1_01",
+        "block_order": 38,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_046",
+            "text": "goodal",
+            "bbox": {
+              "x": 421,
+              "y": 1219,
+              "w": 159,
+              "h": 69
+            },
+            "regions": [
+              {
+                "region_key": "reg_0047",
+                "text": "goodal",
+                "score": 0.9950433373451233,
+                "poly": [
+                  [
+                    421,
+                    1230
+                  ],
+                  [
+                    576,
+                    1219
+                  ],
+                  [
+                    580,
+                    1278
+                  ],
+                  [
+                    425,
+                    1288
+                  ]
+                ],
+                "bbox": {
+                  "x": 421,
+                  "y": 1219,
+                  "w": 159,
+                  "h": 69
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 421,
+          "y": 1219,
+          "w": 159,
+          "h": 69
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9950433373451233
+      }
+    ]
+  },
+  "seconds": 18.875
+}

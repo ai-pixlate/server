@@ -1,0 +1,60 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:50:25.484691+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_420",
+        "outcome": "completed",
+        "translation": "High Potency · Highly Concentrated · High Performance",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_421",
+        "outcome": "completed",
+        "translation": "celimax Retinal Shot Booster",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_422",
+        "outcome": "completed",
+        "translation": "2025.09.15 #1 Best Seller on Amazon North America for the keyword 'RETINAL'",
+        "error": null,
+        "applied_instructions": []
+      },
+      {
+        "block_key": "blk_423",
+        "outcome": "completed",
+        "translation": "Proven Results\n#1 Amazon Best Seller",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "9c3a5c4e8ee0f9b99f6e6cd080b5398867348fc6ec798c7d296c66d423659f8f",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "2906f6fd2d1fa7e0276328d6bac18b4bf4c64aa0989a063ade08a145d8e958dd",
+      "usage": {
+        "candidates_token_count": 86,
+        "prompt_token_count": 787,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 787
+          }
+        ],
+        "thoughts_token_count": 1005,
+        "total_token_count": 1878
+      }
+    }
+  ],
+  "seconds": 11.125
+}

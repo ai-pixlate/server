@@ -1,0 +1,123 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:13.383918+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_10",
+      "section_key": "sec_41",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_507",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_508",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_509",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_510",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_511",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_10",
+      "section_key": "sec_41",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "e73b9eec3a21c5f1eeb0cfd19a99d32df1b61a2f173711fbf96756e63d5a3739",
+      "label_fingerprint": "2274bc472870b3a86f4b7733a236f88fc9ebf15a7c7c20431f5bae7813326218",
+      "label_input_fingerprint": "e73b9eec3a21c5f1eeb0cfd19a99d32df1b61a2f173711fbf96756e63d5a3739",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 5,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 5,
+        "compared": 5
+      },
+      "decisions": [
+        {
+          "block_key": "blk_507",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "깊게도달하는초미세입자성분으로모공부터|속탄력까지",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_508",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "000003mm로잘게쪼갠나노리포좀레티날",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_509",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "0015mm15μm로고순도분리정제한마이크로에이샷",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_510",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "wd562mm",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_511",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "wd534mm",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.01500000013038516
+}

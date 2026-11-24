@@ -36,7 +36,8 @@ def handoff_env(env, tmp_path, monkeypatch):
             "INSERT INTO expression_dictionary (external_id, source_expression, variant_ko, forbidden_en, target_country, regulatory_class, "
             "dict_type, verdict_status, source_verdict_status, alternative_expression, reason, confirmed_date) VALUES "
             "('RG-777', '가짜완화', CAST(:v AS jsonb), NULL, 'US', 'cosmetic', 'regulatory', 'regulated', 'rewritable', "
-            "'the look of calm', '완화 표방 금지', DATE '2026-09-30') RETURNING id"), {"v": json.dumps(["가짜완화"], ensure_ascii=False)}
+            "'the look of calm; calming look', '완화 표방 금지', DATE '2026-09-30') RETURNING id"),  # #71 구분 규칙 ';'
+            {"v": json.dumps(["가짜완화"], ensure_ascii=False)}
         ).scalar_one()
         c.execute(text("INSERT INTO expression_dictionary_evidence (dictionary_id, external_id, evidence_source_type, is_primary) "
                        "VALUES (:d, 'WL-777', 'Warning Letter', true)"), {"d": did})
@@ -67,10 +68,13 @@ def test_handoff_translator_partial_failure_reaches_n5_with_fixed_supply(handoff
               "ORDER BY a.unit_id", j=ids["job"])
     assert [(a["status"], a["error_code"]) for a in atts] == [("done", None), ("failed", "TRANSLATE_PARTIAL")]
     supply = atts[0]["input_manifest"]["supply"]  # 시도 생성 때 고정한 공급 지문
-    # #71 확정 전에는 대체 표현이 원문 문자열이라 ⑧ 표현 지시를 보내지 않는다(PR #55 3217142)
-    assert supply["instructions"] == []
+    # 대체 표현이 있는 금지형 매칭이 이번 대상 블록에 있으면 ⑧ 표현 지시를 고정한다(#71)
+    assert [(i["external_id"], i["matched_text"]) for i in supply["instructions"]] == [("RG-777", "가짜완화")]
+    # 모델 입력까지 나눈 대체 표현으로 간다
+    sent = [i for ins in handoff_env["llm"].instructions for i in ins]
+    assert [(i["matched_text"], i["alternatives"]) for i in sent] == [("가짜완화", ["the look of calm", "calming look"])]
     assert supply["bundle_sha256"] and supply["glossary_sha256"]
-    assert supply["glossary_selection"] == {"rules": "glossary-select@2026-10-11.1", "target_lang": "en", "categories": ["common"]}
+    assert supply["glossary_selection"] == {"rules": "glossary-select@2026-11-08.1", "target_lang": "en", "categories": ["common"]}
     # BE가 대상 블록에서 고른 용어만 실제 모델 입력까지 간다 — 섹션 1은 '크림'만, 섹션 2는 없음(다른 분류 '문구' 제외)
     gls = [g for _, g in handoff_env["llm"].seen]
     assert [{"term_ko": "크림", "term_target": "cream", "enforcement": "enforced"}] in gls and [] in gls
@@ -164,11 +168,13 @@ def test_conflicting_glossary_fails_translate_not_empty_success(handoff_env):
 SUN = "Sunscreens & Tanning Products"
 
 
-def _category(name: str, *, parent: int | None = None, mappings: tuple[str, ...] = ()) -> int:
+def _category(name: str, *, parent: int | None = None, mappings: tuple[str, ...] = (), leaf: bool = True) -> int:
+    """작업이 고를 수 있는 항목은 leaf뿐이다(작업 생성·수정 검증) — 상위 노드는 leaf=False 로 만든다."""
     from app import db as app_db
 
     with app_db.engine.begin() as c:
-        cid = c.execute(text("INSERT INTO category_master (parent_id, name) VALUES (:p, :n) RETURNING id"), {"p": parent, "n": name}).scalar()
+        cid = c.execute(text("INSERT INTO category_master (parent_id, name, is_leaf) VALUES (:p, :n, :l) RETURNING id"),
+                        {"p": parent, "n": name, "l": leaf}).scalar()
         for m in mappings:
             c.execute(text("INSERT INTO category_mapping (category_id, internal_category) VALUES (:c, :m)"), {"c": cid, "m": m})
     return cid
@@ -242,7 +248,7 @@ def test_api_category_maps_to_internal_category_and_supplies_its_terms(handoff_e
 
 def test_api_category_without_direct_mapping_supplies_common_only(handoff_env):
     _other_category_term()
-    parent = _category("자외선 차단", mappings=(SUN,))
+    parent = _category("자외선 차단", mappings=(SUN,), leaf=False)
     child = _category("선크림(매핑 없음)", parent=parent)  # 부모에만 매핑 — 상위 탐색 없음
     cl, job = _api_job_to_n3(handoff_env, child)
     assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] is None
@@ -253,8 +259,27 @@ def test_api_category_without_direct_mapping_supplies_common_only(handoff_env):
 
 
 def test_api_job_without_category_supplies_common_only(handoff_env):
-    cl, job = _api_job_to_n3(handoff_env, None)
-    assert cl.get(f"/v1/jobs/{job}").json()["internalCategory"] is None
+    """카테고리 없는 작업: 새 작업은 최초 분석 게이트에서 막힌다. 게이트 이전에 분석을 시작해 N3에 있는 기존 작업(카테고리 NULL)은
+    보정하지 않고 common만 공급받는다(카테고리 값을 leaf로 바꿔 이 경우를 숨기지 않는다)."""
+    from app import db as app_db
+    from app.manifest import sha256_bytes
+
+    cl, ids = _api_client(handoff_env)
+    r = cl.post("/v1/jobs", json={"brandId": ids["brand"], "productName": "선크림", "targetCountry": "US",
+                                  "regulatoryClass": "cosmetic", "targetLanguage": "en"})
+    new = r.json()["id"]
+    data = sample_source_png()
+    handoff_env["store"].put(f"source/{new}/src.png", data)
+    with app_db.engine.begin() as c:
+        c.execute(text("INSERT INTO source_image (job_id, upload_order, file_url, width, height, sha256) VALUES (:j, 1, :k, 600, 1000, :h)"),
+                  {"j": new, "k": f"source/{new}/src.png", "h": sha256_bytes(data)})
+    r = cl.post(f"/v1/jobs/{new}/analyze")
+    assert r.status_code == 400 and r.json()["error"]["details"]["fields"][0]["msg"] == "category is required"
+
+    cl, job = _api_job_to_n3(handoff_env, _category("선크림(게이트 이전 작업)"))
+    with app_db.engine.begin() as c:  # 게이트 이전에 카테고리 없이 시작한 기존 작업과 같은 저장 값
+        c.execute(text("UPDATE job SET display_category_id = NULL, internal_category = NULL WHERE id = :j"), {"j": job})
+    assert cl.get(f"/v1/jobs/{job}").json()["categoryId"] is None
     sups, _ = _proceed_and_supply(handoff_env, cl, job)
     assert {tuple(s["glossary_selection"]["categories"]) for s in sups if s} == {("common",)}
 

@@ -1,0 +1,235 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:18.577964+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_11",
+      "section_key": "sec_49",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_634",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_635",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_636",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_637",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_638",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_639",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_640",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_641",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_642",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_643",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_644",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_645",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_646",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_11",
+      "section_key": "sec_49",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "ee074e8fce4482273b077d90d744da5937065c1b3784f1ea8ed06f199f80ace0",
+      "label_fingerprint": "4d037651f11e3a8726a78693307169cc66a9465ba87f5c4de66a34ba30fb2bc0",
+      "label_input_fingerprint": "ee074e8fce4482273b077d90d744da5937065c1b3784f1ea8ed06f199f80ace0",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 13,
+      "counts": {
+        "product_label": 0,
+        "empty_text": 0,
+        "exact_match": 0,
+        "no_match": 13,
+        "compared": 13
+      },
+      "decisions": [
+        {
+          "block_key": "blk_634",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "단하루사용으로모공4중개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_635",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "가로모공개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_636",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "1333개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_637",
+          "block_order": 4,
+          "is_product_label": false,
+          "normalized": "1일사용후",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_638",
+          "block_order": 5,
+          "is_product_label": false,
+          "normalized": "사용전",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_639",
+          "block_order": 6,
+          "is_product_label": false,
+          "normalized": "모공부위2mm깊은속탄력개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_640",
+          "block_order": 7,
+          "is_product_label": false,
+          "normalized": "433",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_641",
+          "block_order": 8,
+          "is_product_label": false,
+          "normalized": "모공깊이개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_642",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "780",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_643",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "모공밀도개선",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_644",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "1221",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_645",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "모공모공부위2mm깊은속탄력가로모공모공깊이모공밀도개선에대한인체적용시험주스킨메드임상시험센터20240527~20240528성인남녀22명개인차있음",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_646",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "smab524m27142",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.0
+}

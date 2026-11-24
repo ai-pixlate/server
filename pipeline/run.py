@@ -35,9 +35,10 @@
 실행이 끝나면 DIR/run.json에 사용한 config·입력·프롬프트 해시·시작/종료 시각·소요 시간·커밋 해시를 남긴다(계약 9장의 event_log.payload에 해당).
 split·ocr·merge 파일 읽기는 pipeline.jsonio를 거친다(버전 확인). split.json만 상대 image_path를 JSON 파일 폴더 기준으로 해석·기록하고,
 analyze.json(워커 인계 형식)은 버전 1 · 경로 변환 없이 그대로 쓴다(dev.md 3절).
-종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현 단계 · 4 VLM 호출 실패(open-questions #25 미정, AnalyzeError 미변환).
+종료 코드: 0 성공 · 2 AnalyzeError(모든 하위 명령, stderr에 JSON) · 3 미구현 단계 · 4 VLM · LLM 호출 실패(AnalyzeError로 바꾸지 않음. analyze의 ① 실패는 원본 전체 섹션 대체, #25).
 ocr은 섹션 오류를 기록하고 계속하며 run.json에 status(ok · partial · failed)와 섹션별 결과를 남긴다(dev.md 4절).
-타일로 나눈 섹션(높이 > ocr.split_threshold_px)은 성공 · 실패와 관계없이 DIR/ocr_debug/<KEY>.json에 타일 진단을 남긴다.
+타일로 나눈 섹션(높이 > ocr.split_threshold_px)은 성공 · 실패와 관계없이 DIR/ocr_debug/<KEY>.json에 타일 진단을 남긴다
+(짧은 섹션은 호출별 중복 제거 기록이 있을 때만).
 """
 from __future__ import annotations
 
@@ -205,16 +206,26 @@ def cmd_ocr(args) -> int:
 
 
 def _tile_summary(out: Path, key: str, diag: dict[str, Any]) -> dict[str, Any]:
-    """타일 섹션이면 ocr_debug/<key>.json을 쓰고 run.json용 요약을 돌려준다. 타일이 아니면 빈 dict."""
-    if not diag.get("tiled"):
+    """진단이 있으면(타일 섹션 · 호출별 중복 제거 기록이 있는 짧은 섹션) ocr_debug/<key>.json을 쓰고 run.json용 요약을
+    돌려준다. 없으면 빈 dict. engine_calls는 전체 검출 OCR(타일 + 보완)이고 국소 재인식은 overlap_rec_calls로 따로 센다."""
+    if not diag:
         return {}
     path = out / "ocr_debug" / f"{key}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(diag, ensure_ascii=False, indent=2), encoding="utf-8")
+    dedup = (sum(r.get("removed", 0) for r in diag.get("dedup", []))
+             + sum(s.get("dedup", {}).get("removed", 0) for s in diag.get("supplements", [])))
+    if not diag.get("tiled"):
+        return {"dedup_removed": dedup, "ocr_debug": str(path)}
     calls = diag.get("engine_calls", {})
+    rr = diag.get("overlap_rec", {})
     return {"tiles": len(diag.get("tiles", [])), "engine_calls": calls.get("tiles", 0) + calls.get("supplements", 0),
             "supplements": calls.get("supplements", 0), "dropped": len(diag.get("dropped", [])),
-            "tile_warnings": len(diag.get("warnings", [])), "ocr_debug": str(path)}
+            "tile_warnings": len(diag.get("warnings", [])), "dedup_removed": dedup,
+            "overlap_rec_calls": calls.get("overlap_rec", 0),
+            "overlap_rec_replaced": sum(1 for u in rr.get("units", []) for sd in u.get("sides", [])
+                                        if sd.get("decision") == "replaced"),
+            "overlap_rec_limit_reached": rr.get("limit_reached", False), "ocr_debug": str(path)}
 
 
 def cmd_merge(args) -> int:
@@ -232,7 +243,8 @@ def cmd_merge(args) -> int:
 
         llm = ReplayMergeAssistant.from_file(args.llm_replay, merge.llm_config(cfg))
     recorder = None if args.no_llm else merge.json_recorder(out / "merge_debug")
-    res = merge.run(sec, ocr_res, cfg, use_llm=not args.no_llm, llm=llm, recorder=recorder)
+    res = merge.run(sec, ocr_res, cfg, use_llm=not args.no_llm, llm=llm, recorder=recorder,
+                    post_recorder=merge.json_recorder(out / "merge_post_debug"))  # 후처리 스위치가 켜졌을 때만 쓴다
     if llm is not None:
         llm.finish()  # 기록이 호출을 기대했는데 쓰이지 않았으면 VlmReplayMismatch
     p = _write_json(out / "merge" / f"{sec.section_key}.json", res)
@@ -638,8 +650,10 @@ def save_png_verified(path: Path, arr) -> None:
     import numpy as np
     from PIL import Image
 
+    from pipeline.pngio import save_png
+
     buf = io.BytesIO()
-    Image.fromarray(arr).save(buf, format="PNG")
+    save_png(Image.fromarray(arr), buf)
     jsonio.write_bytes_atomic(path, buf.getvalue())
     with Image.open(path) as im:
         back = np.array(im)
@@ -1135,7 +1149,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"미구현: {e}", file=sys.stderr)
         return 3
     except VlmError as e:
-        # open-questions #25 미정 — 오류 코드·재시도 정책 결정 전까지 AnalyzeError로 바꾸지 않는다.
+        # AnalyzeError로 바꾸지 않는다 — 오류 코드·재시도 조건은 미정(#25 · #37). analyze()의 ① 실패는 원본 전체 섹션으로
+        # 대체되므로(#25) 여기 오는 것은 CLI split의 ① 실패 · ③ llm_assist 실패 등이다.
         print(f"VLM 실패(#25 미정): {e}", file=sys.stderr)
         return 4
 

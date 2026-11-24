@@ -1,6 +1,6 @@
 # be-handoff.md — BE 워커가 부르는 AI 함수의 입력·출력과 BE 처리(공동 확인용 예제)
 
-> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
+> 작성: 2026-10-08, `feature/be-ai-pipeline-integration` · 6절 추가 2026-10-12(D11 역할별 스타일 기본값) · 8절 추가 2026-10-12(D12 번역문 검사 연결) · 10절 추가 2026-10-23(OCR 후처리, BE 확인 미진행). 정의 코드는 `app/ai_adapters.py`(타입)·`app/flows/`(검증·저장)다.
 > 성격: BE 구현이 실제로 요구·검증하는 형식의 예제와 기대 결과다. 새 계약 결정이 아니며, 유형 코드·프롬프트·모델은 AI 소유다.
 > 모든 키는 BE가 준 임시 키(`sec_<id>`·`blk_<id>`)를 그대로 돌려준다. 모르는 키는 저장 실패다(D3). 파일은 절대 로컬 경로로만 주고받는다.
 
@@ -15,13 +15,13 @@
 | ⑧ | `pipeline.handoff.translation.run_translate` | `HandoffTranslator` → `TranslateOutcome`. 공급은 `context["handoff"]` | `validate_report` + 기존 채택 검사 |
 | ⑥ | `pipeline.handoff.gpu.GpuInpaintRunner` (GPU 측) | `BeControlClient`(AI `ControlClient` 구현), 등록은 `WorkerControl.register_report`, 요청 구성은 `inpaint_stage_request` 공용 | 업로드 해시·시도·세대 대조 → 산출물 고정 → 고정 사본으로 `validate_report(local_paths, allowed_root)` → 채택 |
 
-- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 #71 결정 전까지 **나누지 않은 원문 문자열**(없으면 빈 배열) — AI는 "대체 표현 있음"·스냅샷에만 쓰고 ⑧ 표현 지시로 쓰지 않는다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
+- **사전 묶음**: BE 저장 묶음(PK·근거 배열 포함)에서 `app.dictionary_bundle.to_ai_bundle()`이 PR #55 `3217142` 형식을 결정적으로 만든다. 서비스 `verdict_status`와 원값 `source_verdict_status`를 그대로, 근거는 배열 전체(`document`·`is_primary` 포함, PK 제외)를 보낸다. 대체 표현은 저장 묶음에 DB 원문 문자열 그대로 두고, AI 인계 때 #71 구분 규칙(2026-11-03 데이터 담당 확인 — `;`로 나누고 조각 앞뒤 공백은 지운다, 빈 조각은 위반)으로 나눈 **배열**(없으면 빈 배열)을 보낸다. 규칙 위반 값은 적재 검증(`dictionary_ingest`)과 묶음 생성(`REGULATORY_DICT_INVALID`)에서 막는다. 그 전에 고정된 묶음에 위반 값이 있으면 예외 없이 나누지 않은 원문 문자열로 보내고 그 행은 ⑧ 표현 지시를 만들지 않는다(시도 생성 · 실행 · 재시도에서 사전 오류로 멈추지 않는다). 묶음 스키마는 바꾸지 않았으므로 이미 분석한 묶음도 다음 AI 호출부터 배열로 간다. 현지 행 ID 집합이 AI 대응표 8항목과 다르면 공급 불가(`local=null` + 사유)로 기록한다.
 - **정책 규칙**: DB에 없다. 저장소 운영 규칙 `pipeline/data/policy_rules.json`(AI 소유, `policy@2026-10-08.1`)을 분석 시작 때 읽어 묶음에 고정하고 지문(`policy_rules_sha256`)도 보존한다. `PIXLATE_POLICY_RULES`는 실험용 대체 경로다. `overrides`가 있거나 `combination→otc`·`unknown→cosmetic`(D8)과 다르면 거부한다. 규제 행 조회 분류는 규칙의 `applied_classes`(`common` 포함)를 따른다.
-- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 표현 지시는 #71 확정 전(`ALTERNATIVES_SPLIT=False`)에는 만들지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`.
+- **⑧ 공급**: 근거 분석 실행의 저장 묶음, 섹션 전체 블록, 대상·revision, 보존 성공분(출처 시도 포함), 표현 지시, 용어집(이번 대상 블록 원문에서 선별한 용어 — `select_glossary`, [통합 D10](integration-decisions.md)). 용어집 선별 입력(`glossary_selection`: 규칙 버전·언어·적용 분류)도 함께 고정한다. 인증↔문구 충돌의 블록별 제외·최종 프롬프트 공급 관계·기록/지문은 `contract.md` 5.1.1을 따르며 후속 필드·저장 구조는 BE 최소 구현안 대기다. [BE–AI §3.5] 표현 지시: N3 채택 판정 중 대체 표현이 있는 금지형(`regulated`) 규제 판정의 매칭을 이번 대상 블록에 한해 `{block_key, external_id, matched_text}`로 넘기고, 자리표시자 템플릿 대체 표현은 넘기지 않는다(D9). 판정 단계에서 억제된 매칭(audit `overlaps`의 `kind=suppressed` — 포함 · 허용 표현 감쌈 등)은 판정의 매칭이 아니므로 지시하지 않는다. 묶음·용어집·지시의 지문을 시도 명세 `supply`에 고정하고 실행 때 대조해 다르면 `INPUT_CHANGED`. 표현 지시 활성화 뒤 만든 시도는 `supply.instructions_rule`(`INSTRUCTIONS_RULE`)을 함께 고정한다. 이 키가 없는 시도(활성화 전에 만든 대기 시도)는 지시 없이 공급을 다시 만들어 대조 · 실행한다 — 배포 때문에 `INPUT_CHANGED`가 나지 않고, 실패 후 자동 재시도 · 사용자 재시도(`translate_retry_plan`)로 새 공급을 만드는 시도부터 지시가 들어간다. 리스 만료 복구 재시도는 이전 고정 입력을 그대로 쓰므로 지시가 붙지 않는다.
 - **지문**: `app.manifest`는 `pipeline.handoff.canonical`(JCS)에 위임한다. BE·AI 지문 구현은 하나다.
 - **AI 실패 보고**: 블록별 결과가 있으면 항목별 실패로, 없으면 `AdapterFailed`(`TRANSLATE_<KIND>` 등)로 기록한다. 오류 코드 문자열은 task `errorCode` 후보이며 API enum이 아니다.
 - **GPU 정리**: BE가 폐기를 확정하면 `handoff_status`가 `discard`를 돌려주고 AI `cleanup()`이 `verified`·`adopted`·`discard`일 때만 지운다. 인계 없이 권한을 잃은 시도만 BE가 따로 폐기 여부를 확인한다.
-- **남은 것**: 번역문 독립 검사 단계(`run_text_check`) 연결, GPU 제어 HTTP 바인딩, #71 구분 규칙 확정 후 대체 표현 배열 변환·⑧ 표현 지시 활성화.
+- **남은 것**: 번역문 검사 연결(8절) — 문구 2차 첫 활성화의 규칙 검사 연결·검증 필수 조건은 8절과 계약 5.1.1을 따르며, LLM 연결 일정은 별도 협의. GPU 제어 HTTP 바인딩. #71 대체 표현 배열 변환 · ⑧ 표현 지시는 PR #97 코드(BE 코드 재검토 통과, 구분 규칙은 2026-11-03 데이터 담당 확인)이며, 활성화는 규제사전 전달 · DB 적재 · BE 환경 테스트 · 머지 승인 대기다.
 
 ## 1. 실행 상태 — AI 쪽이 지켜야 할 것
 
@@ -107,19 +107,19 @@
 
 ## 5. 함께 확인할 것
 
-0절 「남은 것」과 [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)의 AI 요청(대상 섹션 지정·근거 배열·검증기 경로·정리 상태·예제 재생성의 Unicode 버전 의존)을 따른다. ⑧ 대체 표현 구분자(#71)는 임시 공급 규칙으로 연결했으며 결정되면 변환·공급만 바꾼다. 용어집 공급은 D10 선별로 교체했다(2026-10-11).
+0절 「남은 것」과 [PR #55 BE 확인](https://github.com/ai-pixlate/server/pull/55#issuecomment-6054998455)의 AI 요청(대상 섹션 지정·근거 배열·검증기 경로·정리 상태·예제 재생성의 Unicode 버전 의존)을 따른다. ⑧ 대체 표현 구분자(#71)는 2026-11-03 사용자 결정에 따라 변환·공급을 바꿨다(0절). 용어집 공급은 D10 선별로 교체했다(2026-10-11).
 
 ## 6. 역할별 스타일 기본값 — BE 렌더 연결 인계(2026-10-12, D11)
 
 [D11](integration-decisions.md)의 사용자 승인값을 AI가 설정 자료 · 폰트 · 계산 함수 · 사례로 준비했다(2026-10-12). AI 작업에서는 운영 렌더 코드를 바꾸지 않았다.
 
-**연결 상태(2026-10-15, `origin/release/1.0.0` `f5b050a` 코드 대조)**: BE PR #71(`65f350e`)로 로더 · 폰트 검증 · `resolve_block` 규칙 · 렌더 입력 지문이 운영 렌더에 연결됐다. 실제 그리기 폰트는 아직 Pillow 내장 기본 폰트(`ImageFont.load_default`)다 — Pretendard · 역할별 굵기 적용은 release에서 BE가 진행하기로 했다([PR #72 코멘트](https://github.com/ai-pixlate/server/pull/72#issuecomment-6185856592)). 자간 · 행간 · 넘침 기준 · 기록 형식은 develop 후속이다. 항목별 상태는 6.6.
+**연결 상태(2026-10-15, `origin/release/1.0.0` `f5b050a` 코드 대조 — 당시 기준)**: BE PR #71(`65f350e`)로 로더 · 폰트 검증 · `resolve_block` 규칙 · 렌더 입력 지문이 운영 렌더에 연결됐다. 실제 그리기 폰트는 아직 Pillow 내장 기본 폰트(`ImageFont.load_default`)다 — Pretendard · 역할별 굵기 적용은 release에서 BE가 진행하기로 했다([PR #72 코멘트](https://github.com/ai-pixlate/server/pull/72#issuecomment-6185856592)). 자간 · 행간 · 넘침 기준 · 기록 형식은 develop 후속이다. 항목별 상태는 6.6. 이 절의 상태 표기는 그 뒤 갱신하지 않는다 — 이후 PR #74(`32652ba`)로 Pretendard · 역할별 굵기가 반영됐고, 현재 연결 상태와 남은 작업은 `status.md` ⑨ 행이 소유한다.
 
 ### 6.1 자료 위치
 
 | 자료 | 경로 | 소유 · 성격 |
 |---|---|---|
-| 설정 자료(정본) | `pipeline/data/style_defaults.json` — `defaults_version` `role-style@2026-10-12.1` | AI. 디자인 토큰(`type_tokens`, 출처 design_image)과 사용자 승인 매핑 · 보완값(`pipeline_mapping`, 출처 user_approved)을 나눠 담는다. 같은 값을 다른 파일에 따로 두지 않는다 |
+| 설정 자료(정본) | `pipeline/data/style_defaults.json` — `defaults_version` `role-style@2026-11-05.2`(정렬을 역할별 값으로, `schema_version` 2) | AI. 디자인 토큰(`type_tokens`, 출처 design_image)과 사용자 승인 매핑 · 보완값(`pipeline_mapping`, 출처 user_approved)을 나눠 담는다. 같은 값을 다른 파일에 따로 두지 않는다 |
 | 로더 · 검증 · 계산 | `pipeline/handoff/style_defaults.py` — `load_style_defaults` · `verify_fonts` · `resolve_block` · `render_inputs` · `RULE_VERSION`(`role-style-rule/1`) | AI. 정책 규칙(`bundle.py`)처럼 BE가 import해 쓰는 것을 전제로 한다. 조판 · 측정은 하지 않는다 |
 | 폰트 파일 | `pipeline/data/fonts/pretendard/` — `Pretendard-Regular.otf` · `Pretendard-SemiBold.otf` · `LICENSE.txt` | 공식 배포본 그대로 저장소에 포함(git checkout으로 배포). 검증 · 재현 도구 `pipeline/data/fonts/tools/fetch_fonts.py` |
 | 사례(입력 · 기대 결과) | `pipeline/samples/style_defaults/cases.json` — 10건(8종) | AI. 기대값은 손 계산(검증 대상 코드로 생성하지 않음) |
@@ -136,7 +136,8 @@
 | price | Heading / H3 | 24px | SemiBold(600) | −2% = −0.02em |
 | caution | Body / L | 16px | Regular(400) | −3% = −0.03em |
 
-공통(사용자 승인): 폰트 Pretendard · 기준 폭 375px · 기본 글자색 `#222222` · 기본 정렬 left · 행간 = 적용 크기 × 1.2.
+공통(사용자 승인): 폰트 Pretendard · 기준 폭 375px · 기본 글자색 `#222222` · 행간 = 적용 크기 × 1.2.
+기본 정렬(역할별, 사용자 결정 2026-11-05): title · price · caption center, body · caution left. 설정 자료의 `pipeline_mapping.align`은 역할 → 정렬 객체다(이전 형식의 공통 문자열 하나는 로더가 거부한다).
 
 | 파일 | 크기(byte) | SHA-256 | 메타데이터(실제 파일에서 읽음) |
 |---|---|---|---|
@@ -157,7 +158,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 | 입력 | 적용값 · 출처 |
 |---|---|
 | `is_excluded`가 false가 아님(라벨 · 로고 · 규제 제외 등) / 빈 원문 / 번역문 없음(NULL · 빈 문자열) | 조판하지 않음(`skip_reason` excluded · empty_source · no_translation). 기본값으로 되살리지 않는다 |
-| ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. 단일 줄 · 동률 left(`align_basis` default_single_line · default_tie)도 측정 결과다 |
+| ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. ⑦은 섹션 기준으로 판정한 정렬만 값으로 내고(`align_basis` `section`), 판정하지 못하면 NULL이라 역할 기본 정렬로 채워진다(2026-11-05, `contract.md` 6.4 · #78). 이전 ⑦ 결과의 `default_single_line` · `default_tie` left는 원본 정렬 판정이 아니다 |
 | ⑦ 완료, 일부 NULL | NULL 항목만 역할 기본값 — 출처 `role_default` |
 | ⑦ 실패(style 객체 NULL) | 세 항목 모두 역할 기본값. 단계 상태는 `failed` 그대로(측정 성공으로 만들지 않음) |
 | 계약 위반(⑦ 완료인데 대상 블록 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값) | `StyleInputInvalid` — 기본값으로 덮지 않는다 |
@@ -174,13 +175,13 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 ```json
 {"id": 401, "render": true, "skip_reason": null, "style_stage": "failed", "measured": null, "measured_align_basis": null,
  "applied": {"type_token": "Heading / H2", "font_family": "Pretendard", "font_face": "SemiBold", "font_weight": 600,
-             "font_sha256": "c89bc430…", "font_size_px": 92.16, "font_color": "#222222", "align": "left",
+             "font_sha256": "c89bc430…", "font_size_px": 92.16, "font_color": "#222222", "align": "center",
              "letter_spacing_em": -0.015, "letter_spacing_px": -1.3824, "line_height_px": 110.592},
  "source": {"font_size_px": "role_default", "font_color": "role_default", "align": "role_default", "font_family": "role_config",
             "font_face": "role_config", "letter_spacing": "role_config", "line_height": "role_config"}}
 ```
 
-현행 BE 렌더 기록(`applied` = `font_color` · `est_font_px` · `align`, `source` = measured · role_default)을 이 형식으로 넓히는 안을 추천한다. `align_basis`는 현재 `text_block.style`에 저장되지 않는다 — 보존 여부는 BE 결정이며, 보존하지 않아도 `align`이 NULL이 아니면 측정값으로 취급한다.
+현행 BE 렌더 기록(`applied` = `font_color` · `est_font_px` · `align`, `source` = measured · role_default)을 이 형식으로 넓히는 안을 추천한다. `align_basis` 보존 필요성은 2026-10-29 FE–AI가 동의했다. 저장 위치·키와 FE·공통 렌더 전달 범위, 최종 정렬·스타일 계산 책임은 여전히 #78의 미정 계약이다. 이 예제를 확정 응답·저장 형식으로 사용하지 않는다. 근거: `contract.md` 6장 조판 D-03·07 및 노션 3-1절.
 
 ### 6.5 참고 렌더와 운영 렌더의 차이
 
@@ -188,26 +189,26 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 python -m pipeline.handoff.style_reference --out pipeline/out/style-defaults-check
 ```
 
-사례마다 원본 폭 × 섹션 높이의 흰 캔버스 PNG와 `layout.json`(적용값 · 줄 · 줄 폭 · 넘침)을 만든다. **AI 검증용이며 운영 렌더가 아니다. 이 렌더의 성공은 운영 연결 완료가 아니다.** 운영 렌더(BE)와 다를 수 있는 점:
+사례마다 원본 폭 × 섹션 높이의 흰 캔버스 PNG와 `layout.json`(적용값 · 줄 · 줄 폭 · 넘침)을 만든다. **AI 검증용이며 운영 렌더가 아니다. 이 렌더의 성공은 운영 연결 완료가 아니다.** 아래 비교표는 당시 참고 렌더의 특성이다. 운영 조판 기준은 2026-10-28~29 FE–AI 합의를 반영한 `contract.md` 6.2·6.4가 소유한다(#79 해결).
 
-| 항목 | 참고 렌더(Pillow 12.3 · Layout.BASIC · raqm 없음) | 운영 조판에서 정할 것 |
+| 항목 | 참고 렌더(Pillow 12.3 · Layout.BASIC · raqm 없음) | 합의된 운영 조판 기준(`contract.md` 6.2·6.4) |
 |---|---|---|
-| 커닝 · 합자 | GPOS 미적용 | HarfBuzz · 브라우저 엔진이면 적용됨 → 줄 폭 차이 |
-| 글리프 진행 폭 | 정수 px로 반올림(힌팅) — 20px에서 `i` = 4px | 서브픽셀 진행 폭 사용 여부 |
-| 자간 | 글자 사이에만(줄 폭 = 글리프 합 + 자간 × (글자 수 − 1)) | CSS는 엔진에 따라 마지막 글자 뒤에도 더한다 |
-| 세로 위치 | 반행간을 위아래로 분배, ascent/descent = FreeType 값 | 브라우저는 OS/2 typo 값을 쓸 수 있다(USE_TYPO_METRICS 설정됨). 넘침 높이는 줄 수 × 행간이라 무관 |
-| 줄바꿈 | 원문 `\n` 유지 · 나머지 공백 접기 · 단어 단위 · 긴 단어 자르지 않음(CSS `white-space: pre-line` 상당) | 같은 규칙 권장(현행 `app/typeset.py`와 같다) |
+| 커닝 · 합자 | GPOS 미적용 | CSS `font-kerning: normal` |
+| 글리프 진행 폭 | 정수 px로 반올림(힌팅) — 20px에서 `i` = 4px | 소수 유지. 넘침은 진행 폭만으로 판단하지 않고 배치된 ink boundary 사용 |
+| 자간 | 글자 사이에만(줄 폭 = 글리프 합 + 자간 × (글자 수 − 1)) | 승인 자간을 CSS `letter-spacing`으로 적용, 끝 자간 별도 제거 보정 없음 |
+| 세로 위치 | 반행간을 위아래로 분배, ascent/descent = FreeType 값 | CSS 줄 상자·행간 1.2로 배치. 실제 DOM baseline과 ink boundary로 세로 넘침 판정 |
+| 줄바꿈 | 원문 `\n` 유지 · 나머지 공백 접기 · 단어 단위 · 긴 단어 자르지 않음(CSS `white-space: pre-line` 상당) | `white-space: pre-line` + 브라우저 기본 줄바꿈. 참고 렌더 줄 구성을 정답으로 삼지 않음 |
 
 사례 08의 804(여러 줄 감기)는 참고 렌더에서 한 줄 폭이 영역보다 1px 넓어 줄이 갈린다 — 엔진 차이에 민감해 기대 줄 구성을 두지 않았다. 운영 엔진에서 이 사례의 줄 구성을 기록해 두기를 권한다.
 
 ### 6.6 BE 수정 대상과 순서
 
-2026-10-12 AI 작업에서는 아래 운영 코드를 바꾸지 않았다. 각 항목 끝의 **상태**는 2026-10-15 `origin/release/1.0.0` `f5b050a` 코드와 대조한 것이다.
+2026-10-12 AI 작업에서는 아래 운영 코드를 바꾸지 않았다. 각 항목 끝의 **상태**는 2026-10-15 `origin/release/1.0.0` `f5b050a` 코드와 대조한 당시 기준이다. 현재 상태는 `status.md` ⑨ 행.
 
 1. **`app/typeset.py` 로더 교체**: `load_role_defaults()`가 `pipeline.handoff.style_defaults.load_style_defaults()` + `verify_fonts()`를 쓰게 한다. 경로 기본값은 저장소 정본, `PIXLATE_STYLE_DEFAULTS`는 대체 경로로 두는 안을 추천한다(정책 규칙 `PIXLATE_POLICY_RULES`와 같은 방식). 폰트 검증 실패는 기존 `StyleDefaultsUnavailable`처럼 렌더 실패로 처리하고 내장 폰트로 그리지 않는다. `deploy/pixlate.env.example` 설명도 함께 고친다. **상태: 반영(PR #71 `65f350e`)** — `load_role_defaults()`가 정본 경로 + `verify_fonts()`, 실패하면 `STYLE_DEFAULTS_UNAPPROVED`로 중단. 검증 실패 시 내장 폰트로 대체하지 않는 정책은 유지한다(사용자 결정 2026-10-15, PR #72 코멘트).
 2. **스타일 해석**: `resolve_style()`을 `resolve_block()`으로 대체하거나 같은 규칙으로 고친다. 원본 폭(섹션 `bbox.w`)과 섹션의 ⑦ 시도 결과(done/failed)를 넘긴다. 현재는 단계 상태 없이 style NULL만 본다. **상태: 반영(PR #71)** — `resolve_style()`이 `resolve_block()`을 부르고, ⑦ 단계 상태는 렌더 manifest의 `style_stage`, 원본 폭은 섹션 배경 폭으로 넘긴다. 계약 위반은 `STYLE_RESULT_INVALID`.
 3. **실제 폰트 · 굵기 · 자간 · 행간 적용**: `_font()`의 `ImageFont.load_default` 대신 역할 굵기의 실제 OTF를 적용 크기(소수 허용)로 연다. 자간 · 행간은 적용값의 px를 쓴다(`LINE_SPACING` 상수 대신 설정 자료의 비율). **상태: 미반영** — `_font()`는 아직 `ImageFont.load_default`, 행간은 상수 1.2. 폰트(Pretendard) · 역할별 굵기는 release에서 BE 진행 예정(측정 · 그리기에 같은 폰트 객체, `RENDERER_VERSION` 갱신, 역할별 폰트 · 굵기와 특수문자 · 한글 출력 시험), 자간 · 행간은 develop 후속.
-4. **넘침 계산을 실제 조판과 같은 기준으로**: 폭은 자간을 포함한 실제 줄 폭, 높이는 줄 수 × 행간 px. 높이가 영역과 같으면 넘침이 아니다. 넘쳐도 크기 축소 · 문구 축약 · 측정값 교체를 하지 않는다. 운영 엔진의 자간 끝 처리 · 커닝 기준은 #79. **상태: develop 후속**(자간 적용과 함께).
+4. **넘침 계산 기준 정정(2026-10-29 합의)**: 종전 줄 폭·줄 수 × 행간 판정은 `contract.md` 6.2·6.4의 DOM baseline·배치된 ink boundary 기준으로 대체한다(#79 해결). 구현 상태를 갱신한 기록은 아니다.
 5. **입력 지문**: `app/flows/downstream.py`의 `_render_inputs`(미리보기 — 최종 렌더의 `app/flows/final.py` `_final_inputs`도 이것을 부른다)와 `_final_inputs`의 `style_defaults`를 `render_inputs(d)`(설정 버전 · SHA-256 · 폰트 SHA-256 · 규칙 버전)로 바꾸고, `RENDERER_VERSION`의 렌더 라이브러리 버전을 유지한다. `_render_section`의 대조도 같은 값으로 한다(다르면 `INPUT_CHANGED`). **상태: 반영(PR #71)** — manifest `style_defaults` = `typeset.style_inputs()`(`render_inputs`), 자료를 쓸 수 없으면 `unavailable`을 남기고 렌더 때 실패. 폰트 교체 시 `RENDERER_VERSION`을 올리는 것은 위 3의 release 작업에 포함. 지문이 달라진 기존 미리보기가 언제 다시 그려지는지는 단정하지 않는다 — 코드상 하류 실행이 `running`인 동안의 `progress()`만 새 시도를 만든다(N5 이후 · 재시도 영향은 BE 확인).
 6. **미리보기 · 최종 렌더 공통**: 두 경로가 같은 로더 · 같은 `resolve_block` · 같은 조판 함수를 쓴다. 최종 렌더가 미리보기와 다른 설정을 읽을 수 없게 한다. **상태: 반영(PR #71)** — 최종 렌더도 같은 `style_inputs()` · `_render_section` · `render`를 쓴다.
 7. **기록**: `text_block.style`은 측정값 그대로 둔다. 렌더 payload의 `applied` · `source`를 6.4 형식으로 넓힌다(저장 위치는 #78). **상태: develop 후속** — 현재 `applied` · `source`는 글자색 · 크기 · 정렬 세 키.
@@ -225,17 +226,17 @@ python -m pytest tests/test_pipeline_style_defaults.py
 
 | 사례 | 확인하는 것 |
 |---|---|
-| 01_all_measured | 측정값 3개 유지 · bg_color 미사용 · default_single_line left는 측정값 |
+| 01_all_measured | 측정값 3개 유지 · bg_color 미사용 · `align_basis`(section)는 그대로 전달 |
 | 02_color_null | 글자색만 #222222(role_default) |
-| 03_align_null | 정렬만 left(role_default), default_tie left는 measured |
-| 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 단계 failed 유지 |
+| 03_align_null | 정렬만 caption 기본 center(role_default), 측정된 left는 measured |
+| 04_style_failed | ⑦ 실패 → 1080px title 92.16 · price 69.12 · caution 46.08, 정렬 title · price center · caution left, 단계 failed 유지 |
 | 05_excluded_targets | 라벨 · 로고 · 빈 원문 · 번역 NULL/빈 문자열 → 조판 안 함. ⑦ 완료 · 세 항목 NULL → 모두 role_default |
 | 06a · 06b · 06c | 원본 폭 375 · 860 · 1080 — 860이면 title 73.38666666666667(반올림 없음) |
 | 07_fractional_measured | 측정 37.25 · 18.6 유지(배율 · em_ratio 미적용, 기본값보다 작아도 유지) |
 | 08_wrap_overflow | `\n` 2줄 · 높이 48 = 넘침 아님 · 47 = 넘침 · 긴 단어 폭 넘침 · 빈 줄 유지 |
 
 BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
-- 사례 입력을 `text_block` 행(`is_excluded` · `source_ko` · `trans_1` · `style` · `role` · `bbox`/`layout_bbox`)과 섹션의 ⑦ 시도 상태로 만들고 미리보기 → N5 → 최종 렌더를 돌린다.
+- 사례 입력을 `text_block` 행(`is_excluded` · `source_ko` · `trans_1` · `style` · `role` · `bbox`/`layout_adjust`(구 `auto_adjust` — 적용 박스 해석은 `contract.md` 6.1))과 섹션의 ⑦ 시도 상태로 만들고 미리보기 → N5 → 최종 렌더를 돌린다.
 - 미리보기 payload와 최종 렌더 `renders[*].applied`가 사례의 `applied` · `source`와 같다. `text_block.style`은 렌더 전후 같다.
 - ⑦ 실패 섹션도 미리보기 · 최종 렌더가 성공하고, N5 표시가 없으며(D9-3) ⑦ 시도는 failed로 남는다.
 - 설정 자료 · 폰트 파일 · 규칙 버전 중 하나를 바꾸면 고정 입력 대조에서 `INPUT_CHANGED`.
@@ -244,9 +245,17 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 
 ### 6.8 남은 것 · 검증 한계
 
-- 운영 연결(6.6)은 1 · 2 · 5 · 6이 PR #71로 반영됐고 8은 일부다(2026-10-15 코드 대조). 남은 것: 실제 폰트 · 굵기(release, BE 진행 예정), 자간 · 행간 · 넘침 기준 · 기록 형식(develop). 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽은 단위 · 참고 렌더 검증만 했고, PR #71의 BE 시험은 실행하지 않았다.
-- #78 적용값 기록 위치 · 키, #79 운영 조판 엔진의 측정 기준(자간 끝 · 커닝 · 서브픽셀)은 BE 확인이 필요하다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
+- 운영 연결(6.6)은 1 · 2 · 5 · 6이 PR #71로 반영됐고 8은 일부다(2026-10-15 코드 대조, 당시 기준 — 현재 상태는 `status.md` ⑨ 행). 남은 것: 실제 폰트 · 굵기(release, BE 진행 예정), 자간 · 행간 · 넘침 기준 · 기록 형식(develop). 이 PC에는 BE · DB 시험 환경이 없어 AI 쪽은 단위 · 참고 렌더 검증만 했고, PR #71의 BE 시험은 실행하지 않았다.
+- #78 적용값 기록 위치·키·공통 모듈 소유는 미정이며 계산 원칙은 6.9를 따른다. #79 측정 기준은 FE–AI 합의로 해결했으며 `contract.md` 6.2·6.4를 따른다. 사용자 조정 계약은 #87, 이미지 경계 이탈의 화면·API 계약은 #88이다. 폰트 파일은 저장소에 포함한다(2026-10-12 사용자 결정, #80 해결).
 - 디자인 원본 이미지는 이 작업에서 직접 열람하지 않았다. 토큰 값은 사용자가 전달한 승인표 기준이다.
+
+### 6.9 공통 렌더 입력 연결
+
+최신 계산·책임 경계는 `contract.md` 6.5~6.7을 따른다. BE는 측정 style 4키와 별도 `align_basis`, 원본·AI 기준값·사용자/시스템 조정의 출처를 보존해 공통 계산 입력을 구성한다. 위 `resolve_block` 적용 크기는 사용자 절대 배율 적용 전 값이다. 공통 FE/서버 계산에서 배율·행간·자간을 한 번 적용하며 조정 bbox에는 배율을 다시 곱하지 않는다. [BE–AI §4.1·4.2]
+
+FE는 PATCH의 사용자 조정 객체에 편집한 필드만 넣는다(본문의 필수 필드는 별도). 박스만 바꾸면 배율을 생략하고, 둘 다 바꾸면 한 편집으로 원자 저장한다. 생략·null과 3차 명시적 기본값의 차이는 `contract.md` 6.5를 따른다. 브라우저 측정 기준은 AI–FE 합의이며, Pillow 임시 보정 없는 2차 전환은 지연·검수 차질 시 별도 판단하는 BE 권고다. [BE–AI §4.2·4.3]
+
+2차 `/preview`의 필수 스타일 8개와 `PreviewInputError`는 공개 계약으로 확정됐고 입력 오류 처리는 구현 완료·서버 배포 대기다(계약 6.7). 다른 경로의 스키마·fontFace·공통 모듈 소유/번들 전달은 미정이며 #14·#78·#87·#89에서 계속 관리한다. Q-07은 공통 조판의 2차 적용과 구분한 3차 범위로 `contract.md` 6.6·#88을 참조한다. AI–FE 측정 규칙을 BE가 별도 알고리즘으로 재정의하지 않는다. [BE–AI §4.3·4.4]
 
 ## 7. Linux CPU OCR 수정 인계(2026-10-12)
 
@@ -279,9 +288,106 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 
 동일 합성 입력과 지원 범위의 긴 입력이 수정 이미지에서 모두 통과하고 위 기록이 확보돼야 Linux 수정 검증 완료로 판단한다. 배포 담당의 기존 최대 메모리 **2,104MiB**는 비교 참고값이며 이번 수정 실측값이나 운영 요구량이 아니다. EC2 자원 결정은 BE·배포 담당이 맡는다.
 
+## 8. 번역문 검사 연결 — BE–AI 채택 원칙과 남은 연결
+
+규칙 검사 `run_text_check`와 LLM 규제 판정 `run_translation_review`의 계약은 `contract.md` 5.3·7.1이다. `[BE–AI §n]`의 출처·결정일은 [결정 색인 7절](integration-decisions.md#7-beai-기술-계약-동기화-근거)에서 추적한다. 요청 지문과 검사 의미 키의 분리, 활성 검사 명시, producer 소유·채택/확정 보호는 채택 원칙이며 DB·API 필드와 라우팅·배포 상세까지 확정된 것은 아니다. AI 내부 함수 구현과 BE 연결을 구분하며 구현 현황은 `status.md`, 남은 결정은 #82·#83을 따른다. [BE–AI §2·3]
+
+문구 2차 첫 활성화에는 `run_text_check`의 BE 연결·검증이 필수다. 성분·인증 교체는 검사 연결과 병행하거나 먼저 진행할 수 있다. 2026-11-07 회신의 서비스 연결 전 상태와 dev 검증·운영 별도 승인 구분을 유지한다. 범위·선행 조건 정본은 [계약 5.1.1](contract.md#511-용어집-2차-첫-활성화와-3차-범위)이다. [BE–AI §3.5]
+
+### 8.1 요청 구성
+
+- 두 검사 모두 섹션 단위 시도이며 대상은 섹션의 검사 가능한 블록 전체(포함 섹션 · `is_excluded=false` · 비공백 원문 · 비공백 현재 `trans_1`)다. 의미 입력 변경은 검사별로 판단하되 섹션 보고를 부분 채택하지 않는다(`contract.md` 5.3).
+- `text_check`: 기존 형식(`targets[{block_key, revision, text}]` · 묶음 · 용어). 묶음은 그 분석 실행의 고정 묶음, 용어는 ⑧ 공급과 같은 선별 규칙.
+- `translation_review`: `targets`에 라벨 · 로고 값을, 대상 밖 섹션 블록은 `context[{block_key, revision, is_product_label, is_brand_logo}]`로 준다. 라벨 · 로고는 **BE 공급 계약 후보** — DB 값을 그대로 주며 누락을 false로 채우지 않는다. 대상 밖 블록의 번역문은 주지 않는다(대상 밖인데 번역문이 있으면 BE 불변식 위반).
+- 등록 때 `review_manifest(request, cfg)` · `text_check_manifest(request)`로 지문을 계산해 `expected_input_manifest_sha256`과 시도의 고정 지문에 둔다.
+- 현재 결과 유효성(`check.inputKey`)은 규칙 검사 요청과 같은 형식으로 `text_check_input_keys(request)`를 불러 블록별 키를 얻는다(revision·배치 제외). 등록 때의 키와 조회·채택·확정 때 현재 입력으로 다시 만든 키를 블록마다 비교한다. 저장 위치·필드는 BE가 정한다. 키가 같아도 lease·현재 시도·취소/확정 보호를 생략하지 않으며 섹션 보고는 부분 채택하지 않는다.
+- 용어집 공급(`select_glossary`)은 인증↔문구 충돌 예외를 쓰려면 `gl.Entry`에 DB `term_kind`를 넘긴다. 넘기지 않으면 기존 동작(충돌 시 공급 실패)이다. 블록별 공급 관계(`gl.select_by_block`)를 번역 요청까지 전달하는 형식은 미정이다(`contract.md` 5.1.1).
+- **활성 검사 구성**: 실행(작업)마다 이번에 돌릴 검사를 정해 등록 · 집계에 같은 값을 쓴다 — 규칙 검사만 `("rule",)` 또는 두 검사 `("rule", "llm")`. stage 허용과 실제 활성화는 분리한다. 문구 2차 첫 활성화에 규칙 검사 연결·검증은 필수이며(계약 5.1.1), 3차(11/27) LLM 실제 연결 제안은 공동 일정 확인 대상이다. [BE–AI §3.1 A7] 비활성 검사는 등록하지 않는다. 구성을 어디에 둘지(설정 · 실행 행 등)는 BE가 정한다. 새 API 필드 · DB 스키마는 AI가 정하지 않는다.
+
+### 8.2 등록 위치
+
+- ⑧ 번역 채택 트랜잭션(`downstream.py`의 trans_1 저장 · revision+1)과 실패 대상 재시도 채택: **실제 저장된 문구와 증가한 revision**으로 그 섹션의 활성 검사 시도를 등록한다(활성 검사만 등록하고 비활성 검사는 등록하지 않는다).
+- N5 번역문 변경: 저장·수정 이력·재렌더와 활성 검사 등록을 연결한다. N5에서 박스·배율만 바꾼 편집은 렌더만 갱신한다. 일반 유효성은 검사별 의미 키로 판단한다. 실제 소비 사전 행·검사 버전이 달라지면 영향 검사만, 같은 섹션의 다른 문장이 달라지면 그 문맥을 소비하는 LLM 검사도 재평가한다. 이전 결과의 무효화가 새 검사 등록은 아니다(8.3). [BE–AI §2·3.2]
+- 검사 실패 · 재시도는 번역 재시도를 만들지 않는다.
+- **N4→N5**: 번역 직후 검사(활성 검사)는 N4→N5 전환 조건에 들어간다 — 검사가 끝난(채택 또는 최종 실패) 뒤 N5로 넘어간다. 재시도 후에도 최종 실패면 N4 오류로 막지 않고 해당 블록에 「⚠ 검사하지 못했습니다」를 표시해 N5로 진행한다(2026-10-12 PM 검토 — 이전 초안의 「N4→N5 집계에서 검사 stage 제외」를 대체). N5 수정 후 검사만 N5에서 돈다.
+
+### 8.3 채택
+
+- 현재 시도·lease·실행 세대·job 잠금·취소/확정 보호와 `validate_report`의 고정 요청 검증을 유지한다. 현재 의미 입력은 별도 `check.inputKey`로 대조하며 모두 통과할 때 보고 전체를 채택한다. 불일치 시 부분 채택하지 않는다. 거절만으로 새 시도를 등록하지 않으며 별도 등록에는 유효 시도·lease·활성 검사·미완료/미취소 조건을 적용한다. [BE–AI §2.3]
+- 채택 시 자기 producer의 `compliance_flags` 항목만 교체한다(`translation_validation` · `glossary_validation` / `translation_llm_review`). 다른 producer 항목 · 번역문 · 사용자 수정문은 건드리지 않는다. flag의 `external_id` · `glossary_id`는 DB id로 변환한다.
+- LLM 판정 전체(no_risk 포함) · 검사 범위 · `supplied_items`(근거 인용문 원문) · 입력 지문은 채택 인계 payload와 `audit_log.detail`에 보존한다.
+
+### 8.4 조회 · 집계
+
+아래 `CheckInput` 예제는 현재 AI 내부 함수 형식이다. BE 연결에서는 `contract.md` 5.3의 의미 입력 키를 조회·집계·확정·경고 확인 식별에 일관되게 적용해야 하며, 현행 manifest 인자를 새 의미 키 구현 완료로 보지 않는다. `CheckInput`의 두 지문 값에는 같은지만 비교하므로 블록별 의미 키(`text_check_input_keys`)를 넣는다. [BE–AI §2·3]
+
+- `done + current`인 검사에는 해당 블록 결과가 있어야 한다. 결과 기록이 없으면 정상 성공으로 간주하지 않고 저장·집계 무결성 문제로 구분한다. 별도 상태로 표현할지 채택 불변식 오류로 처리할지는 미정이며 새 상태값을 여기서 정하지 않는다. [BE–AI §3.4]
+
+- 블록 조회 때 `check_aggregate.aggregate_block_checks(block_key=…, check_item_ids=review.check_item_ids(bundle, 분류, 국가), active_checks=…, rule=…, llm=…)`를 부른다. 활성 검사에는 `CheckInput(run_state, attempt_manifest_sha256, current_manifest_sha256, block_result, failed_scope)`를 **반드시** 주고(시도가 없으면 `run_state='none'` — 누락된 검사로 미완료), 비활성 검사는 `None`을 준다(넘겨도 읽지 않으며 축 값은 `inactive`). `run_state`는 현재 시도의 `job_async_task.status`를 그대로(pending · running), 채택 완료는 done, 정상 생략은 skipped, 더 재시도하지 않기로 정한 최종 실패는 failed, 시도가 없으면 none. `attempt_manifest_sha256`은 시도에 고정한 지문, `current_manifest_sha256`은 현재 입력으로 다시 만든 지문이다.
+- 적용 예: 규칙 검사만 활성일 때 `aggregate_block_checks(block_key="blk_1", check_item_ids=ids, active_checks=("rule",), rule=CheckInput("done", fp, fp, rule_block), llm=None)` → 규칙이 현재 입력으로 끝났으므로 `checks_settled=true`, LLM 축은 `inactive`. 두 검사가 활성(`active_checks=("rule", "llm")`)일 때 LLM이 `CheckInput("running", fp, fp)`면 false. 사례는 `tests/test_pipeline_translation_review.py`.
+- 집계 결과는 상태 · 두 축 정보다. 표시 등급은 PM 결정으로 확정됐다 — 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호다(8.11). 2차에서 금지·조건부 판정에 쓰는 공통 공개 코드 `prohibited_expression`은 FE·PM 확정이다. BE·FE가 조정할 범위는 추가 신호 코드, 금지·조건부 판정 구분 필드의 이름·값, `basis_summary` 등의 표시 방식이다(`open-questions.md` #82). AI 집계값을 API 경고 코드나 확정 정책으로 바로 연결하지 않는다.
+
+### 8.5 검수 확정
+
+- N5 수정 후 검사가 도는 동안 확정 버튼을 비활성으로 두고, 서버도 확정 요청 시 job 잠금 아래에서 블록별 `checks_settled`(활성 검사 기준)를 확인해 false면 거절한다. 검사 채택도 같은 job 잠금 순서를 따른다. 확정이 하류 실행을 닫은 뒤 도착한 검사 결과는 거절한다. 공개 상태별 버튼·409 응답은 8.10을 따른다.
+- 2차 규칙 검사 최종 실패는 안내 후 별도 확인 없이 진행한다. 포함 섹션의 번역 실패 경고 확인과 구분하며, 2차 서버 연결은 구현 대기다. 3차 LLM 검사 실패의 확인 절차는 별도 합의 대상이다(#81). `checks_settled`는 처리 종료 여부일 뿐 문제없음이나 확정 허용이 아니다.
+
+### 8.6 실패 · 재시도
+
+- `model_call_failed` · `response_invalid`(retryable=true)는 자동 재시도 후보다. 출력 잘림(`response_invalid` + retryable=false, 분할 `output_truncated`)과 `unsupported_input`은 같은 설정 재시도로 풀리지 않는다 — 설정을 바꾸면 지문이 바뀌어 새 시도가 된다. 한도는 BE 운영값이다.
+- 한도를 넘긴 최종 실패는 검사 실패로 남기고, 번역 직후든 N5 수정 후든 해당 블록에 「⚠ 검사하지 못했습니다」를 표시한다. 2차 규칙 검사 최종 실패의 확정 처리는 8.5를 따른다. 실패를 문제없음 · 검사 완료로 표시하지 않는다.
+
+### 8.7 마이그레이션 · 라우팅 — 구현안, 세부 미정
+
+- 0008 후속 마이그레이션(어느 검사부터 등록하든 두 stage를 함께 허용하는 안을 추천): `STAGES`에 `text_check` · `translation_review` 추가, 단계 ↔ `task_type='verify'` · `unit_type='section'` 대응, 부모 실행 트리거의 downstream 허용 단계에 두 검사 추가.
+- 디스패치(작업 태스크) · 복구(`app/recovery.py`) · 상태 집계에서 두 stage 처리.
+
+### 8.8 배포 순서 — 후보, 2차 규칙 검사 등록 조건
+
+1. 제약을 넓히는 마이그레이션 → 2. 새 stage를 처리하는 코드 배포(검사 등록 꺼 둠) → 3. 모든 워커 교체 확인 → 4. 등록 켬. 봉투 버전 `handoff@2026-10-08.1`은 유지하지만 옛 코드는 새 stage를 거절할 수 있다.
+- 등록을 켜기 전부터 N5에 있던 작업은 검사 시도가 없다(`run_state=none`). 2차 confirmReview 계약은 검사 활성화·규칙 구현 버전 변경 배포에서 대상 N5 작업에 일괄 등록하고, 누락된 missing·outdated는 확정 요청에서 복구하도록 정한다(8.10). DB·배포 절차와 구현 연결은 BE 소관이다(`open-questions.md` #83).
+
+### 8.9 전체 취소
+
+- 검사 요청 · 보고 payload · `non_adoptable_diagnostics` · audit 상세(번역문 · 원문 · 근거 인용 포함)를 삭제 대상에 넣는다(D9-4). 늦은 검사 결과가 삭제 자료를 다시 남기지 않게 한다.
+
+### 8.10 공개 검사 상태와 확정 응답
+
+내부 상태 → 공개 5상태 대응은 **BE 회신상 OpenAPI 반영**(합의 관리표 §9.1.2)이다. [develop OpenAPI](https://github.com/ai-pixlate/server/blob/2489762e657085f3b77cf32ec95f3532d41e8e2c/docs/openapi.yaml)의 BlockCheck·confirmReview는 2차 규칙 검사에 대해 다음 계약을 정의한다. 서버 검사 연결은 구현 대기다.
+
+- 검사 대상 밖은 `check=null`이다. 현재 정상 종료는 `settled`, 대기·실행 중은 `in_progress`, 현재 최종 실패는 `failed`, 현재 기록 없음(등록 전·취소)은 `missing`, 이전 입력의 결과만 있으면 `outdated`다. 내부 `checks_settled`와 공개 `settled`는 다르다. 검사 기준으로는 settled·failed면 진행 가능하고 in_progress면 버튼 비활성이다. missing·outdated는 확정 요청으로 복구할 수 있도록 버튼을 활성으로 둔다.
+- **현재 구현:** 전 섹션 제외는 409 `ALL_SECTIONS_EXCLUDED`. 포함 섹션의 필수 경고 집합과 요청의 `{blockId, code}`가 다르면 409 `INVALID_STATE`와 `error.details.warnings`(서버 집합)를 반환한다.
+- **OpenAPI 정의·서버 구현 대기:** 409 `INVALID_STATE`의 `error.details.reason`으로 구분한다. `check_not_settled`는 `details.blocks: [{blockId, state}]`와 이번 요청이 등록한 `details.registeredBlockIds`를 전달한다. missing·outdated의 복구 등록은 커밋하고 확정만 거절한다. `acknowledgement_mismatch`는 기존 집합 불일치 응답에 붙이는 사유다. `acknowledgement_outdated`는 요청의 선택 필드 `taskId`가 현재 실패 번역 시도와 다를 때이며 `details.warnings`로 현재 집합을 돌려준다. taskId 생략 시 기존 블록·코드 대조를 유지한다.
+- **추가 합의:** translation_failed용 taskId의 필수화 시점, 다른 검사 경고의 확인 식별자(warningKey 후보)와 유효 범위는 #82에 남는다. 감사 기록 계약과 서버 구현을 구분한다.
+- 구현 · 검증 현황은 `status.md` ⑧ 행. 실제 Gemini 스키마 수용 확인 · 실측은 #84, BE 통합 시험은 BE 연결 때 한다.
+
+### 8.11 결과 표시(2026-10-12 PM 검토)
+
+- 규칙 · LLM 결과는 같은 등급의 「규제 검증 결과」 한 신호로 보인다. 화면에 규칙/AI 출처나 불일치 안내를 두지 않는다. 내부 근거 · 결과(두 축 · producer)는 구분해 보존한다.
+- 검사 실패 블록: 「⚠ 검사하지 못했습니다」. 2차 규칙 검사 최종 실패는 추가 확인 없이 통과(8.5).
+- `condition_unverifiable`: 확인할 조건(`unverified_conditions`)을 포함한 조건부 경고로 보인다. 같은 블록 · 같은 사전 항목(`external_id`)의 조건부 경고가 이미 있으면 하나만 보인다.
+- `insufficient_evidence` · `insufficient_context`의 표시는 12월 계획에서 정한다(미결).
+- 사전 기록만 근거인 risk(`basis_summary=dictionary_only`)를 법규 위반 확정처럼 표시하지 않는다.
+- regulated·conditional 매칭의 원판정값·사전 ID·span과 강제 용어 신호 `type=mandatory_term_unapplied`를 보존한다. 이 신호는 `producer=glossary_validation`이 소유·교체한다. 2차 공개 코드는 금지·조건부 모두 `prohibited_expression`으로 FE·PM 확정이며 판정 구분 필드의 이름·값은 미정이다. Notion A9의 강제 용어 미적용 제외 제안은 PM 미승인이며 2차 ConfirmRequest의 실제 확인 범위와 구분한다(`contract.md` 7.1). [BE–AI §3.3 A9]
+- 공개 상태·확정 거절 응답은 8.10, 추가 신호 코드·warningKey는 #82를 따른다. AI 집계값을 경고 코드 · 확정 정책으로 직접 연결하지 않는다.
+
+### 8.12 남은 연결 계약
+
+채택된 원칙은 `contract.md` 5.3·7.1을 따른다. 아래는 외부 스키마·저장·배포·응답 연결의 남은 범위이며, 원칙을 재승인받는 목록이 아니다. [BE–AI §2·3·7]
+
+| 남은 연결 | 위치 | 관련 미결 |
+|---|---|---|
+| 입출력 계약 — 요청 구성(대상 · 문맥 · 라벨 · 로고 값 공급) · 보고 payload · 지문 · 봉투 Stage 추가 | 8.1 · `contract.md` 5.3 · `dev.md` 3.2 | — |
+| 활성 검사 지정 — 작업별 명시 원칙에 따른 저장 위치·활성화 시점 | 8.1 · 8.4 | — |
+| DB · 라우팅 · 복구 — 0008 후속 마이그레이션 · 디스패치 · 복구 · 배포 순서 · 등록 활성화 전 N5 작업 | 8.7 · 8.8 | #83 |
+| 결과 저장 — 자기 producer 교체 · `compliance_flags` 7.1 확장 · 채택 인계 payload · `audit_log.detail` 보존 | 8.3 · `contract.md` 7.1 · `db-map.md` | — |
+| 검사와 확정의 동시성 — 합의된 job 잠금·종료 보호·N4→N5 조건의 BE 연결 | 8.2 · 8.5 | — |
+| API · 화면 연결 — 정의된 2차 검사 상태·거절 응답의 구현 연결 및 추가 신호·경고 확인 식별 | 8.10 · 8.11 | #82 |
+| 통합 테스트 — BE 통합 시험 · 실제 Gemini 스키마 수용 확인 · 실측 | 8.10 | #84 |
+
 ## 9. 긴 섹션 타일 OCR 인계(2026-10-13)
 
-8절 번호는 번역문 검사 브랜치가 쓴다. 규칙 정본은 `pipeline.md` 7.9절, 실측 기록은 `docs/ai-experiments/2026-10-13_02-ocr_tile-check.md`.
+규칙 정본은 `pipeline.md` 7.9절, 실측 기록은 `docs/ai-experiments/2026-10-13_02-ocr_tile-check.md`.
 
 ### 9.1 BE에 보이는 변화
 
@@ -304,3 +410,44 @@ python -m pipeline.run ocr --split pipeline/samples/synthetic_01/expected/split.
 - Linux · CPU 배포 이미지에서 긴 원본(예: 1000×37,665)의 시간 · 최대 메모리 — 7.3과 같은 방식(새 CLI 프로세스 전체, `/usr/bin/time -v`)으로 `analyze` 또는 `ocr` CLI를 측정한다.
 - 기준값(`[ocr] tile_*`)은 잠정이다. 실측 표본은 골든 9장 · 이 PC GPU다.
 - **1.0.0 릴리즈 전 배포 환경 실측은 생략하기로 했다(사용자 결정 2026-10-13).** 위 Linux · CPU 시간 · 최대 메모리, 배포 환경의 짧은 · 긴 섹션 · 충돌 실패 경로, BE 재시도 실행은 미검증으로 남는다. 이 기능은 기존에 미지원(거부)이던 긴 입력의 일부를 처리하도록 개선한 것이며, 긴 이미지 지원 전체의 품질 · 배포 안정성이 검증된 것이 아니다. 표본 9장의 실패 비율은 운영 전체 실패율이 아니다.
+
+### 9.4 호출별 중복 제거 · 겹친 검출 재인식(2026-10-27, 구현 중 · 일부 실측)
+
+규칙은 `pipeline.md` 7.9절. 구현 · 검증 상태는 `status.md` ② 행이며 이 절은 BE에 보이는 변화만 적는다.
+
+- `AnalyzeResult` 형식 · 버전 · 좌표계, 오류 코드 · `retryable`(타일 경계 충돌 미해결 `OCR_FAILED` · `retryable=false` 포함), API · DB는 바뀌지 않는다. 새 필드 · 컬럼 · 오류 코드는 없다.
+- **영역 구성이 바뀔 수 있다** — 모든 섹션(짧은 섹션 포함)에서 엔진 호출 하나가 같은 텍스트를 거의 같은 polygon으로 두 번 낸 명백한 중복은 하나만 남는다. 긴 섹션의 타일 충돌 위치에서는 채택 조건을 통과한 겹친 검출 묶음이 재인식 검출 하나로 바뀐다(영역 수 · text · score · poly가 이전과 다르다). 같은 원본이라도 이전 분석과 `source_lines` · 블록 구성이 다를 수 있다.
+- **입력 지문** — `analyze` 입력 지문(`input_manifest`)의 `config.ocr`에 `dedup_*` 2키 · `overlap_rec_*` 6키가 더해져 같은 원본이라도 `input_manifest_sha256`이 이전과 다르다(9.1의 `tile_*` 추가 때와 같은 성질). 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 공식 생성 경로(`python -m pipeline.handoff.examples`)로 다시 만들었다 — 차이는 `input_manifest.config.ocr`의 새 8키와 `input_manifest_sha256`뿐이고 payload는 같다(2026-10-27 확인).
+- OCR 워커는 인식 모델을 추가로 부를 수 있다(섹션당 `ocr.overlap_rec_max_calls` 상한, 타일 충돌이 있을 때만). 시간 · 메모리 영향은 측정하지 않았다.
+- BE 쪽 코드 변경은 필요 없을 것으로 보나, 배포 전 같은 설정으로 API 서버 · OCR 워커를 함께 배포해야 하는 점(9.1)은 그대로다. 운영 적용 여부 · 시점은 정하지 않았다.
+
+## 10. OCR 후처리 인계(2026-10-23) — AI 내부 구현 · BE 확인 미진행
+
+③ 병합 안의 OCR 후처리(여백 분리 · 세로 중심 줄 정렬 · 전각 변환, `open-questions.md` #86)를 AI 내부에 구현했다. 규칙 정본은 `pipeline.md` 7.1 · 7.2절, 코드는 `pipeline/stages/merge.py`, 테스트는 `tests/test_pipeline_merge_post.py`다. **이번 작업은 BE 연동 · 검토 · 확인 요청을 하지 않았고, BE 확인을 이 구현의 선행조건으로 두지 않는다.** 아래는 향후 확인을 위한 정리이며 합의 · 연동 검증 · 운영 적용 기록이 아니다. 새 API 필드 · DB 컬럼 · BE 코드 변경은 없다.
+
+### 10.1 기본값과 BE에 보이는 변화
+
+- **2026-10-26부터 기본값은 `merge.xycut` · `merge.num_o` `true`, `merge.fullwidth` `false`다**(6단계 결정, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 저장소 기본 설정(`pipeline/config/default.toml`)으로 돌리면 `analyze()` 결과(블록 · 줄 · 순서 · `source_ko`)와 `llm_assist` 입력 · 프롬프트 · 기록이 10.2대로 바뀐다.
+- **운영 적용 조건(BE 확인 필요)**: develop 머지와 dev 이미지(`pixlate-api:dev-<커밋>`) 게시는 운영이 아니므로 허용한다(2026-10-26 결정) — dev 이미지는 기본값(xycut · num_o 켬)으로 돌고, 10.2 미확인 상태다. 보충 프롬프트는 AI 인계 함수의 지문에 반영했으나(2026-11-10) BE 운영 경로의 `analyzer` 값에는 아직 프롬프트가 없다(10.2 `input_manifest` · 캐시 행). **운영 배포(main · release)는 10.2 확인 · BE 운영 경로의 프롬프트 지문 반영(`PipelineAnalyzer.impl_version`) 등 후속 연동이 끝난 뒤로 미룬다.** 그 전에 운영 배포가 필요하면 운영 설정(`PIXLATE_PIPELINE_CONFIG`로 지정하는 설정 사본)에서 `merge.xycut` · `merge.num_o`를 `false`로 둔다. 이번에 BE 확인 · 요청은 하지 않았다.
+- 세 스위치를 모두 끄면 `analyze()` 결과와 `llm_assist` 입력 · 프롬프트 · 기록 형식은 기존과 같다(AI 내부 테스트로 확인 — 기존 ③ 경로 테스트는 세 스위치를 끈 설정으로 돈다).
+- 단, `[merge]`에 키 5개(`xycut` · `fullwidth` · `xycut_gap_ratio` · `line_center_tol` · `line_center_tol_min_px`, 2026-10-26에 `num_o` 1개 더)가 더해져 설정 스냅샷이 달라진다. 인계 `analyze`의 `input_manifest.config.merge`와 `input_manifest_sha256`, BE `PipelineAnalyzer.impl_version`(`section` · `ocr` · `merge` 설정 해시, `app/ai_adapters.py`)이 같은 입력이라도 이전과 다르다. 9.1과 같은 성질이며, 계약 예제 `pipeline/samples/handoff/analyze.completed*.json` 2개를 다시 만들었다(설정 · 지문 외 변화 없음). 2026-10-26 기본값 변경으로 예제의 `input_manifest.config.merge`가 `xycut: true` · `num_o: true`가 되어 다시 만들었다(예제 블록 내용은 그대로, 지문만 바뀜).
+
+### 10.2 스위치를 켰을 때의 영향 — 향후 확인 항목
+
+`AnalyzeResult` 버전 · 필드 · 좌표계는 그대로지만 아래 **값의 의미**가 바뀐다. 운영 적용 전에 확인할 항목이다(BE 확인 필요, 10.1 운영 적용 조건).
+
+| 대상 | 바뀌는 것 | 확인할 것 |
+|---|---|---|
+| 화면 순서 | `block_order`가 섹션 안 (y, x) 순에서 후보 영역 → 가로줄 → x 읽기 순서로 바뀐다(다단 배치에서 왼쪽 칸이 먼저) | N3 · N5 목록과 편집 화면이 `block_order`를 그대로 쓰는지, 다른 정렬(bbox 등)을 섞는지. 2026-11-10 코드 대조: BE 조회(`app/flows/analysis.py` · `downstream.py` · `routers/cfm.py` · `finalize.py`)는 `block_order, id` 순 — FE 화면 정렬은 이 레포에서 확인할 수 없다 |
+| 원문 표시 · 수정 | `fullwidth` · `num_o`이면 `source_ko`와 `source_lines[].text`가 전각 · 숫자 속 o/O 보정 문장이다(예: `SPF 5O+` → `SPF 50+`, 1:1 치환). 원시 OCR 텍스트는 `source_lines[].regions[].text`에 남는다 | 화면 원문 · `edit_signal.before_text` 등이 어느 값을 쓰는지. 상위 계약 `source_ko` 정의 반영은 `open-questions.md` 3절 F |
+| 줄 · 문단 구성 | 같은 원본이라도 줄 묶음 · 블록 수 · 역할이 달라질 수 있다. 위아래 여백으로만 나뉜 후보 영역끼리는 LLM이 한 블록으로 합칠 수 있고(2026-10-26), 나란한 칸(x 절단)을 넘는 LLM 병합은 나뉘며 그 조각의 역할은 휴리스틱 판정이다. 출력 형식은 같다 | 블록 수 · 역할 분포가 바뀌어도 하류 생성 조건 · 표시가 그대로 동작하는지 |
+| 재분석 | 켜기 전후 분석 결과는 같은 작업이라도 블록 · 키 · 텍스트가 다르다 | 한 작업 안에서 이전 분석 결과와 새 결과를 섞어 쓰는 경로(되살리기 · 재판정 · 재분석)가 없는지 |
+| 입력 지문 | ③-1 `blocks_fingerprint`(블록 키 · `source_ko`), ④ `input_fingerprint`(블록 전체), BE 분석 · 하류 매니페스트의 블록 해시(`app/flows/analysis.py` · `downstream.py` `stable_hash`)가 모두 새 값이 된다. 판정 구간(span)은 새 `source_ko` 기준으로 다시 산출되며 이전 구간을 옮겨 쓰지 않는다 | 지문 불일치 때 재사용 · 거절 동작이 의도대로인지(이전 결과를 새 블록에 붙이지 않는지) |
+| `input_manifest` · 캐시 | `xycut`이면 `merge.prompt_path` 뒤에 `pipeline/prompts/merge_assist_region.md`를 붙여 호출한다(`pipeline/stages/merge.py` `validate_llm_config` · `REGION_PROMPT_PATH`). **AI 인계 함수는 2026-11-10에 고쳤다**: `pipeline/handoff/analysis.py`의 `prompts.merge`가 이제 실제로 보내는 프롬프트(기본 + xycut이면 보충)의 내용 해시다(`merge_prompt_sha`, `merge_debug`의 `prompt_sha256`과 같은 값). xycut을 끄면 기본 프롬프트 파일 해시와 같아 이전 값과 호환된다. 키 모양은 그대로이고, 어댑터 버전을 `analyze-handoff@2026-11-10.1`로 올려 `analyze` 예제 3개를 다시 만들었다(어댑터 · 지문만 바뀜). **BE 운영 경로는 별개다**: BE 워커(`app/flows/analysis.py`)는 이 인계 함수 대신 `PipelineAnalyzer`(`app/ai_adapters.py`)로 `analyze()`를 직접 부르고, 시도 매니페스트의 `analyzer` 값(`impl_version`)은 `section` · `ocr` · `merge` 설정 해시와 LLM 사용 여부만 담는다. ① 경계 프롬프트 · ③ 기본 · 보충 프롬프트의 내용이 빠져 5.31의 analyze 비교 대상(모델 · 프롬프트 · 구현 버전, 실제 소비하는 프롬프트의 내용 해시)과 어긋난다. 5.31은 실행 간 계산 캐시를 두지 않고 재시도는 같은 매니페스트로 새로 계산하므로 오래된 결과가 재사용되지는 않는다(2026-11-10 코드 대조). 영향은 추적이다: 프롬프트만 바뀐 배포 전후 결과가 같은 `analyzer` 값으로 기록되고, 시작 시점의 `analyzer`와 실제 계산한 워커의 설정이 배포를 사이에 둔 재시도에서 달라도 대조하지 않는다 | **BE 확인 · 합의 필요(운영 배포 전)**: `PipelineAnalyzer.impl_version`에 프롬프트 내용 해시를 넣는 방식 — 예: `pipeline.handoff.analysis.merge_prompt_sha(cfg)`(LLM 사용 시)와 ① `section.prompt_path` 파일 해시. `impl_version` 문자열 · 매니페스트 모양은 BE 소유라 AI가 바꾸지 않았다. 워커가 시작 시점 `analyzer`와 자기 값을 대조할지도 BE가 정한다 |
+| 분석 출력 폴더 | 켜면 `out_dir/merge_post_debug/`에 섹션별 후처리 진단과 `block_keys.json`이 생긴다(LLM 사용 여부와 관계없이, `pipeline.md` 7.1절). `ocr_debug/`와 같은 개발 확인용이며 인계 형식 · artifact가 아니다 | BE 워커가 `out_dir`의 낯선 파일 · 폴더를 거절하거나 업로드 대상으로 집계하지 않는지. 2026-11-10 코드 대조: BE 워커는 임시 폴더의 `out/`에서 섹션 이미지만 읽고 폴더째 지운다. AI 인계 함수도 섹션 이미지만 산출물로 낸다 — 거절 · 업로드 없음(BE 환경 실행 확인은 아님) |
+| 개발용 고정 입력본 · 재생 | `blocks-input-v1` 등은 꺼진 상태의 ③ 출력이다. 켠 결과로 ③-1 · ④ · ⑤ 재생 기록을 돌리면 입력 지문 불일치로 거절된다(입력본 손상 아님) | — (AI 실측 범위) |
+
+### 10.3 남은 것
+
+- AI: 품질 · 파라미터 확인(4단계)은 마쳤다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step4-summary.md`). 기존 병합 · 역할 분류와의 연결 검증은 LLM 없는 켬/끔 비교로(`docs/ai-experiments/2026-10-23_03-merge_post-onoff-compare.md`), 같은 후보 영역의 교차 블록 병합 점검은 사람 검수 정성 의견 반영으로(2026-10-23, `docs/ai-experiments/2026-10-23_03-merge_post-gutter-check.md` 4.1 — 제품 라벨 사례 미평가) 마쳤다. 알려진 한계: LLM 없는 경로의 과분할, 라벨과 주변 문구의 오병합 가능성, 후보 영역 안 LLM 병합 감소, OCR 중복 검출(#40). 보류 기능 실험(5단계)은 마쳤다 — 숫자 속 o/O 교정을 채택해 `merge.num_o`로 넣었고, 겹친 앞 글자 제거 · 맨 앞 따옴표 제거는 보류했다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step5.md`). 6단계에서 기본값을 `xycut` · `num_o` 켬, `fullwidth` 끔으로 바꿨다(2026-10-26, `docs/ai-experiments/2026-10-26_03-merge_post-step6-activation.md`). 하류 실행 · 라벨 처리는 검증 완료가 아니다. 보충 프롬프트의 인계 지문 반영은 AI 인계 함수 쪽은 마쳤고(2026-11-10, `prompts.merge` = 실제로 보낸 프롬프트의 내용 해시), BE 운영 경로(`PipelineAnalyzer.impl_version`) 반영은 BE 합의가 남았다(10.2 `input_manifest` · 캐시 행).
+- BE: 위 10.2 항목 확인과 캐시 · 재분석 영향 확인은 운영 적용 전에 따로 요청한다(10.1 운영 적용 조건). 특히 `PipelineAnalyzer.impl_version`에 프롬프트 내용 해시를 넣는 방식은 BE 합의가 필요하다(10.2 `input_manifest` · 캐시 행). 이번에는 BE 실행 테스트 · 연동 검증 · 확인 요청을 하지 않았다.

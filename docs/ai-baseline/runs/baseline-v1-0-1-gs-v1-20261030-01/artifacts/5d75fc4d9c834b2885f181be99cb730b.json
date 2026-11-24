@@ -1,0 +1,39 @@
+{
+  "source_id": "GS-02",
+  "stage": "translate",
+  "at": "2026-10-30T01:56:21.105079+00:00",
+  "result": [
+    [
+      {
+        "block_key": "blk_672",
+        "outcome": "completed",
+        "translation": "7-Day Actual User Skin Turnover Improvement Satisfaction\\n**",
+        "error": null,
+        "applied_instructions": []
+      }
+    ],
+    {
+      "payload_sha256": "b8965a3aa593a6cc55497727d2c463b1b3cbcc0de413b5e8c7f296937479c131",
+      "prompt_sha256": "907dee850908342be12c4c53ca6e2ee341a7403ca087b44fb84b01e0774968a2",
+      "model": {
+        "model": "gemini-3.8-flash",
+        "temperature": 0,
+        "timeout_s": 60
+      },
+      "response_sha256": "3308be7633abbf9263bea701c83553d1dd67b6bc41eac468fdf14e8b002d36b7",
+      "usage": {
+        "candidates_token_count": 24,
+        "prompt_token_count": 640,
+        "prompt_tokens_details": [
+          {
+            "modality": "TEXT",
+            "token_count": 640
+          }
+        ],
+        "thoughts_token_count": 260,
+        "total_token_count": 924
+      }
+    }
+  ],
+  "seconds": 10.125
+}

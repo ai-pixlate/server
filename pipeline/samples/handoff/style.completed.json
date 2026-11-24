@@ -17,7 +17,7 @@
     },
     "section_image": {
       "path": "/srv/pixlate-work/downstream/sections/sec_1_01.png",
-      "sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6"
+      "sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c"
     },
     "blocks": [
       {
@@ -416,7 +416,7 @@
         "height": 400,
         "width": 600
       },
-      "image_sha256": "d0aef8a9593ec4724f93c1290303f2381439728cbf38364d2f50aed7f5753ac6",
+      "image_sha256": "6fa15f5ec990855df0dc7dabd18d40e8daf724819981baf4dfd05ebcd8f45e5c",
       "blocks": [
         {
           "block_key": "blk_001",
@@ -653,10 +653,11 @@
       "config": {
         "method": "otsu_border",
         "em_ratio": 0.9,
+        "align_section_tolerance": 0.005,
         "align_tolerance": 0.12
       }
     },
-    "input_manifest_sha256": "f0b743fa8c40f41037ce2fccaf2d2da94b01d4d11c5406bb7862429f3d540ad7",
+    "input_manifest_sha256": "ef4ba795cccdeb9a0660087215cbf9d9b54984d3109464c58ecd36b4abbadffc",
     "outcome": "completed",
     "target_count": 2,
     "skip_reason": null,
@@ -668,11 +669,12 @@
           "font_color": null,
           "bg_color": null,
           "est_font_px": 21.6,
-          "align": "left",
-          "align_basis": "default_single_line",
+          "align": null,
+          "align_basis": null,
           "null_reasons": {
             "font_color": "no_valid_region",
-            "bg_color": "no_valid_region"
+            "bg_color": "no_valid_region",
+            "align": "no_anchor"
           },
           "measure_status": "partial",
           "counts": {
@@ -718,14 +720,14 @@
         "color": "#RRGGBB sRGB",
         "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
       },
-      "style_result_sha256": "66a296038570d7a9ce74d46c0a3d4d75a89a3b266cf2e93c835f0dc57ce47bcb"
+      "style_result_sha256": "e3bfcc33e59a53bc151279eafe1aa5db71a8282289e972cde46f745f3fdd88de"
     },
     "artifacts": [],
     "source_refs": [],
     "failure": null,
     "implementation": {
       "adapter": "downstream-handoff@2026-10-08.1",
-      "style_schema": "1"
+      "style_schema": "2"
     },
     "diagnostics": {}
   },

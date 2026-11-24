@@ -1,0 +1,1131 @@
+{
+  "source_id": "GS-02",
+  "stage": "logo",
+  "at": "2026-10-30T01:50:18.239556+00:00",
+  "result": [
+    {
+      "schema_version": "1",
+      "image_id": "src_10",
+      "section_key": "sec_43",
+      "status": "ok",
+      "decisions": [
+        {
+          "block_key": "blk_513",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_514",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_515",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_516",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_517",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_518",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_519",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_520",
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_521",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_522",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_523",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_524",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_525",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_526",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_527",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_528",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_529",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_530",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_531",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_532",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_533",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_534",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_535",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_536",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_537",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_538",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_539",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_540",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_541",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_542",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_543",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_544",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_545",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_546",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_547",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_548",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_549",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_550",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_551",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_552",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_553",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_554",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_555",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_556",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_557",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_558",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_559",
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_560",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_561",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_562",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_563",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_564",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_565",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_566",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_567",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_568",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_569",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_570",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_571",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_572",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_573",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_574",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_575",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_576",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_577",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_578",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_579",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_580",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_581",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_582",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_583",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_584",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_585",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_586",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_587",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_588",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_589",
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ],
+      "error": null
+    },
+    {
+      "stage": "logo",
+      "image_id": "src_10",
+      "section_key": "sec_43",
+      "status": "ok",
+      "error": null,
+      "normalize": [
+        "nfkc",
+        "lower",
+        "strip_space_punct"
+      ],
+      "normalize_rule": "NFKC -> str.lower() -> str.isspace() 공백 및 Unicode 범주 P* 제거(S* 유지)",
+      "unicode_version": "15.0.0",
+      "blocks_fingerprint": "f6f68004f7912164deb75bc569a3bc42f96b495460df0ab05505a616cc2c037c",
+      "label_fingerprint": "8082a15426b1097d11ddbab2f82facb5c8cee776100c250bcf25034746705875",
+      "label_input_fingerprint": "f6f68004f7912164deb75bc569a3bc42f96b495460df0ab05505a616cc2c037c",
+      "brand": {
+        "image_group": "job_2",
+        "product_name": null,
+        "name_ko": "셀리맥스",
+        "name_en": "celimax",
+        "name_ko_normalized": "셀리맥스",
+        "name_en_normalized": "celimax"
+      },
+      "brand_entry_fingerprint": "44feb5ca25ff6cf4cbb4836adcb67d940ceff03a79e61e507c55cf6e77e8b5e4",
+      "blocks": 77,
+      "counts": {
+        "product_label": 5,
+        "empty_text": 26,
+        "exact_match": 0,
+        "no_match": 46,
+        "compared": 72
+      },
+      "decisions": [
+        {
+          "block_key": "blk_513",
+          "block_order": 1,
+          "is_product_label": false,
+          "normalized": "셀리맥스레티날샷더특별한이유1",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_514",
+          "block_order": 2,
+          "is_product_label": false,
+          "normalized": "비타민a레티날01고함량",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_515",
+          "block_order": 3,
+          "is_product_label": false,
+          "normalized": "색소없이도샛노란레티날고함량크림",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_516",
+          "block_order": 4,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_517",
+          "block_order": 5,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_518",
+          "block_order": 6,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_519",
+          "block_order": 7,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_520",
+          "block_order": 8,
+          "is_product_label": true,
+          "normalized": null,
+          "matched_names": [],
+          "is_brand_logo": null,
+          "basis": "product_label"
+        },
+        {
+          "block_key": "blk_521",
+          "block_order": 9,
+          "is_product_label": false,
+          "normalized": "레티놀원료보다102배더비싼프리미엄성분레티날",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_522",
+          "block_order": 10,
+          "is_product_label": false,
+          "normalized": "자사레티놀세럼에사용된원료기준",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_523",
+          "block_order": 11,
+          "is_product_label": false,
+          "normalized": "레티날은피부에서빠르게활성화되어즉각적으로작용하는비타민a계열의성분입니다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_524",
+          "block_order": 12,
+          "is_product_label": false,
+          "normalized": "연구와논문을통해입증된비타민a레티날의효과",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_525",
+          "block_order": 13,
+          "is_product_label": false,
+          "normalized": "naturalretitolanalogspooentiatetheetfectsofretinalonagrdandphotodamagedsainresalserominviteotoclinkcalseedies",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_526",
+          "block_order": 14,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_527",
+          "block_order": 15,
+          "is_product_label": false,
+          "normalized": "y=",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_528",
+          "block_order": 16,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_529",
+          "block_order": 17,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_530",
+          "block_order": 18,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_531",
+          "block_order": 19,
+          "is_product_label": false,
+          "normalized": "a8stiact",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_532",
+          "block_order": 20,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_533",
+          "block_order": 21,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_534",
+          "block_order": 22,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_535",
+          "block_order": 23,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_536",
+          "block_order": 24,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_537",
+          "block_order": 25,
+          "is_product_label": false,
+          "normalized": "omattn",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_538",
+          "block_order": 26,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_539",
+          "block_order": 27,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_540",
+          "block_order": 28,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_541",
+          "block_order": 29,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_542",
+          "block_order": 30,
+          "is_product_label": false,
+          "normalized": "o50u5s0n",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_543",
+          "block_order": 31,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_544",
+          "block_order": 32,
+          "is_product_label": false,
+          "normalized": "21404",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_545",
+          "block_order": 33,
+          "is_product_label": false,
+          "normalized": "1",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_546",
+          "block_order": 34,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_547",
+          "block_order": 35,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_548",
+          "block_order": 36,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_549",
+          "block_order": 37,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_550",
+          "block_order": 38,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_551",
+          "block_order": 39,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_552",
+          "block_order": 40,
+          "is_product_label": false,
+          "normalized": "alad",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_553",
+          "block_order": 41,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_554",
+          "block_order": 42,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_555",
+          "block_order": 43,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_556",
+          "block_order": 44,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_557",
+          "block_order": 45,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_558",
+          "block_order": 46,
+          "is_product_label": false,
+          "normalized": "eteelaplateeostopanad",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_559",
+          "block_order": 47,
+          "is_product_label": false,
+          "normalized": "",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "empty_text"
+        },
+        {
+          "block_key": "blk_560",
+          "block_order": 48,
+          "is_product_label": false,
+          "normalized": "참고논문",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_561",
+          "block_order": 49,
+          "is_product_label": false,
+          "normalized": "anewdermocosmeticcontainingretinaldehydedeltatocopherolglucosideandglycyiglycineoleamideformanagingnaturallyagedskincresultsfrominvitrotoclinicalstudiescelinerouvralsdanlelbacquevllepatrickbogdanowiczmariejosehaurelauredupratchristinecoutanceaunathallecastexrizzlheleneduplanvaleriemengeaudsandrinebessoutouyaclinicalcosmeticandinvestigationaldermatologyi2o17naturalretinolanalogspotentiatetheeffectsofretinalonagedandphotodamagedskincresultsfromiinvitrotoclinicalstudlesanthonybrownmartafurmanczykdavidramosadriaribeslalaponsjavierbustosantonlorfernandezdehenestrosacorinnegrangerericjourdany2o23acomparativestudyoftheeffectsofretinolandretinoicacidonhistologicalmolecularandcinicalpropertiesofhumanskinrongkongphd1yielcuiphd2garyjfisherphd2xiaojuanwangbs3yinbelchenms3louisemschneiderbs1gopamajmudarphd12o15repairofuvainducedeastiefiberandcollagendamagebyoosretinaldehydecreaminanexvivohumanskinmodeldepartmentofpathologyhepitalpisesalpetriereandgroupederechercheendermatologieetcosmetologieparisandlaboratoiresdermatologiquesavenecastresfrance1gggtopicalretinaldehydeonhumanskinbiologiceffectsandtolerancejeanhilalresauratlilianedidierjeanelisabethmasgrauplerreaplettastefanojaconidominiquechatellardgruazdagmargumowskiisabelemasouyedenissalomonandgeorgessiegenthaler2o1etheefficacyandsafetyofmultlamellrvesiclecontainingretinaldehydeadoubleblindedrandomizedsplitfacecontroledstudyjeminkimmd1jieekimmdphd23tunyapommjongudomsombatmd1eunbinkimbs1jangmisukms4dongwonleemdphd5juheeleemdphd122o2o",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_562",
+          "block_order": 50,
+          "is_product_label": false,
+          "normalized": "dematology",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_563",
+          "block_order": 51,
+          "is_product_label": false,
+          "normalized": "019019p1434",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_564",
+          "block_order": 52,
+          "is_product_label": false,
+          "normalized": "repairofuvainducedelasticfiberandcollagendamageby005retinaldehydecreaminanexvivo",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_565",
+          "block_order": 53,
+          "is_product_label": false,
+          "normalized": "레티날은피부내콜라겐합성을촉진시키는데효과가있다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_566",
+          "block_order": 54,
+          "is_product_label": false,
+          "normalized": "potentiatetheeffectsphotodamagedskinresultsistudies",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_567",
+          "block_order": 55,
+          "is_product_label": false,
+          "normalized": "davidramosantcelorfeendntezdehenestr",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_568",
+          "block_order": 56,
+          "is_product_label": false,
+          "normalized": "ypocimerscolrgenardelastifberswererestoedtothelevelofnonexgosedskieuvaexgosuneincucedadecreaseincolagensynthesiswhereasinretinaldehydetreatedueaexposedsinwrtothatolunexposedskincshoenthatratinalcebydehasemytretingininasbioiogicalandbebackgoenetcelalareoctsofuvexposuroareimplitoagingwehaveverifiedsometutalasdcolularchangesinallthecomcartmertsofcteainingsignifcantregairofela",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_569",
+          "block_order": 57,
+          "is_product_label": false,
+          "normalized": "keyviordsretinaldehydeniormnalhumanskinervivomodell",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_570",
+          "block_order": 58,
+          "is_product_label": false,
+          "normalized": "orpanouturecolagenelasticsbensutravioletsighephetoagirg",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_571",
+          "block_order": 59,
+          "is_product_label": false,
+          "normalized": "레티날은눈가주름눈주위잔주름등눈에띄는노화징후에효과가있다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_572",
+          "block_order": 60,
+          "is_product_label": false,
+          "normalized": "abstraet",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_573",
+          "block_order": 61,
+          "is_product_label": false,
+          "normalized": "catedincutenecusaginguvrasiasionsinducestruesevationsescecialyondemmasinaimetostudytheascagiengeffcacyoftacreamaltarationindutedbyuvaexposcontalningocsrotinaddehydewrihanexvivotoennigunusinghamenskinincedertoaopruximateinvvometabclicoeditionsmteehedehumanskinexplanesveremaintainedaliveinorgascultarefor18daysandswubiectedtouvaerpopurethussimulatingtkinphotoagingretinalcehydecrearnvasthenapgliedtothe",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_574",
+          "block_order": 62,
+          "is_product_label": false,
+          "normalized": "introductiontheetlectivenesoftopicattetineincalltronspetineiccouldbeenhancedwithoutcoempromisingitsskinirritationprosilethepurposeofthisstudywastodemonstratethatbakandvaepotentiatetheantiphotoagingactivityofralmfethondsgeneexpreslonproflingoffullthicknessreconstrectedskinwasfirstusedtoexaminetheimpactofbakorvaeincombisinbiologynextthe",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_575",
+          "block_order": 63,
+          "is_product_label": false,
+          "normalized": "otherantiphotougingingredientssuchasniacinamideandmelatonin3rcreversedultravioletradiationinduceddeficitsinstructuralcomponentsofthedeemalextracellularmatrixiinctudinghyaluronlcacldandcotlagen",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_576",
+          "block_order": 64,
+          "is_product_label": false,
+          "normalized": "retinal",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_577",
+          "block_order": 65,
+          "is_product_label": false,
+          "normalized": "aral",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_578",
+          "block_order": 66,
+          "is_product_label": false,
+          "normalized": "aconnparavesuuuyormeenchistologicalmolecularandci",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_579",
+          "block_order": 67,
+          "is_product_label": false,
+          "normalized": "invivoittedtoaneversalofctinicalsignsofageandphotodamagewithstatisticallysignifcantimpeovementtoskinfirmness+s6skinelasticity+139wrinkdecount432andskintonehomogeneity+7oxuobservedwithin28sdaysofoncenightlyusenotablythenumberofcrowsfeetwrinkleswasreducedin10oofsubjectsfurthermore3rcwasverywelltoleratedconcheslorthesedatasuggestthat3rcisahighlyetfectiveandwoelltoleratedtreatmentfor",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_580",
+          "block_order": 68,
+          "is_product_label": false,
+          "normalized": "rongkongphdyiteiculphdgay1fisllouisemschneider8sgopamajmudar",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_581",
+          "block_order": 69,
+          "is_product_label": false,
+          "normalized": "ycroouinatamusa",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_582",
+          "block_order": 70,
+          "is_product_label": false,
+          "normalized": "hiscombinationanditssignsofphotoaginginansedfinallyapeoototicalstudywasperformedhoteagingcapacityandacosmeticfoemulatlon",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_583",
+          "block_order": 71,
+          "is_product_label": false,
+          "normalized": "레티날은피부를매끄럽게만들고탄력을증가시키는데효과가있다",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_584",
+          "block_order": 72,
+          "is_product_label": false,
+          "normalized": "photoaging",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_585",
+          "block_order": 73,
+          "is_product_label": false,
+          "normalized": "thereisiimisodrevearch4inobinctlarstnthisstodywecoenperetheeloctsofretinolandeetinoleacidonslinstructureandcpesionofskinfaocloocdasedgoesandpeoteiasweabomteohdssainhotodogywasexamioedbyiststalningandievtwcoesocal",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_586",
+          "block_order": 74,
+          "is_product_label": false,
+          "normalized": "esaoninytheeetofeecinottreatomentonskinappoaracoemicroscogydpeeonlevelsofsinprnesaodpeoteinswereanalyeodostngrtrcrandimmunobistochemitrytheeflcacyofanetinolsoemulatsentniepeoeingstinappearancewasasesedosngdigtalimugebosedwrinkleanalyis",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_587",
+          "block_order": 75,
+          "is_product_label": false,
+          "normalized": "reulsfearwoksofnetinctcacdandnetinoltreatmentsboehincreasedepidermalthicknessandupregulatedgemessorcollagentype1col1alandcolagentype3cotiatwihoorrespoodingincrenesinprocollegeeiandpeocollagenitpecteinsollealng12weksofetinelagpleationconvlesomthereueltsofthisstudydemonstratethattopicalapplicatieeofnetinolsignilcandyaffectsbochcelularandmolocelarpeepertlesoftheepidemlsand",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_588",
+          "block_order": 76,
+          "is_product_label": false,
+          "normalized": "expreelonfaclolimapeanalylssherwedasipnifcantredactleninfoclalwrtnlles",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        },
+        {
+          "block_key": "blk_589",
+          "block_order": 77,
+          "is_product_label": false,
+          "normalized": "레티날원료에대한내용을참고문헌및논문에서발취원료적특성에한함",
+          "matched_names": [],
+          "is_brand_logo": false,
+          "basis": "no_match"
+        }
+      ]
+    }
+  ],
+  "seconds": 0.01600000006146729
+}

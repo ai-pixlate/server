@@ -1,0 +1,2518 @@
+{
+  "source_id": "GS-01",
+  "stage": "merge",
+  "at": "2026-10-30T00:40:53.126075+00:00",
+  "result": {
+    "schema_version": "1",
+    "section_key": "sec_2_18",
+    "blocks": [
+      {
+        "block_key": "blk_001",
+        "section_key": "sec_2_18",
+        "block_order": 1,
+        "source_ko": "피부타입에 따라 Pick!",
+        "source_lines": [
+          {
+            "line_key": "line_001",
+            "text": "피부타입에 따라 Pick!",
+            "bbox": {
+              "x": 291,
+              "y": 186,
+              "w": 427,
+              "h": 56
+            },
+            "regions": [
+              {
+                "region_key": "reg_0001",
+                "text": "피부타입에",
+                "score": 0.9998339414596558,
+                "poly": [
+                  [
+                    291,
+                    186
+                  ],
+                  [
+                    505,
+                    186
+                  ],
+                  [
+                    505,
+                    242
+                  ],
+                  [
+                    291,
+                    242
+                  ]
+                ],
+                "bbox": {
+                  "x": 291,
+                  "y": 186,
+                  "w": 214,
+                  "h": 56
+                }
+              },
+              {
+                "region_key": "reg_0002",
+                "text": "따라",
+                "score": 0.9999706149101257,
+                "poly": [
+                  [
+                    510,
+                    186
+                  ],
+                  [
+                    603,
+                    186
+                  ],
+                  [
+                    603,
+                    241
+                  ],
+                  [
+                    510,
+                    241
+                  ]
+                ],
+                "bbox": {
+                  "x": 510,
+                  "y": 186,
+                  "w": 93,
+                  "h": 55
+                }
+              },
+              {
+                "region_key": "reg_0003",
+                "text": "Pick!",
+                "score": 0.9988754987716675,
+                "poly": [
+                  [
+                    605,
+                    189
+                  ],
+                  [
+                    718,
+                    189
+                  ],
+                  [
+                    718,
+                    237
+                  ],
+                  [
+                    605,
+                    237
+                  ]
+                ],
+                "bbox": {
+                  "x": 605,
+                  "y": 189,
+                  "w": 113,
+                  "h": 48
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 291,
+          "y": 186,
+          "w": 427,
+          "h": 56
+        },
+        "role": "title",
+        "ocr_confidence": 0.9988754987716675
+      },
+      {
+        "block_key": "blk_002",
+        "section_key": "sec_2_18",
+        "block_order": 2,
+        "source_ko": "어성초 진정\n선케어 라인",
+        "source_lines": [
+          {
+            "line_key": "line_002",
+            "text": "어성초 진정",
+            "bbox": {
+              "x": 238,
+              "y": 254,
+              "w": 527,
+              "h": 130
+            },
+            "regions": [
+              {
+                "region_key": "reg_0004",
+                "text": "어성초",
+                "score": 0.9998612403869629,
+                "poly": [
+                  [
+                    238,
+                    257
+                  ],
+                  [
+                    547,
+                    255
+                  ],
+                  [
+                    548,
+                    380
+                  ],
+                  [
+                    239,
+                    383
+                  ]
+                ],
+                "bbox": {
+                  "x": 238,
+                  "y": 255,
+                  "w": 310,
+                  "h": 128
+                }
+              },
+              {
+                "region_key": "reg_0005",
+                "text": "진정",
+                "score": 0.999760627746582,
+                "poly": [
+                  [
+                    553,
+                    254
+                  ],
+                  [
+                    765,
+                    254
+                  ],
+                  [
+                    765,
+                    384
+                  ],
+                  [
+                    553,
+                    384
+                  ]
+                ],
+                "bbox": {
+                  "x": 553,
+                  "y": 254,
+                  "w": 212,
+                  "h": 130
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_003",
+            "text": "선케어 라인",
+            "bbox": {
+              "x": 236,
+              "y": 384,
+              "w": 531,
+              "h": 131
+            },
+            "regions": [
+              {
+                "region_key": "reg_0006",
+                "text": "선케어",
+                "score": 0.9999062418937683,
+                "poly": [
+                  [
+                    236,
+                    386
+                  ],
+                  [
+                    543,
+                    386
+                  ],
+                  [
+                    543,
+                    514
+                  ],
+                  [
+                    236,
+                    514
+                  ]
+                ],
+                "bbox": {
+                  "x": 236,
+                  "y": 386,
+                  "w": 307,
+                  "h": 128
+                }
+              },
+              {
+                "region_key": "reg_0007",
+                "text": "라인",
+                "score": 0.9999839067459106,
+                "poly": [
+                  [
+                    556,
+                    384
+                  ],
+                  [
+                    767,
+                    384
+                  ],
+                  [
+                    767,
+                    515
+                  ],
+                  [
+                    556,
+                    515
+                  ]
+                ],
+                "bbox": {
+                  "x": 556,
+                  "y": 384,
+                  "w": 211,
+                  "h": 131
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 236,
+          "y": 254,
+          "w": 531,
+          "h": 261
+        },
+        "role": "title",
+        "ocr_confidence": 0.999760627746582
+      },
+      {
+        "block_key": "blk_003",
+        "section_key": "sec_2_18",
+        "block_order": 3,
+        "source_ko": "Heartleaf Calming Sun Care",
+        "source_lines": [
+          {
+            "line_key": "line_004",
+            "text": "Heartleaf Calming Sun Care",
+            "bbox": {
+              "x": 269,
+              "y": 532,
+              "w": 458,
+              "h": 56
+            },
+            "regions": [
+              {
+                "region_key": "reg_0008",
+                "text": "Heartleaf Calming",
+                "score": 0.9747568964958191,
+                "poly": [
+                  [
+                    270,
+                    532
+                  ],
+                  [
+                    573,
+                    539
+                  ],
+                  [
+                    572,
+                    588
+                  ],
+                  [
+                    269,
+                    580
+                  ]
+                ],
+                "bbox": {
+                  "x": 269,
+                  "y": 532,
+                  "w": 304,
+                  "h": 56
+                }
+              },
+              {
+                "region_key": "reg_0009",
+                "text": "Sun",
+                "score": 0.9993602633476257,
+                "poly": [
+                  [
+                    571,
+                    539
+                  ],
+                  [
+                    641,
+                    539
+                  ],
+                  [
+                    641,
+                    582
+                  ],
+                  [
+                    571,
+                    582
+                  ]
+                ],
+                "bbox": {
+                  "x": 571,
+                  "y": 539,
+                  "w": 70,
+                  "h": 43
+                }
+              },
+              {
+                "region_key": "reg_0010",
+                "text": "Care",
+                "score": 0.9995826482772827,
+                "poly": [
+                  [
+                    642,
+                    540
+                  ],
+                  [
+                    727,
+                    540
+                  ],
+                  [
+                    727,
+                    579
+                  ],
+                  [
+                    642,
+                    579
+                  ]
+                ],
+                "bbox": {
+                  "x": 642,
+                  "y": 540,
+                  "w": 85,
+                  "h": 39
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 269,
+          "y": 532,
+          "w": 458,
+          "h": 56
+        },
+        "role": "title",
+        "ocr_confidence": 0.9747568964958191
+      },
+      {
+        "block_key": "blk_004",
+        "section_key": "sec_2_18",
+        "block_order": 4,
+        "source_ko": "HEARTLEAF",
+        "source_lines": [
+          {
+            "line_key": "line_005",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 680,
+              "y": 742,
+              "w": 48,
+              "h": 45
+            },
+            "regions": [
+              {
+                "region_key": "reg_0011",
+                "text": "HEARTLEAF",
+                "score": 0.9934094548225403,
+                "poly": [
+                  [
+                    680,
+                    777
+                  ],
+                  [
+                    720,
+                    742
+                  ],
+                  [
+                    728,
+                    752
+                  ],
+                  [
+                    688,
+                    787
+                  ]
+                ],
+                "bbox": {
+                  "x": 680,
+                  "y": 742,
+                  "w": 48,
+                  "h": 45
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 680,
+          "y": 742,
+          "w": 48,
+          "h": 45
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9934094548225403
+      },
+      {
+        "block_key": "blk_005",
+        "section_key": "sec_2_18",
+        "block_order": 5,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_006",
+            "text": "Soothing",
+            "bbox": {
+              "x": 684,
+              "y": 753,
+              "w": 68,
+              "h": 56
+            },
+            "regions": [
+              {
+                "region_key": "reg_0012",
+                "text": "Soothing",
+                "score": 0.9994993805885315,
+                "poly": [
+                  [
+                    684,
+                    795
+                  ],
+                  [
+                    741,
+                    753
+                  ],
+                  [
+                    752,
+                    767
+                  ],
+                  [
+                    695,
+                    809
+                  ]
+                ],
+                "bbox": {
+                  "x": 684,
+                  "y": 753,
+                  "w": 68,
+                  "h": 56
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 684,
+          "y": 753,
+          "w": 68,
+          "h": 56
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9994993805885315
+      },
+      {
+        "block_key": "blk_006",
+        "section_key": "sec_2_18",
+        "block_order": 6,
+        "source_ko": "MINERAL FLTER",
+        "source_lines": [
+          {
+            "line_key": "line_007",
+            "text": "MINERAL FLTER",
+            "bbox": {
+              "x": 701,
+              "y": 771,
+              "w": 55,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0013",
+                "text": "MINERAL FLTER",
+                "score": 0.9785442352294922,
+                "poly": [
+                  [
+                    701,
+                    810
+                  ],
+                  [
+                    750,
+                    771
+                  ],
+                  [
+                    756,
+                    779
+                  ],
+                  [
+                    708,
+                    818
+                  ]
+                ],
+                "bbox": {
+                  "x": 701,
+                  "y": 771,
+                  "w": 55,
+                  "h": 47
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 701,
+          "y": 771,
+          "w": 55,
+          "h": 47
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9785442352294922
+      },
+      {
+        "block_key": "blk_007",
+        "section_key": "sec_2_18",
+        "block_order": 7,
+        "source_ko": "SUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_008",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 713,
+              "y": 784,
+              "w": 45,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0014",
+                "text": "SUN CREAM",
+                "score": 0.9761202335357666,
+                "poly": [
+                  [
+                    713,
+                    816
+                  ],
+                  [
+                    752,
+                    784
+                  ],
+                  [
+                    758,
+                    791
+                  ],
+                  [
+                    719,
+                    823
+                  ]
+                ],
+                "bbox": {
+                  "x": 713,
+                  "y": 784,
+                  "w": 45,
+                  "h": 39
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 713,
+          "y": 784,
+          "w": 45,
+          "h": 39
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9761202335357666
+      },
+      {
+        "block_key": "blk_008",
+        "section_key": "sec_2_18",
+        "block_order": 8,
+        "source_ko": "IARTLLA",
+        "source_lines": [
+          {
+            "line_key": "line_009",
+            "text": "IARTLLA",
+            "bbox": {
+              "x": 304,
+              "y": 879,
+              "w": 46,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0016",
+                "text": "IARTLLA",
+                "score": 0.6820262670516968,
+                "poly": [
+                  [
+                    304,
+                    879
+                  ],
+                  [
+                    350,
+                    879
+                  ],
+                  [
+                    350,
+                    886
+                  ],
+                  [
+                    304,
+                    886
+                  ]
+                ],
+                "bbox": {
+                  "x": 304,
+                  "y": 879,
+                  "w": 46,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 304,
+          "y": 879,
+          "w": 46,
+          "h": 7
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6820262670516968
+      },
+      {
+        "block_key": "blk_009",
+        "section_key": "sec_2_18",
+        "block_order": 9,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_010",
+            "text": "goodal",
+            "bbox": {
+              "x": 796,
+              "y": 883,
+              "w": 48,
+              "h": 47
+            },
+            "regions": [
+              {
+                "region_key": "reg_0019",
+                "text": "goodal",
+                "score": 0.9976620674133301,
+                "poly": [
+                  [
+                    796,
+                    919
+                  ],
+                  [
+                    833,
+                    883
+                  ],
+                  [
+                    844,
+                    895
+                  ],
+                  [
+                    807,
+                    930
+                  ]
+                ],
+                "bbox": {
+                  "x": 796,
+                  "y": 883,
+                  "w": 48,
+                  "h": 47
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 796,
+          "y": 883,
+          "w": 48,
+          "h": 47
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9976620674133301
+      },
+      {
+        "block_key": "blk_010",
+        "section_key": "sec_2_18",
+        "block_order": 10,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_011",
+            "text": "Soothing",
+            "bbox": {
+              "x": 288,
+              "y": 888,
+              "w": 64,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0015",
+                "text": "Soothing",
+                "score": 0.9978963732719421,
+                "poly": [
+                  [
+                    289,
+                    888
+                  ],
+                  [
+                    352,
+                    892
+                  ],
+                  [
+                    351,
+                    906
+                  ],
+                  [
+                    288,
+                    902
+                  ]
+                ],
+                "bbox": {
+                  "x": 288,
+                  "y": 888,
+                  "w": 64,
+                  "h": 18
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 288,
+          "y": 888,
+          "w": 64,
+          "h": 18
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9978963732719421
+      },
+      {
+        "block_key": "blk_011",
+        "section_key": "sec_2_18",
+        "block_order": 11,
+        "source_ko": "Tone Up",
+        "source_lines": [
+          {
+            "line_key": "line_012",
+            "text": "Tone Up",
+            "bbox": {
+              "x": 287,
+              "y": 900,
+              "w": 58,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0017",
+                "text": "Tone Up",
+                "score": 0.9929399490356445,
+                "poly": [
+                  [
+                    288,
+                    900
+                  ],
+                  [
+                    345,
+                    903
+                  ],
+                  [
+                    344,
+                    917
+                  ],
+                  [
+                    287,
+                    914
+                  ]
+                ],
+                "bbox": {
+                  "x": 287,
+                  "y": 900,
+                  "w": 58,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 287,
+          "y": 900,
+          "w": 58,
+          "h": 17
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9929399490356445
+      },
+      {
+        "block_key": "blk_012",
+        "section_key": "sec_2_18",
+        "block_order": 12,
+        "source_ko": "SUN DREAM",
+        "source_lines": [
+          {
+            "line_key": "line_013",
+            "text": "SUN DREAM",
+            "bbox": {
+              "x": 290,
+              "y": 917,
+              "w": 43,
+              "h": 7
+            },
+            "regions": [
+              {
+                "region_key": "reg_0018",
+                "text": "SUN DREAM",
+                "score": 0.8303898572921753,
+                "poly": [
+                  [
+                    290,
+                    917
+                  ],
+                  [
+                    333,
+                    917
+                  ],
+                  [
+                    333,
+                    924
+                  ],
+                  [
+                    290,
+                    924
+                  ]
+                ],
+                "bbox": {
+                  "x": 290,
+                  "y": 917,
+                  "w": 43,
+                  "h": 7
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 290,
+          "y": 917,
+          "w": 43,
+          "h": 7
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8303898572921753
+      },
+      {
+        "block_key": "blk_013",
+        "section_key": "sec_2_18",
+        "block_order": 13,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_014",
+            "text": "goodal",
+            "bbox": {
+              "x": 248,
+              "y": 1013,
+              "w": 50,
+              "h": 17
+            },
+            "regions": [
+              {
+                "region_key": "reg_0020",
+                "text": "goodal",
+                "score": 0.99359530210495,
+                "poly": [
+                  [
+                    248,
+                    1016
+                  ],
+                  [
+                    297,
+                    1013
+                  ],
+                  [
+                    298,
+                    1027
+                  ],
+                  [
+                    249,
+                    1030
+                  ]
+                ],
+                "bbox": {
+                  "x": 248,
+                  "y": 1013,
+                  "w": 50,
+                  "h": 17
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 248,
+          "y": 1013,
+          "w": 50,
+          "h": 17
+        },
+        "role": "caption",
+        "ocr_confidence": 0.99359530210495
+      },
+      {
+        "block_key": "blk_014",
+        "section_key": "sec_2_18",
+        "block_order": 14,
+        "source_ko": "HEARTLEAF\nSoothing\nSUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_015",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 458,
+              "y": 1020,
+              "w": 56,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0021",
+                "text": "HEARTLEAF",
+                "score": 0.9894732236862183,
+                "poly": [
+                  [
+                    458,
+                    1030
+                  ],
+                  [
+                    512,
+                    1020
+                  ],
+                  [
+                    514,
+                    1033
+                  ],
+                  [
+                    460,
+                    1043
+                  ]
+                ],
+                "bbox": {
+                  "x": 458,
+                  "y": 1020,
+                  "w": 56,
+                  "h": 23
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_016",
+            "text": "Soothing",
+            "bbox": {
+              "x": 457,
+              "y": 1039,
+              "w": 71,
+              "h": 28
+            },
+            "regions": [
+              {
+                "region_key": "reg_0022",
+                "text": "Soothing",
+                "score": 0.999174177646637,
+                "poly": [
+                  [
+                    457,
+                    1049
+                  ],
+                  [
+                    526,
+                    1039
+                  ],
+                  [
+                    528,
+                    1057
+                  ],
+                  [
+                    459,
+                    1067
+                  ]
+                ],
+                "bbox": {
+                  "x": 457,
+                  "y": 1039,
+                  "w": 71,
+                  "h": 28
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_017",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 475,
+              "y": 1074,
+              "w": 51,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0025",
+                "text": "SUN CREAM",
+                "score": 0.9866823554039001,
+                "poly": [
+                  [
+                    475,
+                    1083
+                  ],
+                  [
+                    524,
+                    1074
+                  ],
+                  [
+                    526,
+                    1089
+                  ],
+                  [
+                    477,
+                    1097
+                  ]
+                ],
+                "bbox": {
+                  "x": 475,
+                  "y": 1074,
+                  "w": 51,
+                  "h": 23
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 457,
+          "y": 1020,
+          "w": 71,
+          "h": 77
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9866823554039001
+      },
+      {
+        "block_key": "blk_015",
+        "section_key": "sec_2_18",
+        "block_order": 15,
+        "source_ko": "Moisture",
+        "source_lines": [
+          {
+            "line_key": "line_018",
+            "text": "Moisture",
+            "bbox": {
+              "x": 461,
+              "y": 1055,
+              "w": 70,
+              "h": 28
+            },
+            "regions": [
+              {
+                "region_key": "reg_0023",
+                "text": "Moisture",
+                "score": 0.9995356798171997,
+                "poly": [
+                  [
+                    461,
+                    1066
+                  ],
+                  [
+                    528,
+                    1055
+                  ],
+                  [
+                    531,
+                    1072
+                  ],
+                  [
+                    463,
+                    1083
+                  ]
+                ],
+                "bbox": {
+                  "x": 461,
+                  "y": 1055,
+                  "w": 70,
+                  "h": 28
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 461,
+          "y": 1055,
+          "w": 70,
+          "h": 28
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9995356798171997
+      },
+      {
+        "block_key": "blk_016",
+        "section_key": "sec_2_18",
+        "block_order": 16,
+        "source_ko": "HEARTLEAF\nCalming\nSUN CREAM",
+        "source_lines": [
+          {
+            "line_key": "line_019",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 713,
+              "y": 1059,
+              "w": 57,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0024",
+                "text": "HEARTLEAF",
+                "score": 0.994521975517273,
+                "poly": [
+                  [
+                    715,
+                    1059
+                  ],
+                  [
+                    770,
+                    1071
+                  ],
+                  [
+                    768,
+                    1082
+                  ],
+                  [
+                    713,
+                    1071
+                  ]
+                ],
+                "bbox": {
+                  "x": 713,
+                  "y": 1059,
+                  "w": 57,
+                  "h": 23
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_020",
+            "text": "Calming",
+            "bbox": {
+              "x": 703,
+              "y": 1076,
+              "w": 68,
+              "h": 29
+            },
+            "regions": [
+              {
+                "region_key": "reg_0026",
+                "text": "Calming",
+                "score": 0.9981855750083923,
+                "poly": [
+                  [
+                    707,
+                    1076
+                  ],
+                  [
+                    771,
+                    1090
+                  ],
+                  [
+                    767,
+                    1105
+                  ],
+                  [
+                    703,
+                    1091
+                  ]
+                ],
+                "bbox": {
+                  "x": 703,
+                  "y": 1076,
+                  "w": 68,
+                  "h": 29
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_021",
+            "text": "SUN CREAM",
+            "bbox": {
+              "x": 703,
+              "y": 1110,
+              "w": 52,
+              "h": 21
+            },
+            "regions": [
+              {
+                "region_key": "reg_0028",
+                "text": "SUN CREAM",
+                "score": 0.9717291593551636,
+                "poly": [
+                  [
+                    705,
+                    1110
+                  ],
+                  [
+                    755,
+                    1120
+                  ],
+                  [
+                    752,
+                    1131
+                  ],
+                  [
+                    703,
+                    1121
+                  ]
+                ],
+                "bbox": {
+                  "x": 703,
+                  "y": 1110,
+                  "w": 52,
+                  "h": 21
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 703,
+          "y": 1059,
+          "w": 68,
+          "h": 72
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9717291593551636
+      },
+      {
+        "block_key": "blk_017",
+        "section_key": "sec_2_18",
+        "block_order": 17,
+        "source_ko": "Tone Up",
+        "source_lines": [
+          {
+            "line_key": "line_022",
+            "text": "Tone Up",
+            "bbox": {
+              "x": 701,
+              "y": 1091,
+              "w": 65,
+              "h": 29
+            },
+            "regions": [
+              {
+                "region_key": "reg_0027",
+                "text": "Tone Up",
+                "score": 0.9967208504676819,
+                "poly": [
+                  [
+                    704,
+                    1091
+                  ],
+                  [
+                    766,
+                    1105
+                  ],
+                  [
+                    763,
+                    1120
+                  ],
+                  [
+                    701,
+                    1106
+                  ]
+                ],
+                "bbox": {
+                  "x": 701,
+                  "y": 1091,
+                  "w": 65,
+                  "h": 29
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 701,
+          "y": 1091,
+          "w": 65,
+          "h": 29
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9967208504676819
+      },
+      {
+        "block_key": "blk_018",
+        "section_key": "sec_2_18",
+        "block_order": 18,
+        "source_ko": "SPF 5O+\nPA+***",
+        "source_lines": [
+          {
+            "line_key": "line_023",
+            "text": "SPF 5O+",
+            "bbox": {
+              "x": 500,
+              "y": 1140,
+              "w": 35,
+              "h": 19
+            },
+            "regions": [
+              {
+                "region_key": "reg_0029",
+                "text": "SPF 5O+",
+                "score": 0.7284668684005737,
+                "poly": [
+                  [
+                    500,
+                    1144
+                  ],
+                  [
+                    533,
+                    1140
+                  ],
+                  [
+                    535,
+                    1155
+                  ],
+                  [
+                    502,
+                    1159
+                  ]
+                ],
+                "bbox": {
+                  "x": 500,
+                  "y": 1140,
+                  "w": 35,
+                  "h": 19
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_024",
+            "text": "PA+***",
+            "bbox": {
+              "x": 508,
+              "y": 1166,
+              "w": 31,
+              "h": 16
+            },
+            "regions": [
+              {
+                "region_key": "reg_0030",
+                "text": "PA+***",
+                "score": 0.868912398815155,
+                "poly": [
+                  [
+                    508,
+                    1170
+                  ],
+                  [
+                    537,
+                    1166
+                  ],
+                  [
+                    539,
+                    1178
+                  ],
+                  [
+                    509,
+                    1182
+                  ]
+                ],
+                "bbox": {
+                  "x": 508,
+                  "y": 1166,
+                  "w": 31,
+                  "h": 16
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 500,
+          "y": 1140,
+          "w": 39,
+          "h": 42
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7284668684005737
+      },
+      {
+        "block_key": "blk_019",
+        "section_key": "sec_2_18",
+        "block_order": 19,
+        "source_ko": "HEARTLEAF\nCOOLING SUN STIDX",
+        "source_lines": [
+          {
+            "line_key": "line_025",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 92,
+              "y": 1163,
+              "w": 54,
+              "h": 34
+            },
+            "regions": [
+              {
+                "region_key": "reg_0031",
+                "text": "HEARTLEAF",
+                "score": 0.9909709095954895,
+                "poly": [
+                  [
+                    92,
+                    1183
+                  ],
+                  [
+                    140,
+                    1163
+                  ],
+                  [
+                    146,
+                    1177
+                  ],
+                  [
+                    98,
+                    1197
+                  ]
+                ],
+                "bbox": {
+                  "x": 92,
+                  "y": 1163,
+                  "w": 54,
+                  "h": 34
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_026",
+            "text": "COOLING SUN STIDX",
+            "bbox": {
+              "x": 95,
+              "y": 1200,
+              "w": 72,
+              "h": 41
+            },
+            "regions": [
+              {
+                "region_key": "reg_0035",
+                "text": "COOLING SUN STIDX",
+                "score": 0.8928635716438293,
+                "poly": [
+                  [
+                    95,
+                    1227
+                  ],
+                  [
+                    162,
+                    1200
+                  ],
+                  [
+                    167,
+                    1213
+                  ],
+                  [
+                    100,
+                    1241
+                  ]
+                ],
+                "bbox": {
+                  "x": 95,
+                  "y": 1200,
+                  "w": 72,
+                  "h": 41
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 92,
+          "y": 1163,
+          "w": 75,
+          "h": 78
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8928635716438293
+      },
+      {
+        "block_key": "blk_020",
+        "section_key": "sec_2_18",
+        "block_order": 20,
+        "source_ko": "SPF5O-\nPA+-+",
+        "source_lines": [
+          {
+            "line_key": "line_027",
+            "text": "SPF5O-",
+            "bbox": {
+              "x": 695,
+              "y": 1175,
+              "w": 34,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0032",
+                "text": "SPF5O-",
+                "score": 0.8791043758392334,
+                "poly": [
+                  [
+                    697,
+                    1175
+                  ],
+                  [
+                    729,
+                    1181
+                  ],
+                  [
+                    726,
+                    1193
+                  ],
+                  [
+                    695,
+                    1187
+                  ]
+                ],
+                "bbox": {
+                  "x": 695,
+                  "y": 1175,
+                  "w": 34,
+                  "h": 18
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_028",
+            "text": "PA+-+",
+            "bbox": {
+              "x": 688,
+              "y": 1200,
+              "w": 29,
+              "h": 15
+            },
+            "regions": [
+              {
+                "region_key": "reg_0034",
+                "text": "PA+-+",
+                "score": 0.7173181772232056,
+                "poly": [
+                  [
+                    690,
+                    1200
+                  ],
+                  [
+                    717,
+                    1204
+                  ],
+                  [
+                    716,
+                    1215
+                  ],
+                  [
+                    688,
+                    1211
+                  ]
+                ],
+                "bbox": {
+                  "x": 688,
+                  "y": 1200,
+                  "w": 29,
+                  "h": 15
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 688,
+          "y": 1175,
+          "w": 41,
+          "h": 40
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7173181772232056
+      },
+      {
+        "block_key": "blk_021",
+        "section_key": "sec_2_18",
+        "block_order": 21,
+        "source_ko": "Calming",
+        "source_lines": [
+          {
+            "line_key": "line_029",
+            "text": "Calming",
+            "bbox": {
+              "x": 94,
+              "y": 1184,
+              "w": 66,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0033",
+                "text": "Calming",
+                "score": 0.9987621307373047,
+                "poly": [
+                  [
+                    94,
+                    1205
+                  ],
+                  [
+                    154,
+                    1184
+                  ],
+                  [
+                    160,
+                    1201
+                  ],
+                  [
+                    100,
+                    1223
+                  ]
+                ],
+                "bbox": {
+                  "x": 94,
+                  "y": 1184,
+                  "w": 66,
+                  "h": 39
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 94,
+          "y": 1184,
+          "w": 66,
+          "h": 39
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9987621307373047
+      },
+      {
+        "block_key": "blk_022",
+        "section_key": "sec_2_18",
+        "block_order": 22,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_030",
+            "text": "goodal",
+            "bbox": {
+              "x": 512,
+              "y": 1208,
+              "w": 53,
+              "h": 28
+            },
+            "regions": [
+              {
+                "region_key": "reg_0036",
+                "text": "goodal",
+                "score": 0.9841098189353943,
+                "poly": [
+                  [
+                    512,
+                    1218
+                  ],
+                  [
+                    561,
+                    1208
+                  ],
+                  [
+                    565,
+                    1226
+                  ],
+                  [
+                    516,
+                    1236
+                  ]
+                ],
+                "bbox": {
+                  "x": 512,
+                  "y": 1208,
+                  "w": 53,
+                  "h": 28
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 512,
+          "y": 1208,
+          "w": 53,
+          "h": 28
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9841098189353943
+      },
+      {
+        "block_key": "blk_023",
+        "section_key": "sec_2_18",
+        "block_order": 23,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_031",
+            "text": "goodal",
+            "bbox": {
+              "x": 666,
+              "y": 1245,
+              "w": 57,
+              "h": 26
+            },
+            "regions": [
+              {
+                "region_key": "reg_0037",
+                "text": "goodal",
+                "score": 0.998185932636261,
+                "poly": [
+                  [
+                    668,
+                    1245
+                  ],
+                  [
+                    723,
+                    1253
+                  ],
+                  [
+                    720,
+                    1271
+                  ],
+                  [
+                    666,
+                    1263
+                  ]
+                ],
+                "bbox": {
+                  "x": 666,
+                  "y": 1245,
+                  "w": 57,
+                  "h": 26
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 666,
+          "y": 1245,
+          "w": 57,
+          "h": 26
+        },
+        "role": "caption",
+        "ocr_confidence": 0.998185932636261
+      },
+      {
+        "block_key": "blk_024",
+        "section_key": "sec_2_18",
+        "block_order": 24,
+        "source_ko": "HEARTLEAF\nSoothing\nSUN SERUM",
+        "source_lines": [
+          {
+            "line_key": "line_032",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 321,
+              "y": 1248,
+              "w": 55,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0038",
+                "text": "HEARTLEAF",
+                "score": 0.9896124601364136,
+                "poly": [
+                  [
+                    321,
+                    1255
+                  ],
+                  [
+                    375,
+                    1248
+                  ],
+                  [
+                    376,
+                    1259
+                  ],
+                  [
+                    323,
+                    1266
+                  ]
+                ],
+                "bbox": {
+                  "x": 321,
+                  "y": 1248,
+                  "w": 55,
+                  "h": 18
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_033",
+            "text": "Soothing",
+            "bbox": {
+              "x": 315,
+              "y": 1266,
+              "w": 75,
+              "h": 24
+            },
+            "regions": [
+              {
+                "region_key": "reg_0039",
+                "text": "Soothing",
+                "score": 0.9991339445114136,
+                "poly": [
+                  [
+                    315,
+                    1273
+                  ],
+                  [
+                    388,
+                    1266
+                  ],
+                  [
+                    390,
+                    1283
+                  ],
+                  [
+                    317,
+                    1290
+                  ]
+                ],
+                "bbox": {
+                  "x": 315,
+                  "y": 1266,
+                  "w": 75,
+                  "h": 24
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_034",
+            "text": "SUN SERUM",
+            "bbox": {
+              "x": 330,
+              "y": 1300,
+              "w": 54,
+              "h": 21
+            },
+            "regions": [
+              {
+                "region_key": "reg_0041",
+                "text": "SUN SERUM",
+                "score": 0.9449465870857239,
+                "poly": [
+                  [
+                    330,
+                    1307
+                  ],
+                  [
+                    382,
+                    1300
+                  ],
+                  [
+                    384,
+                    1314
+                  ],
+                  [
+                    332,
+                    1321
+                  ]
+                ],
+                "bbox": {
+                  "x": 330,
+                  "y": 1300,
+                  "w": 54,
+                  "h": 21
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 315,
+          "y": 1248,
+          "w": 75,
+          "h": 73
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9449465870857239
+      },
+      {
+        "block_key": "blk_025",
+        "section_key": "sec_2_18",
+        "block_order": 25,
+        "source_ko": "Hyaluron",
+        "source_lines": [
+          {
+            "line_key": "line_035",
+            "text": "Hyaluron",
+            "bbox": {
+              "x": 316,
+              "y": 1281,
+              "w": 77,
+              "h": 27
+            },
+            "regions": [
+              {
+                "region_key": "reg_0040",
+                "text": "Hyaluron",
+                "score": 0.9991759657859802,
+                "poly": [
+                  [
+                    316,
+                    1291
+                  ],
+                  [
+                    391,
+                    1281
+                  ],
+                  [
+                    393,
+                    1298
+                  ],
+                  [
+                    318,
+                    1308
+                  ]
+                ],
+                "bbox": {
+                  "x": 316,
+                  "y": 1281,
+                  "w": 77,
+                  "h": 27
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 316,
+          "y": 1281,
+          "w": 77,
+          "h": 27
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9991759657859802
+      },
+      {
+        "block_key": "blk_026",
+        "section_key": "sec_2_18",
+        "block_order": 26,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_036",
+            "text": "goodal",
+            "bbox": {
+              "x": 142,
+              "y": 1292,
+              "w": 52,
+              "h": 39
+            },
+            "regions": [
+              {
+                "region_key": "reg_0042",
+                "text": "goodal",
+                "score": 0.9979968070983887,
+                "poly": [
+                  [
+                    142,
+                    1317
+                  ],
+                  [
+                    185,
+                    1292
+                  ],
+                  [
+                    194,
+                    1307
+                  ],
+                  [
+                    150,
+                    1331
+                  ]
+                ],
+                "bbox": {
+                  "x": 142,
+                  "y": 1292,
+                  "w": 52,
+                  "h": 39
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 142,
+          "y": 1292,
+          "w": 52,
+          "h": 39
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9979968070983887
+      },
+      {
+        "block_key": "blk_027",
+        "section_key": "sec_2_18",
+        "block_order": 27,
+        "source_ko": "SPF 50-",
+        "source_lines": [
+          {
+            "line_key": "line_037",
+            "text": "SPF 50-",
+            "bbox": {
+              "x": 346,
+              "y": 1378,
+              "w": 37,
+              "h": 18
+            },
+            "regions": [
+              {
+                "region_key": "reg_0043",
+                "text": "SPF 50-",
+                "score": 0.8316469192504883,
+                "poly": [
+                  [
+                    346,
+                    1382
+                  ],
+                  [
+                    381,
+                    1378
+                  ],
+                  [
+                    383,
+                    1392
+                  ],
+                  [
+                    348,
+                    1396
+                  ]
+                ],
+                "bbox": {
+                  "x": 346,
+                  "y": 1378,
+                  "w": 37,
+                  "h": 18
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 346,
+          "y": 1378,
+          "w": 37,
+          "h": 18
+        },
+        "role": "caption",
+        "ocr_confidence": 0.8316469192504883
+      },
+      {
+        "block_key": "blk_028",
+        "section_key": "sec_2_18",
+        "block_order": 28,
+        "source_ko": "PA+*",
+        "source_lines": [
+          {
+            "line_key": "line_038",
+            "text": "PA+*",
+            "bbox": {
+              "x": 351,
+              "y": 1406,
+              "w": 27,
+              "h": 14
+            },
+            "regions": [
+              {
+                "region_key": "reg_0044",
+                "text": "PA+*",
+                "score": 0.6786084175109863,
+                "poly": [
+                  [
+                    351,
+                    1409
+                  ],
+                  [
+                    377,
+                    1406
+                  ],
+                  [
+                    378,
+                    1417
+                  ],
+                  [
+                    353,
+                    1420
+                  ]
+                ],
+                "bbox": {
+                  "x": 351,
+                  "y": 1406,
+                  "w": 27,
+                  "h": 14
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 351,
+          "y": 1406,
+          "w": 27,
+          "h": 14
+        },
+        "role": "caption",
+        "ocr_confidence": 0.6786084175109863
+      },
+      {
+        "block_key": "blk_029",
+        "section_key": "sec_2_18",
+        "block_order": 29,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_039",
+            "text": "goodal",
+            "bbox": {
+              "x": 353,
+              "y": 1467,
+              "w": 57,
+              "h": 28
+            },
+            "regions": [
+              {
+                "region_key": "reg_0045",
+                "text": "goodal",
+                "score": 0.9987242221832275,
+                "poly": [
+                  [
+                    353,
+                    1477
+                  ],
+                  [
+                    407,
+                    1467
+                  ],
+                  [
+                    410,
+                    1485
+                  ],
+                  [
+                    356,
+                    1495
+                  ]
+                ],
+                "bbox": {
+                  "x": 353,
+                  "y": 1467,
+                  "w": 57,
+                  "h": 28
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 353,
+          "y": 1467,
+          "w": 57,
+          "h": 28
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9987242221832275
+      },
+      {
+        "block_key": "blk_030",
+        "section_key": "sec_2_18",
+        "block_order": 30,
+        "source_ko": "HEARTLEAF\nOUICK SUIDING",
+        "source_lines": [
+          {
+            "line_key": "line_040",
+            "text": "HEARTLEAF",
+            "bbox": {
+              "x": 544,
+              "y": 1493,
+              "w": 48,
+              "h": 31
+            },
+            "regions": [
+              {
+                "region_key": "reg_0046",
+                "text": "HEARTLEAF",
+                "score": 0.9930741190910339,
+                "poly": [
+                  [
+                    544,
+                    1511
+                  ],
+                  [
+                    587,
+                    1493
+                  ],
+                  [
+                    592,
+                    1505
+                  ],
+                  [
+                    549,
+                    1524
+                  ]
+                ],
+                "bbox": {
+                  "x": 544,
+                  "y": 1493,
+                  "w": 48,
+                  "h": 31
+                }
+              }
+            ]
+          },
+          {
+            "line_key": "line_041",
+            "text": "OUICK SUIDING",
+            "bbox": {
+              "x": 554,
+              "y": 1536,
+              "w": 49,
+              "h": 29
+            },
+            "regions": [
+              {
+                "region_key": "reg_0048",
+                "text": "OUICK SUIDING",
+                "score": 0.7788876891136169,
+                "poly": [
+                  [
+                    554,
+                    1555
+                  ],
+                  [
+                    598,
+                    1536
+                  ],
+                  [
+                    603,
+                    1547
+                  ],
+                  [
+                    559,
+                    1565
+                  ]
+                ],
+                "bbox": {
+                  "x": 554,
+                  "y": 1536,
+                  "w": 49,
+                  "h": 29
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 544,
+          "y": 1493,
+          "w": 59,
+          "h": 72
+        },
+        "role": "caption",
+        "ocr_confidence": 0.7788876891136169
+      },
+      {
+        "block_key": "blk_031",
+        "section_key": "sec_2_18",
+        "block_order": 31,
+        "source_ko": "Soothing",
+        "source_lines": [
+          {
+            "line_key": "line_042",
+            "text": "Soothing",
+            "bbox": {
+              "x": 540,
+              "y": 1512,
+              "w": 69,
+              "h": 41
+            },
+            "regions": [
+              {
+                "region_key": "reg_0047",
+                "text": "Soothing",
+                "score": 0.9975192546844482,
+                "poly": [
+                  [
+                    540,
+                    1534
+                  ],
+                  [
+                    602,
+                    1512
+                  ],
+                  [
+                    609,
+                    1531
+                  ],
+                  [
+                    547,
+                    1553
+                  ]
+                ],
+                "bbox": {
+                  "x": 540,
+                  "y": 1512,
+                  "w": 69,
+                  "h": 41
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 540,
+          "y": 1512,
+          "w": 69,
+          "h": 41
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9975192546844482
+      },
+      {
+        "block_key": "blk_032",
+        "section_key": "sec_2_18",
+        "block_order": 32,
+        "source_ko": "SUN STICK",
+        "source_lines": [
+          {
+            "line_key": "line_043",
+            "text": "SUN STICK",
+            "bbox": {
+              "x": 561,
+              "y": 1550,
+              "w": 39,
+              "h": 23
+            },
+            "regions": [
+              {
+                "region_key": "reg_0049",
+                "text": "SUN STICK",
+                "score": 0.9223517179489136,
+                "poly": [
+                  [
+                    561,
+                    1562
+                  ],
+                  [
+                    596,
+                    1550
+                  ],
+                  [
+                    600,
+                    1561
+                  ],
+                  [
+                    565,
+                    1573
+                  ]
+                ],
+                "bbox": {
+                  "x": 561,
+                  "y": 1550,
+                  "w": 39,
+                  "h": 23
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 561,
+          "y": 1550,
+          "w": 39,
+          "h": 23
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9223517179489136
+      },
+      {
+        "block_key": "blk_033",
+        "section_key": "sec_2_18",
+        "block_order": 33,
+        "source_ko": "goodal",
+        "source_lines": [
+          {
+            "line_key": "line_044",
+            "text": "goodal",
+            "bbox": {
+              "x": 573,
+              "y": 1613,
+              "w": 49,
+              "h": 36
+            },
+            "regions": [
+              {
+                "region_key": "reg_0050",
+                "text": "goodal",
+                "score": 0.9243239760398865,
+                "poly": [
+                  [
+                    573,
+                    1633
+                  ],
+                  [
+                    614,
+                    1613
+                  ],
+                  [
+                    622,
+                    1628
+                  ],
+                  [
+                    580,
+                    1649
+                  ]
+                ],
+                "bbox": {
+                  "x": 573,
+                  "y": 1613,
+                  "w": 49,
+                  "h": 36
+                }
+              }
+            ]
+          }
+        ],
+        "bbox": {
+          "x": 573,
+          "y": 1613,
+          "w": 49,
+          "h": 36
+        },
+        "role": "caption",
+        "ocr_confidence": 0.9243239760398865
+      }
+    ]
+  },
+  "seconds": 13.202999999979511
+}

@@ -44,6 +44,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from pipeline.errors import image_open_failed
+from pipeline.pngio import save_png
 from pipeline.types import Section, SourceImage, SplitResult, section_key
 from pipeline.vlm import BoundaryPicker, GeminiBoundaryPicker, image_sha256, prompt_sha256
 
@@ -477,7 +478,7 @@ def crop_sections(src: SourceImage, im: Image.Image, boundaries: list[int], out_
             raise ValueError(f"경계가 오름차순이 아니다: {edges}")
         key = section_key(src.source_image_id, i + 1)
         path = out_dir / f"{key}.png"
-        im.crop((0, top, w, bottom)).save(path)
+        save_png(im.crop((0, top, w, bottom)), path)
         sections.append(
             Section(
                 section_key=key,

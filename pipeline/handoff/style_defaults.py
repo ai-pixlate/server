@@ -96,11 +96,11 @@ class PipelineMapping(_Model):
     font_family: str = Field(min_length=1)
     reference_width_px: int = Field(gt=0, strict=True)
     font_color: str = Field(pattern=HEX_COLOR)
-    align: Literal["left", "center", "right"]
+    align: dict[str, Literal["left", "center", "right"]]  # 역할별 기본 정렬(사용자 결정 2026-11-05)
     line_height_ratio: FiniteNumber = Field(gt=0)
     roles: dict[str, str]
 
-    @field_validator("roles")
+    @field_validator("roles", "align")
     @classmethod
     def _five_roles(cls, v: dict[str, str]) -> dict[str, str]:
         if sorted(v) != sorted(ROLES):
@@ -153,7 +153,7 @@ class Fonts(_Model):
 
 
 class StyleDefaultsFile(_Model):
-    schema_version: Literal["1"]
+    schema_version: Literal["2"]  # 2 = 정렬이 역할별 값(2026-11-05)
     defaults_version: str = Field(pattern=r"^role-style@\d{4}-\d{2}-\d{2}\.\d+$")
     approval: Approval
     type_tokens: TypeTokens
@@ -409,7 +409,7 @@ def resolve_block(b: BlockInput, source_width_px: int, d: StyleDefaults) -> Reso
     # 측정 크기는 원본 px 그대로 — 기준 폭 배율 · em_ratio를 다시 곱하지 않는다
     size = pick("font_size_px", "est_font_px", lambda: default_font_px(d, b.role, source_width_px))
     color = pick("font_color", "font_color", lambda: m.font_color)
-    align = pick("align", "align", lambda: m.align)
+    align = pick("align", "align", lambda: m.align[b.role])
     face = d.data.fonts.faces[spec.face]
     ls_em = spec.letter_spacing_pct / 100
     source.update({"font_family": "role_config", "font_face": "role_config", "letter_spacing": "role_config",

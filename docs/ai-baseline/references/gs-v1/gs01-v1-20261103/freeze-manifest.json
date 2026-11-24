@@ -1,0 +1,43 @@
+{
+  "reference_version": "gs-v1-gs01-20261103-v1",
+  "status": "GS-01만 PM 승인에 따라 로컬 동결 · GitHub 공개 정본 반영 전",
+  "frozen_at": "2026-11-03T10:59:30.011652+00:00",
+  "scope_source_keys": [
+    "GS-01-IMG-001",
+    "GS-01-IMG-002"
+  ],
+  "unit_count": 58,
+  "excluded_cases": [
+    "GS-02",
+    "GS-03"
+  ],
+  "draft_commit": "5e0ddd526d168fe3866490c84b1a29c423cedd26",
+  "draft_sha256": "c3f6a378579c54f7723784c3c18938e5a81f582ffa1b4b117b3122deed35bce7",
+  "approved_review_commit": "0aaa1d0",
+  "verified_by": "은다빈 (i-dAb-i)",
+  "verified_at": "2026-11-03T09:34:33Z",
+  "conditional_coordinates": {
+    "GS-01_001-REF-010": [
+      245,
+      923,
+      375,
+      958
+    ],
+    "GS-01_001-REF-011": [
+      624,
+      923,
+      756,
+      958
+    ]
+  },
+  "condition_verified": true,
+  "evidence_ref": {
+    "path": "pm-approval.json",
+    "sha256": "4392a588fd7e3c758cfef32ec0e112686ec099daa54b06c90d9e38f8247dfb34"
+  },
+  "reference_file": {
+    "path": "reference_units.jsonl",
+    "sha256": "3b67ec85b335c96d17b72e9469567ab925139d5e863612a6edc002d8ca88967f"
+  },
+  "notes": "단위의 expected_value.note는 작성 당시 근거/이력 주석이다. 현재 승인·동결 상태는 이 기록과 verified_*를 따른다. PM 기준 자료 승인과 AI 평가 결과 사람 검수는 별개."
+}

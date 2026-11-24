@@ -9,7 +9,8 @@
 출력: <out>/index.html · <out>/img/(섹션 원본 사본 · 블록 crop · 영역 crop, 모두 원본 픽셀 그대로 자른 PNG). --out이 이미 있거나 입력본 안이면 거부.
 
 표시 원칙(사용자 지시 2026-10-06): 블록 status는 영역 측정 상태이며 품질 합격이 아니다 · excluded · no_text는 오류가 아니다 · null은 값으로
-바꾸지 않고 "없음 + 사유"로 쓴다 · 정렬 추정(estimated)과 기본값(default_single_line · default_tie)을 다르게 표시한다 · 수치는 원본 이미지 px다 ·
+바꾸지 않고 "없음 + 사유"로 쓴다 · 정렬은 섹션 기준 판정(section)과 판정 불가(null · 사유)를 구분하고, 이전 규칙의 줄 진단은 참고로만 쓴다
+(2026-11-05) · 수치는 원본 이미지 px다 ·
 원문을 임의 폰트로 다시 그리지 않는다(색은 견본만) · 품질 점수 · 자동 판정 · 검수 입력 저장은 없다. 입력 문자열은 모두 HTML 이스케이프한다.
 """
 from __future__ import annotations
@@ -35,8 +36,7 @@ from pipeline.types import STYLE_SCHEMA_VERSION, BlockStyle, StyleResult, TextBl
 
 STATUS_TEXT = {"ok": "ok — 측정값 모두 얻음(품질 판정 아님)", "partial": "partial — 일부 영역 색 추출 불가",
                "no_text": "no_text — 측정할 글자 영역 없음(오류 아님)", "excluded": "excluded — 라벨 · 로고 제외(오류 아님)"}
-BASIS_TEXT = {"estimated": "추정(estimated)", "default_single_line": "기본값 · 한 줄(default_single_line)",
-              "default_tie": "기본값 · 분산 동률(default_tie)"}
+BASIS_TEXT = {"section": "섹션 기준(section)"}
 
 
 def esc(v: Any) -> str:
@@ -77,10 +77,12 @@ def size_cell(value: float | None, field: str, reasons: dict[str, str]) -> str:
 
 
 def align_cell(b: BlockStyle) -> str:
+    ln = b.align_diag.lines if b.align_diag else None
+    ref = (f' <span class="mut">· 줄 진단(이전 규칙, 판정에 쓰지 않음) {esc(ln.align or "없음")}'
+           f' {esc(ln.basis or ln.null_reason)}</span>') if ln else ""
     if b.align is None:
-        return null_text("align", b.null_reasons)
-    cls = "est" if b.align_basis == "estimated" else "dflt"
-    return f'<b>{esc(b.align)}</b> <span class="basis {cls}">{esc(BASIS_TEXT.get(b.align_basis, b.align_basis))}</span>'
+        return null_text("align", b.null_reasons) + ref
+    return f'<b>{esc(b.align)}</b> <span class="basis est">{esc(BASIS_TEXT.get(b.align_basis, b.align_basis))}</span>{ref}'
 
 
 def save_crop(img: np.ndarray, box, path: Path) -> bool:
@@ -177,11 +179,17 @@ def section_card(run: Path, inp: Path, out: Path, entry: dict[str, Any]) -> tupl
                     f'<td>{esc(r.color_error) if r.color_error else "—"}</td>'
                     f'<td class=mut>{esc(json.dumps(ot, ensure_ascii=False)) if ot else "—"}</td></tr>')
             d = b.align_diag
-            diag = ("std 좌 · 중앙 · 우 = " + " · ".join(num(v) for v in (d.std_left, d.std_center, d.std_right))
-                    + f" px · 허용 오차 {num(d.tolerance_px)} px(블록 bbox 폭 {bb.w} × align_tolerance) · 후보 "
-                    + (", ".join(d.candidates) if d.candidates else "없음")) if d else "—"
+            sec = (f"span {'없음' if d.span_x1 is None else f'[{d.span_x1}, {d.span_x2})'} · 섹션 폭 {d.section_width} · 허용 오차 "
+                   f"{num(d.tolerance_px)} px(섹션 폭 × align_section_tolerance) · 섹션 중앙 {'일치' if d.section_center else '아님'} · 지지 수 "
+                   f"좌 {d.scores.left} · 중앙 {d.scores.center} · 우 {d.scores.right} · 지지 동료 좌 {d.support.left or '없음'} · "
+                   f"중앙 {d.support.center or '없음'} · 우 {d.support.right or '없음'}") if d else "—"
+            ln = d.lines if d else None
+            diag = ("std 좌 · 중앙 · 우 = " + " · ".join(num(v) for v in (ln.std_left, ln.std_center, ln.std_right))
+                    + f" px · 허용 오차 {num(ln.tolerance_px)} px(블록 bbox 폭 {bb.w} × align_tolerance) · 후보 "
+                    + (", ".join(ln.candidates) if ln.candidates else "없음")) if ln else "—"
             detail = (f'<details><summary>영역 {c.regions}개 · 정렬 진단 펼치기</summary>'
-                      f'<p class="mut">정렬 진단(std는 기록용 실수, 판단은 분산의 정확 비교): {esc(diag)}</p>'
+                      f'<p class="mut">정렬 판정(섹션 기준, 판단은 정확 비교): {esc(sec)}</p>'
+                      f'<p class="mut">줄 진단(이전 규칙 — 판정에 쓰지 않음, std는 기록용 실수): {esc(diag)}</p>'
                       f'<div class="scroll"><table class="rt"><thead><tr><th>줄 · 영역</th><th>원본 crop</th><th>OCR 원문</th><th>OCR 점수</th><th>상태</th>'
                       f'<th>글자색</th><th>배경색</th><th>크기</th><th>색 실패 사유</th><th>Otsu 진단</th></tr></thead>'
                       f'<tbody>{"".join(rrows)}</tbody></table></div></details>')
@@ -299,14 +307,13 @@ def main(argv=None) -> int:
 <label>원본 <select id="fi"><option value="all">전체</option>{opt(images)}</select></label>
 <label>섹션 <select id="fs"><option value="all">전체</option>{opt(sections)}</select></label>
 <label>상태 <select id="fst"><option value="all">전체</option>{opt(["ok", "partial", "no_text", "excluded"])}</select></label>
-<label>정렬 근거 <select id="fb"><option value="all">전체</option><option value="estimated">estimated(추정)</option>
-<option value="default_single_line">default_single_line(기본값)</option><option value="default_tie">default_tie(기본값)</option>
-<option value="null">null(정렬 없음)</option></select></label></header>
+<label>정렬 근거 <select id="fb"><option value="all">전체</option><option value="section">section(섹션 기준)</option>
+<option value="null">null(정렬 없음 — 렌더에서 역할별 기본 정렬)</option></select></label></header>
 <main><div class="intro">
 <p><b>이 페이지는 사람이 원본과 추출값을 비교하기 위한 개발용 화면입니다.</b> 품질 점수 · 자동 합격 판정은 없습니다.
 블록 <b>상태</b>는 영역 측정 상태입니다 — <code>ok</code>는 측정값을 모두 얻었다는 뜻이지 품질 합격이 아니며, <code>excluded</code>(라벨 · 로고 제외)와
-<code>no_text</code>(공백 영역만)는 오류가 아닙니다. 정렬은 <span class="basis est">추정(estimated)</span>과
-<span class="basis dflt">기본값(default_*)</span>을 구분해 보세요 — 기본 좌정렬은 추정 성공이 아닙니다. 값이 없으면 <span class="null">없음(null) · 사유</span>로 표시하며
+<code>no_text</code>(공백 영역만)는 오류가 아닙니다. 정렬은 <span class="basis est">섹션 기준(section)</span> 판정과
+판정 불가(null · 사유 — 렌더에서 역할별 기본 정렬)를 구분해 보세요. 줄 진단은 이전 규칙의 참고값이며 판정에 쓰지 않습니다. 값이 없으면 <span class="null">없음(null) · 사유</span>로 표시하며
 검정 · 0px · 좌정렬로 바꾸지 않습니다. 크기 · 좌표는 모두 <b>원본 이미지 px</b>이고, 화면의 확대 · 축소와 무관합니다.
 색은 견본과 #RRGGBB만 보이며 원문을 다른 폰트로 다시 그리지 않습니다(재조판 · 렌더 아님).</p>
 <p class="legend mut"><span>상자 테두리: 파랑 ok · 주황 partial · 보라 점선 no_text · 회색 파선 excluded</span></p>

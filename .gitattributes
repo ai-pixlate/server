@@ -22,3 +22,8 @@ docs/ai-baseline/protocols/v1/ocr-v6-scope-draft.md -text
 
 # Frozen source-evidence document: preserve exact historical bytes.
 docs/ai-baseline/protocols/v1/ocr.md -text
+# PM reference revision evidence: preserve recorded SHA-256 bytes.
+docs/ai-baseline/runs/reference-preparation-20261027/artifacts/pm-feedback-20261123.json -text
+docs/ai-baseline/runs/reference-preparation-20261027/artifacts/pm-revision-changes-20261123.json -text
+docs/ai-baseline/runs/reference-preparation-20261027/artifacts/pm-revision-index-20261123.json -text
+docs/ai-baseline/runs/reference-preparation-20261027/artifacts/reference_units.pm-revised-20261123.jsonl -text

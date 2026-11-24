@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-11-24T01:09:20.351210+00:00",
+  "source_commit_matches": true,
+  "unit_count": 281,
+  "unique_ids": 281,
+  "source_images": 32,
+  "semantic_fields_and_order_unchanged": true,
+  "all_basis_hashes_valid": true,
+  "existing_files_unchanged": 2573,
+  "official_scoring_performed": false
+}

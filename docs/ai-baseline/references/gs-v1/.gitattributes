@@ -1,0 +1,4 @@
+# 동결본과 통합 색인의 SHA-256 바이트를 보존한다.
+gs02-gs03-v1-20261124/** -text
+reference-set-20261124.json -text
+publication-validation-20261124.json -text

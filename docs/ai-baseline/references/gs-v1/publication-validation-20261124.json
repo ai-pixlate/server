@@ -1,0 +1,22 @@
+{
+  "units": 339,
+  "images": 34,
+  "case_units": {
+    "GS-01": 58,
+    "GS-02": 144,
+    "GS-03": 137
+  },
+  "basis_links_verified": 798,
+  "unique_basis_payloads": 43,
+  "new_frozen_files_byte_identical": 6,
+  "candidate_semantics_unchanged": true,
+  "duplicate_ids": 0,
+  "missing_images": 0,
+  "missing_or_mismatched_hashes": 0,
+  "original_gs01_evidence_resolution": "기존 preservation-index.json의 고정 커밋·경로·해시로 확인",
+  "index": {
+    "path": "reference-set-20261124.json",
+    "sha256": "433455ce926b21714e61472972f68c99f04c41c3b40c47a60d7e721a238c3467"
+  },
+  "official_scoring": false
+}

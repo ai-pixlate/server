@@ -1168,7 +1168,7 @@ class AplusText(_Model):
 
 class AplusImage(_Model):
     """이미지 칸 하나 — 원본 섹션에서 자를 자리(섹션 로컬 픽셀). `cutout` = 배경을 지워 대상만 남겨도 되는 사진이라는
-    7칸 구성의 판단(누끼 요청, #98). 칸을 꽉 채우는 사진(`cover`)은 누끼하지 않는다. 누끼 결과는 `AplusCutout`에 따로 있다."""
+    7칸 구성의 판단(누끼 요청, #98). 누끼 결과는 `AplusCutout`에 따로 있다."""
 
     section_key: str
     bbox: BBox
@@ -1179,8 +1179,6 @@ class AplusImage(_Model):
     def _area(self) -> "AplusImage":
         if self.bbox.w <= 0 or self.bbox.h <= 0:
             raise ValueError(f"자를 자리의 넓이가 0이다: {self.bbox}")
-        if self.cutout and self.fit != "contain":
-            raise ValueError("누끼(cutout)는 fit=contain인 사진에만 요청한다")
         return self
 
 

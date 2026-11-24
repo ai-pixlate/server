@@ -223,8 +223,8 @@ def test_caption_goes_to_item_title_or_body_depending_on_title_block(world):
     assert [(d.field, d.block_keys, d.reason) for d in s7.dropped] == [("items[2].body", ["k4_7"], "role"), ("items[3].title", ["k4_9"], "role")]
 
 
-def test_cutout_request_is_kept_for_contain_and_dropped_for_cover(world):
-    """누끼 여부는 모델이 사진마다 답한다(open-questions.md #98). 칸을 꽉 채우는 사진(cover)의 요청은 빼고, 답이 없으면 누끼하지 않는다."""
+def test_cutout_request_follows_the_model_answer(world):
+    """누끼 여부는 모델이 사진마다 답한다(open-questions.md #98). 코드는 그 답을 바꾸지 않고, 답이 없으면 누끼하지 않는다."""
     res = run(world, answer(
         slot(1, "1A", headline=["s1.b1"], image=dict(IMG, cutout=True)),
         slot(2, "2A", headline=["s2.b1"], image=dict(IMG, fit="cover", cutout=True),
@@ -232,7 +232,7 @@ def test_cutout_request_is_kept_for_contain_and_dropped_for_cover(world):
         slot(7, "7A", headline=["s4.b1"], image=IMG)))
     s1, s2, s7 = res.slots[0], res.slots[1], res.slots[6]
     assert s1.module.image.cutout is True and s1.flags == []
-    assert s2.module.image.cutout is False and "[규칙] 큰 사진: 칸을 꽉 채우는 사진(cover)은 누끼하지 않음" in s2.flags
+    assert s2.module.image.fit == "cover" and s2.module.image.cutout is True and s2.flags == []
     assert s7.module.image.cutout is False
     assert "cutout" in plan.response_schema()["properties"]["slots"]["items"]["properties"]["image"]["required"]
     bad = run(world, answer(slot(1, "1A", headline=["s1.b1"], image=dict(IMG, cutout="yes"))))

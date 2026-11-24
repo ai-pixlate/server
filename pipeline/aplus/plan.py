@@ -13,7 +13,7 @@
   비운다(#94).
 - 코드가 바로잡는 것(참고 변환기 `apply_rules`와 같은 취지): 그 칸 라벨의 섹션이 아닌 블록 · 이미 다른 곳에 쓴 블록 · 보낸 적 없는 ID는 빼고
   `dropped`에 남긴다. 4A · 4B 사진은 통째로(`contain`). 필수 큰 사진이 비면 다른 칸의 큰 사진을 다시 쓰고 확인 표시를 남긴다.
-  누끼 여부(`cutout`)도 모델이 사진마다 판단한다(사용자 결정 2026-11-24, #98). 칸을 꽉 채우는 사진(`cover`)의 누끼 요청은 뺀다.
+  누끼 여부(`cutout`)도 모델이 사진마다 판단한다(사용자 결정 2026-11-24, #98). 코드는 그 답을 바꾸지 않는다.
   누끼 자체는 `pipeline/aplus/cutout.py`가 한다.
   좌우 번갈아 배치는 참고 변환기 `zigzag.py`의 규칙이다.
 - 바로잡은 뒤에도 템플릿 규칙을 어기면 그 칸의 `errors`에 남긴다(다른 템플릿으로 바꾸거나 내용을 지어내지 않는다).
@@ -290,11 +290,7 @@ class _Composer:
         if tid in CONTAIN_ONLY and fit != "contain":
             fit = "contain"
             flags.append(f"[규칙] {what}: 근거 그림은 통째로(contain)")
-        cutout = bool(raw.get("cutout", False))
-        if cutout and fit != "contain":
-            cutout = False
-            flags.append(f"[규칙] {what}: 칸을 꽉 채우는 사진(cover)은 누끼하지 않음")
-        return AplusImage(section_key=key, bbox=box, fit=fit, cutout=cutout)
+        return AplusImage(section_key=key, bbox=box, fit=fit, cutout=bool(raw.get("cutout", False)))
 
     def slot(self, n: int, raw: dict[str, Any]) -> AplusSlotPlan:
         why = raw.get("why") if isinstance(raw.get("why"), str) else ""
@@ -380,7 +376,7 @@ def fill_missing_photos(slots: list[AplusSlotPlan], spec: AplusSpec) -> None:
             continue
         if "image" in spec.requirements(m.template, layout=m.layout, mode=m.mode).required:
             fit = "contain" if m.template in CONTAIN_ONLY else donor.fit
-            s.module = m.model_copy(update={"image": donor.model_copy(update={"fit": fit, "cutout": donor.cutout and fit == "contain"})})
+            s.module = m.model_copy(update={"image": donor.model_copy(update={"fit": fit})})
             s.flags.append("[확인] 큰 사진이 없어 다른 칸의 큰 사진을 다시 씀")
 
 

@@ -175,6 +175,5 @@ def test_run_without_requests_never_builds_model_and_input_errors_raise(tmp_path
         cutout.run(failed, [s1], {}, tmp_path / "out2", cfg(), matting=DarkIsSubject())
 
 
-def test_cutout_request_requires_contain_fit():
-    with pytest.raises(ValueError, match="fit=contain"):
-        image("sec_1_01", (0, 0, 10, 10), cut=True, fit="cover")
+def test_cutout_request_is_allowed_for_any_fit():
+    assert image("sec_1_01", (0, 0, 10, 10), cut=True, fit="cover").cutout is True

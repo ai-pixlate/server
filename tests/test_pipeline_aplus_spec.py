@@ -48,7 +48,7 @@ def minimal(tid: str, n: int = 3) -> AplusModule:
 def test_spec_shape_and_source():
     raw = SPEC.raw
     src = raw["source"]
-    assert SPEC.version == "aplus-spec@2026-11-24.1"
+    assert SPEC.version == "aplus-spec@2026-11-24.2"
     assert raw["canvas"] == {"width": 970, "height": 300}
     assert len(SPEC.template_ids) == 14 and len(raw["labels"]) == 19
     assert sum(len(t["regions"]) for t in raw["templates"].values()) == 67
@@ -101,7 +101,7 @@ def test_guide_limits_come_from_module_spec_rows():
     for t, f in [("1A", "label"), ("1A", "subheadline"), ("3A", "subheadline"), ("2B", "items.title"), ("3B", "headline"), ("5A", "items.title")]:
         assert SPEC.guide_limit(t, f) is None
     assert SPEC.guide_field("6A", "items.body")["slot_count"] == 3 and SPEC.guide_field("2A", "items.title")["decided_by_us"] is True
-    assert SPEC.guide_limit("2A", "items.title") == 200 and SPEC.char_limit("2A", "items.title", items=2) is None  # 템플릿 한도가 없어도 대응은 안다
+    assert SPEC.guide_limit("2A", "items.title") == 200 and SPEC.guide_limit("5B", "items.title") == 160  # 항목 개수와 무관
     with pytest.raises(KeyError):
         SPEC.guide_limit("1A", "image")
     for tid, t in SPEC.raw["templates"].items():  # 템플릿 한도는 가이드 상한보다 작거나 같다(설명 문서 2장)
@@ -111,25 +111,47 @@ def test_guide_limits_come_from_module_spec_rows():
 
 
 def test_block_roles_and_label_sources():
-    """블록 역할 → 칸(설명 문서 6장, PM 확정 2026-11-24). caption의 반복 항목형 연결은 확인 중이라 표에 없다."""
+    """블록 역할 → 칸(설명 문서 6장, PM 확정 2026-11-24). caption의 항목 연결은 데이터 담당 답변(2026-11-24):
+    사진 있는 항목형 4B · 5B · 6A · 3B · 7B · 5A에만, 2A · 2B · 6B에는 넣지 않는다."""
     assert set(SPEC.raw["block_roles"]["roles"]) == {"title", "body", "caption", "price", "caution"}
     assert SPEC.role_fields("title", "1A") == ("headline", "items.title") and SPEC.role_fields("body", "5B") == ("body", "items.body")
     assert SPEC.role_fields("caption", "1A") == SPEC.role_fields("caption", "3A") == ("subheadline",)
-    assert SPEC.role_fields("caption", "5B") == () and SPEC.role_fields("price", "1A") == () and SPEC.role_fields("caution", "7A") == ()
+    assert all(SPEC.role_fields("caption", t) == ("items.title", "items.body") for t in ("5B", "6A", "3B", "7B"))
+    assert SPEC.role_fields("caption", "4B") == SPEC.role_fields("caption", "5A") == ("items.title",)
+    assert all(SPEC.role_fields("caption", t) == () for t in ("2A", "2B", "6B", "1B", "4A", "7A"))
+    assert SPEC.item_rule("caption") == "title_if_no_title_block_else_body" and SPEC.item_rule("title") is None
+    assert SPEC.role_fields("price", "1A") == () and SPEC.role_fields("caution", "7A") == ()
     with pytest.raises(KeyError):
         SPEC.role_fields("heading", "1A")
     src = {tid: (t["label_source"], t["default_label"]) for tid, t in SPEC.raw["templates"].items() if t["label_source"]}
     assert src == {"1A": ("brand_name", None), "3A": ("fixed", "KEY INGREDIENT"), "7A": ("fixed", "OUR STORY")}
 
 
+def test_limits_added_by_data_owner_answer_and_confirmed_dates():
+    """값이 없던 조합(데이터 담당 답변 2026-11-24)과 한도 행마다의 확인일. 기대값은 그 답변에서 옮겼다."""
+    assert SPEC.char_limit("2A", "items.title", items=2) == 45
+    assert (SPEC.char_limit("3B", "items.title", items=2), SPEC.char_limit("3B", "items.body", items=2)) == (26, 70)
+    assert [SPEC.char_limit("5B", "items.title", items=n) for n in (2, 3, 4)] == [45, 26, 20] and SPEC.char_limit("5B", "items.body", items=2) == 40
+    assert [SPEC.char_limit("6B", "items.body", items=n) for n in (2, 3, 4)] == [150, 60, 60] and SPEC.char_limit("6B", "items.title", items=4) == 40
+    assert SPEC.char_limit("5A", "items.title", items=3) == SPEC.char_limit("5A", "items.title", items=12) == 15
+    for tid, t in SPEC.raw["templates"].items():  # 항목 2~4개의 모든 조합에 한도가 있다
+        if t["items"] and tid != "5A":
+            for f in t["items"]["fields"]:
+                if f in ("title", "body"):
+                    assert all(SPEC.char_limit(tid, f"items.{f}", items=n) is not None for n in (2, 3, 4)), (tid, f)
+    dates = {(tid, r["field"], json.dumps(r.get("when"), sort_keys=True)): r["confirmed_at"] for tid, t in SPEC.raw["templates"].items() for r in t["char_limits"]}
+    assert len(dates) == 50 and set(dates.values()) == {"2026-11-10", "2026-11-18", "2026-11-24"}
+    assert [k[:2] for k, v in dates.items() if v == "2026-11-18"] == [("2B", "items.title")]
+    assert sorted(k[:2] for k, v in dates.items() if v == "2026-11-24") == [
+        ("2A", "items.title"), ("3B", "items.body"), ("3B", "items.title"), ("5A", "items.title"), ("5B", "items.title"), ("5B", "items.title"),
+        ("6B", "body"), ("6B", "items.body")]
+    assert SPEC.raw["template_limit_source"]["source"].startswith("Pixlate 자체 산정")
+
+
 def test_char_limit_missing_in_source_stays_none():
-    """자료에 값이 없는 조합은 None — 가까운 값으로 채우지 않는다(#95)."""
-    assert SPEC.char_limit("2A", "items.title", items=2) is None
-    assert SPEC.char_limit("3B", "items.title", items=2) is None
-    assert SPEC.char_limit("5B", "items.title", items=4) is None
-    assert SPEC.char_limit("6B", "items.body", items=4) is None
+    """자료에 값이 없는 칸은 None — 가까운 값으로 채우지 않는다(#95)."""
     assert SPEC.char_limit("6B", "body") is None  # 줄글형에서만 쓰는 칸
-    assert all(SPEC.char_limit("5A", f, items=3) is None for f in ("headline", "items.title"))
+    assert SPEC.char_limit("5A", "headline", items=3) is None and SPEC.char_limit("4B", "items.body", items=3) is None
     with pytest.raises(KeyError):
         SPEC.char_limit("2A", "items.color")
 
@@ -177,6 +199,12 @@ def test_load_spec_rejects_broken_data(tmp_path):
     e5 = copy.deepcopy(raw)
     e5["templates"]["3A"]["default_label"] = None
     cases.append((e5, "label_source=fixed"))
+    e7 = copy.deepcopy(raw)
+    del e7["templates"]["1A"]["char_limits"][0]["confirmed_at"]
+    cases.append((e7, "확인일"))
+    e8 = copy.deepcopy(raw)
+    e8["block_roles"]["roles"]["caption"]["by_template"]["2A"] = ["items.body"]  # 2A 항목에는 설명 칸이 없다
+    cases.append((e8, "그리지 않는 칸"))
     e6 = copy.deepcopy(raw)
     e6["templates"]["2A"]["char_limits"][0]["guide_field"] = "M2_body"  # headline 행마다 대응이 달라진다
     cases.append((e6, "한도 행마다 다르다"))
@@ -291,11 +319,9 @@ def test_limit_checks_report_without_cutting():
     assert content.guide_excesses(own, SPEC) == [] and content.limit_excesses(own, SPEC)[0].guide_max_chars is None  # 자체 배치는 가이드 상한 없음
 
 
-def test_limit_depends_on_item_count_and_unknown_stays_none():
+def test_limit_depends_on_item_count():
     four = minimal("2A", n=4).model_copy(update={"items": [AplusItem(title=T("y" * 41))] + minimal("2A", n=3).items})
     assert [(c.field, c.max_chars) for c in content.limit_excesses(four, SPEC)] == [("items[0].title", 40)]
-    two = minimal("2A").model_copy(update={"items": [AplusItem(title=T("z" * 200)), AplusItem(title=T("ok"))]})
-    checks = [c for c in content.limit_checks(two, SPEC) if c.field.startswith("items")]
-    assert all(c.max_chars is None and c.over == 0 for c in checks)  # 항목 2개의 한도는 자료에 없다
-    assert content.limit_excesses(two, SPEC) == []
+    two = minimal("2A").model_copy(update={"items": [AplusItem(title=T("z" * 46)), AplusItem(title=T("ok"))]})
+    assert [(c.field, c.max_chars, c.over) for c in content.limit_excesses(two, SPEC)] == [("items[0].title", 45, 1)]  # 항목 2개도 45
     assert content.count_chars("72-hour hydration") == 17  # 공백 포함

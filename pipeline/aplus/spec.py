@@ -27,6 +27,7 @@ LIMIT_FIELDS = ("label", "headline", "subheadline", "body", "items.title", "item
 WHEN_KEYS = ("items", "layout", "mode")
 ROLE_FIELDS = ("headline", "subheadline", "body", "items.title", "items.body")  # 블록 역할이 들어갈 수 있는 칸(label은 블록에서 오지 않는다)
 LABEL_SOURCES = ("brand_name", "fixed")
+ITEM_RULE = "title_if_no_title_block_else_body"  # 항목 칸에 넣을 때: 그 항목에 title 블록이 없으면 항목 제목, 있으면 항목 설명
 REGION_KINDS = ("image", "text", "extra", "zone", "note")
 
 
@@ -148,16 +149,18 @@ class AplusSpec:
     def role_fields(self, role: str, tid: str) -> tuple[str, ...]:
         """블록 역할이 그 템플릿에서 들어갈 수 있는 칸. 빈 값이면 그 역할은 슬롯 재료가 아니다. 모르는 역할은 KeyError."""
         r = self.raw["block_roles"]["roles"][role]
-        if r["templates"] is not None and tid not in r["templates"]:
-            return ()
-        return tuple(r["fields"])
+        return tuple(r["by_template"].get(tid, r["fields"]))
+
+    def item_rule(self, role: str) -> str | None:
+        """그 역할을 항목 칸에 넣을 때의 조건(`ITEM_RULE`) 또는 None(조건 없음)."""
+        return self.raw["block_roles"]["roles"][role]["item_rule"]
 
 
 def _check(raw: Any) -> list[str]:
     if not isinstance(raw, dict):
         return ["최상위가 객체가 아니다"]
     errs: list[str] = []
-    for k in ("version", "canvas", "slots", "labels", "module_spec", "block_roles", "templates"):
+    for k in ("version", "canvas", "slots", "labels", "module_spec", "block_roles", "templates", "template_limit_source"):
         if k not in raw:
             errs.append(f"최상위 키 없음: {k}")
     if errs:
@@ -198,14 +201,24 @@ def _check(raw: Any) -> list[str]:
         for k in ("source", "confirmed_at"):
             if not isinstance(r.get(k), str) or not r[k].strip():
                 errs.append(f"{where}.{k}(출처 · 확인일)가 비어 있다")
+    if not isinstance(raw["template_limit_source"].get("source"), str) or not raw["template_limit_source"]["source"].strip():
+        errs.append("template_limit_source.source(템플릿 한도의 출처)가 비어 있다")
     roles = raw["block_roles"].get("roles", {})
     for name, r in roles.items():
         bad = [f for f in r.get("fields", []) if f not in ROLE_FIELDS]
         if bad:
             errs.append(f"block_roles[{name}] 모르는 칸 {bad}")
-        badt = [t for t in (r.get("templates") or []) if t not in tids]
-        if badt:
-            errs.append(f"block_roles[{name}] 없는 템플릿 {badt}")
+        if r.get("item_rule") not in (None, ITEM_RULE):
+            errs.append(f"block_roles[{name}].item_rule={r.get('item_rule')!r} — {ITEM_RULE} 또는 null")
+        for t, fs in (r.get("by_template") or {}).items():
+            if t not in tids:
+                errs.append(f"block_roles[{name}] 없는 템플릿 {t!r}")
+                continue
+            tt = raw["templates"][t]
+            drawn = list(tt.get("required", [])) + list(tt.get("optional", [])) + [f"items.{x}" for x in (tt.get("items") or {}).get("fields", [])]
+            bad = [f for f in fs if f not in ROLE_FIELDS or f not in drawn]
+            if bad:
+                errs.append(f"block_roles[{name}] {t}가 그리지 않는 칸 {bad}")
     for tid, t in raw["templates"].items():
         where = f"templates[{tid}]"
         mids = t.get("module_ids", [])
@@ -241,6 +254,8 @@ def _check(raw: Any) -> list[str]:
                 errs.append(f"{where}.char_limits[{i}] 모르는 칸 {r.get('field')!r}")
             if not (isinstance(r.get("max_chars"), int) and not isinstance(r.get("max_chars"), bool) and r["max_chars"] > 0):
                 errs.append(f"{where}.char_limits[{i}] max_chars가 양의 정수가 아니다")
+            if not isinstance(r.get("confirmed_at"), str) or not r["confirmed_at"].strip():
+                errs.append(f"{where}.char_limits[{i}] 확인일(confirmed_at)이 비어 있다")
             badk = sorted(set(r.get("when", {})) - set(WHEN_KEYS))
             if badk:
                 errs.append(f"{where}.char_limits[{i}] 모르는 조건 {badk}")

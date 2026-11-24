@@ -81,9 +81,11 @@ def test_payload_lists_blocks_only_for_slot_sections(world):
     assert "blocks" not in s3 and s3["photo_ok"] is False and s3["slot"] is None  # 7칸 밖 · 사진을 가져오지 않는 라벨
     assert s4["photo_ok"] is True and set(block_ids) >= {"s1.b1", "s2.b4", "s4.b2"} and "s3.b1" not in block_ids
     assert payload["templates"]["2A"]["char_limits"] == SPEC.template("2A")["char_limits"]
-    assert payload["role_fields"] == {"title": {"fields": ["headline", "items.title"], "templates": None},
-                                      "body": {"fields": ["body", "items.body"], "templates": None},
-                                      "caption": {"fields": ["subheadline"], "templates": ["1A", "3A"]}}
+    assert set(payload["role_fields"]) == {"title", "body", "caption"}
+    assert payload["role_fields"]["title"] == {"fields": ["headline", "items.title"], "by_template": {}, "item_rule": None}
+    cap = payload["role_fields"]["caption"]
+    assert cap["fields"] == [] and cap["by_template"]["1A"] == ["subheadline"] and cap["by_template"]["4B"] == ["items.title"]
+    assert set(cap["by_template"]) == {"1A", "3A", "4B", "5A", "5B", "6A", "3B", "7B"} and cap["item_rule"] == "title_if_no_title_block_else_body"
 
 
 def test_text_is_verbatim_in_original_order_and_stops_before_limit(world):
@@ -198,6 +200,27 @@ def test_block_role_decides_the_field_and_label_never_comes_from_blocks(world):
         plan.run(sections, labels, odd, SPEC, cfgmod.load_config(), llm=Fake(answer()))
     caption_in_1b = run((sections, labels, blocks + extra), answer(slot(1, "1B", headline=["s1.b1"], body=["s1.b7"], image=dict(IMG, fit="cover"))))
     assert caption_in_1b.slots[0].module.body is None and caption_in_1b.slots[0].dropped[0].reason == "role"  # caption은 1A · 3A에만
+
+
+def test_caption_goes_to_item_title_or_body_depending_on_title_block(world):
+    """caption의 항목 연결(데이터 담당 답변 2026-11-24): 그 항목에 title 블록이 없으면 항목 제목, 있으면 항목 설명.
+    반대쪽 칸에 넣은 caption은 빼고 기록한다."""
+    sections, labels, blocks = world
+
+    def X(order: int, role: str, text: str) -> plan.TranslatedBlock:
+        return plan.TranslatedBlock(f"k4_{order}", "sec_1_04", order, role, text)
+
+    extra = [X(3, "title", "Clean"), X(4, "caption", "Vegan formula"), X(5, "caption", "Since 2010"), X(6, "caption", "Reef safe"),
+             X(7, "caption", "No animal testing"), X(8, "title", "Kind"), X(9, "caption", "Gentle care")]
+    res = run((sections, labels, blocks + extra), answer(slot(7, "7B", headline=["s4.b1"], items=[
+        {"title": ["s4.b3"], "body": ["s4.b4"]},             # title 블록이 있다 → caption은 설명
+        {"title": ["s4.b5"], "body": []},                    # title 블록이 없다 → caption이 제목
+        {"title": ["s4.b6"], "body": ["s4.b7"]},             # title 블록이 없다 → 설명에 넣은 caption은 뺀다
+        {"title": ["s4.b8", "s4.b9"], "body": []}])))        # title 블록이 있다 → 제목에 넣은 caption은 뺀다
+    s7 = res.slots[6]
+    got = [(it.title.text if it.title else None, it.body.text if it.body else None) for it in s7.module.items]
+    assert got == [("Clean", "Vegan formula"), ("Since 2010", None), ("Reef safe", None), ("Kind", None)] and s7.errors == []
+    assert [(d.field, d.block_keys, d.reason) for d in s7.dropped] == [("items[2].body", ["k4_7"], "role"), ("items[3].title", ["k4_9"], "role")]
 
 
 def test_cutout_request_is_kept_for_contain_and_dropped_for_cover(world):

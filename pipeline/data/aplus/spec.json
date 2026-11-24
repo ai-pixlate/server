@@ -1,5 +1,5 @@
 {
-  "version": "aplus-spec@2026-11-24.1",
+  "version": "aplus-spec@2026-11-24.2",
   "status": "개발용 v1 — 운영 계약 아님. 정본 위치·DB module_spec 관계는 open-questions.md #92",
   "site": "amazon_us_aplus",
   "source": {
@@ -31,7 +31,12 @@
       "written": "2026-11-19",
       "revised": "2026-11-24",
       "received": "2026-11-24",
-      "compared": "템플릿 한도 43개를 「템플릿 대응」 시트와 대조 — 6B 줄글형 본문만 달라 320 → 250으로 고쳤다. 5B 항목 제목 26자의 적용 범위(항목 3개만 / 전부)와 값이 없는 조합은 데이터 담당 확인 중(open-questions.md #95)"
+      "compared": "템플릿 한도 43개를 「템플릿 대응」 시트와 대조 — 6B 줄글형 본문만 달라 320 → 250으로 고쳤다. 엑셀의 5B 항목 제목 \"조건 없이 26\"은 오기였고 항목 3개일 때의 값이다(데이터 담당 답변)"
+    },
+    "data_owner_answers": {
+      "received": "2026-11-24",
+      "form": "메시지(파일 없음)",
+      "content": "값이 없던 한도 7개(2A · 3B · 6B · 5A · 5B) · caption의 항목 연결(템플릿 범위와 제목/설명 기준) · 템플릿 한도의 출처와 확인일"
     }
   },
   "canvas": {
@@ -476,14 +481,15 @@
     }
   ],
   "block_roles": {
-    "source": "데이터 담당 설명 문서 6장(PM 확정 2026-11-24)",
+    "source": "데이터 담당 설명 문서 6장(PM 확정 2026-11-24) · caption의 항목 연결은 데이터 담당 답변(2026-11-24)",
     "roles": {
       "title": {
         "fields": [
           "headline",
           "items.title"
         ],
-        "templates": null,
+        "by_template": {},
+        "item_rule": null,
         "note": "칸 제목이면 headline, 항목마다 붙은 제목이면 그 항목의 title"
       },
       "body": {
@@ -491,27 +497,55 @@
           "body",
           "items.body"
         ],
-        "templates": null,
+        "by_template": {},
+        "item_rule": null,
         "note": "칸 본문이면 body, 항목 설명이면 그 항목의 body"
       },
       "caption": {
-        "fields": [
-          "subheadline"
-        ],
-        "templates": [
-          "1A",
-          "3A"
-        ],
-        "note": "1A · 3A의 부제. 반복 항목형에서는 그 사진이 들어간 항목의 title 또는 body — 어느 쪽인지와 템플릿 범위는 데이터 담당 확인 중이라 여기 넣지 않았다(open-questions.md #94). 그 밖의 템플릿에는 넣지 않는다"
+        "fields": [],
+        "by_template": {
+          "1A": [
+            "subheadline"
+          ],
+          "3A": [
+            "subheadline"
+          ],
+          "4B": [
+            "items.title"
+          ],
+          "5A": [
+            "items.title"
+          ],
+          "5B": [
+            "items.title",
+            "items.body"
+          ],
+          "6A": [
+            "items.title",
+            "items.body"
+          ],
+          "3B": [
+            "items.title",
+            "items.body"
+          ],
+          "7B": [
+            "items.title",
+            "items.body"
+          ]
+        },
+        "item_rule": "title_if_no_title_block_else_body",
+        "note": "1A · 3A는 부제. 항목마다 사진 · 아이콘 · 스와치가 있는 4B · 5B · 6A · 3B · 7B · 5A는 항목 칸 — 그 항목에 title 블록이 없으면 항목 제목, 있으면 항목 설명(4B · 5A는 항목 제목만 쓰므로 title 블록이 있으면 넣지 않는다). 항목에 사진이 없는 2A · 2B · 6B와 그 밖의 템플릿에는 넣지 않는다(데이터 담당 답변 2026-11-24). 2A 항목의 caption은 재질문 중(open-questions.md #94)"
       },
       "price": {
         "fields": [],
-        "templates": null,
+        "by_template": {},
+        "item_rule": null,
         "note": "넣지 않는다 — 템플릿 14개에 가격 칸이 없다"
       },
       "caution": {
         "fields": [],
-        "templates": null,
+        "by_template": {},
+        "item_rule": null,
         "note": "12월에는 넣지 않는다. 어디에 담을지는 이후 과제"
       }
     },
@@ -549,22 +583,26 @@
         {
           "field": "label",
           "max_chars": 20,
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "headline",
           "max_chars": 40,
-          "guide_field": "M1_headline"
+          "guide_field": "M1_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "subheadline",
           "max_chars": 36,
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
           "max_chars": 120,
-          "guide_field": "M1_body"
+          "guide_field": "M1_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -652,12 +690,14 @@
         {
           "field": "headline",
           "max_chars": 22,
-          "guide_field": "M5_headline"
+          "guide_field": "M5_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
           "max_chars": 85,
-          "guide_field": "M5_body"
+          "guide_field": "M5_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -748,12 +788,14 @@
         {
           "field": "headline",
           "max_chars": 28,
-          "guide_field": "M2_headline"
+          "guide_field": "M2_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
           "max_chars": 60,
-          "guide_field": "M2_body"
+          "guide_field": "M2_body",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
@@ -761,7 +803,8 @@
           "when": {
             "items": 3
           },
-          "guide_field": "M2_subheadline"
+          "guide_field": "M2_subheadline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
@@ -769,7 +812,17 @@
           "when": {
             "items": 4
           },
-          "guide_field": "M2_subheadline"
+          "guide_field": "M2_subheadline",
+          "confirmed_at": "2026-11-10"
+        },
+        {
+          "field": "items.title",
+          "max_chars": 45,
+          "when": {
+            "items": 2
+          },
+          "guide_field": "M2_subheadline",
+          "confirmed_at": "2026-11-24"
         },
         {
           "field": "headline",
@@ -777,7 +830,8 @@
           "when": {
             "layout": "single"
           },
-          "guide_field": "M2_headline"
+          "guide_field": "M2_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
@@ -785,7 +839,8 @@
           "when": {
             "layout": "single"
           },
-          "guide_field": "M2_body"
+          "guide_field": "M2_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -881,12 +936,14 @@
         {
           "field": "items.title",
           "max_chars": 30,
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-18"
         },
         {
           "field": "items.body",
           "max_chars": 55,
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -959,17 +1016,20 @@
         {
           "field": "headline",
           "max_chars": 20,
-          "guide_field": "M1_headline"
+          "guide_field": "M1_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "subheadline",
           "max_chars": 36,
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
           "max_chars": 120,
-          "guide_field": "M1_body"
+          "guide_field": "M1_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1065,7 +1125,8 @@
         {
           "field": "headline",
           "max_chars": 30,
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
@@ -1073,7 +1134,8 @@
           "when": {
             "items": 3
           },
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
@@ -1081,7 +1143,17 @@
           "when": {
             "items": 4
           },
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
+        },
+        {
+          "field": "items.title",
+          "max_chars": 26,
+          "when": {
+            "items": 2
+          },
+          "guide_field": null,
+          "confirmed_at": "2026-11-24"
         },
         {
           "field": "items.body",
@@ -1089,7 +1161,8 @@
           "when": {
             "items": 3
           },
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.body",
@@ -1097,7 +1170,17 @@
           "when": {
             "items": 4
           },
-          "guide_field": null
+          "guide_field": null,
+          "confirmed_at": "2026-11-10"
+        },
+        {
+          "field": "items.body",
+          "max_chars": 70,
+          "when": {
+            "items": 2
+          },
+          "guide_field": null,
+          "confirmed_at": "2026-11-24"
         }
       ],
       "regions": [
@@ -1187,12 +1270,14 @@
         {
           "field": "headline",
           "max_chars": 30,
-          "guide_field": "M1_headline"
+          "guide_field": "M1_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
           "max_chars": 120,
-          "guide_field": "M1_body"
+          "guide_field": "M1_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1297,12 +1382,14 @@
         {
           "field": "headline",
           "max_chars": 38,
-          "guide_field": "M3_top_headline"
+          "guide_field": "M3_top_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
           "max_chars": 30,
-          "guide_field": "M3_headline"
+          "guide_field": "M3_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
@@ -1310,7 +1397,8 @@
           "when": {
             "mode": "before_after"
           },
-          "guide_field": "M3_headline"
+          "guide_field": "M3_headline",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1384,7 +1472,14 @@
       "variants": [],
       "label_source": null,
       "default_label": null,
-      "char_limits": [],
+      "char_limits": [
+        {
+          "field": "items.title",
+          "max_chars": 15,
+          "guide_field": null,
+          "confirmed_at": "2026-11-24"
+        }
+      ],
       "regions": [
         {
           "name": "Headline - Main (선택)",
@@ -1453,7 +1548,8 @@
         {
           "field": "headline",
           "max_chars": 38,
-          "guide_field": "M3_top_headline"
+          "guide_field": "M3_top_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
@@ -1461,12 +1557,32 @@
           "when": {
             "items": 3
           },
-          "guide_field": "M3_headline"
+          "guide_field": "M3_headline",
+          "confirmed_at": "2026-11-10"
+        },
+        {
+          "field": "items.title",
+          "max_chars": 45,
+          "when": {
+            "items": 2
+          },
+          "guide_field": "M3_headline",
+          "confirmed_at": "2026-11-24"
+        },
+        {
+          "field": "items.title",
+          "max_chars": 20,
+          "when": {
+            "items": 4
+          },
+          "guide_field": "M3_headline",
+          "confirmed_at": "2026-11-24"
         },
         {
           "field": "items.body",
           "max_chars": 40,
-          "guide_field": "M3_body"
+          "guide_field": "M3_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1546,17 +1662,20 @@
         {
           "field": "headline",
           "max_chars": 38,
-          "guide_field": "M4_top_headline"
+          "guide_field": "M4_top_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
           "max_chars": 20,
-          "guide_field": "M4_headline"
+          "guide_field": "M4_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.body",
           "max_chars": 40,
-          "guide_field": "M4_body"
+          "guide_field": "M4_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1657,12 +1776,14 @@
         {
           "field": "headline",
           "max_chars": 28,
-          "guide_field": "M2_headline"
+          "guide_field": "M2_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
           "max_chars": 40,
-          "guide_field": "M2_subheadline"
+          "guide_field": "M2_subheadline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.body",
@@ -1670,7 +1791,8 @@
           "when": {
             "items": 3
           },
-          "guide_field": "M2_body"
+          "guide_field": "M2_body",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.body",
@@ -1678,7 +1800,17 @@
           "when": {
             "items": 2
           },
-          "guide_field": "M2_body"
+          "guide_field": "M2_body",
+          "confirmed_at": "2026-11-10"
+        },
+        {
+          "field": "items.body",
+          "max_chars": 60,
+          "when": {
+            "items": 4
+          },
+          "guide_field": "M2_body",
+          "confirmed_at": "2026-11-24"
         },
         {
           "field": "body",
@@ -1686,7 +1818,8 @@
           "when": {
             "layout": "prose"
           },
-          "guide_field": "M2_body"
+          "guide_field": "M2_body",
+          "confirmed_at": "2026-11-24"
         }
       ],
       "regions": [
@@ -1767,12 +1900,14 @@
         {
           "field": "headline",
           "max_chars": 20,
-          "guide_field": "M1_headline"
+          "guide_field": "M1_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "body",
           "max_chars": 330,
-          "guide_field": "M1_body"
+          "guide_field": "M1_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1861,17 +1996,20 @@
         {
           "field": "headline",
           "max_chars": 38,
-          "guide_field": "M3_top_headline"
+          "guide_field": "M3_top_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.title",
           "max_chars": 20,
-          "guide_field": "M3_headline"
+          "guide_field": "M3_headline",
+          "confirmed_at": "2026-11-10"
         },
         {
           "field": "items.body",
           "max_chars": 40,
-          "guide_field": "M3_body"
+          "guide_field": "M3_body",
+          "confirmed_at": "2026-11-10"
         }
       ],
       "regions": [
@@ -1915,9 +2053,8 @@
     }
   },
   "template_limit_source": {
+    "source": "Pixlate 자체 산정 — 템플릿 치수(aplus_renderer/spec/templates_spec.json)의 글 상자 크기로 계산하고, 렌더러로 그려서 확인",
     "basis": "970×300 칸 상자의 크기와 줄 수로 계산한 값과 가이드 칸당 상한 중 작은 값(데이터 담당 설명 문서 3-2)",
-    "source": null,
-    "confirmed_at": null,
-    "note": "템플릿 한도의 출처 · 확인일로 적을 값은 데이터 담당 확인 중(open-questions.md #92). 가이드 상한의 출처 · 확인일은 module_spec 행마다 있다"
+    "note": "확인일은 char_limits 행마다 있다 — 기본 2026-11-10(처음 정한 날) · 2B 항목 제목 2026-11-18 · 6B 줄글형 250자와 2026-11-24에 새로 정한 조합 2026-11-24(데이터 담당 답변 2026-11-24)"
   }
 }

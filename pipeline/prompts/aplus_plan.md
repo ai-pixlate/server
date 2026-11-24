@@ -5,6 +5,7 @@
 - JSON `slots`: 칸 1~7. 칸마다 `candidates`(그 칸의 글 재료가 될 수 있는 섹션 ID)와 `templates`(고를 수 있는 템플릿 2개).
 - JSON `templates`: 템플릿마다 쓰는 칸(`required` · `optional`), 반복 칸 `items`의 개수 범위와 칸, 배치 변형(`layouts`) · 모드, 글자 수 한도(`char_limits`, 영어 · 공백 포함).
 - JSON `sections`: 섹션마다 `id`(`s1` … 페이지 위에서 아래 순서), `label`, `slot`(7칸 밖이면 null), `photo_ok`(사진을 가져와도 되는 섹션인지), `blocks`(번역 블록: `id` 예 `s3.b12`, `role`, `text`, `chars`). `blocks`는 칸의 글 재료가 될 수 있는 섹션에만 있다.
+- JSON `role_fields`: 블록의 `role`마다 넣을 수 있는 칸. `templates`가 있으면 그 템플릿에서만 넣을 수 있다.
 - 섹션 이미지: JSON 뒤에 `[s1]` 같은 ID 글과 그 섹션 이미지가 차례로 온다.
 
 ## 템플릿 고르기 — 칸마다 A · B 중 원문 내용에 더 맞는 쪽(A 기본값 없음)
@@ -30,6 +31,8 @@
 ## 블록 고르기 — 문구를 쓰지 않고 ID만
 
 - 칸의 글은 **그 칸 `candidates` 섹션의 블록에서만** 고른다. 한 블록은 한 곳에만 쓴다.
+- **블록의 `role`이 넣을 수 있는 칸을 정한다**(`role_fields`). `title` 블록은 `headline`과 항목 `title`에만, `body` 블록은 `body`와 항목 `body`에만, `caption` 블록은 1A · 3A의 `subheadline`에만 넣는다. 맞지 않는 칸에 넣은 블록은 빠진다. 알맞은 역할의 블록이 없으면 그 칸을 비운다.
+- `label` 칸은 고르지 않는다(정해진 문구를 따로 넣는다).
 - 칸 하나(`headline` 등)에 블록을 여러 개 넣을 수 있다. 원문 순서대로 이어 붙는다. 뜻이 이어지는 블록만 묶는다.
 - `text`를 바꾸거나 줄일 수 없다. 그러니 **글자 수 한도에 맞는 블록을 고른다.** 한도를 넘는 블록밖에 없으면 그 칸에 가장 알맞은 블록 하나만 고른다(넘친 것은 뒤에서 따로 표시된다).
 - 고르지 않는 블록: 장식 문구("POINT 01", "Test", "01" 같은 번호 · 기호), 각주 · 시험 조건 주석, 그래프 안의 숫자, 제품 용기에 인쇄된 글자, 리뷰 · 별점 · 판매 순위 · "1위" 문구, 기획 · 증정 · 용량 구성 문구.
@@ -56,13 +59,13 @@
 ```json
 {"slots": [
   {"slot": 1, "template": "1A", "layout": "default", "mode": null, "why": "고른 이유 한 문장(한국어)",
-   "label": [], "headline": ["s1.b1"], "subheadline": ["s1.b2"], "body": ["s1.b3"],
+   "headline": ["s1.b1"], "subheadline": ["s1.b2"], "body": ["s1.b3"],
    "image": {"section": "s1", "box_2d": [350, 150, 950, 850], "fit": "contain", "cutout": true}, "mark": null, "items": []},
   {"slot": 2, "template": "2B", "layout": "default", "mode": null, "why": "…",
-   "label": [], "headline": [], "subheadline": [], "body": [],
+   "headline": [], "subheadline": [], "body": [],
    "image": {"section": "s4", "box_2d": [100, 0, 700, 1000], "fit": "cover", "cutout": false}, "mark": null,
    "items": [{"title": ["s6.b11"], "body": [], "image": null, "color": null}]},
   {"slot": 6, "template": null, "layout": "default", "mode": null, "why": "재료 없음",
-   "label": [], "headline": [], "subheadline": [], "body": [], "image": null, "mark": null, "items": []}
+   "headline": [], "subheadline": [], "body": [], "image": null, "mark": null, "items": []}
 ]}
 ```

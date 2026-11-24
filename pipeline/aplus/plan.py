@@ -5,8 +5,11 @@
   문구를 쓰지 않는다.
 - 코드는 고른 블록의 번역문을 **그대로** 이어 붙인다. 블록은 원래 순서(섹션 순서 → `block_order`)로 넣고, 다음 블록을 더하면 글자 수 한도를
   넘을 때 그 앞에서 멈춘다. 첫 블록이 이미 넘으면 그 블록 하나만 넣고 한도 초과로 남긴다(자르지 않는다 — 압축은 별도 과업).
-- `price` · `caution` 역할 블록은 슬롯 재료가 아니다(PM 결정 2026-11-24 — 가격 칸이 없고 가이드가 가격 · 할인 정보를 금지한다. `caution`은
-  12월 한정). 모델에게 보내지 않으며, 응답이 그 ID를 가리키면 보낸 적 없는 ID로 빠진다.
+- 블록 역할마다 들어갈 수 있는 칸이 정해져 있다(규격 데이터 `block_roles` — PM 확정 2026-11-24): `title` → `headline` · 항목 제목,
+  `body` → `body` · 항목 설명, `caption` → 1A · 3A의 `subheadline`, `price` · `caution` → 없음. 그 칸의 템플릿 어디에도 들어갈 수 없는
+  역할의 블록은 모델에게 보내지 않고(응답이 그 ID를 가리키면 보낸 적 없는 ID로 빠진다), 보낸 블록도 역할이 그 칸에 맞지 않으면 뺀다.
+- `label` 칸은 블록에서 가져오지 않는다. 고정 문구 템플릿(3A · 7A)은 규격 데이터의 값을 코드가 넣고, 1A(브랜드명)는 공급원이 정해질 때까지
+  비운다(#94).
 - 코드가 바로잡는 것(참고 변환기 `apply_rules`와 같은 취지): 그 칸 라벨의 섹션이 아닌 블록 · 이미 다른 곳에 쓴 블록 · 보낸 적 없는 ID는 빼고
   `dropped`에 남긴다. 4A · 4B 사진은 통째로(`contain`). 필수 큰 사진이 비면 다른 칸의 큰 사진을 다시 쓰고 확인 표시를 남긴다.
   누끼 여부(`cutout`)도 모델이 사진마다 판단한다(사용자 결정 2026-11-24, #98). 칸을 꽉 채우는 사진(`cover`)의 누끼 요청은 뺀다.
@@ -36,16 +39,20 @@ from pipeline.types import (AplusDropped, AplusImage, AplusItem, AplusModule, Ap
 from pipeline.vlm import GeminiMultiImageAssistant, LlmReply, MultiImageAssistant, VlmError, image_sha256, sha256_text
 
 TABLE = "aplus_plan"
-TEXT_FIELDS = ("label", "headline", "subheadline", "body")
+TEXT_FIELDS = ("headline", "subheadline", "body")  # 모델이 블록을 고르는 칸. label은 블록에서 오지 않는다
 ONE_SIDED = ("1A", "2A", "2B", "3A", "3B", "4A", "6B", "7A")  # 사진이 한쪽에 있는 템플릿(참고 변환기 zigzag.py)
 CONTAIN_ONLY = ("4A", "4B")  # 근거 그림은 일부를 확대하지 않고 통째로
 SEPARATOR = " "
-EXCLUDED_ROLES = ("price", "caution")  # 슬롯 재료에서 빼는 블록 역할(PM 결정 2026-11-24, open-questions.md #94)
+
+
+def usable_role(role: str, slot: int, spec: AplusSpec) -> bool:
+    """그 역할의 블록이 그 칸의 템플릿 어느 하나에서라도 들어갈 칸이 있는가(규격 데이터 `block_roles`)."""
+    return any(spec.role_fields(role, tid) for tid in spec.templates_for_slot(slot))
 
 
 @dataclass(frozen=True)
 class TranslatedBlock:
-    """1차 번역 블록. 제품 라벨 · 로고 · 공백 · 번역 실패 블록은 호출자가 넣지 않는다. `EXCLUDED_ROLES` 역할은 넣어도 재료에서 빠진다."""
+    """1차 번역 블록. 제품 라벨 · 로고 · 공백 · 번역 실패 블록은 호출자가 넣지 않는다. 그 칸에 들어갈 수 없는 역할은 넣어도 재료에서 빠진다."""
 
     block_key: str
     section_key: str
@@ -105,7 +112,7 @@ def build_payload(sections: list[Section], labels: list[AplusSectionLabel], bloc
         if slot is not None:
             entry["blocks"] = []
             for b in by_section.get(s.section_key, []):
-                if b.role in EXCLUDED_ROLES:
+                if not usable_role(b.role, slot, spec):
                     continue
                 bid = f"{sid_of[s.section_key]}.b{b.block_order}"
                 block_ids[bid] = b
@@ -118,6 +125,8 @@ def build_payload(sections: list[Section], labels: list[AplusSectionLabel], bloc
         "slots": [{"slot": n, "name": spec.raw["slots"][str(n)]["name_ko"], "templates": list(spec.templates_for_slot(n)),
                    "candidates": [sid_of[k] for k in cands[n]]} for n in SLOTS],
         "templates": templates,
+        "role_fields": {role: {"fields": r["fields"], "templates": r["templates"]} for role, r in spec.raw["block_roles"]["roles"].items()
+                        if r["fields"]},
         "sections": secs,
     }
     return payload, {v: k for k, v in sid_of.items()}, block_ids
@@ -222,7 +231,10 @@ class _Composer:
         reused = [b for b in picked if b not in outside and b.block_key in self.used]
         if reused:
             dropped.append(AplusDropped(field=field, block_keys=[b.block_key for b in reused], reason="already_used"))
-        rest = [b for b in picked if b not in outside and b not in reused]
+        wrong = [b for b in picked if b not in outside and b not in reused and limit_field not in self.spec.role_fields(b.role, tid)]
+        if wrong:
+            dropped.append(AplusDropped(field=field, block_keys=[b.block_key for b in wrong], reason="role"))
+        rest = [b for b in picked if b not in outside and b not in reused and b not in wrong]
         ordered = sorted(rest, key=lambda b: (self.order[b.section_key], b.block_order))
         if ordered != rest:
             flags.append(f"[규칙] {field}: 블록을 원래 순서로 다시 놓음")
@@ -302,6 +314,10 @@ class _Composer:
                 flags.append(f"[규칙] {tid}는 {f} 칸을 쓰지 않아 뺌")
                 continue
             kw[f] = self._text(n, tid, f, f, ids, items=count, layout=layout, mode=mode, dropped=dropped, flags=flags)
+        if raw.get("label"):
+            flags.append("[규칙] label 칸은 블록에서 가져오지 않아 뺌")
+        if "label" in req.allowed and t.get("label_source") == "fixed":
+            kw["label"] = AplusText(text=t["default_label"])  # 템플릿마다 정해진 문구 — 블록에서 오지 않아 출처 블록이 없다
         default_fit = "cover" if tid == "1B" else "contain"
         if "image" in req.allowed:
             kw["image"] = self._image(raw.get("image"), tid, "큰 사진", flags, default_fit=default_fit)
@@ -410,6 +426,9 @@ def run(sections: list[Section], labels: list[AplusSectionLabel], blocks: list[T
     bkeys = [b.block_key for b in blocks]
     if len(set(bkeys)) != len(bkeys) or any(b.section_key not in keys for b in blocks) or any(not b.text.strip() for b in blocks):
         raise ValueError("블록의 block_key가 겹치거나, 섹션이 없거나, 번역문이 비어 있다")
+    odd = sorted({b.role for b in blocks} - set(spec.raw["block_roles"]["roles"]))
+    if odd:
+        raise ValueError(f"규격 데이터에 없는 블록 역할: {odd}")
     pairs = [(b.section_key, b.block_order) for b in blocks]
     if len(set(pairs)) != len(pairs):
         raise ValueError("한 섹션 안에 같은 block_order가 두 번 있다")
@@ -425,10 +444,12 @@ def run(sections: list[Section], labels: list[AplusSectionLabel], blocks: list[T
         images.append((sid, img))
         image_meta[sid] = dict(meta, section_key=key, sha256=image_sha256(img))
     ptext = json.dumps(payload, ensure_ascii=False, indent=1)
+    slot_of = {x.section_key: spec.slot_of_label(x.label) for x in labels}
     rec: dict[str, Any] = {
         "stage": TABLE, "status": None, "sections": sid_to_key, "input_fingerprint": fp, "spec_version": spec.version, "spec_sha256": spec.sha256,
         "started_at": started.isoformat(timespec="seconds"), "payload": payload, "payload_sha256": sha256_text(ptext),
-        "excluded_role_block_keys": [b.block_key for b in blocks if b.role in EXCLUDED_ROLES],
+        "excluded_role_block_keys": [b.block_key for b in blocks if slot_of[b.section_key] is not None
+                                     and not usable_role(b.role, slot_of[b.section_key], spec)],
         "prompt_sha256": sha256_text(prompt), "images": image_meta, "long_side_px": long_side, "model_config": llm_config(cfg, TABLE),
         "response_text": None, "usage": None, "finish_reason": None, "call_duration_s": None, "validation": None, "error": None,
     }

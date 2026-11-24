@@ -1,7 +1,7 @@
 """A+ 7칸 구성 — 모델은 템플릿 · 블록 ID · 사진 자리만 고르고, 문구 · 순서 · 한도 · 재료 규칙은 코드가 강제한다(가짜 호출자, 실제 API 호출 없음).
 
 개발용 v1(open-questions.md 2.9절 · #94): 번역문은 그대로 이어 붙인다 · 원래 순서 · 한도 직전에서 중단 · 첫 블록이 넘으면 그 블록만 넣고 초과로 남김 ·
-칸 밖 블록 / 이미 쓴 블록 / 없는 ID는 빼고 기록 · 구조가 틀린 응답은 전체 실패.
+칸 밖 블록 / 이미 쓴 블록 / 없는 ID / 역할이 그 칸에 맞지 않는 블록은 빼고 기록 · label은 블록에서 받지 않음 · 구조가 틀린 응답은 전체 실패.
 """
 import json
 
@@ -32,7 +32,8 @@ def world(tmp_path):
         return plan.TranslatedBlock(f"k{sec}_{order}", f"sec_1_{sec:02d}", order, role, text)
 
     blocks = [B(1, 1, "Calming Sun\nCream", "title"), B(1, 2, "Daily mineral care"), B(1, 3, "x" * 100), B(1, 4, "y" * 30),
-              B(2, 1, "Why you'll love it", "title"), B(2, 2, "72-hour hydration"), B(2, 3, "Soothes redness"), B(2, 4, "Non-sticky finish"),
+              B(2, 1, "Why you'll love it", "title"), B(2, 2, "72-hour hydration", "title"), B(2, 3, "Soothes redness", "title"),
+              B(2, 4, "Non-sticky finish", "title"), B(2, 5, "Deep moisture all day"),
               B(3, 1, "No.1 best seller"), B(4, 1, "Our story", "title"), B(4, 2, "z" * 331)]
     return sections, labels, blocks
 
@@ -80,6 +81,9 @@ def test_payload_lists_blocks_only_for_slot_sections(world):
     assert "blocks" not in s3 and s3["photo_ok"] is False and s3["slot"] is None  # 7칸 밖 · 사진을 가져오지 않는 라벨
     assert s4["photo_ok"] is True and set(block_ids) >= {"s1.b1", "s2.b4", "s4.b2"} and "s3.b1" not in block_ids
     assert payload["templates"]["2A"]["char_limits"] == SPEC.template("2A")["char_limits"]
+    assert payload["role_fields"] == {"title": {"fields": ["headline", "items.title"], "templates": None},
+                                      "body": {"fields": ["body", "items.body"], "templates": None},
+                                      "caption": {"fields": ["subheadline"], "templates": ["1A", "3A"]}}
 
 
 def test_text_is_verbatim_in_original_order_and_stops_before_limit(world):
@@ -144,7 +148,7 @@ def test_template_layout_mode_and_unused_fields_are_corrected(world):
     assert any("layout 'cards'" in f for f in s2.flags) and any("mode 'before_after'" in f for f in s2.flags)
     assert any("subheadline 칸을 쓰지 않아" in f for f in s2.flags) and any("항목 body 칸을 쓰지 않아" in f for f in s2.flags)
     assert s2.errors == ["items 개수 1개 — 2A는 2~4개"]  # 다른 템플릿으로 바꾸거나 채워 넣지 않고 오류로 남긴다
-    single = run(world, answer(slot(2, "2A", layout="single", headline=["s2.b1"], body=["s2.b2"], image=IMG,
+    single = run(world, answer(slot(2, "2A", layout="single", headline=["s2.b1"], body=["s2.b5"], image=IMG,
                                     items=[{"title": ["s2.b3"], "body": []}])))
     assert single.slots[1].module.items == [] and single.slots[1].errors == [] and "k2_3" not in str(single.slots[1].module)
 
@@ -164,6 +168,36 @@ def test_images_boxes_fit_rules_and_donor_photo(world):
     assert s4.errors == ["필수 칸 없음: headline"]
     assert any("넓이가 0" in f for f in s7.flags)
     assert s7.module.image == s1.module.image and "[확인] 큰 사진이 없어 다른 칸의 큰 사진을 다시 씀" in s7.flags
+
+
+def test_block_role_decides_the_field_and_label_never_comes_from_blocks(world):
+    """역할 → 칸(규격 데이터 block_roles, PM 확정 2026-11-24): title → headline · 항목 제목, body → body · 항목 설명,
+    caption → 1A · 3A의 subheadline. 맞지 않으면 빼고 기록한다. label은 블록에서 받지 않고 고정 문구 템플릿은 코드가 채운다."""
+    sections, labels, blocks = world
+    extra = [plan.TranslatedBlock("k1_7", "sec_1_01", 7, "caption", "SPF 50+"), plan.TranslatedBlock("k2_7", "sec_1_02", 7, "caption", "With niacinamide")]
+    payload, _, block_ids = plan.build_payload(sections, labels, blocks + extra, SPEC)
+    assert "s1.b7" in block_ids and "s2.b7" not in block_ids  # 칸 2(2A · 2B)에는 caption이 들어갈 칸이 없어 보내지 않는다
+    recs = []
+    res = plan.run(sections, labels, blocks + extra, SPEC, cfgmod.load_config(), recorder=recs.append, llm=Fake(answer(
+        slot(1, "1A", label=["s1.b1"], headline=["s1.b2"], subheadline=["s1.b7", "s1.b4"], body=["s1.b1", "s1.b3"], image=IMG),
+        slot(2, "2A", headline=["s2.b1"], image=IMG, items=[{"title": ["s2.b2"], "body": []}, {"title": ["s2.b5"], "body": []},
+                                                            {"title": ["s2.b3"], "body": []}]),
+        slot(7, "7A", headline=["s4.b1"], body=["s4.b2"], image=IMG))))
+    s1, s2, s7 = res.slots[0], res.slots[1], res.slots[6]
+    assert s1.module.headline is None and s1.module.label is None and s1.errors == ["필수 칸 없음: headline"]  # 채워 넣지 않고 오류로 남긴다
+    assert s1.module.subheadline.text == "SPF 50+" and s1.module.body.origin_block_keys == ["k1_3"]
+    assert {(d.field, tuple(d.block_keys), d.reason) for d in s1.dropped} == {
+        ("headline", ("k1_2",), "role"), ("subheadline", ("k1_4",), "role"), ("body", ("k1_1",), "role")}
+    assert "[규칙] label 칸은 블록에서 가져오지 않아 뺌" in s1.flags
+    assert [it.title.text for it in s2.module.items] == ["72-hour hydration", "Soothes redness"]
+    assert [(d.field, d.block_keys, d.reason) for d in s2.dropped] == [("items[1].title", ["k2_5"], "role")]
+    assert s7.module.label.text == "OUR STORY" and s7.module.label.origin_block_keys == [] and s7.errors == []
+    assert recs[0]["excluded_role_block_keys"] == ["k2_7"]
+    odd = blocks + [plan.TranslatedBlock("k1_9", "sec_1_01", 9, "heading", "x")]
+    with pytest.raises(ValueError, match="없는 블록 역할"):
+        plan.run(sections, labels, odd, SPEC, cfgmod.load_config(), llm=Fake(answer()))
+    caption_in_1b = run((sections, labels, blocks + extra), answer(slot(1, "1B", headline=["s1.b1"], body=["s1.b7"], image=dict(IMG, fit="cover"))))
+    assert caption_in_1b.slots[0].module.body is None and caption_in_1b.slots[0].dropped[0].reason == "role"  # caption은 1A · 3A에만
 
 
 def test_cutout_request_is_kept_for_contain_and_dropped_for_cover(world):

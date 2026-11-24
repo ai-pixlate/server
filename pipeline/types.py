@@ -1262,11 +1262,12 @@ class AplusLabelResult(_Model):
 
 class AplusDropped(_Model):
     """모델이 고른 블록 가운데 코드가 넣지 않은 것과 그 이유(검수용). `reason`: `limit` 한도 직전에서 중단 ·
-    `not_candidate` 그 칸 라벨의 섹션이 아님 · `already_used` 다른 칸에서 이미 씀 · `unknown` 보낸 적 없는 블록 ID."""
+    `not_candidate` 그 칸 라벨의 섹션이 아님 · `already_used` 다른 칸에서 이미 씀 · `unknown` 보낸 적 없는 블록 ID ·
+    `role` 블록 역할이 그 칸에 들어갈 수 없음(규격 데이터 `block_roles`)."""
 
     field: str
     block_keys: list[str]
-    reason: Literal["limit", "not_candidate", "already_used", "unknown"]
+    reason: Literal["limit", "not_candidate", "already_used", "unknown", "role"]
 
 
 class AplusSlotPlan(_Model):

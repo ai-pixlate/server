@@ -18,6 +18,9 @@
 from __future__ import annotations
 
 import logging
+import threading
+from collections import OrderedDict
+from dataclasses import dataclass
 from typing import Any
 
 from sqlalchemy import text
@@ -31,6 +34,110 @@ log = logging.getLogger(__name__)
 
 # 고정 요청 객체 안 내부 기록 형식(DB 스키마 · 공개 API 아님). @2(11-10 AI A3 조건부 수용): 후보 내용 · 블록 순서 · 실패 단계 · 번역 선별 성격
 SUPPLY_RECORD_FORMAT = "text-check-supply-record@2"
+
+# ── 후보 재사용(성능 — 11-19 dev GET /blocks 500: 섹션마다 용어집 2만여 행을 다시 읽고 Prepared 를 두 번 새로 만들어
+#    섹션 8개 작업 /blocks 1회 ≈ 5초, 동시 요청이 DB 연결 풀을 고갈시켰다).
+#  - 키 = (대상 언어, 분류 집합, 후보 내용 지문). 지문은 후보 조회와 같은 조건 · 같은 열 · 같은 순서의 DB 해시라서 내용이 하나라도 바뀌면 키가 바뀐다.
+#  - 지문은 변경 감지용 내용 해시다(보안 인증 · 위조 방지 용도가 아니다). md5 는 「내용이 바뀌었나」만 본다.
+#  - 놓치면(miss) 지금과 똑같은 조건 · 순서로 행을 읽어 그 행으로 계산한다. 행과 그 행의 지문은 한 SQL 문장(같은 스냅숏)으로 함께 읽어
+#    그 지문으로 저장한다 — 읽는 사이 용어집이 바뀌어도 저장된 행과 키가 어긋나지 않는다.
+#  - 선별 · 판정 · 오류 문구는 바뀌지 않는다 — 같은 행으로 만든 같은 Prepared 를 다시 쓸 뿐이다(Prepared 는 만든 뒤 읽기만 한다).
+#  - 프로세스 안 메모리만 쓴다(DB · 공개 계약 무변경). 크기는 작게 둔다(항목 하나 ≈ 행 2만여 개 + Prepared 2개).
+_CANDIDATE_CACHE_SIZE = 3
+_cache: "OrderedDict[tuple[str, tuple[str, ...], str], _Candidates]" = OrderedDict()
+_cache_lock = threading.Lock()
+
+
+@dataclass
+class _Candidates:
+    rows: list[dict[str, Any]]
+    derived: "_Derived | None" = None
+
+
+@dataclass(frozen=True)
+class _Derived:
+    """후보 행에서 계산이 정해지는 값 — Entry 목록 · 기록용 행 · Prepared(전체 · 강제). Prepared 를 만들 수 없으면 그 오류 문구."""
+
+    entries: list[Any]
+    by_id: dict[str, Any]
+    record_rows: list[dict[str, Any]]
+    rows_by_id: dict[str, dict[str, Any]]
+    full: Any  # gl.Prepared | str(GlossaryDataError 문구)
+    enforced: Any  # gl.Prepared | str
+
+
+# 후보 조회 조건 · 열(번역 공급과 같은 조회 조건 + term_kind). 지문은 이 열 전부를 id 순서로 해시한다 — 결과에 쓰이는 값은 이 열뿐이다.
+_CAND_COLS = ("id", "term_ko", "term_target", "enforcement", "internal_category", "version", "term_kind")
+_CAND_WHERE = "target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL"
+_FP_EXPR = (f"count(*) || ':' || md5(coalesce(string_agg(json_build_array({', '.join(_CAND_COLS)})::text, ',' ORDER BY id), ''))")
+
+
+def _candidate_fingerprint(db: Session, lang: str, cats: list[str]) -> str:
+    """후보 조회와 같은 조건 · 같은 열 · 같은 순서의 내용 지문. 행 자체는 가져오지 않는다."""
+    return db.execute(text(f"SELECT {_FP_EXPR} FROM glossary WHERE {_CAND_WHERE}"), {"l": lang, "c": cats}).scalar_one()
+
+
+def _read_candidates(db: Session, lang: str, cats: list[str]) -> tuple[list[dict[str, Any]], str]:
+    """후보 행(id 순)과 바로 그 행의 지문을 한 문장으로 읽는다(같은 스냅숏). 후보 0건이면 지문 1행만 온다."""
+    got = db.execute(
+        text(f"WITH c AS MATERIALIZED (SELECT {', '.join(_CAND_COLS)} FROM glossary WHERE {_CAND_WHERE}) "
+             f"SELECT f.fp AS candidate_fp, c.* FROM (SELECT {_FP_EXPR} AS fp FROM c) f LEFT JOIN c ON true ORDER BY c.id"),
+        {"l": lang, "c": cats},
+    ).mappings().all()
+    return [{k: r[k] for k in _CAND_COLS} for r in got if r["id"] is not None], got[0]["candidate_fp"]
+
+
+def _derive(rows: list[dict[str, Any]]) -> _Derived:
+    from pipeline import glossary as gl
+
+    entries = [gl.Entry(str(r["id"]), r["term_ko"], r["term_target"], r["enforcement"], r["term_kind"]) for r in rows]
+
+    def prep(es: list[Any]) -> Any:
+        try:
+            return gl.Prepared(es)
+        except gl.GlossaryDataError as e:
+            return str(e)
+
+    return _Derived(
+        entries=entries,
+        by_id={e.glossary_id: e for e in entries},
+        record_rows=[{"glossary_id": str(r["id"]), "term_ko": r["term_ko"], "term_target": r["term_target"],
+                      "enforcement": r["enforcement"], "term_kind": r["term_kind"], "internal_category": r["internal_category"],
+                      "version": r["version"]} for r in rows],
+        rows_by_id={str(r["id"]): r for r in rows},
+        full=prep(entries),
+        enforced=prep([e for e in entries if e.enforcement == "enforced"]),
+    )
+
+
+def _derived(rows: list[dict[str, Any]]) -> _Derived:
+    """rows 가 캐시에 든 바로 그 목록이면 계산값을 재사용한다. 아니면(시험 대역 등) 매번 새로 계산한다."""
+    with _cache_lock:
+        owner = next((c for c in _cache.values() if c.rows is rows), None)
+        if owner is not None and owner.derived is not None:
+            return owner.derived
+    d = _derive(rows)
+    if owner is not None:
+        with _cache_lock:
+            if owner.derived is None:
+                owner.derived = d
+            d = owner.derived
+    return d
+
+
+def _ready(p: Any) -> Any:
+    """저장해 둔 Prepared 생성 실패를 원래와 같은 예외 · 문구로 다시 낸다."""
+    from pipeline import glossary as gl
+
+    if isinstance(p, str):
+        raise gl.GlossaryDataError(p)
+    return p
+
+
+def clear_candidate_cache() -> None:
+    """시험 · 운영 확인용 — 프로세스 안 후보 재사용을 비운다."""
+    with _cache_lock:
+        _cache.clear()
 
 
 class AiInputKeys:
@@ -65,12 +172,23 @@ class GlossarySelectionSupply:
     name = "m3:select_by_block@current-glossary"
 
     def candidate_rows(self, db: Session, lang: str, cats: list[str]) -> list[dict[str, Any]]:
-        """후보 행(번역 공급과 같은 조회 조건 + term_kind). DB 오류는 그대로 올린다."""
-        return [dict(r) for r in db.execute(
-            text("SELECT id, term_ko, term_target, enforcement, internal_category, version, term_kind FROM glossary "
-                 "WHERE target_lang = :l AND internal_category = ANY(:c) AND retired_at IS NULL ORDER BY id"),
-            {"l": lang, "c": cats},
-        ).mappings().all()]
+        """후보 행(번역 공급과 같은 조회 조건 + term_kind). DB 오류는 그대로 올린다.
+        내용 지문이 같은 후보를 이미 읽었으면 그 목록을 그대로 돌려준다(공유 목록 — 이 모듈 안에서 읽기만 한다. 밖으로 나가는 기록은 복사본)."""
+        cat_key = tuple(sorted(set(cats)))  # ANY(:c) — 순서 · 중복은 조회 결과에 영향이 없다
+        now_fp = _candidate_fingerprint(db, lang, cats)
+        with _cache_lock:
+            hit = _cache.get((lang, cat_key, now_fp))
+            if hit is not None:
+                _cache.move_to_end((lang, cat_key, now_fp))
+                return hit.rows
+        rows, read_fp = _read_candidates(db, lang, cats)  # 놓침 — 행과 그 행의 지문(같은 스냅숏)
+        key = (lang, cat_key, read_fp)
+        with _cache_lock:
+            _cache[key] = _Candidates(rows)
+            _cache.move_to_end(key)
+            while len(_cache) > _CANDIDATE_CACHE_SIZE:
+                _cache.popitem(last=False)
+        return rows
 
     def glossary(self, db: Session, run: dict[str, Any], section_id: int, targets: list[dict[str, Any]], *, origin: str
                  ) -> dict[str, Any]:
@@ -83,8 +201,8 @@ class GlossarySelectionSupply:
         cats = downstream._glossary_categories(db, section_id)
         rows = self.candidate_rows(db, lang, cats)
         blocks = [(block_key(t["id"]), t["source_ko"] or "") for t in targets]  # 그 섹션 검사 대상 전부
-        entries = [gl.Entry(str(r["id"]), r["term_ko"], r["term_target"], r["enforcement"], r["term_kind"]) for r in rows]
-        by_id = {e.glossary_id: e for e in entries}
+        d = _derived(rows)  # Entry · 기록용 행 · Prepared — 같은 후보면 재사용(결과 · 오류 문구 동일)
+        by_id = d.by_id
         # 기록은 후보 조회가 성공한 뒤에만 만든다 — DB 조회 실패는 위에서 예외로 올라가 기록 · 공급이 없다(빈 공급 성공으로 바꾸지 않음).
         # 그래서 candidates.rows == [] 는 「정상 조회 결과 0건」만 뜻한다.
         record: dict[str, Any] = {
@@ -94,9 +212,7 @@ class GlossarySelectionSupply:
                 "target_lang": lang, "categories": cats, "excludes_retired": True,
                 # 실제 선별 함수에 넘긴 후보 입력값(Entry 필드 그대로, 조회 순서 = 선별 입력 순서) + 행 분류 · 버전.
                 # 선별 전 실패(Prepared 데이터 검증)도 이 값으로 재현한다. 검사 선별 입력 = 이 중 enforcement == "enforced"
-                "rows": [{"glossary_id": str(r["id"]), "term_ko": r["term_ko"], "term_target": r["term_target"],
-                          "enforcement": r["enforcement"], "term_kind": r["term_kind"], "internal_category": r["internal_category"],
-                          "version": r["version"]} for r in rows],
+                "rows": [dict(r) for r in d.record_rows],  # 요청마다 새 객체(캐시와 공유하지 않는다)
                 # 선별 입력 블록 순서. 원문은 같은 고정 요청 객체의 request.blocks(source_ko)에 있다
                 "block_keys": [k for k, _ in blocks],
             },
@@ -106,7 +222,7 @@ class GlossarySelectionSupply:
         }
         # (1) 전체 번역 후보 선별 — 기록 전용. 실패해도 (2)를 막지 않는다
         try:
-            full = gl.select_by_block(blocks, entries)
+            full = gl.select_by_block(blocks, _ready(d.full))
             record["translation_selection"] = _selection_dict(full)
             excluded = sorted({x.reference_id for x in full.exclusions})
             record["excluded_entries"] = [{"glossary_id": i, "term_ko": by_id[i].term_ko, "term_target": by_id[i].term_target,
@@ -119,10 +235,9 @@ class GlossarySelectionSupply:
         #     블록마다 같은 후보로 선별해 실패한 블록만 블록 국소 오류로 둔다(11-11 AI 회신 — 후보를 지우거나 블록마다 다른 후보 집합을 만들지 않는다).
         #     공급 용어 = 정상 블록 선별 결과 ∪ 국소 오류 블록 원문에 걸리는 후보(AI block_hits) — 그 블록의 키에만 충돌이 들어가고 정상 블록의
         #     키 · 검사는 바뀌지 않는다. 국소 오류 블록은 요청 대상에서 빠진다(register — 규칙 검사에 한한 대상 예외)
-        enforced = [e for e in entries if e.enforcement == "enforced"]
         selection_input = {"rules": gl.SELECT_RULES_VERSION, "target_lang": lang, "categories": cats, "kind": "text_check:enforced"}
         try:
-            prep = gl.Prepared(enforced)
+            prep = _ready(d.enforced)
         except gl.GlossaryDataError as e:
             record["check_selection"] = {"error": str(e), "rules_version": gl.SELECT_RULES_VERSION}
             record["failures"].append({"stage": "check_selection", "reason": str(e)})
@@ -140,7 +255,7 @@ class GlossarySelectionSupply:
             reason = f"검사 용어 합집합 충돌(블록별 공급 필요) {[list(c) for c in chk.union_conflicts]}"
             record["failures"].append({"stage": "check_union", "reason": reason})
             return {"status": "failed", "version": None, "reason": reason, "terms": [], "supply_record": record}
-        rows_by_id = {str(r["id"]): r for r in rows}
+        rows_by_id = d.rows_by_id
         hit = {h.glossary_id for k, s in blocks if k in local for h in gl.block_hits(k, s, prep)}
         chosen = {e.glossary_id for e in chk.entries} | hit
         terms = [{"glossary_id": e.glossary_id, "term_ko": e.term_ko, "term_target": e.term_target, "enforcement": "enforced"}

@@ -16,7 +16,7 @@ from app import layout_adjust as layout
 from app import render, s3
 from app.db import get_db
 from app.flows import preview_view, text_check
-from app.flows.common import VISIBLE, json_value
+from app.flows.common import VISIBLE, has_source, json_value
 from app.security import get_current_seller
 
 router = APIRouter(tags=["Review"])
@@ -61,8 +61,11 @@ def _block_dict(r, signals: dict, fps: dict, checks: dict | None = None) -> dict
     }
 
 
-def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block_id: Optional[int] = None) -> list[dict]:
-    """계약 TextBlock 목록(현재 보이는 섹션의 블록). CFM-01 목록과 CFM-02 응답·충돌 정보가 같은 모양을 쓴다."""
+def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block_id: Optional[int] = None,
+            skip_empty_source: bool = False) -> list[dict]:
+    """계약 TextBlock 목록(현재 보이는 섹션의 블록). CFM-01 목록과 CFM-02 응답·충돌 정보가 같은 모양을 쓴다.
+    skip_empty_source=True(CFM-01 목록만): 빈 원문 블록을 응답에서 뺀다(blockList). DB 행은 그대로 둔다 — 인페인팅 보호 영역으로 쓴다.
+    CFM-02 응답·충돌 정보는 빼지 않는다(빈 원문 블록을 id 로 PATCH 해도 지금과 같은 응답)."""
     from app.flows.final import block_signals
 
     sql = (
@@ -83,6 +86,9 @@ def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block
     sql += " ORDER BY tb.section_id, tb.block_order, tb.id"
 
     rows = db.execute(text(sql), params).mappings().all()
+    if skip_empty_source:
+        # 지문은 섹션 단위 계산이라 남은 블록의 sectionInputFingerprint 는 그대로다. 빈 원문 블록만 있는 섹션은 행이 없다
+        rows = [r for r in rows if has_source(r["source_ko"])]
     signals = block_signals(db, job_id)
     sids = sorted({r["section_id"] for r in rows})
     secs = [dict(x) for x in db.execute(text("SELECT id, bucket FROM section WHERE id = ANY(:s)"), {"s": sids}).mappings().all()]
@@ -96,7 +102,7 @@ def _blocks(db: Session, job_id: int, *, section_id: Optional[int] = None, block
 def list_blocks(job_id: int, sectionId: Optional[int] = Query(default=None), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     preview_view.read_snapshot(db)  # 블록 값과 sectionInputFingerprint 를 한 조회 시점으로
     _require_job_owned(db, job_id, seller_id)
-    return _blocks(db, job_id, section_id=sectionId)
+    return _blocks(db, job_id, section_id=sectionId, skip_empty_source=True)
 
 
 # ── CFM-02: 셀 수정 (DB · 낙관적 잠금 · 저장 공통) ─────────────────

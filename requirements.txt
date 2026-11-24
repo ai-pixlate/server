@@ -12,3 +12,4 @@ httpx
 openpyxl
 google-auth
 cryptography
+playwright

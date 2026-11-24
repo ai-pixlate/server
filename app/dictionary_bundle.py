@@ -9,6 +9,8 @@
 - 규제 조회 실패(질의 오류·해당 행 없음·필수값 누락)는 BundleError — N2 실패(자동 재시도 → 오류)다(D9-1).
 - 현지 조회 실패는 묶음의 local.status='unavailable' 로 남기고 분석은 계속한다(제외 없이 검사 불가 안내, D9-1).
 - 이번 범위 밖 판정값(cultural, D9-2)은 공급하지 않고 skipped 로 기록한다.
+- 현지 v9 판정값(must_fix · needs_check)은 의미 대응(contract.md 4.2)으로 서비스 판정값(irrelevant · needs_fix)으로 바꿔 공급한다
+  (LOCAL_V9_SERVICE — 2차 유지, 이름 이관은 3차). DB 행은 바꾸지 않으며 묶음의 pk 로 원래 행을 찾을 수 있다.
 - ③-1′ 정책 규칙은 DB에 없다. 저장소 운영 규칙(pipeline/data/policy_rules.json, AI 소유)을 묶음 생성 시 그대로 고정한다.
   환경변수 PIXLATE_POLICY_RULES 는 실험용 대체 경로다. BE는 규칙 내용을 만들지 않는다. 규칙 지문(policy_rules_sha256)도 보존한다.
   규제 행 조회 분류는 규칙의 applied_classes(common 포함)를 따르고, common 을 뺀 분류가 D8 대응과 같아야 한다.
@@ -36,6 +38,10 @@ APPLIED_CLASSES = {"cosmetic": ["cosmetic"], "otc": ["otc"], "combination": ["ot
 CLASS_NOTICE = {"combination": "combination_otc_basis", "unknown": "unverified_class"}
 REGULATORY_VERDICTS = ("regulated", "conditional", "allowed")
 LOCAL_VERDICTS = ("irrelevant", "needs_fix")  # cultural 은 이번 범위 제외(D9-2)
+# 현지 사전 v9 판정값 → 서비스 판정값(옛 이름). 의미 대응은 docs/ai/contract.md 4.2(irrelevant ↔ must_fix, needs_fix ↔ needs_check).
+# 사용자 결정(2026-11-19): 2차(release/1.1.0)는 이 대응으로 v9 사전을 공급해 현지 판정을 유지하고, 판정값 이름 이관
+# (AI 인계 형식 · DB 판정 · 공개 API enum · FE 표시)은 3차. DB 사전 행은 v9 원값 그대로 둔다(0014 — 저장값을 바꾸지 않음).
+LOCAL_V9_SERVICE = {"must_fix": "irrelevant", "needs_check": "needs_fix"}
 LOCAL_CLASS = "common"
 COMMON_CLASS = "common"  # 규제 행 중 모든 분류에 공통 적용되는 행(적재 분류값)
 POLICY_RULES_ENV = "PIXLATE_POLICY_RULES"
@@ -197,30 +203,7 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
     if bad:
         raise BundleError(f"규제 사전 필수값 누락으로 공급할 수 없다: {bad}", retryable=False, code="REGULATORY_DICT_INVALID")
 
-    local: dict[str, Any]
-    if local_rows is None:
-        local = {"status": "unavailable", "error": local_error, "entries": [], "skipped": []}
-    else:
-        entries = [_entry(r, ev_by.get(r["id"], [])) for r in local_rows]
-        skipped = [e["external_id"] for e in entries if e["verdict_status"] not in LOCAL_VERDICTS]
-        entries = [e for e in entries if e["verdict_status"] in LOCAL_VERDICTS]
-        lbad = {e["external_id"]: _problems_local(e) for e in entries}
-        lbad = {k: v for k, v in lbad.items() if v}
-        from pipeline.handoff.bundle import load_type_map
-
-        want = {t.external_id for t in load_type_map().local}
-        got = {e["external_id"] for e in entries}
-        if entries and got != want:
-            # AI 판정은 지원 대응표의 8항목을 정확히 요구한다(D9-2). 다르면 현지 사전을 공급할 수 없는 것으로 보고 제외 없이 검사 불가(D9-1)
-            lbad["__type_map__"] = [f"현지 사전 항목 {sorted(got)} ≠ 지원 대응표 {sorted(want)}"]
-        if not entries:
-            local = {"status": "unavailable", "error": "현지 사전 행 없음", "entries": [], "skipped": skipped}
-        elif lbad:
-            tm = lbad.pop("__type_map__", None)
-            msgs = ([f"현지 사전 필수값 누락: {sorted(lbad)}"] if lbad else []) + (tm or [])
-            local = {"status": "unavailable", "error": "; ".join(msgs), "entries": [], "skipped": skipped}
-        else:
-            local = {"status": "ok", "error": None, "entries": entries, "skipped": skipped}
+    local = _local_part(local_rows, ev_by, local_error)
 
     bundle = {
         "bundle_schema": BUNDLE_SCHEMA,
@@ -235,6 +218,38 @@ def build_bundle(target_country: str, regulatory_class: str) -> dict[str, Any]:
     }
     bundle["sha256"] = fingerprint(bundle)
     return bundle
+
+
+def _service_local(e: dict[str, Any]) -> dict[str, Any]:
+    """현지 v9 판정값을 서비스 판정값(옛 이름)으로 — LOCAL_V9_SERVICE. 그 밖의 값은 그대로(옛 값은 그대로 공급, cultural 등은 아래에서 건너뜀)."""
+    v = LOCAL_V9_SERVICE.get(e["verdict_status"])
+    return {**e, "verdict_status": v} if v else e
+
+
+def _local_part(local_rows: list[dict[str, Any]] | None, ev_by: dict[int, list[dict[str, Any]]],
+                local_error: str | None) -> dict[str, Any]:
+    """현지 묶음. 공급 불가(조회 실패 · 행 없음 · 필수값 · 대응표 불일치)면 status='unavailable' 과 사유(D9-1)."""
+    if local_rows is None:
+        return {"status": "unavailable", "error": local_error, "entries": [], "skipped": []}
+    entries = [_service_local(_entry(r, ev_by.get(r["id"], []))) for r in local_rows]
+    skipped = [e["external_id"] for e in entries if e["verdict_status"] not in LOCAL_VERDICTS]
+    entries = [e for e in entries if e["verdict_status"] in LOCAL_VERDICTS]
+    lbad = {e["external_id"]: _problems_local(e) for e in entries}
+    lbad = {k: v for k, v in lbad.items() if v}
+    from pipeline.handoff.bundle import load_type_map
+
+    want = {t.external_id for t in load_type_map().local}
+    got = {e["external_id"] for e in entries}
+    if entries and got != want:
+        # AI 판정은 지원 대응표의 8항목을 정확히 요구한다(D9-2). 다르면 현지 사전을 공급할 수 없는 것으로 보고 제외 없이 검사 불가(D9-1)
+        lbad["__type_map__"] = [f"현지 사전 항목 {sorted(got)} ≠ 지원 대응표 {sorted(want)}"]
+    if not entries:
+        return {"status": "unavailable", "error": "현지 사전 행 없음", "entries": [], "skipped": skipped}
+    if lbad:
+        tm = lbad.pop("__type_map__", None)
+        msgs = ([f"현지 사전 필수값 누락: {sorted(lbad)}"] if lbad else []) + (tm or [])
+        return {"status": "unavailable", "error": "; ".join(msgs), "entries": [], "skipped": skipped}
+    return {"status": "ok", "error": None, "entries": entries, "skipped": skipped}
 
 
 def entries_by_ref(bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:

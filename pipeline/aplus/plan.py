@@ -6,8 +6,9 @@
 - 코드는 고른 블록의 번역문을 **그대로** 이어 붙인다. 블록은 원래 순서(섹션 순서 → `block_order`)로 넣고, 다음 블록을 더하면 글자 수 한도를
   넘을 때 그 앞에서 멈춘다. 첫 블록이 이미 넘으면 그 블록 하나만 넣고 한도 초과로 남긴다(자르지 않는다 — 압축은 별도 과업).
 - 블록 역할마다 들어갈 수 있는 칸이 정해져 있다(규격 데이터 `block_roles` — PM 확정 2026-11-24): `title` → `headline` · 항목 제목,
-  `body` → `body` · 항목 설명, `caption` → 1A · 3A의 `subheadline`과 사진 있는 항목형(4B · 5B · 6A · 3B · 7B · 5A)의 항목 칸 —
-  그 항목에 `title` 블록이 없으면 항목 제목, 있으면 항목 설명(데이터 담당 답변 2026-11-24). `price` · `caution` → 없음. 그 칸의 템플릿 어디에도 들어갈 수 없는
+  `body` → `body` · 항목 설명, `caption` → 1A · 3A의 `subheadline`과 사진 있는 항목형(4B · 5B · 6A · 3B · 7B · 5A) · 효능 칸 2A의 항목 칸 —
+  항목의 빈 자리만 채운다: 그 항목에 `title` 블록이 없으면 항목 제목, `title` 블록은 있고 `body` 블록이 없으면 항목 설명, 둘 다 있으면
+  넣지 않는다(데이터 담당 답변 2026-11-24). `caption`이 효능 문구인지 각주인지는 역할로 구분되지 않아 모델이 고른다. `price` · `caution` → 없음. 그 칸의 템플릿 어디에도 들어갈 수 없는
   역할의 블록은 모델에게 보내지 않고(응답이 그 ID를 가리키면 보낸 적 없는 ID로 빠진다), 보낸 블록도 역할이 그 칸에 맞지 않으면 뺀다.
 - `label` 칸은 블록에서 가져오지 않는다. 고정 문구 템플릿(3A · 7A)은 규격 데이터의 값을 코드가 넣고, 1A(브랜드명)는 공급원이 정해질 때까지
   비운다(#94).
@@ -220,23 +221,26 @@ class _Composer:
         self.sid_to_key = sid_to_key
         self.used: dict[str, str] = {}  # block_key → "칸 n field"
 
-    def _fits(self, b: TranslatedBlock, tid: str, limit_field: str, item_has_title: bool | None) -> bool:
-        """그 블록의 역할이 그 칸에 들어갈 수 있는가. 항목 조건이 있는 역할(caption)은 그 항목에 title 블록이 없을 때만 항목 제목,
-        있을 때만 항목 설명에 들어간다."""
+    def _fits(self, b: TranslatedBlock, tid: str, limit_field: str, item_has: tuple[bool, bool] | None) -> bool:
+        """그 블록의 역할이 그 칸에 들어갈 수 있는가. 항목 조건이 있는 역할(caption)은 항목의 빈 자리만 채운다 — 그 항목에 title 블록이
+        없으면 항목 제목, title 블록은 있고 body 블록이 없으면 항목 설명, 둘 다 있으면 들어가지 않는다. `item_has` = (title 블록 있음, body 블록 있음)."""
         if limit_field not in self.spec.role_fields(b.role, tid):
             return False
-        if item_has_title is not None and self.spec.item_rule(b.role) == ITEM_RULE:
-            return limit_field == ("items.body" if item_has_title else "items.title")
+        if item_has is not None and self.spec.item_rule(b.role) == ITEM_RULE:
+            has_title, has_body = item_has
+            if not has_title:
+                return limit_field == "items.title"
+            return limit_field == "items.body" and not has_body
         return True
 
-    def _item_has_title(self, n: int, tid: str, ids: list[str]) -> bool:
-        """그 항목의 제목에 (항목 조건이 없는) title 역할 블록이 실제로 들어갈 수 있는가."""
-        return any(self.spec.item_rule(b.role) is None and "items.title" in self.spec.role_fields(b.role, tid)
+    def _item_has(self, n: int, tid: str, limit_field: str, ids: list[str]) -> bool:
+        """그 항목의 그 칸(항목 제목 · 항목 설명)에 (항목 조건이 없는) 역할의 블록이 실제로 들어갈 수 있는가."""
+        return any(self.spec.item_rule(b.role) is None and limit_field in self.spec.role_fields(b.role, tid)
                    and b.section_key in self.cands[n] and b.block_key not in self.used
                    for b in (self.block_ids[x] for x in ids if x in self.block_ids))
 
     def _text(self, n: int, tid: str, field: str, limit_field: str, ids: list[str], *, items: int, layout: str, mode: str | None,
-              dropped: list[AplusDropped], flags: list[str], item_has_title: bool | None = None) -> AplusText | None:
+              dropped: list[AplusDropped], flags: list[str], item_has: tuple[bool, bool] | None = None) -> AplusText | None:
         unknown = [x for x in ids if x not in self.block_ids]
         if unknown:
             dropped.append(AplusDropped(field=field, block_keys=unknown, reason="unknown"))
@@ -247,7 +251,7 @@ class _Composer:
         reused = [b for b in picked if b not in outside and b.block_key in self.used]
         if reused:
             dropped.append(AplusDropped(field=field, block_keys=[b.block_key for b in reused], reason="already_used"))
-        wrong = [b for b in picked if b not in outside and b not in reused and not self._fits(b, tid, limit_field, item_has_title)]
+        wrong = [b for b in picked if b not in outside and b not in reused and not self._fits(b, tid, limit_field, item_has)]
         if wrong:
             dropped.append(AplusDropped(field=field, block_keys=[b.block_key for b in wrong], reason="role"))
         rest = [b for b in picked if b not in outside and b not in reused and b not in wrong]
@@ -340,11 +344,11 @@ class _Composer:
         for j, it in enumerate(raw_items):
             fields = req.items.fields if req.items else ()
             ikw: dict[str, Any] = {}
-            has_title = self._item_has_title(n, tid, it.get("title") or [])
+            item_has = (self._item_has(n, tid, "items.title", it.get("title") or []), self._item_has(n, tid, "items.body", it.get("body") or []))
             for f in ("title", "body"):
                 if it.get(f) and f in fields:
                     ikw[f] = self._text(n, tid, f"items[{j}].{f}", f"items.{f}", it[f], items=count, layout=layout, mode=mode,
-                                        dropped=dropped, flags=flags, item_has_title=has_title)
+                                        dropped=dropped, flags=flags, item_has=item_has)
                 elif it.get(f):
                     flags.append(f"[규칙] {tid}는 항목 {f} 칸을 쓰지 않아 뺌")
             if "image" in fields:

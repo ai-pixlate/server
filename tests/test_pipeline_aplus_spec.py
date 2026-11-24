@@ -48,7 +48,7 @@ def minimal(tid: str, n: int = 3) -> AplusModule:
 def test_spec_shape_and_source():
     raw = SPEC.raw
     src = raw["source"]
-    assert SPEC.version == "aplus-spec@2026-11-24.2"
+    assert SPEC.version == "aplus-spec@2026-11-24.3"
     assert raw["canvas"] == {"width": 970, "height": 300}
     assert len(SPEC.template_ids) == 14 and len(raw["labels"]) == 19
     assert sum(len(t["regions"]) for t in raw["templates"].values()) == 67
@@ -112,14 +112,14 @@ def test_guide_limits_come_from_module_spec_rows():
 
 def test_block_roles_and_label_sources():
     """블록 역할 → 칸(설명 문서 6장, PM 확정 2026-11-24). caption의 항목 연결은 데이터 담당 답변(2026-11-24):
-    사진 있는 항목형 4B · 5B · 6A · 3B · 7B · 5A에만, 2A · 2B · 6B에는 넣지 않는다."""
+    사진 있는 항목형 4B · 5B · 6A · 3B · 7B · 5A와 효능 칸 2A의 항목에 빈 자리만 채운다. 2B · 6B에는 넣지 않는다."""
     assert set(SPEC.raw["block_roles"]["roles"]) == {"title", "body", "caption", "price", "caution"}
     assert SPEC.role_fields("title", "1A") == ("headline", "items.title") and SPEC.role_fields("body", "5B") == ("body", "items.body")
     assert SPEC.role_fields("caption", "1A") == SPEC.role_fields("caption", "3A") == ("subheadline",)
     assert all(SPEC.role_fields("caption", t) == ("items.title", "items.body") for t in ("5B", "6A", "3B", "7B"))
-    assert SPEC.role_fields("caption", "4B") == SPEC.role_fields("caption", "5A") == ("items.title",)
-    assert all(SPEC.role_fields("caption", t) == () for t in ("2A", "2B", "6B", "1B", "4A", "7A"))
-    assert SPEC.item_rule("caption") == "title_if_no_title_block_else_body" and SPEC.item_rule("title") is None
+    assert SPEC.role_fields("caption", "4B") == SPEC.role_fields("caption", "5A") == SPEC.role_fields("caption", "2A") == ("items.title",)
+    assert all(SPEC.role_fields("caption", t) == () for t in ("2B", "6B", "1B", "4A", "7A"))
+    assert SPEC.item_rule("caption") == "fill_empty_title_then_body" and SPEC.item_rule("title") is None
     assert SPEC.role_fields("price", "1A") == () and SPEC.role_fields("caution", "7A") == ()
     with pytest.raises(KeyError):
         SPEC.role_fields("heading", "1A")

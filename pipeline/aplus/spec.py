@@ -27,7 +27,7 @@ LIMIT_FIELDS = ("label", "headline", "subheadline", "body", "items.title", "item
 WHEN_KEYS = ("items", "layout", "mode")
 ROLE_FIELDS = ("headline", "subheadline", "body", "items.title", "items.body")  # 블록 역할이 들어갈 수 있는 칸(label은 블록에서 오지 않는다)
 LABEL_SOURCES = ("brand_name", "fixed")
-ITEM_RULE = "title_if_no_title_block_else_body"  # 항목 칸에 넣을 때: 그 항목에 title 블록이 없으면 항목 제목, 있으면 항목 설명
+ITEM_RULE = "fill_empty_title_then_body"  # 항목의 빈 자리만: title 블록이 없으면 항목 제목, title은 있고 body 블록이 없으면 항목 설명, 둘 다 있으면 넣지 않는다
 REGION_KINDS = ("image", "text", "extra", "zone", "note")
 
 

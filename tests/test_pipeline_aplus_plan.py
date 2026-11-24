@@ -85,7 +85,7 @@ def test_payload_lists_blocks_only_for_slot_sections(world):
     assert payload["role_fields"]["title"] == {"fields": ["headline", "items.title"], "by_template": {}, "item_rule": None}
     cap = payload["role_fields"]["caption"]
     assert cap["fields"] == [] and cap["by_template"]["1A"] == ["subheadline"] and cap["by_template"]["4B"] == ["items.title"]
-    assert set(cap["by_template"]) == {"1A", "3A", "4B", "5A", "5B", "6A", "3B", "7B"} and cap["item_rule"] == "title_if_no_title_block_else_body"
+    assert set(cap["by_template"]) == {"1A", "3A", "2A", "4B", "5A", "5B", "6A", "3B", "7B"} and cap["item_rule"] == "fill_empty_title_then_body"
 
 
 def test_text_is_verbatim_in_original_order_and_stops_before_limit(world):
@@ -178,12 +178,12 @@ def test_block_role_decides_the_field_and_label_never_comes_from_blocks(world):
     sections, labels, blocks = world
     extra = [plan.TranslatedBlock("k1_7", "sec_1_01", 7, "caption", "SPF 50+"), plan.TranslatedBlock("k2_7", "sec_1_02", 7, "caption", "With niacinamide")]
     payload, _, block_ids = plan.build_payload(sections, labels, blocks + extra, SPEC)
-    assert "s1.b7" in block_ids and "s2.b7" not in block_ids  # 칸 2(2A · 2B)에는 caption이 들어갈 칸이 없어 보내지 않는다
+    assert "s1.b7" in block_ids and "s2.b7" in block_ids  # 칸 2는 2A 항목이 caption(효능 문구)을 받을 수 있어 보낸다
     recs = []
     res = plan.run(sections, labels, blocks + extra, SPEC, cfgmod.load_config(), recorder=recs.append, llm=Fake(answer(
         slot(1, "1A", label=["s1.b1"], headline=["s1.b2"], subheadline=["s1.b7", "s1.b4"], body=["s1.b1", "s1.b3"], image=IMG),
         slot(2, "2A", headline=["s2.b1"], image=IMG, items=[{"title": ["s2.b2"], "body": []}, {"title": ["s2.b5"], "body": []},
-                                                            {"title": ["s2.b3"], "body": []}]),
+                                                            {"title": ["s2.b3"], "body": []}, {"title": ["s2.b7"], "body": []}]),
         slot(7, "7A", headline=["s4.b1"], body=["s4.b2"], image=IMG))))
     s1, s2, s7 = res.slots[0], res.slots[1], res.slots[6]
     assert s1.module.headline is None and s1.module.label is None and s1.errors == ["필수 칸 없음: headline"]  # 채워 넣지 않고 오류로 남긴다
@@ -191,36 +191,50 @@ def test_block_role_decides_the_field_and_label_never_comes_from_blocks(world):
     assert {(d.field, tuple(d.block_keys), d.reason) for d in s1.dropped} == {
         ("headline", ("k1_2",), "role"), ("subheadline", ("k1_4",), "role"), ("body", ("k1_1",), "role")}
     assert "[규칙] label 칸은 블록에서 가져오지 않아 뺌" in s1.flags
-    assert [it.title.text for it in s2.module.items] == ["72-hour hydration", "Soothes redness"]
+    assert [it.title.text for it in s2.module.items] == ["72-hour hydration", "Soothes redness", "With niacinamide"]  # 2A 항목의 빈 제목에 caption
     assert [(d.field, d.block_keys, d.reason) for d in s2.dropped] == [("items[1].title", ["k2_5"], "role")]
     assert s7.module.label.text == "OUR STORY" and s7.module.label.origin_block_keys == [] and s7.errors == []
-    assert recs[0]["excluded_role_block_keys"] == ["k2_7"]
+    assert recs[0]["excluded_role_block_keys"] == []
     odd = blocks + [plan.TranslatedBlock("k1_9", "sec_1_01", 9, "heading", "x")]
     with pytest.raises(ValueError, match="없는 블록 역할"):
         plan.run(sections, labels, odd, SPEC, cfgmod.load_config(), llm=Fake(answer()))
     caption_in_1b = run((sections, labels, blocks + extra), answer(slot(1, "1B", headline=["s1.b1"], body=["s1.b7"], image=dict(IMG, fit="cover"))))
-    assert caption_in_1b.slots[0].module.body is None and caption_in_1b.slots[0].dropped[0].reason == "role"  # caption은 1A · 3A에만
+    assert caption_in_1b.slots[0].module.body is None and caption_in_1b.slots[0].dropped[0].reason == "role"  # 1B에는 caption이 들어갈 칸이 없다
 
 
-def test_caption_goes_to_item_title_or_body_depending_on_title_block(world):
-    """caption의 항목 연결(데이터 담당 답변 2026-11-24): 그 항목에 title 블록이 없으면 항목 제목, 있으면 항목 설명.
-    반대쪽 칸에 넣은 caption은 빼고 기록한다."""
+def test_caption_fills_only_the_empty_item_field(world):
+    """caption의 항목 연결(데이터 담당 답변 2026-11-24): 항목의 빈 자리만 채운다 — 그 항목에 title 블록이 없으면 항목 제목,
+    title 블록은 있고 body 블록이 없으면 항목 설명, 둘 다 있으면 넣지 않는다. 맞지 않는 칸에 넣은 caption은 빼고 기록한다."""
     sections, labels, blocks = world
 
     def X(order: int, role: str, text: str) -> plan.TranslatedBlock:
         return plan.TranslatedBlock(f"k4_{order}", "sec_1_04", order, role, text)
 
     extra = [X(3, "title", "Clean"), X(4, "caption", "Vegan formula"), X(5, "caption", "Since 2010"), X(6, "caption", "Reef safe"),
-             X(7, "caption", "No animal testing"), X(8, "title", "Kind"), X(9, "caption", "Gentle care")]
+             X(7, "caption", "No animal testing"), X(8, "title", "Kind"), X(9, "caption", "Gentle care"),
+             X(10, "body", "Made with care"), X(11, "caption", "Dermatologist tested")]
     res = run((sections, labels, blocks + extra), answer(slot(7, "7B", headline=["s4.b1"], items=[
-        {"title": ["s4.b3"], "body": ["s4.b4"]},             # title 블록이 있다 → caption은 설명
+        {"title": ["s4.b3"], "body": ["s4.b4"]},             # title 블록만 있다 → caption은 설명
         {"title": ["s4.b5"], "body": []},                    # title 블록이 없다 → caption이 제목
         {"title": ["s4.b6"], "body": ["s4.b7"]},             # title 블록이 없다 → 설명에 넣은 caption은 뺀다
-        {"title": ["s4.b8", "s4.b9"], "body": []}])))        # title 블록이 있다 → 제목에 넣은 caption은 뺀다
+        {"title": ["s4.b8", "s4.b9"], "body": ["s4.b10", "s4.b11"]}])))  # title · body 블록이 다 있다 → caption은 어디에도 넣지 않는다
     s7 = res.slots[6]
     got = [(it.title.text if it.title else None, it.body.text if it.body else None) for it in s7.module.items]
-    assert got == [("Clean", "Vegan formula"), ("Since 2010", None), ("Reef safe", None), ("Kind", None)] and s7.errors == []
-    assert [(d.field, d.block_keys, d.reason) for d in s7.dropped] == [("items[2].body", ["k4_7"], "role"), ("items[3].title", ["k4_9"], "role")]
+    assert got == [("Clean", "Vegan formula"), ("Since 2010", None), ("Reef safe", None), ("Kind", "Made with care")] and s7.errors == []
+    assert [(d.field, d.block_keys, d.reason) for d in s7.dropped] == [
+        ("items[2].body", ["k4_7"], "role"), ("items[3].title", ["k4_9"], "role"), ("items[3].body", ["k4_11"], "role")]
+
+
+def test_caption_fills_2a_item_title_only_when_no_title_block(world):
+    """2A 항목(데이터 담당 답변 2026-11-24): 짧은 효능 문구는 역할이 title이든 caption이든 항목에 넣는다. 2A 항목은 제목만 쓰므로
+    title 블록이 있는 항목의 caption은 뺀다. caption이 효능 문구인지 각주인지는 코드가 가리지 않는다(모델이 고른다)."""
+    sections, labels, blocks = world
+    extra = [plan.TranslatedBlock("k2_7", "sec_1_02", 7, "caption", "+Pores"), plan.TranslatedBlock("k2_8", "sec_1_02", 8, "caption", "+Firmness")]
+    res = run((sections, labels, blocks + extra), answer(slot(2, "2A", headline=["s2.b1"], image=IMG, items=[
+        {"title": ["s2.b2", "s2.b7"], "body": []}, {"title": ["s2.b8"], "body": []}])))
+    s2 = res.slots[1]
+    assert [it.title.text for it in s2.module.items] == ["72-hour hydration", "+Firmness"] and s2.errors == []
+    assert [(d.field, d.block_keys, d.reason) for d in s2.dropped] == [("items[0].title", ["k2_7"], "role")]
 
 
 def test_cutout_request_follows_the_model_answer(world):

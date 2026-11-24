@@ -1,0 +1,21 @@
+{
+  "status": "preparation_validated_not_scored",
+  "reference_rows": 339,
+  "original_images": 34,
+  "source_mapping_verified": 339,
+  "restored_files_verified": 2074,
+  "execution_records_transformed": 1754,
+  "protocol_validation_issues": [],
+  "official_evaluation_records": 0,
+  "human_review_records": 0,
+  "synthetic_and_regression_tests": {
+    "preparation": 5,
+    "protocol": 15,
+    "scope": 12,
+    "total": 32,
+    "result": "passed"
+  },
+  "existing_frozen_and_run_tracked_changes": 0,
+  "actual_model_calls": 0,
+  "actual_scores_computed": false
+}

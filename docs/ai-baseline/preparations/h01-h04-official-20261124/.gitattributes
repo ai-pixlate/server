@@ -1,0 +1,4 @@
+# 평가 입력·지침 사본의 기록된 SHA-256 바이트를 유지한다.
+*.json -text
+*.jsonl -text
+instructions/** -text

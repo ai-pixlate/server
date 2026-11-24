@@ -1,0 +1,39 @@
+{
+  "status": "prepared_not_scored",
+  "source_commit": "f148463ebafb9b7a05b329fa3fe29daccf740bc9",
+  "originals": 34,
+  "references": 339,
+  "H01_applicable": 31,
+  "H04_planned_states": {
+    "machine_snapshot": {
+      "not_applicable": 21,
+      "pending_visual_evaluation": 111,
+      "no_output": 67
+    },
+    "service_final": {
+      "not_applicable": 21,
+      "pending_visual_evaluation": 111,
+      "no_output": 67
+    }
+  },
+  "H02_H03_planned_states": {
+    "machine_snapshot": {
+      "not_applicable": 3,
+      "pending_visual_evaluation": 13,
+      "no_output": 18
+    },
+    "service_final": {
+      "not_applicable": 3,
+      "pending_visual_evaluation": 13,
+      "no_output": 18
+    }
+  },
+  "pending": [
+    "Codex 실제 평가 세션·지침·응답 증거 기록",
+    "실제 이미지 확인과 평가 상태 기록",
+    "PM 평가 검수 및 A 표본 방식 채택"
+  ],
+  "policy_changes": [],
+  "model_calls": 0,
+  "scores_computed": false
+}

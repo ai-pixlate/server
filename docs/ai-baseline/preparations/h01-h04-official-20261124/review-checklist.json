@@ -1,0 +1,157 @@
+{
+  "reviewer": "PM",
+  "time_limit": null,
+  "completion": "필요한 확인·수정 완료 시",
+  "status": "not_started",
+  "core_regions": [
+    {
+      "id": "K01",
+      "source_key": "GS-01-IMG-002",
+      "bbox": [
+        0,
+        5808,
+        1000,
+        6774
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K02",
+      "source_key": "GS-01-IMG-002",
+      "bbox": [
+        0,
+        22303,
+        1000,
+        24460
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K03",
+      "source_key": "GS-01-IMG-002",
+      "bbox": [
+        0,
+        33684,
+        1000,
+        36365
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K04",
+      "source_key": "GS-02-IMG-002",
+      "bbox": [
+        0,
+        0,
+        1000,
+        2117
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K05",
+      "source_key": "GS-02-IMG-007",
+      "bbox": [
+        0,
+        230,
+        830,
+        2687
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K06",
+      "source_key": "GS-02-IMG-014",
+      "bbox": [
+        0,
+        10738,
+        830,
+        14010
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K07",
+      "source_key": "GS-03-IMG-002",
+      "bbox": [
+        0,
+        5311,
+        1000,
+        8167
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K08",
+      "source_key": "GS-03-IMG-018",
+      "bbox": [
+        0,
+        4499,
+        1000,
+        7493
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    },
+    {
+      "id": "K09",
+      "source_key": "GS-03-IMG-018",
+      "bbox": [
+        0,
+        9155,
+        1000,
+        10785
+      ],
+      "status": "not_started",
+      "checkpoints": [
+        "machine_snapshot",
+        "service_final"
+      ]
+    }
+  ],
+  "required_categories": [
+    "critical/major 전건",
+    "불확실 판단",
+    "예외 상태와 원인",
+    "H04 판단 근거"
+  ],
+  "a_sample": {
+    "status": "proposal_not_adopted",
+    "proposal": "상품×체크포인트별 A 1장, 최대 6쌍; 명세 SHA-256 정렬 추천안",
+    "selected": []
+  },
+  "human_reviews": [],
+  "pilot": "GS-01 Pilot 점수·결함 기록을 공식 평가로 복사하지 않음",
+  "H05": "미측정(별도 서비스 평가 예정)"
+}

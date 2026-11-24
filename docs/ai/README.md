@@ -68,6 +68,8 @@
 | 규제사전 v9(2026-09-22) — `regulation_dict.xlsx` | `[규제사전]` | 적재 대상 `규제사전` 탭 16행(cosmetic 6 · otc 10) · `근거` 탭 69행. 보류 8행 · 백업 20행은 판정 데이터에 섞지 않는다 | 2026-09-28 |
 | 현지부적합사전 — `locale_unsuitable_dict.xlsx` | `[현지부적합 탭명]` | `01_현지부적합사전` 8행 · `02_판정규칙`. 버전 표기 불일치(`open-questions.md` #50) | 2026-09-28 |
 | 규제사전 정정본 — `regulation_dict_20260930.xlsx`(SHA-256 `8994c7c16ec5f7bc6206e7264a0937cb70c5dca20127b15df5c197a9880225be`) | `[규제사전 0930]` | `regulation_dict.xlsx` 대비 `근거` 탭 모노그래프(MN) 10행의 `verified_at` 보완(2026-09-18). `규제사전` 탭 16행은 같고, RG-021 · RG-022 대체 표현은 정정 전(`open-questions.md` #56) | 2026-09-30 |
+| A+ 자동 변환기 시제품 — `ai-pixlate/seed-builder` PR #2 `aplus_auto/`(커밋 `c9d3297`, 미병합) | `[A+ 변환기 §n]` | 한국 상세페이지 → 7칸 배정. 라벨 19종 → 칸 표 · 템플릿 선택 기준 · 칸별 글자 수 한도 · 빈 칸 보충 규칙. `§n`은 그 폴더 README의 장 번호. 작성자가 참고용 시제품이라고 밝혔다 | 2026-11-23 |
+| A+ 템플릿 렌더러 시제품 — `ai-pixlate/seed-builder` PR #3 `aplus_renderer/`(커밋 `a889a0c`, 미병합) | `[A+ 렌더러 §n]` | 템플릿 14개 치수 파일 · 템플릿별 필수 칸 · 입력 JSON 형식 · HTML 렌더. 치수 · 필수 칸 · 한도를 `pipeline/data/aplus/spec.json`으로 옮겼다(출처 커밋 · 파일 해시는 그 파일에) | 2026-11-23 |
 
 실제 값(표현 · 패턴 · 안내문)은 4.4에 따라 이 폴더에 옮기지 않는다. 파일 위치는 5절.
 
@@ -123,6 +125,7 @@
 | 전달 자료(2.1) 원본 — 규제사전 · 현지부적합사전 xlsx · 사전 5종 사용 설명서 | 레포 밖 `G:\내 드라이브\Study\인공지능사관학교7기\최종프로젝트\` (`데이터\regulation_dict.xlsx` · `데이터\locale_unsuitable_dict.xlsx` · `사전5종_사용설명서_v3.4.3_2026-09-23.md`). 레포 내 배치 · 형식은 미정(`open-questions.md` #3) |
 | BE–AI 기술 입출력 계약 v0.1 · 합의 관리표 | [기술 계약](https://app.notion.com/p/40987148aa5781dfbd00ff65b08a3c23) · [관리표](https://app.notion.com/p/40987148aa5781d38e98e39f56493958), 결정 근거는 `integration-decisions.md` 7절 |
 | FE–AI 조판 협의(HTML/CSS 조판 규칙) | 노션 등잔-문서 [링크](https://app.notion.com/p/40787148aa578162a11ef27650d62ffc) (`[조판 D-xx]`, 3절) |
+| 전달 자료(2.1) 원본 — A+ 변환기 · 렌더러 시제품 | GitHub `ai-pixlate/seed-builder`의 PR #2(`aplus-converter` 브랜치) · PR #3(`aplus-renderer` 브랜치). 2026-11-23 기준 둘 다 미병합이라 `main`에는 없다 |
 | 규제 판정 체계 결정기록 `결정기록_규제사전판정체계_20260921.md` | **미확보** — 설명서가 정본으로 지목하나 원문을 받지 못함. 현재 구현 · 실측의 선행조건에서 제외(2026-09-29, `open-questions.md` #51) |
 
 ## 6. 레포 루트 에이전트 지침과의 관계

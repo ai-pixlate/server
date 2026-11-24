@@ -4,7 +4,7 @@
   "reference_freeze": null,
   "candidate_file": {
     "path": "artifacts/reference_units.pm-revised-20261123.jsonl",
-    "sha256": "6ac4c75035fbec915e42810dcf421203f946f212f8befdec3dbdc66967d481e5",
+    "sha256": "8c6ec2d4c4e40cba4a5192d773a663a3f071da56b4ff8bada4231e4936ffbf1a",
     "units": 281
   },
   "unchanged_initial_draft": {
@@ -23,7 +23,7 @@
   },
   "changes": {
     "path": "artifacts/pm-revision-changes-20261123.json",
-    "sha256": "52c2cc39c98d021a51d888dc8ee86813c6dca542c0b273299c47808c3a84cd43"
+    "sha256": "e98cf964818a4f4d685cb01c4687f17be01fa69535f7acb665c87479a2f7eaa2"
   },
   "sources": [
     {

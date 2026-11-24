@@ -1,7 +1,7 @@
 {
   "reference_version": "gs-v1-gs02-gs03-pm-revision-20261123",
   "initial_draft_sha256": "fc90a445bb627d9252a62455757e067afd6d526f09c64f9ebc0879e3dff056bb",
-  "candidate_sha256": "6ac4c75035fbec915e42810dcf421203f946f212f8befdec3dbdc66967d481e5",
+  "candidate_sha256": "8c6ec2d4c4e40cba4a5192d773a663a3f071da56b4ff8bada4231e4936ffbf1a",
   "changes": [
     {
       "reference_unit_id": "GS-02_001-REF-001",
@@ -1575,6 +1575,10 @@
         {
           "comment_url": "https://github.com/ai-pixlate/server/pull/93#issuecomment-6880930734",
           "instruction": "수정 필요: 좌표 [0, 0, 830, 760] → [56, 48, 523, 715](그래프 패널만), 기대값을 아래로 바꿔 주세요.\n  BEFORE/AFTER가 붙은 3D 그래프와 축·눈금\n  (오른쪽 배지의 한국어는 번역 대상이고, 0.00% 수치는 REF-001에서 봐요.)"
+        },
+        {
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "instruction": "2026-11-24 PM 요청: 기대값 끝의 수정 이유 설명 괄호만 제거. 나머지 값과 GS-02 7개 불확실성 해소 문장은 유지. 동결 승인 전."
         }
       ],
       "changes": {
@@ -1613,7 +1617,7 @@
             "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
           },
           "after": {
-            "text": "BEFORE/AFTER가 붙은 3D 그래프와 축·눈금 (오른쪽 배지의 한국어는 번역 대상이고, 0.00% 수치는 REF-001에서 봐요.)",
+            "text": "BEFORE/AFTER가 붙은 3D 그래프와 축·눈금",
             "human_confirmation_required": true,
             "uncertainty": null,
             "note": "PR #93 PM 회신을 반영한 미동결 후보. 반영본 확인·동결 승인은 별도이며 효능 입증이나 실제 제품의 규제 적합성 인증이 아니다.",
@@ -1638,7 +1642,17 @@
             }
           ]
         }
-      }
+      },
+      "revision_history": [
+        {
+          "date": "2026-11-24",
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "field": "expected_value.text",
+          "before": "BEFORE/AFTER가 붙은 3D 그래프와 축·눈금 (오른쪽 배지의 한국어는 번역 대상이고, 0.00% 수치는 REF-001에서 봐요.)",
+          "after": "BEFORE/AFTER가 붙은 3D 그래프와 축·눈금",
+          "reason": "평가 AI가 이전값·수정 설명을 기대값으로 읽지 않도록 분리"
+        }
+      ]
     },
     {
       "reference_unit_id": "GS-02_005-REF-003",
@@ -9591,6 +9605,10 @@
         {
           "comment_url": "https://github.com/ai-pixlate/server/pull/93#issuecomment-6936121830",
           "instruction": "수정 필요: 좌표 [0, 0, 1000, 455] → [598, 60, 935, 397] (원형 인물 사진만). 기대값을 아래로 바꿔 주세요.\n우측 원형 인물 사진 — 왼쪽 홍보 글자가 사진 위로 넘어오지 않게 분리\n(지금 좌표는 왼쪽 한국어 4줄을 덮어요. 「노란 바탕」은 좁힌 상자 밖의 민무늬 바탕이라 뺐어요.)"
+        },
+        {
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "instruction": "2026-11-24 PM 요청: 기대값 끝의 수정 이유 설명 괄호만 제거. 나머지 값과 GS-02 7개 불확실성 해소 문장은 유지. 동결 승인 전."
         }
       ],
       "changes": {
@@ -9629,7 +9647,7 @@
             "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
           },
           "after": {
-            "text": "우측 원형 인물 사진 — 왼쪽 홍보 글자가 사진 위로 넘어오지 않게 분리 (지금 좌표는 왼쪽 한국어 4줄을 덮어요. 「노란 바탕」은 좁힌 상자 밖의 민무늬 바탕이라 뺐어요.)",
+            "text": "우측 원형 인물 사진 — 왼쪽 홍보 글자가 사진 위로 넘어오지 않게 분리",
             "human_confirmation_required": true,
             "uncertainty": null,
             "note": "PR #93 PM 회신을 반영한 미동결 후보. 반영본 확인·동결 승인은 별도이며 효능 입증이나 실제 제품의 규제 적합성 인증이 아니다.",
@@ -9654,7 +9672,17 @@
             }
           ]
         }
-      }
+      },
+      "revision_history": [
+        {
+          "date": "2026-11-24",
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "field": "expected_value.text",
+          "before": "우측 원형 인물 사진 — 왼쪽 홍보 글자가 사진 위로 넘어오지 않게 분리 (지금 좌표는 왼쪽 한국어 4줄을 덮어요. 「노란 바탕」은 좁힌 상자 밖의 민무늬 바탕이라 뺐어요.)",
+          "after": "우측 원형 인물 사진 — 왼쪽 홍보 글자가 사진 위로 넘어오지 않게 분리",
+          "reason": "평가 AI가 이전값·수정 설명을 기대값으로 읽지 않도록 분리"
+        }
+      ]
     },
     {
       "reference_unit_id": "GS-03_001-REF-004",
@@ -11930,6 +11958,10 @@
         {
           "comment_url": "https://github.com/ai-pixlate/server/pull/93#issuecomment-6936121830",
           "instruction": "수정 필요: 좌표 [0, 700, 1000, 1850] → [170, 904, 858, 1761] (크림 제형과 그림자만). 기대값을 아래로 바꿔 주세요.\n곡선 모양으로 짠 크림 제형 · 제형 속 노란 캡슐 알갱이 · 그림자\n(지금 좌표는 위 끝이 각주 「\\*커버에 의한 톤업 효과」(y 690\\~706) 가운데를 지나고, 아래로 각주 「\\*\\*제품 1병(300mL) 기준」(y 1815\\~1831)을 덮어요.\n제형 모양은 숫자로 딱 읽히지 않아 「숫자 3 모양」을 「곡선 모양」으로, 좁힌 상자 밖 민무늬 바탕인 「노란 배경」은 뺐어요.)"
+        },
+        {
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "instruction": "2026-11-24 PM 요청: 기대값 끝의 수정 이유 설명 괄호만 제거. 나머지 값과 GS-02 7개 불확실성 해소 문장은 유지. 동결 승인 전."
         }
       ],
       "changes": {
@@ -11968,7 +12000,7 @@
             "condition": "해당 영역을 포함하는 섹션이 최종 채택된 경우 보호. 정상 섹션 제외와 구분."
           },
           "after": {
-            "text": "곡선 모양으로 짠 크림 제형 · 제형 속 노란 캡슐 알갱이 · 그림자 (지금 좌표는 위 끝이 각주 「*커버에 의한 톤업 효과」(y 690~706) 가운데를 지나고, 아래로 각주 「**제품 1병(300mL) 기준」(y 1815~1831)을 덮어요. 제형 모양은 숫자로 딱 읽히지 않아 「숫자 3 모양」을 「곡선 모양」으로, 좁힌 상자 밖 민무늬 바탕인 「노란 배경」은 뺐어요.)",
+            "text": "곡선 모양으로 짠 크림 제형 · 제형 속 노란 캡슐 알갱이 · 그림자",
             "human_confirmation_required": true,
             "uncertainty": null,
             "note": "PR #93 PM 회신을 반영한 미동결 후보. 반영본 확인·동결 승인은 별도이며 효능 입증이나 실제 제품의 규제 적합성 인증이 아니다.",
@@ -11993,7 +12025,17 @@
             }
           ]
         }
-      }
+      },
+      "revision_history": [
+        {
+          "date": "2026-11-24",
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "field": "expected_value.text",
+          "before": "곡선 모양으로 짠 크림 제형 · 제형 속 노란 캡슐 알갱이 · 그림자 (지금 좌표는 위 끝이 각주 「*커버에 의한 톤업 효과」(y 690~706) 가운데를 지나고, 아래로 각주 「**제품 1병(300mL) 기준」(y 1815~1831)을 덮어요. 제형 모양은 숫자로 딱 읽히지 않아 「숫자 3 모양」을 「곡선 모양」으로, 좁힌 상자 밖 민무늬 바탕인 「노란 배경」은 뺐어요.)",
+          "after": "곡선 모양으로 짠 크림 제형 · 제형 속 노란 캡슐 알갱이 · 그림자",
+          "reason": "평가 AI가 이전값·수정 설명을 기대값으로 읽지 않도록 분리"
+        }
+      ]
     },
     {
       "reference_unit_id": "GS-03_005-REF-005",
@@ -16873,6 +16915,10 @@
         {
           "comment_url": "https://github.com/ai-pixlate/server/pull/93#issuecomment-6936121830",
           "instruction": "수정 필요: 기대값을 원본 글자대로 바꿔 주세요. 중요도 critical 그대로 · H04 자동 결과 적용 · 최종 결과 적용\n바른 직후 피부를 화사하게 보정 · 24시간 톤업 지속\n(이 원본의 답변에는 「커버」라는 말이 없어요. 다른 원본 각주의 「커버에 의한 톤업」을 이 단위에서 요구하지 않게 원본 글자로 맞췄어요.)"
+        },
+        {
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "instruction": "2026-11-24 PM 요청: 기대값 끝의 수정 이유 설명 괄호만 제거. 나머지 값과 GS-02 7개 불확실성 해소 문장은 유지. 동결 승인 전."
         }
       ],
       "changes": {
@@ -16888,7 +16934,7 @@
             "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
           },
           "after": {
-            "text": "바른 직후 피부를 화사하게 보정 · 24시간 톤업 지속 (이 원본의 답변에는 「커버」라는 말이 없어요. 다른 원본 각주의 「커버에 의한 톤업」을 이 단위에서 요구하지 않게 원본 글자로 맞췄어요.)",
+            "text": "바른 직후 피부를 화사하게 보정 · 24시간 톤업 지속",
             "human_confirmation_required": true,
             "uncertainty": null,
             "note": "PR #93 PM 회신을 반영한 미동결 후보. 반영본 확인·동결 승인은 별도이며 효능 입증이나 실제 제품의 규제 적합성 인증이 아니다."
@@ -16926,7 +16972,17 @@
             }
           ]
         }
-      }
+      },
+      "revision_history": [
+        {
+          "date": "2026-11-24",
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "field": "expected_value.text",
+          "before": "바른 직후 피부를 화사하게 보정 · 24시간 톤업 지속 (이 원본의 답변에는 「커버」라는 말이 없어요. 다른 원본 각주의 「커버에 의한 톤업」을 이 단위에서 요구하지 않게 원본 글자로 맞췄어요.)",
+          "after": "바른 직후 피부를 화사하게 보정 · 24시간 톤업 지속",
+          "reason": "평가 AI가 이전값·수정 설명을 기대값으로 읽지 않도록 분리"
+        }
+      ]
     },
     {
       "reference_unit_id": "GS-03_018-REF-004",
@@ -17125,6 +17181,10 @@
         {
           "comment_url": "https://github.com/ai-pixlate/server/pull/93#issuecomment-6936121830",
           "instruction": "수정 필요: 기대값을 아래로 바꿔 주세요. 중요도 critical 그대로 · H04 자동 결과 적용 · 최종 결과 적용\n48시간 피부 자극 안전성 입증 · 내추럴 톤업 효과 성분 포함 · 피부 테스트 후 피부 상태에 따라 취침 전 세정 권장\n(원본은 「피부 테스트 후 피부 상태에 따라」라는 조건이 붙은 권장이에요. 지금 값은 이 조건이 빠지고 원본에 없는 「시험과 별도로」가 들어 있어요.)"
+        },
+        {
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "instruction": "2026-11-24 PM 요청: 기대값 끝의 수정 이유 설명 괄호만 제거. 나머지 값과 GS-02 7개 불확실성 해소 문장은 유지. 동결 승인 전."
         }
       ],
       "changes": {
@@ -17140,7 +17200,7 @@
             "note": "원본 표시 내용의 전사·보존 후보이며 효능 입증 또는 규제 적합성 확인이 아니다."
           },
           "after": {
-            "text": "48시간 피부 자극 안전성 입증 · 내추럴 톤업 효과 성분 포함 · 피부 테스트 후 피부 상태에 따라 취침 전 세정 권장 (원본은 「피부 테스트 후 피부 상태에 따라」라는 조건이 붙은 권장이에요. 지금 값은 이 조건이 빠지고 원본에 없는 「시험과 별도로」가 들어 있어요.)",
+            "text": "48시간 피부 자극 안전성 입증 · 내추럴 톤업 효과 성분 포함 · 피부 테스트 후 피부 상태에 따라 취침 전 세정 권장",
             "human_confirmation_required": true,
             "uncertainty": null,
             "note": "PR #93 PM 회신을 반영한 미동결 후보. 반영본 확인·동결 승인은 별도이며 효능 입증이나 실제 제품의 규제 적합성 인증이 아니다."
@@ -17178,7 +17238,17 @@
             }
           ]
         }
-      }
+      },
+      "revision_history": [
+        {
+          "date": "2026-11-24",
+          "comment_url": "https://github.com/ai-pixlate/server/pull/149#issuecomment-7110757891",
+          "field": "expected_value.text",
+          "before": "48시간 피부 자극 안전성 입증 · 내추럴 톤업 효과 성분 포함 · 피부 테스트 후 피부 상태에 따라 취침 전 세정 권장 (원본은 「피부 테스트 후 피부 상태에 따라」라는 조건이 붙은 권장이에요. 지금 값은 이 조건이 빠지고 원본에 없는 「시험과 별도로」가 들어 있어요.)",
+          "after": "48시간 피부 자극 안전성 입증 · 내추럴 톤업 효과 성분 포함 · 피부 테스트 후 피부 상태에 따라 취침 전 세정 권장",
+          "reason": "평가 AI가 이전값·수정 설명을 기대값으로 읽지 않도록 분리"
+        }
+      ]
     },
     {
       "reference_unit_id": "GS-03_018-REF-008",

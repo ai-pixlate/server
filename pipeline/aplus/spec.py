@@ -1,8 +1,13 @@
 """A+ 규격 데이터 로더 · 조회 — 개발용 v1(운영 계약 아님, open-questions.md #92).
 
 정본은 `pipeline/data/aplus/spec.json` 하나다. seed-builder 참고 코드(PR #2 · #3, 미병합)의 치수 파일 · 필수 칸 규칙 ·
-글자 수 한도 · 라벨→칸 표를 옮긴 것이며 출처 커밋과 파일 해시는 그 파일의 `source`에 있다.
+글자 수 한도 · 라벨→칸 표를 옮기고, 데이터 담당 엑셀(2026-11-24)의 가이드 상한 표 · 템플릿 → 모듈 필드 대응 · 블록 역할 → 칸 표를
+더했다. 출처 커밋 · 파일 해시는 그 파일의 `source`에 있다.
 이 모듈은 그 자료를 읽고 형식을 검사하며, 값은 만들지 않는다 — 자료에 없는 한도는 `None`(한도 없음이 아니라 미정, #95)이다.
+
+한도는 두 가지다(PM 결정 2026-11-24): **템플릿 한도**(`char_limit` — 970×300 한 장에 실제로 그릴 때의 한계, 2차 번역의 목표)와
+**가이드 상한**(`guide_limit` — 아마존 표준 모듈 필드의 칸당 상한, 넘으면 안 되는 바깥 한계). 자체 배치 템플릿 · 대응 필드가 없는 칸은
+가이드 상한이 없다(None).
 """
 from __future__ import annotations
 
@@ -20,6 +25,8 @@ MODULE_FIELDS = ("label", "headline", "subheadline", "body", "image", "mark", "i
 ITEM_FIELDS = ("title", "body", "image", "color", "icon")  # 반복 칸 안의 칸. icon은 규격에만 있고 슬롯 내용 타입에는 아직 없다
 LIMIT_FIELDS = ("label", "headline", "subheadline", "body", "items.title", "items.body")
 WHEN_KEYS = ("items", "layout", "mode")
+ROLE_FIELDS = ("headline", "subheadline", "body", "items.title", "items.body")  # 블록 역할이 들어갈 수 있는 칸(label은 블록에서 오지 않는다)
+LABEL_SOURCES = ("brand_name", "fixed")
 REGION_KINDS = ("image", "text", "extra", "zone", "note")
 
 
@@ -122,12 +129,35 @@ class AplusSpec:
                     best = (len(when), r["max_chars"])
         return best[1] if best else None
 
+    def guide_field(self, tid: str, field: str) -> dict[str, Any] | None:
+        """그 템플릿 칸이 대응하는 아마존 표준 모듈 필드(가이드 상한 표 `module_spec`의 한 행). 자체 배치 · 대응 없는 칸은 None.
+        대응은 배치 변형 · 항목 개수와 무관하게 (템플릿, 칸)마다 하나다."""
+        if field not in LIMIT_FIELDS:
+            raise KeyError(f"한도를 두지 않는 칸 {field!r} — 가능: {', '.join(LIMIT_FIELDS)}")
+        ids = {r.get("guide_field") for r in self.template(tid)["char_limits"] if r["field"] == field} - {None}
+        if not ids:
+            return None
+        fid = next(iter(ids))
+        return next(r for r in self.raw["module_spec"] if r["field_id"] == fid)
+
+    def guide_limit(self, tid: str, field: str) -> int | None:
+        """가이드 칸당 글자 상한(영어 · 공백 포함) — 넘으면 안 되는 바깥 한계. 대응 필드가 없으면 None."""
+        row = self.guide_field(tid, field)
+        return row["char_limit"] if row else None
+
+    def role_fields(self, role: str, tid: str) -> tuple[str, ...]:
+        """블록 역할이 그 템플릿에서 들어갈 수 있는 칸. 빈 값이면 그 역할은 슬롯 재료가 아니다. 모르는 역할은 KeyError."""
+        r = self.raw["block_roles"]["roles"][role]
+        if r["templates"] is not None and tid not in r["templates"]:
+            return ()
+        return tuple(r["fields"])
+
 
 def _check(raw: Any) -> list[str]:
     if not isinstance(raw, dict):
         return ["최상위가 객체가 아니다"]
     errs: list[str] = []
-    for k in ("version", "canvas", "slots", "labels", "templates"):
+    for k in ("version", "canvas", "slots", "labels", "module_spec", "block_roles", "templates"):
         if k not in raw:
             errs.append(f"최상위 키 없음: {k}")
     if errs:
@@ -152,8 +182,42 @@ def _check(raw: Any) -> list[str]:
     for code, v in raw["labels"].items():
         if v.get("slot") is not None and v["slot"] not in SLOTS:
             errs.append(f"labels[{code}].slot={v.get('slot')!r} — 1~7 또는 null")
+    guide: dict[str, dict[str, Any]] = {}
+    for i, r in enumerate(raw["module_spec"]):
+        where = f"module_spec[{i}]"
+        fid = r.get("field_id")
+        if not isinstance(fid, str) or not fid or fid in guide:
+            errs.append(f"{where} field_id가 없거나 겹친다: {fid!r}")
+            continue
+        guide[fid] = r
+        if not isinstance(r.get("module_id"), str) or not fid.startswith(str(r.get("module_id")) + "_"):
+            errs.append(f"{where} field_id {fid!r}가 module_id {r.get('module_id')!r}로 시작하지 않는다")
+        for k in ("slot_count", "char_limit"):
+            if not (isinstance(r.get(k), int) and not isinstance(r.get(k), bool) and r[k] > 0):
+                errs.append(f"{where}.{k}가 양의 정수가 아니다")
+        for k in ("source", "confirmed_at"):
+            if not isinstance(r.get(k), str) or not r[k].strip():
+                errs.append(f"{where}.{k}(출처 · 확인일)가 비어 있다")
+    roles = raw["block_roles"].get("roles", {})
+    for name, r in roles.items():
+        bad = [f for f in r.get("fields", []) if f not in ROLE_FIELDS]
+        if bad:
+            errs.append(f"block_roles[{name}] 모르는 칸 {bad}")
+        badt = [t for t in (r.get("templates") or []) if t not in tids]
+        if badt:
+            errs.append(f"block_roles[{name}] 없는 템플릿 {badt}")
     for tid, t in raw["templates"].items():
         where = f"templates[{tid}]"
+        mids = t.get("module_ids", [])
+        if any(m not in {g["module_id"] for g in guide.values()} for m in mids):
+            errs.append(f"{where}.module_ids {mids}에 가이드 상한 표에 없는 모듈이 있다")
+        if (t.get("amazon_module") is None) != (not mids):
+            errs.append(f"{where} amazon_module과 module_ids가 어긋난다")
+        if t.get("label_source") not in (None, *LABEL_SOURCES):
+            errs.append(f"{where}.label_source={t.get('label_source')!r} — {', '.join(LABEL_SOURCES)} 또는 null")
+        if (t.get("label_source") == "fixed") != bool(t.get("default_label")):
+            errs.append(f"{where} label_source=fixed와 default_label이 어긋난다")
+        by_field: dict[str, set[Any]] = {}
         fields = list(t.get("required", [])) + list(t.get("optional", []))
         bad = [f for f in fields if f not in MODULE_FIELDS]
         if bad:
@@ -180,6 +244,18 @@ def _check(raw: Any) -> list[str]:
             badk = sorted(set(r.get("when", {})) - set(WHEN_KEYS))
             if badk:
                 errs.append(f"{where}.char_limits[{i}] 모르는 조건 {badk}")
+            gf = r.get("guide_field")
+            by_field.setdefault(str(r.get("field")), set()).add(gf)
+            if gf is not None:
+                if gf not in guide:
+                    errs.append(f"{where}.char_limits[{i}] 가이드 상한 표에 없는 필드 {gf!r}")
+                elif guide[gf].get("module_id") not in mids:
+                    errs.append(f"{where}.char_limits[{i}] 가이드 필드 {gf}가 이 템플릿의 대응 모듈 {mids}이 아니다")
+                elif isinstance(r.get("max_chars"), int) and isinstance(guide[gf].get("char_limit"), int) and r["max_chars"] > guide[gf]["char_limit"]:
+                    errs.append(f"{where}.char_limits[{i}] 템플릿 한도 {r['max_chars']}가 가이드 상한 {guide[gf]['char_limit']}({gf})보다 크다")
+        for f, gfs in by_field.items():
+            if len(gfs) > 1:
+                errs.append(f"{where} {f} 칸의 가이드 필드 대응이 한도 행마다 다르다: {sorted(map(str, gfs))}")
         for v in t.get("variants", []):
             badk = sorted(set(v.get("when", {})) - set(WHEN_KEYS))
             if badk or not v.get("when"):

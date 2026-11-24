@@ -1,10 +1,10 @@
 {
-  "version": "aplus-spec@2026-11-23.1",
+  "version": "aplus-spec@2026-11-24.1",
   "status": "개발용 v1 — 운영 계약 아님. 정본 위치·DB module_spec 관계는 open-questions.md #92",
   "site": "amazon_us_aplus",
   "source": {
     "repository": "ai-pixlate/seed-builder",
-    "note": "두 PR 모두 미병합(2026-11-23 확인). 아래 커밋의 파일을 옮겼다. 글자 수 한도의 아마존 기준은 원 작성자가 대행사 가이드로 확인했고 셀러센트럴 화면은 미확인이라고 적었다.",
+    "note": "치수 · 필수 칸 · 배치 변형 · 라벨 표는 아래 두 PR(미병합, 2026-11-23 확인)의 파일에서 옮겼다. 글자 수 한도와 가이드 상한은 data_owner_sheet의 엑셀과 대조했다(2026-11-24).",
     "renderer": {
       "pull_request": 3,
       "commit": "a889a0c3f488649b8f64c0816eac92fe09ffc192",
@@ -22,6 +22,16 @@
         "aplus_auto/zigzag.py": "465ca8f6543ebd72ff81a0ac3a19df14446bbc9e48a45a2e667a3911e9058549",
         "aplus_auto/docs/A+내용종류_분류가이드_v1.4.md": "41f1d355b5ab98d687c9bdf6eee04ade214801c7c63f1cc239037c1f991cc14b"
       }
+    },
+    "data_owner_sheet": {
+      "files": {
+        "A+_module_spec_2026-11-24.xlsx": "9e215af63d9b67b4a7f4e20202ce9522a8cab4e091bb617601579f887d6a60e0",
+        "A+_module_spec_설명_2026-11-24.md": "e2163afb825be925004296fab987fcfe1454db8dbdcd6548a37e604b4acf3056"
+      },
+      "written": "2026-11-19",
+      "revised": "2026-11-24",
+      "received": "2026-11-24",
+      "compared": "템플릿 한도 43개를 「템플릿 대응」 시트와 대조 — 6B 줄글형 본문만 달라 320 → 250으로 고쳤다. 5B 항목 제목 26자의 적용 범위(항목 3개만 / 전부)와 값이 없는 조합은 데이터 담당 확인 중(open-questions.md #95)"
     }
   },
   "canvas": {
@@ -208,11 +218,314 @@
       "fill_only": false
     }
   },
+  "module_spec": [
+    {
+      "module_id": "M1",
+      "module_name": "Single Left/Right Image",
+      "field_id": "M1_headline",
+      "field_name": "Headline",
+      "slot_count": 1,
+      "guide_text": "160자",
+      "char_limit": 160,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "1개 · 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": "1A label(≤20)·subheadline(≤36), 3A subheadline(≤36)은 가이드에 대응 필드 없음 → 이미지 안 글자로만 씀"
+    },
+    {
+      "module_id": "M1",
+      "module_name": "Single Left/Right Image",
+      "field_id": "M1_body",
+      "field_name": "Body text",
+      "slot_count": 1,
+      "guide_text": "1,000자 · 최대 10줄",
+      "char_limit": 1000,
+      "max_lines": 10,
+      "max_lines_scope": "field",
+      "image": "1개 · 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": null
+    },
+    {
+      "module_id": "M2",
+      "module_name": "Single Image & Highlights",
+      "field_id": "M2_headline",
+      "field_name": "Center headline",
+      "slot_count": 1,
+      "guide_text": "160자",
+      "char_limit": 160,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "1개 · 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": null
+    },
+    {
+      "module_id": "M2",
+      "module_name": "Single Image & Highlights",
+      "field_id": "M2_subheadline",
+      "field_name": "Subheadlines",
+      "slot_count": 4,
+      "guide_text": "각 200자",
+      "char_limit": 200,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "1개 · 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": true,
+      "note": "칸 수 4 = 가이드에 개수 없음 → 우리 템플릿 최대 항목 수(4)로 정함. 2A 항목(체크 문구)은 가이드에 따로 없어 subheadline으로 보고 비교함"
+    },
+    {
+      "module_id": "M2",
+      "module_name": "Single Image & Highlights",
+      "field_id": "M2_body",
+      "field_name": "Body text",
+      "slot_count": 4,
+      "guide_text": "합계 1,000자 · 최대 10줄",
+      "char_limit": 250,
+      "max_lines": 10,
+      "max_lines_scope": "total",
+      "image": "1개 · 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": true,
+      "note": "1,000 ÷ 4칸 = 250. 칸 수 4는 우리가 정함(위와 같음). 6B 줄글형도 칸당 상한 250에 맞춤(원래 320 → 250, 2026-11-24 PM 요청)"
+    },
+    {
+      "module_id": "M3",
+      "module_name": "Four Image & Text",
+      "field_id": "M3_top_headline",
+      "field_name": "Top headline",
+      "slot_count": 1,
+      "guide_text": "200자",
+      "char_limit": 200,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "4개 · 각 220×220px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": null
+    },
+    {
+      "module_id": "M3",
+      "module_name": "Four Image & Text",
+      "field_id": "M3_headline",
+      "field_name": "Headlines (이미지 아래)",
+      "slot_count": 4,
+      "guide_text": "각 160자",
+      "char_limit": 160,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "4개 · 각 220×220px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": null
+    },
+    {
+      "module_id": "M3",
+      "module_name": "Four Image & Text",
+      "field_id": "M3_body",
+      "field_name": "Body text (이미지 아래)",
+      "slot_count": 4,
+      "guide_text": "합계 1,000자 · 최대 10줄",
+      "char_limit": 250,
+      "max_lines": 10,
+      "max_lines_scope": "total",
+      "image": "4개 · 각 220×220px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": "1,000 ÷ 4칸 = 250 (PM 규칙)"
+    },
+    {
+      "module_id": "M4",
+      "module_name": "Three Images & Text",
+      "field_id": "M4_top_headline",
+      "field_name": "Top headline",
+      "slot_count": 1,
+      "guide_text": "200자",
+      "char_limit": 200,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "3개 · 각 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": null
+    },
+    {
+      "module_id": "M4",
+      "module_name": "Three Images & Text",
+      "field_id": "M4_headline",
+      "field_name": "Headlines (이미지 아래)",
+      "slot_count": 3,
+      "guide_text": "각 160자",
+      "char_limit": 160,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "3개 · 각 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": null
+    },
+    {
+      "module_id": "M4",
+      "module_name": "Three Images & Text",
+      "field_id": "M4_body",
+      "field_name": "Body text (이미지 아래)",
+      "slot_count": 3,
+      "guide_text": "합계 1,000자 · 최대 10줄",
+      "char_limit": 333,
+      "max_lines": 10,
+      "max_lines_scope": "total",
+      "image": "3개 · 각 300×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": false,
+      "note": "1,000 ÷ 3칸 = 333 (소수점 버림)"
+    },
+    {
+      "module_id": "M5",
+      "module_name": "Image & Dark Text Overlay",
+      "field_id": "M5_headline",
+      "field_name": "Headline",
+      "slot_count": 1,
+      "guide_text": "70자",
+      "char_limit": 70,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "배경 1개 · 970×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": true,
+      "note": "1B(사진이 칸 전체 + 글 상자)와 가장 비슷한 표준 모듈로 우리가 대응시킴"
+    },
+    {
+      "module_id": "M5",
+      "module_name": "Image & Dark Text Overlay",
+      "field_id": "M5_body",
+      "field_name": "Body text",
+      "slot_count": 1,
+      "guide_text": "300자 · 최대 5줄",
+      "char_limit": 300,
+      "max_lines": 5,
+      "max_lines_scope": "field",
+      "image": "배경 1개 · 970×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": true,
+      "note": "위와 같음"
+    },
+    {
+      "module_id": "M6",
+      "module_name": "Image & Light Text Overlay",
+      "field_id": "M6_headline",
+      "field_name": "Headline",
+      "slot_count": 1,
+      "guide_text": "70자",
+      "char_limit": 70,
+      "max_lines": null,
+      "max_lines_scope": null,
+      "image": "배경 1개 · 970×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": true,
+      "note": "M5와 숫자 같음. 글 색(어두운 글/밝은 글)만 다름. 1B는 사진 밝기에 따라 둘 중 하나"
+    },
+    {
+      "module_id": "M6",
+      "module_name": "Image & Light Text Overlay",
+      "field_id": "M6_body",
+      "field_name": "Body text",
+      "slot_count": 1,
+      "guide_text": "300자 · 최대 5줄",
+      "char_limit": 300,
+      "max_lines": 5,
+      "max_lines_scope": "field",
+      "image": "배경 1개 · 970×300px",
+      "source": "Awesome Dynamic「Amazon A+ Content Creation Guidelines」(날짜 없음)",
+      "confirmed_at": "2026-11-19",
+      "amazon_screen_confirmed": false,
+      "decided_by_us": true,
+      "note": "위와 같음"
+    }
+  ],
+  "block_roles": {
+    "source": "데이터 담당 설명 문서 6장(PM 확정 2026-11-24)",
+    "roles": {
+      "title": {
+        "fields": [
+          "headline",
+          "items.title"
+        ],
+        "templates": null,
+        "note": "칸 제목이면 headline, 항목마다 붙은 제목이면 그 항목의 title"
+      },
+      "body": {
+        "fields": [
+          "body",
+          "items.body"
+        ],
+        "templates": null,
+        "note": "칸 본문이면 body, 항목 설명이면 그 항목의 body"
+      },
+      "caption": {
+        "fields": [
+          "subheadline"
+        ],
+        "templates": [
+          "1A",
+          "3A"
+        ],
+        "note": "1A · 3A의 부제. 반복 항목형에서는 그 사진이 들어간 항목의 title 또는 body — 어느 쪽인지와 템플릿 범위는 데이터 담당 확인 중이라 여기 넣지 않았다(open-questions.md #94). 그 밖의 템플릿에는 넣지 않는다"
+      },
+      "price": {
+        "fields": [],
+        "templates": null,
+        "note": "넣지 않는다 — 템플릿 14개에 가격 칸이 없다"
+      },
+      "caution": {
+        "fields": [],
+        "templates": null,
+        "note": "12월에는 넣지 않는다. 어디에 담을지는 이후 과제"
+      }
+    },
+    "label": "label 칸은 블록에서 가져오지 않는다 — 템플릿의 label_source(brand_name = 브랜드명 대문자 · fixed = default_label 값)를 쓴다. 브랜드명의 공급원은 정하지 않았다(open-questions.md #94)"
+  },
   "templates": {
     "1A": {
       "slot": 1,
       "frame": "S1 글·사진 좌우형",
       "amazon_module": "Single Left/Right Image",
+      "module_ids": [
+        "M1"
+      ],
+      "module_note": null,
       "one_sided": true,
       "required": [
         "headline",
@@ -230,23 +543,28 @@
         "center"
       ],
       "variants": [],
+      "label_source": "brand_name",
       "default_label": null,
       "char_limits": [
         {
           "field": "label",
-          "max_chars": 20
+          "max_chars": 20,
+          "guide_field": null
         },
         {
           "field": "headline",
-          "max_chars": 40
+          "max_chars": 40,
+          "guide_field": "M1_headline"
         },
         {
           "field": "subheadline",
-          "max_chars": 36
+          "max_chars": 36,
+          "guide_field": null
         },
         {
           "field": "body",
-          "max_chars": 120
+          "max_chars": 120,
+          "guide_field": "M1_body"
         }
       ],
       "regions": [
@@ -309,7 +627,12 @@
     "1B": {
       "slot": 1,
       "frame": "S3 통짜 사진형",
-      "amazon_module": null,
+      "amazon_module": "Image & Text Overlay",
+      "module_ids": [
+        "M5",
+        "M6"
+      ],
+      "module_note": "우리가 대응시킴 — 원래 자체 배치로 분류했던 템플릿",
       "one_sided": false,
       "required": [
         "headline",
@@ -323,15 +646,18 @@
         "default"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 22
+          "max_chars": 22,
+          "guide_field": "M5_headline"
         },
         {
           "field": "body",
-          "max_chars": 85
+          "max_chars": 85,
+          "guide_field": "M5_body"
         }
       ],
       "regions": [
@@ -377,6 +703,10 @@
       "slot": 2,
       "frame": "S4 글·나열+사진형",
       "amazon_module": "Single Image & Highlights",
+      "module_ids": [
+        "M2"
+      ],
+      "module_note": "대표 하나형: headline ≤40 · body ≤160, 항목 없음",
       "one_sided": true,
       "required": [
         "headline",
@@ -412,43 +742,50 @@
           ]
         }
       ],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 28
+          "max_chars": 28,
+          "guide_field": "M2_headline"
         },
         {
           "field": "body",
-          "max_chars": 60
+          "max_chars": 60,
+          "guide_field": "M2_body"
         },
         {
           "field": "items.title",
           "max_chars": 45,
           "when": {
             "items": 3
-          }
+          },
+          "guide_field": "M2_subheadline"
         },
         {
           "field": "items.title",
           "max_chars": 40,
           "when": {
             "items": 4
-          }
+          },
+          "guide_field": "M2_subheadline"
         },
         {
           "field": "headline",
           "max_chars": 40,
           "when": {
             "layout": "single"
-          }
+          },
+          "guide_field": "M2_headline"
         },
         {
           "field": "body",
           "max_chars": 160,
           "when": {
             "layout": "single"
-          }
+          },
+          "guide_field": "M2_body"
         }
       ],
       "regions": [
@@ -511,7 +848,9 @@
     "2B": {
       "slot": 2,
       "frame": "S6 사진+나열형",
-      "amazon_module": "Single Image & Specs Detail",
+      "amazon_module": null,
+      "module_ids": [],
+      "module_note": "원래 Single Image & Specs Detail 모양. Specs Detail은 숫자 없는 필드가 있어 7종에서 빠짐(PM 규칙) → 자체 배치로 분류. 항목 제목 ≤30은 Specs Detail 사양 상한(30)에 맞춘 값",
       "one_sided": true,
       "required": [
         "image",
@@ -536,15 +875,18 @@
         "zigzag"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "items.title",
-          "max_chars": 30
+          "max_chars": 30,
+          "guide_field": null
         },
         {
           "field": "items.body",
-          "max_chars": 55
+          "max_chars": 55,
+          "guide_field": null
         }
       ],
       "regions": [
@@ -590,6 +932,10 @@
       "slot": 3,
       "frame": "S1 글·사진 좌우형",
       "amazon_module": "Single Left/Right Image",
+      "module_ids": [
+        "M1"
+      ],
+      "module_note": null,
       "one_sided": true,
       "required": [
         "headline",
@@ -607,19 +953,23 @@
         "center"
       ],
       "variants": [],
+      "label_source": "fixed",
       "default_label": "KEY INGREDIENT",
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 20
+          "max_chars": 20,
+          "guide_field": "M1_headline"
         },
         {
           "field": "subheadline",
-          "max_chars": 36
+          "max_chars": 36,
+          "guide_field": null
         },
         {
           "field": "body",
-          "max_chars": 120
+          "max_chars": 120,
+          "guide_field": "M1_body"
         }
       ],
       "regions": [
@@ -683,6 +1033,8 @@
       "slot": 3,
       "frame": "S4 글·나열+사진형",
       "amazon_module": null,
+      "module_ids": [],
+      "module_note": "맞는 표준 모듈 없음",
       "one_sided": true,
       "required": [
         "headline",
@@ -707,39 +1059,45 @@
         "default"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 30
+          "max_chars": 30,
+          "guide_field": null
         },
         {
           "field": "items.title",
           "max_chars": 18,
           "when": {
             "items": 3
-          }
+          },
+          "guide_field": null
         },
         {
           "field": "items.title",
           "max_chars": 13,
           "when": {
             "items": 4
-          }
+          },
+          "guide_field": null
         },
         {
           "field": "items.body",
           "max_chars": 45,
           "when": {
             "items": 3
-          }
+          },
+          "guide_field": null
         },
         {
           "field": "items.body",
           "max_chars": 32,
           "when": {
             "items": 4
-          }
+          },
+          "guide_field": null
         }
       ],
       "regions": [
@@ -803,6 +1161,10 @@
       "slot": 4,
       "frame": "S1 글·사진 좌우형",
       "amazon_module": "Single Left/Right Image",
+      "module_ids": [
+        "M1"
+      ],
+      "module_note": null,
       "one_sided": true,
       "required": [
         "headline",
@@ -819,15 +1181,18 @@
         "center"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 30
+          "max_chars": 30,
+          "guide_field": "M1_headline"
         },
         {
           "field": "body",
-          "max_chars": 120
+          "max_chars": 120,
+          "guide_field": "M1_body"
         }
       ],
       "regions": [
@@ -881,7 +1246,11 @@
     "4B": {
       "slot": 4,
       "frame": "S2 제목+나열형",
-      "amazon_module": "Four Images & Text",
+      "amazon_module": "Four Image & Text",
+      "module_ids": [
+        "M3"
+      ],
+      "module_note": null,
       "one_sided": false,
       "required": [
         "headline",
@@ -922,22 +1291,26 @@
           ]
         }
       ],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 38
+          "max_chars": 38,
+          "guide_field": "M3_top_headline"
         },
         {
           "field": "items.title",
-          "max_chars": 30
+          "max_chars": 30,
+          "guide_field": "M3_headline"
         },
         {
           "field": "items.title",
           "max_chars": 12,
           "when": {
             "mode": "before_after"
-          }
+          },
+          "guide_field": "M3_headline"
         }
       ],
       "regions": [
@@ -983,6 +1356,8 @@
       "slot": 5,
       "frame": "S5 통짜 나열형",
       "amazon_module": null,
+      "module_ids": [],
+      "module_note": "맞는 표준 모듈 없음",
       "one_sided": false,
       "required": [
         "items"
@@ -1007,6 +1382,7 @@
         "chips"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [],
       "regions": [
@@ -1042,7 +1418,11 @@
     "5B": {
       "slot": 5,
       "frame": "S2 제목+나열형",
-      "amazon_module": "Four Images & Text",
+      "amazon_module": "Four Image & Text",
+      "module_ids": [
+        "M3"
+      ],
+      "module_note": null,
       "one_sided": false,
       "required": [
         "headline",
@@ -1067,22 +1447,26 @@
         "cards"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 38
+          "max_chars": 38,
+          "guide_field": "M3_top_headline"
         },
         {
           "field": "items.title",
           "max_chars": 26,
           "when": {
             "items": 3
-          }
+          },
+          "guide_field": "M3_headline"
         },
         {
           "field": "items.body",
-          "max_chars": 40
+          "max_chars": 40,
+          "guide_field": "M3_body"
         }
       ],
       "regions": [
@@ -1128,6 +1512,10 @@
       "slot": 6,
       "frame": "S2 제목+나열형",
       "amazon_module": "Three Images & Text",
+      "module_ids": [
+        "M4"
+      ],
+      "module_note": null,
       "one_sided": false,
       "required": [
         "headline",
@@ -1152,19 +1540,23 @@
         "timeline"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 38
+          "max_chars": 38,
+          "guide_field": "M4_top_headline"
         },
         {
           "field": "items.title",
-          "max_chars": 20
+          "max_chars": 20,
+          "guide_field": "M4_headline"
         },
         {
           "field": "items.body",
-          "max_chars": 40
+          "max_chars": 40,
+          "guide_field": "M4_body"
         }
       ],
       "regions": [
@@ -1219,6 +1611,10 @@
       "slot": 6,
       "frame": "S4 글·나열+사진형",
       "amazon_module": "Single Image & Highlights",
+      "module_ids": [
+        "M2"
+      ],
+      "module_note": "줄글형: body ≤250, 항목 없음 (2026-11-24 320→250)",
       "one_sided": true,
       "required": [
         "headline",
@@ -1255,36 +1651,42 @@
           ]
         }
       ],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 28
+          "max_chars": 28,
+          "guide_field": "M2_headline"
         },
         {
           "field": "items.title",
-          "max_chars": 40
+          "max_chars": 40,
+          "guide_field": "M2_subheadline"
         },
         {
           "field": "items.body",
           "max_chars": 60,
           "when": {
             "items": 3
-          }
+          },
+          "guide_field": "M2_body"
         },
         {
           "field": "items.body",
           "max_chars": 150,
           "when": {
             "items": 2
-          }
+          },
+          "guide_field": "M2_body"
         },
         {
           "field": "body",
-          "max_chars": 320,
+          "max_chars": 250,
           "when": {
             "layout": "prose"
-          }
+          },
+          "guide_field": "M2_body"
         }
       ],
       "regions": [
@@ -1339,6 +1741,10 @@
       "slot": 7,
       "frame": "S1 글·사진 좌우형",
       "amazon_module": "Single Left/Right Image",
+      "module_ids": [
+        "M1"
+      ],
+      "module_note": null,
       "one_sided": true,
       "required": [
         "headline",
@@ -1355,15 +1761,18 @@
         "center"
       ],
       "variants": [],
+      "label_source": "fixed",
       "default_label": "OUR STORY",
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 20
+          "max_chars": 20,
+          "guide_field": "M1_headline"
         },
         {
           "field": "body",
-          "max_chars": 330
+          "max_chars": 330,
+          "guide_field": "M1_body"
         }
       ],
       "regions": [
@@ -1417,7 +1826,11 @@
     "7B": {
       "slot": 7,
       "frame": "S2 제목+나열형",
-      "amazon_module": "Four Images & Text",
+      "amazon_module": "Four Image & Text",
+      "module_ids": [
+        "M3"
+      ],
+      "module_note": null,
       "one_sided": false,
       "required": [
         "headline",
@@ -1442,19 +1855,23 @@
         "cards"
       ],
       "variants": [],
+      "label_source": null,
       "default_label": null,
       "char_limits": [
         {
           "field": "headline",
-          "max_chars": 38
+          "max_chars": 38,
+          "guide_field": "M3_top_headline"
         },
         {
           "field": "items.title",
-          "max_chars": 20
+          "max_chars": 20,
+          "guide_field": "M3_headline"
         },
         {
           "field": "items.body",
-          "max_chars": 40
+          "max_chars": 40,
+          "guide_field": "M3_body"
         }
       ],
       "regions": [
@@ -1496,5 +1913,11 @@
         }
       ]
     }
+  },
+  "template_limit_source": {
+    "basis": "970×300 칸 상자의 크기와 줄 수로 계산한 값과 가이드 칸당 상한 중 작은 값(데이터 담당 설명 문서 3-2)",
+    "source": null,
+    "confirmed_at": null,
+    "note": "템플릿 한도의 출처 · 확인일로 적을 값은 데이터 담당 확인 중(open-questions.md #92). 가이드 상한의 출처 · 확인일은 module_spec 행마다 있다"
   }
 }

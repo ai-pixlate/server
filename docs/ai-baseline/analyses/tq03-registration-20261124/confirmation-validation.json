@@ -1,0 +1,33 @@
+{
+  "checked_on": "2026-11-24",
+  "mandatory_limitations": "단일 평가모델(M-Prometheus 7B) · 독립 검증 없음 · 출력 형식 완전 충족 0개 · 점수 확보 449/491개",
+  "method": "기존 full_runner.export를 임시 출력 폴더에서 그대로 실행; 모델 run 함수 호출 없음",
+  "original_results_sha256": "63bf17f66ce13a43a66a376181625d89138576b4ce5f32587a78b0e8b1465f0d",
+  "exported_rows": 491,
+  "all_exported_row_objects_equal": true,
+  "full_summary_object_equal": true,
+  "new_attempt_files": 475,
+  "new_unique_attempt_keys": 475,
+  "retry_observed": false,
+  "items_equal_saved_attempts": true,
+  "overall": {
+    "total": 491,
+    "status_counts": {
+      "format_error": 487,
+      "output_limit": 4
+    },
+    "marker_score_n": 449,
+    "marker_mean": 2.1603563474387526,
+    "marker_distribution": {
+      "1": 28,
+      "2": 345,
+      "3": 61,
+      "4": 6,
+      "5": 9
+    },
+    "including_legacy_body_n": 450,
+    "including_legacy_body_mean": 2.16
+  },
+  "source_modified": false,
+  "model_calls": 0
+}

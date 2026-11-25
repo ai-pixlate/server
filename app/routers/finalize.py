@@ -304,9 +304,8 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     return out
 
 
-@router.get("/jobs/{job_id}/exports/{artifact_id}/download", summary="API-FIN-05 산출물 다운로드(presigned) (DB+S3)")
-def download(job_id: int, artifact_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    _require_job_owned(db, job_id, seller_id)
+def _downloadable_artifact(db: Session, job_id: int, artifact_id: int):
+    """다운로드할 수 있는 내보내기 산출물 — 그 작업 소속 · 배포 가능 · 생성됨 · 파일 키 있음. 아니면 None(→ 404)."""
     r = db.execute(
         text(
             "SELECT file_url, artifact_type FROM export_artifact "
@@ -314,9 +313,66 @@ def download(job_id: int, artifact_id: int, db: Session = Depends(get_db), selle
         ),
         {"a": artifact_id, "j": job_id},
     ).mappings().first()
-    if not r or not r["file_url"]:
+    return r if r and r["file_url"] else None
+
+
+@router.get("/jobs/{job_id}/exports/{artifact_id}/download", summary="API-FIN-05 산출물 다운로드(presigned) (DB+S3)")
+def download(job_id: int, artifact_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    _require_job_owned(db, job_id, seller_id)
+    r = _downloadable_artifact(db, job_id, artifact_id)
+    if r is None:
         raise HTTPException(status_code=404, detail="artifact not found")
     return _download_info(job_id, r["artifact_type"], r["file_url"])
+
+
+@router.post("/jobs/{job_id}/exports/{artifact_id}/download",
+             summary="API-FIN-05 첫 다운로드 — 다운로드 링크 + 완료 기록(F-FIN-03) (DB+S3)")
+def download_and_complete(job_id: int, artifact_id: int, db: Session = Depends(get_db),
+                          seller_id: int = Depends(get_current_seller)):
+    """N6 다운로드. 저장 대기(review · N6 · 최종 렌더 성공)면 완료로 기록하고(첫 다운로드 = 완료, F-FIN-03), 이미 완료(done · N6)면
+    링크만 준다. 응답은 GET 과 같은 DownloadResponse 이고, 링크는 완료 기록이 커밋된 뒤에만 나간다(README 7.8 ⑧).
+
+    처리 순서(저장 대기 · 완료 공통 — 산출물 검증을 건너뛰는 분기 없음): 소유 확인(404) → 작업 행 잠금(취소 · 자동 취소 · 저장과 같은 잠금)
+    → 상태 판정(취소 409 · 완료할 수 없는 상태 409) → 산출물 검증(404) → 링크 서명 → (저장 대기면) 완료 기록 → 커밋 → 응답.
+    완료 기록은 잠금 아래에서 본 실제 상태가 저장 대기일 때만 쓴다 — 반복 · 동시 · 응답 유실 뒤 재요청은 완료 전이를 다시 하지 않고
+    saved_at 도 다시 쓰지 않는다(D3). 재렌더 전에 만든 묶음도 허용한다(D4). 오류 때 GET 으로 대신하지 않는 것은 FE 몫이다.
+    커밋이 실패하면 결과가 불명확할 수 있어 로그로 남기고 기존 공통 오류 처리로 넘긴다(이 경로 전용 503 · retryable 구분은 합의 전)."""
+    from app import execution
+    from app.flows.common import set_job_state
+    from app.flows.final import can_save
+
+    _require_job_owned(db, job_id, seller_id)
+    job = execution.lock_job(db, job_id)
+    state = (job["status"], job["current_step"])
+    if state[0] == "cancelled":
+        db.rollback()  # 취소된 작업 조작 — 409 INVALID_STATE 사유 없음(README 7.8 ④)
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "취소된 작업"})
+    completing = state == ("review", "N6")
+    if not (completing or state == ("done", "N6")):
+        db.rollback()  # 처리 중 · 렌더 오류 · N5 이전 — 사유 값은 합의 전이라 두지 않음
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE",
+                                                     "message": f"N6 저장 대기 · 완료에서만 내려받는다({state[1]}/{state[0]})"})
+    if completing and not can_save(db, job_id):
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더가 성공하지 않았다"})
+    r = _downloadable_artifact(db, job_id, artifact_id)
+    if r is None:
+        db.rollback()
+        raise HTTPException(status_code=404, detail="artifact not found")
+    info = _download_info(job_id, r["artifact_type"], r["file_url"])
+    if completing:  # FIN-06 과 같은 열(status · user_facing_status · is_saved · saved_at) — 새 열 없음
+        set_job_state(db, job_id, status="done", step="N6", ufs="done")
+        db.execute(text("UPDATE job SET is_saved = true, saved_at = now() WHERE id = :j AND status = 'done'"), {"j": job_id})
+    try:
+        db.commit()
+    except Exception:
+        # 커밋 중 오류 — 완료 기록이 실제로 커밋됐는지 서버가 확인하지 못했을 수 있다. 링크는 내보내지 않는다.
+        # 재요청은 잠금 뒤 그때의 실제 상태로 처음부터 다시 판정한다(완료 유지 · 완료 재시도 · 상태별 거절)
+        log.exception("첫 다운로드 커밋 실패(결과 불명확일 수 있음) job=%s artifact=%s completing=%s", job_id, artifact_id, completing)
+        raise
+    if completing:
+        log.info("첫 다운로드 완료 job=%s artifact=%s", job_id, artifact_id)
+    return info
 
 
 @router.get("/jobs/{job_id}/export/download", summary="API-FIN-05 산출물 개별 다운로드(타입별 presigned) (DB+S3)")

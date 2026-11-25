@@ -3723,7 +3723,7 @@ paths:
       operationId: exportDownload
       x-screen: 'N6'
       x-source: API-FIN-05
-      description: 'presigned URL(5분)을 JSON으로 반환. manifest·미생성·남의 job은 404. 🟢9월.'
+      description: 'presigned URL(5분)을 JSON으로 반환. manifest·미생성·남의 job은 404. 작업 상태를 바꾸지 않는다 — N6 첫 다운로드(완료 기록)는 같은 경로의 POST. 이 GET 을 완료(done/N6) 작업에서만 허용하는 제한(D2)은 FE 전환 뒤 후속 변경 · 오류 값 합의 전(README 7.8 ⑧). 🟢9월.'
       responses:
         '200':
           description: 'presigned 다운로드 정보'
@@ -3731,6 +3731,29 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/DownloadResponse' }
         '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [N6 Save & Export]
+      summary: 첫 다운로드 — 다운로드 링크 + 완료 기록(F-FIN-03)
+      operationId: exportDownloadComplete
+      x-screen: 'N6'
+      x-source: API-FIN-05
+      description: >
+        [PM 11-25 D1~D4 확정 · FE D1 동의 · 로컬 구현 · 미배포] N6 의 다운로드(묶음 · 행별)가 부른다. 요청 본문 없음.
+        저장 대기(review/N6 · awaiting_save, 최종 렌더 성공)면 완료로 기록하고(done/N6 · is_saved=true · saved_at — FIN-06 과 같은 열),
+        이미 완료(done/N6)면 상태 · saved_at 을 바꾸지 않고 링크만 준다. 응답은 GET 과 같은 DownloadResponse 이고 링크는 완료 기록이
+        커밋된 뒤에만 나간다. 반복 · 동시 · 응답 유실 뒤 재요청은 작업 행 잠금 아래 실제 상태로 다시 판정해 완료 전이는 한 번뿐이다(보관함 카드 1개).
+        재렌더 전에 만든 묶음도 받는다(D4). 산출물 검증(그 작업 소속 · 배포 가능 · 생성됨 · 파일 있음)은 두 상태 모두 하고, 아니면 404 — 상태 변화 없음.
+        취소된 작업은 409 INVALID_STATE(사유 없음), 처리 중 · 렌더 오류 · N5 이전은 409 INVALID_STATE(사유 값 없음 — 합의 전).
+        오류 때는 다운로드를 시작하지 않고 GET 으로 대신하지 않는다. 성공 뒤 FE 는 작업 · 보관함을 다시 조회한다.
+        이 경로 전용 503 · retryable 구분은 합의 전이라 두지 않는다(기존 공통 오류 처리). README 7.8 ⑧.
+      responses:
+        '200':
+          description: 'presigned 다운로드 정보(완료 기록 커밋 뒤)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /jobs/{jobId}/export/download:
     parameters:
       - $ref: '#/components/parameters/JobId'

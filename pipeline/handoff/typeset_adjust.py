@@ -4,7 +4,8 @@ PM 결정(2026-11-24, 사용자 전달)을 따른다. PR #141 실험 후보(BWES
 - 순서: 줄바꿈 위치 조정 → 정렬 방향으로 폭 확장 → 마지막으로 최대 −10% 축소. 높이 확장 · 줄 추가 · 자간 조정 · 문구 축약은 하지 않는다.
 - 폭 확장 배율 상한은 없다. 섹션 안에서 다른 글과 겹치지 않는 여백까지(이웃과 GAP_PX 간격). 사진 · 그래픽 위 확장은 막지 않는다(이후 과제 — `open-questions.md` #92).
 - 두 블록이 같은 빈자리를 차지하지 않는다 — 블록을 하나 조정할 때마다 그 블록이 실제로 차지하는 자리(박스 ∪ 그린 글자)를 장애물에 반영한다.
-- 끝까지 넘침이 남으면 시도한 조정을 남기지 않는다 — 조정 전 상태 그대로 두고 넘침과 원인을 보고한다.
+- 끝까지 넘침이 남아도 마지막 시도(줄바꿈 · 폭 확장 · 축소)를 그대로 남기고 넘침과 원인을 보고한다 — 사용자가 그 상태에서 이어서 고친다
+  (PM 승인 2026-11-25, 사용자 전달 — 11-24의 「조정 전 상태로 복원」을 바꿨다). 시도로 바뀐 것이 없으면 원래 그대로다.
 
 설계(구현 결정 — 정책이 정하지 않은 세부):
 - 넘침 판정은 FE 측정 엔진의 `overflow.any`(허용 오차 없음). 서버에서는 서버 HTML 렌더(FE 내부 렌더 경로)로 잰 결과를 쓴다.
@@ -17,7 +18,10 @@ PM 결정(2026-11-24, 사용자 전달)을 따른다. PR #141 실험 후보(BWES
 - 폭 확장: 정렬 방향(left → 오른쪽, right → 왼쪽, center → 양쪽 같은 만큼 — 좁은 쪽 여백까지). 최대 폭에서 다 들어가면 들어가는
   최소 폭(정밀도 WIDTH_PRECISION). 다 들어가지 않으면 — 확장 단독으로 나아지지 않았더라도 — 최대 폭을 쥔 채 축소로 넘기고,
   축소로 해소되면 그 배율에서 들어가는 최소 폭으로 다시 줄인다(원래 폭으로 돌아갈 수도 있다).
-- 축소: 시스템 배율을 FLOOR(0.90)까지 내려 들어가는 가장 큰 배율(정밀도 SCALE_PRECISION). 시스템 배율은 셀러 배율과 따로 기록한다.
+- 축소: 시스템 배율을 FLOOR(0.90)까지 내려 들어가는 가장 큰 배율(정밀도 SCALE_PRECISION). FLOOR에서도 넘치면 넘침이 줄어드는 한 FLOOR를
+  남긴다. 시스템 배율은 셀러 배율과 따로 기록한다.
+- 끝까지 넘친 블록도 남긴 자리(박스 ∪ 그린 글자)를 다음 블록의 장애물에 반영한다. 폭 확장 단독으로 나아지지 않았고 축소도 남지 않으면
+  넓힌 폭은 남기지 않는다.
 
 출력 시스템 조정 = {box, fontScale(시스템 배율), lineBreakApplied}. 저장 계약(`layout_adjust.system`)에는 박스 자리가 없다(`open-questions.md` #87) —
 저장 · 셀러 조정과의 합성 · 재사용/무효화는 BE 연결 몫이고, 이 모듈은 계산 결과와 그 결과로 만든 렌더 입력(`apply_system`)만 낸다.
@@ -31,7 +35,7 @@ from typing import Any, Mapping, Sequence
 
 from pipeline.handoff import typeset_geometry as geo
 
-RULE_VERSION = "typeset-adjust/2"
+RULE_VERSION = "typeset-adjust/3"
 FLOOR = 0.90            # PM: 최대 −10%
 GAP_PX = 2.0            # 이웃 글과의 간격 — 측정 오차 실측 근거는 docs/ai-experiments/2026-11-24_09-typeset_auto-adjust-impl.md
 WIDTH_PRECISION = 0.5   # 폭 탐색 정밀도(px)
@@ -173,6 +177,7 @@ def _adjust_block(probe: _Probe, section: Mapping[str, Any], base: Mapping[str, 
             if not improved:
                 info["why"] = "no_gain_alone"
                 if m.ok:  # 확장 단독 효과가 없어도 확장 + 축소로 풀릴 수 있다
+                    pre = (st, cur)
                     st, cur, held = {**st, "box": at(wmax)}, m, True
                     info["heldForShrink"] = True
             elif not m.over:
@@ -187,8 +192,16 @@ def _adjust_block(probe: _Probe, section: Mapping[str, Any], base: Mapping[str, 
     if cur.over:
         m_floor = probe({**st, "scale": floor})
         if not m_floor.ok or m_floor.over:
-            steps.append({"op": "shrink", "applied": False, "why": "need_below_floor", "floor": floor})
             extra["needBelowFloor"] = True
+            keep = m_floor.ok and m_floor.excess["max"] < cur.excess["max"]  # 다 들어가지 않아도 넘침이 줄면 하한까지 줄인 채 남긴다
+            steps.append({"op": "shrink", "applied": keep, "why": "need_below_floor", "floor": floor, **({"scale": floor} if keep else {})})
+            if keep:
+                st, cur = {**st, "scale": floor}, m_floor
+            widen = next((s for s in steps if s["op"] == "widen" and s.get("heldForShrink")), None)
+            if widen and keep:
+                widen.update(applied=True, width=[w0, st["box"]["w"]], fullFit=False)
+            elif widen:  # 넓힌 폭이 아무 효과도 없었다 — 남기지 않는다
+                st, cur = pre
         else:
             lo, hi, best = floor, 1.0, m_floor  # lo: 들어감, hi: 넘침
             while hi - lo > SCALE_PRECISION:
@@ -239,9 +252,9 @@ def adjust_section(section: Mapping[str, Any], blocks: Sequence[Mapping[str, Any
 
     section = {"key"(기록용), "width", "height", ...측정기에 넘길 값}, blocks = 조판 대상 renderInput 블록(1차 번역 · 셀러 조정 없음),
     measure = SectionMeasurer, obstacles = 조판 대상이 아닌 블록 박스 [{"blockId", "x", "y", "w", "h"}].
-    반환: blocks[blockId] = {status, system(해소된 블록만), steps, causes, competition, measures}, before · after(FE 측정 원본),
-    renderBlocks(조정을 적용한 renderInput 블록 — 해소 못 한 블록은 원래 입력).
-    status: not_needed · resolved · unresolved(원래 입력으로 복원) · measure_failed."""
+    반환: blocks[blockId] = {status, system(남긴 조정 — 해소 · 넘침 남음 모두, 바뀐 것이 없으면 None), steps, causes, competition, measures},
+    before · after(FE 측정 원본), renderBlocks(남긴 조정을 적용한 renderInput 블록).
+    status: not_needed · resolved · unresolved(넘침 남음 — 마지막 시도를 남기고 remainingOverflow 보고) · measure_failed."""
     by_id = {int(b["blockId"]): b for b in blocks}
     before = geo.measure_blocks(measure, section, list(blocks))
     static = [{"blockId": int(o["blockId"]), **{k: float(o[k]) for k in ("x", "y", "w", "h")}} for o in obstacles]
@@ -267,29 +280,28 @@ def adjust_section(section: Mapping[str, Any], blocks: Sequence[Mapping[str, Any
         row.update(steps=steps, measures=probe.count, attempt={"box": st["box"], "fontScale": st["scale"], "lineBreakApplied": st["lb"]})
         if extra.get("competition"):
             row["competition"] = extra["competition"]
-        clash = new_overlaps(st["box"], original, others, gap) if cur.ok and not cur.over else []
-        if clash:  # 채택 직전 확인 — 넘침이 풀렸어도 이웃과 새로 겹치면 채택하지 않는다
+        system = {"box": st["box"], "fontScale": st["scale"], "lineBreakApplied": st["lb"]}
+        changed = st["lb"] or st["scale"] != 1.0 or any(abs(st["box"][k] - float(base["box"][k])) > 1e-9 for k in ("x", "y", "w", "h"))
+        clash = new_overlaps(st["box"], original, others, gap) if cur.ok and changed else []
+        if clash:  # 채택 직전 확인 — 이웃과 새로 겹치면 남기지 않는다(원래 입력)
             steps.append({"op": "accept", "applied": False, "why": "new_overlap", "neighbors": clash})
+        keep = cur.ok and changed and not clash
+        if keep:
+            row["system"] = system
+            final_api[bid] = apply_system(base, system)
+            occ[bid] = geo.occupied(bid, st["box"], cur.ink)
         if cur.ok and not cur.over and not clash:
             row["status"] = "resolved"
-            row["system"] = {"box": st["box"], "fontScale": st["scale"], "lineBreakApplied": st["lb"]}
-            final_api[bid] = apply_system(base, row["system"])
-            occ[bid] = geo.occupied(bid, st["box"], cur.ink)
         else:
-            row["status"] = "unresolved"  # 시도한 조정은 남기지 않는다(attempt 는 기록만)
+            row["status"] = "unresolved"  # 넘침이 남았다 — 바뀐 것이 있으면 마지막 시도를 남긴다(PM 승인 11-25)
             row["causes"] = ["new_overlap"] if clash else _causes(cur, steps, st["box"])
             row["remainingOverflow"] = {"sides": cur.sides, "excessPx": cur.excess} if cur.ok else None
     renders = [final_api[int(b["blockId"])] for b in blocks]
     after = geo.measure_blocks(measure, section, renders)
-    dropped = False
     for bid, row in res.items():
-        if row["status"] == "resolved" and after[bid].over:  # 같은 입력을 다시 쟀는데 넘치면 재현성 문제 — 조정을 버린다
-            row.update(status="unresolved", system=None, causes=["not_reproducible"])
-            final_api[bid] = copy.deepcopy(dict(by_id[bid]))
-            dropped = True
-    renders = [final_api[int(b["blockId"])] for b in blocks]
-    if dropped:
-        after = geo.measure_blocks(measure, section, renders)
+        if row["status"] == "resolved" and after[bid].over:  # 같은 입력을 다시 쟀는데 넘친다(재현성 문제) — 넘침으로 보고, 조정은 남긴다
+            row.update(status="unresolved", causes=["not_reproducible"],
+                       remainingOverflow={"sides": after[bid].sides, "excessPx": after[bid].excess})
     return {"rule": RULE_VERSION, "section": section.get("key"), "gapPx": gap, "floor": floor, "order": order,
             "blocks": res, "before": {bid: m.raw for bid, m in before.items()},
             "after": {bid: m.raw for bid, m in after.items()}, "renderBlocks": renders}

@@ -12,7 +12,7 @@
 3 widen        정렬 방향 폭 확장으로 해소(축소 없음)
 4 shrink       축소(최대 −10%)까지 써서 해소(폭 확장과 함께인 것 포함)
 5 competition  여백 경쟁 — 먼저 조정된 이웃이 쓸 수 있던 여백을 차지한 블록(해소 · 실패 모두)
-6 unresolved   끝까지 실패 — 조정 전 상태로 복원, 넘침 보고(시도한 박스는 보라 점선으로만 표시)
+6 unresolved   넘침 남음 — 마지막 시도를 남기고 넘침 보고(typeset-adjust/3, PM 승인 11-25 — 이전 결과는 복원)
 7 clip         섹션 밖 잘림 — 조정 전 또는 후에 글자가 섹션 이미지 밖으로 나간 블록
 그림: 섹션 합성(배경 · 글자색 그대로)을 섹션 밖까지 촬영한 그림에서 조정 전 · 후를 같은 자리로 자른다. 섹션 경계는 초록 점선.
 섹션 전체 그림은 실제 출력(섹션 크기로 잘린 촬영)이다.
@@ -51,9 +51,9 @@ GROUPS: dict[str, dict[str, Any]] = {
                     "why": "먼저 조정된 이웃이 이 블록이 넓힐 수 있던 여백을 차지했다(위 → 아래, 왼쪽 → 오른쪽 순서). 두 블록이 같은 자리를 차지하지 않는지,"
                            " 순서 때문에 한쪽만 손해를 보는지 본다.",
                     "labels": ("괜찮음", "아쉽지만 괜찮음", "순서 때문에 잘못 나뉨", "판단 불가"), "memo": "예: 이 블록이 먼저였어야 함"},
-    "unresolved": {"title": "끝까지 실패", "question": "복원된 원래 상태(넘침 보고)가 맞는 처리로 보이나요?",
-                   "why": "줄바꿈 · 폭 확장 · −10% 축소로도 넘침이 남아 시도한 조정을 버리고 조정 전 상태로 되돌렸다. 보라 점선은 버린 마지막 시도의 박스다.",
-                   "labels": ("맞음(고칠 수 없음)", "다른 수단이면 됐을 것", "조정이 잘못됨", "판단 불가"), "memo": "어떤 처리가 맞을지"},
+    "unresolved": {"title": "넘침 남음", "question": "넘침이 남은 채 남긴 시도(오른쪽)가 사용자가 이어서 고치기에 괜찮은 출발점인가요?",
+                   "why": "줄바꿈 · 폭 확장 · −10% 축소로도 넘침이 남았다. 마지막 시도를 그대로 남기고 넘침을 보고한다(PM 승인 11-25). 사용자가 이 상태에서 이어서 고친다.",
+                   "labels": ("괜찮음", "보이지만 괜찮음", "원래대로 두는 편이 나음", "판단 불가"), "memo": "어떤 처리가 맞을지"},
     "clip": {"title": "섹션 밖 잘림", "question": "섹션 경계(초록 점선) 밖으로 나간 글자가 실제로 잘리나요?",
              "why": "글자 경계가 섹션 이미지 밖으로 나가 출력에서 잘리는 블록이다(배치 영역 넘침과 별도 판정). 섹션 전체 그림이 실제 출력이다.",
              "labels": ("잘림 맞음", "닿기만 함", "잘리지 않음(판정 오류)", "판단 불가"), "memo": "예: 하강부만 잘림"},
@@ -122,12 +122,10 @@ def collect(run: Path, env: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
                 rects += [{"kind": "sec", "side": sd, "x": 0, "y": 0, "w": s["width"], "h": s["height"]} for sd in "LR"]
                 if rb[bid]["box"] != b["box"]:
                     rects.append({"kind": "adj", "side": "R", **rb[bid]["box"]})
-                if st == "unresolved" and row.get("attempt") and row["attempt"]["box"] != b["box"]:
-                    rects.append({"kind": "att", "side": "R", **row["attempt"]["box"]})
                 for c in row.get("competition") or []:
                     if c in rb:
                         rects.append({"kind": "nb", "side": "R", **rb[c]["box"]})
-                label = "버린 시도(복원함)" if st == "unresolved" else "적용한 조정"
+                label = ("남긴 시도(넘침 남음)" if row.get("system") else "바뀐 것 없음(넘침 남음)") if st == "unresolved" else "적용한 조정"
                 info = f"{label}: {_adjust_text(row)}  |  조정 전 판정: {_judge_text(jb.get(bid))}  →  조정 후: {_judge_text(ja.get(bid))}"
                 tool = (f"상태 {st} · 원인 {', '.join(row.get('causes', [])) or '-'} · 측정 {row.get('measures', 0)}회"
                         f" · 경쟁 이웃 {row.get('competition') or '-'} · 판정 {(jb.get(bid) or {}).get('status')} → {(ja.get(bid) or {}).get('status')}")

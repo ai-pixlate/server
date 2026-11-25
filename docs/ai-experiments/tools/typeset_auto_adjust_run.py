@@ -26,6 +26,7 @@ import io
 import json
 import os
 import platform
+import re
 import sys
 import time
 from pathlib import Path
@@ -65,6 +66,12 @@ class LocalFe:
         from playwright.sync_api import sync_playwright
         self.origin, self.revision, self.token = origin.rstrip("/"), revision, token
         self.fonts = hr.load_fonts()
+        # 고정본 CSS 는 src 에 local('Pretendard …')를 먼저 둔다 — 이 PC 에 Pretendard 가 설치돼 있으면 브라우저가 고정 웹폰트 대신
+        # 설치본(OTF)으로 그려 측정이 달라진다(2026-11-25 실측: 338블록 ink 1px 차). 서버 이미지에는 설치본이 없어 local() 이 맞지 않으므로,
+        # 로컬 측정에서만 local(...) 을 빼 서버와 같은 고정 웹폰트로 그린다(env.fontsLocalStripped).
+        css_key = next(k for k in self.fonts if k.endswith('.css'))
+        body, ctype = self.fonts[css_key]
+        self.fonts[css_key] = (re.sub(rb"local\([^)]*\),\s*", b"", body), ctype)
         self.fonts_served: dict[str, str] = {}
         self.bg: dict[str, bytes] = {}
         self.pw = sync_playwright().start()
@@ -100,7 +107,7 @@ class LocalFe:
         return {"backend": "local", "chromium": self.browser.version, "chromiumArgs": list(hr.CHROMIUM_ARGS), "outputScale": hr.OUTPUT_SCALE,
                 "feRevision": self.revision, "platform": {"system": platform.system(), "release": platform.release(),
                                                          "version": platform.version(), "machine": platform.machine()},
-                "playwright": _pkg_version("playwright"), "serverRendererVersion": hr.RENDERER_VERSION,
+                "playwright": _pkg_version("playwright"), "serverRendererVersion": hr.RENDERER_VERSION, "fontsLocalStripped": True,
                 "fontsServed": dict(self.fonts_served)}
 
     def render(self, width: int, height: int, bg: bytes, blocks: list[dict[str, Any]], shots: bool = False) -> dict[str, Any]:
@@ -394,8 +401,8 @@ def audit(args) -> None:
             jb, ja = s["judge"]["before"][k], s["judge"]["after"][k]
             base = api_by[s["key"]][bid]
             if row["status"] == "unresolved":
-                mask, px = _ink_pixels(be, W, H, base)
-                box = base["box"]
+                mask, px = _ink_pixels(be, W, H, rb[bid])  # 지금 출력 상태(넘침이 남아도 남긴 시도, 바뀐 것이 없으면 원래 입력)
+                box = rb[bid]["box"]
                 vis = geo.excess(px, box) if px else None
                 att = row.get("attempt") or {"box": box, "fontScale": 1.0, "lineBreakApplied": False}
                 others = [r for b2, rs in occ.items() if b2 != bid for r in rs] + [dict(o) for o in s["obstacles"]]

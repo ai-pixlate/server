@@ -1,0 +1,240 @@
+{
+  "TQ01": {
+    "status": "부분 측정(고정 105개 완료)",
+    "legacy_id": "OCR01",
+    "overall": {
+      "counts": {
+        "measured": 105,
+        "not_applicable": 4,
+        "undetermined": 3
+      },
+      "measured_totals": {
+        "S": 180,
+        "D": 340,
+        "I": 64,
+        "N": 16742
+      },
+      "measured_subset_cer_percent": 3.4882331859992832,
+      "complete": false,
+      "overall_cer_percent": null,
+      "official": false,
+      "display_reason": null
+    },
+    "by_case": {
+      "GS-01": {
+        "counts": {
+          "measured": 23,
+          "not_applicable": 1,
+          "undetermined": 1
+        },
+        "measured_totals": {
+          "S": 16,
+          "D": 124,
+          "I": 12,
+          "N": 3161
+        },
+        "measured_subset_cer_percent": 4.808604871875988,
+        "complete": false,
+        "overall_cer_percent": null,
+        "official": false,
+        "display_reason": null
+      },
+      "GS-02": {
+        "counts": {
+          "measured": 48
+        },
+        "measured_totals": {
+          "S": 111,
+          "D": 168,
+          "I": 29,
+          "N": 8421
+        },
+        "measured_subset_cer_percent": 3.657522859517872,
+        "complete": true,
+        "overall_cer_percent": 3.657522859517872,
+        "official": false,
+        "display_reason": null
+      },
+      "GS-03": {
+        "counts": {
+          "measured": 34,
+          "not_applicable": 3,
+          "undetermined": 2
+        },
+        "measured_totals": {
+          "S": 53,
+          "D": 48,
+          "I": 23,
+          "N": 5160
+        },
+        "measured_subset_cer_percent": 2.4031007751937983,
+        "complete": false,
+        "overall_cer_percent": null,
+        "official": false,
+        "display_reason": null
+      }
+    },
+    "provenance": "최초 67·11/05 보완 3·11/09 보완 42. GS-03 공식 N2 실패와 별도."
+  },
+  "TQ02": {
+    "status": "보류",
+    "reason": "원문 충실도 측정 보류. 방법·분모 미확정"
+  },
+  "TQ03": {
+    "status": "부분 측정",
+    "limitations": "단일 평가모델(M-Prometheus 7B) · 독립 검증 없음 · 출력 형식 완전 충족 0개 · 점수 확보 449/491개",
+    "audit": {
+      "checked_on": "2026-11-24",
+      "mandatory_limitations": "단일 평가모델(M-Prometheus 7B) · 독립 검증 없음 · 출력 형식 완전 충족 0개 · 점수 확보 449/491개",
+      "source_file_sha256": {
+        "full_runner.py": "7e124f4565a0686c2142da82dba3e03d7d99a780ae9b787730c4f17a11bec45a",
+        "protocol.py": "aa07c38c98e84e69d148bb8705becc6b22a6bc49b6c3743575fa0ec79f2f6575",
+        "validated-run-config.json": "9b53506dc9dbee4307e9c57336fa91265e2195d27b5ef0e8eb9437be45300a20",
+        "targets.jsonl": "53ed00b938c68514606357e218113f7fcfb9e9aa17ac0176989f28e27d551b25",
+        "received-20261121/results.jsonl": "63bf17f66ce13a43a66a376181625d89138576b4ce5f32587a78b0e8b1465f0d",
+        "received-20261121/summary.json": "a13e46910f91dc8615bcb389492ffe9a00f4c6909b6f5415883ccc1719c3dace",
+        "received-20261121/receipt-validation.json": "3e78d6071d69dbf66dde1a676cb5c075358f9ceab289a55e68163ae3fea3849e"
+      },
+      "unique_targets": 491,
+      "source_texts_and_identifiers_match": true,
+      "status_counts": {
+        "format_error": 487,
+        "output_limit": 4
+      },
+      "origin_counts": {
+        "reused_existing_real16": 16,
+        "full_evaluation": 475
+      },
+      "strict_format_count": 0,
+      "marker_score_n": 449,
+      "marker_score_sum": 970,
+      "marker_mean": 2.1603563474387526,
+      "marker_distribution": {
+        "1": 28,
+        "2": 345,
+        "3": 61,
+        "4": 6,
+        "5": 9
+      },
+      "score_recheck_mismatch_ids": [],
+      "multiple_valid_marker_ids": [],
+      "decimal_marker_ids": [],
+      "no_marker_untruncated": 38,
+      "output_limit_ids": [
+        "GS-02-block-566",
+        "GS-02-block-643",
+        "GS-02-block-822",
+        "GS-02-block-823"
+      ],
+      "legacy_body_only": {
+        "GS-02-block-430": 2
+      },
+      "model_calls": 0,
+      "inputs_modified": false,
+      "note": "기존 통계 재현 확인이며 최종판 추출 경계·재시도·대상 대응 정책의 신규 확정이 아님"
+    },
+    "by_case": {
+      "all": {
+        "targets": 491,
+        "scored": 449,
+        "missing": 42,
+        "sum": 970,
+        "mean": 2.1603563474387526,
+        "distribution": {
+          "1": 28,
+          "2": 345,
+          "3": 61,
+          "4": 6,
+          "5": 9
+        },
+        "status_counts": {
+          "format_error": 487,
+          "output_limit": 4
+        }
+      },
+      "GS-01": {
+        "targets": 181,
+        "scored": 169,
+        "missing": 12,
+        "sum": 361,
+        "mean": 2.136094674556213,
+        "distribution": {
+          "1": 14,
+          "2": 124,
+          "3": 27,
+          "4": 2,
+          "5": 2
+        },
+        "status_counts": {
+          "format_error": 181
+        }
+      },
+      "GS-02": {
+        "targets": 310,
+        "scored": 280,
+        "missing": 30,
+        "sum": 609,
+        "mean": 2.175,
+        "distribution": {
+          "1": 14,
+          "2": 221,
+          "3": 34,
+          "4": 4,
+          "5": 7
+        },
+        "status_counts": {
+          "format_error": 306,
+          "output_limit": 4
+        }
+      },
+      "GS-03": {
+        "targets": 0,
+        "scored": 0,
+        "missing": 0,
+        "sum": 0,
+        "mean": null,
+        "distribution": {},
+        "status_counts": {}
+      }
+    },
+    "excluded_blocks": 333,
+    "exclusion_status_counts": {
+      "all": {
+        "section_excluded": 122,
+        "block_excluded": 159,
+        "translation_failed": 17,
+        "empty_source_no_translation": 35
+      },
+      "GS-01": {
+        "section_excluded": 38,
+        "block_excluded": 110,
+        "translation_failed": 2,
+        "empty_source_no_translation": 4
+      },
+      "GS-02": {
+        "section_excluded": 84,
+        "translation_failed": 15,
+        "empty_source_no_translation": 31,
+        "block_excluded": 49
+      },
+      "GS-03": {}
+    },
+    "unavailable_images": 18,
+    "license_status": "미확정",
+    "interpretation": "최종판과의 변화 비교용. 절대 성능·독립 검증 주장 불가."
+  },
+  "TQ04": {
+    "status": "보류",
+    "legacy_id": "OCR02"
+  },
+  "TQ05": {
+    "status": "미측정",
+    "legacy_id": "OI-54",
+    "reason": "독립 평가셋의 정답·검출 결과 없음. OP07로 대체하지 않음."
+  },
+  "TQ06": {
+    "status": "미측정",
+    "legacy_id": "NFR-15",
+    "reason": "자동 측정법·분모·기준값 미확정"
+  }
+}

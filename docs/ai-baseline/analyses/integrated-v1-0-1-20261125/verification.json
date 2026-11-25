@@ -1,0 +1,67 @@
+{
+  "base_commit": "c750cd990b8274b39acbf153f571d0fe7599281d",
+  "tests_passed": 89,
+  "test_commands": [
+    "python -B -m unittest tests.test_baseline_protocol tests.test_baseline_evaluation_prepare tests.test_baseline_audit tests.test_baseline_consistency",
+    "python -B -m unittest discover -s tests -p test_baseline_scope.py",
+    "python -B -m unittest discover -s tests -p test_baseline_interaction.py"
+  ],
+  "initial_test_invocation_issue": "모듈 방식의 scope/interaction import 경로 오류 2개. discovery 재실행으로 각각 12개 통과. 제품·테스트 코드 수정 없음.",
+  "replay_byte_identical": [
+    {
+      "path": "results/common-defects.json",
+      "sha256": "c259014b65fa7861d459289e3d60bb300cf5e97dc46c36eb05406592f23ed7b9"
+    },
+    {
+      "path": "results/costs.json",
+      "sha256": "cd19d2629b76c5194d3e73604f1e3a296a2e0a7f14895bc4fee6ff251fb5e451"
+    },
+    {
+      "path": "results/h-results.json",
+      "sha256": "18b592ca5e84690bb0bd74b356ca009dead02fb823a080ae1bd572466f5b2106"
+    },
+    {
+      "path": "results/inputs.json",
+      "sha256": "24b5396e97d0c857d4b208a906cc903d4dc60115c9fdbaaab4a977b9d49e0cbb"
+    },
+    {
+      "path": "results/logical-executions.json",
+      "sha256": "23b67b65c15a22bf8cecdb502360cc99a953b99612983334791b14de4442a533"
+    },
+    {
+      "path": "results/model-calls.json",
+      "sha256": "ce6bda7bd88869b1781be60dc7c8c5371275abeb616be909221d266d22d06fc9"
+    },
+    {
+      "path": "results/op-results.json",
+      "sha256": "b78aada48b7b74358ead5f7d67c08e67d50767b59d2678075e65496262b08062"
+    },
+    {
+      "path": "results/operation-evidence.json",
+      "sha256": "dd101a78c7ad959785f7d65fb71aa92cf84df39c43bac1e37f1b14dcf47dbdb1"
+    },
+    {
+      "path": "results/times.json",
+      "sha256": "445432f9cbdccd08d435bed3ba9f3efc35970e57e56bcb01fbfd69ed20ce2b86"
+    },
+    {
+      "path": "results/tq-results.json",
+      "sha256": "68ba53a613bda4be958695781fac0652b516aea87e625ab5462a0aff25f67c76"
+    },
+    {
+      "path": "results/validation.json",
+      "sha256": "6efc322d86ed36749e72d395571c161d4f63c36ff5e6a48c51a5b8e2500956f4"
+    }
+  ],
+  "protected_tracked_files_modified": [],
+  "current_guidance_files_changed": [
+    "docs/ai-baseline/README.md",
+    "docs/ai-baseline/ocr-baseline-summary.md",
+    "docs/ai-baseline/plan.md"
+  ],
+  "report_local_links_verified": true,
+  "tq03_raw_recheck_no_model_calls": true,
+  "h_original_and_pm_results_untouched": true,
+  "gs03_retry_recovery_claimed": false,
+  "merge_performed": false
+}

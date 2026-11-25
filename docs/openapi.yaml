@@ -519,15 +519,22 @@ components:
     # ===== enum (CHECK_enum_허용값 v3.4.1 · ERD V5 그대로) =====
     JobStatus:
       type: string
-      description: 'DB job.status (6종)'
-      enum: [draft, processing, review, done, failed, archived]
+      description: >
+        DB job.status (6종). [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포] `archived` → `cancelled` 이름 바꾸기(G17 15번).
+        서버 배포 전까지 운영 응답은 `archived`다 — FE는 둘 다 취소로 다룬다(README 7.8 ⑥ⓓ).
+        처리가 도는 중은 `processing`(N2 · N4 · **N6 최종 렌더 중**), 셀러 차례는 `review`(README 7.8 ②).
+      enum: [draft, processing, review, done, failed, cancelled]
     JobStep:
       type: string
       enum: [N1, N2, N3, N4, N5, N6]
     UserFacingStatus:
       type: string
-      description: '사용자 노출 상태 영문 enum 8종 (GENERATED · 한글은 FE i18n gloss, API 값 아님)'
-      enum: [draft, analyzing, section_review, translating, reviewing, done, failed, archived]
+      description: >
+        사용자 노출 상태 영문 enum 10종(PRD 05 상태표 · F-JOB-04. 한글은 FE i18n gloss, API 값 아님).
+        [PRD v3.6.4 · PM 확정 11-25 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포] 새 값 `rendering`(최종 렌더 중 = processing · N6) ·
+        `awaiting_save`(저장 대기 = review · N6), `archived` → `cancelled`. 지금 서버는 N6에서 렌더 중 · 저장 대기 모두 `reviewing`이고
+        취소는 `archived`다 — 분리 뒤 저장 대기는 `awaiting_save`로 바뀐다. 대응표 · 전이는 README 7.8 ② · ③.
+      enum: [draft, analyzing, section_review, translating, reviewing, rendering, awaiting_save, done, failed, cancelled]
     SpecType:
       type: string
       enum: [original, site, custom]
@@ -2427,6 +2434,9 @@ paths:
         status=archived + 종속 리소스 정리(DELETE) + audit_log. 🟢9월.
         [PRD v3.5.10 · 계약 확정(FE 11-06) · 현행] 응답은 200 `{jobId, status}`다. 이미 취소한 작업을 다시 취소해도 같은 200이다.
         없는 작업과 남의 작업은 404 NOT_FOUND `job_not_found`로 구분하지 않는다(존재 은닉).
+        [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포] 상태 값 `archived` → `cancelled`(G17 15번, 응답 `status`도 같다 — 배포 전 서버는 `archived`).
+        작업 이벤트(`event_log`)는 지우지 않는다(F-JOB-07 남는 것). 24시간 자동 취소(G17 24번)도 이 처리와 같다 — 대상 · 기산점 · 삭제 범위 ·
+        취소 뒤 조작 응답은 README 7.8 ④.
       responses:
         '200':
           description: '취소됨(반복 취소 포함)'
@@ -2437,8 +2447,8 @@ paths:
                 required: [jobId, status]
                 properties:
                   jobId: { type: integer, format: int64 }
-                  status: { type: string, enum: [archived] }
-              example: { jobId: 501, status: archived }
+                  status: { type: string, enum: [cancelled], description: '배포 전 서버는 archived' }
+              example: { jobId: 501, status: cancelled }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/tasks:
     parameters:
@@ -3454,7 +3464,9 @@ paths:
 
 
         전 섹션 제외 차단. acknowledgedWarnings 정합 아니면 409 INVALID_STATE(+현재 경고 목록).
-        job→review/N6. confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
+        job→processing/N6(userFacingStatus `rendering` — 최종 렌더 중) [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포 —
+        배포 전 서버는 job→review/N6(`reviewing`)]. 렌더가 성공하면 review/N6(`awaiting_save`), 자동 재시도가 없거나 끝난 실패면 바로
+        failed/N6(PM 확정 11-25 — 사용자 [다시 시도]는 JOB-05 `retryable` 에 따름, README 7.8 ③). confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
         FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
 
         **[PRD v3.5.10 · 계약 확정] 2차(11/6) 확정 규칙**
@@ -3602,7 +3614,9 @@ paths:
       x-screen: 'N6'
       x-source: API-FIN-01
       description: >
-        review/N6 확인. 진행 중이면 그 시도, 현재 시도 실패면 같은 실행의 재시도 시도(retry_count 누적·max_retry 한도,
+        N6 확인 — [로컬 구현 · 미배포] review/N6(저장 대기 `awaiting_save`) · processing/N6(최종 렌더 중 `rendering`) · failed/N6(렌더 오류) ·
+        done/N6(저장 뒤)에서 받는다. 그 밖은 409 INVALID_STATE(배포 전 서버는 review/N6 · done/N6 만). 저장 대기 · 렌더 오류에서 부르면
+        작업은 processing/N6(`rendering`)이 되고, 저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 진행 중이면 그 시도, 현재 시도 실패면 같은 실행의 재시도 시도(retry_count 누적·max_retry 한도,
         초기화 없음), 완료면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
         현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
         202 renderTaskId(시도 id) → JOB-05 폴링.
@@ -3751,7 +3765,7 @@ paths:
       operationId: jobSave
       x-screen: 'N6'
       x-source: API-FIN-06
-      description: '렌더 성공 확인 후 done/N6·is_saved=true. 보관함 카드 = job 투영(테이블 아님). 🟢9월.'
+      description: '렌더 성공 확인 후 done/N6·is_saved=true. [로컬 구현 · 미배포] 저장 대기(review/N6 · `awaiting_save`)와 이미 저장한 done/N6 에서 받는다 — 최종 렌더 중(processing/N6) · 렌더 오류(failed/N6)는 409 INVALID_STATE(README 7.8 ③). 보관함 카드 = job 투영(테이블 아님). 🟢9월.'
       requestBody:
         required: false
         content:

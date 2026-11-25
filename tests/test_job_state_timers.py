@@ -269,6 +269,37 @@ def test_n6_timeout_first_then_late_render_result_rejected(env):
     assert r.status_code == 409
 
 
+def test_n6_running_render_then_timeout_then_late_success_rejected(env, monkeypatch):
+    """순서 ①' 이미 실행 중인 최종 렌더(권한 보유) → 그 도중 시간 초과 확정 → 렌더가 성공 결과를 들고 끝남:
+    권한 세대가 바뀌어 결과를 채택하지 않고, 산출물 · 상태(오류)를 바꾸지 않는다."""
+    from app.flows import downstream
+
+    ids = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    orig = downstream._render_section
+    fired: dict = {}
+
+    def render_then_timeout(*a, **kw):
+        out = orig(*a, **kw)  # 렌더 계산은 성공한다
+        if not fired:  # 첫 섹션을 그린 직후(아직 결과 제출 전) 시간 초과가 확정된다
+            _age_state(job, 1801)
+            fired["sweep"] = recovery.sweep()
+            fired["state"] = _state(ids)
+        return out
+
+    monkeypatch.setattr(downstream, "_render_section", render_then_timeout)
+    env["q"].drain()  # 최종 렌더 실행(권한 획득 → 렌더 → 그 도중 시간 초과 → 제출)
+    assert fired["sweep"]["timed_out"] == 1 and fired["state"] == ("failed", "N6", "failed")
+    assert _state(ids) == ("failed", "N6", "failed")
+    assert _q("SELECT count(*) AS n FROM deliverable WHERE job_id = :j AND render_status = 'done'", j=job)[0]["n"] == 0
+    att = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND stage = 'final_render' AND is_current", j=job)[0]
+    assert att == {"status": "failed", "error_code": "PROCESSING_TIMEOUT"}
+    assert _q("SELECT count(*) AS n FROM task_handoff h JOIN job_async_task a ON a.id = h.task_id WHERE a.job_id = :j "
+              "AND a.stage = 'final_render' AND h.state = 'adopted'", j=job)[0]["n"] == 0
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 409
+
+
 @pytest.mark.parametrize("step", ["N4", "N6"])
 def test_result_adopted_before_timeout_sweep_is_used(env, step):
     """순서 ② 30분이 지났어도 시간 초과 처리(점검)보다 정상 결과 채택이 먼저 끝나면 그 결과를 쓴다 — 점검은 잠근 뒤 상태를 다시 보고

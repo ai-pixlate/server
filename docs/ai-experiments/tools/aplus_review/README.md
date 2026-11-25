@@ -37,3 +37,17 @@ python docs/ai-experiments/tools/aplus_review/gallery.py --plan <aplus_plan.json
 검수 화면: 칸마다 왼쪽에 원본 섹션(색 상자 = 사진을 자른 자리), 오른쪽에 렌더 · 고른 이유 · 코드가 바로잡은 점 · 문구별 원문 / 글자 수 / 한도 / 출처 블록. 칸마다 템플릿 · 문구 · 사진 판단과 메모를 적고 "판단 결과 CSV 내려받기"로 저장한다(판단은 그 브라우저에만 남는다).
 
 출력: `index.html`(검수 화면) · `renders/*.png` · `content/*.json`(렌더러 입력) · `images/`(자른 사진) · `sources/`(원본 섹션 축소 그림) · `report.json` · `_renderer_spec/`(내보낸 치수 파일).
+
+## 섹션 내용 라벨 확인 화면
+
+섹션마다 그림 · 읽은 글 · 모델이 붙인 라벨(주 · 보조 · 확신도 · 이유 · 가는 칸)을 나란히 놓아 눈으로 보는 화면이다. 판정을 기록하지 않는다. Pillow만 쓴다.
+
+```
+python docs/ai-experiments/tools/aplus_review/label_review.py --out <새 폴더> [--title 제목] --product <이름>=<aplus_label.json>=<sections.json>[=<aplus_label_debug.json>] [--product ...]
+```
+
+- `aplus_label.json`: `pipeline.aplus.label.run`의 결과(`status=ok`). `sections.json`: 그 실행에 쓴 섹션 목록(`Section` JSON 배열).
+- `aplus_label_debug.json`을 주면 모델에 보낸 섹션의 글을 함께 보여 준다.
+- 화면: 상품 탭, 걸러 보기(보조 라벨 있음 · 확신 낮음 · 2,000px 넘음 · 7칸 밖 · 라벨별), 그림을 누르면 원본 크기, `j` · `k`로 다음 · 이전 섹션. 라벨 정의는 `pipeline/prompts/aplus_label.md`의 표에서 읽는다.
+
+출력: `index.html` · `images/`(섹션 그림 JPEG).

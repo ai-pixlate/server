@@ -178,7 +178,7 @@ class WorkerControl:
             db.rollback()
         finally:
             db.close()
-        gone = a is None or a["job_status"] == "archived" or a["status"] == "cancelled" or not a["is_current"]
+        gone = a is None or a["job_status"] == "cancelled" or a["status"] == "cancelled" or not a["is_current"]
         if h is None:
             # 전체 취소·중단·대체된 시도는 로컬 자료도 버린다(D9-4). 그 밖에는 복구 가능 확인 전까지 보존
             return {"state": None, "remote_recoverable": False, "discard": bool(gone)}

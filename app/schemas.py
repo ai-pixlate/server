@@ -19,7 +19,7 @@ class JobStatus(str, Enum):
     review = "review"
     done = "done"
     failed = "failed"
-    archived = "archived"
+    cancelled = "cancelled"  # G17 15번 — 이전 이름 archived
 
 
 class CurrentStep(str, Enum):
@@ -37,9 +37,11 @@ class UserFacingStatus(str, Enum):
     section_review = "section_review"
     translating = "translating"
     reviewing = "reviewing"
+    rendering = "rendering"  # 최종 렌더 중 = processing · N6 (PRD 05)
+    awaiting_save = "awaiting_save"  # 저장 대기 = review · N6 (PRD 05)
     done = "done"
     failed = "failed"
-    archived = "archived"
+    cancelled = "cancelled"  # G17 15번 — 이전 이름 archived
 
 
 class SpecType(str, Enum):

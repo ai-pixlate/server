@@ -368,7 +368,7 @@ def _failed_shown_and_confirm_passes(ids, attempts=None):
     assert ids["c"].get(f"/v1/jobs/{ids['job']}/blocks").status_code == 200
     r = ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": []})
     assert r.status_code == 200, r.text
-    assert _step(ids) == ("review", "N6")
+    assert _step(ids) == ("processing", "N6")
 
 def test_adoption_rejects_incomplete_report(env, rule_on, monkeypatch):
     from pipeline.handoff import translation, validate
@@ -1032,7 +1032,7 @@ def test_cancel_and_register_race_leaves_no_request_object(env, rule_on, first):
     if first == "cancel":
         assert done["aid"] is None  # 취소된 실행 — 등록하지 않는다
     else:
-        assert done["aid0"] is not None and done["cancel"]["status"] == "archived"
+        assert done["aid0"] is not None and done["cancel"]["status"] == "cancelled"
     assert _objects(env, ids["job"]) == []  # 어느 순서든 남는 고정 요청 객체가 없다
 
 
@@ -1218,4 +1218,4 @@ def test_cancel_during_run_blocks_report_before_adoption(env, rule_on, monkeypat
     assert _q("SELECT count(*) AS n FROM task_handoff WHERE job_id = :j", j=ids["job"])[0]["n"] == 0  # 보고 자체를 기록하지 않는다
     assert _attempt(target["id"])["status"] == "cancelled"  # 요청 무결성 실패가 아니라 취소로 끝난다
     assert _objects(env, ids["job"]) == []
-    assert _q("SELECT status FROM job WHERE id = :j", j=ids["job"])[0]["status"] == "archived"
+    assert _q("SELECT status FROM job WHERE id = :j", j=ids["job"])[0]["status"] == "cancelled"

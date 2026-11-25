@@ -49,7 +49,8 @@ def render(job_id: int, response: Response, db: Session = Depends(get_db), selle
 
     _require_job_owned(db, job_id, seller_id)
     job = execution.lock_job(db, job_id)
-    if job["current_step"] != "N6" or job["status"] not in ("review", "done"):
+    # 저장 대기(review) · 최종 렌더 중(processing) · 렌더 오류(failed) · 저장 뒤(done). README 7.8 ③
+    if job["current_step"] != "N6" or job["status"] not in ("review", "processing", "failed", "done"):
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더는 N6 에서만"})
     try:
@@ -57,6 +58,10 @@ def render(job_id: int, response: Response, db: Session = Depends(get_db), selle
     except execution.RetryNotAllowed as e:
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "RETRY_NOT_ALLOWED", "message": str(e)}) from e
+    if job["status"] in ("review", "failed"):  # 저장 대기 · 렌더 오류에서 다시 그리면 최종 렌더 중. 저장한 작업(done)은 그대로
+        from app.flows.common import set_job_state
+
+        set_job_state(db, job_id, status="processing", step="N6", ufs="rendering")
     db.commit()
     execution.dispatch([task_id])
     response.status_code = 202
@@ -215,7 +220,18 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     from app.flows.common import VISIBLE, has_source
     from app.storage import ObjectMissing, get_store
 
+    from app import execution
+
     _require_job_owned(db, job_id, seller_id)
+    # 취소와의 경합(AC-03): 작업 행을 잠근 채 읽기 · S3 업로드 · export_artifact 기록 · 커밋까지 한다. 취소(사용자 · 24시간 자동)도
+    # 같은 행을 먼저 잠그므로 — 취소가 먼저면 여기서 cancelled 를 보고 409, 내보내기가 먼저면 취소는 이 커밋 뒤에 산출물 행 · 파일까지 지운다.
+    # 잠금은 이 요청 동안만이다. 사용자 취소(JOB-04)는 이 내보내기가 끝날 때까지 기다린다. 복구 점검에서 작업 행을 잠그는 단계
+    # (시간 상한 · 24시간 자동 취소 · 권한 만료 · 집계 복구 · 취소 잔여 정리)는 잠긴 작업을 기다리지 않고 그 주기에서 건너뛴다
+    # (execution.try_lock_job · recovery._skip_locked — 다음 주기에 다시 본다). 인계 · 대기 재전달은 작업 행을 잠그지 않는다.
+    if execution.lock_job(db, job_id)["status"] == "cancelled":
+        # 취소된 작업에 내보내기 파일을 새로 만들지 않는다(README 7.8 ④). 409 INVALID_STATE(사유 없음)
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "취소된 작업"})
     wanted = []
     for c in (body.components if body.components is not None else ["content.csv"]):
         c = _ALIASES.get(c, c)
@@ -343,7 +359,7 @@ def save(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(ge
         text(
             "UPDATE job SET is_saved = true, saved_at = now(), status = 'done', "
             "user_facing_status = 'done', updated_at = now() "
-            "WHERE id = :j AND seller_id = :s AND status <> 'archived' AND current_step = 'N6' RETURNING id, is_saved, saved_at"
+            "WHERE id = :j AND seller_id = :s AND status <> 'cancelled' AND current_step = 'N6' RETURNING id, is_saved, saved_at"
         ),
         {"j": job_id, "s": seller_id},
     ).mappings().first()

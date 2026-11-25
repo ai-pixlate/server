@@ -399,6 +399,11 @@ def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db), seller_
             from app.flows.common import set_job_state
 
             set_job_state(db, job_id, status="processing", step="N4", ufs="translating")
+        elif job["status"] == "failed" and job["current_step"] == "N6" and t["stage"] == "final_render":
+            # N6 오류(최종 렌더 실패 · 한도 남음) [다시 시도] → 최종 렌더 중(PRD 05 오류 → 최종 렌더 중, README 7.8 ③)
+            from app.flows.common import set_job_state
+
+            set_job_state(db, job_id, status="processing", step="N6", ufs="rendering")
     except execution.RetryNotAllowed as e:
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "RETRY_NOT_ALLOWED", "message": str(e)}) from e
@@ -427,7 +432,7 @@ def abort_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depen
         raise HTTPException(status_code=404, detail="job not found")
     job = execution.lock_job(db, job_id)
     step = job["current_step"]
-    if job["status"] == "archived" or step not in ("N2", "N4"):
+    if job["status"] == "cancelled" or step not in ("N2", "N4"):
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": f"중단할 수 없는 단계({step})"})
     if step == "N2":

@@ -56,6 +56,14 @@ STAGE_RUN_KIND = {
 }
 CONTRACT_VERSION = "1"  # 인계 봉투 형식 버전(5.24 공통 인계 봉투의 BE 구현 1판)
 ADOPT_PENDING_OWNER = "adopt-pending"  # 원격 인계 등록 직후 BE 채택자가 인수하기 전의 소유자 표시
+PROCESSING_TIMEOUT = "PROCESSING_TIMEOUT"  # 처리 시간 상한으로 닫은 시도의 task errorCode(README 7.8 ⑤ · app.recovery)
+TIMED_OUT_REJECT = "processing_timeout"  # 그 시도의 늦은 인계 거절 사유(task_handoff.reject_reason)
+
+
+def timed_out(att: dict[str, Any]) -> bool:
+    """처리 시간 상한으로 닫힌 시도 — 이후 작업 상태(다른 시도 재시도로 다시 처리 중 등)와 무관하게 영구히 채택하지 않는다(README 7.8 ⑥).
+    권한 만료(LEASE_EXPIRED 등)로 실패한 시도의 늦은 인계 저장 복구(claim_adoption)와 구분한다."""
+    return att["status"] == "failed" and att["error_code"] == PROCESSING_TIMEOUT
 
 TASK_BY_STAGE = {
     "analyze": "app.tasks.run_analyze",
@@ -339,6 +347,12 @@ def lock_job(db: Session, job_id: int) -> dict[str, Any]:
     return job
 
 
+def try_lock_job(db: Session, job_id: int) -> dict[str, Any] | None:
+    """작업 행을 기다리지 않고 잠근다. 다른 트랜잭션(내보내기 · 편집 요청 등)이 잡고 있거나 행이 없으면 None.
+    복구 점검(시간 상한 · 24시간 자동 취소)이 한 작업 때문에 주기 전체를 멈추지 않게 쓴다 — 건너뛴 작업은 다음 주기에 다시 본다."""
+    return _one(db, "SELECT * FROM job WHERE id = :j FOR UPDATE SKIP LOCKED", j=job_id)
+
+
 def lock_task(db: Session, task_id: int) -> dict[str, Any]:
     row = _one(db, "SELECT * FROM job_async_task WHERE id = :t FOR UPDATE", t=task_id)
     if row is None:
@@ -425,7 +439,7 @@ def create_retry(db: Session, attempt_id: int, origin: str, *, manifest: dict[st
     - 현재 failed · 대표 미취소·실행 중 · 누적 한도 미만만 허용. 동시 요청은 잠금 재확인과 U2 로 하나만 생긴다.
     - manifest 를 주면 새 고정 입력(⑧ 실패 대상 재시도 등). 없으면 직전 시도와 같은 입력."""
     job, run, att = lock_chain(db, attempt_id)
-    if job["status"] == "archived":
+    if job["status"] == "cancelled":
         raise RetryNotAllowed("작업이 취소됐다")
     if run["status"] != "running" or run["cancelled_at"] is not None:
         raise RetryNotAllowed("실행이 진행 중이 아니다(중단·종료)")
@@ -455,7 +469,7 @@ def acquire(attempt_id: int, owner: str, *, remote_worker_id: str | None = None)
     try:
         job, run, att = lock_chain(db, attempt_id)
         if (att["status"] != "pending" or not att["is_current"] or run["status"] != "running"
-                or run["cancelled_at"] is not None or job["status"] == "archived"):
+                or run["cancelled_at"] is not None or job["status"] == "cancelled"):
             db.rollback()
             return None
         epoch = att["lease_epoch"] + 1
@@ -498,7 +512,7 @@ def _current_lease_sql(remote: bool) -> str:
         "a.id = :t AND a.status = 'running' AND a.is_current AND a.lease_epoch = :e AND a.lease_owner = :o "
         "AND a.lease_expires_at > now() "
         "AND EXISTS (SELECT 1 FROM job_async_task r JOIN job jb ON jb.id = r.job_id "
-        "WHERE r.id = a.parent_task_id AND r.status = 'running' AND r.cancelled_at IS NULL AND jb.status <> 'archived')"
+        "WHERE r.id = a.parent_task_id AND r.status = 'running' AND r.cancelled_at IS NULL AND jb.status <> 'cancelled')"
     )
     if remote:
         cond += (
@@ -614,7 +628,7 @@ def register_handoff(lease: Lease, envelope: Envelope, *, remote_worker_id: str 
     db = app_db.SessionLocal()
     try:
         job, run, att = lock_chain(db, lease.attempt_id)
-        if job["status"] == "archived":
+        if job["status"] == "cancelled":
             db.rollback()
             raise HandoffRejected("전체 취소된 작업 — 인계를 기록하지 않는다", code="JOB_ARCHIVED")
         grant = None
@@ -639,6 +653,8 @@ def register_handoff(lease: Lease, envelope: Envelope, *, remote_worker_id: str 
                 reject_reason = "cancelled"
             elif att["status"] == "done":
                 reject_reason = "already_done"
+            elif timed_out(att):
+                reject_reason = TIMED_OUT_REJECT  # 이력으로만 받고(rejected · 산출물 unadopted) 채택 대기에 올리지 않는다
         if envelope.input_fingerprint != att["input_fingerprint"]:
             reject_reason = reject_reason or "input_fingerprint_mismatch"
         state = "rejected" if reject_reason else "received"
@@ -706,7 +722,7 @@ def claim_adoption(handoff_id: int, adopter: str) -> Lease | None:
         if h["state"] not in ("received", "verifying", "verified"):
             db.rollback()
             return None
-        if job["status"] == "archived" or run["status"] != "running" or run["cancelled_at"] is not None or not att["is_current"]:
+        if job["status"] == "cancelled" or run["status"] != "running" or run["cancelled_at"] is not None or not att["is_current"]:
             _reject_handoff(db, h, "cancelled" if att["is_current"] else "superseded")
             db.commit()
             return None
@@ -724,6 +740,11 @@ def claim_adoption(handoff_id: int, adopter: str) -> Lease | None:
         if att["status"] == "running" and live_owner and att["lease_owner"] != adopter:
             db.rollback()
             return None  # 유효한 권한 소유자가 있다 — 시간만으로 빼앗지 않는다
+        if timed_out(att):
+            # 시간 초과로 닫은 시도는 아래 저장 복구 대상이 아니다 — 다른 시도 재시도로 작업이 다시 처리 중이어도(AC-01)
+            _reject_handoff(db, h, TIMED_OUT_REJECT)
+            db.commit()
+            return None
         if att["status"] == "failed":
             # 권한 만료로 실패 처리됐으나 대체 시도가 없는 현재 시도의 늦은 인계(5.32 복구표) — 저장 복구로 되살린다.
             # 단, 화면이 이미 다음 단계로 넘어갔으면(N5 예외 진입 등) 이전 시도의 채택 권한은 끝났다(D9-3)
@@ -795,7 +816,10 @@ def adopt(handoff_id: int, lease: Lease) -> AdoptOutcome | None:
             db.rollback()
             return None
         if not check_lease(db, lease):
-            if not att["is_current"] or run["status"] != "running" or run["cancelled_at"] is not None or job["status"] == "archived":
+            if timed_out(att):  # 인수 뒤 채택 전에 시간 초과로 닫혔다(세대 +1) — 다시 인수하지 못하게 거절로 끝낸다
+                _reject_handoff(db, h, TIMED_OUT_REJECT)
+                db.commit()
+            elif not att["is_current"] or run["status"] != "running" or run["cancelled_at"] is not None or job["status"] == "cancelled":
                 _reject_handoff(db, h, "superseded" if not att["is_current"] else "cancelled")
                 db.commit()
             else:

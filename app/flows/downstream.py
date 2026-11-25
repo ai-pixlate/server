@@ -156,7 +156,7 @@ def proceed(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
     if active is not None:
         db.rollback()
         return {"jobId": job_id, "accepted": True, "taskId": active["id"], "existing": True}
-    if job["status"] == "archived" or job["current_step"] != "N3" or job["status"] != "review":
+    if job["status"] == "cancelled" or job["current_step"] != "N3" or job["status"] != "review":
         raise ProceedRejected(409, "INVALID_STATE", f"proceed 는 N3 에서만({job['current_step']}/{job['status']})")
     if job["current_analysis_task_id"] is None:
         raise ProceedRejected(409, "INVALID_STATE", "채택된 초기 분석이 없다")
@@ -1053,6 +1053,11 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
     run = dict(db.execute(text("SELECT * FROM job_async_task WHERE id = :r"), {"r": run_id}).mappings().one())
     if run["status"] != "running":
         return []
+    job0 = db.execute(text("SELECT status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
+    if job0["current_step"] == "N4" and job0["status"] != "processing":
+        # N4 오류(처리 시간 초과 · 단계 실패) 동안은 후속 처리(대체 배경 · 미리보기)를 새로 만들지 않는다(README 7.8 ⑤ 늦은 완료 미채택).
+        # [다시 시도](JOB-06)로 다시 처리 중이 되면 그때 집계가 이어서 만든다
+        return []
     scope = json_value(run["run_scope"])
     atts = execution.current_attempts(db, run_id)
     by = {(a["stage"], a["unit_id"]): a for a in atts}
@@ -1100,7 +1105,8 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
     if job["current_step"] == "N4":
         if blocking and not ids and job["status"] == "processing":
             set_job_state(db, job["id"], status="failed", step="N4", ufs="failed")
-        elif all_ready and not ids:
+        elif all_ready and not ids and job["status"] == "processing":
+            # 처리 중일 때만 N5 로 — 처리 시간 초과(README 7.8 ⑤)로 오류가 된 작업은 늦게 끝난 결과로 다음 단계로 가지 않는다
             set_job_state(db, job["id"], status="review", step="N5", ufs="reviewing")
     return ids
 

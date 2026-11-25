@@ -234,7 +234,7 @@ def test_snapshot_detects_lease_expiry_handling_and_queue_and_delete(env, capsys
     assert _diff(s1, _snap(capsys)) == {"redis.queue:ocr"}
     env["redis"].delete("ocr")
     s2 = _snap(capsys)
-    _q("UPDATE job SET status = 'archived', updated_at = now() WHERE id = :j", j=ids["job"])
+    _q("UPDATE job SET status = 'cancelled', updated_at = now() WHERE id = :j", j=ids["job"])
     assert "db.rows:job" in _diff(s2, _snap(capsys))
 
 

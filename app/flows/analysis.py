@@ -89,7 +89,7 @@ def start_analysis(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
     if not owned:
         raise StartRejected(404, "JOB_NOT_FOUND", "job not found")
     job = execution.lock_job(db, job_id)
-    if job["status"] == "archived":
+    if job["status"] == "cancelled":
         raise StartRejected(409, "INVALID_STATE", "취소된 작업")
     active = execution.active_run(db, job_id, "analysis")
     if active is not None:

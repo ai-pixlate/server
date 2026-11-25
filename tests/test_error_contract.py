@@ -267,10 +267,10 @@ def test_cancel_is_200_and_repeatable(env):
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
     first = c.delete(f"/v1/jobs/{job}")
-    assert first.status_code == 200 and first.json() == {"jobId": job, "status": "archived"}
+    assert first.status_code == 200 and first.json() == {"jobId": job, "status": "cancelled"}
     again = c.delete(f"/v1/jobs/{job}")
     assert again.status_code == 200 and again.json() == first.json()
-    assert _q("SELECT status FROM job WHERE id = :j", j=job)[0]["status"] == "archived"
+    assert _q("SELECT status FROM job WHERE id = :j", j=job)[0]["status"] == "cancelled"
 
 
 @requires_db

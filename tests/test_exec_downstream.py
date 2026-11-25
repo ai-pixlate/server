@@ -147,7 +147,7 @@ def test_save_after_full_cancel_is_rejected(env):
     r = c.post(f"/v1/jobs/{ids['job']}/save")
     assert r.status_code == 409
     job = _q("SELECT status, is_saved FROM job WHERE id = :j", j=ids["job"])[0]
-    assert job == {"status": "archived", "is_saved": False}
+    assert job == {"status": "cancelled", "is_saved": False}
 
 
 def test_proceed_rejects_all_excluded_and_is_idempotent(env):
@@ -557,7 +557,7 @@ def test_full_cancel_deletes_content_and_blocks_late_results(env):
     recovery.sweep()
     assert env["store"].keys(f"staging/{j}/") == []
     job = c.get(f"/v1/jobs/{j}").json()
-    assert job["status"] == "archived" and job["productName"] is None
+    assert job["status"] == "cancelled" and job["productName"] is None
 
 
 # ── 통합 계약(2026-10-14 묶음 A·B·C·D) ─────────────────────────────────
@@ -599,7 +599,7 @@ def test_confirm_accepts_fe_style_acks_with_overflow_and_out_of_scope(env):  # A
     acks = _fe_acks(blocks) + [{"blockId": 987654321, "code": "translation_failed"}]  # 범위 밖 블록은 무시
     r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": acks})
     assert r.status_code == 200, r.text
-    assert _step(ids) == ("review", "N6")
+    assert _step(ids) == ("processing", "N6")  # 최종 렌더 중(README 7.8 ③)
 
 
 def test_confirm_rejects_missing_required_ack_with_details(env):  # A + E
@@ -1332,8 +1332,9 @@ def _final_counts(job):
               "count(*) FILTER (WHERE stage = 'final_render') AS attempts FROM job_async_task WHERE job_id = :j", j=job)[0]
 
 
-def _assert_final_blocked(env, ids):
-    """한도 초과·실패 종료 뒤: FIN-01·JOB-06 은 기존 409 RETRY_NOT_ALLOWED, 실행·시도·큐 메시지가 늘지 않고 저장도 막힌다."""
+def _assert_final_blocked(env, ids, step=("failed", "N6")):
+    """한도 초과·실패 종료 뒤: FIN-01·JOB-06 은 기존 409 RETRY_NOT_ALLOWED, 실행·시도·큐 메시지가 늘지 않고 저장도 막힌다.
+    step: 그때 작업 상태 · 단계(기본 = 렌더 재시도 소진 → 오류 N6, README 7.8 ③)."""
     c, job = ids["c"], ids["job"]
     _, cur = _final(job)
     before = _final_counts(job)
@@ -1347,7 +1348,7 @@ def _assert_final_blocked(env, ids):
     assert c.post(f"/v1/jobs/{job}/save").status_code == 409
     item = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskId"] == cur["id"]][0]
     assert item["status"] == "failed" and item["retryable"] is False
-    assert _step(ids) == ("review", "N6")
+    assert _step(ids) == step
 
 
 def test_final_render_retryable_failures_close_run_at_limit(env, monkeypatch):
@@ -1521,8 +1522,15 @@ def test_legacy_running_final_run_at_limit_task272(env, monkeypatch):
     assert [(r["status"], r["error_code"]) for r in _final(job)[0]] == [("failed", "STYLE_DEFAULTS_UNAPPROVED")]
     assert _q(live, j=job)[0]["n"] == 0
     assert _q(snap, j=job) == attempts_before  # 시도 행·고정 입력·횟수 그대로
-    _assert_final_blocked(env, ids)
+    # 옛 실패 처리(위에서 끼움)는 작업 상태를 바꾸지 않으므로 최종 렌더 중(processing · N6)에 남는다. 운영의 옛 행은 0017 마이그레이션이
+    # 오류 N6 로 바꾸고, 그래도 남은 것은 처리 시간 상한(README 7.8 ⑤)이 오류로 거둔다
+    _assert_final_blocked(env, ids, step=("processing", "N6"))
     assert _q(snap, j=job) == attempts_before
+    _q("UPDATE job SET state_entered_at = now() - interval '31 minutes' WHERE id = :j", j=job)
+    recovery.sweep()
+    env["q"].messages.clear()
+    assert _step(ids) == ("failed", "N6")
+    assert _q(snap, j=job) == attempts_before  # 시간 초과는 끝난 시도를 바꾸지 않는다(진행 중 시도 없음)
 
 
 def test_cleanup_sql_refuses_unexpected_state(env, monkeypatch):

@@ -12,7 +12,8 @@ PM 결정(2026-11-24, 사용자 전달)을 따른다. PR #141 실험 후보(BWES
 - 블록 처리 순서: 넘친 블록을 위에서 아래(박스 y), 왼쪽에서 오른쪽(x), blockId 순으로 하나씩. 결과가 입력 순서에 매이지 않고 늘 같다.
 - 여백 점유: 다른 조판 블록은 지금 자리(조정했으면 조정 뒤 박스 ∪ 글자, 아니면 원래 박스 ∪ 글자), 조판 대상이 아닌 블록(제외 · 라벨 ·
   로고 · 번역 없음)은 원래 박스(`obstacles`). 원래부터 겹친 이웃도 장애물에서 빼지 않는다 — 다른 블록 자리(간격만큼 넓힌 사각형)와 겹치는
-  넓이가 원래 자리(원래 박스 ∪ 원래 글자)보다 커지는 폭은 쓰지 않고(`new_overlaps`), 채택 직전에도 다시 확인한다.
+  넓이가 원래 자리(원래 박스 ∪ 원래 글자)보다 커지는 폭은 쓰지 않고(`new_overlaps`), 채택 직전에도 배치 박스와 실제 글자 경계(넘친 글자
+  포함)로 다시 확인한다 — 넘침이 남은 시도를 남길 때 박스 밖 글자가 이웃을 침범하지 않게.
 - 줄바꿈: 번역문의 명시적 개행(앞뒤 일반 공백 · 탭 포함)만 공백 하나로 풀어 브라우저 자연 줄바꿈에 맡긴다. NBSP 등 다른 공백 문자 · 글자는
   그대로. 줄 수가 늘거나 넘침이 줄지 않으면 쓰지 않는다.
 - 폭 확장: 정렬 방향(left → 오른쪽, right → 왼쪽, center → 양쪽 같은 만큼 — 좁은 쪽 여백까지). 최대 폭에서 다 들어가면 들어가는
@@ -35,7 +36,7 @@ from typing import Any, Mapping, Sequence
 
 from pipeline.handoff import typeset_geometry as geo
 
-RULE_VERSION = "typeset-adjust/3"
+RULE_VERSION = "typeset-adjust/4"
 FLOOR = 0.90            # PM: 최대 −10%
 GAP_PX = 2.0            # 이웃 글과의 간격 — 측정 오차 실측 근거는 docs/ai-experiments/2026-11-24_09-typeset_auto-adjust-impl.md
 WIDTH_PRECISION = 0.5   # 폭 탐색 정밀도(px)
@@ -56,14 +57,30 @@ def _inter_area(a: Mapping[str, float], b: Mapping[str, float]) -> float:
     return w * h if w > 0 and h > 0 else 0.0
 
 
-def new_overlaps(box: Mapping[str, float], original: Sequence[Mapping[str, float]], others: Sequence[Mapping[str, Any]],
+def _clip(a: Mapping[str, float], b: Mapping[str, float]) -> dict[str, float] | None:
+    x0, y0 = max(a["x"], b["x"]), max(a["y"], b["y"])
+    x1, y1 = min(a["x"] + a["w"], b["x"] + b["w"]), min(a["y"] + a["h"], b["y"] + b["h"])
+    return {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0} if x1 > x0 and y1 > y0 else None
+
+
+def _union_inter_area(rects: Sequence[Mapping[str, float]], o: Mapping[str, float]) -> float:
+    """사각형들의 합집합(블록 자리 = 박스 ∪ 글자, 1~2개)이 o 와 겹치는 넓이 — 두 개면 포함 · 배제로 겹친 부분을 한 번만 센다."""
+    if len(rects) == 1:
+        return _inter_area(rects[0], o)
+    a, b = rects[0], rects[1]
+    ab = _clip(a, b)
+    return _inter_area(a, o) + _inter_area(b, o) - (_inter_area(ab, o) if ab else 0.0)
+
+
+def new_overlaps(rects: Sequence[Mapping[str, float]], original: Sequence[Mapping[str, float]], others: Sequence[Mapping[str, Any]],
                  gap: float) -> list[int]:
-    """후보 박스가 다른 블록의 자리(간격 gap 만큼 넓힌 사각형)와 겹치는 넓이가 원래 자리(original = 원래 박스 ∪ 원래 글자)보다
-    커지는 이웃 id. 원래부터 겹쳐 있던 만큼은 허용하고, 조정으로 겹침이 새로 생기거나 커지는 것만 막는다."""
+    """후보 자리(rects = 배치 박스, 넘친 글자가 있으면 그 경계까지)가 다른 블록의 자리(간격 gap 만큼 넓힌 사각형)와 겹치는 넓이가
+    원래 자리(original = 원래 박스 ∪ 원래 글자)보다 커지는 이웃 id. 원래부터 겹쳐 있던 만큼은 허용하고, 조정으로 겹침이 새로 생기거나
+    커지는 것만 막는다."""
     bad = set()
     for o in others:
         oi = {"x": o["x"] - gap, "y": o["y"] - gap, "w": o["w"] + 2 * gap, "h": o["h"] + 2 * gap}
-        if _inter_area(box, oi) > max((_inter_area(r, oi) for r in original), default=0.0) + 1e-6:
+        if _union_inter_area(rects, oi) > _union_inter_area(original, oi) + 1e-6:
             bad.add(int(o["blockId"]))
     return sorted(bad)
 
@@ -161,12 +178,12 @@ def _adjust_block(probe: _Probe, section: Mapping[str, Any], base: Mapping[str, 
             extra["competition"] = sorted({lim["limitedBy"][d] for d in dirs if lim[d] != lim0[d]} - {None})
             info["competitors"] = extra["competition"]
         # 여백 한계 안에서도 다른 블록 자리와의 겹침이 원래보다 커지지 않는 폭까지만(원래부터 겹친 이웃 포함)
-        if new_overlaps(at(wmax), original, obstacles, gap):
+        if new_overlaps([at(wmax)], original, obstacles, gap):
             lo, hi = st["box"]["w"], wmax
             while hi - lo > WIDTH_PRECISION:
                 mid = (lo + hi) / 2
-                lo, hi = (mid, hi) if not new_overlaps(at(mid), original, obstacles, gap) else (lo, mid)
-            info["limitedByOverlap"] = new_overlaps(at(wmax), original, obstacles, gap)
+                lo, hi = (mid, hi) if not new_overlaps([at(mid)], original, obstacles, gap) else (lo, mid)
+            info["limitedByOverlap"] = new_overlaps([at(wmax)], original, obstacles, gap)
             wmax = lo
             info["maxWidth"] = wmax
         if wmax <= st["box"]["w"] + WIDTH_PRECISION:
@@ -282,8 +299,10 @@ def adjust_section(section: Mapping[str, Any], blocks: Sequence[Mapping[str, Any
             row["competition"] = extra["competition"]
         system = {"box": st["box"], "fontScale": st["scale"], "lineBreakApplied": st["lb"]}
         changed = st["lb"] or st["scale"] != 1.0 or any(abs(st["box"][k] - float(base["box"][k])) > 1e-9 for k in ("x", "y", "w", "h"))
-        clash = new_overlaps(st["box"], original, others, gap) if cur.ok and changed else []
-        if clash:  # 채택 직전 확인 — 이웃과 새로 겹치면 남기지 않는다(원래 입력)
+        # 채택 직전 확인 — 배치 박스와 실제 글자 경계(넘친 글자 포함) 모두. 이웃과 새로 겹치면 남기지 않는다(원래 입력)
+        cand = [{"x": r["x"], "y": r["y"], "w": r["w"], "h": r["h"]} for r in geo.occupied(bid, st["box"], cur.ink)] if cur.ok else []
+        clash = new_overlaps(cand, original, others, gap) if cur.ok and changed else []
+        if clash:
             steps.append({"op": "accept", "applied": False, "why": "new_overlap", "neighbors": clash})
         keep = cur.ok and changed and not clash
         if keep:

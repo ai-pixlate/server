@@ -1,0 +1,8 @@
+{
+  "model_name": "GPT-6 Astra",
+  "reasoning_effort": "Medium",
+  "display_name": "GPT-6 Astra(Medium)",
+  "source": "2026-11-24 사용자 지시: Codex 모델 명은 GPT-6 Astra(Medium)",
+  "screen_verified_by_codex": false,
+  "applies_to_session_id": "codex-h01-h04-20261124-initial"
+}

@@ -58,6 +58,9 @@ def main():
     shutil.copyfile(HERE/'pm-comment.json', root/'scoring/pm-comment.json')
     comment = read(HERE/'pm-comment.json')
     ev = {'path': 'scoring/pm-comment.json', 'sha256': sha(root/'scoring/pm-comment.json'), 'url': comment['url']}
+    shutil.copyfile(HERE/'pm-reconfirmation-comment.json', root/'scoring/pm-reconfirmation-comment.json')
+    reconfirmation = read(HERE/'pm-reconfirmation-comment.json')
+    reconfirmation_ev = {'path': 'scoring/pm-reconfirmation-comment.json', 'sha256': sha(root/'scoring/pm-reconfirmation-comment.json'), 'url': reconfirmation['url']}
     m['files'].append({'path': ev['path'], 'sha256': ev['sha256']})
     # 기존 세션의 unknown을 덮어쓰지 않고 사용자 확인을 추가 정보로 연결한다.
     model_note = {'model_name': 'GPT-6 Astra', 'reasoning_effort': 'Medium', 'display_name': 'GPT-6 Astra(Medium)',
@@ -117,12 +120,16 @@ def main():
             d['supersedes_defect_record_id']=od['defect_record_id'];d['recorded_by']=reviewer+' / Codex 기록 변환'
             if source=='GS-01-IMG-002' and d['root_defect_id'].endswith('-layout'):
                 d['location']=location(source,cp,[[0,3200],[5808,6774],[8000,10671],[18400,22000],[22303,24460],[27000,31000],[33684,36365]])
-                d['observed']='기존 제목·본문·배지·라인업 겹침과 비건 설명 잘림 유지. 수치 배지 15.92%/6.78% 판독 실패는 별도 critical로 분리해 중복 가산하지 않음. PM 추가: K01 Protection Factor가 SPF/PA 값 칸에 겹침(값은 읽힘); K02 Sunscreen과 To support healthy marine ecosystems 겹침; K03 goodal/Good for All of Us, Continuous Commitment/설명, Free of 18 Suspicious Ingredients/설명·각주 겹침; 목록 8) o-Cymen-5-ol·9) Sorbic Acid가 02. Plasticizers에 가림; sulfate surfactants 각주와 04. Sunscreen Agents 겹침.'
+                d['observed']='기존 제목·본문·배지·라인업 겹침과 비건 설명 잘림 유지. 수치 배지 15.92%/6.78% 판독 실패는 별도 critical로 분리해 중복 가산하지 않음. PM 추가: K01 Protection Factor가 SPF/PA 값 칸에 겹침(값은 읽힘); K02 Sunscreen과 To support healthy marine ecosystems 겹침; K03 goodal/Good for All of Us, Continuous Commitment/설명, Free of 18 Suspicious Ingredients/설명·각주 겹침; 목록 8) o-Cymen-5-ol·9) Sorbic Acid가 02. Plasticizers에 가려 판독 불가; sulfate surfactants 각주와 04. Sunscreen Agents 겹침.'
                 d['reference_unit_ids']=sorted(set(d['reference_unit_ids']+['GS-01_002-REF-'+n for n in ('037','040','041','042')]))
                 d['h04_failure_separated_roots']=['GS-01-IMG-002-badge-020','GS-01-IMG-002-badge-025']
             if source=='GS-02-IMG-003':
                 d['observed']='큰 제목 #1 Amazon Best의 Seller가 이미지 밖으로 잘림. Performance/제품명 겹침의 판독 실패는 별도 name-readability critical로 분리. 기존 major 심각도 유지.'
                 d['h04_failure_separated_roots']=['GS-02-IMG-003-name-readability']
+            if d['root_defect_id'] in ('GS-01-IMG-002-layout', 'GS-02-IMG-003-layout'):
+                removed = {'GS-01_002-REF-020', 'GS-01_002-REF-025'} if source == 'GS-01-IMG-002' else {'GS-02_003-REF-001'}
+                d['reference_unit_ids'] = [rid for rid in d['reference_unit_ids'] if rid not in removed]
+                d['evidence_refs'].append(reconfirmation_ev)
             new_defects.append(d);e['defect_record_ids'].append(d['defect_record_id'])
             review(e,{'severity':d['severity'],'valid':True},'PM 동의 판정을 결함 연결 개정에 유지. 위치 보완은 동일 root로 연결.',d,scope='defect')
         specs=[]

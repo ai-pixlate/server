@@ -68,6 +68,13 @@ python -X utf8 -B docs/ai-baseline/evaluations/h01-h04-official-20261124/pm-revi
 
 ## PM 재확인 및 별도 조사 요청
 
-PM에게는 세 판정 변경, K01~K03 위치 추가, 두 신규 결함, 수치 배지 두 결함의 분리와 기존 layout 중복 제거가 의도대로 반영됐는지 재확인을 요청한다. 제품명 정확성 bool의 기록 보완과 검수 범위 표시도 확인할 수 있도록 근거를 공개했다. 반영본 재확인 전 `formal_complete=false`를 유지한다.
+[PM 재확인 코멘트](https://github.com/ai-pixlate/server/pull/155#issuecomment-7126573428)의 [원문](pm-reconfirmation-comment.json)을 별도 보존했다. PM은 집계 수치, 제품명 `accurate=true / readable=false` 기록 보완, 저자극 결함의 REF-039 연결과 두 수치 배지의 결함 분리에 동의했다.
+
+재확인에서 요청한 기록 정리 두 가지를 양 체크포인트에 반영했다.
+
+- GS-01-IMG-002-layout의 K03 성분 목록 8·9번 가림을 **판독 불가**로 명시했다. REF-037은 H04 대상이 아니므로 집계는 변하지 않는다.
+- 별도 critical로 분리한 GS-02_003-REF-001, GS-01_002-REF-020·025를 각각 기존 layout의 `reference_unit_ids`에서 제거했다. 별도 판독 실패 결함의 참조는 유지했다.
+
+기존 검수 114행과 최초 평가 기록은 유지하고, 수정한 결함 기록에 추가 코멘트의 근거를 연결했다. 집계·심각도·결함 수는 변경하지 않았다. PM이 수정 반영 후 다시 확인하겠다고 했으므로 `formal_complete=false` 및 반영본 재확인 대기를 유지한다.
 
 용어집의 콩·쌀 항목이 콩알·쌀알의 단어 내부에 매칭되는지, 최신 버전에서도 재현되는지, 실행 기록의 `glossary_ids`가 비어 있는 이유는 **별도 조사 요청으로만 기록**했다. 이번 작업에서 조사·수정·재생성하지 않았으며 해당 원인을 확정하지 않았다.

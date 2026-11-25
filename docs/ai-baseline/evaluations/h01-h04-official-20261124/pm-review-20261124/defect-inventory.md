@@ -5,7 +5,7 @@
 | root ID | 심각도 | 원인 단계 | 관찰 |
 |---|---|---|---|
 | GS-01-IMG-002-volume | critical | OCR | 원본 50ml가 50m로 바뀜. text_block 41의 source_lines와 source_ko에 이미 50m. 번역·렌더까지 전파됨. |
-| GS-01-IMG-002-layout | major | undetermined | 기존 제목·본문·배지·라인업 겹침과 비건 설명 잘림 유지. 수치 배지 15.92%/6.78% 판독 실패는 별도 critical로 분리해 중복 가산하지 않음. PM 추가: K01 Protection Factor가 SPF/PA 값 칸에 겹침(값은 읽힘); K02 Sunscreen과 To support healthy marine ecosystems 겹침; K03 goodal/Good for All of Us, Continuous Commitment/설명, Free of 18 Suspicious Ingredients/설명·각주 겹침; 목록 8) o-Cymen-5-ol·9) Sorbic Acid가 02. Plasticizers에 가림; sulfate surfactants 각주와 04. Sunscreen Agents 겹침. |
+| GS-01-IMG-002-layout | major | undetermined | 기존 제목·본문·배지·라인업 겹침과 비건 설명 잘림 유지. 수치 배지 15.92%/6.78% 판독 실패는 별도 critical로 분리해 중복 가산하지 않음. PM 추가: K01 Protection Factor가 SPF/PA 값 칸에 겹침(값은 읽힘); K02 Sunscreen과 To support healthy marine ecosystems 겹침; K03 goodal/Good for All of Us, Continuous Commitment/설명, Free of 18 Suspicious Ingredients/설명·각주 겹침; 목록 8) o-Cymen-5-ol·9) Sorbic Acid가 02. Plasticizers에 가려 판독 불가; sulfate surfactants 각주와 04. Sunscreen Agents 겹침. |
 | GS-01-IMG-002-claim | critical | 번역·현지화 | Those looking for a sunscreen with verified broad spectrum SPF: 원문 자외선차단지수 검증에 없는 broad spectrum 추가. |
 | GS-01-IMG-002-protected | major | undetermined | FSC/SOYINK 마크 글자와 Good all goodal 타원 로고가 재작성·재배치됨. |
 | GS-01-IMG-002-escape | minor | undetermined | 해시태그 인접 문구에 이스케이프 문자열 \n이 노출됨. |

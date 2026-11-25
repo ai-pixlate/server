@@ -20,7 +20,7 @@
     },
     {
       "path": "adopted-defects.jsonl",
-      "sha256": "e9f6795da2bd3b2ec133b8da749212f9f4630a8b386c48c44e7f0c36a4161ef6"
+      "sha256": "2f736ba8f87faed952ad7959c6c983d17fb89ce12c1c97d9e4e9f98b246c2fef"
     },
     {
       "path": "adopted-evaluations.jsonl",
@@ -32,11 +32,11 @@
     },
     {
       "path": "defect-additions.jsonl",
-      "sha256": "85d0b17c9d80d2af779a69c4532a216961c76cbbbfbdd5611df260bdf0122544"
+      "sha256": "80ee42aac522711463ce94f16754b19dcecfbb397b4846d50fc2cd626d8335dd"
     },
     {
       "path": "defect-inventory.md",
-      "sha256": "2131c38ccca53ec49b4f7291b2811d4477f3b58cfdebd4683766b7d2d8afa641"
+      "sha256": "b5aaca8725d51ba53a0f294d17fc21cb1fc63a1d30adf3f812e5d3dcef3b7e1d"
     },
     {
       "path": "evaluation-additions.jsonl",
@@ -76,5 +76,19 @@
     }
   ],
   "new_pm_defect_ai_value_null_count": 10,
-  "protocol_validation_issues": []
+  "protocol_validation_issues": [],
+  "pm_reconfirmation_record_cleanup": {
+    "comment_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7126573428",
+    "checked_on": "2026-11-25",
+    "both_checkpoints_checked": true,
+    "metrics_and_h04_byte_identical_to_previous": true,
+    "initial_files_byte_identical": 25,
+    "changed_replayed_outputs": [
+      "adopted-defects.jsonl",
+      "defect-additions.jsonl",
+      "defect-inventory.md"
+    ],
+    "tests_passed": 32,
+    "pm_reconfirmation_pending": true
+  }
 }

@@ -41,7 +41,8 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 # ── FIN-01·02: Celery 큐 / 실제 DB ────────────────────────────────
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
 def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    """N6 수동 재렌더. 진행 중이면 그 시도, 실패면 새 재시도 시도(누적 한도), 완료면 새 최종 렌더 실행을 만든다.
+    """N6 수동 재렌더. 진행 중이면 그 시도, 실패(시간 초과 포함)면 새 재시도 시도(누적 한도), 저장 뒤(done)면 새 최종 렌더 실행을 만든다.
+    저장 대기(review · N6)는 409(PM 11-25 — 재렌더 차단).
     누적 한도를 소진해 실행이 failed 로 닫혔으면 409 RETRY_NOT_ALLOWED — 새 실행·시도를 만들지 않는다.
     renderTaskId 는 job_async_task.id(시도) — JOB-05 폴링 대상이다."""
     from app import execution
@@ -49,16 +50,18 @@ def render(job_id: int, response: Response, db: Session = Depends(get_db), selle
 
     _require_job_owned(db, job_id, seller_id)
     job = execution.lock_job(db, job_id)
-    # 저장 대기(review) · 최종 렌더 중(processing) · 렌더 오류(failed) · 저장 뒤(done). README 7.8 ③
-    if job["current_step"] != "N6" or job["status"] not in ("review", "processing", "failed", "done"):
+    # 최종 렌더 중(processing — 진행 중 시도 반환) · 렌더 오류(failed — 사용자 재시도) · 저장 뒤(done — 기존 동작 유지). README 7.8 ③
+    # 저장 대기(review · N6)의 재렌더는 PM 11-25 요청으로 막는다(409 INVALID_STATE — 사유 값은 합의 전이라 두지 않음)
+    if job["current_step"] != "N6" or job["status"] not in ("processing", "failed", "done"):
         db.rollback()
-        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더는 N6 에서만"})
+        msg = "저장 대기에서는 다시 렌더하지 않는다" if job["status"] == "review" and job["current_step"] == "N6" else "최종 렌더는 N6 에서만"
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": msg})
     try:
         task_id = start_final_render(db, job_id)
     except execution.RetryNotAllowed as e:
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "RETRY_NOT_ALLOWED", "message": str(e)}) from e
-    if job["status"] in ("review", "failed"):  # 저장 대기 · 렌더 오류에서 다시 그리면 최종 렌더 중. 저장한 작업(done)은 그대로
+    if job["status"] == "failed":  # 렌더 오류에서 다시 그리면 최종 렌더 중. 저장한 작업(done)은 그대로
         from app.flows.common import set_job_state
 
         set_job_state(db, job_id, status="processing", step="N6", ufs="rendering")

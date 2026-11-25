@@ -123,11 +123,12 @@ def test_n6_rendering_then_awaiting_save_then_done(env):
     assert (t["jobStatus"], t["userFacingStatus"]) == ("processing", "rendering")
     env["q"].drain()
     assert _state(ids) == ("review", "N6", "awaiting_save")
-    # 저장 대기에서 수동 재렌더 → 최종 렌더 중 → 다시 저장 대기
-    assert c.post(f"/v1/jobs/{job}/render").status_code == 202
-    assert _state(ids) == ("processing", "N6", "rendering")
-    env["q"].drain()
-    assert _state(ids) == ("review", "N6", "awaiting_save")
+    # 저장 대기에서 수동 재렌더는 막는다(PM 11-25) — 409 · 새 실행 · 시도 없음 · 상태 그대로
+    before = _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND stage = 'final_render'", j=job)[0]["n"]
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    assert _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND stage = 'final_render'", j=job)[0]["n"] == before
+    assert _state(ids) == ("review", "N6", "awaiting_save") and env["q"].messages == []
     assert c.post(f"/v1/jobs/{job}/save").status_code == 200
     assert _state(ids)[:2] == ("done", "N6")
 
@@ -234,7 +235,23 @@ def test_n4_timeout_rejects_late_gpu_result_and_does_not_reach_n5(env):
     assert r.status_code == 200 and r.json()["returnTo"] == "N3"
 
 
-def test_n6_timeout_closes_render_run(env):
+def _final_attempts(job):
+    return _q("SELECT id, status, error_code, retry_count, max_retry, is_current, supersedes_task_id FROM job_async_task "
+              "WHERE job_id = :j AND stage = 'final_render' ORDER BY id", j=job)
+
+
+def _final_run(job):
+    return _q("SELECT id, status FROM job_async_task WHERE job_id = :j AND parent_task_id IS NULL AND run_kind = 'final_render' "
+              "ORDER BY id", j=job)
+
+
+def _fresh(job):
+    return _q("SELECT now() - state_entered_at < interval '1 minute' AS fresh FROM job WHERE id = :j", j=job)[0]["fresh"]
+
+
+def test_n6_timeout_keeps_run_for_user_retry_and_sweep_does_not_rerender(env):
+    """PM 11-25: 시간 초과 → failed · N6, 시도만 failed(PROCESSING_TIMEOUT) · 실행은 남긴다(사용자 재시도용).
+    사용자가 재시도하기 전에는 일반 점검이 새 렌더(시도 · 메시지)를 만들지 않는다."""
     ids = _to_n5(env)
     c, job = ids["c"], ids["job"]
     assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
@@ -242,15 +259,22 @@ def test_n6_timeout_closes_render_run(env):
     _age_state(job, 1801)
     assert recovery.sweep()["timed_out"] == 1
     assert _state(ids) == ("failed", "N6", "failed")
-    run = _q("SELECT status, error_code FROM job_async_task WHERE job_id = :j AND parent_task_id IS NULL AND run_kind = 'final_render'",
-             j=job)[0]
-    assert run == {"status": "failed", "error_code": "PROCESSING_TIMEOUT"}
+    assert [r["status"] for r in _final_run(job)] == ["running"]
+    atts = _final_attempts(job)
+    assert [(a["status"], a["error_code"], a["is_current"]) for a in atts] == [("failed", "PROCESSING_TIMEOUT", True)]
+    items = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskType"] == "render"]
+    assert items and items[0]["retryable"] is True and items[0]["errorCode"] == "PROCESSING_TIMEOUT"
+    for _ in range(3):  # 일반 점검을 여러 번 돌려도 새 시도 · 메시지 · 상태 변화 없음
+        st = recovery.sweep()
+        assert st["timed_out"] == 0 and st["redispatched"] == 0
+    assert _final_attempts(job) == atts and env["q"].messages == []
+    assert _state(ids) == ("failed", "N6", "failed")
     assert c.post(f"/v1/jobs/{job}/save").status_code == 409
 
 
-def test_n6_timeout_first_then_late_render_result_rejected(env):
-    """순서 ① 시간 초과가 먼저 확정 → 뒤늦게 도는 최종 렌더 메시지는 권한을 얻지 못해 결과 · 상태를 바꾸지 않는다.
-    횟수가 남아 있어도 실행이 실패로 닫혀 JOB-05 retryable=false · 재시도 409(PM 11-25 답변 근거)."""
+def test_n6_timeout_first_then_late_render_result_rejected_and_retry_adopts_new_attempt(env):
+    """순서 ① 시간 초과가 먼저 확정 → 뒤늦게 도는 옛 렌더 메시지는 권한을 얻지 못해 결과 · 상태를 바꾸지 않는다.
+    PM 11-25: 횟수가 남았으면 재시도 가능 — [다시 시도] → 새 시도 · 최종 렌더 중 · 30분 새로 셈 → 새 시도 결과만 채택."""
     ids = _to_n5(env)
     c, job = ids["c"], ids["job"]
     assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
@@ -258,15 +282,167 @@ def test_n6_timeout_first_then_late_render_result_rejected(env):
     env["q"].messages = []
     _age_state(job, 1801)
     assert recovery.sweep()["timed_out"] == 1
-    env["q"].messages = held
-    env["q"].drain()  # 늦게 도는 렌더
+    env["q"].messages = list(held)
+    env["q"].drain()  # 늦게 도는 옛 렌더
     assert _state(ids) == ("failed", "N6", "failed")
     assert _q("SELECT count(*) AS n FROM deliverable WHERE job_id = :j AND render_status = 'done'", j=job)[0]["n"] == 0
     att = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskType"] == "render"]
-    assert att and all(i["retryable"] is False for i in att)
-    assert all(i["retryCount"] < i["maxRetry"] for i in att)  # 횟수는 남아 있다
-    r = c.post(f"/v1/jobs/{job}/tasks/{att[0]['taskId']}/retry")
+    assert att and att[0]["retryable"] is True and att[0]["retryCount"] < att[0]["maxRetry"]
+    old_id = att[0]["taskId"]
+    r = c.post(f"/v1/jobs/{job}/tasks/{old_id}/retry")
+    assert r.status_code == 200, r.text
+    assert _state(ids) == ("processing", "N6", "rendering") and _fresh(job) is True
+    new_id = r.json()["taskId"]
+    assert new_id != old_id
+    # 재시도 중에 옛 시도 메시지가 다시 와도(재전달) 권한을 얻지 못한다 — 새 시도는 그대로 진행
+    env["q"].messages = list(held) + env["q"].messages
+    env["q"].drain()
+    assert _state(ids) == ("review", "N6", "awaiting_save")
+    old = _q("SELECT status, error_code FROM job_async_task WHERE id = :t", t=old_id)[0]
+    assert old == {"status": "failed", "error_code": "PROCESSING_TIMEOUT"}
+    assert _q("SELECT status FROM job_async_task WHERE id = :t", t=new_id)[0]["status"] == "done"
+    assert _q("SELECT count(*) AS n FROM task_handoff WHERE task_id = :t AND state = 'adopted'", t=old_id)[0]["n"] == 0
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
+
+
+def test_n6_timeout_retry_restarts_clock_and_can_time_out_again(env):
+    """재시도로 다시 처리 중이 되면 30분을 새로 센다 — 29분 59초에는 그대로, 30분이 넘으면 새 시도도 시간 초과."""
+    ids = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].messages = []
+    _age_state(job, 1801)
+    assert recovery.sweep()["timed_out"] == 1
+    r = c.post(f"/v1/jobs/{job}/render")  # FIN-01 [다시 시도]
+    assert r.status_code == 202 and _state(ids) == ("processing", "N6", "rendering") and _fresh(job) is True
+    env["q"].messages = []  # 재시도한 렌더도 응답하지 않는다
+    _age_state(job, 1799)
+    assert recovery.sweep()["timed_out"] == 0 and _state(ids)[0] == "processing"
+    _age_state(job, 1801)
+    assert recovery.sweep()["timed_out"] == 1 and _state(ids) == ("failed", "N6", "failed")
+    atts = _final_attempts(job)
+    assert [(a["status"], a["error_code"], a["retry_count"]) for a in atts] == [
+        ("failed", "PROCESSING_TIMEOUT", 0), ("failed", "PROCESSING_TIMEOUT", 1)]
+    assert [r["status"] for r in _final_run(job)] == ["running"]
+
+
+def test_n6_duplicate_retry_requests_make_at_most_one_new_attempt(env):
+    """새 시도는 최대 1개: FIN-01 은 진행 중 재시도 시도를 돌려주고(202 · 같은 id), JOB-06 은 이미 대체된 옛 시도 재요청을 409 로 거절한다."""
+    ids = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].messages = []
+    _age_state(job, 1801)
+    assert recovery.sweep()["timed_out"] == 1
+    old_id = _final_attempts(job)[0]["id"]
+    r1 = c.post(f"/v1/jobs/{job}/render")
+    r2 = c.post(f"/v1/jobs/{job}/render")
+    assert r1.status_code == 202 and r2.status_code == 202
+    assert r1.json()["renderTaskId"] == r2.json()["renderTaskId"] != old_id
+    r3 = c.post(f"/v1/jobs/{job}/tasks/{old_id}/retry")
+    assert r3.status_code == 409 and r3.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    atts = _final_attempts(job)
+    assert len(atts) == 2 and [a["is_current"] for a in atts] == [False, True]
+    assert atts[1]["supersedes_task_id"] == old_id
+
+
+def test_n6_concurrent_fin01_and_job06_retry_after_timeout_make_one_attempt(env, dburl):
+    """동시 경합(실제 행 잠금이 겹침): 시간 초과 뒤 FIN-01 2건 · 옛 시도 JOB-06 1건을 작업 행 잠금을 잡아 둔 채 동시에 보내고 풀면
+    새 시도는 1개. FIN-01 은 모두 202 · 그 새 시도 id, JOB-06 은 먼저 잡았으면 200(같은 새 시도) · 늦었으면 409 RETRY_NOT_ALLOWED."""
+    import threading
+    import time
+
+    from sqlalchemy import create_engine
+
+    ids = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].messages = []
+    _age_state(job, 1801)
+    assert recovery.sweep()["timed_out"] == 1
+    old_id = _final_attempts(job)[0]["id"]
+    out: dict = {}
+
+    def call(name, path):
+        r = c.post(path)
+        out[name] = (r.status_code, r.json())
+
+    eng = create_engine(dburl)
+    try:
+        with eng.connect() as holder:
+            holder.execute(text("SELECT id FROM job WHERE id = :j FOR UPDATE"), {"j": job})  # 작업 행 잠금을 먼저 잡는다
+            ts = [threading.Thread(target=call, args=("fin1", f"/v1/jobs/{job}/render")),
+                  threading.Thread(target=call, args=("fin2", f"/v1/jobs/{job}/render")),
+                  threading.Thread(target=call, args=("job06", f"/v1/jobs/{job}/tasks/{old_id}/retry"))]
+            [t.start() for t in ts]
+            waiting = 0
+            for _ in range(200):  # 세 요청이 모두 작업 행 잠금에서 기다릴 때까지
+                with eng.connect() as probe:
+                    waiting = probe.execute(text("SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' "
+                                                 "AND datname = current_database()")).scalar()
+                if waiting >= 3:
+                    break
+                time.sleep(0.05)
+            assert waiting >= 3, waiting
+            holder.rollback()  # 잠금을 푼다 → 세 요청이 차례로 잠금을 얻는다
+            [t.join(timeout=30) for t in ts]
+    finally:
+        eng.dispose()
+    atts = _final_attempts(job)
+    assert len(atts) == 2 and [a["is_current"] for a in atts] == [False, True]  # 새 시도 최대 1개
+    new_id = atts[1]["id"]
+    assert out["fin1"][0] == 202 and out["fin1"][1]["renderTaskId"] == new_id
+    assert out["fin2"][0] == 202 and out["fin2"][1]["renderTaskId"] == new_id
+    s, body = out["job06"]
+    assert (s == 200 and body["taskId"] == new_id) or (s == 409 and body["error"]["code"] == "RETRY_NOT_ALLOWED"), out["job06"]
+    assert _state(ids) == ("processing", "N6", "rendering")
+
+
+def test_n6_timeout_at_retry_limit_stays_not_retryable(env):
+    """누적 한도를 소진한 시도의 시간 초과는 지금 규칙(기존 누적 한도)대로 재시도 불가 — 한도를 넘는 재시도 허용 여부는 PM 확인 중."""
+    ids = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []}).status_code == 200
+    env["q"].messages = []
+    max_retry = _final_attempts(job)[0]["max_retry"]
+    for n in range(max_retry):  # 시간 초과 → [다시 시도]를 한도까지 반복(재시도 시도도 응답하지 않음)
+        _age_state(job, 1801)
+        assert recovery.sweep()["timed_out"] == 1
+        assert c.post(f"/v1/jobs/{job}/render").status_code == 202
+        env["q"].messages = []
+    _age_state(job, 1801)
+    assert recovery.sweep()["timed_out"] == 1
+    assert _final_attempts(job)[-1]["retry_count"] == max_retry  # 누적 한도에 닿은 시도가 시간 초과
+    items = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskType"] == "render"]
+    assert items and items[0]["retryable"] is False
+    before = _final_attempts(job)
+    r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "RETRY_NOT_ALLOWED"
+    assert _final_attempts(job) == before and _state(ids) == ("failed", "N6", "failed")
+
+
+def test_n4_timeout_translate_retry_restarts_clock_inpaint_not_user_retryable(env):
+    """N4: 시간 초과 뒤 번역 시도는 JOB-06 으로 재시도 → 처리 중 · 30분 새로 셈(기존 경로). 인페인트 시도는 JOB-06 대상(translate · render)이
+    아니라 409 — N4 인페인트 시간 초과의 사용자 재시도 경로는 계약 경계(PM 확인 항목)."""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+    env["q"].drain(skip={"app.tasks.run_inpaint", "app.tasks.run_translate"})
+    tr = _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND is_current AND status = 'pending' ORDER BY id", j=job)
+    inp = _q("SELECT id FROM job_async_task WHERE job_id = :j AND stage = 'inpaint' AND is_current AND status = 'pending' ORDER BY id", j=job)
+    assert tr and inp
+    env["q"].messages = []
+    _age_state(job, 1801)
+    assert recovery.sweep()["timed_out"] == 1 and _state(ids) == ("failed", "N4", "failed")
+    r = c.post(f"/v1/jobs/{job}/tasks/{inp[0]['id']}/retry")
     assert r.status_code == 409
+    r = c.post(f"/v1/jobs/{job}/tasks/{tr[0]['id']}/retry")
+    assert r.status_code == 200, r.text
+    assert _state(ids) == ("processing", "N4", "translating") and _fresh(job) is True
+    _age_state(job, 1799)
+    assert recovery.sweep()["timed_out"] == 0 and _state(ids)[0] == "processing"
+    env["q"].messages = []
+    assert c.delete(f"/v1/jobs/{job}").status_code == 200  # 처리 중 · 30분 직전으로 남겨 두면 다음 시험의 점검에 걸린다 — 정리
 
 
 def test_n6_running_render_then_timeout_then_late_success_rejected(env, monkeypatch):

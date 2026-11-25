@@ -1441,19 +1441,24 @@ def test_final_render_non_retryable_failure_user_retry_succeeds(env, monkeypatch
 
 
 def test_final_render_new_run_after_success_is_kept(env, monkeypatch):
-    """성공 완료 뒤 FIN-01 은 새 최종 렌더 실행을 만든다(기존 동작). 그 새 실행이 실패로 닫히면 이전 성공으로 우회하지 않는다."""
+    """성공 완료 뒤 저장 대기의 FIN-01 은 막는다(PM 11-25 — 409 · 새 실행 없음). 저장 뒤(done)의 FIN-01 은 새 최종 렌더 실행을
+    만든다(기존 동작). 그 새 실행이 실패로 닫히면 이전 성공으로 우회하지 않는다."""
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
     fr = _FinalRenderMode(monkeypatch)
     c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
     env["q"].drain()
     assert [r["status"] for r in _final(job)[0]] == ["done"]
+    before = _final_counts(job)
     r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    assert _final_counts(job) == before and env["q"].messages == []
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
+    r = c.post(f"/v1/jobs/{job}/render")  # 저장 뒤(done)의 재렌더는 기존대로 새 실행
     assert r.status_code == 202
     env["q"].drain()
     runs, cur = _final(job)
     assert [r["status"] for r in runs] == ["done", "done"] and (cur["status"], cur["retry_count"]) == ("done", 0)
-    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
     # 저장 뒤(done/N6)에도 새 렌더는 기존대로 허용된다. 그 새 실행이 한도까지 실패하면 실행 failed, 이전 성공으로 우회 불가
     fr.mode = "fatal"
     for n in range(3):  # 새 실행(0) → 재시도(1·2)

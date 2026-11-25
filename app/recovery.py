@@ -231,7 +231,10 @@ def _processing_timeout(stats: dict[str, Any]) -> None:
     """처리 중(processing · N2 · N4 · N6)에 들어간 지 상한을 넘긴 작업 → 오류(README 7.8 ⑤). 원인을 따지지 않는다(GPU 꺼짐 포함).
     그 단계 실행의 끝나지 않은 시도(대기 · 실행 중)를 failed(PROCESSING_TIMEOUT)로 닫고 권한 세대를 올린다 — 늦게 온 결과는
     acquire · check_lease · claim_adoption 에서 거절되고, 작업이 처리 중이 아니라 다음 단계 전이(N3 · N5 · 저장 대기)도 없다.
-    N2 · N6 은 실행을 failed 로 닫고, N4 는 지금 N4 오류처럼 실행을 남겨 JOB-06 [다시 시도]가 가능하다."""
+    사용자 재시도(PM 11-25 — 시간 초과 뒤에도 재시도 가능, 재시도하면 30분을 새로 센다):
+    N2 는 실행을 failed 로 닫는다 — 재시도는 ANL-01 이 새 분석 실행을 만든다(실행별 한도).
+    N4 · N6 은 실행을 남긴다(시도만 failed) — JOB-06 · FIN-01 [다시 시도]가 같은 실행 안에 새 시도를 만든다(누적 한도 · 재시도 차단 조건 그대로).
+    시간 초과로 닫은 시도는 그 뒤에도 인계 · 채택에서 영구 제외된다(execution.timed_out)."""
     s = processing_timeout_s()
     if s <= 0:
         return
@@ -267,8 +270,8 @@ def _processing_timeout(stats: dict[str, Any]) -> None:
                                     "WHERE task_id = ANY(:ids) AND closed_at IS NULL"), {"ids": ids})
                 if step == "N2":
                     analysis.fail_run(db, run, PROCESSING_TIMEOUT, msg)  # 실행 failed · 숨은 섹션 삭제 · failed · N2
-                elif step == "N6":
-                    execution.finish_run(db, run["id"], "failed", PROCESSING_TIMEOUT, msg)
+                # N4 · N6: 실행은 running 으로 남긴다 — 사용자 재시도(JOB-06 · FIN-01)가 같은 실행에 새 시도를 만든다.
+                # 일반 점검은 이 실행에 새 시도를 만들지 않는다(대기 재전달은 대기 시도만, 집계 복구는 analysis · downstream 만)
             common.set_job_state(db, job["id"], status="failed", step=step, ufs="failed")
             common.write_event(db, job["id"], common.EV_JOB_FAILED,
                                {"reason": PROCESSING_TIMEOUT, "step": step, "elapsed_s": int(elapsed)})

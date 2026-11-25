@@ -3614,10 +3614,11 @@ paths:
       x-screen: 'N6'
       x-source: API-FIN-01
       description: >
-        N6 확인 — [로컬 구현 · 미배포] review/N6(저장 대기 `awaiting_save`) · processing/N6(최종 렌더 중 `rendering`) · failed/N6(렌더 오류) ·
-        done/N6(저장 뒤)에서 받는다. 그 밖은 409 INVALID_STATE(배포 전 서버는 review/N6 · done/N6 만). 저장 대기 · 렌더 오류에서 부르면
-        작업은 processing/N6(`rendering`)이 되고, 저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 진행 중이면 그 시도, 현재 시도 실패면 같은 실행의 재시도 시도(retry_count 누적·max_retry 한도,
-        초기화 없음), 완료면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
+        N6 확인 — [로컬 구현 · 미배포] processing/N6(최종 렌더 중 `rendering`) · failed/N6(렌더 오류) · done/N6(저장 뒤)에서 받는다.
+        저장 대기(review/N6 `awaiting_save`)는 409 INVALID_STATE(PM 11-25 — 저장 대기 재렌더 차단, 새 실행·시도 없음, 사유 값 없음). 그 밖도 409 INVALID_STATE
+        (배포 전 서버는 review/N6 · done/N6 만). 렌더 오류에서 부르면 작업은 processing/N6(`rendering`)이 되고(처리 시간 30분을 새로 셈),
+        저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 진행 중이면 그 시도(새 시도 없음), 현재 시도 실패(처리 시간 초과 `PROCESSING_TIMEOUT` 포함)면
+        같은 실행의 재시도 시도(retry_count 누적·max_retry 한도, 초기화 없음), 저장 뒤(done)면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
         현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
         202 renderTaskId(시도 id) → JOB-05 폴링.
         최초 렌더는 confirm(CFM-04)이 자동 등록하므로 이 엔드포인트는 수동 재렌더용(A4·Q9).

@@ -67,7 +67,7 @@ class LocalFe:
         self.origin, self.revision, self.token = origin.rstrip("/"), revision, token
         self.fonts = hr.load_fonts()
         # 고정본 CSS 는 src 에 local('Pretendard …')를 먼저 둔다 — 이 PC 에 Pretendard 가 설치돼 있으면 브라우저가 고정 웹폰트 대신
-        # 설치본(OTF)으로 그려 측정이 달라진다(2026-11-25 실측: 338블록 ink 1px 차). 서버 이미지에는 설치본이 없어 local() 이 맞지 않으므로,
+        # 설치본(OTF)으로 그려 측정이 달라진다(2026-11-25 이 PC 실측: 338블록 ink 1px 차 — 줄바꿈 · 판정 영향은 확인하지 않음). 서버 이미지에는 설치본이 없어 local() 이 맞지 않으므로,
         # 로컬 측정에서만 local(...) 을 빼 서버와 같은 고정 웹폰트로 그린다(env.fontsLocalStripped).
         css_key = next(k for k in self.fonts if k.endswith('.css'))
         body, ctype = self.fonts[css_key]

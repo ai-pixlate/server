@@ -36,7 +36,7 @@ from typing import Any, Mapping, Sequence
 
 from pipeline.handoff import typeset_geometry as geo
 
-RULE_VERSION = "typeset-adjust/4"
+RULE_VERSION = "typeset-adjust/5"
 FLOOR = 0.90            # PM: 최대 −10%
 GAP_PX = 2.0            # 이웃 글과의 간격 — 측정 오차 실측 근거는 docs/ai-experiments/2026-11-24_09-typeset_auto-adjust-impl.md
 WIDTH_PRECISION = 0.5   # 폭 탐색 정밀도(px)
@@ -314,13 +314,15 @@ def adjust_section(section: Mapping[str, Any], blocks: Sequence[Mapping[str, Any
         else:
             row["status"] = "unresolved"  # 넘침이 남았다 — 바뀐 것이 있으면 마지막 시도를 남긴다(PM 승인 11-25)
             row["causes"] = ["new_overlap"] if clash else _causes(cur, steps, st["box"])
-            row["remainingOverflow"] = {"sides": cur.sides, "excessPx": cur.excess} if cur.ok else None
+            # 마지막 시도의 넘침은 시도 기록에만 둔다 — 남은 넘침(remainingOverflow)은 아래에서 최종 입력을 잰 값으로 낸다
+            row["attempt"]["overflow"] = {"sides": cur.sides, "excessPx": cur.excess} if cur.ok else None
     renders = [final_api[int(b["blockId"])] for b in blocks]
     after = geo.measure_blocks(measure, section, renders)
     for bid, row in res.items():
         if row["status"] == "resolved" and after[bid].over:  # 같은 입력을 다시 쟀는데 넘친다(재현성 문제) — 넘침으로 보고, 조정은 남긴다
-            row.update(status="unresolved", causes=["not_reproducible"],
-                       remainingOverflow={"sides": after[bid].sides, "excessPx": after[bid].excess})
+            row.update(status="unresolved", causes=["not_reproducible"])
+        if row["status"] == "unresolved":  # 남은 넘침 = 실제로 남긴 입력(renderBlocks)의 측정 — 버린 후보 값이 아니다
+            row["remainingOverflow"] = {"sides": after[bid].sides, "excessPx": after[bid].excess} if after[bid].ok else None
     return {"rule": RULE_VERSION, "section": section.get("key"), "gapPx": gap, "floor": floor, "order": order,
             "blocks": res, "before": {bid: m.raw for bid, m in before.items()},
             "after": {bid: m.raw for bid, m in after.items()}, "renderBlocks": renders}

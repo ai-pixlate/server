@@ -492,7 +492,7 @@ def followup(args) -> None:
             a, att = au[key], row["attempt"]
             base = api_by[s["key"]][bid]
             out: dict[str, Any] = {"key": key, "attempt": att, "needScale": a["needScale"], "causes": row.get("causes")}
-            eng = (row.get("remainingOverflow") or {}).get("excessPx") or {}
+            eng = ((att.get("overflow") or row.get("remainingOverflow")) or {}).get("excessPx") or {}  # 마지막 시도의 넘침(남기지 않은 시도도)
             if eng.get("max", 99) <= 2:
                 mask, px = _ink_pixels(be, W, H, adj.apply_system(base, att))
                 b = att["box"]

@@ -54,7 +54,7 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   data/content_types.json    content_type 대응표(현지 8 + 규제 검출 1, D9-2) — 버전 · 해시가 입력 지문에 들어간다
   data/style_defaults.json   역할별 스타일 기본값 설정 자료 정본(D11) — 디자인 토큰 · 사용자 승인 매핑 · 폰트 출처/해시
   data/fonts/                Pretendard OTF · LICENSE(OFL 1.1). 배치 · 검증 도구 fonts/tools/fetch_fonts.py(`be-handoff.md` 6절)
-  aplus/                     A+ 규격 변경 템플릿 모듈(개발용 v1, 운영 계약 아님 — `open-questions.md` 2.9절). `pipeline.md` 단계표에 없는 묶음이라 stages/ 밖에 둔다
+  aplus/                     A+ 규격 변경 템플릿 모듈(개발용 v1, 운영 계약 아님 — `aplus.md`, 남은 결정은 `open-questions.md` 2.9절). `pipeline.md` 단계표에 없는 묶음이라 stages/ 밖에 둔다
                              spec.py(규격 데이터 로더 · 조회) · content.py(슬롯 내용 검사 · 템플릿 한도와 가이드 상한 초과 표시) · label.py(섹션 내용 라벨 19종 — 상품 1회 호출 · 라벨 → 7칸 후보) · plan.py(7칸 구성 — 모델이 템플릿 · 블록 ID · 사진 자리를 고르고 코드가 번역문 그대로 순서 · 한도 · 재료 규칙을 강제. 블록 역할 → 칸 표(규격 데이터 `block_roles`)를 강제하고 `label`은 블록에서 받지 않는다 — `open-questions.md` #94) · cutout.py(이미지 칸 누끼 — 7칸 구성이 누끼를 요청한 사진만, 글자 지운 섹션에서 넓혀 잘라 전경 분리 · 알파 정리 · 다시 자르기. 전경 분리 모델은 주입하며 기본 어댑터는 rembg — #98). 렌더는 범위 밖(검수 도구는 `docs/ai-experiments/tools/aplus_review/`)
   data/aplus/spec.json       A+ 규격 데이터 정본(개발용 v1, #92) — 템플릿 14개의 치수 · 필수 칸 · 배치 변형 · 템플릿 한도와 대응 모듈 필드, 가이드 상한 표(`module_spec` — 모듈 6종, 행마다 출처 · 확인일), 라벨 19종 → 7칸, 블록 역할 → 칸(`block_roles`). 출처 커밋 · 파일 해시 포함
   handoff/                   AI ↔ BE 운영 인계 어댑터(3.2절) — 요청 → StageReport, 결과 검증기, GPU 실행기, 계약 예제 생성.

@@ -41,7 +41,12 @@
     "major": 20,
     "minor": 3
   },
-  "formal_complete": false,
-  "pm_reconfirmation_pending": true,
+  "formal_complete": true,
+  "pm_reconfirmation_pending": false,
+  "pm_approval": {
+    "path": "pm-approval.json",
+    "sha256": "2d6ed5d488ba9c9fa0221a565f78695d02b462aa7a9aded77f424396c35439f8",
+    "url": "https://github.com/ai-pixlate/server/pull/155#pullrequestreview-6052536616"
+  },
   "model_api_calls": 0
 }

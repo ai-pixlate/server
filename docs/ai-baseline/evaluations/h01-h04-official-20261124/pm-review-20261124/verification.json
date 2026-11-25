@@ -11,7 +11,7 @@
     "python -B -m unittest tests.test_baseline_evaluation_prepare tests.test_baseline_protocol",
     "python -B -m unittest discover -s tests -p test_baseline_scope.py"
   ],
-  "pm_reconfirmation_pending": true,
+  "pm_reconfirmation_pending": false,
   "final_script_replay_byte_identical": true,
   "replayed_outputs": [
     {
@@ -72,7 +72,11 @@
     },
     {
       "path": "validation.json",
-      "sha256": "ed25e500c95c9952a78bc0b0c8edc94395cb6e56bcc5013f29591467feaf9861"
+      "sha256": "90b3d91bcc67dfdc2aa7461b73ffe1033f54fb364cd5e4f8a31648caab6c748c"
+    },
+    {
+      "path": "pm-approval.json",
+      "sha256": "2d6ed5d488ba9c9fa0221a565f78695d02b462aa7a9aded77f424396c35439f8"
     }
   ],
   "new_pm_defect_ai_value_null_count": 10,
@@ -89,6 +93,22 @@
       "defect-inventory.md"
     ],
     "tests_passed": 32,
-    "pm_reconfirmation_pending": true
+    "pm_reconfirmation_pending": true,
+    "status_at_recording": "PM 재확인 전 기록; 현재 확정 상태는 최상위 formal_complete 및 pm_approval 참조"
+  },
+  "formal_complete": true,
+  "pm_approval": {
+    "path": "pm-approval.json",
+    "sha256": "2d6ed5d488ba9c9fa0221a565f78695d02b462aa7a9aded77f424396c35439f8",
+    "url": "https://github.com/ai-pixlate/server/pull/155#pullrequestreview-6052536616"
+  },
+  "pm_approval_verification": {
+    "approved_commit": "6f01060a97dfd96a0914ccf4fa6367258419ca03",
+    "evaluation_defect_review_and_metric_files_unchanged": true,
+    "replayed_output_changes": [
+      "validation.json",
+      "pm-approval.json"
+    ],
+    "tests_passed": 32
   }
 }

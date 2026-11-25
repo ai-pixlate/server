@@ -57,6 +57,11 @@ def main():
     result_dir.mkdir()
     shutil.copyfile(HERE/'pm-comment.json', root/'scoring/pm-comment.json')
     comment = read(HERE/'pm-comment.json')
+    approval = read(HERE/'pm-approval.json')
+    assert approval['review'] == 'APPROVED'
+    shutil.copyfile(HERE/'pm-approval.json', result_dir/'pm-approval.json')
+    approval_ref = {'path': 'pm-approval.json', 'sha256': sha(HERE/'pm-approval.json'), 'url': approval['url']}
+
     ev = {'path': 'scoring/pm-comment.json', 'sha256': sha(root/'scoring/pm-comment.json'), 'url': comment['url']}
     shutil.copyfile(HERE/'pm-reconfirmation-comment.json', root/'scoring/pm-reconfirmation-comment.json')
     reconfirmation = read(HERE/'pm-reconfirmation-comment.json')
@@ -228,7 +233,7 @@ def main():
         c['review_result']='A 유지' if c['selected'] else 'A 대상 없음; GS-03은 결과 없음'
     write(result_dir/'a-sample-review.json',candidates)
     write(result_dir/'issues.json',{'EI-01':{'status':'평가 이슈 유지','quality_defect_added':False},'EI-02':{'status':'PM 문제없음','quality_defect_added':False},'glossary_followup':{'in_scope':False,'request':'최신 버전의 콩·쌀 강제 용어가 콩알·쌀알 등 단어 내부에 매칭되는지, 보존 glossary_ids 빈 값으로 확인하지 못한 최초 원인을 별도 조사','investigation_performed':False},'pm_evidence_url':comment['url']})
-    write(result_dir/'validation.json',{'issues':[],'expected_counts_match':True,'initial_file_hashes':initial_hashes,'initial_files_unchanged':all(sha(INITIAL/p)==h for p,h in initial_hashes.items()),'protected_input_paths_unchanged':len(fixed),'evaluation_additions':len(revisions),'defect_additions':len(new_defects),'human_review_records':len(reviews),'adopted_evaluations':len(latest),'active_defect_records':len(active),'unique_defect_roots':len(unique),'by_severity':dict(Counter(d['severity'] for d in unique.values())),'formal_complete':False,'pm_reconfirmation_pending':True,'model_api_calls':0})
+    write(result_dir/'validation.json',{'issues':[],'expected_counts_match':True,'initial_file_hashes':initial_hashes,'initial_files_unchanged':all(sha(INITIAL/p)==h for p,h in initial_hashes.items()),'protected_input_paths_unchanged':len(fixed),'evaluation_additions':len(revisions),'defect_additions':len(new_defects),'human_review_records':len(reviews),'adopted_evaluations':len(latest),'active_defect_records':len(active),'unique_defect_roots':len(unique),'by_severity':dict(Counter(d['severity'] for d in unique.values())),'formal_complete':True,'pm_reconfirmation_pending':False,'pm_approval':approval_ref,'model_api_calls':0})
     # 명시적 판정 범위만 human_checked로 표시한 파생 표.
     def esc(x):return str(x).replace('|','\\|').replace('\n','<br>')
     table=['# PM 반영 H04 비교표','','두 체크포인트의 동일 결과는 한 행으로 표시. PM이 명시적으로 판정한 항목만 PM 표시하며 나머지는 최초 판단 유지.','','| 기준 ID | 기대값 | 정확성 | 판독성 | 상태 | PM 단위 검수 |','|---|---|---|---|---|---|']

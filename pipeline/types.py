@@ -1359,3 +1359,70 @@ class AplusCutoutResult(_Model):
         if len(set(keys)) != len(keys):
             raise ValueError("같은 칸의 같은 이미지 칸이 두 번 있다")
         return self
+
+
+class AplusCompressedField(_Model):
+    """압축(2차 번역) 대상 — 템플릿 한도를 넘은 글 칸 하나의 기록(#94). AI 내부 기록이며 인계 형식이 아니다(#97).
+    `field`: `headline` · `items[i].title` 형식. `primary_text` = 7칸 구성이 넣은 1차 번역 조합, `max_chars` = 템플릿 한도,
+    `guide_max_chars` = 가이드 칸당 상한(대응 필드가 없으면 None). `outcome`: `compressed` 한도 안의 답으로 문구를 바꿈 ·
+    `kept` 1차 번역 그대로 둠. `reason`: `fit` 채택 · `over_limit` 답이 한도를 넘음 · `declined` 모델이 기준을 지키며 줄일 수 없다고 답함 ·
+    `new_number` 답에 1차 문구에 없던 숫자가 있음 · `blank` 빈 답 · `call_failed` 다시 묻는 호출이 실패함.
+    `answer_text` = 모델의 마지막 답(채택됐으면 칸에 들어간 문구, 답이 없으면 None), `attempts` = 이 칸을 모델에 물은 횟수."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    origin_block_keys: list[str] = Field(default_factory=list)
+    primary_text: str
+    primary_chars: int = Field(gt=0)
+    max_chars: int = Field(gt=0)
+    guide_max_chars: int | None = Field(default=None, gt=0)
+    outcome: Literal["compressed", "kept"]
+    reason: Literal["fit", "over_limit", "declined", "new_number", "blank", "call_failed"]
+    answer_text: str | None = None
+    answer_chars: int | None = Field(default=None, ge=0)
+    attempts: int = Field(ge=1)
+
+    @model_validator(mode="after")
+    def _outcome(self) -> "AplusCompressedField":
+        if (self.outcome == "compressed") != (self.reason == "fit"):
+            raise ValueError("outcome=compressed와 reason=fit은 함께 있어야 한다")
+        if (self.answer_text is None) != (self.answer_chars is None):
+            raise ValueError("answer_text와 answer_chars는 함께 있거나 함께 없어야 한다")
+        if self.outcome == "compressed" and (self.answer_chars is None or not 0 < self.answer_chars <= self.max_chars):
+            raise ValueError("outcome=compressed면 한도 안의 답이 있어야 한다")
+        return self
+
+
+class AplusCompressChecked(_Model):
+    """압축이 무엇을 보고 했는지. `input_fingerprint`는 받은 7칸 구성 결과의 지문, `calls` = 모델 호출 횟수(대상이 없으면 0)."""
+
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+    calls: int = Field(ge=0)
+
+
+class AplusCompressResult(_Model):
+    """상품 하나의 압축 결과. `slots` = 7칸 구성 결과에서 한도 안에 들어온 칸만 문구를 바꾼 것(나머지는 그대로),
+    `fields` = 대상 칸마다의 기록(칸 순서 → 칸 안의 자리 순). 대상이 없으면 `fields`가 비고 모델을 부르지 않는다.
+    첫 호출의 실패(호출 · 응답 구조)는 전체 실패이며 호출자는 7칸 구성 결과를 그대로 쓴다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    slots: list[AplusSlotPlan] | None
+    fields: list[AplusCompressedField] = Field(default_factory=list)
+    checked: AplusCompressChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusCompressResult":
+        if self.status == "ok" and (self.slots is None or self.error is not None):
+            raise ValueError("status=ok면 slots가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.slots is not None or self.fields or not self.error):
+            raise ValueError("status=failed면 slots · fields가 없고 error가 있어야 한다")
+        if self.slots is not None and [s.slot for s in self.slots] != list(range(1, 8)):
+            raise ValueError("slots는 1~7 칸이 순서대로 하나씩 있어야 한다")
+        keys = [(x.slot, x.field) for x in self.fields]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
+        return self

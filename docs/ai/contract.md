@@ -356,7 +356,7 @@ is_product_label OR is_brand_logo
 
 추가 근거: [FE–AI 조판 협의](https://app.notion.com/p/40787148aa578162a11ef27650d62ffc) 3·3-1·4절(2026-11-03 본문 기준). 이 장의 `[조판 D-xx]`·`[조판 P-02]`는 해당 노션의 결정 ID이며 기존 `[통합 Dn]`과 다르다. D-03~06은 10/28, D-01·02·07은 10/29 합의다. D-08은 **10/27 PM 결정·10/29 반영**, D-09는 **PM 결정일 미확인·10/29 반영**, P-02는 **11/2 PM 결정·11/3 본문 반영**이다. 규칙 합의는 BE 계약 승인·운영 적용·검증 완료를 뜻하지 않는다.
 
-역할 표현은 FE 조판·측정·폰트 적용 / BE 입력 구성·FE 렌더 호출·결과 채택·저장·API / AI ⑥⑦⑧ 산출물·측정 규칙별 기대 사례로 구분한다. 아래 역할 표현 정정은 측정 규칙·Q-07 정책 변경이나 Q-07 구현 완료를 뜻하지 않는다. [사용자 정정 2026-11-25 · `app/html_render.py` · `app/render_input.py` · OpenAPI PreviewRenderer]
+역할 표현은 FE 조판·측정·폰트 적용 / BE 입력 구성·FE 렌더 호출·결과 채택·저장·API / AI ⑥⑦⑧ 산출물·측정 규칙별 기대 사례·FE 측정 결과를 사용하는 자동 조정 및 이미지 경계 판정 함수로 구분한다. 아래 역할 표현 정정은 측정 규칙·Q-07 정책 변경이나 Q-07 구현 완료를 뜻하지 않는다. [사용자 정정 2026-11-25·26 · `pipeline/handoff/typeset_adjust.py` · `pipeline/handoff/typeset_boundary.py` · `app/html_render.py` · `app/render_input.py` · OpenAPI PreviewRenderer]
 
 ### 6.1 원본 영역과 조정 영역
 
@@ -427,7 +427,7 @@ is_product_label OR is_brand_logo
 - 2차 `/preview`의 `renderInput`에서 블록별 `style`의 필수 필드 `fontFamily`, `fontWeight`, `fontSizePx`, `fontScale`, `fontColor`, `align`, `letterSpacingEm`, `lineHeightRatio`는 모두 null 없이 전달한다(OpenAPI 공개 계약 확정). 공통 계산 모듈의 소유·번들 전달 방식과 다른 경로의 스키마·소수 직렬화는 미정이다. 폰트 face·파일 SHA·설정 버전은 공통 bundle manifest로 식별 가능해야 하며 별도 블록별 fontFace 필드는 미정이다. 정렬은 left/center/right, 색은 대문자 `#RRGGBB` 기준이며 유효하지 않은 입력을 기본값으로 숨기지 않는다. 소문자 색 등 형식 밖의 측정값은 자동 보정하지 않고 `STYLE_RESULT_INVALID`로 처리한다. [BE–AI §4.1]
 - `bundleId`는 공통 HTML/CSS·계산·측정·폰트의 호환성, `rendererId`는 서버 브라우저/환경·출력 배율·측정 규칙의 결과 최신성을 식별한다. 렌더/측정에 영향을 주는 변경은 지문을 바꾼다. 기존 역할 기본값 버전을 측정 버전으로 대신하지 않는다. [BE–AI §4.3 A6] 식별 문자열은 OpenAPI `PreviewRenderer`를 따른다: `rendererId`는 `html-typeset/<규칙판>+chromium-<Chromium 전체 버전>`, `bundleId`는 유효한 FE revision 설정이 있을 때 `fe-<FE 전체 SHA 40자>`이며 설정이 없거나 형식이 맞지 않으면 null이다. 이 형식 정의는 실제 운영 설정·배포 시 생성 절차를 검증했다는 뜻이 아니다. [OpenAPI · PreviewRenderer](../openapi.yaml)
 - 2차 `PreviewInputError`는 공개 계약 확정, 입력 오류 처리는 **구현 완료·서버 배포 대기**다. 섹션별 `inputError`에 `code`와 `blockIds`(섹션 자료 문제면 빈 배열)를 반환하고 `renderInput`·`inputFingerprint`는 null로 둔다. 여러 오류가 겹치면 승인 설정·폰트 자산 문제(`STYLE_DEFAULTS_UNAPPROVED`), 적용 박스 형식·크기·경계 또는 섹션 자료 문제(`RENDER_INPUT_INVALID`), ⑦ 상태·역할·스타일 형식 위반(`STYLE_RESULT_INVALID`) 순서로 하나를 반환한다. 입력 준비 중에는 오류를 표시하지 않는다. 입력 오류는 같은 입력으로 재시도해도 해소되지 않아 입력·자료를 고쳐야 한다. [OpenAPI · PreviewInputError](../openapi.yaml) [BE–AI §4.3 A8]
-- FE는 공통 HTML/CSS 조판·측정·폰트 적용, BE는 렌더 입력 구성·Playwright를 통한 FE 렌더 호출·폰트 준비 확인·결과 채택·저장/API, AI는 ⑥⑦⑧ 산출물·측정 규칙별 기대 사례를 담당한다. 서버에서 별도 측정 알고리즘을 만들지 않는다. 브라우저 측정 기준은 AI–FE 합의(6.2, Q-01·Q-06)다. Pillow 임시 보정과 HTML/CSS 전환 권고는 1.1.0 이전 논의다. 현재 연결 상태는 `status.md` ⑨를 따른다. 파일·번들 경계와 적용은 #89에서 관리한다. `width_overflow`의 폭·높이 포괄 의미를 유지하는 호환안을 우선 검토하며, 신호명·필드/타입·FE 문구·축별 상세 정보는 BE–FE 미정이다. [BE–AI §4.3 PR #96 후속]
+- FE는 공통 HTML/CSS 조판·측정·폰트 적용, BE는 렌더 입력 구성·Playwright를 통한 FE 렌더 호출·폰트 준비 확인·결과 채택·저장/API, AI는 ⑥⑦⑧ 산출물·측정 규칙별 기대 사례와 FE 측정 결과를 사용하는 자동 조정·이미지 경계 판정 함수를 담당한다. 자동 조정은 호출자가 제공한 FE 측정기를 사용하고, 경계 판정은 FE가 측정한 글자 경계와 출력 좌표를 비교한다. 함수 구현과 BE 운영 연결 상태는 `status.md` ⑨를 따른다. 서버에서 별도 측정 알고리즘을 만들지 않는다. 브라우저 측정 기준은 AI–FE 합의(6.2, Q-01·Q-06)다. Pillow 임시 보정과 HTML/CSS 전환 권고는 1.1.0 이전 논의다. 현재 연결 상태는 `status.md` ⑨를 따른다. 파일·번들 경계와 적용은 #89에서 관리한다. `width_overflow`의 폭·높이 포괄 의미를 유지하는 호환안을 우선 검토하며, 신호명·필드/타입·FE 문구·축별 상세 정보는 BE–FE 미정이다. [BE–AI §4.3 PR #96 후속]
 
 ## 7. 확인 필요 신호와 재검증 [계약 7장]
 

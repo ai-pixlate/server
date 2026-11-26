@@ -1,0 +1,240 @@
+{
+  "basis": "확인된 전체 결함 관찰. undetermined 원본의 major도 포함; 공식 measured 분모 집계와 구별.",
+  "observation_records": 52,
+  "unique_roots_across_checkpoints": 26,
+  "by_severity": {
+    "critical": 5,
+    "major": 19,
+    "minor": 2
+  },
+  "by_origin": {
+    "OCR": 1,
+    "undetermined": 20,
+    "번역·현지화": 4,
+    "렌더·배치": 1
+  },
+  "affected_sources": [
+    "GS-01-IMG-002",
+    "GS-02-IMG-003",
+    "GS-02-IMG-004",
+    "GS-02-IMG-005",
+    "GS-02-IMG-006",
+    "GS-02-IMG-007",
+    "GS-02-IMG-008",
+    "GS-02-IMG-009",
+    "GS-02-IMG-010",
+    "GS-02-IMG-011",
+    "GS-02-IMG-013",
+    "GS-02-IMG-014"
+  ],
+  "roots": [
+    {
+      "root_defect_id": "GS-01-IMG-002-volume",
+      "source_key": "GS-01-IMG-002",
+      "severity": "critical",
+      "origin_stage": "OCR",
+      "defect_type": "content_wrong",
+      "observed": "원본 50ml가 50m로 바뀜. text_block 41의 source_lines와 source_ko에 이미 50m. 번역·렌더까지 전파됨."
+    },
+    {
+      "root_defect_id": "GS-01-IMG-002-layout",
+      "source_key": "GS-01-IMG-002",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "큰 제목이 제품명·VEGAN 배지·본문과 겹치고 라인업 이름이 칸을 벗어남. 그래프 값 배지가 저대비·바깥 이탈. 비건 설명 끝 ingredients 잘림."
+    },
+    {
+      "root_defect_id": "GS-01-IMG-002-claim",
+      "source_key": "GS-01-IMG-002",
+      "severity": "critical",
+      "origin_stage": "번역·현지화",
+      "defect_type": "translation_fact_error",
+      "observed": "Those looking for a sunscreen with verified broad spectrum SPF: 원문 자외선차단지수 검증에 없는 broad spectrum 추가."
+    },
+    {
+      "root_defect_id": "GS-01-IMG-002-protected",
+      "source_key": "GS-01-IMG-002",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "protected_content_damaged",
+      "observed": "FSC/SOYINK 마크 글자와 Good all goodal 타원 로고가 재작성·재배치됨."
+    },
+    {
+      "root_defect_id": "GS-01-IMG-002-escape",
+      "source_key": "GS-01-IMG-002",
+      "severity": "minor",
+      "origin_stage": "undetermined",
+      "defect_type": "content_extra_or_duplicate",
+      "observed": "해시태그 인접 문구에 이스케이프 문자열 \\n이 노출됨."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-003-layout",
+      "source_key": "GS-02-IMG-003",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "Performance 행이 celimax Retinal Shot 제품명과 겹침. 큰 제목 #1 Amazon Best에서 Seller가 이미지 밖으로 잘림. 제품명 판독성은 H04 undetermined."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-004-layout",
+      "source_key": "GS-02-IMG-004",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "거대 제목이 해시태그·피부 사진에 침범, 후기 말풍선과 인용문 겹침. 흡수 깊이 제목 하단 일부 잘림."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-004-replacement",
+      "source_key": "GS-02-IMG-004",
+      "severity": "critical",
+      "origin_stage": "번역·현지화",
+      "defect_type": "decision_wrong",
+      "observed": "The fine lines seem to have almost completely disappeared...가 원본 첫 후기의 번역으로 남음."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-005-layout",
+      "source_key": "GS-02-IMG-005",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "0.00% 개선 배지의 제목·비교 대상·개선 문구가 겹치고 오른쪽 밖으로 잘림. 숫자는 판독 가능."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-005-graph",
+      "source_key": "GS-02-IMG-005",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "protected_content_damaged",
+      "observed": "3D 그래프의 BEFORE 표제가 없어지고 눈금 일부가 다시 그려짐; AFTER는 남음."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-006-layout",
+      "source_key": "GS-02-IMG-006",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "큰 표제와 네 효능 타원이 겹침; 892% 아래 제목·설명 겹침."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-006-microscope",
+      "source_key": "GS-02-IMG-006",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "content_extra_or_duplicate",
+      "observed": "현미경 사진 위에 원본에 없는 큰 회색 C가 생김."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-007-layout",
+      "source_key": "GS-02-IMG-007",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "효능 제목·본문 및 얼굴의 각질층/눈가 라벨이 겹침. 800만 제목과 상품명도 겹침. 숫자·각주를 별도로 H04 대조함."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-008-layout",
+      "source_key": "GS-02-IMG-008",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "제목·수치 설명이 카드 밖으로 넘침. 원료적 특성 한정 각주 일부 잘림·제목과 겹침."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-008-papers",
+      "source_key": "GS-02-IMG-008",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "protected_content_damaged",
+      "observed": "논문 사진 속 영문을 새로 그려 논문 표제·본문이 서로 겹치고 원래 문서의 가독성을 훼손함."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-009-layout",
+      "source_key": "GS-02-IMG-009",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "후기 작성자·표제·시험 배지 글자가 칸과 다른 문구를 침범. 얼굴 부위의 검은/회색 라벨 대비가 낮음."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-009-badges",
+      "source_key": "GS-02-IMG-009",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "translation_missing",
+      "observed": "시험 배지 여러 개의 한국어가 남은 가운데 큰 Skin lifting improvement Test completed만 겹쳐 표시됨."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-010-layout",
+      "source_key": "GS-02-IMG-010",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "사진 라벨과 큰 제목이 구획을 벗어나고 만족도 설명과 각주가 겹침."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-010-escape",
+      "source_key": "GS-02-IMG-010",
+      "severity": "minor",
+      "origin_stage": "undetermined",
+      "defect_type": "content_extra_or_duplicate",
+      "observed": "만족도 문구에 \\n**가 그대로 노출됨."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-011-layout",
+      "source_key": "GS-02-IMG-011",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "큰 제목이 이마 주름 항목으로 침범하고 시험 각주가 제목에 겹침. 값과 전후 기간은 판독 가능."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-013-layout",
+      "source_key": "GS-02-IMG-013",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "시험 인증서 표제와 결론 글자가 표 경계를 벗어나고 도장·본문이 겹침."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-013-irritation",
+      "source_key": "GS-02-IMG-013",
+      "severity": "major",
+      "origin_stage": "번역·현지화",
+      "defect_type": "translation_meaning_error",
+      "observed": "일반 피부 일차자극 시험 결론의 저자극성을 hypoallergenic으로 옮김. 아래 민감성 시험은 low (non-)irritating으로 보존."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-014-usage-layout",
+      "source_key": "GS-02-IMG-014",
+      "severity": "critical",
+      "origin_stage": "렌더·배치",
+      "defect_type": "readability_or_layout",
+      "observed": "초급자 첫 달 주 1–2회와 증가 주 3–4회가 겹침. 중급자 주 5–6회가 고급자 Daily와 겹쳐 용법 대응 판독 곤란. 원문·번역의 빈도 텍스트는 보존됨."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-014-bean",
+      "source_key": "GS-02-IMG-014",
+      "severity": "critical",
+      "origin_stage": "번역·현지화",
+      "defect_type": "translation_meaning_error",
+      "observed": "콩알만한 크기가 size of Glycine Max (Soybean) Pulp로 변해 사용량 비교물이 달라짐."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-014-layout",
+      "source_key": "GS-02-IMG-014",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "readability_or_layout",
+      "observed": "병용 제품 제목에 여분 1이 붙고 일부 제목이 넘침. 개발 이야기 표제에 \\n 문자열 노출."
+    },
+    {
+      "root_defect_id": "GS-02-IMG-014-sketch",
+      "source_key": "GS-02-IMG-014",
+      "severity": "major",
+      "origin_stage": "undetermined",
+      "defect_type": "protected_content_damaged",
+      "observed": "개발 스케치 사진 안 the vita A / retinal / tightening 손글씨가 크게 재작성되어 잘림."
+    }
+  ]
+}

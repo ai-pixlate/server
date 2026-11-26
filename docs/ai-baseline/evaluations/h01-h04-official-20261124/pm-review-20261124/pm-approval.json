@@ -1,0 +1,9 @@
+{
+  "url": "https://github.com/ai-pixlate/server/pull/155#pullrequestreview-6052536616",
+  "review_id": 6052536616,
+  "review": "APPROVED",
+  "reviewer": "i-dAb-i",
+  "created_at": "2026-11-25T05:55:03Z",
+  "approved_commit": "6f01060a97dfd96a0914ccf4fa6367258419ca03",
+  "body": "## PM 승인 — 재확인 반영본(6f01060)\n\n예람 님, 6f01060 확인했어요. 요청한 두 가지가 두 체크포인트 모두에 의도대로 들어갔어요.\n\n- **GS-01-IMG-002-layout K03 ④:** 「02. Plasticizers에 가려 판독 불가」로 바뀐 것 확인했어요.\n- **기존 layout 결함의 기준 항목 연결:** GS-02-IMG-003-layout에서 REF-001이, GS-01-IMG-002-layout에서 REF-020 · 025가 빠졌어요. 따로 세운 name-readability · badge-020 · badge-025에는 연결이 그대로 남아 있는 것도 확인했어요.\n\n바뀐 건 결함 기록 4건뿐이고 평가 · 집계 · 검수 이력은 이전 커밋과 같아서, 재집계(H02 · H03 A 1 · B 8 · C 4, H04 105/111 = 94.59%)도 그대로예요.\n\n이번 검수 반영본을 **승인**해요. 머지 전에 `formal_complete`를 true로 바꿔 확정 처리해 주세요.\n\n용어집의 콩 · 쌀 매칭 건은 이번 확정과 별개로, 별도 조사로 이어서 봐 주세요."
+}

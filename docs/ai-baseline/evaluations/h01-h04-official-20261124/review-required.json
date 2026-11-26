@@ -1,0 +1,598 @@
+[
+  {
+    "source_key": "GS-01-IMG-001",
+    "checkpoint": "machine_snapshot",
+    "reason": "not_applicable"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-01-IMG-002-volume-machine_snapshot",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-01-IMG-002-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-01-IMG-002-claim-machine_snapshot",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-01-IMG-002-protected-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-001",
+    "checkpoint": "machine_snapshot",
+    "reason": "not_applicable"
+  },
+  {
+    "source_key": "GS-02-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "not_applicable"
+  },
+  {
+    "source_key": "GS-02-IMG-003",
+    "checkpoint": "machine_snapshot",
+    "reason": "undetermined"
+  },
+  {
+    "source_key": "GS-02-IMG-004",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-004-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-004",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-004-replacement-machine_snapshot",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-02-IMG-005",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-005-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-005",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-005-graph-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-006",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-006-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-006",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-006-microscope-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-007",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-007-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-008",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-008-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-008",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-008-papers-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-009",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-009-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-009",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-009-badges-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-010",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-010-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-011",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-011-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-012",
+    "checkpoint": "machine_snapshot",
+    "reason": "A등급 표본 후보(선정 수 미정)"
+  },
+  {
+    "source_key": "GS-02-IMG-013",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-013-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-013",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-013-irritation-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-014-usage-layout-machine_snapshot",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-014-bean-machine_snapshot",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-014-layout-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "machine_snapshot",
+    "defect_record_id": "GS-02-IMG-014-sketch-machine_snapshot",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-03-IMG-001",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-003",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-004",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-005",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-006",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-007",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-008",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-009",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-010",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-011",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-012",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-013",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-014",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-015",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-016",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-017",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-018",
+    "checkpoint": "machine_snapshot",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-01-IMG-001",
+    "checkpoint": "service_final",
+    "reason": "not_applicable"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-01-IMG-002-volume-service_final",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-01-IMG-002-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-01-IMG-002-claim-service_final",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-01-IMG-002-protected-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-001",
+    "checkpoint": "service_final",
+    "reason": "not_applicable"
+  },
+  {
+    "source_key": "GS-02-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "not_applicable"
+  },
+  {
+    "source_key": "GS-02-IMG-003",
+    "checkpoint": "service_final",
+    "reason": "undetermined"
+  },
+  {
+    "source_key": "GS-02-IMG-004",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-004-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-004",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-004-replacement-service_final",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-02-IMG-005",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-005-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-005",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-005-graph-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-006",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-006-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-006",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-006-microscope-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-007",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-007-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-008",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-008-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-008",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-008-papers-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-009",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-009-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-009",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-009-badges-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-010",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-010-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-011",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-011-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-012",
+    "checkpoint": "service_final",
+    "reason": "A등급 표본 후보(선정 수 미정)"
+  },
+  {
+    "source_key": "GS-02-IMG-013",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-013-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-013",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-013-irritation-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-014-usage-layout-service_final",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-014-bean-service_final",
+    "reason": "critical"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-014-layout-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "service_final",
+    "defect_record_id": "GS-02-IMG-014-sketch-service_final",
+    "reason": "major"
+  },
+  {
+    "source_key": "GS-03-IMG-001",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-003",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-004",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-005",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-006",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-007",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-008",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-009",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-010",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-011",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-012",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-013",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-014",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-015",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-016",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-017",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-03-IMG-018",
+    "checkpoint": "service_final",
+    "reason": "no_output"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "K01"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "K01"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "K02"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "K02"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "K03"
+  },
+  {
+    "source_key": "GS-01-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "K03"
+  },
+  {
+    "source_key": "GS-02-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "K04"
+  },
+  {
+    "source_key": "GS-02-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "K04"
+  },
+  {
+    "source_key": "GS-02-IMG-007",
+    "checkpoint": "machine_snapshot",
+    "reason": "K05"
+  },
+  {
+    "source_key": "GS-02-IMG-007",
+    "checkpoint": "service_final",
+    "reason": "K05"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "machine_snapshot",
+    "reason": "K06"
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "checkpoint": "service_final",
+    "reason": "K06"
+  },
+  {
+    "source_key": "GS-03-IMG-002",
+    "checkpoint": "machine_snapshot",
+    "reason": "K07"
+  },
+  {
+    "source_key": "GS-03-IMG-002",
+    "checkpoint": "service_final",
+    "reason": "K07"
+  },
+  {
+    "source_key": "GS-03-IMG-018",
+    "checkpoint": "machine_snapshot",
+    "reason": "K08"
+  },
+  {
+    "source_key": "GS-03-IMG-018",
+    "checkpoint": "service_final",
+    "reason": "K08"
+  },
+  {
+    "source_key": "GS-03-IMG-018",
+    "checkpoint": "machine_snapshot",
+    "reason": "K09"
+  },
+  {
+    "source_key": "GS-03-IMG-018",
+    "checkpoint": "service_final",
+    "reason": "K09"
+  }
+]

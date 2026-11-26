@@ -4,17 +4,20 @@
 - 자리: 7칸 구성 다음이다. 받는 것은 7칸 구성 결과(`AplusPlan`)뿐이다 — 블록 목록 · 이미지 · 한국어 원문은 받지 않는다
   (문구는 1차 번역에서만 온다. 한국어 원문에서 영어를 새로 쓰지 않는다 — aplus.md 4.1).
 - 선별을 다시 하지 않는다. 7칸 구성이 한도 직전에서 뺀 블록을 다시 넣지 않고, 칸의 블록 구성 · 출처(`origin_block_keys`)도 바꾸지 않는다.
-- 대상: 템플릿 한도(`char_limits`)를 넘은 글 칸(`content.limit_excesses`). `label` 칸은 블록에서 오지 않으므로 대상이 아니다.
+- 대상: 템플릿 한도(`char_limits`)는 권장 길이다(데이터 담당 답변 2026-11-26 — 지켜야 하는 것은 가이드 상한이다). 1차 문구가
+  「넘으면 안 되는 길이」(권장 길이 × `aplus_compress.over_ratio`, 가이드 상한보다 크면 가이드 상한)를 넘는 글 칸만 대상이다
+  (사용자 결정 2026-11-26). 그 안에 드는 칸은 권장 길이를 넘어도 그대로 둔다. `label` 칸은 블록에서 오지 않으므로 대상이 아니다.
 - 호출: 상품당 1회, 글만 보낸다(이미지 없음). 대상이 있는 칸(모듈)마다 그 칸의 글 전부를 문맥으로 함께 보낸다.
   채택되지 않은 칸만 실제 글자 수 · 문제와 함께 다시 묻는다(`aplus_compress.max_retries`회까지).
-- 채택: 글자 수는 코드가 센다. 답이 템플릿 한도 안이고, 비어 있지 않고, 1차 문구에 없던 숫자가 없을 때만 문구를 바꾼다.
-  한도 안이면 1차 문구보다 반드시 짧으므로 길이 비교는 따로 하지 않는다. 덜 줄어든 답은 쓰지 않는다.
+- 채택: 글자 수는 코드가 센다. 답이 넘으면 안 되는 길이 이하이고, 비어 있지 않고, 1차 문구에 없던 숫자가 없을 때만 문구를 바꾼다.
+  그 길이 이하면 1차 문구보다 반드시 짧으므로 길이 비교는 따로 하지 않는다. 권장 길이는 모델에 목표로만 알려 준다 —
+  권장 길이에 못 미치게 줄여도 넘으면 안 되는 길이 안이면 채택한다.
 - 규제 반영(사용자 결정 2026-11-26): 적용 분류의 규제 행(`regulation`)을 받으면 allowed가 아닌 행의 영어 표현을 `avoid`로 모델에 주고,
   답에 1차 문구에 없던 규제 매칭이 새로 생기면 채택하지 않는다(`new_regulated` — 다시 묻는다). 매칭은 원본 규격 유지 경로의 번역문 규칙 검사
   (`stages.text_check.check_block`)와 같다. 1차 문구에 원래 있던 규제 표현은 고치지 않는다 — 압축의 일은 줄이는 것이다.
   규제 행을 받지 못하면 반영하지 않고 그 사실을 남긴다(`checked.regulation_applied=False`). 번역문 LLM 규제 판정은 하지 않는다.
 - 못 맞춘 칸은 1차 번역 그대로 둔다(PM 결정 2026-11-24 — aplus.md 4.4). 1차 번역이 가이드 상한까지 넘는 칸도 같다 — 새 규칙을 만들지 않고
-  기록에 두 한도를 남긴다(`AplusCompressedField.guide_max_chars`).
+  기록에 한도들을 남긴다(`AplusCompressedField.max_chars` 권장 길이 · `allowed_chars` 넘으면 안 되는 길이 · `guide_max_chars`).
 - 어느 칸의 문구가 바뀌었는지는 결과의 `fields`(`outcome`)로만 안다. `AplusText` · `AplusModule`의 모양은 바꾸지 않는다(인계 형식은 #97).
 
 첫 호출의 실패(호출 · 시간 초과 · 응답 구조)는 예외가 아니라 `status=failed` 결과다 — 호출자는 7칸 구성 결과를 그대로 쓴다.
@@ -25,6 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import time
@@ -58,7 +62,7 @@ def validate_config(cfg: dict[str, Any], *, need_api_key: bool) -> str:
     if TABLE not in cfg:
         raise ValueError(f"config에 [{TABLE}] 표가 없다")
     c = cfg[TABLE]
-    missing = [k for k in ("model", "temperature", "timeout_s", "max_retries", "prompt_path") if k not in c]
+    missing = [k for k in ("model", "temperature", "timeout_s", "max_retries", "over_ratio", "prompt_path") if k not in c]
     if missing:
         raise ValueError(f"잘못된 [{TABLE}] 설정: 없는 키 " + ", ".join(f"{TABLE}.{k}" for k in missing))
     errors: list[str] = []
@@ -71,6 +75,8 @@ def validate_config(cfg: dict[str, Any], *, need_api_key: bool) -> str:
     mr = c["max_retries"]
     if not (isinstance(mr, int) and not isinstance(mr, bool)) or mr < 0:
         errors.append(f"{TABLE}.max_retries={mr!r} — 정수 · 0 이상")
+    if not _finite_number(c["over_ratio"]) or not c["over_ratio"] >= 1:
+        errors.append(f"{TABLE}.over_ratio={c['over_ratio']!r} — 수치(bool 제외) · 유한값 · 1 이상")
     prompt = ""
     pp = c["prompt_path"]
     if not isinstance(pp, str) or not pp.strip():
@@ -106,6 +112,7 @@ class Target:
     attempts: int = 0
     tried: list[dict[str, Any]] = dc_field(default_factory=list)  # 채택되지 않은 답(다시 물을 때 보낸다)
     primary_hits: frozenset[tuple[str, str]] = frozenset()  # 1차 문구에 이미 있는 규제 매칭(규제 행을 받았을 때만)
+    allowed: int = 0  # 넘으면 안 되는 길이(allowed_chars). 답은 이 길이 이하여야 채택된다
 
     @property
     def field(self) -> str:
@@ -133,8 +140,15 @@ def replace_text(m: AplusModule, name: str, text: str) -> AplusModule:
     return m.model_copy(update={"items": items})
 
 
-def find_targets(slots: list[AplusSlotPlan], spec: AplusSpec) -> list[Target]:
-    """템플릿 한도를 넘은 글 칸(칸 순서 → 칸 안의 자리 순). `label` 칸은 뺀다."""
+def allowed_chars(c: content.LimitCheck, over_ratio: float) -> int:
+    """넘으면 안 되는 길이 — 권장 길이(템플릿 한도) × `over_ratio`(내림). 가이드 상한보다 크면 가이드 상한이다."""
+    n = math.floor(c.max_chars * over_ratio + 1e-9)
+    return min(n, c.guide_max_chars) if c.guide_max_chars is not None else n
+
+
+def find_targets(slots: list[AplusSlotPlan], spec: AplusSpec, over_ratio: float = 1.0) -> list[Target]:
+    """1차 문구가 넘으면 안 되는 길이(`allowed_chars`)를 넘는 글 칸(칸 순서 → 칸 안의 자리 순). `label` 칸은 뺀다.
+    `over_ratio=1`이면 권장 길이(템플릿 한도)를 넘은 칸 전부다."""
     out: list[Target] = []
     for s in slots:
         if s.module is None:
@@ -142,7 +156,10 @@ def find_targets(slots: list[AplusSlotPlan], spec: AplusSpec) -> list[Target]:
         for c in content.limit_excesses(s.module, spec):
             if c.field in SKIP_FIELDS:
                 continue
-            out.append(Target(id=f"c{len(out) + 1}", slot=s.slot, check=c, primary=get_text(s.module, c.field).text))
+            allowed = allowed_chars(c, over_ratio)
+            if c.chars <= allowed:
+                continue
+            out.append(Target(id=f"c{len(out) + 1}", slot=s.slot, check=c, primary=get_text(s.module, c.field).text, allowed=allowed))
     return out
 
 
@@ -184,7 +201,8 @@ def response_schema() -> dict[str, Any]:
 
 
 def build_payload(modules: dict[int, AplusModule], pending: list[Target], spec: AplusSpec, avoid: Sequence[str] = ()) -> dict[str, Any]:
-    """대상이 있는 칸마다 그 칸의 글 전부(대상에는 `target` · `max_chars`, 앞선 답이 있으면 `tried`). `modules`는 지금 문구 기준이다.
+    """대상이 있는 칸마다 그 칸의 글 전부(대상에는 `target` · `recommended_chars` 권장 길이 · `max_chars` 넘으면 안 되는 길이,
+    앞선 답이 있으면 `tried`). `modules`는 지금 문구 기준이다.
     `avoid`가 있으면 덧붙인다(없으면 키 자체가 없다 — 규제 행을 받지 않았을 때의 페이로드와 같다)."""
     by_slot: dict[int, dict[str, Target]] = {}
     for t in pending:
@@ -197,7 +215,7 @@ def build_payload(modules: dict[int, AplusModule], pending: list[Target], spec: 
             entry: dict[str, Any] = {"field": c.field, "text": get_text(m, c.field).text, "chars": c.chars}
             t = by_slot[n].get(c.field)
             if t is not None:
-                entry.update(target=t.id, max_chars=t.check.max_chars)
+                entry.update(target=t.id, recommended_chars=t.check.max_chars, max_chars=t.allowed)
                 if t.tried:
                     entry["tried"] = t.tried
             texts.append(entry)
@@ -263,7 +281,7 @@ def judge(t: Target, answer: dict[str, Any], rows: Sequence[text_check.RegRow] |
         t.tried.append({"text": "", "chars": 0, "problem": "blank"})
         return
     t.answer = text
-    if chars > t.check.max_chars:
+    if chars > t.allowed:
         t.reason = "over_limit"
     elif numbers(text) - numbers(t.primary):
         t.reason = "new_number"
@@ -287,7 +305,7 @@ def _record(t: Target) -> AplusCompressedField:
     fit = t.reason == "fit"
     return AplusCompressedField(
         slot=t.slot, field=t.field, origin_block_keys=list(t.check.origin_block_keys), primary_text=t.primary, primary_chars=t.check.chars,
-        max_chars=t.check.max_chars, guide_max_chars=t.check.guide_max_chars, outcome="compressed" if fit else "kept", reason=t.reason,
+        max_chars=t.check.max_chars, allowed_chars=t.allowed, guide_max_chars=t.check.guide_max_chars, outcome="compressed" if fit else "kept", reason=t.reason,
         answer_text=t.answer, answer_chars=content.count_chars(t.answer) if t.answer is not None else None, attempts=t.attempts)
 
 
@@ -299,7 +317,9 @@ def run(plan: AplusPlan, spec: AplusSpec, cfg: dict[str, Any], *, regulation: Se
         raise ValueError("실패한 7칸 구성 결과는 압축할 수 없다")
     if plan.checked.spec_version != spec.version:
         raise ValueError(f"7칸 구성의 규격 버전 {plan.checked.spec_version!r}이 지금 규격 {spec.version!r}과 다르다")
-    targets = find_targets(plan.slots, spec)
+    prompt = validate_config(cfg, need_api_key=False)  # 대상 고르기 전에 설정(over_ratio)부터 본다
+    over_ratio = float(cfg[TABLE]["over_ratio"])
+    targets = find_targets(plan.slots, spec, over_ratio)
     prompt = validate_config(cfg, need_api_key=llm is None and bool(targets))
     max_retries = int(cfg[TABLE]["max_retries"])
     started = datetime.now(timezone.utc)
@@ -309,13 +329,14 @@ def run(plan: AplusPlan, spec: AplusSpec, cfg: dict[str, Any], *, regulation: Se
     rec: dict[str, Any] = {
         "stage": TABLE, "status": None, "input_fingerprint": fp, "spec_version": spec.version, "spec_sha256": spec.sha256,
         "started_at": started.isoformat(timespec="seconds"), "prompt_sha256": sha256_text(prompt), "model_config": llm_config(cfg, TABLE),
-        "max_retries": max_retries, "targets": [{"id": t.id, "slot": t.slot, "field": t.field} for t in targets], "calls": calls, "error": None,
+        "max_retries": max_retries, "over_ratio": over_ratio,
+        "targets": [{"id": t.id, "slot": t.slot, "field": t.field, "allowed_chars": t.allowed} for t in targets], "calls": calls, "error": None,
         "regulation": {"applied": regulation is not None, "rows": len(regulation) if regulation is not None else None},
     }
 
     def checked() -> AplusCompressChecked:
         return AplusCompressChecked(input_fingerprint=fp, spec_version=spec.version, llm_called=bool(calls), calls=len(calls),
-                                    regulation_applied=regulation is not None)
+                                    regulation_applied=regulation is not None, over_ratio=over_ratio)
 
     def regulation_failed(e: Exception) -> AplusCompressResult:  # 사전 데이터 오류 — 통과로 바꾸지 않는다. 문구는 하나도 바꾸지 않는다
         rec.update(status="regulation_failed", duration_s=round(time.perf_counter() - t0, 3),

@@ -46,7 +46,7 @@ def compressed(c1="Gentle on skin with zinc", c2=None):
     plan = AplusPlan(status="ok", slots=slots, checked=AplusPlanChecked(input_fingerprint="fp", spec_version=SPEC.version, llm_called=True))
     answers = [{"id": k, "failed": True, "reason": "줄일 수 없다"} if v is None else {"id": k, "failed": False, "text": v}
                for k, v in (("c1", c1), ("c2", c2))]
-    return compress.run(plan, SPEC, cfgmod.load_config(), llm=Fake({"targets": answers}))
+    return compress.run(plan, SPEC, cfgmod.load_config(overrides=["aplus_compress.over_ratio=1"]), llm=Fake({"targets": answers}))
 
 
 def test_only_fields_changed_by_compression_are_checked():

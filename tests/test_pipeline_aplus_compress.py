@@ -3,7 +3,8 @@
 개발용 v1(open-questions.md #94): 대상은 한도를 넘은 글 칸(`label` 제외) · 상품당 1회 호출에 채택되지 않은 칸만 다시 묻기 ·
 한도 안 · 비어 있지 않음 · 새 숫자 없음일 때만 채택 · 못 맞춘 칸은 1차 번역 그대로 · 첫 호출 실패는 전체 실패 ·
 다시 묻는 호출이 실패하면 채택된 칸은 살림 · 출처 블록과 다른 칸은 바꾸지 않음 · 규제 행을 받으면 `avoid`를 주고
-1차 문구에 없던 규제 매칭이 생긴 답은 채택하지 않음.
+1차 문구에 없던 규제 매칭이 생긴 답은 채택하지 않음 · 권장 길이(템플릿 한도) × `over_ratio`를 넘는 칸만 대상이고 답도 그 길이 이하면 채택.
+앞쪽 테스트는 `over_ratio=1`(권장 길이를 넘은 칸 전부 · 권장 길이 이하만 채택)로 돌린다.
 """
 import copy
 import json
@@ -62,7 +63,7 @@ def ans(**by_id):
 
 def run(plan, *replies, recs=None, sets=(), regulation=None):
     fake = Fake(*replies)
-    out = compress.run(plan, SPEC, cfgmod.load_config(overrides=sets), regulation=regulation, llm=fake,
+    out = compress.run(plan, SPEC, cfgmod.load_config(overrides=["aplus_compress.over_ratio=1", *sets]), regulation=regulation, llm=fake,
                        recorder=recs.append if recs is not None else None)
     return out, fake
 
@@ -100,9 +101,9 @@ def test_payload_sends_only_slots_with_targets_and_marks_targets():
     s2 = payload["slots"][0]
     assert s2["template"] == "2A" and s2["name"] == SPEC.raw["slots"]["2"]["name_ko"]
     assert s2["texts"] == [
-        {"field": "headline", "text": LONG_HEAD, "chars": 47, "target": "c1", "max_chars": 28},
+        {"field": "headline", "text": LONG_HEAD, "chars": 47, "target": "c1", "recommended_chars": 28, "max_chars": 28},
         {"field": "items[0].title", "text": OK_ITEM, "chars": 14},
-        {"field": "items[1].title", "text": LONG_ITEM, "chars": 54, "target": "c2", "max_chars": 45},
+        {"field": "items[1].title", "text": LONG_ITEM, "chars": 54, "target": "c2", "recommended_chars": 45, "max_chars": 45},
         {"field": "items[2].title", "text": "Soothes skin", "chars": 12},
     ]
     assert out.checked.llm_called is True and out.checked.calls == 1
@@ -135,7 +136,7 @@ def test_over_limit_answer_is_asked_again_with_actual_count():
     out, fake = run(make_plan(), ans(c1=still_long, c2="Fresh, seamless 24H wear, no cast"), ans(c1="Gentle, zinc-only care"))
     assert len(fake.calls) == 2 and out.checked.calls == 2
     texts = fake.calls[1][1]["slots"][0]["texts"]
-    assert texts[0] == {"field": "headline", "text": LONG_HEAD, "chars": 47, "target": "c1", "max_chars": 28,
+    assert texts[0] == {"field": "headline", "text": LONG_HEAD, "chars": 47, "target": "c1", "recommended_chars": 28, "max_chars": 28,
                         "tried": [{"text": still_long, "chars": 29, "problem": "over_limit"}]}
     assert texts[2] == {"field": "items[1].title", "text": "Fresh, seamless 24H wear, no cast", "chars": 33}  # 채택된 칸은 새 문구 · 대상 아님
     f = by_field(out)
@@ -240,7 +241,9 @@ def test_record_has_every_call():
     run(make_plan(), ans(c1="Gentle on skin with only zinc", c2=None), ans(c1="Zinc-only gentle care"), recs=recs)
     (rec,) = recs
     assert rec["stage"] == "aplus_compress" and rec["status"] == "ok" and rec["spec_sha256"] == SPEC.sha256
-    assert rec["targets"] == [{"id": "c1", "slot": 2, "field": "headline"}, {"id": "c2", "slot": 2, "field": "items[1].title"}]
+    assert rec["targets"] == [{"id": "c1", "slot": 2, "field": "headline", "allowed_chars": 28},
+                              {"id": "c2", "slot": 2, "field": "items[1].title", "allowed_chars": 45}]
+    assert rec["over_ratio"] == 1
     assert [(c["attempt"], c["sent"], c["validation"]["ok"], c["finish_reason"]) for c in rec["calls"]] == [(1, ["c1", "c2"], True, "STOP"),
                                                                                                            (2, ["c1"], True, "STOP")]
     assert [r["outcome"] for r in rec["result"]] == ["compressed", "kept"]
@@ -360,3 +363,56 @@ def test_avoid_list_and_regulated_hits():
     assert compress.avoid_list([*REG, RegRow("RG-3", "regulated", ("anti-aging",))]) == ["anti-aging", "wrinkle free", "soothes acne"]
     assert compress.regulated_hits("An Anti-Aging, wrinkle-free cream", REG) == {("RG-1", "anti-aging"), ("RG-1", "wrinkle free")}
     assert compress.regulated_hits("Moisturizing cream", REG) == frozenset()
+
+
+# ---------------------------------------------------------------------------
+# 권장 길이 × over_ratio — 그보다 긴 칸만 대상, 답도 그 길이 이하면 채택
+# ---------------------------------------------------------------------------
+RATIO = ["aplus_compress.over_ratio=1.5"]
+MID_HEAD = "Gentle on skin, made only with zinc"  # 35자 — 권장 28은 넘고 넘으면 안 되는 길이 42 안
+
+
+def test_default_over_ratio_targets_only_fields_far_over_recommended_length():
+    plan = make_plan()
+    ratio = cfgmod.load_config()["aplus_compress"]["over_ratio"]
+    targets = compress.find_targets(plan.slots, SPEC, ratio)
+    assert ratio == 1.5
+    assert [(t.id, t.field, t.check.chars, t.check.max_chars, t.allowed) for t in targets] == [("c1", "headline", 47, 28, 42)]  # 항목 54/45는 67 안
+
+
+def test_over_ratio_payload_separates_recommended_and_max_chars():
+    out, fake = run(make_plan(), ans(c1=MID_HEAD), sets=RATIO)
+    texts = fake.calls[0][1]["slots"][0]["texts"]
+    assert texts[0] == {"field": "headline", "text": LONG_HEAD, "chars": 47, "target": "c1", "recommended_chars": 28, "max_chars": 42}
+    assert texts[2] == {"field": "items[1].title", "text": LONG_ITEM, "chars": 54}  # 권장 길이는 넘지만 대상이 아니다
+    assert out.checked.over_ratio == 1.5
+
+
+def test_answer_over_recommended_but_within_allowed_length_is_adopted():
+    assert len(MID_HEAD) == 35
+    out, fake = run(make_plan(), ans(c1=MID_HEAD), sets=RATIO)
+    assert len(fake.calls) == 1 and out.slots[1].module.headline == T(MID_HEAD, "k2_1")
+    assert out.slots[1].module.items[1].title == T(LONG_ITEM, "k2_3")  # 대상이 아닌 칸은 그대로
+    f = by_field(out)[(2, "headline")]
+    assert (f.outcome, f.reason, f.max_chars, f.allowed_chars, f.answer_chars) == ("compressed", "fit", 28, 42, 35)
+    assert [(x.slot, x.field) for x in out.fields] == [(2, "headline")]
+
+
+def test_answer_over_allowed_length_is_asked_again():
+    long = "Gentle on the skin, formulated only with zinc"  # 45자 — 42를 넘는다
+    out, fake = run(make_plan(), ans(c1=long), ans(c1=MID_HEAD), sets=RATIO)
+    assert fake.calls[1][1]["slots"][0]["texts"][0]["tried"] == [{"text": long, "chars": 45, "problem": "over_limit"}]
+    assert by_field(out)[(2, "headline")].outcome == "compressed"
+
+
+def test_allowed_chars_is_capped_by_guide_limit():
+    check = compress.find_targets(make_plan().slots, SPEC)[0].check  # 2A headline — 권장 28 · 가이드 상한 160
+    assert compress.allowed_chars(check, 1) == 28 and compress.allowed_chars(check, 1.5) == 42
+    assert compress.allowed_chars(check, 10) == 160
+    assert compress.find_targets(make_plan().slots, SPEC, 10) == []
+
+
+@pytest.mark.parametrize("value", ["0.9", "true", '"1.5"'])
+def test_bad_over_ratio_raises(value):
+    with pytest.raises(ValueError, match="over_ratio"):
+        compress.run(make_plan(), SPEC, cfgmod.load_config(overrides=[f"aplus_compress.over_ratio={value}"]), llm=Fake())

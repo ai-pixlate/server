@@ -1,0 +1,122 @@
+{
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/execution.jsonl": {
+    "sha256": "92c9de91007cbe2945e35368412b74b230d02e5dc1e7589613718527c0a1cf42",
+    "bytes": 1835599
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/usage.jsonl": {
+    "sha256": "8a146ccbf455a2924045faa4d107778ee3148e820f12ee186a7a912129eb84f3",
+    "bytes": 420089
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/manifest.json": {
+    "sha256": "60844c4632cbfe2c1364078c6be9bf7283210f4c1391aa34094977519d1330a5",
+    "bytes": 109860
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/runtime.json": {
+    "sha256": "bf19657f49a887af90495d4dd681d1ac3b26427e9c24a949fa0cfa4faef6f821",
+    "bytes": 30677
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/artifacts/pricing-verification.json": {
+    "sha256": "1daa5d74041ecddae88ab8e828057259783cb891a1513a64bf094694d1aefee0",
+    "bytes": 424
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/artifacts/completion-verification.json": {
+    "sha256": "e300b35b590e6b3f52c0c12ec442e705fd248f4792e009ba7559c8d04590ed25",
+    "bytes": 1547
+  },
+  "docs/ai-baseline/evaluations/h01-h04-official-20261124/pm-review-20261124/metrics.jsonl": {
+    "sha256": "3a7a6e9074189c0195eef58e10561eab91d78c95019ebb1f86d49bc90cace602",
+    "bytes": 567621
+  },
+  "docs/ai-baseline/evaluations/h01-h04-official-20261124/pm-review-20261124/validation.json": {
+    "sha256": "90b3d91bcc67dfdc2aa7461b73ffe1033f54fb364cd5e4f8a31648caab6c748c",
+    "bytes": 3074
+  },
+  "docs/ai-baseline/evaluations/h01-h04-official-20261124/pm-review-20261124/pm-approval.json": {
+    "sha256": "2d6ed5d488ba9c9fa0221a565f78695d02b462aa7a9aded77f424396c35439f8",
+    "bytes": 1269
+  },
+  "docs/ai-baseline/evaluations/h01-h04-official-20261124/pm-review-20261124/adopted-defects.jsonl": {
+    "sha256": "2f736ba8f87faed952ad7959c6c983d17fb89ce12c1c97d9e4e9f98b246c2fef",
+    "bytes": 180832
+  },
+  "docs/ai-baseline/evaluations/ocr-v6-v1-0-1-20261110/results/summary.json": {
+    "sha256": "e05dfaaf109d2fdf66c12ea76bb2ce3b0eda238653e7db97c747d5a29172d5d4",
+    "bytes": 2284
+  },
+  "docs/ai-baseline/evaluations/ocr-v6-v1-0-1-20261110/results/sections.jsonl": {
+    "sha256": "2d73c8b1c80b743fa565e588360b1ba1afd025b7935f0f23ad425a6681970738",
+    "bytes": 1289599
+  },
+  "TQ03_ROOT/full_runner.py": {
+    "sha256": "7e124f4565a0686c2142da82dba3e03d7d99a780ae9b787730c4f17a11bec45a",
+    "bytes": 17100
+  },
+  "TQ03_ROOT/protocol.py": {
+    "sha256": "aa07c38c98e84e69d148bb8705becc6b22a6bc49b6c3743575fa0ec79f2f6575",
+    "bytes": 3836
+  },
+  "TQ03_ROOT/validated-run-config.json": {
+    "sha256": "9b53506dc9dbee4307e9c57336fa91265e2195d27b5ef0e8eb9437be45300a20",
+    "bytes": 5541
+  },
+  "TQ03_ROOT/targets.jsonl": {
+    "sha256": "53ed00b938c68514606357e218113f7fcfb9e9aa17ac0176989f28e27d551b25",
+    "bytes": 854982
+  },
+  "TQ03_ROOT/received-20261121/results.jsonl": {
+    "sha256": "63bf17f66ce13a43a66a376181625d89138576b4ce5f32587a78b0e8b1465f0d",
+    "bytes": 2723026
+  },
+  "TQ03_ROOT/received-20261121/summary.json": {
+    "sha256": "a13e46910f91dc8615bcb389492ffe9a00f4c6909b6f5415883ccc1719c3dace",
+    "bytes": 75162
+  },
+  "TQ03_ROOT/received-20261121/receipt-validation.json": {
+    "sha256": "3e78d6071d69dbf66dde1a676cb5c075358f9ceab289a55e68163ae3fea3849e",
+    "bytes": 649
+  },
+  "TQ03_ROOT/excluded-blocks.jsonl": {
+    "sha256": "5cb56142ef02bc471a516f395c365b26c99196e590ed77b70024de638c087efa",
+    "bytes": 467221
+  },
+  "TQ03_ROOT/unavailable-images.jsonl": {
+    "sha256": "3064b67bd20230f586f1b9989b50814604248db76dda2459466c41a519cfc767",
+    "bytes": 9036
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/evidence/GS-03.json": {
+    "sha256": "fef4cf647e291c4b1e6cb1661969f4a09d1256a915a82feda5577538f4030f93",
+    "bytes": 28890
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/evidence/GS-01.json": {
+    "sha256": "e517353951f42dc2ae088528a44428aa1622650bc4107a932c9f0049f1b9367a",
+    "bytes": 5890458
+  },
+  "docs/ai-baseline/runs/baseline-v1-0-1-gs-v1-20261030-01/evidence/GS-02.json": {
+    "sha256": "84232ef8f531b48b4e18f1667f4b1cdf80429433140184ddf83e21a7e7505f89",
+    "bytes": 8823382
+  },
+  "docs/ai-baseline/analyses/integrated-v1-0-1-20261125/aggregate.py": {
+    "sha256": "e4ccd850d6012c7049e271a8f500d12527a854d4570ca7cd8a32ffbfcb8b854c",
+    "bytes": 14658
+  },
+  "docs/ai-baseline/analyses/tq03-registration-20261124/audit.py": {
+    "sha256": "17bfeffd99a18f1c20e5456c2b2b250e46431aeb6cdda4a4517f464d3f4420e0",
+    "bytes": 4569
+  },
+  "tools/baseline/operations.py": {
+    "sha256": "21c220f41c5fcf8200f44c936a721e1b4f8a1137bf2e1f6c80f75564769267ac",
+    "bytes": 8782
+  },
+  "tools/baseline/protocol.py": {
+    "sha256": "96b9a85f8341b9e8024c81c45fb20882ab1884cf091afb10722d12282ab60b51",
+    "bytes": 44569
+  },
+  "docs/ai-baseline/protocols/v1/aggregation.md": {
+    "sha256": "81c1323989b12519193e789ba0116e0961a689229de88f15ec64c46ad607fb6c",
+    "bytes": 25701
+  },
+  "docs/ai-baseline/protocols/v1/tq03.md": {
+    "sha256": "fe222f801e4b020d5e1d1c7186aefc07435a7f0f402e99f8aa482beb03e18d75",
+    "bytes": 13102
+  }
+}

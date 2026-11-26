@@ -1,0 +1,42 @@
+{
+  "GS-01": {
+    "completed_stage_seconds": {
+      "N2": 1557.1720000000205,
+      "N4": 478.3129999998491,
+      "N6": 6.468000000109896
+    },
+    "stopped_stage_seconds": {},
+    "human_wait_seconds": {
+      "N3": 158.375,
+      "N5": 141.7029999999795
+    },
+    "completed_system_seconds": 2041.9529999999795,
+    "input_originals": 2,
+    "seconds_per_input_original": 1020.9764999999898
+  },
+  "GS-02": {
+    "completed_stage_seconds": {
+      "N2": 2216.8909999998286,
+      "N4": 957.8600000001024,
+      "N6": 7.312000000150874
+    },
+    "stopped_stage_seconds": {},
+    "human_wait_seconds": {
+      "N3": 105.39099999982864,
+      "N5": 124.96900000004098
+    },
+    "completed_system_seconds": 3182.063000000082,
+    "input_originals": 14,
+    "seconds_per_input_original": 227.29021428572014
+  },
+  "GS-03": {
+    "completed_stage_seconds": {},
+    "stopped_stage_seconds": {
+      "N2": 1994.561999999918
+    },
+    "human_wait_seconds": {},
+    "completed_system_seconds": null,
+    "input_originals": 18,
+    "seconds_per_input_original": null
+  }
+}

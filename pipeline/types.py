@@ -1426,3 +1426,46 @@ class AplusCompressResult(_Model):
         if len(set(keys)) != len(keys):
             raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
         return self
+
+
+class AplusRecheckedField(_Model):
+    """압축 뒤 규칙 검사 — 압축이 문구를 바꾼 글 칸 하나의 검사 기록(#96). AI 내부 기록이며 인계 형식이 아니다(#97).
+    `block_key` = 그 칸의 출처 블록(1개), `text` = 검사한 문구(압축 후). `regulatory` · `terms` · `flags`는 원본 규격 유지 경로의 번역문 규칙 검사
+    (`stages.text_check.check_block`) 결과 그대로다 — `regulatory`: 검사한 · 검사하지 못한 규제 항목 ID와 매칭 · 억제 기록, `terms`: 강제 용어별
+    적용 여부, `flags`: 경고 후보(`revision`은 없다 — 압축 문구는 블록의 리비전이 아니다). `complete` = 검사 범위가 다 찼는지
+    (영어 패턴 없는 항목 0건 ∧ 판단할 수 없는 용어 0건 ∧ 용어 목록을 받음)."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    block_key: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    regulatory: dict[str, Any]
+    terms: list[dict[str, Any]] = Field(default_factory=list)
+    flags: list[dict[str, Any]] = Field(default_factory=list)
+    complete: StrictBool
+
+
+class AplusRecheckResult(_Model):
+    """상품 하나의 압축 뒤 규칙 검사 결과. `fields` = 압축이 문구를 바꾼 칸마다의 기록(압축 기록의 순서). 바뀐 칸이 없으면 빈다.
+    `terms_checked` = 용어 목록을 받아 강제 용어를 검사했는지(False면 받지 못해 검사하지 않음 — 빈 용어 목록과 다르다),
+    `rules` = 매칭 · 용어 규칙 버전. 사전 · 용어 데이터 오류는 전체 실패이며 문구는 바뀌지 않는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    fields: list[AplusRecheckedField] = Field(default_factory=list)
+    terms_checked: StrictBool
+    rules: dict[str, str]
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusRecheckResult":
+        if self.status == "ok" and self.error is not None:
+            raise ValueError("status=ok면 error가 없어야 한다")
+        if self.status == "failed" and (self.fields or not self.error):
+            raise ValueError("status=failed면 fields가 없고 error가 있어야 한다")
+        if not self.terms_checked and any(x.complete for x in self.fields):
+            raise ValueError("용어 목록을 받지 못했으면 complete일 수 없다")
+        keys = [(x.slot, x.field) for x in self.fields]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
+        return self

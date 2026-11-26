@@ -71,7 +71,7 @@ def validate(out):
     if (out/'config-120.toml').read_text(encoding='utf-8')!=override_config(original):issues.append('설정 차이')
     for a in m['environment']['model_assets']:
         if digest(a['path'])!=a['sha256']:issues.append('모델 자산 변경')
-    return issues
+    return issues + protocol.validate(out)
 
 def prepare(baseline, product, out):
     baseline=Path(baseline).resolve();product=Path(product).resolve();out=Path(out).resolve()
@@ -101,6 +101,10 @@ def prepare(baseline, product, out):
         if a['kind']=='original' and a['case_id']=='GS-03':
             protocol.local_file(baseline,a['path'],a['sha256'])
             shutil.copyfile(baseline/a['path'],out/a['path']);m['artifacts'].append(a)
+    protocol.local_file(baseline,old['dataset_manifest_path'],old['dataset_manifest_sha256'])
+    destination=out/old['dataset_manifest_path']
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    shutil.copyfile(baseline/old['dataset_manifest_path'],destination)
     for source,dest in [(baseline/'references.json',out/'expected-references.json'),
                         (baseline/old['environment']['dependency_lock']['path'],out/'requirements.lock')]:
         shutil.copyfile(source,dest)
@@ -116,6 +120,48 @@ def prepare(baseline, product, out):
     problems=validate(out)
     if problems:raise ValueError(problems)
     return {'sources':len(SOURCES),'approved':False,'executed':False,'validation':problems}
+
+def database_preflight(out, url):
+    """제품 import·쓰기·모델 호출 없이 전용 DB를 읽기 전용 트랜잭션에서 확인."""
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.engine import make_url
+    from .be import safe_record
+    out=Path(out);m=read(out/'manifest.json');parsed=make_url(url)
+    if (parsed.drivername!='postgresql+psycopg' or parsed.host not in ('localhost','127.0.0.1','::1')
+            or parsed.database!=m['supplement']['database_name']):
+        raise ValueError('GS-03 전용 로컬 DB 필요')
+    expected=read(out/'expected-references.json')
+    tables=('alembic_version','master_country','master_language','category_master','category_mapping',
+            'expression_dictionary','expression_dictionary_evidence','glossary','master_data_version')
+    engine=create_engine(url,connect_args={'connect_timeout':3})
+    try:
+        with engine.connect() as conn:
+            conn.execute(text('SET TRANSACTION READ ONLY'))
+            for name in ('job','seller','brand','source_image','section','job_async_task','task_handoff',
+                         'task_artifact','deliverable','text_block','section_verdict','deliverable_section'):
+                if conn.execute(text('SELECT count(*) FROM '+name)).scalar_one():
+                    raise ValueError('업무 데이터가 없는 전용 DB 필요')
+            actual={t:[dict(r) for r in conn.execute(text('SELECT * FROM '+t)).mappings()] for t in tables}
+            if not actual['expression_dictionary'] or canonical(safe_record(actual))!=canonical(expected):
+                raise ValueError('DB 스키마 버전 또는 당시 사전·용어집 불일치')
+    finally:
+        engine.dispose()
+    return {'database_checked':True,'read_only':True,'executed':False}
+
+def preflight(out):
+    """실행 직전과 수동 점검에서 공유. 승인·시작 기록을 만들지 않는다."""
+    out=Path(out)
+    issues=validate(out)
+    if issues:raise ValueError(issues)
+    if (out/'started.json').exists():raise ValueError('중단 회차 자동 재실행 금지')
+    m=read(out/'manifest.json')
+    from .preflight import verify_dependency_lock
+    from .be import check_runtime
+    verify_dependency_lock(out/m['environment']['dependency_lock']['path'])
+    _,url=check_runtime({'product_root':m['generation_config']['product_root'],'product_commit':TARGET,
+                        'protocol':'v1','products':m['case_inputs']})
+    return database_preflight(out,url)
+
 
 def require_approval(out):
     out=Path(out);m=read(out/'manifest.json');u=(m.get('cost_approval') or {}).get('user_execution') or {}
@@ -143,9 +189,11 @@ def main():
     p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
     a=sub.add_parser('prepare');a.add_argument('baseline');a.add_argument('product');a.add_argument('output')
     a=sub.add_parser('validate');a.add_argument('output')
+    a=sub.add_parser('preflight');a.add_argument('output')
     a=sub.add_parser('execute');a.add_argument('output');a.add_argument('--execute-models',action='store_true')
     args=p.parse_args()
     if args.command=='prepare':print(json.dumps(prepare(args.baseline,args.product,args.output)))
+    elif args.command=='preflight':print(json.dumps(preflight(args.output)))
     elif args.command=='validate':
         issues=validate(args.output);print(json.dumps(issues));sys.exit(bool(issues))
     else:

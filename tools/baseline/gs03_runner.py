@@ -9,7 +9,7 @@ from pathlib import Path
 from .be import (Meter, check_runtime, digest, write_new, now, initialize_native_runtime,
                  verify_database_binding, FileStore, isolated_connections, safe_record,
                  SequentialDispatcher, append, observe, drive_job, read)
-from .gs03_supplement import GS03_IDS, validate, canonical
+from .gs03_supplement import GS03_IDS, validate, canonical, preflight
 
 def _run_prepared(out, execute=False):
     """새 격리 DB의 참조 데이터를 사용. 실제 모델 실행은 명시적 옵션 뒤에서만 가능."""
@@ -17,6 +17,7 @@ def _run_prepared(out, execute=False):
         raise ValueError("실제 모델 호출은 별도 승인 후 --execute-models가 필요합니다")
     from .gs03_supplement import require_approval
     require_approval(out)
+    preflight(out)
     if any(k == "app" or k.startswith("app.") or k == "pipeline" or k.startswith("pipeline.") for k in sys.modules):
         raise ValueError("제품 모듈이 이미 로드됐습니다. 새 측정 프로세스가 필요합니다")
     out = Path(out).resolve()
@@ -53,8 +54,7 @@ def _run_prepared(out, execute=False):
             raise ValueError("모델 파일 해시 불일치")
         assets.append(asset)
     # 동일 묶음 재실행을 금지한다. 중단 복구는 기존 기록을 검토한 별도 작업이다.
-    write_new(out / "started.json", {"at": now(), "product_commit": config["product_commit"]})
-    write_new(out / 'native-runtime.json', initialize_native_runtime())
+    native_runtime = initialize_native_runtime()
     sys.path.insert(0, str(root))
     os.environ["DATABASE_URL"] = url
     os.environ["AWS_EC2_METADATA_DISABLED"] = "true"
@@ -92,6 +92,9 @@ def _run_prepared(out, execute=False):
             raise ValueError("실제 사전 적재 필요")
         if canonical(safe_record(references)) != canonical(read(out / 'expected-references.json')):
             raise ValueError('당시 사전·용어집 DB와 불일치')
+        # 연결·스키마·사전 대조 성공 후 업무 쓰기 전에 배타적으로 시작 기록.
+        write_new(out / "started.json", {"at": now(), "product_commit": config["product_commit"]})
+        write_new(out / 'native-runtime.json', native_runtime)
         write_new(out / "references.json", safe_record(references))
         current = [None, None]
         from app import tasks

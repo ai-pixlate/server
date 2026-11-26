@@ -43,4 +43,96 @@ class SupplementTest(unittest.TestCase):
             store.put('x',b'new');self.assertEqual((store.root/sha).read_bytes(),b'original')
     def test_canonical_reference_order(self):
         self.assertEqual(s.canonical({'rows':[{'id':2},{'id':1}]}),s.canonical({'rows':[{'id':1},{'id':2}]}))
+
+class PreparationChainTest(unittest.TestCase):
+    def setUp(self):
+        import json
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
+        self.root=Path(self.tmp.name);self.baseline=self.root/'baseline';self.product=self.root/'product';self.out=self.root/'supplement'
+        (self.baseline/'artifacts').mkdir(parents=True);(self.product/'pipeline/config').mkdir(parents=True)
+        self.config=b'[merge]\nllm_timeout_s = 60\n'
+        (self.product/'pipeline/config/default.toml').write_bytes(self.config)
+        m=s.protocol.template();m.update(product_commit=s.TARGET,product_version='1.0.1',artifacts=[],
+            environment={'model_assets':[],'dependency_lock':{'path':'lock','sha256':''}},
+            generation_config={},case_inputs={},dataset_manifest_path='artifacts/dataset-manifest.json')
+        (self.baseline/'lock').write_text('synthetic lock')
+        write_new(self.baseline/'references.json',{'expression_dictionary':[{'id':1}]})
+        write_new(self.baseline/m['dataset_manifest_path'],{'files':[{'source_id':x} for x in s.IDS]})
+        m['dataset_manifest_sha256']=s.digest(self.baseline/m['dataset_manifest_path'])
+        m['measurement_scope']={'measured_quality_metrics':['H01','H02','H03','H04'],'human_intervention':'confirmation_only'}
+        for sid in s.GS03_IDS:
+            path='artifacts/'+sid+'.jpg';(self.baseline/path).write_bytes(sid.encode())
+            m['artifacts'].append({'width':1,'height':1,'kind':'original','case_id':'GS-03','artifact_id':sid,'path':path,'sha256':s.digest(self.baseline/path)})
+        write_new(self.baseline/'manifest.json',m)
+        before=s.tree_hashes(self.baseline)
+        def git(args,**kw):
+            if 'rev-parse' in args:return s.TARGET+'\n'
+            if 'ls-files' in args:return 'pipeline/config/default.toml\n'
+            return self.config
+        with patch.object(s.subprocess,'check_output',side_effect=git):s.prepare(self.baseline,self.product,self.out)
+        self.assertEqual(s.tree_hashes(self.baseline),before)
+    def test_prepare_both_validators_and_preflight(self):
+        self.assertEqual(s.validate(self.out),[])
+        self.assertEqual(s.protocol.validate(self.out),[])
+        self.assertEqual((self.out/'artifacts/dataset-manifest.json').read_bytes(),(self.baseline/'artifacts/dataset-manifest.json').read_bytes())
+        with patch('tools.baseline.preflight.verify_dependency_lock'),patch.object(be,'check_runtime',return_value=(self.product,'mock-url')),patch.object(s,'database_preflight',return_value={'read_only':True}) as db:
+            self.assertEqual(s.preflight(self.out),{'read_only':True});db.assert_called_once_with(self.out,'mock-url')
+        self.assertFalse((self.out/'started.json').exists())
+    def test_runner_reaches_native_boundary_only_after_preflight(self):
+        # Stop before product import/initialization; no execution approval is created.
+        with patch.object(s,'require_approval'),patch('tools.baseline.preflight.verify_dependency_lock'),patch.object(be,'check_runtime',return_value=(self.product,'mock-url')),patch.object(runner,'check_runtime',return_value=(self.product,'mock-url')),patch.object(s,'database_preflight',return_value={'read_only':True}) as db:
+            # This synthetic environment lacks hardware: reaching its check proves
+            # the real prepare -> both validators -> preflight -> runner connection.
+            with self.assertRaisesRegex(ValueError,'장비'):
+                runner._run_prepared(self.out,True)
+            db.assert_called_once()
+        self.assertFalse((self.out/'started.json').exists())
+
+    def test_missing_dataset_stops_before_database(self):
+        (self.out/'artifacts/dataset-manifest.json').unlink()
+        self.assertTrue(s.protocol.validate(self.out));self.assertTrue(s.validate(self.out))
+        with patch.object(s,'database_preflight') as db:
+            with self.assertRaises(ValueError):s.preflight(self.out)
+            db.assert_not_called()
+    def test_runner_preflight_failures_do_not_claim_start(self):
+        for error in (ConnectionError('connection'),RuntimeError('schema'),ValueError('dictionary')):
+            with self.subTest(error=type(error).__name__),patch.object(s,'require_approval'),patch.object(runner,'preflight',side_effect=error),patch.object(runner,'initialize_native_runtime') as native:
+                with self.assertRaises(type(error)):runner._run_prepared(self.out,True)
+                native.assert_not_called()
+                self.assertFalse((self.out/'started.json').exists())
+                self.assertFalse((self.out/'generation-claims').exists())
+    def test_existing_start_is_not_removed(self):
+        marker=self.out/'started.json';marker.write_bytes(b'existing')
+        with patch.object(s,'database_preflight') as db:
+            with self.assertRaisesRegex(ValueError,'재실행'):s.preflight(self.out)
+            db.assert_not_called()
+        self.assertEqual(marker.read_bytes(),b'existing')
+    def test_database_read_only_schema_and_reference_failures(self):
+        tables=('alembic_version','master_country','master_language','category_master','category_mapping','expression_dictionary','expression_dictionary_evidence','glossary','master_data_version')
+        expected={t:[{'id':1}] for t in tables}
+        # Synthetic expectation only; baseline input remains untouched.
+        import json
+        (self.out/'expected-references.json').write_text(json.dumps(expected))
+        url='postgresql+psycopg://localhost/px_baseline_gs03_supplement_20261126'
+        for mode in ('ok','connection','schema','dictionary'):
+            with self.subTest(mode=mode):
+                engine=Mock();conn=Mock();engine.connect.return_value.__enter__=Mock(return_value=conn);engine.connect.return_value.__exit__=Mock(return_value=False)
+                queries=[]
+                def execute(stmt):
+                    sql=str(stmt);queries.append(sql);result=Mock();result.scalar_one.return_value=0
+                    if mode=='schema' and 'FROM alembic_version' in sql:raise RuntimeError('missing schema')
+                    table=sql.rsplit(' ',1)[-1];rows=expected.get(table,[])
+                    if mode=='dictionary' and table=='glossary':rows=[{'id':2}]
+                    result.mappings.return_value=rows;return result
+                conn.execute.side_effect=execute
+                if mode=='connection':engine.connect.side_effect=ConnectionError('connection')
+                with patch('sqlalchemy.create_engine',return_value=engine):
+                    if mode=='ok':self.assertTrue(s.database_preflight(self.out,url)['read_only'])
+                    else:
+                        with self.assertRaises((ValueError,RuntimeError,ConnectionError)):s.database_preflight(self.out,url)
+                engine.dispose.assert_called_once()
+                if queries:self.assertEqual(queries[0],'SET TRANSACTION READ ONLY')
+                self.assertTrue(all(q.startswith(('SET TRANSACTION READ ONLY','SELECT ')) for q in queries))
+                self.assertFalse((self.out/'started.json').exists())
+
 if __name__=='__main__':unittest.main()

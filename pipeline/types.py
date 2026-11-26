@@ -1139,7 +1139,7 @@ def parse_style_result(data: Any) -> "StyleResult | StyleResultV1":
 # ---------------------------------------------------------------------------
 # 아마존 A+ 한 사이트의 모듈 한 장에 들어갈 슬롯 내용. 규격(템플릿 · 필수 칸 · 글자 수 한도)의 정본은
 # pipeline/data/aplus/spec.json 이고 이 타입은 형태만 정한다 — 템플릿별 규칙 검사는 pipeline/aplus/content.py.
-# 저장 필드 · 인계 형식 · 렌더 담당은 정하지 않았다(open-questions.md #92 · #93 · #97). BE 계약으로 읽지 않는다.
+# 저장 필드 · 인계 형식 · 렌더 담당은 정하지 않았다(open-questions.md #93 · #97 · #100). BE 계약으로 읽지 않는다.
 APLUS_SCHEMA_VERSION = "1"  # [잠정] A+ 슬롯 내용(AplusModule) 전용 버전
 
 AplusFit = Literal["contain", "cover"]  # 이미지 칸 맞춤: contain = 전체가 보이게, cover = 칸을 꽉 채우고 넘치면 자름

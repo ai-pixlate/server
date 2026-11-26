@@ -15,7 +15,7 @@
 """
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
 
@@ -660,7 +660,7 @@ class InpaintResult(_Model):
 # 단독 개발 v1 명세(사용자 승인 2026-10-06). text_block.style JSON 계약(#14)이 아니다 — font_color · bg_color · est_font_px · align은
 # 개발용 측정값 이름이고, status · 사유 값은 운영 enum · 오류 코드가 아니다. TextBlock과 공통 SCHEMA_VERSION은 바꾸지 않는다.
 # ---------------------------------------------------------------------------
-STYLE_SCHEMA_VERSION = "2"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전. 2 = 섹션 기준 정렬(사용자 결정 2026-11-05)
+STYLE_SCHEMA_VERSION = "3"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전. 2 = 섹션 기준 정렬(사용자 결정 2026-11-05) · 3 = 글자 굵기 측정(2026-11-26)
 AlignValue = Literal["left", "center", "right"]
 ALIGN_VALUES: tuple[str, ...] = ("left", "center", "right")
 # [잠정] 블록 status = 영역 측정 상태(정렬 성공 여부와 별개 — align · align_basis · null_reasons로 판단)
@@ -683,6 +683,13 @@ LineAlignNullReason = Literal["no_candidate", "no_text_lines"]
 # no_text_lines = 비공백 영역이 있는 줄 없음 / no_anchor = 어느 정렬도 지지가 없음 / align_tie = 지지 수 최댓값이 둘 이상
 StyleNullReason = Literal["excluded", "no_text", "no_valid_region", "no_text_lines", "no_anchor", "align_tie"]
 STYLE_VALUE_FIELDS: tuple[str, ...] = ("font_color", "bg_color", "est_font_px", "align")
+# [잠정 · 스키마 3] 글자 굵기 — Pretendard 굵기 다섯 단계 중 측정값에 가장 가까운 것(사용자 결정 2026-11-26, open-questions #101)
+FontWeight = Literal[100, 300, 500, 700, 900]
+FONT_WEIGHT_VALUES: tuple[int, ...] = (100, 300, 500, 700, 900)
+STYLE_VALUE_FIELDS_V3: tuple[str, ...] = STYLE_VALUE_FIELDS + ("font_weight",)
+# [잠정 · 스키마 3] 굵기 None 사유를 더한다: small_glyph = 굵기를 잴 수 있는 줄이 모두 글자 높이 기준(style.weight_min_glyph_px) 미만 /
+# no_weight_region = 굵기를 잴 수 있는 영역(measured)이 없음(색 추출에 실패한 영역뿐)
+StyleNullReasonV3 = Literal["excluded", "no_text", "no_valid_region", "no_text_lines", "no_anchor", "align_tie", "small_glyph", "no_weight_region"]
 HEX_COLOR_PATTERN = r"^#[0-9A-F]{6}$"  # sRGB "#RRGGBB"(대문자)
 _SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -704,8 +711,9 @@ class StyleOtsuDiag(_Model):
         return self
 
 
-class RegionStyle(_Model):
-    """[잠정] 원시 OCR 영역 하나의 측정값. score는 OCR 점수 보존(⑦은 score로 거르지 않는다)."""
+class RegionStyleV2(_Model):
+    """[잠정] 원시 OCR 영역 하나의 측정값. score는 OCR 점수 보존(⑦은 score로 거르지 않는다).
+    스키마 2까지의 형식이다 — 스키마 3은 굵기 측정값을 더한 `RegionStyle`."""
 
     region_key: str
     line_key: str
@@ -718,7 +726,7 @@ class RegionStyle(_Model):
     otsu: StyleOtsuDiag | None
 
     @model_validator(mode="after")
-    def _by_status(self) -> "RegionStyle":
+    def _by_status(self) -> "RegionStyleV2":
         colors = (self.font_color, self.bg_color)
         if self.status == "measured":
             if None in colors or self.est_font_px is None or self.color_error is not None or self.otsu is None:
@@ -730,6 +738,20 @@ class RegionStyle(_Model):
                 raise ValueError("otsu는 single_class일 때만 None이다")
         elif colors != (None, None) or self.est_font_px is not None or self.color_error is not None or self.otsu is not None:
             raise ValueError("blank_text는 측정값 · color_error · otsu가 모두 None이어야 한다")
+        return self
+
+
+class RegionStyle(RegionStyleV2):
+    """[잠정 · 스키마 3] 영역 측정값 + 굵기 측정. glyph_h = 글자 픽셀이 있는 행 범위(px), stroke_ratio = 획 두께 평균 ÷ glyph_h
+    (획 두께 = 글자 픽셀마다 min(가로 연속 길이, 세로 연속 길이)). 글자 · 배경을 나눈 measured 영역에만 있다."""
+
+    glyph_h: int | None = Field(gt=0)
+    stroke_ratio: float | None = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _weight_by_status(self) -> "RegionStyle":
+        if (self.glyph_h is None) != (self.stroke_ratio is None) or (self.status == "measured") != (self.glyph_h is not None):
+            raise ValueError("glyph_h · stroke_ratio는 measured 영역에만 함께 있어야 한다")
         return self
 
 
@@ -843,9 +865,12 @@ class StyleCounts(_Model):
     blank_text: int = Field(ge=0)
 
 
-class BlockStyle(_Model):
+class BlockStyleV2(_Model):
     """[잠정] 블록 하나의 대표값과 근거. regions는 source_lines의 줄 순서 → 줄 안 영역 순서(제외 블록은 빈 목록).
-    null_reasons는 값이 None인 측정값 필드(STYLE_VALUE_FIELDS)마다 하나씩, None이 아닌 필드에는 없다."""
+    null_reasons는 값이 None인 측정값 필드(VALUE_FIELDS)마다 하나씩, None이 아닌 필드에는 없다.
+    스키마 2까지의 형식이다 — 스키마 3은 굵기를 더한 `BlockStyle`(VALUE_FIELDS에 font_weight가 더해진다)."""
+
+    VALUE_FIELDS: ClassVar[tuple[str, ...]] = STYLE_VALUE_FIELDS
 
     block_key: str
     status: StyleBlockStatus
@@ -858,11 +883,11 @@ class BlockStyle(_Model):
     align_diag: StyleAlignDiag | None
     null_reasons: dict[str, StyleNullReason] = Field(default_factory=dict)
     counts: StyleCounts
-    regions: list[RegionStyle] = Field(default_factory=list)
+    regions: list[RegionStyleV2] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _consistent(self) -> "BlockStyle":
-        values = {f: getattr(self, f) for f in STYLE_VALUE_FIELDS}
+    def _consistent(self) -> "BlockStyleV2":
+        values = {f: getattr(self, f) for f in self.VALUE_FIELDS}
         if set(self.null_reasons) != {f for f, v in values.items() if v is None}:
             raise ValueError("null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
         if (self.align is None) != (self.align_basis is None):
@@ -891,8 +916,8 @@ class BlockStyle(_Model):
         colors = (self.font_color, self.bg_color)
         r = self.null_reasons
         if self.status == "no_text":
-            if any(v is not None for v in values.values()) or r != {"font_color": "no_text", "bg_color": "no_text",
-                                                                    "est_font_px": "no_text", "align": "no_text_lines"}:
+            if any(v is not None for v in values.values()) or {k: r.get(k) for k in STYLE_VALUE_FIELDS} != {
+                    "font_color": "no_text", "bg_color": "no_text", "est_font_px": "no_text", "align": "no_text_lines"}:
                 raise ValueError("no_text는 측정값이 모두 None이고 사유가 no_text · 정렬 no_text_lines여야 한다")
         else:
             if self.est_font_px is None:
@@ -920,8 +945,8 @@ class BlockStyle(_Model):
         return self
 
 
-class StyleConfigSnapshot(_Model):
-    """[잠정] 추출에 쓴 [style] 설정 값."""
+class StyleConfigSnapshotV2(_Model):
+    """[잠정] 추출에 쓴 [style] 설정 값(스키마 2까지). 스키마 3은 굵기 설정을 더한 `StyleConfigSnapshot`."""
 
     method: Literal["otsu_border"]
     em_ratio: float
@@ -939,27 +964,29 @@ class StyleFingerprints(_Model):
     logo_record: str = Field(pattern=_SHA256_PATTERN)
 
 
-class StyleResult(_Model):
+class StyleResultV2(_Model):
     """[잠정] ⑦ 섹션 하나의 결과 — ③의 모든 블록을 block_order 순으로 담는다. 원문 · 좌표 · ④⑤ 판정은 담지 않는다(바꾸지 않는다).
-    섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다."""
+    섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다.
+    스키마 2(2026-11-05 ~ 2026-11-26, 섹션 기준 정렬 · 굵기 없음)의 형식이다. 배포 전에 계산된 결과를 계산 당시 형식대로 검증하는 데 쓰고,
+    새 계산은 스키마 3 `StyleResult`로 만든다 — parse_style_result."""
 
-    schema_version: Literal["2"] = STYLE_SCHEMA_VERSION
+    schema_version: Literal["2"]
     image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key + block_key + region_key
     section_key: str
-    config: StyleConfigSnapshot
+    config: StyleConfigSnapshotV2
     input_fingerprints: StyleFingerprints
-    blocks: list[BlockStyle]
+    blocks: list[BlockStyleV2]
 
     @field_validator("blocks")
     @classmethod
-    def _unique_blocks(cls, v: list[BlockStyle]) -> list[BlockStyle]:
+    def _unique_blocks(cls, v: list[BlockStyleV2]) -> list[BlockStyleV2]:
         keys = [b.block_key for b in v]
         if len(set(keys)) != len(keys):
             raise ValueError("blocks에 같은 block_key가 두 번 있다")
         return v
 
     @model_validator(mode="after")
-    def _align_peers(self) -> "StyleResult":
+    def _align_peers(self) -> "StyleResultV2":
         """지지 동료는 같은 섹션의 다른 비교 대상 블록(처리 대상 · span 있음)이고, 지지 관계는 대칭이다(i가 j를 지지하면 j도 i를)."""
         diags = {b.block_key: b.align_diag for b in self.blocks if b.align_diag is not None and b.align_diag.span_x1 is not None}
         order = {b.block_key: i for i, b in enumerate(self.blocks)}
@@ -977,6 +1004,78 @@ class StyleResult(_Model):
         if len(widths) > 1 or len(tols) > 1:
             raise ValueError("섹션 안 블록의 section_width · tolerance_px는 같아야 한다")
         return self
+
+
+# ---------------------------------------------------------------------------
+# ⑦ 결과 스키마 3 — 글자 굵기 측정(사용자 결정 2026-11-26, open-questions #101). 스키마 2 형식에 굵기 필드를 더한다.
+# 굵기 = 영역의 획 두께 ÷ 글자 높이 → 줄 값(영역 중앙값) → 블록 값(글자 높이가 기준 이상인 줄의 중앙값) → 가장 가까운 견본 굵기.
+# ---------------------------------------------------------------------------
+class StyleWeightDiag(_Model):
+    """[잠정] 블록 굵기 진단. 줄 = 굵기를 잰 영역(measured)이 하나라도 있는 줄. 줄의 글자 높이 · 값 = 그 줄 영역 값의 중앙값.
+    min_glyph_px = style.weight_min_glyph_px. lines_used = 글자 높이가 기준 이상이라 블록 값에 쓴 줄 수, lines_small = 기준 미만이라 뺀 줄 수.
+    value = 쓴 줄 값의 중앙값(쓴 줄이 없으면 None)."""
+
+    min_glyph_px: float = Field(ge=0)
+    lines_used: int = Field(ge=0)
+    lines_small: int = Field(ge=0)
+    value: float | None = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "StyleWeightDiag":
+        if (self.value is None) != (self.lines_used == 0):
+            raise ValueError("value는 쓴 줄이 있을 때만 있다")
+        return self
+
+
+class BlockStyle(BlockStyleV2):
+    """[잠정 · 스키마 3] 블록 대표값 + 글자 굵기. font_weight = 블록 값에 가장 가까운 견본 굵기(100 · 300 · 500 · 700 · 900).
+    잴 수 없으면 None이고 null_reasons에 사유가 있다 — 렌더는 None이면 역할별 기본 굵기를 쓴다."""
+
+    VALUE_FIELDS: ClassVar[tuple[str, ...]] = STYLE_VALUE_FIELDS_V3
+
+    font_weight: FontWeight | None
+    weight_diag: StyleWeightDiag | None
+    null_reasons: dict[str, StyleNullReasonV3] = Field(default_factory=dict)
+    regions: list[RegionStyle] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _weight_consistent(self) -> "BlockStyle":
+        reason, d = self.null_reasons.get("font_weight"), self.weight_diag
+        bad = {k: v for k, v in self.null_reasons.items() if k != "font_weight" and v in ("small_glyph", "no_weight_region")}
+        if bad:
+            raise ValueError(f"small_glyph · no_weight_region은 font_weight의 사유로만 쓴다: {bad}")
+        if self.status == "excluded":
+            if d is not None:
+                raise ValueError("excluded는 weight_diag가 None이어야 한다")
+            return self
+        if d is None:
+            raise ValueError(f"{self.status}는 weight_diag가 있어야 한다")
+        measured = sum(r.status == "measured" for r in self.regions)
+        if self.font_weight is not None:
+            if d.value is None:
+                raise ValueError("font_weight가 있으면 weight_diag.value가 있어야 한다")
+            return self
+        want = "no_text" if self.status == "no_text" else "no_weight_region" if measured == 0 else "small_glyph"
+        if reason != want:
+            raise ValueError(f"font_weight None 사유 {reason!r} ≠ {want!r}")
+        if d.value is not None or (want == "small_glyph") != (d.lines_small > 0):
+            raise ValueError("font_weight가 None이면 쓴 줄이 없어야 하고, small_glyph는 기준 미만 줄이 있을 때만이다")
+        return self
+
+
+class StyleConfigSnapshot(StyleConfigSnapshotV2):
+    """[잠정 · 스키마 3] 추출에 쓴 [style] 설정 값 + 굵기 설정. weight_refs = 견본 굵기("100" … "900") → 견본을 같은 방식으로 잰 값."""
+
+    weight_min_glyph_px: float
+    weight_refs: dict[str, float]
+
+
+class StyleResult(StyleResultV2):
+    """[잠정 · 스키마 3] ⑦ 섹션 하나의 결과 — 스키마 2 형식 + 블록 · 영역의 굵기 측정."""
+
+    schema_version: Literal["3"] = STYLE_SCHEMA_VERSION
+    config: StyleConfigSnapshot
+    blocks: list[BlockStyle]
 
 
 # ---------------------------------------------------------------------------
@@ -1028,7 +1127,7 @@ class BlockStyleV1(_Model):
     align_diag: StyleAlignDiagV1 | None
     null_reasons: dict[str, StyleNullReasonV1] = Field(default_factory=dict)
     counts: StyleCounts
-    regions: list[RegionStyle] = Field(default_factory=list)
+    regions: list[RegionStyleV2] = Field(default_factory=list)  # 스키마 1의 영역 형식은 스키마 2와 같다(굵기 없음)
 
     @model_validator(mode="after")
     def _consistent(self) -> "BlockStyleV1":
@@ -1118,13 +1217,13 @@ class StyleResultV1(_Model):
         return v
 
 
-STYLE_RESULT_MODELS: dict[str, type[_Model]] = {"1": StyleResultV1, "2": StyleResult}
+STYLE_RESULT_MODELS: dict[str, type[_Model]] = {"1": StyleResultV1, "2": StyleResultV2, "3": StyleResult}
 
 
-def parse_style_result(data: Any) -> "StyleResult | StyleResultV1":
-    """⑦ 결과 JSON을 계산 당시 형식(schema_version)대로 검증한다 — 1 = 2026-11-05 이전(블록 안 줄 정렬), 2 = 섹션 기준 정렬.
-    버전이 없거나 알 수 없으면 거부한다(ValueError). 형식 안의 모순은 pydantic ValidationError(ValueError의 하위)로 거부한다.
-    이전 결과를 새 형식으로 바꾸거나 새 정렬 근거를 채우지 않는다."""
+def parse_style_result(data: Any) -> "StyleResult | StyleResultV2 | StyleResultV1":
+    """⑦ 결과 JSON을 계산 당시 형식(schema_version)대로 검증한다 — 1 = 2026-11-05 이전(블록 안 줄 정렬), 2 = 섹션 기준 정렬,
+    3 = 글자 굵기 측정. 버전이 없거나 알 수 없으면 거부한다(ValueError). 형식 안의 모순은 pydantic ValidationError(ValueError의 하위)로
+    거부한다. 이전 결과를 새 형식으로 바꾸거나 새 정렬 근거 · 굵기를 채우지 않는다(이전 결과의 블록에는 font_weight가 없다)."""
     if not isinstance(data, dict):
         raise ValueError(f"⑦ 결과가 객체가 아니다: {type(data).__name__}")
     v = data.get("schema_version")

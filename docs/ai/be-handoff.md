@@ -161,6 +161,7 @@ python -m pipeline.data.fonts.tools.fetch_fonts --check
 | ⑦ 완료, 측정값 있음 | `font_color` · `est_font_px` · `align`을 그대로 — 출처 `measured`. ⑦은 섹션 기준으로 판정한 정렬만 값으로 내고(`align_basis` `section`), 판정하지 못하면 NULL이라 역할 기본 정렬로 채워진다(2026-11-05, `contract.md` 6.4 · #78). 이전 ⑦ 결과의 `default_single_line` · `default_tie` left는 원본 정렬 판정이 아니다 |
 | ⑦ 완료, 일부 NULL | NULL 항목만 역할 기본값 — 출처 `role_default` |
 | ⑦ 실패(style 객체 NULL) | 세 항목 모두 역할 기본값. 단계 상태는 `failed` 그대로(측정 성공으로 만들지 않음) |
+| style에 `font_weight`(선택 키)가 있음 — 2026-11-26 | 값이 100 · 300 · 500 · 700 · 900 중 하나이고 그 굵기의 글꼴이 설정 자료(`fonts.faces`)에 있으면 `applied.font_weight` · `font_face` · `font_sha256`이 그 굵기가 된다(출처 `font_face` = `measured`). NULL이거나 키가 없거나 그 굵기의 글꼴이 설정 자료에 없으면 지금처럼 역할 굵기(`role_config`). 형식 밖 값은 `StyleInputInvalid`. 6.10 |
 | 계약 위반(⑦ 완료인데 대상 블록 style 없음, ⑦ 실패인데 style 있음, 형식 밖 값) | `StyleInputInvalid` — 기본값으로 덮지 않는다 |
 
 - 크기: 측정 `est_font_px`는 원본 px 그대로. 기본값만 `기준 크기 × 원본 폭 / 375`(곱한 뒤 한 번 나눔, 반올림 없음). 1080px 원본의 title = 92.16, body = 46.08. 측정값에 1080/375나 ⑦ `style.em_ratio`를 다시 곱하지 않는다(사례 07).
@@ -256,6 +257,19 @@ BE 통합 시험의 기대 결과(DB 필요, AI 쪽 미실행):
 FE는 PATCH의 사용자 조정 객체에 편집한 필드만 넣는다(본문의 필수 필드는 별도). 박스만 바꾸면 배율을 생략하고, 둘 다 바꾸면 한 편집으로 원자 저장한다. 생략·null과 3차 명시적 기본값의 차이는 `contract.md` 6.5를 따른다. 브라우저 측정 기준은 AI–FE 합의이며, Pillow 임시 보정 없는 2차 전환은 지연·검수 차질 시 별도 판단하는 BE 권고다. [BE–AI §4.2·4.3]
 
 2차 `/preview`의 필수 스타일 8개와 `PreviewInputError`는 공개 계약으로 확정됐고 입력 오류 처리는 구현 완료·서버 배포 대기다(계약 6.7). 다른 경로의 스키마·fontFace·공통 모듈 소유/번들 전달은 미정이며 #14·#78·#87·#89에서 계속 관리한다. Q-07은 공통 조판의 2차 적용과 구분한 3차 범위로 `contract.md` 6.6·#88을 참조한다. AI–FE 측정 규칙을 BE가 별도 알고리즘으로 재정의하지 않는다. [BE–AI §4.3·4.4]
+
+### 6.10 글자 굵기 측정 연결 — 미연결(2026-11-26, `open-questions.md` #101)
+
+⑦이 블록마다 굵기 `font_weight`(100 · 300 · 500 · 700 · 900 또는 NULL)를 낸다(결과 스키마 3, 규칙은 `pipeline.md` 7.7절). **지금은 운영 렌더에 반영되지 않는다** — 아래 세 가지가 연결돼야 측정 굵기로 그려진다. 연결 전에는 굵기가 지금과 같다(역할 굵기 400 · 600).
+
+| 연결할 것 | 지금 | 필요한 것 | 담당 |
+|---|---|---|---|
+| 측정 굵기 저장 | `StyleHandler`가 ⑦ 결과에서 4키(`font_color` · `bg_color` · `est_font_px` · `align`)만 `text_block.style`에 저장한다 | `font_weight`를 함께 저장(키 이름 · 위치는 #14 · #101에서 합의). `resolve_block`은 `style`에 `font_weight`가 있으면 읽고, 없는 기존 저장값도 그대로 받는다 | BE |
+| 설정 자료의 글꼴 등록 | `style_defaults.json`의 `fonts.faces`에 Regular(400) · SemiBold(600)만 있다 | 다섯 굵기의 글꼴 파일과 해시 등록. 등록 전에는 `resolve_block`이 측정 굵기를 쓰지 않고 역할 굵기를 낸다 | AI |
+| 렌더 글꼴 | 서버 HTML 렌더의 고정 글꼴(`app/html_render.py` `FONT_FILES`)과 FE 조판이 400 · 600만 쓴다 | Thin · Light · Medium · Bold · Black 추가(BE · FE와 합의했다고 사용자가 전달 2026-11-26, 반영 전) | BE · FE |
+
+- 결과 형식이 바뀌어 ⑦ 구현 표시(`style_schema`)가 3이 된다. 배포 전에 계산된 스키마 1 · 2 결과는 `parse_style_result`가 계산 당시 형식대로 검증하므로 그대로 채택된다(굵기를 채우지 않는다). BE 채택 시험(`tests/test_exec_style_compat.py`)은 스키마 2 결과 채택 사례를 더했다 — DB가 필요해 AI 쪽에서는 실행하지 못했다.
+- 굵기는 블록당 하나다. 일부 단어만 굵은 문단은 한 굵기로 그려진다.
 
 ## 7. Linux CPU OCR 수정 인계(2026-10-12)
 

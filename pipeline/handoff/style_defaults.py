@@ -10,8 +10,11 @@ AI 쪽 참고 렌더는 `pipeline/handoff/style_reference.py`(검증용, 운영 
   ⑦ 실패(객체 NULL)는 세 항목 모두 기본값이고 단계 실패 상태는 그대로 둔다 — 측정 성공으로 바꾸지 않는다.
 - 크기: 측정 est_font_px는 이미 원본 px다. 기준 폭 배율이나 ⑦ em_ratio를 다시 곱하지 않는다.
   기본 크기만 `base_px * 원본 폭 / reference_width_px`로 환산한다(곱한 뒤 한 번 나눈다, 반올림 없음).
-- 폰트 · 굵기 · 자간 · 행간은 역할 설정(role_config)이다. 측정값처럼 기록하지 않는다.
+- 폰트 · 자간 · 행간은 역할 설정(role_config)이다. 측정값처럼 기록하지 않는다.
   자간 px = (letter_spacing_pct / 100) × 적용 크기, 행간 px = line_height_ratio × 적용 크기.
+- 굵기: ⑦ 측정 굵기(style의 `font_weight`, 100 · 300 · 500 · 700 · 900)가 있고 **그 굵기의 글꼴 파일이 설정 자료(`fonts.faces`)에 있을 때만**
+  측정 굵기를 쓴다(출처 measured). 측정 굵기가 없거나(NULL · 키 없음 · ⑦ 실패) 그 굵기의 글꼴이 설정 자료에 없으면 역할 굵기다(role_config).
+  `font_weight` 키는 선택이다 — 굵기 측정 전에 저장된 style(4키)은 그대로 받는다(사용자 결정 2026-11-26, open-questions #101).
 - bg_color는 조판에 쓰지 않는다(사진 · 그라데이션 배경을 칠하지 않음). 배경색 기본값은 없다.
 - 처리 제외(라벨 · 로고 · 규제 제외 등 is_excluded가 false가 아님) · 빈 원문 · 번역문 없음은 조판하지 않는다.
 - 입력이 계약을 어기면(형식 밖 측정값, 단계 완료인데 대상 블록 style 없음 등) 기본값으로 덮지 않고 거부한다.
@@ -324,6 +327,8 @@ def render_inputs_sha256(d: StyleDefaults) -> str:
 # 블록 적용값 계산
 # ---------------------------------------------------------------------------
 STYLE_KEYS = ("font_color", "bg_color", "est_font_px", "align")
+STYLE_WEIGHT_KEY = "font_weight"  # 선택 키 — ⑦ 측정 굵기(스키마 3). 없으면 굵기 측정 전 결과로 본다
+MEASURED_WEIGHTS = (100, 300, 500, 700, 900)
 
 
 @dataclass(frozen=True)
@@ -333,7 +338,7 @@ class BlockInput:
     is_excluded: bool | None  # false만 조판 대상(라벨 · 로고 · 규제 제외 등은 true)
     source_ko: str | None
     text: str | None  # 조판할 번역문(실패 칸 · 미입력은 None 또는 빈 문자열)
-    style: dict[str, Any] | None  # ⑦ 측정 대표값 4키(측정 불가 NULL) 또는 객체 NULL
+    style: dict[str, Any] | None  # ⑦ 측정 대표값 4키(+ 선택 font_weight, 측정 불가 NULL) 또는 객체 NULL
     style_stage: Literal["done", "failed"]  # 섹션의 ⑦ 단계 결과
     align_basis: str | None = None  # ⑦ 정렬 근거(그대로 전달. 역할 기본값과 구분)
 
@@ -356,8 +361,11 @@ class ResolvedBlock:
 
 
 def _check_measured(style: dict[str, Any], block_id: Any) -> None:
-    if set(style) != set(STYLE_KEYS):
-        raise StyleInputInvalid(f"블록 {block_id}: style 키는 {STYLE_KEYS} 4개여야 한다: {sorted(style)}")
+    if set(style) - {STYLE_WEIGHT_KEY} != set(STYLE_KEYS):
+        raise StyleInputInvalid(f"블록 {block_id}: style 키는 {STYLE_KEYS} 4개(+ 선택 {STYLE_WEIGHT_KEY})여야 한다: {sorted(style)}")
+    w = style.get(STYLE_WEIGHT_KEY)
+    if w is not None and (isinstance(w, bool) or not isinstance(w, int) or w not in MEASURED_WEIGHTS):
+        raise StyleInputInvalid(f"블록 {block_id}: font_weight {w!r}({MEASURED_WEIGHTS} 중 하나 또는 NULL)")
     for k in ("font_color", "bg_color"):
         v = style[k]
         if v is not None and not (isinstance(v, str) and re.match(HEX_COLOR, v)):
@@ -410,15 +418,22 @@ def resolve_block(b: BlockInput, source_width_px: int, d: StyleDefaults) -> Reso
     size = pick("font_size_px", "est_font_px", lambda: default_font_px(d, b.role, source_width_px))
     color = pick("font_color", "font_color", lambda: m.font_color)
     align = pick("align", "align", lambda: m.align[b.role])
-    face = d.data.fonts.faces[spec.face]
+    # 굵기 — 측정 굵기의 글꼴 파일이 설정 자료에 있을 때만 쓴다. 없으면 역할 굵기(그릴 수 없는 굵기를 내지 않는다)
+    face_name, weight, face_source = spec.face, spec.weight, "role_config"
+    measured_weight = style.get(STYLE_WEIGHT_KEY)
+    if measured_weight is not None:
+        hit = next((name for name, f in d.data.fonts.faces.items() if f.weight == measured_weight), None)
+        if hit is not None:
+            face_name, weight, face_source = hit, measured_weight, "measured"
+    face = d.data.fonts.faces[face_name]
     ls_em = spec.letter_spacing_pct / 100
-    source.update({"font_family": "role_config", "font_face": "role_config", "letter_spacing": "role_config",
+    source.update({"font_family": "role_config", "font_face": face_source, "letter_spacing": "role_config",
                    "line_height": "role_config"})
     applied = {
         "type_token": spec.type_token,
         "font_family": m.font_family,
-        "font_face": spec.face,
-        "font_weight": spec.weight,
+        "font_face": face_name,
+        "font_weight": weight,
         "font_sha256": face.sha256,
         "font_size_px": size,
         "font_color": color,

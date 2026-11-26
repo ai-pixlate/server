@@ -654,10 +654,18 @@
         "method": "otsu_border",
         "em_ratio": 0.9,
         "align_section_tolerance": 0.005,
-        "align_tolerance": 0.12
+        "align_tolerance": 0.12,
+        "weight_min_glyph_px": 25,
+        "weight_refs": {
+          "100": 0.0632,
+          "300": 0.0867,
+          "500": 0.1293,
+          "700": 0.1643,
+          "900": 0.2064
+        }
       }
     },
-    "input_manifest_sha256": "ef4ba795cccdeb9a0660087215cbf9d9b54984d3109464c58ecd36b4abbadffc",
+    "input_manifest_sha256": "ac61dcb517080363cf6e4539d4cc33d70f1c6d9b4b3a82827119b71878829f33",
     "outcome": "completed",
     "target_count": 2,
     "skip_reason": null,
@@ -671,10 +679,12 @@
           "est_font_px": 21.6,
           "align": null,
           "align_basis": null,
+          "font_weight": null,
           "null_reasons": {
             "font_color": "no_valid_region",
             "bg_color": "no_valid_region",
-            "align": "no_anchor"
+            "align": "no_anchor",
+            "font_weight": "no_weight_region"
           },
           "measure_status": "partial",
           "counts": {
@@ -691,11 +701,13 @@
           "est_font_px": null,
           "align": null,
           "align_basis": null,
+          "font_weight": null,
           "null_reasons": {
             "font_color": "no_text",
             "bg_color": "no_text",
             "est_font_px": "no_text",
-            "align": "no_text_lines"
+            "align": "no_text_lines",
+            "font_weight": "no_text"
           },
           "measure_status": "no_text",
           "counts": {
@@ -720,14 +732,14 @@
         "color": "#RRGGBB sRGB",
         "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
       },
-      "style_result_sha256": "e3bfcc33e59a53bc151279eafe1aa5db71a8282289e972cde46f745f3fdd88de"
+      "style_result_sha256": "97964301f786bc73a0f4357c11e1f243d37a70a3081cf66b6abd66c670e921be"
     },
     "artifacts": [],
     "source_refs": [],
     "failure": null,
     "implementation": {
       "adapter": "downstream-handoff@2026-10-08.1",
-      "style_schema": "2"
+      "style_schema": "3"
     },
     "diagnostics": {}
   },

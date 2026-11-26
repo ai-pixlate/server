@@ -3739,6 +3739,7 @@ paths:
       x-source: API-FIN-05
       description: >
         [PM 11-25 D1~D4 확정 · FE D1 동의 · 로컬 구현 · 미배포] N6 의 다운로드(묶음 · 행별)가 부른다. 요청 본문 없음.
+        두 동선 모두 POST /jobs/{jobId}/export(행별은 components 하나)의 응답 artifactId 로 부른다 — 타입별 GET(exportDownloadByType)에는 POST 짝이 없다.
         저장 대기(review/N6 · awaiting_save, 최종 렌더 성공)면 완료로 기록하고(done/N6 · is_saved=true · saved_at — FIN-06 과 같은 열),
         이미 완료(done/N6)면 상태 · saved_at 을 바꾸지 않고 링크만 준다. 응답은 GET 과 같은 DownloadResponse 이고 링크는 완료 기록이
         커밋된 뒤에만 나간다. 반복 · 동시 · 응답 유실 뒤 재요청은 작업 행 잠금 아래 실제 상태로 다시 판정해 완료 전이는 한 번뿐이다(보관함 카드 1개).
@@ -3764,9 +3765,11 @@ paths:
       x-screen: 'N6'
       x-source: API-FIN-05
       description: >
-        N6 행별 개별 다운로드. artifactType으로 구성요소(zip|images|csv|html)를 지정 —
+        타입별 개별 다운로드. artifactType으로 구성요소(zip|images|csv|html)를 지정 —
         기본 zip. export_artifact 구성요소 행에서 presigned URL(5분) 반환.
-        manifest·미생성·남의 job은 404. 🟢9월.
+        manifest·미생성·남의 job은 404. 작업 상태를 바꾸지 않는다 — N6 행별 다운로드도 POST /jobs/{jobId}/export 응답 artifactId 로
+        `/exports/{artifactId}/download` 의 POST(첫 다운로드 · 완료 기록)를 부르며, 이 경로에는 POST 짝을 두지 않는다.
+        이 GET 을 완료(done/N6) 작업에서만 허용하는 제한(D2)은 FE 전환 뒤 후속 변경 · 오류 값 합의 전(README 7.8 ⑧). 🟢9월.
       parameters:
         - name: artifactType
           in: query

@@ -110,7 +110,8 @@ def test_saved_job_download_does_not_rewrite_saved_at(env, up, saved_log):
 
 
 def test_old_bundle_from_before_rerender_still_completes(env, up):
-    """D4 허용 — 재렌더 전에 만든 묶음(렌더 오류 뒤 [다시 시도]로 새 결과가 채택됨)으로도 완료된다."""
+    """D4 허용 — 최종 렌더 전에 만든 묶음으로도 완료된다. 순서: N5 에서 묶음 생성 → 최초 최종 렌더(확정 → 저장 대기) → 옛 묶음 다운로드.
+    렌더 오류 · 재시도 경로는 이 시험에 없다."""
     ids = _to_n5(env)
     c, job = ids["c"], ids["job"]
     old = _export(ids)  # N5 에서 만든 묶음(FIN-04 는 상태 제한 없음)

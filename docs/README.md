@@ -399,7 +399,7 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 | 최종 렌더 실패 — 자동 재시도가 없을 때(재시도 불가 실패, 또는 자동 재시도 1회 뒤 실패), 한도 남음 | 상태 그대로(`review · N6 · reviewing`). JOB-06 · FIN-01 [다시 시도] 가능(기존 기능) · 저장 409 | **`failed · N6 · failed`**(PM 확정 11-25). [다시 시도]는 JOB-05 `retryable` 에 따름(JOB-06 · FIN-01, 기존 재시도 경로) → `processing · N6 · rendering`. 저장 409 |
 | 최종 렌더 실패 — 누적 한도 소진 | 실행 failed, JOB-06 · FIN-01 · 저장 409, 상태 그대로 — 나갈 길은 취소뿐(기존) | `failed · N6 · failed`, 재시도 409. [중단](→ N5)은 G17 10번 일정이라 아직 없다 — 셀러 차례라 24시간 자동 취소 대상(④) |
 | 저장 대기에서 FIN-01 수동 재렌더 | 바뀌지 않음(새 최종 렌더 실행) | **409 `INVALID_STATE`**(PM 11-25 — 저장 대기 재렌더 차단, 새 실행 · 시도 없음, 사유 값은 합의 전이라 두지 않음). 렌더 오류(`failed · N6`)의 [다시 시도] · 처리 중 중복 요청(진행 중 시도 반환) · 저장 뒤(`done`) 재렌더는 그대로 |
-| FIN-06 저장 | `done · N6 · done` | 같음(저장 대기에서만) |
+| FIN-06 저장 | `done · N6 · done` | 같음 — 저장 대기에서 `done · N6 · done` 으로 전이. 이미 완료(`done · N6`)에서도 받으며 상태는 그대로이고 `saved_at` 은 다시 쓴다(매 [저장]이 최근 저장 시각 — D3) |
 | 첫 다운로드(FIN-05 POST — ⑧) | 없음 — 다운로드(GET)는 상태를 바꾸지 않아 내려받기만 한 작업이 저장 대기로 남음 | 저장 대기에서 `done · N6 · done` · `isSaved`(PM 11-25 D1~D4 — 첫 다운로드 = 완료, F-FIN-03). 이미 완료면 그대로 |
 | 처리 시간 초과(⑤) | 없음(처리 중에 계속 남음) | `failed · (그 단계) · failed` |
 | 취소(JOB-04 · 자동 취소) | `archived`, 단계 유지 | `cancelled`, 단계 유지 |
@@ -476,7 +476,7 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 
 [PM 11-25 확정 · FE D1 동의(11-25) · 로컬 구현 `feature/first-download-complete` · 미배포] 정본(F-FIN-03 · 05 상태 정책 · 용어집 「완료」)은 **[저장]과 첫 다운로드 중 먼저 일어난 것이 완료**다. 지금까지는 FIN-06 저장만 완료를 만들어, 내려받기만 한 작업이 저장 대기로 남고 24시간 자동 취소(④) 대상이 됐다.
 
-- **D1 — `POST /jobs/{jobId}/exports/{artifactId}/download`**(요청 본문 없음, 응답은 GET 과 같은 `DownloadResponse`). N6 의 두 다운로드 동선(선택 항목 내보내기 · 행별 개별 다운로드)이 부른다.
+- **D1 — `POST /jobs/{jobId}/exports/{artifactId}/download`**(요청 본문 없음, 응답은 GET 과 같은 `DownloadResponse`). N6 의 두 다운로드 동선(선택 항목 내보내기 · 행별 개별 다운로드)이 부른다. 두 동선 모두 먼저 `POST /jobs/{jobId}/export`(FIN-04 — 묶음은 고른 구성요소, 행별은 `{components:[그 타입]}`)로 산출물을 만들고 응답 `ExportResponse.artifactId` 로 이 경로를 부른다(FE 현행도 두 동선이 같은 artifactId 다운로드 함수를 쓰고 타입별 GET `…/export/download?artifactType=` 은 부르지 않는다). 그래서 타입별 GET 에는 POST 짝을 두지 않는다.
 - **처리 순서**(저장 대기 · 완료 공통 — 산출물 검증을 건너뛰는 분기 없음): 소유 확인(404) → 작업 행 잠금(취소 · 자동 취소 · 저장과 같은 잠금) → 상태 판정 → 산출물 검증(그 작업 소속 · 배포 가능 · 생성됨 · 파일 키 — 아니면 404, 상태 변화 없음) → 링크 서명 → (저장 대기면) 완료 기록 → 커밋 → **커밋이 성공한 뒤에만 링크 응답**.
 
 | 작업 상태 | 응답 | 기록 |

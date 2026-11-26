@@ -3467,7 +3467,8 @@ paths:
         job→processing/N6(userFacingStatus `rendering` — 최종 렌더 중) [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포 —
         배포 전 서버는 job→review/N6(`reviewing`)]. 렌더가 성공하면 review/N6(`awaiting_save`), 자동 재시도가 없거나 끝난 실패면 바로
         failed/N6(PM 확정 11-25 — 사용자 [다시 시도]는 JOB-05 `retryable` 에 따름, README 7.8 ③). confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
-        FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
+        FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지 — 단, 저장 대기(review/N6 `awaiting_save`)에서는
+        409 INVALID_STATE(PM 11-25 재렌더 차단, [로컬 구현 · 미배포]). 받는 상태는 FIN-01 설명. 🟢9월.
 
         **[PRD v3.5.10 · 계약 확정] 2차(11/6) 확정 규칙**
         - 미리보기 재렌더가 진행 중이어도 확정을 허용한다 — 현행(진행 중 재렌더는 취소하고 N6가 다시 그린다).
@@ -3617,8 +3618,10 @@ paths:
         N6 확인 — [로컬 구현 · 미배포] processing/N6(최종 렌더 중 `rendering`) · failed/N6(렌더 오류) · done/N6(저장 뒤)에서 받는다.
         저장 대기(review/N6 `awaiting_save`)는 409 INVALID_STATE(PM 11-25 — 저장 대기 재렌더 차단, 새 실행·시도 없음, 사유 값 없음). 그 밖도 409 INVALID_STATE
         (배포 전 서버는 review/N6 · done/N6 만). 렌더 오류에서 부르면 작업은 processing/N6(`rendering`)이 되고(처리 시간 30분을 새로 셈),
-        저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 진행 중이면 그 시도(새 시도 없음), 현재 시도 실패(처리 시간 초과 `PROCESSING_TIMEOUT` 포함)면
-        같은 실행의 재시도 시도(retry_count 누적·max_retry 한도, 초기화 없음), 저장 뒤(done)면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
+        저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 무엇을 만들지는 작업 상태가 아니라 **최신 최종 렌더 실행**으로 정한다:
+        진행 중 실행이 있으면 — 현재 시도가 진행 중이면 그 시도(새 시도 없음), 현재 시도가 실패(처리 시간 초과 `PROCESSING_TIMEOUT` 포함)면
+        같은 실행의 재시도 시도(retry_count 누적·max_retry 한도, 초기화 없음). 진행 중 실행이 없고 최신 실행이 성공 종료(done)면 새 최종 렌더 실행
+        (저장 뒤 재렌더가 보통 이 경우). 최신 실행이 한도 소진으로 실패 종료(failed)됐으면 작업 상태(done 포함)와 무관하게 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
         현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
         202 renderTaskId(시도 id) → JOB-05 폴링.
         최초 렌더는 confirm(CFM-04)이 자동 등록하므로 이 엔드포인트는 수동 재렌더용(A4·Q9).

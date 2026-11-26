@@ -259,15 +259,31 @@ def _processing_timeout(stats: dict[str, Any]) -> None:
             run = execution.active_run(db, job["id"], kind) if kind else None
             msg = f"처리 시간 상한({s // 60}분) 초과"
             if run is not None:
-                ids = [x[0] for x in db.execute(
-                    text("SELECT id FROM job_async_task WHERE parent_task_id = :r AND status IN ('pending', 'running') ORDER BY id FOR UPDATE"),
-                    {"r": run["id"]}).all()]
+                closing = [dict(x) for x in db.execute(
+                    text("SELECT id, stage, unit_id FROM job_async_task WHERE parent_task_id = :r AND status IN ('pending', 'running') "
+                         "ORDER BY id FOR UPDATE"),
+                    {"r": run["id"]}).mappings().all()]
+                ids = [x["id"] for x in closing]
                 if ids:
                     db.execute(text("UPDATE job_async_task SET status = 'failed', error_code = :c, error_message = :m, finished_at = now(), "
                                     "lease_epoch = lease_epoch + 1, lease_token_hash = NULL, lease_expires_at = NULL WHERE id = ANY(:ids)"),
                                {"c": PROCESSING_TIMEOUT, "m": msg, "ids": ids})
                     db.execute(text("UPDATE task_lease_grant SET closed_at = now(), close_reason = 'cancelled' "
                                     "WHERE task_id = ANY(:ids) AND closed_at IS NULL"), {"ids": ids})
+                    # 등록됐지만 아직 채택 전인 인계는 이 자리에서 거절로 닫는다(산출물 미채택) — 채택 메시지 처리 · 다음 점검을
+                    # 기다리지 않게(배포 점검 gate 가 열린 인계를 busy 로 센다). 채택 경로의 시간 초과 거절과 같은 사유
+                    db.execute(text("UPDATE task_handoff SET state = 'rejected', reject_reason = :rr "
+                                    "WHERE task_id = ANY(:ids) AND state IN ('received', 'verifying', 'verified')"),
+                               {"rr": execution.TIMED_OUT_REJECT, "ids": ids})
+                    db.execute(text("UPDATE task_artifact SET state = 'unadopted' WHERE state IN ('registered', 'verified') AND handoff_id IN "
+                                    "(SELECT id FROM task_handoff WHERE task_id = ANY(:ids))"), {"ids": ids})
+                    # N4 인페인트 시도: 인페인트 실패와 같은 대체 기록(원본 배경 · 경고 배지 — downstream.InpaintHandler.after_failure 의
+                    # 섹션 기록만). after_failure 자체는 부르지 않는다 — 자동 재시도 · 후속(미리보기) · 다음 단계 전이를 만들지 않게
+                    # (오류 상태 · 수동 재시도 원칙). 다시 처리하면(중단 → 진행) _clear_previous 가 배지를 지운다
+                    inp = [x["unit_id"] for x in closing if x["stage"] == "inpaint"]
+                    if step == "N4" and inp:
+                        db.execute(text("UPDATE section SET inpaint_status = 'failed', warning_badge = 'processing_failed', updated_at = now() "
+                                        "WHERE id = ANY(:s) AND job_id = :j"), {"s": inp, "j": job["id"]})
                 if step == "N2":
                     analysis.fail_run(db, run, PROCESSING_TIMEOUT, msg)  # 실행 failed · 숨은 섹션 삭제 · failed · N2
                 # N4 · N6: 실행은 running 으로 남긴다 — 사용자 재시도(JOB-06 · FIN-01)가 같은 실행에 새 시도를 만든다.

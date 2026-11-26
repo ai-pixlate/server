@@ -98,8 +98,9 @@ def test_ac01_timed_out_inpaint_late_success_not_adopted_after_other_retry(env):
               "AND a.state = 'adopted'", t=late_tid)[0]["n"] == 0
     # 늦은 결과가 섹션 배경 · 미리보기 입력에 쓰이지 않고, 인페인트 재시도(대체 시도) · N5 전이도 만들지 않는다.
     # (번역 재시도가 끝나 만든 미리보기는 기존 규칙 — 인페인트가 끝나지 않은 섹션은 원본 배경 — 이며 늦은 결과와 무관하다)
-    sec = _q("SELECT inpaint_status, inpaint_image_url FROM section WHERE id = :s", s=late_unit)[0]
-    assert sec == sec_before
+    # 시간 초과가 인페인트 실패와 같은 대체 기록(원본 배경 · 경고)을 남긴다(11-26 — README 7.8 ⑤) — 배경 키는 그대로(늦은 결과 미사용)
+    sec = _q("SELECT inpaint_status, inpaint_image_url, warning_badge FROM section WHERE id = :s", s=late_unit)[0]
+    assert sec == {"inpaint_status": "failed", "inpaint_image_url": sec_before["inpaint_image_url"], "warning_badge": "processing_failed"}
     late_keys = [r["staging_key"] for r in _q("SELECT a.staging_key FROM task_artifact a JOIN task_handoff h ON h.id = a.handoff_id "
                                               "WHERE h.task_id = :t", t=late_tid) if r["staging_key"]]
     assert late_keys  # 늦은 결과는 실제로 업로드 · 등록됐다

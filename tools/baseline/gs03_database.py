@@ -6,14 +6,13 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 from .core import read
-from .gs03_supplement import TARGET, validate, preflight
+from .gs03_supplement import TARGET, validate, preflight, DB_NAME, dedicated_database_name
 
-DB_NAME='px_baseline_gs03_supplement_20261126'
-
-def database_url(path):
+def database_url(path, expected_name=DB_NAME):
+    dedicated_database_name(expected_name)
     from sqlalchemy.engine import make_url
     url=make_url(Path(path).read_text(encoding='utf-8').strip())
-    if url.drivername!='postgresql+psycopg' or url.host not in ('localhost','127.0.0.1','::1') or url.database!=DB_NAME:
+    if url.drivername!='postgresql+psycopg' or url.host not in ('localhost','127.0.0.1','::1') or url.database!=expected_name:
         raise ValueError('GS-03 전용 로컬 DB만 준비 가능')
     return url
 
@@ -27,15 +26,16 @@ def restore(out, url_file):
     verify_dependency_lock(out/manifest['environment']['dependency_lock']['path'])
     if subprocess.check_output(['git','-C',str(product),'rev-parse','HEAD'],text=True).strip()!=TARGET:
         raise ValueError('v1.0.1 checkout 불일치')
-    url=database_url(url_file)
+    name=dedicated_database_name(manifest['supplement']['database_name'])
+    url=database_url(url_file,name)
     expected=read(out/'expected-references.json')
     if expected['alembic_version']!=[{'version_num':'0008'}]:raise ValueError('당시 스키마 0008 필요')
     admin=create_engine(url.set(database='postgres'),isolation_level='AUTOCOMMIT',connect_args={'connect_timeout':3})
     try:
         with admin.connect() as conn:
-            if conn.execute(text('SELECT 1 FROM pg_database WHERE datname=:name'),{'name':DB_NAME}).scalar():
+            if conn.execute(text('SELECT 1 FROM pg_database WHERE datname=:name'),{'name':name}).scalar():
                 raise ValueError('기존 DB는 덮어쓰지 않음; preflight로 상태 확인 필요')
-            conn.execute(text('CREATE DATABASE '+DB_NAME))
+            conn.execute(text('CREATE DATABASE '+name))
     finally:admin.dispose()
     env={**os.environ,'DATABASE_URL':url.render_as_string(hide_password=False)}
     subprocess.run([sys.executable,'-B','-m','alembic','upgrade','0008'],cwd=product,env=env,check=True)

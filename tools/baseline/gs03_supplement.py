@@ -18,6 +18,14 @@ from .approval import TARGET
 GS03_IDS = tuple(x for x in IDS if x.startswith('GS-03'))
 SOURCES = [protocol.source_key(x) for x in GS03_IDS]
 OVERRIDE = {'merge.llm_timeout_s': 120}
+DB_NAME = 'px_baseline_gs03_supplement_20261126'
+
+
+def dedicated_database_name(name):
+    if not isinstance(name, str) or not re.fullmatch(DB_NAME + r'(?:_r[1-9][0-9]*)?', name) or len(name) > 63:
+        raise ValueError('GS-03 전용 DB 이름 필요')
+    return name
+
 BUDGET = dict(max_calls=500, max_amount=25, reserve_per_call=1.04, currency='USD',
               settle_usage=True, sdk_attempts=1, reservation_verified=True,
               model='gemini-3.8-flash', input_per_million=.75, output_per_million=3.75,
@@ -50,6 +58,7 @@ def tree_hashes(root):
 
 def validate(out):
     out=Path(out).resolve();m=read(out/'manifest.json');issues=[]
+    dedicated_database_name(m.get('supplement', {}).get('database_name'))
     if m['source_keys']!=SOURCES or m['product_commit']!=TARGET or m['product_version']!='1.0.1': issues.append('범위/버전')
     if m.get('supplement',{}).get('override')!=OVERRIDE:issues.append('override')
     if m.get('measurement_scope')!={'measured_quality_metrics':['H01','H02','H03','H04'],'human_intervention':'confirmation_only'}:issues.append('사람 확인 범위')
@@ -76,7 +85,8 @@ def validate(out):
         if digest(a['path'])!=a['sha256']:issues.append('모델 자산 변경')
     return issues + protocol.validate(out)
 
-def prepare(baseline, product, out):
+def prepare(baseline, product, out, database_name=DB_NAME):
+    dedicated_database_name(database_name)
     baseline=Path(baseline).resolve();product=Path(product).resolve();out=Path(out).resolve()
     if out==baseline or baseline in out.parents or out in baseline.parents:raise ValueError('기존 회차와 출력 분리 필요')
     old=read(baseline/'manifest.json')
@@ -99,7 +109,7 @@ def prepare(baseline, product, out):
     m['generation_config'].update(product_root=str(product),budget=copy.deepcopy(BUDGET))
     m['supplement']={'baseline_root':str(baseline),'baseline_hashes':tree_hashes(baseline),
                     'product_hashes':hashes,'override':OVERRIDE,'official_baseline':False,
-                    'same_conditions':False,'database_name':'px_baseline_gs03_supplement_20261126'}
+                    'same_conditions':False,'database_name':database_name}
     for a in old['artifacts']:
         if a['kind']=='original' and a['case_id']=='GS-03':
             protocol.local_file(baseline,a['path'],a['sha256'])
@@ -191,11 +201,12 @@ def require_approval(out):
 def main():
     p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
     a=sub.add_parser('prepare');a.add_argument('baseline');a.add_argument('product');a.add_argument('output')
+    a.add_argument('--database-name', default=DB_NAME)
     a=sub.add_parser('validate');a.add_argument('output')
     a=sub.add_parser('preflight');a.add_argument('output')
     a=sub.add_parser('execute');a.add_argument('output');a.add_argument('--execute-models',action='store_true')
     args=p.parse_args()
-    if args.command=='prepare':print(json.dumps(prepare(args.baseline,args.product,args.output)))
+    if args.command=='prepare':print(json.dumps(prepare(args.baseline,args.product,args.output,args.database_name)))
     elif args.command=='preflight':print(json.dumps(preflight(args.output)))
     elif args.command=='validate':
         issues=validate(args.output);print(json.dumps(issues));sys.exit(bool(issues))

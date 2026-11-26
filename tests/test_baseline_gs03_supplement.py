@@ -79,13 +79,33 @@ class PreparationChainTest(unittest.TestCase):
             self.assertEqual(s.preflight(self.out),{'read_only':True});db.assert_called_once_with(self.out,'mock-url')
         self.assertFalse((self.out/'started.json').exists())
     def test_runner_reaches_native_boundary_only_after_preflight(self):
-        # Stop before product import/initialization; no execution approval is created.
-        with patch.object(s,'require_approval'),patch('tools.baseline.preflight.verify_dependency_lock'),patch.object(be,'check_runtime',return_value=(self.product,'mock-url')),patch.object(runner,'check_runtime',return_value=(self.product,'mock-url')),patch.object(s,'database_preflight',return_value={'read_only':True}) as db:
-            # This synthetic environment lacks hardware: reaching its check proves
-            # the real prepare -> both validators -> preflight -> runner connection.
-            with self.assertRaisesRegex(ValueError,'장비'):
-                runner._run_prepared(self.out,True)
-            db.assert_called_once()
+        import subprocess
+        import sys
+        import textwrap
+        code = textwrap.dedent("""
+            import sys
+            from pathlib import Path
+            from unittest.mock import patch
+            sys.path.insert(0, sys.argv[1])
+            from tools.baseline import gs03_supplement as s, gs03_runner as runner, be
+            out, product = map(Path, sys.argv[2:4])
+            with patch.object(s,'require_approval'), patch('tools.baseline.preflight.verify_dependency_lock'), patch.object(be,'check_runtime',return_value=(product,'mock-url')), patch.object(runner,'check_runtime',return_value=(product,'mock-url')), patch.object(s,'database_preflight',return_value={'read_only':True}) as db, patch.object(runner,'initialize_native_runtime',side_effect=AssertionError('native initialization forbidden')) as native:
+                try:
+                    runner._run_prepared(out,True)
+                except ValueError as error:
+                    assert '장비' in str(error), str(error)
+                else:
+                    raise AssertionError('synthetic incomplete environment must stop')
+                db.assert_called_once()
+                native.assert_not_called()
+            assert not (out/'started.json').exists()
+        """)
+        repo=Path(__file__).resolve().parents[1]
+        # 전체 pytest 수집이 app/pipeline을 먼저 import해도 자식 프로세스는 깨끗하다.
+        with patch.dict(sys.modules, {'pipeline.test_contamination':Mock()}):
+            result=subprocess.run([sys.executable,'-I','-B','-c',code,str(repo),str(self.out),str(self.product)],
+                                  capture_output=True,text=True,encoding='utf-8',timeout=30)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertFalse((self.out/'started.json').exists())
 
     def test_missing_dataset_stops_before_database(self):
@@ -109,20 +129,28 @@ class PreparationChainTest(unittest.TestCase):
         self.assertEqual(marker.read_bytes(),b'existing')
     def test_database_read_only_schema_and_reference_failures(self):
         tables=('alembic_version','master_country','master_language','category_master','category_mapping','expression_dictionary','expression_dictionary_evidence','glossary','master_data_version')
-        expected={t:[{'id':1}] for t in tables}
+        from datetime import date, datetime, timezone
+        actual={t:[{'id':1}] for t in tables}
+        actual['expression_dictionary']=[{'id':1,'confirmed_date':date(2026,9,16),'optional_date':None}]
+        actual['glossary']=[{'id':1,'verified_at':date(2026,9,18),'loaded_at':datetime(2026,9,18,12,30,tzinfo=timezone.utc)}]
+        # PostgreSQL DATE/TIMESTAMP가 반환하는 Python 자료형을 실제 저장 형식과 비교.
+        import json
+        expected=json.loads(json.dumps(actual,default=str))
         # Synthetic expectation only; baseline input remains untouched.
         import json
         (self.out/'expected-references.json').write_text(json.dumps(expected))
         url='postgresql+psycopg://localhost/px_baseline_gs03_supplement_20261126'
-        for mode in ('ok','connection','schema','dictionary'):
+        for mode in ('ok','connection','schema','dictionary','date_mismatch'):
             with self.subTest(mode=mode):
                 engine=Mock();conn=Mock();engine.connect.return_value.__enter__=Mock(return_value=conn);engine.connect.return_value.__exit__=Mock(return_value=False)
                 queries=[]
                 def execute(stmt):
                     sql=str(stmt);queries.append(sql);result=Mock();result.scalar_one.return_value=0
                     if mode=='schema' and 'FROM alembic_version' in sql:raise RuntimeError('missing schema')
-                    table=sql.rsplit(' ',1)[-1];rows=expected.get(table,[])
+                    table=sql.rsplit(' ',1)[-1];rows=actual.get(table,[])
                     if mode=='dictionary' and table=='glossary':rows=[{'id':2}]
+                    if mode=='date_mismatch' and table=='expression_dictionary':
+                        rows=[{**actual[table][0],'confirmed_date':date(2026,9,17)}]
                     result.mappings.return_value=rows;return result
                 conn.execute.side_effect=execute
                 if mode=='connection':engine.connect.side_effect=ConnectionError('connection')

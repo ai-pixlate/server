@@ -24,6 +24,9 @@ BUDGET = dict(max_calls=500, max_amount=25, reserve_per_call=1.04, currency='USD
               basis='2026-11-26 공식 Standard 요금; 입력1048576/출력65536 한도: $1.032192; 예약 $1.04; 2026-12-31까지')
 
 def canonical(value):
+    # core.write_new(default=str)로 보존한 DATE/TIMESTAMP 표현과 일치시킨다.
+    # datetime도 date의 하위 타입이다. None과 일반 문자열은 그대로 둔다.
+    if isinstance(value, date): return str(value)
     if isinstance(value, list):
         return sorted((canonical(x) for x in value), key=lambda x: json.dumps(x,sort_keys=True,ensure_ascii=False))
     if isinstance(value, dict): return {k:canonical(v) for k,v in value.items()}

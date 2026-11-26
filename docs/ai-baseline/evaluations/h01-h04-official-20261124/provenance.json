@@ -1,0 +1,70 @@
+{
+  "scoring_tool_commit": "f2b66dc0ca4968104c6499aeafef2774b8f6ab87",
+  "preparation_manifest_sha256": "ae735e7aa046a6a4d6d333d855ad7ef7d1563ae4f0edee0d761fa6abfca723cb",
+  "fixed_inputs": [
+    {
+      "path": "reference_units.jsonl",
+      "sha256": "26c4d2c1e83714687e63da01880297691eb66e8bb00045388a72c4258a1e1036"
+    },
+    {
+      "path": "execution.jsonl",
+      "sha256": "7ee1dac7644dd3a9c81eec7ba929f866cb6eeb55ab9662f3aee50538c56cce88"
+    },
+    {
+      "path": "reference-approval.json",
+      "sha256": "8738190c1f3b7318b29a5c191694114b688f31a1bd5b25fbb6b850a2c257ab94"
+    },
+    {
+      "path": "reference-origins.json",
+      "sha256": "4aa0db51c5ab4bd232ae6c97b6b595c59d5094b4980c99e5d23c5f6b3c4944b8"
+    }
+  ],
+  "evaluation_files": [
+    {
+      "path": "evaluations.jsonl",
+      "sha256": "fca98ce9dfe98433823b57f0c1021c731cefed417c56a431347d9d332a91389b"
+    },
+    {
+      "path": "defects.jsonl",
+      "sha256": "682b84f5b28bb8dd1ad61b6be7ec81155d53b05cb5e86931c78190e933b12609"
+    },
+    {
+      "path": "human_review.csv",
+      "sha256": "ccf019e5912cce385c8fdfc31ca29fbac47c32a7d71762c736c48ba4845f6f1a"
+    },
+    {
+      "path": "evaluation-session.json",
+      "sha256": "406b2da400a73653133244fdd2423be692e0bd8ef81f7ff56a554305bbaacc2a"
+    },
+    {
+      "path": "instruction.md",
+      "sha256": "104046e53c6f1ae154cabd873c408a5e9526fa254184f8d8e4c348187efb8e3c"
+    },
+    {
+      "path": "response-record.md",
+      "sha256": "32f6031bb6556812ef5ac96f000d6932862bed4452cc9c44f0b666a89d877ff8"
+    },
+    {
+      "path": "visual-observations.json",
+      "sha256": "7d61d97a96d0bbde0776fb36b431f8c50fbdd19c69e715e02964b36e1ac5df6c"
+    },
+    {
+      "path": "visual-coverage.json",
+      "sha256": "3e502920cef7dc27b164134c242a7d05da714c1e69b2fe299022c157ccdb00bc"
+    }
+  ],
+  "specification_files": [
+    {
+      "path": "docs/ai-baseline/protocols/v1/evaluation.md",
+      "sha256": "eccf44b6bc1f39f7ac660609229166ff301c6fdec320962c00e9339f25c19bd3"
+    },
+    {
+      "path": "docs/ai-baseline/protocols/v1/aggregation.md",
+      "sha256": "81c1323989b12519193e789ba0116e0961a689229de88f15ec64c46ad607fb6c"
+    },
+    {
+      "path": "docs/ai-baseline/protocols/v1/dataset.md",
+      "sha256": "c50c788c6b1c9874b4bbea051ba59d203cbe4694cfd5dcc42483432434567f7b"
+    }
+  ]
+}

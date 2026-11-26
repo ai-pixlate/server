@@ -1,0 +1,50 @@
+{
+  "checked_on": "2026-11-24",
+  "mandatory_limitations": "단일 평가모델(M-Prometheus 7B) · 독립 검증 없음 · 출력 형식 완전 충족 0개 · 점수 확보 449/491개",
+  "source_file_sha256": {
+    "full_runner.py": "7e124f4565a0686c2142da82dba3e03d7d99a780ae9b787730c4f17a11bec45a",
+    "protocol.py": "aa07c38c98e84e69d148bb8705becc6b22a6bc49b6c3743575fa0ec79f2f6575",
+    "validated-run-config.json": "9b53506dc9dbee4307e9c57336fa91265e2195d27b5ef0e8eb9437be45300a20",
+    "targets.jsonl": "53ed00b938c68514606357e218113f7fcfb9e9aa17ac0176989f28e27d551b25",
+    "received-20261121/results.jsonl": "63bf17f66ce13a43a66a376181625d89138576b4ce5f32587a78b0e8b1465f0d",
+    "received-20261121/summary.json": "a13e46910f91dc8615bcb389492ffe9a00f4c6909b6f5415883ccc1719c3dace",
+    "received-20261121/receipt-validation.json": "3e78d6071d69dbf66dde1a676cb5c075358f9ceab289a55e68163ae3fea3849e"
+  },
+  "unique_targets": 491,
+  "source_texts_and_identifiers_match": true,
+  "status_counts": {
+    "format_error": 487,
+    "output_limit": 4
+  },
+  "origin_counts": {
+    "reused_existing_real16": 16,
+    "full_evaluation": 475
+  },
+  "strict_format_count": 0,
+  "marker_score_n": 449,
+  "marker_score_sum": 970,
+  "marker_mean": 2.1603563474387526,
+  "marker_distribution": {
+    "1": 28,
+    "2": 345,
+    "3": 61,
+    "4": 6,
+    "5": 9
+  },
+  "score_recheck_mismatch_ids": [],
+  "multiple_valid_marker_ids": [],
+  "decimal_marker_ids": [],
+  "no_marker_untruncated": 38,
+  "output_limit_ids": [
+    "GS-02-block-566",
+    "GS-02-block-643",
+    "GS-02-block-822",
+    "GS-02-block-823"
+  ],
+  "legacy_body_only": {
+    "GS-02-block-430": 2
+  },
+  "model_calls": 0,
+  "inputs_modified": false,
+  "note": "기존 통계 재현 확인이며 최종판 추출 경계·재시도·대상 대응 정책의 신규 확정이 아님"
+}

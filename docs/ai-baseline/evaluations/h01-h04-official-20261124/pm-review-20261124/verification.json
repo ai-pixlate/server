@@ -1,0 +1,114 @@
+{
+  "initial_commit": "815acc7a8d2eb42071a3659cd8ed326540c35153",
+  "initial_git_files_byte_identical": 25,
+  "expected_pm_counts_match": true,
+  "independent_adopted_row_recount_passed": true,
+  "active_defect_counts_match_tables": true,
+  "a_sample_hash_selection_verified": true,
+  "zero_denominator_reasons_distinguished": true,
+  "tests_passed": 32,
+  "test_commands": [
+    "python -B -m unittest tests.test_baseline_evaluation_prepare tests.test_baseline_protocol",
+    "python -B -m unittest discover -s tests -p test_baseline_scope.py"
+  ],
+  "pm_reconfirmation_pending": false,
+  "final_script_replay_byte_identical": true,
+  "replayed_outputs": [
+    {
+      "path": "a-sample-review.json",
+      "sha256": "2ba3f1c5818f51388b595577763cbf6180e4fa615086aa836fd770eaf1ffc636"
+    },
+    {
+      "path": "adopted-defects.jsonl",
+      "sha256": "2f736ba8f87faed952ad7959c6c983d17fb89ce12c1c97d9e4e9f98b246c2fef"
+    },
+    {
+      "path": "adopted-evaluations.jsonl",
+      "sha256": "917fd0977084b84b4184e769b4474a72e99f6cec0c3467b3188c5c8de366e9f7"
+    },
+    {
+      "path": "aggregation-basis.json",
+      "sha256": "1f05eac97ac178fd1afec9a2ab909d13e4fb7b21d4077120e3952745ab0b6f63"
+    },
+    {
+      "path": "defect-additions.jsonl",
+      "sha256": "80ee42aac522711463ce94f16754b19dcecfbb397b4846d50fc2cd626d8335dd"
+    },
+    {
+      "path": "defect-inventory.md",
+      "sha256": "b5aaca8725d51ba53a0f294d17fc21cb1fc63a1d30adf3f812e5d3dcef3b7e1d"
+    },
+    {
+      "path": "evaluation-additions.jsonl",
+      "sha256": "70970be8542fe71c47a2a416c69aa43e27e4199767ae0a4dbfc7660b8f69e6d0"
+    },
+    {
+      "path": "h04-review-table.md",
+      "sha256": "d2828f242b6d12350b01355b0c6f39a7d21c0120e0c91a4e6a8302c4e91da048"
+    },
+    {
+      "path": "human_review.csv",
+      "sha256": "d6c2f8734653bcf31f24f1ec6663a5ffd69b6e058de61c454d56449cdb952efd"
+    },
+    {
+      "path": "issues.json",
+      "sha256": "34d05f2eceb835e7f444ff98f11b5f5d646a7392465a8eccd1d323b767207cbc"
+    },
+    {
+      "path": "metrics.csv",
+      "sha256": "9a4a8279f4e58aa8286bd4524739a6bd49d94fbd983dbd45c6f22ef1c7b79f92"
+    },
+    {
+      "path": "metrics.jsonl",
+      "sha256": "3a7a6e9074189c0195eef58e10561eab91d78c95019ebb1f86d49bc90cace602"
+    },
+    {
+      "path": "model-confirmation.json",
+      "sha256": "5f8c2567ec2217227ae2f6ea6b597fe28b46848b3ead4bcfb806979d91019748"
+    },
+    {
+      "path": "source-results.md",
+      "sha256": "fc25640ac1c282fc46c6528c2a751a6c95f33590106c4d567517a28e12459dd6"
+    },
+    {
+      "path": "validation.json",
+      "sha256": "90b3d91bcc67dfdc2aa7461b73ffe1033f54fb364cd5e4f8a31648caab6c748c"
+    },
+    {
+      "path": "pm-approval.json",
+      "sha256": "2d6ed5d488ba9c9fa0221a565f78695d02b462aa7a9aded77f424396c35439f8"
+    }
+  ],
+  "new_pm_defect_ai_value_null_count": 10,
+  "protocol_validation_issues": [],
+  "pm_reconfirmation_record_cleanup": {
+    "comment_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7126573428",
+    "checked_on": "2026-11-25",
+    "both_checkpoints_checked": true,
+    "metrics_and_h04_byte_identical_to_previous": true,
+    "initial_files_byte_identical": 25,
+    "changed_replayed_outputs": [
+      "adopted-defects.jsonl",
+      "defect-additions.jsonl",
+      "defect-inventory.md"
+    ],
+    "tests_passed": 32,
+    "pm_reconfirmation_pending": true,
+    "status_at_recording": "PM 재확인 전 기록; 현재 확정 상태는 최상위 formal_complete 및 pm_approval 참조"
+  },
+  "formal_complete": true,
+  "pm_approval": {
+    "path": "pm-approval.json",
+    "sha256": "2d6ed5d488ba9c9fa0221a565f78695d02b462aa7a9aded77f424396c35439f8",
+    "url": "https://github.com/ai-pixlate/server/pull/155#pullrequestreview-6052536616"
+  },
+  "pm_approval_verification": {
+    "approved_commit": "6f01060a97dfd96a0914ccf4fa6367258419ca03",
+    "evaluation_defect_review_and_metric_files_unchanged": true,
+    "replayed_output_changes": [
+      "validation.json",
+      "pm-approval.json"
+    ],
+    "tests_passed": 32
+  }
+}

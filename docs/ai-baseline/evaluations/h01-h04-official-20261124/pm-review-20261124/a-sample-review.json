@@ -1,0 +1,92 @@
+[
+  {
+    "case_id": "GS-01",
+    "checkpoint": "machine_snapshot",
+    "candidates": [],
+    "candidate_list_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash_serialization": "UTF-8 json.dumps(sorted(candidates), ensure_ascii=False, separators=(comma,colon)); no newline",
+    "selection_status": "PM 추천안 채택·검수 완료",
+    "empty_reason": "A 대상 없음",
+    "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174",
+    "sort_keys": {},
+    "selected": [],
+    "review_result": "A 대상 없음; GS-03은 결과 없음"
+  },
+  {
+    "case_id": "GS-02",
+    "checkpoint": "machine_snapshot",
+    "candidates": [
+      "GS-02-IMG-012"
+    ],
+    "candidate_list_sha256": "afbeeb2275578708e195c4061994e325ea31de09f740e5d92a8241afac59c0b6",
+    "hash_serialization": "UTF-8 json.dumps(sorted(candidates), ensure_ascii=False, separators=(comma,colon)); no newline",
+    "selection_status": "PM 추천안 채택·검수 완료",
+    "empty_reason": null,
+    "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174",
+    "sort_keys": {
+      "GS-02-IMG-012": "af4899f502b8f54e83e29619284a3ec7572f76a3b8564157e403f19333b3e1c9"
+    },
+    "selected": [
+      "GS-02-IMG-012"
+    ],
+    "review_result": "A 유지"
+  },
+  {
+    "case_id": "GS-03",
+    "checkpoint": "machine_snapshot",
+    "candidates": [],
+    "candidate_list_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash_serialization": "UTF-8 json.dumps(sorted(candidates), ensure_ascii=False, separators=(comma,colon)); no newline",
+    "selection_status": "PM 추천안 채택·검수 완료",
+    "empty_reason": "A 대상 없음",
+    "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174",
+    "sort_keys": {},
+    "selected": [],
+    "review_result": "A 대상 없음; GS-03은 결과 없음"
+  },
+  {
+    "case_id": "GS-01",
+    "checkpoint": "service_final",
+    "candidates": [],
+    "candidate_list_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash_serialization": "UTF-8 json.dumps(sorted(candidates), ensure_ascii=False, separators=(comma,colon)); no newline",
+    "selection_status": "PM 추천안 채택·검수 완료",
+    "empty_reason": "A 대상 없음",
+    "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174",
+    "sort_keys": {},
+    "selected": [],
+    "review_result": "A 대상 없음; GS-03은 결과 없음"
+  },
+  {
+    "case_id": "GS-02",
+    "checkpoint": "service_final",
+    "candidates": [
+      "GS-02-IMG-012"
+    ],
+    "candidate_list_sha256": "afbeeb2275578708e195c4061994e325ea31de09f740e5d92a8241afac59c0b6",
+    "hash_serialization": "UTF-8 json.dumps(sorted(candidates), ensure_ascii=False, separators=(comma,colon)); no newline",
+    "selection_status": "PM 추천안 채택·검수 완료",
+    "empty_reason": null,
+    "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174",
+    "sort_keys": {
+      "GS-02-IMG-012": "af4899f502b8f54e83e29619284a3ec7572f76a3b8564157e403f19333b3e1c9"
+    },
+    "selected": [
+      "GS-02-IMG-012"
+    ],
+    "review_result": "A 유지"
+  },
+  {
+    "case_id": "GS-03",
+    "checkpoint": "service_final",
+    "candidates": [],
+    "candidate_list_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash_serialization": "UTF-8 json.dumps(sorted(candidates), ensure_ascii=False, separators=(comma,colon)); no newline",
+    "selection_status": "PM 추천안 채택·검수 완료",
+    "empty_reason": "A 대상 없음",
+    "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174",
+    "sort_keys": {},
+    "selected": [],
+    "review_result": "A 대상 없음; GS-03은 결과 없음"
+  }
+]

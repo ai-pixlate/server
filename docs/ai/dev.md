@@ -59,6 +59,9 @@ pipeline/                    AI 파이프라인 코드 (BE 코드 app/ 와 분�
   data/aplus/spec.json       A+ 규격 데이터 정본(개발용 v1, #100) — 템플릿 14개의 치수 · 필수 칸 · 배치 변형 · 템플릿 한도와 대응 모듈 필드, 가이드 상한 표(`module_spec` — 모듈 6종, 행마다 출처 · 확인일), 라벨 19종 → 7칸, 블록 역할 → 칸(`block_roles`). 출처 커밋 · 파일 해시 포함
   handoff/                   AI ↔ BE 운영 인계 어댑터(3.2절) — 요청 → StageReport, 결과 검증기, GPU 실행기, 계약 예제 생성.
                              style_defaults.py(D11 로더 · 폰트 검증 · 적용값 계산) · style_reference.py(참고 렌더, 운영 렌더 아님)
+                             typeset_geometry.py(⑨ FE 측정 결과 해석 · 좌표 · 여백 한계 · 최종 출력 위치) ·
+                             typeset_boundary.py(⑨ 배치 영역 넘침 · 섹션 잘림 · 최종 이미지 이탈 판정, 단독 호출) ·
+                             typeset_adjust.py(⑨ 자동 조정 — 측정기는 호출자가 넣는다)
                              review.py(D12 번역문 LLM 규제 판정 · 지문) · check_aggregate.py(규칙 · LLM 두 축 집계, 파생 전용)
   analyze.py                 analyze() = ① → ② → ③ [계약 1.2]. ① 분해 실패 시 원본 전체 한 섹션 대체(D9-1)
   jsonio.py                  단계 JSON 읽기·쓰기 — 버전 확인 · image_path 해석 · 전환 · 고정 입력본 · 원자적 쓰기(⑤) — 3·5절

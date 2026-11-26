@@ -1,0 +1,22 @@
+{
+  "issues": [],
+  "formal_complete": false,
+  "pm_review_pending": true,
+  "source_count": 34,
+  "reference_count": 339,
+  "evaluation_count": 466,
+  "defect_record_count": 52,
+  "human_review_count": 0,
+  "protected_input_hash_count": 177,
+  "protected_inputs_unchanged": true,
+  "visual_originals": 13,
+  "visual_previews": 67,
+  "visual_finals": 13,
+  "readiness_issues": [],
+  "limitations": [
+    "PM 검수 전",
+    "채팅 모델 식별자·설정 미확인",
+    "전체 채팅 내보내기 미보존; 평가 응답 기록 보존"
+  ],
+  "tool_commit": "f2b66dc0ca4968104c6499aeafef2774b8f6ab87"
+}

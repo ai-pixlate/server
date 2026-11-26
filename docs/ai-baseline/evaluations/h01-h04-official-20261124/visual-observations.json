@@ -1,0 +1,1120 @@
+{
+  "authorship": "Codex 최초 시각 평가; PM 검수 전",
+  "critical_facts": {
+    "GS-01_002-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "goodal Heartleaf Soothing Mineral Sun Cream: 큰 제목과 겹치지만 제품명 단어는 판독된다."
+    },
+    "GS-01_002-REF-002": {
+      "accurate": false,
+      "readable": true,
+      "text": "제품명 줄 끝이 50m로 표시됨. 원본 50ml의 l이 없다."
+    },
+    "GS-01_002-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "survey 200 participants"
+    },
+    "GS-01_002-REF-005": {
+      "accurate": true,
+      "readable": true,
+      "text": "Gentle feel 98%"
+    },
+    "GS-01_002-REF-006": {
+      "accurate": true,
+      "readable": true,
+      "text": "Recommended for sensitive skin 96%"
+    },
+    "GS-01_002-REF-007": {
+      "accurate": true,
+      "readable": true,
+      "text": "Refreshing finish 95%"
+    },
+    "GS-01_002-REF-008": {
+      "accurate": true,
+      "readable": true,
+      "text": "SPF 50+"
+    },
+    "GS-01_002-REF-009": {
+      "accurate": true,
+      "readable": true,
+      "text": "PA++++"
+    },
+    "GS-01_002-REF-010": {
+      "accurate": true,
+      "readable": true,
+      "text": "SPF 61.2 ± 6.9"
+    },
+    "GS-01_002-REF-011": {
+      "accurate": true,
+      "readable": true,
+      "text": "PA 17.0 ± 3.3"
+    },
+    "GS-01_002-REF-012": {
+      "accurate": true,
+      "readable": true,
+      "text": "10 participants"
+    },
+    "GS-01_002-REF-013": {
+      "accurate": true,
+      "readable": true,
+      "text": "2023.01.16–2023.02.10"
+    },
+    "GS-01_002-REF-016": {
+      "accurate": true,
+      "readable": true,
+      "text": "10-Hyal / 10종 성분 설명"
+    },
+    "GS-01_002-REF-017": {
+      "accurate": true,
+      "readable": true,
+      "text": "Triple Zinc / 세 가지 징크 설명"
+    },
+    "GS-01_002-REF-018": {
+      "accurate": true,
+      "readable": true,
+      "text": "Before product use 17.70"
+    },
+    "GS-01_002-REF-019": {
+      "accurate": true,
+      "readable": true,
+      "text": "7 days after product use 14.88"
+    },
+    "GS-01_002-REF-020": {
+      "accurate": true,
+      "readable": true,
+      "text": "15.92%: 배지 밖 저대비 부분이 있으나 수치 판독 가능. PM 재확인 대상."
+    },
+    "GS-01_002-REF-022": {
+      "accurate": true,
+      "readable": true,
+      "text": "Non-nano mineral sunscreen"
+    },
+    "GS-01_002-REF-023": {
+      "accurate": true,
+      "readable": true,
+      "text": "Before product use 34.61"
+    },
+    "GS-01_002-REF-024": {
+      "accurate": true,
+      "readable": true,
+      "text": "Immediately after 1 use 32.26"
+    },
+    "GS-01_002-REF-025": {
+      "accurate": true,
+      "readable": true,
+      "text": "6.78% cooling effect: 옅은 글자·배지 이탈이 있으나 수치 판독 가능. PM 재확인 대상."
+    },
+    "GS-01_002-REF-028": {
+      "accurate": true,
+      "readable": true,
+      "text": "Reef Safe"
+    },
+    "GS-01_002-REF-029": {
+      "accurate": true,
+      "readable": true,
+      "text": "Oxybenzone (Benzophenone-3) non-detection test completed"
+    },
+    "GS-01_002-REF-030": {
+      "accurate": true,
+      "readable": true,
+      "text": "Octinoxate (Ethylhexyl Methoxycinnamate) non-detection test completed"
+    },
+    "GS-01_002-REF-032": {
+      "accurate": true,
+      "readable": true,
+      "text": "At the final step of skincare, apply evenly to face and body areas exposed to UV."
+    },
+    "GS-01_002-REF-034": {
+      "accurate": true,
+      "readable": true,
+      "text": "Good all goodal: 로고 도형·배치는 변했으나 이름 판독 가능."
+    },
+    "GS-01_002-REF-035": {
+      "accurate": true,
+      "readable": true,
+      "text": "18 Free"
+    },
+    "GS-01_002-REF-036": {
+      "accurate": true,
+      "readable": true,
+      "text": "4개 기능 범주와 18개 무첨가 목록 연결 유지"
+    },
+    "GS-02_003-REF-001": {
+      "accurate": null,
+      "readable": null,
+      "text": "celimax Retinal Shot Booster에 Performance 행이 겹친다. 원본 도움 없이 제품명 전체가 판독 가능한지 확정하지 않음.",
+      "status": "undetermined"
+    },
+    "GS-02_003-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "2025.09.15 #1 Best Seller on Amazon North America for the keyword RETINAL: 각주에 순위 조건 보존. 큰 제목 Seller 잘림은 별도 결함."
+    },
+    "GS-02_004-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "892.35% Improvement in Absorption Depth: 하단 글자 일부 잘림·각주 겹침이 있으나 수치와 흡수 깊이 항목을 판독할 수 있다."
+    },
+    "GS-02_005-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Absorption improvement rate compared to products without spicules / 0.00%: 텍스트 겹침·오른쪽 잘림이 있으나 비교 대상과 0.00% 판독 가능."
+    },
+    "GS-02_006-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Pinhole (central channel) spicule"
+    },
+    "GS-02_006-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "892% absorption technology"
+    },
+    "GS-02_007-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Forehead wrinkles -28.54%"
+    },
+    "GS-02_007-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "Stratum corneum pigmentation -79.63%: 인접 라벨 겹침에도 값·항목 판독 가능."
+    },
+    "GS-02_007-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "Eye wrinkles -14.31%"
+    },
+    "GS-02_007-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "Pore depth -7.80%"
+    },
+    "GS-02_007-REF-005": {
+      "accurate": true,
+      "readable": true,
+      "text": "Horizontal pores -13.13%"
+    },
+    "GS-02_007-REF-006": {
+      "accurate": true,
+      "readable": true,
+      "text": "Cheek lifting +3.32%"
+    },
+    "GS-02_007-REF-007": {
+      "accurate": true,
+      "readable": true,
+      "text": "Nasolabial wrinkles -18.49%"
+    },
+    "GS-02_007-REF-008": {
+      "accurate": true,
+      "readable": true,
+      "text": "Mouth corner lifting +3.21%"
+    },
+    "GS-02_007-REF-009": {
+      "accurate": true,
+      "readable": true,
+      "text": "3-layer skin elasticity +7.54%"
+    },
+    "GS-02_007-REF-011": {
+      "accurate": true,
+      "readable": true,
+      "text": "The solution for 8 Million Skin Concerns + 누적 출고량 각주"
+    },
+    "GS-02_007-REF-012": {
+      "accurate": true,
+      "readable": true,
+      "text": "Cumulative shipments of Retinal Shot Booster through 2026.03.25"
+    },
+    "GS-02_008-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Nano liposome retinal 0.00003mm"
+    },
+    "GS-02_008-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "Micro A-Shot 0.015mm (15μm)"
+    },
+    "GS-02_008-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "Matrixyl 3000"
+    },
+    "GS-02_008-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "Retinal 0.1%"
+    },
+    "GS-02_008-REF-005": {
+      "accurate": true,
+      "readable": true,
+      "text": "Retinal ingredient 10.2 times more expensive than Retinol ingredient + 자사 세럼 원료 기준 각주"
+    },
+    "GS-02_008-REF-006": {
+      "accurate": true,
+      "readable": true,
+      "text": "6 times thinner than pores"
+    },
+    "GS-02_008-REF-007": {
+      "accurate": true,
+      "readable": true,
+      "text": "20,250 shots"
+    },
+    "GS-02_008-REF-008": {
+      "accurate": true,
+      "readable": true,
+      "text": "Patent No. 10-2270816"
+    },
+    "GS-02_008-REF-009": {
+      "accurate": true,
+      "readable": true,
+      "text": "Tingling sensation 안내가 A-Shot ingredient 특성에 연결됨."
+    },
+    "GS-02_009-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Matrixyl 3000 3%"
+    },
+    "GS-02_009-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "Collagen I 14.4%"
+    },
+    "GS-02_009-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "Collagen IV 6.4%"
+    },
+    "GS-02_009-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "Collagen VI 20.3%"
+    },
+    "GS-02_009-REF-005": {
+      "accurate": true,
+      "readable": true,
+      "text": "Collagen XVII 15.8%"
+    },
+    "GS-02_009-REF-006": {
+      "accurate": true,
+      "readable": true,
+      "text": "4-way pore improvement in just 1 day: 네 항목 개선을 가리키며 4배 효과로 쓰지 않음."
+    },
+    "GS-02_009-REF-007": {
+      "accurate": true,
+      "readable": true,
+      "text": "Horizontal pores -13.33%"
+    },
+    "GS-02_009-REF-008": {
+      "accurate": true,
+      "readable": true,
+      "text": "Inner elasticity at 2mm depth in pore area -4.33%"
+    },
+    "GS-02_009-REF-009": {
+      "accurate": true,
+      "readable": true,
+      "text": "Pore depth -7.80%"
+    },
+    "GS-02_009-REF-010": {
+      "accurate": true,
+      "readable": true,
+      "text": "Pore density -12.21%"
+    },
+    "GS-02_009-REF-011": {
+      "accurate": true,
+      "readable": true,
+      "text": "First layer +7.21%"
+    },
+    "GS-02_009-REF-012": {
+      "accurate": true,
+      "readable": true,
+      "text": "Second layer +7.38%"
+    },
+    "GS-02_009-REF-013": {
+      "accurate": true,
+      "readable": true,
+      "text": "Third layer +7.54%"
+    },
+    "GS-02_009-REF-014": {
+      "accurate": true,
+      "readable": true,
+      "text": "4-zone lifting in just 2 weeks"
+    },
+    "GS-02_009-REF-015": {
+      "accurate": true,
+      "readable": true,
+      "text": "Eye area skin angle -4.0%: 검은 머리 위 항목 일부 저대비. 수치와 eye area 식별 가능, PM 재확인."
+    },
+    "GS-02_009-REF-016": {
+      "accurate": true,
+      "readable": true,
+      "text": "Cheek area skin angle -3.32%"
+    },
+    "GS-02_009-REF-017": {
+      "accurate": true,
+      "readable": true,
+      "text": "Mouth area skin angle -3.21%"
+    },
+    "GS-02_009-REF-018": {
+      "accurate": true,
+      "readable": true,
+      "text": "Jawline area skin angle -2.46%: 저대비이나 판독 가능, PM 재확인."
+    },
+    "GS-02_010-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "7-day turnover improvement"
+    },
+    "GS-02_010-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "Skin (stratum corneum) turnover improvement -79.63% reduction"
+    },
+    "GS-02_010-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "Without product / With product 및 각각 after 7 days의 2×2 사진 대응 유지."
+    },
+    "GS-02_011-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Forehead wrinkles -28.54%, before / after 2 weeks"
+    },
+    "GS-02_011-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "Eye wrinkles -14.31%, before / after 2 weeks"
+    },
+    "GS-02_011-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "Nasolabial folds -18.49%, before / after 2 weeks"
+    },
+    "GS-02_011-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "100% User Satisfaction; 효과율로 변경하지 않음."
+    },
+    "GS-02_012-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Satisfaction survey evaluation after using Celimax Retinal Shot Tightening Booster"
+    },
+    "GS-02_012-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "2024.05.27–06.13"
+    },
+    "GS-02_012-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "22 adult men and women"
+    },
+    "GS-02_012-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "Individual results may vary"
+    },
+    "GS-02_012-REF-005": {
+      "accurate": true,
+      "readable": true,
+      "text": "Based on average values and percentage of participants who gave positive ratings of 3 points or higher"
+    },
+    "GS-02_013-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Retinal Shot Tightening Booster"
+    },
+    "GS-02_013-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "24-hour patch test on sensitive skin"
+    },
+    "GS-02_013-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "average skin reaction score 0.00"
+    },
+    "GS-02_013-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "evaluated as low (non-)irritating: 민감성 피부 상자 안 판정 유지. 위 일반 시험 결론의 hypoallergenic은 별도 검수 결함."
+    },
+    "GS-02_014-REF-001": {
+      "accurate": true,
+      "readable": true,
+      "text": "Last step of evening skincare / thin layer on concerned facial areas / absorb"
+    },
+    "GS-02_014-REF-002": {
+      "accurate": true,
+      "readable": true,
+      "text": "2mm (0.2g), every other day for 2 weeks"
+    },
+    "GS-02_014-REF-003": {
+      "accurate": true,
+      "readable": true,
+      "text": "4mm (0.4g), daily after 3 weeks"
+    },
+    "GS-02_014-REF-004": {
+      "accurate": true,
+      "readable": true,
+      "text": "Use sunscreen the next morning"
+    },
+    "GS-02_014-REF-005": {
+      "accurate": true,
+      "readable": true,
+      "text": "If irritation persists, reduce amount/frequency and soothe/moisturize"
+    },
+    "GS-02_014-REF-006": {
+      "accurate": true,
+      "readable": false,
+      "text": "Beginner / Rice Kernel size / 1–2 times a week for first month / increase 3–4: 빈도 두 문장이 겹쳐 읽기 어렵다."
+    },
+    "GS-02_014-REF-007": {
+      "accurate": false,
+      "readable": false,
+      "text": "Intermediate / size of Glycine Max (Soybean) Pulp: 콩알 크기를 콩 펄프로 바꿈. 5–6 times a week 문장은 다음 행 Daily와 겹침."
+    },
+    "GS-02_014-REF-008": {
+      "accurate": true,
+      "readable": true,
+      "text": "Advanced / appropriate amount / Suitable for daily use: 인접 행 침범은 있으나 고급자·매일 사용 문구 연결은 판독 가능."
+    },
+    "GS-02_014-REF-009": {
+      "accurate": true,
+      "readable": true,
+      "text": "recommended to follow usage guide for the first 2 weeks"
+    },
+    "GS-02_014-REF-010": {
+      "accurate": true,
+      "readable": true,
+      "text": "3–10°C"
+    },
+    "GS-02_014-REF-012": {
+      "accurate": true,
+      "readable": true,
+      "text": "Retinol Shot Serum + Retinal Shot Booster: 병용 제품 두 이름이 아래 설명·용기에 구별됨. 상단 제목의 여분 1은 별도 결함."
+    },
+    "GS-02_014-REF-013": {
+      "accurate": true,
+      "readable": true,
+      "text": "Together / after 2 weeks / eye wrinkles -23.24%"
+    },
+    "GS-02_014-REF-014": {
+      "accurate": true,
+      "readable": true,
+      "text": "Together / pore volume -37.99%"
+    },
+    "GS-02_014-REF-015": {
+      "accurate": true,
+      "readable": true,
+      "text": "Together / pore depth -14.80%"
+    },
+    "GS-02_014-REF-016": {
+      "accurate": true,
+      "readable": true,
+      "text": "Together / pore area -28.74%"
+    },
+    "GS-02_014-REF-017": {
+      "accurate": true,
+      "readable": true,
+      "text": "Together / lifting -9.02%"
+    },
+    "GS-02_014-REF-018": {
+      "accurate": true,
+      "readable": true,
+      "text": "Sensitive to light and heat / evening recommended / sunscreen if morning use"
+    },
+    "GS-02_014-REF-019": {
+      "accurate": true,
+      "readable": true,
+      "text": "Do not increase amount or frequency during first 2 weeks even without irritation"
+    },
+    "GS-02_014-REF-020": {
+      "accurate": true,
+      "readable": true,
+      "text": "Redness, flaking, itching, burning and stinging may occur during adaptation"
+    },
+    "GS-02_014-REF-021": {
+      "accurate": true,
+      "readable": true,
+      "text": "Not recommended for pregnant or nursing women"
+    },
+    "GS-02_014-REF-022": {
+      "accurate": true,
+      "readable": true,
+      "text": "Not recommended with high-concentration Vitamin C, scrubs or exfoliating products"
+    },
+    "GS-02_014-REF-023": {
+      "accurate": true,
+      "readable": true,
+      "text": "If combined, adjust cycle such as alternate days"
+    },
+    "GS-02_014-REF-024": {
+      "accurate": true,
+      "readable": true,
+      "text": "Approximately 455 days of development"
+    }
+  },
+  "defect_observations": [
+    {
+      "image": "GS-01_002",
+      "key": "volume",
+      "type": "content_wrong",
+      "severity": "critical",
+      "y": [
+        520,
+        640
+      ],
+      "refs": [
+        2
+      ],
+      "observed": "원본 50ml가 50m로 바뀜. text_block 41의 source_lines와 source_ko에 이미 50m. 번역·렌더까지 전파됨.",
+      "expected": "50ml의 단위를 보존.",
+      "origin": "OCR",
+      "blocks": [
+        41
+      ]
+    },
+    {
+      "image": "GS-01_002",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        [
+          0,
+          3200
+        ],
+        [
+          8000,
+          10671
+        ],
+        [
+          12800,
+          13800
+        ],
+        [
+          18400,
+          22000
+        ],
+        [
+          27000,
+          31000
+        ]
+      ],
+      "refs": [
+        1,
+        3,
+        20,
+        25,
+        33,
+        43,
+        44
+      ],
+      "observed": "큰 제목이 제품명·VEGAN 배지·본문과 겹치고 라인업 이름이 칸을 벗어남. 그래프 값 배지가 저대비·바깥 이탈. 비건 설명 끝 ingredients 잘림.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": [
+        40,
+        41,
+        178
+      ]
+    },
+    {
+      "image": "GS-01_002",
+      "key": "claim",
+      "type": "translation_fact_error",
+      "severity": "critical",
+      "y": [
+        24460,
+        25308
+      ],
+      "refs": [
+        15,
+        39
+      ],
+      "observed": "Those looking for a sunscreen with verified broad spectrum SPF: 원문 자외선차단지수 검증에 없는 broad spectrum 추가.",
+      "expected": "원문 시험 범위를 넘어 미국 broad-spectrum 검증 사실을 추가하지 않음.",
+      "origin": "번역·현지화",
+      "blocks": [
+        187
+      ]
+    },
+    {
+      "image": "GS-01_002",
+      "key": "protected",
+      "type": "protected_content_damaged",
+      "severity": "major",
+      "y": [
+        [
+          32000,
+          33700
+        ],
+        [
+          33684,
+          35000
+        ]
+      ],
+      "refs": [
+        33,
+        38
+      ],
+      "observed": "FSC/SOYINK 마크 글자와 Good all goodal 타원 로고가 재작성·재배치됨.",
+      "expected": "정답에서 지정한 로고·인증 마크를 사진 요소로 보존.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-01_002",
+      "key": "escape",
+      "type": "content_extra_or_duplicate",
+      "severity": "minor",
+      "y": [
+        1907,
+        3180
+      ],
+      "refs": [
+        39
+      ],
+      "observed": "해시태그 인접 문구에 이스케이프 문자열 \\n이 노출됨.",
+      "expected": "개행을 문자로 노출하지 않음.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_003",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        0,
+        641
+      ],
+      "refs": [
+        1,
+        2,
+        3
+      ],
+      "observed": "Performance 행이 celimax Retinal Shot 제품명과 겹침. 큰 제목 #1 Amazon Best에서 Seller가 이미지 밖으로 잘림. 제품명 판독성은 H04 undetermined.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": [
+        423
+      ]
+    },
+    {
+      "image": "GS-02_004",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        [
+          0,
+          3470
+        ],
+        [
+          3470,
+          3867
+        ]
+      ],
+      "refs": [
+        2,
+        3
+      ],
+      "observed": "거대 제목이 해시태그·피부 사진에 침범, 후기 말풍선과 인용문 겹침. 흡수 깊이 제목 하단 일부 잘림.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": [
+        424,
+        436,
+        437
+      ]
+    },
+    {
+      "image": "GS-02_004",
+      "key": "replacement",
+      "type": "decision_wrong",
+      "severity": "critical",
+      "y": [
+        950,
+        1450
+      ],
+      "refs": [
+        4
+      ],
+      "observed": "The fine lines seem to have almost completely disappeared...가 원본 첫 후기의 번역으로 남음.",
+      "expected": "동결 REF-004에 따라 없어졌다는 영어 대신 겉보기 표현으로 교체.",
+      "origin": "번역·현지화",
+      "blocks": [
+        427
+      ]
+    },
+    {
+      "image": "GS-02_005",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        0,
+        760
+      ],
+      "refs": [
+        1,
+        3
+      ],
+      "observed": "0.00% 개선 배지의 제목·비교 대상·개선 문구가 겹치고 오른쪽 밖으로 잘림. 숫자는 판독 가능.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_005",
+      "key": "graph",
+      "type": "protected_content_damaged",
+      "severity": "major",
+      "y": [
+        56,
+        715
+      ],
+      "refs": [
+        2
+      ],
+      "observed": "3D 그래프의 BEFORE 표제가 없어지고 눈금 일부가 다시 그려짐; AFTER는 남음.",
+      "expected": "BEFORE/AFTER와 그래프·축·눈금 보호.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_006",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        0,
+        2383
+      ],
+      "refs": [
+        1,
+        2,
+        4
+      ],
+      "observed": "큰 표제와 네 효능 타원이 겹침; 892% 아래 제목·설명 겹침.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_006",
+      "key": "microscope",
+      "type": "content_extra_or_duplicate",
+      "severity": "major",
+      "y": [
+        1216,
+        1801
+      ],
+      "refs": [
+        3,
+        6
+      ],
+      "observed": "현미경 사진 위에 원본에 없는 큰 회색 C가 생김.",
+      "expected": "사진 질감·연결선을 유지하고 번역 설명 외 글자를 추가하지 않음.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_007",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        [
+          230,
+          2687
+        ],
+        [
+          2687,
+          3200
+        ]
+      ],
+      "refs": [
+        2,
+        10,
+        17,
+        18
+      ],
+      "observed": "효능 제목·본문 및 얼굴의 각질층/눈가 라벨이 겹침. 800만 제목과 상품명도 겹침. 숫자·각주를 별도로 H04 대조함.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_008",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        [
+          0,
+          4600
+        ],
+        [
+          6900,
+          9967
+        ]
+      ],
+      "refs": [
+        1,
+        2,
+        4,
+        9,
+        14
+      ],
+      "observed": "제목·수치 설명이 카드 밖으로 넘침. 원료적 특성 한정 각주 일부 잘림·제목과 겹침.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_008",
+      "key": "papers",
+      "type": "protected_content_damaged",
+      "severity": "major",
+      "y": [
+        5000,
+        6900
+      ],
+      "refs": [
+        11
+      ],
+      "observed": "논문 사진 속 영문을 새로 그려 논문 표제·본문이 서로 겹치고 원래 문서의 가독성을 훼손함.",
+      "expected": "사진 속 영문·한글은 번역 대상이 아닌 보호 대상.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_009",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        [
+          1400,
+          4800
+        ],
+        [
+          4800,
+          9868
+        ]
+      ],
+      "refs": [
+        19,
+        22
+      ],
+      "observed": "후기 작성자·표제·시험 배지 글자가 칸과 다른 문구를 침범. 얼굴 부위의 검은/회색 라벨 대비가 낮음.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_009",
+      "key": "badges",
+      "type": "translation_missing",
+      "severity": "major",
+      "y": [
+        3900,
+        4800
+      ],
+      "refs": [
+        19,
+        20
+      ],
+      "observed": "시험 배지 여러 개의 한국어가 남은 가운데 큰 Skin lifting improvement Test completed만 겹쳐 표시됨.",
+      "expected": "한국어 배지 둘레 글자는 보호 대상이 아니며 번역·판독 가능해야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_010",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        0,
+        2599
+      ],
+      "refs": [
+        3,
+        4
+      ],
+      "observed": "사진 라벨과 큰 제목이 구획을 벗어나고 만족도 설명과 각주가 겹침.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_010",
+      "key": "escape",
+      "type": "content_extra_or_duplicate",
+      "severity": "minor",
+      "y": [
+        2300,
+        2599
+      ],
+      "refs": [
+        6
+      ],
+      "observed": "만족도 문구에 \\n**가 그대로 노출됨.",
+      "expected": "개행·각주 기호가 의도된 배치로 표시되어야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_011",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        400,
+        2994
+      ],
+      "refs": [
+        1,
+        5
+      ],
+      "observed": "큰 제목이 이마 주름 항목으로 침범하고 시험 각주가 제목에 겹침. 값과 전후 기간은 판독 가능.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": [
+        675,
+        688
+      ]
+    },
+    {
+      "image": "GS-02_013",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        1700,
+        2600
+      ],
+      "refs": [
+        6
+      ],
+      "observed": "시험 인증서 표제와 결론 글자가 표 경계를 벗어나고 도장·본문이 겹침.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": [
+        709
+      ]
+    },
+    {
+      "image": "GS-02_013",
+      "key": "irritation",
+      "type": "translation_meaning_error",
+      "severity": "major",
+      "y": [
+        2300,
+        2500
+      ],
+      "refs": [
+        6
+      ],
+      "observed": "일반 피부 일차자극 시험 결론의 저자극성을 hypoallergenic으로 옮김. 아래 민감성 시험은 low (non-)irritating으로 보존.",
+      "expected": "자극 시험과 알레르기성을 서로 바꾸지 않고 시험 범위를 유지.",
+      "origin": "번역·현지화",
+      "blocks": [
+        709
+      ]
+    },
+    {
+      "image": "GS-02_014",
+      "key": "usage-layout",
+      "type": "readability_or_layout",
+      "severity": "critical",
+      "y": [
+        3150,
+        3900
+      ],
+      "refs": [
+        6,
+        7,
+        8,
+        11
+      ],
+      "observed": "초급자 첫 달 주 1–2회와 증가 주 3–4회가 겹침. 중급자 주 5–6회가 고급자 Daily와 겹쳐 용법 대응 판독 곤란. 원문·번역의 빈도 텍스트는 보존됨.",
+      "expected": "숙련도별 양·기간·빈도를 행별로 판독 가능하게 표시.",
+      "origin": "렌더·배치",
+      "blocks": [
+        735,
+        738,
+        740
+      ]
+    },
+    {
+      "image": "GS-02_014",
+      "key": "bean",
+      "type": "translation_meaning_error",
+      "severity": "critical",
+      "y": [
+        3400,
+        3660
+      ],
+      "refs": [
+        7,
+        11
+      ],
+      "observed": "콩알만한 크기가 size of Glycine Max (Soybean) Pulp로 변해 사용량 비교물이 달라짐.",
+      "expected": "콩알 크기라는 용법 비유 보존.",
+      "origin": "번역·현지화",
+      "blocks": [
+        739
+      ]
+    },
+    {
+      "image": "GS-02_014",
+      "key": "layout",
+      "type": "readability_or_layout",
+      "severity": "major",
+      "y": [
+        [
+          4600,
+          10738
+        ],
+        [
+          14010,
+          16414
+        ]
+      ],
+      "refs": [
+        12,
+        26,
+        29
+      ],
+      "observed": "병용 제품 제목에 여분 1이 붙고 일부 제목이 넘침. 개발 이야기 표제에 \\n 문자열 노출.",
+      "expected": "번역문이 제목·본문·사진·표·각주를 가리거나 이미지 밖으로 잘리지 않아야 함.",
+      "origin": "undetermined",
+      "blocks": []
+    },
+    {
+      "image": "GS-02_014",
+      "key": "sketch",
+      "type": "protected_content_damaged",
+      "severity": "major",
+      "y": [
+        14442,
+        15117
+      ],
+      "refs": [
+        27
+      ],
+      "observed": "개발 스케치 사진 안 the vita A / retinal / tightening 손글씨가 크게 재작성되어 잘림.",
+      "expected": "사진 안 스케치·튜브·인쇄를 원형 보존.",
+      "origin": "undetermined",
+      "blocks": []
+    }
+  ]
+}

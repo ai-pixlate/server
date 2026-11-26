@@ -1,0 +1,16 @@
+{
+  "EI-01": {
+    "status": "평가 이슈 유지",
+    "quality_defect_added": false
+  },
+  "EI-02": {
+    "status": "PM 문제없음",
+    "quality_defect_added": false
+  },
+  "glossary_followup": {
+    "in_scope": false,
+    "request": "최신 버전의 콩·쌀 강제 용어가 콩알·쌀알 등 단어 내부에 매칭되는지, 보존 glossary_ids 빈 값으로 확인하지 못한 최초 원인을 별도 조사",
+    "investigation_performed": false
+  },
+  "pm_evidence_url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7125560174"
+}

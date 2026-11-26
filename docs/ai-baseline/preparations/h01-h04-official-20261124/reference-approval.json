@@ -1,0 +1,27 @@
+{
+  "kind": "기존 승인 연결 — 새 승인 아님",
+  "bundles": [
+    {
+      "version": "gs-v1-gs01-20261103-v1",
+      "verified_by": "은다빈 (i-dAb-i)",
+      "verified_at": "2026-11-03T09:34:33Z",
+      "evidence_ref": {
+        "path": "evidence/4392a588fd7e3c758cfef32ec0e112686ec099daa54b06c90d9e38f8247dfb34.json",
+        "sha256": "4392a588fd7e3c758cfef32ec0e112686ec099daa54b06c90d9e38f8247dfb34"
+      },
+      "reference_sha256": "3b67ec85b335c96d17b72e9469567ab925139d5e863612a6edc002d8ca88967f"
+    },
+    {
+      "version": "gs-v1-gs02-gs03-20261124-v1",
+      "verified_by": "은다빈 (i-dAb-i) — 사용자 예람이 PM 구두 승인 전달",
+      "verified_at": "2026-11-24T01:09:20.351210+00:00",
+      "evidence_ref": {
+        "path": "evidence/2d514ff800c661327dc460894304e8504035b435ed7291fcd0efdf84f8005a38.json",
+        "sha256": "2d514ff800c661327dc460894304e8504035b435ed7291fcd0efdf84f8005a38"
+      },
+      "reference_sha256": "25489c39ba5c763465f7759110b65502ff7a02e334ef2db7d9fdb34c83574e4c"
+    }
+  ],
+  "gs02_gs03_approval": "사용자 예람이 전달한 PM 구두 승인; 실제 구두 승인 시각 미확인",
+  "source_map_sha256": "4aa0db51c5ab4bd232ae6c97b6b595c59d5094b4980c99e5d23c5f6b3c4944b8"
+}

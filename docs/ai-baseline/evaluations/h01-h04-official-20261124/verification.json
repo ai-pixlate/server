@@ -1,0 +1,68 @@
+{
+  "base_develop": "f2b66dc0ca4968104c6499aeafef2774b8f6ab87",
+  "remote_develop_confirmed_same": true,
+  "existing_tracked_files_changed": [],
+  "regression_tests": [
+    {
+      "command": "python -B -m unittest tests.test_baseline_evaluation_prepare tests.test_baseline_protocol",
+      "passed": 20
+    },
+    {
+      "command": "python -B -m unittest discover -s tests -p test_baseline_scope.py",
+      "passed": 12
+    }
+  ],
+  "test_total_passed": 32,
+  "fresh_materialization_validation_issues": [],
+  "fresh_replay_outputs": [
+    {
+      "path": "aggregation-basis.json",
+      "sha256": "4d9059104caf1cd196bde164fe8c609e898a6a63be291807a1e4fecf54f98bcb",
+      "fresh_replay_identical": true
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "c38645ae913e856ba5b8597f495015f3e6c32bdc3be520218cbbfaa1fdc51278",
+      "fresh_replay_identical": true
+    },
+    {
+      "path": "metrics.csv",
+      "sha256": "08524bc4e6de2776b4f44d4320966b5b7a206272cde468b29a1ae30841147efe",
+      "fresh_replay_identical": true
+    },
+    {
+      "path": "metrics.json",
+      "sha256": "acecd27d2e6071f198e2decae30a13e9ff33a1a217977dd5347b2bd6852088aa",
+      "fresh_replay_identical": true
+    },
+    {
+      "path": "observed-defect-inventory.json",
+      "sha256": "c6f780bac3070a6bf407b0773ab9ab9d4a826ca55ff3cdb3c2bdb65965e17e93",
+      "fresh_replay_identical": true
+    },
+    {
+      "path": "review-required.json",
+      "sha256": "20e020188389dfcf9d288a9c08e38d436585c185ea31fbadb40aed330411a157",
+      "fresh_replay_identical": true
+    },
+    {
+      "path": "validation.json",
+      "sha256": "51b0199862e069a3e02f56177c800273b85c380c7277dd835a2497af505ce84c",
+      "fresh_replay_identical": true
+    }
+  ],
+  "paired_checkpoint_table_values_verified": true,
+  "section_order_and_offsets_verified": 67,
+  "h04_failed_per_checkpoint": [
+    "GS-01_002-REF-002",
+    "GS-02_014-REF-006",
+    "GS-02_014-REF-007"
+  ],
+  "undetermined_source_per_checkpoint": "GS-02-IMG-003",
+  "undetermined_fact_per_checkpoint": "GS-02_003-REF-001",
+  "model_api_calls": 0,
+  "baseline_regeneration": false,
+  "pm_review_complete": false,
+  "line_endings": "LF",
+  "parsed_metrics_unchanged_after_line_ending_normalization": true
+}

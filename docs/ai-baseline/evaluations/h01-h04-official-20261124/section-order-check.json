@@ -1,0 +1,482 @@
+[
+  {
+    "source_key": "GS-01-IMG-002",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 2,
+        "artifact_id": "94db76bc06f44a14abca7ca98a258981",
+        "original_top": 0,
+        "height": 1976
+      },
+      {
+        "section_id": 3,
+        "artifact_id": "950104933986417087b909ef12e46e33",
+        "original_top": 1976,
+        "height": 953
+      },
+      {
+        "section_id": 4,
+        "artifact_id": "1f48e7de932a4b5f8df48608009bd622",
+        "original_top": 2929,
+        "height": 259
+      },
+      {
+        "section_id": 5,
+        "artifact_id": "62d2b002321a4410baa7ad2feea745b3",
+        "original_top": 3188,
+        "height": 2620
+      },
+      {
+        "section_id": 6,
+        "artifact_id": "90b0a6bb12a84bd6935b75e90b1b0825",
+        "original_top": 5808,
+        "height": 966
+      },
+      {
+        "section_id": 7,
+        "artifact_id": "f11eb33743fd40bab75f4f9dd8831cdf",
+        "original_top": 6774,
+        "height": 3420
+      },
+      {
+        "section_id": 8,
+        "artifact_id": "97e5a9bfb40646da8144baf0246df33f",
+        "original_top": 10194,
+        "height": 477
+      },
+      {
+        "section_id": 9,
+        "artifact_id": "1f2105234ca543cca7e7cb52a639a301",
+        "original_top": 10671,
+        "height": 2291
+      },
+      {
+        "section_id": 10,
+        "artifact_id": "cc381065f283455fae7a13704f2e29a2",
+        "original_top": 12962,
+        "height": 1023
+      },
+      {
+        "section_id": 11,
+        "artifact_id": "5c572db520204eb28dca6d6baa88d9a7",
+        "original_top": 13985,
+        "height": 1456
+      },
+      {
+        "section_id": 12,
+        "artifact_id": "b8e471b0a79142f88a01f740776c1799",
+        "original_top": 15441,
+        "height": 2020
+      },
+      {
+        "section_id": 13,
+        "artifact_id": "2156dfebf6784a1d96f37d13f0f1015d",
+        "original_top": 17461,
+        "height": 1889
+      },
+      {
+        "section_id": 14,
+        "artifact_id": "348c417a60f24804a3c762010ac859dc",
+        "original_top": 19350,
+        "height": 1147
+      },
+      {
+        "section_id": 15,
+        "artifact_id": "054d90500f8b4418ad6abe83fab1ccaa",
+        "original_top": 20497,
+        "height": 1806
+      },
+      {
+        "section_id": 16,
+        "artifact_id": "a927664c43014e01a8a9e02d96e8bf5f",
+        "original_top": 22303,
+        "height": 2157
+      },
+      {
+        "section_id": 17,
+        "artifact_id": "0c1fcc56151249ec82585c4c05fb1217",
+        "original_top": 24460,
+        "height": 848
+      },
+      {
+        "section_id": 18,
+        "artifact_id": "be7a4fa586414a9889725ffa2bb5498e",
+        "original_top": 25308,
+        "height": 2067
+      },
+      {
+        "section_id": 19,
+        "artifact_id": "dd3c3a16e08d4d6ebdf49e63b4be0122",
+        "original_top": 27375,
+        "height": 1799
+      },
+      {
+        "section_id": 20,
+        "artifact_id": "83bc814b5083409f8eac3dc32f3e1de4",
+        "original_top": 29174,
+        "height": 883
+      },
+      {
+        "section_id": 21,
+        "artifact_id": "fa4c89c3b6634b93899551c849058ba0",
+        "original_top": 30057,
+        "height": 1812
+      },
+      {
+        "section_id": 22,
+        "artifact_id": "5203dd0598704883bf4e149bb8b7c2b3",
+        "original_top": 31869,
+        "height": 1815
+      },
+      {
+        "section_id": 23,
+        "artifact_id": "87662d307fad4cb3ba884140d326893d",
+        "original_top": 33684,
+        "height": 2681
+      },
+      {
+        "section_id": 24,
+        "artifact_id": "59148da44d044a36899f1b9ca6e0aa71",
+        "original_top": 36365,
+        "height": 1300
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-003",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 30,
+        "artifact_id": "451345ae8afa4622a88cc95da130c4c4",
+        "original_top": 0,
+        "height": 641
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-004",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 31,
+        "artifact_id": "0eb0affc5c4546b2b1e43f8351de6d9c",
+        "original_top": 0,
+        "height": 3470
+      },
+      {
+        "section_id": 32,
+        "artifact_id": "59484ba39b034732b33cef71de96b90b",
+        "original_top": 3470,
+        "height": 397
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-005",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 33,
+        "artifact_id": "6034b946916943e9ab348991ec3f936f",
+        "original_top": 0,
+        "height": 760
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-006",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 34,
+        "artifact_id": "2a7a5900b5c14b0dad2f71d9eb477a6e",
+        "original_top": 0,
+        "height": 586
+      },
+      {
+        "section_id": 35,
+        "artifact_id": "02bdd6c6aec8470b8d9b96fa2a5eed3f",
+        "original_top": 586,
+        "height": 1314
+      },
+      {
+        "section_id": 36,
+        "artifact_id": "58598ae766f34a5792155cb80e8aa964",
+        "original_top": 1900,
+        "height": 483
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-007",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 37,
+        "artifact_id": "a430360f2d8d42c2b8caffbaa5faa7ec",
+        "original_top": 0,
+        "height": 230
+      },
+      {
+        "section_id": 38,
+        "artifact_id": "62c2a5094dc749e08217a0361abc5fd9",
+        "original_top": 230,
+        "height": 2457
+      },
+      {
+        "section_id": 39,
+        "artifact_id": "67888a139bf84959a9d2791b0ee19a5a",
+        "original_top": 2687,
+        "height": 1635
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-008",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 40,
+        "artifact_id": "89d22b2cdcea4904805dc3f10d92f69b",
+        "original_top": 0,
+        "height": 2419
+      },
+      {
+        "section_id": 41,
+        "artifact_id": "6edd88b18e1f42dbb915e6481148d3b4",
+        "original_top": 2419,
+        "height": 1132
+      },
+      {
+        "section_id": 42,
+        "artifact_id": "ba1d23e19bae4ac09b22347e75456439",
+        "original_top": 3551,
+        "height": 444
+      },
+      {
+        "section_id": 43,
+        "artifact_id": "6ff28e2f75504bb999da3f79d990eb9c",
+        "original_top": 3995,
+        "height": 3077
+      },
+      {
+        "section_id": 44,
+        "artifact_id": "26d1d78e1e1749569317e1a216303890",
+        "original_top": 7072,
+        "height": 1684
+      },
+      {
+        "section_id": 45,
+        "artifact_id": "861d1175a1894461b9d2f77e3bfb4f9f",
+        "original_top": 8756,
+        "height": 1211
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-009",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 46,
+        "artifact_id": "9b054421c67d4f0aaf0f4b77e07351ad",
+        "original_top": 0,
+        "height": 1319
+      },
+      {
+        "section_id": 47,
+        "artifact_id": "815052f9546843e39612b975416a5b23",
+        "original_top": 1319,
+        "height": 2611
+      },
+      {
+        "section_id": 48,
+        "artifact_id": "4787b588f2a34c63a0c815aa6f189314",
+        "original_top": 3930,
+        "height": 1075
+      },
+      {
+        "section_id": 49,
+        "artifact_id": "3965cf28313b4e06bcf0e5a99bafa200",
+        "original_top": 5005,
+        "height": 1547
+      },
+      {
+        "section_id": 50,
+        "artifact_id": "ba5873d1801d40d8b9b9117a51be35d1",
+        "original_top": 6552,
+        "height": 1525
+      },
+      {
+        "section_id": 51,
+        "artifact_id": "07cd9bdef97d41b98ee0085cba3d9a70",
+        "original_top": 8077,
+        "height": 1590
+      },
+      {
+        "section_id": 52,
+        "artifact_id": "c237a7bcc2dc4e5e941951e0809f987a",
+        "original_top": 9667,
+        "height": 201
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-010",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 53,
+        "artifact_id": "09e076b72c1b46aba77e047a3ddd342e",
+        "original_top": 0,
+        "height": 235
+      },
+      {
+        "section_id": 54,
+        "artifact_id": "080c8f7234b740a38ba1b80f7f1d0865",
+        "original_top": 235,
+        "height": 2157
+      },
+      {
+        "section_id": 55,
+        "artifact_id": "35ba0a902a624157beab5b689327a2ae",
+        "original_top": 2392,
+        "height": 207
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-011",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 56,
+        "artifact_id": "ca4f8cc09fce46fdaf3873f92adbae3d",
+        "original_top": 0,
+        "height": 306
+      },
+      {
+        "section_id": 57,
+        "artifact_id": "ac395c6dd20245a0bfcd319fc241bd87",
+        "original_top": 306,
+        "height": 2315
+      },
+      {
+        "section_id": 58,
+        "artifact_id": "3a1a335648924e5fa1d5577ca5045298",
+        "original_top": 2621,
+        "height": 373
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-012",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 59,
+        "artifact_id": "9d7d146779374d76bbe873c4ff2148d7",
+        "original_top": 0,
+        "height": 220
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-013",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 60,
+        "artifact_id": "74bc3048983f41d3bb5f936699096254",
+        "original_top": 0,
+        "height": 1565
+      },
+      {
+        "section_id": 61,
+        "artifact_id": "54287754f1cc4001a9a8de7fb13d2a30",
+        "original_top": 1565,
+        "height": 1660
+      }
+    ]
+  },
+  {
+    "source_key": "GS-02-IMG-014",
+    "section_order_verified": true,
+    "sections": [
+      {
+        "section_id": 62,
+        "artifact_id": "b519ae079f9d444f950720dca9b9d007",
+        "original_top": 0,
+        "height": 370
+      },
+      {
+        "section_id": 63,
+        "artifact_id": "f957726329224e48846486657eaac03f",
+        "original_top": 370,
+        "height": 1424
+      },
+      {
+        "section_id": 64,
+        "artifact_id": "3748537f7529466dbac9f8ce4a859bdd",
+        "original_top": 1794,
+        "height": 1097
+      },
+      {
+        "section_id": 65,
+        "artifact_id": "79ae4b9f965c4455a98572cbc464b966",
+        "original_top": 2891,
+        "height": 1442
+      },
+      {
+        "section_id": 66,
+        "artifact_id": "48536c909ae5416da94a9c69cff7a804",
+        "original_top": 4333,
+        "height": 1796
+      },
+      {
+        "section_id": 67,
+        "artifact_id": "6baedab5b7074cbfb1c806ac1a74f29e",
+        "original_top": 6129,
+        "height": 2705
+      },
+      {
+        "section_id": 68,
+        "artifact_id": "7a36c13711264d0f920f4ea4110f23fc",
+        "original_top": 8834,
+        "height": 366
+      },
+      {
+        "section_id": 69,
+        "artifact_id": "30190f975db248f5a0d0c1877942bcee",
+        "original_top": 9200,
+        "height": 1538
+      },
+      {
+        "section_id": 70,
+        "artifact_id": "53ce9cdb80ed4667bcc0f70e7c33a2d8",
+        "original_top": 10738,
+        "height": 3272
+      },
+      {
+        "section_id": 71,
+        "artifact_id": "efca482dcbd04cd680095c794039fb7f",
+        "original_top": 14010,
+        "height": 433
+      },
+      {
+        "section_id": 72,
+        "artifact_id": "f6f65887ad764dcc82d461be8161fa20",
+        "original_top": 14443,
+        "height": 742
+      },
+      {
+        "section_id": 73,
+        "artifact_id": "d7b23aa4600e40f9a8d5f9ddd0011df7",
+        "original_top": 15185,
+        "height": 1229
+      }
+    ]
+  }
+]

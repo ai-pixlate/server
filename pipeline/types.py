@@ -1366,7 +1366,8 @@ class AplusCompressedField(_Model):
     `field`: `headline` · `items[i].title` 형식. `primary_text` = 7칸 구성이 넣은 1차 번역 조합, `max_chars` = 템플릿 한도,
     `guide_max_chars` = 가이드 칸당 상한(대응 필드가 없으면 None). `outcome`: `compressed` 한도 안의 답으로 문구를 바꿈 ·
     `kept` 1차 번역 그대로 둠. `reason`: `fit` 채택 · `over_limit` 답이 한도를 넘음 · `declined` 모델이 기준을 지키며 줄일 수 없다고 답함 ·
-    `new_number` 답에 1차 문구에 없던 숫자가 있음 · `blank` 빈 답 · `call_failed` 다시 묻는 호출이 실패함.
+    `new_number` 답에 1차 문구에 없던 숫자가 있음 · `new_regulated` 답에 1차 문구에 없던 규제 매칭이 있음 · `blank` 빈 답 ·
+    `call_failed` 다시 묻는 호출이 실패함.
     `answer_text` = 모델의 마지막 답(채택됐으면 칸에 들어간 문구, 답이 없으면 None), `attempts` = 이 칸을 모델에 물은 횟수."""
 
     slot: int = Field(ge=1, le=7)
@@ -1377,7 +1378,7 @@ class AplusCompressedField(_Model):
     max_chars: int = Field(gt=0)
     guide_max_chars: int | None = Field(default=None, gt=0)
     outcome: Literal["compressed", "kept"]
-    reason: Literal["fit", "over_limit", "declined", "new_number", "blank", "call_failed"]
+    reason: Literal["fit", "over_limit", "declined", "new_number", "new_regulated", "blank", "call_failed"]
     answer_text: str | None = None
     answer_chars: int | None = Field(default=None, ge=0)
     attempts: int = Field(ge=1)
@@ -1394,12 +1395,14 @@ class AplusCompressedField(_Model):
 
 
 class AplusCompressChecked(_Model):
-    """압축이 무엇을 보고 했는지. `input_fingerprint`는 받은 7칸 구성 결과의 지문, `calls` = 모델 호출 횟수(대상이 없으면 0)."""
+    """압축이 무엇을 보고 했는지. `input_fingerprint`는 받은 7칸 구성 결과의 지문, `calls` = 모델 호출 횟수(대상이 없으면 0),
+    `regulation_applied` = 규제 행을 받아 반영했는지(False면 받지 못해 `avoid`도 새 규제 매칭 확인도 없었다)."""
 
     input_fingerprint: str
     spec_version: str
     llm_called: StrictBool
     calls: int = Field(ge=0)
+    regulation_applied: StrictBool = False
 
 
 class AplusCompressResult(_Model):

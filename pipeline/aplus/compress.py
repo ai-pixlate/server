@@ -9,11 +9,16 @@
   채택되지 않은 칸만 실제 글자 수 · 문제와 함께 다시 묻는다(`aplus_compress.max_retries`회까지).
 - 채택: 글자 수는 코드가 센다. 답이 템플릿 한도 안이고, 비어 있지 않고, 1차 문구에 없던 숫자가 없을 때만 문구를 바꾼다.
   한도 안이면 1차 문구보다 반드시 짧으므로 길이 비교는 따로 하지 않는다. 덜 줄어든 답은 쓰지 않는다.
+- 규제 반영(사용자 결정 2026-11-26): 적용 분류의 규제 행(`regulation`)을 받으면 allowed가 아닌 행의 영어 표현을 `avoid`로 모델에 주고,
+  답에 1차 문구에 없던 규제 매칭이 새로 생기면 채택하지 않는다(`new_regulated` — 다시 묻는다). 매칭은 원본 규격 유지 경로의 번역문 규칙 검사
+  (`stages.text_check.check_block`)와 같다. 1차 문구에 원래 있던 규제 표현은 고치지 않는다 — 압축의 일은 줄이는 것이다.
+  규제 행을 받지 못하면 반영하지 않고 그 사실을 남긴다(`checked.regulation_applied=False`). 번역문 LLM 규제 판정은 하지 않는다.
 - 못 맞춘 칸은 1차 번역 그대로 둔다(PM 결정 2026-11-24 — aplus.md 4.4). 1차 번역이 가이드 상한까지 넘는 칸도 같다 — 새 규칙을 만들지 않고
   기록에 두 한도를 남긴다(`AplusCompressedField.guide_max_chars`).
 - 어느 칸의 문구가 바뀌었는지는 결과의 `fields`(`outcome`)로만 안다. `AplusText` · `AplusModule`의 모양은 바꾸지 않는다(인계 형식은 #97).
 
 첫 호출의 실패(호출 · 시간 초과 · 응답 구조)는 예외가 아니라 `status=failed` 결과다 — 호출자는 7칸 구성 결과를 그대로 쓴다.
+규제 사전 데이터 오류(같은 구간의 금지/허용 충돌 · 빈 패턴)도 전체 실패다 — 통과로 바꾸지 않는다.
 다시 묻는 호출이 실패하면 그때까지 채택된 칸은 살리고 남은 칸을 1차 번역으로 둔다(`reason=call_failed`). 입력 오류는 예외다.
 """
 from __future__ import annotations
@@ -26,19 +31,21 @@ import time
 from dataclasses import dataclass, field as dc_field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from pipeline.aplus import content
 from pipeline.aplus.label import API_KEY_ENV, REPO_ROOT, Recorder, _emit, _finite_number, llm_config
 from pipeline.aplus.plan import normalize_text
 from pipeline.aplus.spec import AplusSpec
+from pipeline.matching import MatchConflictError, PatternError
+from pipeline.stages import text_check
 from pipeline.types import (AplusCompressChecked, AplusCompressedField, AplusCompressResult, AplusModule, AplusPlan, AplusSlotPlan,
                             AplusText)
 from pipeline.vlm import GeminiMultiImageAssistant, LlmReply, MultiImageAssistant, VlmError, sha256_text
 
 TABLE = "aplus_compress"
 SKIP_FIELDS = ("label",)  # 블록에서 오지 않는 칸(템플릿마다 정해진 값)
-RETRYABLE = ("over_limit", "new_number", "blank")  # 다시 묻는 사유. declined(모델이 줄일 수 없다고 답함)는 다시 묻지 않는다
+RETRYABLE = ("over_limit", "new_number", "new_regulated", "blank")  # 다시 묻는 사유. declined(모델이 줄일 수 없다고 답함)는 다시 묻지 않는다
 _ITEM_FIELD = re.compile(r"^items\[(\d+)\]\.(title|body)$")
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
 
@@ -98,6 +105,7 @@ class Target:
     answer: str | None = None  # 모델의 마지막 답(정리한 문구)
     attempts: int = 0
     tried: list[dict[str, Any]] = dc_field(default_factory=list)  # 채택되지 않은 답(다시 물을 때 보낸다)
+    primary_hits: frozenset[tuple[str, str]] = frozenset()  # 1차 문구에 이미 있는 규제 매칭(규제 행을 받았을 때만)
 
     @property
     def field(self) -> str:
@@ -143,6 +151,27 @@ def numbers(text: str) -> set[str]:
     return {m.replace(",", "") for m in _NUMBER.findall(text)}
 
 
+def avoid_list(rows: Sequence[text_check.RegRow]) -> list[str]:
+    """모델에 주는 `avoid` — allowed가 아닌 규제 행의 영어 표현(행 순서 · 중복 없이)."""
+    out: list[str] = []
+    for r in rows:
+        if r.verdict_status == "allowed":
+            continue
+        for p in r.variant_en:
+            if p not in out:
+                out.append(p)
+    return out
+
+
+def regulated_hits(text: str, rows: Sequence[text_check.RegRow]) -> frozenset[tuple[str, str]]:
+    """문구의 규제 매칭 — (규제 항목 ID, 일치한 사전 표현). 번역문 규칙 검사(`text_check.check_block`)의 경고 후보와 같다
+    (허용 표현이 감싼 매칭 · 포함된 짧은 매칭은 빠진다). 사전 데이터 오류는 MatchConflictError · PatternError."""
+    r = text_check.check_block("aplus_compress", 0, text, "", list(rows), [])
+    live = {(f["external_id"], f["start"], f["end"]) for f in r["flags"] if f["type"] == "regulatory"}
+    return frozenset((m["external_id"], p) for m in r["regulatory"]["matches"]
+                     if (m["external_id"], m["start"], m["end"]) in live for p in m["patterns"])
+
+
 # ---------------------------------------------------------------------------
 # 페이로드 · 응답
 # ---------------------------------------------------------------------------
@@ -154,8 +183,9 @@ def response_schema() -> dict[str, Any]:
     return {"type": "object", "properties": {"targets": {"type": "array", "items": item}}, "required": ["targets"]}
 
 
-def build_payload(modules: dict[int, AplusModule], pending: list[Target], spec: AplusSpec) -> dict[str, Any]:
-    """대상이 있는 칸마다 그 칸의 글 전부(대상에는 `target` · `max_chars`, 앞선 답이 있으면 `tried`). `modules`는 지금 문구 기준이다."""
+def build_payload(modules: dict[int, AplusModule], pending: list[Target], spec: AplusSpec, avoid: Sequence[str] = ()) -> dict[str, Any]:
+    """대상이 있는 칸마다 그 칸의 글 전부(대상에는 `target` · `max_chars`, 앞선 답이 있으면 `tried`). `modules`는 지금 문구 기준이다.
+    `avoid`가 있으면 덧붙인다(없으면 키 자체가 없다 — 규제 행을 받지 않았을 때의 페이로드와 같다)."""
     by_slot: dict[int, dict[str, Target]] = {}
     for t in pending:
         by_slot.setdefault(t.slot, {})[t.field] = t
@@ -172,7 +202,10 @@ def build_payload(modules: dict[int, AplusModule], pending: list[Target], spec: 
                     entry["tried"] = t.tried
             texts.append(entry)
         slots.append({"slot": n, "name": spec.raw["slots"][str(n)]["name_ko"], "template": m.template, "texts": texts})
-    return {"slots": slots}
+    payload: dict[str, Any] = {"slots": slots}
+    if avoid:
+        payload["avoid"] = list(avoid)
+    return payload
 
 
 class AplusCompressResponseError(VlmError):
@@ -215,8 +248,9 @@ def parse_answers(text: str, sent_ids: list[str]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def judge(t: Target, answer: dict[str, Any]) -> None:
+def judge(t: Target, answer: dict[str, Any], rows: Sequence[text_check.RegRow] | None = None) -> None:
     """답 하나를 판정해 `t.reason` · `t.answer`에 남긴다. 채택되지 않은 답은 `t.tried`에 더한다.
+    `rows`(규제 행)가 있으면 1차 문구에 없던 규제 매칭이 답에 새로 생겼는지도 본다(`new_regulated`).
     `t.answer`는 이번 답으로 바꾼다 — 줄일 수 없다는 답 · 빈 답이면 앞선 시도의 문구를 지운다(기록의 `answer_text`는 마지막 답이다)."""
     t.answer = None
     if answer["failed"]:
@@ -233,6 +267,8 @@ def judge(t: Target, answer: dict[str, Any]) -> None:
         t.reason = "over_limit"
     elif numbers(text) - numbers(t.primary):
         t.reason = "new_number"
+    elif rows is not None and regulated_hits(text, rows) - t.primary_hits:
+        t.reason = "new_regulated"
     else:
         t.reason = "fit"
         return
@@ -255,9 +291,10 @@ def _record(t: Target) -> AplusCompressedField:
         answer_text=t.answer, answer_chars=content.count_chars(t.answer) if t.answer is not None else None, attempts=t.attempts)
 
 
-def run(plan: AplusPlan, spec: AplusSpec, cfg: dict[str, Any], *, llm: MultiImageAssistant | None = None,
-        recorder: Recorder | None = None) -> AplusCompressResult:
-    """상품 하나의 압축. `plan`은 성공한 7칸 구성 결과다. 대상이 없으면 모델을 부르지 않고 받은 칸을 그대로 돌려준다."""
+def run(plan: AplusPlan, spec: AplusSpec, cfg: dict[str, Any], *, regulation: Sequence[text_check.RegRow] | None = None,
+        llm: MultiImageAssistant | None = None, recorder: Recorder | None = None) -> AplusCompressResult:
+    """상품 하나의 압축. `plan`은 성공한 7칸 구성 결과다. 대상이 없으면 모델을 부르지 않고 받은 칸을 그대로 돌려준다.
+    `regulation` = 적용 분류의 규제 행(None = 받지 못함 — 규제를 반영하지 않는다)."""
     if plan.status != "ok" or plan.slots is None:
         raise ValueError("실패한 7칸 구성 결과는 압축할 수 없다")
     if plan.checked.spec_version != spec.version:
@@ -273,19 +310,36 @@ def run(plan: AplusPlan, spec: AplusSpec, cfg: dict[str, Any], *, llm: MultiImag
         "stage": TABLE, "status": None, "input_fingerprint": fp, "spec_version": spec.version, "spec_sha256": spec.sha256,
         "started_at": started.isoformat(timespec="seconds"), "prompt_sha256": sha256_text(prompt), "model_config": llm_config(cfg, TABLE),
         "max_retries": max_retries, "targets": [{"id": t.id, "slot": t.slot, "field": t.field} for t in targets], "calls": calls, "error": None,
+        "regulation": {"applied": regulation is not None, "rows": len(regulation) if regulation is not None else None},
     }
 
     def checked() -> AplusCompressChecked:
-        return AplusCompressChecked(input_fingerprint=fp, spec_version=spec.version, llm_called=bool(calls), calls=len(calls))
+        return AplusCompressChecked(input_fingerprint=fp, spec_version=spec.version, llm_called=bool(calls), calls=len(calls),
+                                    regulation_applied=regulation is not None)
+
+    def regulation_failed(e: Exception) -> AplusCompressResult:  # 사전 데이터 오류 — 통과로 바꾸지 않는다. 문구는 하나도 바꾸지 않는다
+        rec.update(status="regulation_failed", duration_s=round(time.perf_counter() - t0, 3),
+                   error=f"규제 사전 데이터 오류: {e.__class__.__name__}: {e}")
+        _emit(recorder, rec, failed=True)
+        return AplusCompressResult(status="failed", slots=None, checked=checked(), error=rec["error"])
 
     modules = {s.slot: s.module for s in plan.slots if s.module is not None}
+    avoid: list[str] = []
+    if targets and regulation is not None:
+        avoid = avoid_list(regulation)
+        rec["regulation"]["avoid"] = avoid
+        try:
+            for t in targets:
+                t.primary_hits = regulated_hits(t.primary, regulation)
+        except (MatchConflictError, PatternError) as e:
+            return regulation_failed(e)
     if targets:
         c = llm_config(cfg, TABLE)
         assistant = llm if llm is not None else GeminiMultiImageAssistant(model=c["model"], temperature=c["temperature"],
                                                                           timeout_s=c["timeout_s"], response_schema=response_schema())
         pending = targets
         for attempt in range(1, max_retries + 2):
-            payload = build_payload(modules, pending, spec)
+            payload = build_payload(modules, pending, spec, avoid)
             ptext = json.dumps(payload, ensure_ascii=False, indent=1)
             call: dict[str, Any] = {"attempt": attempt, "sent": [t.id for t in pending], "payload": payload, "payload_sha256": sha256_text(ptext),
                                     "response_text": None, "usage": None, "finish_reason": None, "call_duration_s": None, "validation": None,
@@ -317,8 +371,12 @@ def run(plan: AplusPlan, spec: AplusSpec, cfg: dict[str, Any], *, llm: MultiImag
                 for t in pending:  # 다시 묻는 호출 실패 — 그때까지 채택된 칸은 살리고 남은 칸은 1차 번역
                     t.reason = "call_failed"
                 break
+            try:
+                for t in pending:
+                    judge(t, answers[t.id], regulation)
+            except (MatchConflictError, PatternError) as e:
+                return regulation_failed(e)
             for t in pending:
-                judge(t, answers[t.id])
                 if t.reason == "fit":
                     modules[t.slot] = replace_text(modules[t.slot], t.field, t.answer)
             pending = [t for t in pending if t.reason in RETRYABLE]

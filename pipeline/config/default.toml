@@ -153,7 +153,7 @@ model = "gemini-3.8-flash"
 temperature = 0
 timeout_s = 240                # 1회 호출(글만 보낸다 · 이미지 없음) 시간 제한(초). 애플리케이션 재시도 없음. 사용자 결정 2026-11-26(120 → 240 — 120에서 세 상품 중 한 상품이 시간 초과, 실험 기록 2026-11-26_aplus_compress-trial)
 max_retries = 1                # 채택되지 않은 칸만 다시 묻는 횟수 — 상품당 호출은 최대 1 + 이 값. 0이면 다시 묻지 않는다
-prompt_path = "pipeline/prompts/aplus_compress.md"   # 초안 v1(2026-11-26). 상대 경로는 레포 루트 기준
+prompt_path = "pipeline/prompts/aplus_compress.md"   # 초안 v2(2026-11-26 — 규제 표현 `avoid` 추가). 상대 경로는 레포 루트 기준
 
 [aplus_cutout]                 # A+ 템플릿 모듈 — 이미지 칸 누끼(open-questions #98). 모두 개발용 잠정값. 근거 시험: docs/ai-experiments/2026-11-23_aplus_cutout-trial.md
 model = "birefnet-general"     # rembg 세션 이름. 가중치는 어댑터가 내려받지 않는다(dev.md 6절)

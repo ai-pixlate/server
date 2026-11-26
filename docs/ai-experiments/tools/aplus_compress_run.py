@@ -59,16 +59,19 @@ def main() -> int:
                     "dict_dir": str(dict_dir), "dictionary_version": dicts.dictionary_version, "dictionary_sha256": dicts.fingerprint,
                     "dictionary_source": dicts.regulation.source.model_dump(mode="json"),
                     "note": "규제 분류는 실행 인자로 준 값이다(셀러 선택값이 아니다)."}
-    targets = compress.find_targets(plan.slots or [], spec)
+    prompt = compress.validate_config(cfg, need_api_key=False)
+    over_ratio = float(cfg[compress.TABLE]["over_ratio"])
+    over = compress.find_targets(plan.slots or [], spec)  # 권장 길이(템플릿 한도)를 넘은 칸 전부
+    targets = compress.find_targets(plan.slots or [], spec, over_ratio)
     total = sum(len(content.limit_checks(s.module, spec)) for s in plan.slots or [] if s.module is not None)
-    print(f"글 칸 {total} · 대상(템플릿 한도 초과) {len(targets)} · 호출 최대 {1 + int(cfg[compress.TABLE]['max_retries']) if targets else 0}회"
+    print(f"글 칸 {total} · 권장 길이 초과 {len(over)} · 대상(권장 길이 × {over_ratio:g} 초과) {len(targets)} · 호출 최대 {1 + int(cfg[compress.TABLE]['max_retries']) if targets else 0}회"
           + (f" · 규제 행 {len(regulation)}(적용 분류 {reg_info['applied_classes']})" if regulation is not None else " · 규제 반영 없음"))
     if a.dry_run:
         modules = {s.slot: s.module for s in plan.slots if s.module is not None}
         avoid = compress.avoid_list(regulation) if regulation is not None else []
         payload = json.dumps(compress.build_payload(modules, targets, spec, avoid), ensure_ascii=False, indent=1)
         for t in targets:
-            print(f"  {t.id} 칸 {t.slot} {t.field} {t.check.chars}/{t.check.max_chars} | {t.primary}")
+            print(f"  {t.id} 칸 {t.slot} {t.field} {t.check.chars}/{t.check.max_chars}(넘으면 안 되는 길이 {t.allowed}) | {t.primary}")
         print(f"페이로드 {len(payload)}자")
         return 0
 
@@ -90,13 +93,13 @@ def main() -> int:
     jsonio.write_model(out / "aplus_compress.json", result)
     print(f"상태 {result.status} · 호출 {result.checked.calls}회" + (f" · 오류 {result.error}" if result.error else ""))
     for f in result.fields:
-        print(f"  칸 {f.slot} {f.field} {f.primary_chars}/{f.max_chars} → {f.outcome}({f.reason}, {f.attempts}회)"
+        print(f"  칸 {f.slot} {f.field} {f.primary_chars}/{f.max_chars}(≤{f.allowed_chars}) → {f.outcome}({f.reason}, {f.attempts}회)"
               f"{'' if f.answer_chars is None else f' {f.answer_chars}자'}")
         print(f"      1차: {f.primary_text}")
         if f.answer_text is not None:
             print(f"      답 : {f.answer_text}")
     done = sum(f.outcome == "compressed" for f in result.fields)
-    print(f"한도 안으로 들어온 칸 {done}/{len(result.fields)}")
+    print(f"넘으면 안 되는 길이 안으로 들어온 칸 {done}/{len(result.fields)}")
     return 0 if result.status == "ok" else 1
 
 

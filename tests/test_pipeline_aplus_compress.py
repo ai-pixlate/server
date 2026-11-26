@@ -189,6 +189,16 @@ def test_blank_answer_is_rejected():
     assert (f.outcome, f.reason, f.answer_text) == ("kept", "blank", None)
 
 
+@pytest.mark.parametrize("second, reason", [(None, "declined"), ("  ", "blank")])
+def test_record_follows_last_answer_when_retry_gives_no_text(second, reason):
+    first = "Gentle on skin with only zinc"  # 29자 — 한도 28 초과라 다시 묻는다
+    out, fake = run(make_plan(), ans(c1=first, c2=None), ans(c1=second))
+    assert len(fake.calls) == 2
+    assert out.slots[1].module.headline == T(LONG_HEAD, "k2_1")
+    f = by_field(out)[(2, "headline")]
+    assert (f.outcome, f.reason, f.attempts, f.answer_text, f.answer_chars) == ("kept", reason, 2, None, None)  # 첫 답의 문구가 남지 않는다
+
+
 def test_first_call_failure_is_whole_failure():
     recs = []
     out, _ = run(make_plan(), VlmError("시간 초과"), recs=recs)

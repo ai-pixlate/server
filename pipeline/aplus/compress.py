@@ -216,7 +216,9 @@ def parse_answers(text: str, sent_ids: list[str]) -> dict[str, dict[str, Any]]:
 
 
 def judge(t: Target, answer: dict[str, Any]) -> None:
-    """답 하나를 판정해 `t.reason` · `t.answer`에 남긴다. 채택되지 않은 답은 `t.tried`에 더한다."""
+    """답 하나를 판정해 `t.reason` · `t.answer`에 남긴다. 채택되지 않은 답은 `t.tried`에 더한다.
+    `t.answer`는 이번 답으로 바꾼다 — 줄일 수 없다는 답 · 빈 답이면 앞선 시도의 문구를 지운다(기록의 `answer_text`는 마지막 답이다)."""
+    t.answer = None
     if answer["failed"]:
         t.reason = "declined"
         return

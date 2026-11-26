@@ -1,5 +1,35 @@
 # GS-03 v1.0.1 보완 실험 실행 준비 — 2026-11-26
 
+## 현재 DB 준비 상태 — 후속 승인 반영
+
+아래 최초 준비/추가 검토의 DB 미확인 기록은 당시 상태다. 후속 사용자 승인에 따라 전용 DB 준비를 완료했다.
+
+- PostgreSQL 16.15를 별도 데이터 폴더·localhost 포트로 실행했다. 기존 Baseline 인스턴스는 시작·접속·수정하지 않았다.
+- 신규 DB `px_baseline_gs03_supplement_20261126`에 v1.0.1 checkout의 Alembic 0001~0008을 적용했다. develop의 최신 스키마로 대체하지 않았다.
+- 당시 참조 자료를 정확히 복원했다: expression_dictionary 24행, expression_dictionary_evidence 16행, glossary 20,653행. master_country/master_language/category_master/category_mapping/master_data_version은 당시와 같이 0행이다.
+- 실제 PostgreSQL DATE를 포함한 전체 참조 행을 정규화하여 보존 사본과 대조했다. 두 집합 SHA-256은 `20831c3d953034d1844c0d269608e02c18d05a3dd86eadf1520aab69713d5872`로 일치한다.
+- 실제 preflight 결과: `database_checked=true, read_only=true, executed=false`. 업무 테이블은 전부 비어 있고 started.json·generation-claims는 없다. 사용자 비용·실행 승인은 계속 null이다.
+- 처음 새 서버를 제한된 실행 환경에서 시작했을 때 Permission denied/접속 timeout이 발생했다. 신규 데이터 폴더의 프로세스만 확인하여 재시작한 뒤 연결·복원·검증이 성공했다. 기존 DB는 조치 대상이 아니었다.
+- 비밀값·접속 문자열·DB 파일은 Git 제외 로컬 폴더에만 보존했다. 보고서에도 접속 문자열을 넣지 않는다.
+- 날짜 비교와 프로세스 격리 수정 커밋 `bba83dd`는 [전체 CI](https://github.com/ai-pixlate/server/actions/runs/45766616388)에서 러너 전체 시험과 이미지 빌드·시험을 통과했다. PR에서는 게시 job이 정상적으로 제외된다.
+
+### DB 복원·재점검 방법
+
+`tools.baseline.gs03_database`는 비과금 DB 준비 전용 도구다. 모델 import나 API 호출을 하지 않는다. 새 전용 DB가 이미 있으면 덮어쓰지 않고 중단한다. 스키마를 0008까지 적용하고 참조 자료를 한 트랜잭션으로 적재한 뒤 preflight를 수행한다. 명시 ID 적재 후 해당 참조 테이블 시퀀스도 맞춘다.
+
+```powershell
+# 아직 존재하지 않는 새 전용 DB를 최초 복원할 때만 사용한다.
+& $py -B -m tools.baseline.gs03_database <준비묶음> --url-file <Git에서 제외한 접속파일>
+# 이번 장비에서는 복원 완료 상태이므로 복원 명령을 반복하지 않는다.
+$env:BASELINE_DATABASE_URL = (Get-Content -LiteralPath <Git에서 제외한 접속파일> -Raw).Trim()
+& $py -B -m tools.baseline.gs03_supplement preflight <준비묶음>
+Remove-Item Env:BASELINE_DATABASE_URL
+```
+
+현재 로컬 준비 묶음은 `.cache/gs03-supplement-20261126-r2`, 별도 DB 관리 폴더는 `.cache/gs03-db-20261126`이다. 서버 재시작은 해당 관리 폴더의 pgdata만 대상으로 하며 기존 `.cache/baseline-local/pgdata`는 사용하지 않는다. PostgreSQL 실행 파일은 기존 설치를 읽기 전용으로 재사용했다. DB를 시스템 서비스로 등록하거나 전역 환경변수를 바꾸지 않았다.
+
+남은 실제 실행 차단 사항은 동일 Gemini 모델의 계정 접근·쿼터 확인, 실행 직전 요금·GPU 가용성 확인, 500회/$25 제안 상한 및 GS-03/120초 범위에 대한 사용자 승인이다. DB 준비 성공이 실행 승인이나 모델 실행 성공을 의미하지 않는다.
+
 ## 범위와 상태
 
 최신 develop `af2e716` 기반의 **별도 조건 실험**이다. 기존 공식 Baseline은 변경하지 않는다.

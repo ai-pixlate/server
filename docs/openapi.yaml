@@ -3620,7 +3620,7 @@ paths:
         (배포 전 서버는 review/N6 · done/N6 만). 렌더 오류에서 부르면 작업은 processing/N6(`rendering`)이 되고(처리 시간 30분을 새로 셈),
         저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 무엇을 만들지는 작업 상태가 아니라 **최신 최종 렌더 실행**으로 정한다:
         진행 중 실행이 있으면 — 현재 시도가 진행 중이면 그 시도(새 시도 없음), 현재 시도가 실패(처리 시간 초과 `PROCESSING_TIMEOUT` 포함)면
-        같은 실행의 재시도 시도(retry_count 누적·max_retry 한도, 초기화 없음). 진행 중 실행이 없고 최신 실행이 성공 종료(done)면 새 최종 렌더 실행
+        같은 실행의 재시도 시도(retry_count 누적·max_retry 한도, 초기화 없음). 진행 중 실행이 없고 최신 실행이 성공 종료(done) · 취소(cancelled)이거나 실행이 아직 없으면 새 최종 렌더 실행
         (저장 뒤 재렌더가 보통 이 경우). 최신 실행이 한도 소진으로 실패 종료(failed)됐으면 작업 상태(done 포함)와 무관하게 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
         현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
         202 renderTaskId(시도 id) → JOB-05 폴링.

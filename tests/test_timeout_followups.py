@@ -94,7 +94,7 @@ def test_inpaint_timeout_then_translate_retry_reaches_n5_with_fallback_badge(env
         m = _q("SELECT input_manifest FROM job_async_task WHERE job_id = :j AND stage = 'preview' AND unit_id = :s AND is_current",
                j=job, s=sid)[0]["input_manifest"]
         src = _q("SELECT image_key FROM section WHERE id = :s", s=sid)[0]["image_key"]
-        assert src in str(m)
+        assert m["background"]["source"] == "original" and m["background"]["key"] == src
 
 
 def test_inpaint_timeout_badge_cleared_after_abort_and_successful_reprocess(env):
@@ -112,7 +112,7 @@ def test_inpaint_timeout_badge_cleared_after_abort_and_successful_reprocess(env)
 
 
 # ---- ② 인계 등록 뒤 · 채택 전 시간 초과 ------------------------------------------------------------------------------
-def _translate_handoff_then_timeout(env):
+def _inpaint_handoff_then_timeout(env):
     """원격(GPU) 인페인트 결과가 인계 등록까지 됐지만 채택 메시지가 처리되지 않은 채 30분 초과.
     (번역 · 미리보기는 프로세스 안 채택이라 인계 행이 없다 — 원격 인계 단계는 분석 · 인페인트 · 최종 렌더)"""
     from app.flows.gpu_worker import InProcessControlClient
@@ -138,7 +138,7 @@ def _translate_handoff_then_timeout(env):
 
 
 def test_handoff_registered_before_timeout_is_closed_by_timeout_itself(env):
-    ids, tr = _translate_handoff_then_timeout(env)
+    ids, tr = _inpaint_handoff_then_timeout(env)
     job = ids["job"]
     assert recovery.sweep()["timed_out"] == 1
     env["q"].messages = []  # 채택 메시지가 유실됐다고 본다(채택 서버 중단 등)
@@ -219,7 +219,7 @@ def test_timeout_rejects_registered_artifacts_keeps_adopted_and_late_adopt_is_re
 
 def test_timeout_does_not_touch_handoffs_of_other_attempts(env):
     """시간 초과가 닫는 것은 그 실행의 끝나지 않은 시도의 인계뿐 — 이미 끝난(채택된) 시도의 인계는 그대로."""
-    ids, tr = _translate_handoff_then_timeout(env)
+    ids, tr = _inpaint_handoff_then_timeout(env)
     job = ids["job"]
     before = _q("SELECT h.id, h.state FROM task_handoff h JOIN job_async_task a ON a.id = h.task_id WHERE a.job_id = :j "
                 "AND NOT (h.task_id = ANY(:t)) ORDER BY h.id", j=job, t=tr)
@@ -231,8 +231,9 @@ def test_timeout_does_not_touch_handoffs_of_other_attempts(env):
 
 
 def test_late_adoption_message_after_timeout_rejects_handoff(env):
-    """채택 메시지가 시간 초과 뒤에 처리돼도 채택하지 않는다(이미 닫혔으면 그대로)."""
-    ids, tr = _translate_handoff_then_timeout(env)
+    """채택 메시지가 시간 초과 뒤에 처리돼도 채택하지 않는다 — 시간 초과 처리가 이미 거절로 닫았으므로 이 시험이 보는 것은
+    「거절 상태 유지(멱등)」다. 채택 경로 자체의 시간 초과 거절(execution.timed_out)은 늦은 등록 시험(test_job_state_races AC-01)이 다룬다."""
+    ids, tr = _inpaint_handoff_then_timeout(env)
     job = ids["job"]
     hids = [r["id"] for r in _q("SELECT id FROM task_handoff WHERE task_id = ANY(:t)", t=tr)]
     assert recovery.sweep()["timed_out"] == 1

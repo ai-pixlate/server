@@ -234,7 +234,9 @@ def _processing_timeout(stats: dict[str, Any]) -> None:
     사용자 재시도(PM 11-25 — 시간 초과 뒤에도 재시도 가능, 재시도하면 30분을 새로 센다):
     N2 는 실행을 failed 로 닫는다 — 재시도는 ANL-01 이 새 분석 실행을 만든다(실행별 한도).
     N4 · N6 은 실행을 남긴다(시도만 failed) — JOB-06 · FIN-01 [다시 시도]가 같은 실행 안에 새 시도를 만든다(누적 한도 · 재시도 차단 조건 그대로).
-    시간 초과로 닫은 시도는 그 뒤에도 인계 · 채택에서 영구 제외된다(execution.timed_out)."""
+    시간 초과로 닫은 시도는 그 뒤에도 인계 · 채택에서 영구 제외된다(execution.timed_out).
+    같은 트랜잭션에서 닫은 시도의 채택 전 인계(received · verifying · verified)를 거절(processing_timeout)하고 그 산출물을 미채택으로
+    둔다(이미 채택된 인계 · 산출물은 그대로). N4 인페인트 시도를 닫으면 인페인트 실패와 같은 섹션 대체 기록(원본 배경 · 경고)만 남긴다."""
     s = processing_timeout_s()
     if s <= 0:
         return
@@ -276,7 +278,8 @@ def _processing_timeout(stats: dict[str, Any]) -> None:
                                     "WHERE task_id = ANY(:ids) AND state IN ('received', 'verifying', 'verified')"),
                                {"rr": execution.TIMED_OUT_REJECT, "ids": ids})
                     db.execute(text("UPDATE task_artifact SET state = 'unadopted' WHERE state IN ('registered', 'verified') AND handoff_id IN "
-                                    "(SELECT id FROM task_handoff WHERE task_id = ANY(:ids))"), {"ids": ids})
+                                    "(SELECT id FROM task_handoff WHERE task_id = ANY(:ids) AND state = 'rejected' AND reject_reason = :rr)"),
+                               {"ids": ids, "rr": execution.TIMED_OUT_REJECT})  # 방금 거절한(또는 시간 초과로 거절된) 인계의 산출물만
                     # N4 인페인트 시도: 인페인트 실패와 같은 대체 기록(원본 배경 · 경고 배지 — downstream.InpaintHandler.after_failure 의
                     # 섹션 기록만). after_failure 자체는 부르지 않는다 — 자동 재시도 · 후속(미리보기) · 다음 단계 전이를 만들지 않게
                     # (오류 상태 · 수동 재시도 원칙). 다시 처리하면(중단 → 진행) _clear_previous 가 배지를 지운다

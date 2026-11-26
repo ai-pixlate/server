@@ -11,13 +11,21 @@ from .be import (Meter, check_runtime, digest, write_new, now, initialize_native
                  SequentialDispatcher, append, observe, drive_job, read)
 from .gs03_supplement import GS03_IDS, validate, canonical, preflight
 
-def _run_prepared(out, execute=False):
+def _run_prepared(out, execute=False, *, recovery_url_file=None):
     """새 격리 DB의 참조 데이터를 사용. 실제 모델 실행은 명시적 옵션 뒤에서만 가능."""
     if not execute:
         raise ValueError("실제 모델 호출은 별도 승인 후 --execute-models가 필요합니다")
     from .gs03_supplement import require_approval
-    require_approval(out)
-    preflight(out)
+    recovery = read(Path(out)/'manifest.json').get('recovery')
+    if recovery:
+        from .gs03_recovery import preflight as recovery_preflight, require_execution, object_index, NoWaitSession, drive_from_n3, CumulativeMeter
+        from functools import partial
+        if recovery_url_file is None:raise ValueError('복제 DB 연결 파일 필요')
+        recovery_preflight(out,recovery_url_file)
+        require_execution(out)
+    else:
+        require_approval(out)
+        preflight(out)
     if any(k == "app" or k.startswith("app.") or k == "pipeline" or k.startswith("pipeline.") for k in sys.modules):
         raise ValueError("제품 모듈이 이미 로드됐습니다. 새 측정 프로세스가 필요합니다")
     out = Path(out).resolve()
@@ -38,6 +46,10 @@ def _run_prepared(out, execute=False):
               'protocol': 'v1', 'products': manifest['case_inputs'], 'budget': generation['budget'],
               'environment': manifest['environment']}
     root, url = check_runtime(config)
+    if recovery:
+        from .gs03_database import database_url
+        from .gs03_recovery import CLONE_DB
+        if url != database_url(recovery_url_file,CLONE_DB).render_as_string(hide_password=False):raise ValueError('복제 DB 환경 불일치')
     inputs = [dict(source_id=a['artifact_id'], path=str(out/a['path']), sha256=a['sha256'],
                    width=a['width'], height=a['height']) for a in manifest['artifacts'] if a['kind']=='original']
     if [i['source_id'] for i in inputs] != list(GS03_IDS) or any(digest(i['path']) != i['sha256'] for i in inputs):
@@ -72,6 +84,7 @@ def _run_prepared(out, execute=False):
         raise ValueError("선택한 릴리즈 외부의 app 모듈이 로드됐습니다")
     verify_database_binding(db, url, make_url)
     store = FileStore(out / "objects", ObjectMissing)
+    if recovery:store.index = object_index(out/'objects')
     with isolated_connections(storage, execution, ai_adapters, store):
         metadata = MetaData()
         def table(name):
@@ -83,7 +96,7 @@ def _run_prepared(out, execute=False):
             with db.engine.connect() as conn:
                 return [dict(r) for r in conn.execute(text(sql), kw).mappings()]
         # 참조 데이터 DB는 사전 준비한다. 기존 업무 데이터가 있으면 쓰지 않는다.
-        if any(query(f"SELECT count(*) AS n FROM {t}")[0]["n"] for t in ("job", "seller", "brand")):
+        if not recovery and any(query(f"SELECT count(*) AS n FROM {t}")[0]["n"] for t in ("job", "seller", "brand")):
             raise ValueError("업무 데이터가 없는 전용 DB가 필요합니다")
         reference_tables = ("alembic_version", "master_country", "master_language", "category_master", "category_mapping",
                             "expression_dictionary", "expression_dictionary_evidence", "glossary", "master_data_version")
@@ -92,6 +105,7 @@ def _run_prepared(out, execute=False):
             raise ValueError("실제 사전 적재 필요")
         if canonical(safe_record(references)) != canonical(read(out / 'expected-references.json')):
             raise ValueError('당시 사전·용어집 DB와 불일치')
+        if recovery:recovery_preflight(out,recovery_url_file)
         # 연결·스키마·사전 대조 성공 후 업무 쓰기 전에 배타적으로 시작 기록.
         write_new(out / "started.json", {"at": now(), "product_commit": config["product_commit"]})
         write_new(out / 'native-runtime.json', native_runtime)
@@ -147,7 +161,8 @@ def _run_prepared(out, execute=False):
                 if e['stage']=='inpaint_inference':
                     collector.operation('resource',e['stage'],{'name':'inpaint_inference_attempts','amount':1,'unit':'count'},evidence)
         try:
-            with observe(out, current, config['budget'], usage_sink, stage_sink):
+            meter_factory = partial(CumulativeMeter,history=out/'usage.jsonl') if recovery else Meter
+            with observe(out, current, config['budget'], usage_sink, stage_sink, meter_factory=meter_factory):
                 for case in ('GS-03',):
                     items = [i for i in inputs if i['source_id'].startswith(case)]
                     current[0] = case
@@ -156,23 +171,27 @@ def _run_prepared(out, execute=False):
                     # claim은 업무 DB 변경보다 먼저 생성한다. 중단 회차 자동 재개 금지.
                     collector = Collector(out, case, sources)
                     collector.claim()
-                    with db.engine.begin() as conn:
-                        seller = insert(conn, 'seller', {'cognito_sub':'baseline:'+case,'email':case+'@baseline.invalid'})
-                        brand = insert(conn, 'brand', {'seller_id':seller,'name_ko':product['name_ko'],'name_en':product['name_en']})
-                        jid = insert(conn, 'job', {'seller_id':seller,'brand_id':brand,
-                                     **{k:product[k] for k in ('product_name','regulatory_class','internal_category','target_country','target_lang')}})
-                        bindings = {}
-                        for order,item in enumerate(items,1):
-                            key='source/'+item['source_id']+'.jpg'
-                            store.put(key,Path(item['path']).read_bytes(),'image/jpeg')
-                            source = insert(conn,'source_image',{'job_id':jid,'upload_order':order,'file_url':key,
-                                            'width':item['width'],'height':item['height'],'sha256':item['sha256']})
-                            bindings[source]=protocol.source_key(item['source_id'])
+                    if recovery:
+                        jid,seller=recovery['job_id'],recovery['seller_id']
+                        bindings={int(k):v for k,v in recovery['bindings'].items()}
+                    else:
+                        with db.engine.begin() as conn:
+                            seller = insert(conn, 'seller', {'cognito_sub':'baseline:'+case,'email':case+'@baseline.invalid'})
+                            brand = insert(conn, 'brand', {'seller_id':seller,'name_ko':product['name_ko'],'name_en':product['name_en']})
+                            jid = insert(conn, 'job', {'seller_id':seller,'brand_id':brand,
+                                         **{k:product[k] for k in ('product_name','regulatory_class','internal_category','target_country','target_lang')}})
+                            bindings = {}
+                            for order,item in enumerate(items,1):
+                                key='source/'+item['source_id']+'.jpg'
+                                store.put(key,Path(item['path']).read_bytes(),'image/jpeg')
+                                source = insert(conn,'source_image',{'job_id':jid,'upload_order':order,'file_url':key,
+                                                'width':item['width'],'height':item['height'],'sha256':item['sha256']})
+                                bindings[source]=protocol.source_key(item['source_id'])
                     collector.job_id=jid
                     active[0]=collector
-                    collector.operation('job_created','N1',{'bindings':bindings})
+                    collector.operation('recovery_bound' if recovery else 'job_created','N3' if recovery else 'N1',{'bindings':bindings})
                     adapter=ProductReview(jid,seller,db.SessionLocal,query,dispatch,store,bindings)
-                    human_session=HumanSession(collector,adapter)
+                    human_session=NoWaitSession(collector,adapter) if recovery else HumanSession(collector,adapter)
                     checkpoint_ids={}
                     def checkpoint(cp, job):
                         state=adapter.snapshot('N5')
@@ -185,7 +204,8 @@ def _run_prepared(out, execute=False):
                         return human_session.review(stage)
                     status='interrupted'
                     try:
-                        status=drive_job(jid,seller,db.SessionLocal,query,dispatch,analysis,common,downstream,final,
+                        driver=drive_from_n3 if recovery else drive_job
+                        status=driver(jid,seller,db.SessionLocal,query,dispatch,analysis,common,downstream,final,
                             lambda w: collector.evidence({'warnings':w}),checkpoint,human,collector.operation)
                         if status=='completed':
                             adapter.spec_evidence(collector)

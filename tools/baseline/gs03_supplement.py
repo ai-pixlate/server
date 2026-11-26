@@ -22,7 +22,7 @@ DB_NAME = 'px_baseline_gs03_supplement_20261126'
 
 
 def dedicated_database_name(name):
-    if not isinstance(name, str) or not re.fullmatch(DB_NAME + r'(?:_r[1-9][0-9]*)?', name) or len(name) > 63:
+    if not isinstance(name, str) or not re.fullmatch(DB_NAME + r'(?:_r[1-9][0-9]*(?:_recovery[1-9][0-9]*)?)?', name) or len(name) > 63:
         raise ValueError('GS-03 전용 DB 이름 필요')
     return name
 
@@ -61,7 +61,8 @@ def validate(out):
     dedicated_database_name(m.get('supplement', {}).get('database_name'))
     if m['source_keys']!=SOURCES or m['product_commit']!=TARGET or m['product_version']!='1.0.1': issues.append('범위/버전')
     if m.get('supplement',{}).get('override')!=OVERRIDE:issues.append('override')
-    if m.get('measurement_scope')!={'measured_quality_metrics':['H01','H02','H03','H04'],'human_intervention':'confirmation_only'}:issues.append('사람 확인 범위')
+    intervention = 'preauthorized_no_review' if (m.get('recovery') or {}).get('mode') == 'gs03_r3_n3_clone' else 'confirmation_only'
+    if m.get('measurement_scope')!={'measured_quality_metrics':['H01','H02','H03','H04'],'human_intervention':intervention}:issues.append('사람 확인 범위')
     originals=[a for a in m['artifacts'] if a['kind']=='original']
     if [a['artifact_id'] for a in originals]!=list(GS03_IDS):issues.append('원본 목록')
     for a in originals:

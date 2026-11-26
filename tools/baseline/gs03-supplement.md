@@ -1,6 +1,41 @@
 # GS-03 v1.0.1 보완 실험 실행 준비 — 2026-11-26
 
-## 현재 상태: r3 신규 회차 비과금 준비 완료
+## 현재 상태: r3 무대기 복제본 준비·비과금 검증 완료
+
+사용자가 N3/N5 사람 검수를 하지 않는 방향으로 변경하고 비과금 구현을 요청했다. 기존 r3/공식 Baseline의 기록을 고치지 않고 **별도 복제본**에서만 이 정책을 적용한다. 유료 실행 승인은 아직 없다.
+
+- 원본 r3는 N3/review, 작업 40개 done, 인계 39개 adopted, N4 작업 0개 상태로 보존한다. 원본 DB와 파일의 전후 일치를 확인했다.
+- 복제 경로: `.cache/gs03-supplement-20261126-r3-recovery1`. 전용 DB: `px_baseline_gs03_supplement_20261126_r3_recovery1`. 접속파일은 `.cache/gs03-db-20261126-r3-recovery1/database-url.txt`에만 보존하며 커밋하지 않는다.
+- 원본 r3 전체 파일을 복제본 `parent-r3/`에 보존하고 해시로 연결했다. 보존 DB 덤프의 SHA-256을 확인한 뒤 새 DB에 복원했으며, 공개 스키마 전체 테이블 내용 해시가 원본과 일치한다. 복원 시 원본 DB의 상태를 변경하거나 started/claim을 삭제하지 않는다.
+- 실행 전 점검은 원본/보존 사본 해시, 복제 DB 내용·참조 자료·N3 상태, 완료 작업/채택 인계, 원본 18장 연결, 저장 객체 56개의 바이트와 DB 해시 연결을 확인한다. 기존 120초 설정·환경 lock·모델 자산·제품 파일 검증도 유지한다.
+- 과거 r3의 usage.jsonl을 그대로 이어받는다. 호출 89회·점유 $3.69037875를 복원하고 **다음 호출은 90번**이다. 성공·실패·예약 이벤트의 같은 호출 번호는 마지막 상태로 합치고, 비용 미확정 3건은 각각 $1.04 예약을 유지한다. 총 500회/$25이며 추가 잔여는 411회/$21.30962125다. r2는 여전히 별도다.
+- N2는 호출하지 않는다. 기존 N3 상태에서 제품의 `downstream.proceed()`를 호출하여 N4부터 수행한다. 새 seller/job/source_image를 만들지 않으며, 제품 v1.0.1 로직·재시도·모델·프롬프트·용어집은 그대로다.
+- N3/N5 상태와 경고를 보존하고 수정 없이 진행한다. N5의 `translation_failed` 필수 경고 목록도 사전 승인 정책에 따라 제품 `confirm()`에 전달한다. 번역 실패를 성공으로 바꾸거나 추가 재시도하지 않는다. 예상 밖 필수 경고나 검수 시점 상태 변경은 중단한다.
+- `machine_snapshot`은 N5 자동 진행 전에, `service_final`은 실제 N6 완료 후 각각 수집한다. 자동 처리 기록은 `actor=experiment_automation`, `human_reviewed=false`, `preauthorized_no_review`로 구분한다. 예람의 user_edit/검수 완료/실사용 무수정 승인 성과를 생성하지 않는다. 사람 검수 조건의 기존 공식 Baseline과 동일 조건으로 표현하지 않는다.
+- `gs03_launch --detach`는 Windows 독립 프로세스를 사용하고 stdin을 닫는다. stdout/stderr는 복제본 파일에 남긴다. 시작 예약·started·claim의 중복 차단은 유지하며, 프로세스 종료 후 자동 재개/재생성은 하지 않는다. 컴퓨터 종료나 실제 모델 오류까지 해결하는 기능은 아니다.
+
+### 비과금 검증 결과
+
+- Baseline 테스트 **168개 통과**: 실제 Windows spawn, 부모 종료 후 독립 자식 실행 유지, N2 미호출/N4→최초 스냅샷→N5→N6→최종 스냅샷 순서, 경고 보존·무수정·사람 검수 미기록, 누적 호출 번호·미확정 예약 복원, 상한 도달 시 호출 전 차단, 손상 객체/미완료 작업/미승인 실행 차단 포함.
+- 실제 복제 DB `preflight` 재확인: `read_only=true, database_checked=true, objects=56, calls=89, occupied_usd=3.69037875, executed=false`.
+- 실행 승인은 `manifest.recovery.execution_approval=null`. GPU/제품 로딩 전 미승인 차단을 시험했다. 이번 작업의 모델 호출·제품 생성 0회. 실제 GPU 추론과 최종 렌더 성공은 미검증이다.
+
+### 실행 전 필요한 승인과 명령
+
+필요한 승인은 **이 복제본의 무대기 유료 실행 및 별도 H02~H04 채점**이다. 범위는 v1.0.1 GS-03 18장·병합 120초·기존 자동 재시도, r3 누적 총 500회/$25(이미 89회/$3.69037875 사용), N3/N5 무수정 자동 진행과 translation_failed 경고 보존 후 진행이다. PM 검수는 결과 생성 후 별도다. 현재 구현 요청은 실제 모델 호출 승인이 아니며 과거 r3 사람 확인 승인을 재사용하지 않는다.
+
+실제 사용자 승인이 생기면 `recovery.execution_approval`에 approved/approved_by/approved_at/evidence_ref(path,sha256), evaluation_run_id/product_commit/source_run/budget/seed/policy를 현재 manifest와 일치하게 기록한다. 코드의 `require_execution()`이 대조한다. 가격 유효 기간 이후에는 재확인이 필요하다.
+
+```powershell
+# 비과금 사전 점검 — 복제 완료 DB에 prepare/restore를 반복하지 않는다.
+& $py -B -m tools.baseline.gs03_recovery preflight <복제 경로> --url-file <복제 DB 접속파일>
+# 별도 유료 실행 승인 기록이 있을 때만 수행. 이번 작업에서는 실행하지 않음.
+& $py -B -m tools.baseline.gs03_launch <복제 경로> --url-file <복제 DB 접속파일> --execute-models --detach
+```
+
+상태는 `dispatch.jsonl`, `usage.jsonl`, `execution.jsonl`, `console.stdout.log`, `console.stderr.log`로 확인한다. 복제본 usage에는 부모 r3 사용량이 이미 포함되므로 두 파일을 더해 중복 집계하지 않는다. `parent-r3/`는 변경하지 않는다. 새 복제본에서 다시 중단되면 임의 재실행하지 않고 증거를 보존한다.
+
+## r3 이력: 신규 회차 비과금 준비 완료
 
 2026-11-26 r2를 보존한 채 신규 회차를 준비했다. **실행·비용 승인은 아직 없고 모델 호출·제품 생성은 0회**다. 아래 r2 중단 및 최초 준비 상태는 이력으로 보존한다.
 

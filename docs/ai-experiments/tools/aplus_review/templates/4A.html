@@ -1,0 +1,15 @@
+{# 4A 신뢰·증명 · S1 · Single Left/Right Image
+   인증 마크 원 96(56,48) · 제목(30, 1~2줄, 170,64) = 핵심 근거 · 본문(16, 최대 3줄, 56,176) = 설명·조건·출처
+   오른쪽: 사진 구역 485~970, 300×300. 리뷰·별점은 넣지 않는다.
+   mark 이미지가 없으면 테두리 원 + 체크로 그린다. #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}{% set al = 'center' if c.layout == 'center' else 'left' %}{% set vg = c.layout == 'vcenter' %}
+<div class="zone" style="{{ B.zone.css }}"></div>
+{{ m.photo(B.image, c.image, st, area=A.image) }}
+{% if c.mark %}<div class="img round" data-name="mark" data-area="{{ A.mark }}" data-extra="1"{% if vg %} data-vgroup="1"{% endif %} style="{{ B.mark.css }}"><img src="{{ c.mark.uri }}" alt="" style="object-fit:{{ c.mark.fit }}"></div>
+{% else %}<div class="markring" data-name="mark" data-extra="1" data-area="{{ A.mark }}"{% if vg %} data-vgroup="1"{% endif %} style="{{ B.mark.css }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>{% endif %}
+{{ m.text(B.headline, c.headline, fs.headline, 2, "headline", area=A.headline, cls="h", vc=True, align=al, vg=vg, underline=st.headline_underline) }}
+{{ m.text(B.body, c.body, fs.body, 3, "body", area=A.body, cls="b", lh=1.45, align=al, vg=vg) }}
+{% endblock %}

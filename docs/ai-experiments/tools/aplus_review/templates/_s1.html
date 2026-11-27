@@ -1,0 +1,15 @@
+{# S1 글·사진 좌우형 (1A 제품 소개, 3A 성분) — Single Left/Right Image
+   글 칸은 위에서부터 쌓는다(2026-11-10 결정 "아래 글 밀기").
+   제목이 1줄이면 치수 파일 좌표와 똑같고, 2줄이면 한 줄 설명·본문이 그만큼 내려간다.
+   쌓인 글 전체가 본문 칸 아래 끝(y 248)을 넘으면 본문 → 제목 순으로 글자를 줄이고, 그래도 넘치면 넘침 경고.
+   layout: vcenter = 글 덩어리를 세로 가운데로 · center = 글 가운데 정렬 #}
+{% import "_macros.html" as m %}
+{% set st = c.style %}{% set al = 'center' if c.layout == 'center' else 'left' %}
+<div class="zone" style="{{ B.zone.css }}"></div>
+{{ m.photo(B.image, c.image, st, area=A.image) }}
+<div class="flow{% if c.layout == 'vcenter' %} vcenter{% endif %}{% if al == 'center' %} ta-center{% endif %}" data-name="text_column" data-limit="{{ flow.limit }}" style="{{ flow.box.css }}">
+  <div class="slot" style="height:{{ flow.label_h }}px">{{ m.text(None, c.label, fs.label, 1, "label", cls="label" ~ (" pill-label" if st.label == 'pill' else ""), extra=True, align=al) }}</div>
+  <div class="slot" data-push="1" style="margin-top:{{ flow.gap1 }}px;min-height:{{ flow.head_h }}px">{{ m.text(None, c.headline, fs.headline, 2, "headline", cls="h", shrink=2, align=al, underline=st.headline_underline) }}</div>
+  <div class="slot" style="margin-top:{{ flow.gap2 }}px;min-height:{{ flow.sub_h }}px">{{ m.text(None, c.subheadline, fs.sub, 1, "subheadline", cls="sh", extra=True, shrink=3, align=al) }}</div>
+  <div class="slot" style="margin-top:{{ flow.gap3 }}px">{{ m.text(None, c.body, fs.body, 3, "body", cls="b", lh=1.45, shrink=1, align=al) }}</div>
+</div>

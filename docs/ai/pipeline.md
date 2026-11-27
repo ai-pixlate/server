@@ -1,7 +1,7 @@
 # pipeline.md — AI 파이프라인 실행 순서·채택 기술·제약
 
 > 근거: 개발계획 v3.6 · 스키마 계약 문서 v3.5 · PoC 검증 결과 요약 2026-09-17 (별도 PoC 레포, 이 레포 밖)
-> 범위: MVP — 원본 규격 유지 · 미국 · 영어. 12월 범위(규격 변경 경로·썸네일·정밀 누끼)는 이 문서에 없다.
+> 범위: MVP — 원본 규격 유지 · 미국 · 영어. 12월 범위(규격 변경 경로·썸네일·정밀 누끼)는 이 문서에 없다. 규격 변경 경로 가운데 착수한 A+ 템플릿 모듈은 `aplus.md`에 있다.
 > 우선순위: 서비스 흐름은 이 문서 → 산출 값·함수 경계는 `contract.md` → 컬럼 타입·제약은 BE 정본 ERD.
 > 표기: `확정` 그대로 구현 / `미정` `open-questions.md` 참조 / `BE 확인 필요` BE와 합의 후 구현. 구현 상태(어디까지 구현 · 연결됐는지)는 이 문서에 적지 않는다 — `status.md`.
 > 통합 추가 합의: `[통합 Dn]`은 `integration-decisions.md`의 2026-10-06~07 승인 기록.
@@ -128,6 +128,9 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ⑧ 검사 | `translation_review.temperature` / `translation_review.timeout_s` | 분할 1회 호출 설정. 운영 시간 제한 · 재시도 한도는 BE 실행 정책 | 개발용 잠정 | [통합 D12] |
 | ⑧ 검사 | `translation_review.max_input_chars` / `translation_review.max_pairs_per_call` / `translation_review.max_output_tokens` | 분할 상한(입력 코드 포인트 · 쌍 수)과 출력 상한. 문자 수는 토큰 한도를 보장하지 않는다. 출력 상한으로 잘린 응답은 같은 설정 재시도 불가 | `max_pairs_per_call` 확정(사용자 2026-11-19, 큰 섹션 시간 초과로 하향) · 나머지 개발용 잠정 | [통합 D12] [사용자 결정 2026-11-19] |
 | ⑧ 검사 | `translation_review.thinking_level` | 모델 사고 단계(default · minimal · low · medium · high). 사고 토큰도 출력 상한에 들어가 답이 잘리는 원인이 된다(실측 2026-11-19). default = 설정 안 함(모델 기본). 사고 토큰 수 상한은 이 모델이 지키지 않아 쓰지 않는다. 설정하면 요청 지문 · 의미 입력 키가 바뀐다 | 확정(사용자 2026-11-19) — 실측 표본에서 low도 사고 0토큰이었다(`docs/ai-experiments/2026-11-19_08-review_explanation-probe.md` 4.8) | [사용자 결정 2026-11-19] |
+| A+ 템플릿 | `aplus_label.model` / `aplus_label.long_side_px` / `aplus_label.temperature` / `aplus_label.timeout_s` / `aplus_label.prompt_path` | A+ 템플릿 모듈의 섹션 내용 라벨 호출 설정 — 모델 · 섹션 이미지 긴 변 · 온도 · 상품 1회 호출 시간 제한 · 프롬프트 위치. 이 모듈은 단계표 밖의 개발용 구현이다(`open-questions.md` 2.9절) | 개발용 잠정 | [사용자 결정 2026-11-23] |
+| A+ 템플릿 | `aplus_plan.model` / `aplus_plan.long_side_px` / `aplus_plan.temperature` / `aplus_plan.timeout_s` / `aplus_plan.prompt_path` | A+ 템플릿 모듈의 7칸 구성 호출 설정 — 칸별 템플릿 · 블록 · 사진 자리 선택. 키의 뜻은 `aplus_label`과 같다(`open-questions.md` 2.9절 · #94) | 개발용 잠정 | [사용자 결정 2026-11-23] |
+| A+ 템플릿 | `aplus_cutout.model` / `aplus_cutout.margin_ratio` / `aplus_cutout.alpha_threshold` / `aplus_cutout.edge_shrink_px` / `aplus_cutout.min_fragment_ratio` / `aplus_cutout.pad_ratio` / `aplus_cutout.edge_touch_ratio` | A+ 템플릿 모듈의 이미지 칸 누끼 설정 — 전경 분리 모델 · 자를 자리를 넓히는 비율(가로 · 세로 각각, 양쪽) · 대상으로 보는 알파 하한 · 가장자리를 안쪽으로 줄이는 픽셀 수 · 지울 작은 조각의 넓이 비율(넓혀 자른 조각 대비) · 다시 자른 뒤 두르는 투명 여백 비율(긴 변 대비) · 대상이 자른 자리 가장자리에 닿았다고 표시하는 비율(그 변 길이 대비)(`open-questions.md` #98) | 개발용 잠정 | [사용자 결정 2026-11-24] |
 | 공통 | 모델 · 프롬프트 · 용어집 · 정책 버전 | 실행마다 `event_log.payload`에 기록 | — | [계약 9장] |
 
 ## 4. 순서를 바꾸면 안 되는 지점

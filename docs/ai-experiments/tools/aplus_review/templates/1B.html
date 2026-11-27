@@ -1,0 +1,12 @@
+{# 1B 제품 소개 · S3 통짜 사진형 · 자체 배치
+   사진 970×300 꽉 채움(cover). 글 얹기 상자(56,70,420,140, 반투명 배경은 overlay=true 일 때)
+   제목(36, 1줄) · 본문(16, 최대 2줄) #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+{{ m.image(B.image, c.image, area=A.image) }}
+{% if c.overlay %}<div class="panel" data-name="panel" style="{{ B.panel.css }}"></div>{% endif %}
+{{ m.text(B.headline, c.headline, fs.headline, 1, "headline", area=A.headline, cls="h", underline=st.headline_underline) }}
+{{ m.text(B.body, c.body, fs.body, 2, "body", area=A.body, cls="b", lh=1.45) }}
+{% endblock %}

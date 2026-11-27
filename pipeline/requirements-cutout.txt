@@ -1,0 +1,7 @@
+# A+ image-slot background removal (pipeline/aplus/cutout.py). CPU. Other stages and the tests (fake model) do not need this file.
+# Pinned to the versions run on 2026-11-23/24 (Windows 11, Python 3.12.10, CPU). See docs/ai/dev.md section 6.
+# The adapter never downloads weights: put birefnet-general.onnx (about 928 MiB) under <REMBG_HOME or ~/.rembg>/models/birefnet-general/ first.
+# Not agreed with BE for the worker image (docs/ai/open-questions.md #98).
+-r requirements.txt
+rembg==2.0.87
+onnxruntime==1.32.0

@@ -1,0 +1,16 @@
+{# 2B 효능 · S6 사진+나열형 · Single Image & Specs Detail
+   왼쪽: 2~4줄. 줄마다 아이콘 원 52(40,…) + 소제목(20, 1줄) + 설명(15, 1줄)(110,…). 줄 영역 y 36~264
+   오른쪽: 사진 구역 582~970, 300×300 #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+<div class="zone" style="{{ B.zone.css }}"></div>
+{{ m.photo(B.image, c.image, st, area=A.image) }}
+{% for it in items %}
+{% set i = loop.index0 %}{% set ar = '' if it.shifted else A.icons_area %}{% set at = '' if it.shifted else A.text_area %}
+{{ m.icon(it.icon, it.image, loop.index, name="items[" ~ i ~ "].icon", area=ar, round=True, shape=st.item_image_shape, glyph=it.glyph) }}
+{{ m.text(it.tbox, it.title, fs.title, 1, "items[" ~ i ~ "].title", area=at, cls="h") }}
+{{ m.text(it.bbox, it.body, fs.body, 1, "items[" ~ i ~ "].body", area=at, cls="b", lh=1.35) }}
+{% endfor %}
+{% endblock %}

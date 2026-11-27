@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A+ {{ tid }}</title>
+<style>
+@font-face { font-family: "Pretendard"; src: url("{{ font_uri }}") format("opentype"); font-weight: 100 500; }
+@font-face { font-family: "Pretendard"; src: url("{{ font_bold_uri }}") format("opentype"); font-weight: 600 900; }
+{{ base_css | safe }}
+:root { --bg: {{ c.theme.bg }}; --photo-bg: {{ c.theme.photo_bg }}; --text: {{ c.theme.text }}; --accent: {{ c.theme.accent }}; --accent-text: {{ c.theme.get('accent_text') or c.theme.accent }}; }
+{% block style %}{% endblock %}
+</style>
+</head>
+<body class="tpl-{{ tid }}{% if c.mirror %} mirror{% endif %}">
+{% block content %}{% endblock %}
+{% if c.style.margin_deco != 'none' %}<div id="mdeco" data-kind="{{ c.style.margin_deco }}" hidden></div>{% endif %}
+<script>window.__aplusSpec = {{ spec_json | safe }};</script>
+<script>{{ fit_js | safe }}</script>
+</body>
+</html>

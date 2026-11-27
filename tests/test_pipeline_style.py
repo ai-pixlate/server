@@ -22,14 +22,15 @@ from pipeline.stages.logo import sha256_json
 from pipeline.stages.style import StyleInputError
 from pipeline.types import (
     BBox, BlockStyle, LabelChecked, LabelDecision, LabelResult, Line, LogoDecision, LogoResult, MergeResult, OcrRegion, Section,
-    StyleResult, StyleResultV1, TextBlock, parse_style_result,
+    StyleResult, StyleResultV1, StyleResultV2, TextBlock, parse_style_result,
 )
-from tests.style_fixtures import to_schema_v1
+from tests.style_fixtures import to_schema_v1, to_schema_v2
 
 IMAGE_ID = "IMG-01"
 KEY = "sec_1_01"
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+REFS = {"100": 0.0632, "300": 0.0867, "500": 0.1293, "700": 0.1643, "900": 0.2064}  # [style.weight_refs] 기본값(잠정, #101)
 
 
 # ---------------------------------------------------------------------------
@@ -124,8 +125,9 @@ def expect_input_error(needle, fn):
 # ---------------------------------------------------------------------------
 def test_default_config_is_approved_values():
     # em_ratio 0.9는 잠정값(사용자 결정 2026-10-15, open-questions #85). align_section_tolerance 0.005는 실측 뒤 확정(사용자 결정 2026-11-05)
+    # weight_min_glyph_px 25 · weight_refs는 잠정값(사용자 결정 2026-11-26, open-questions #101)
     assert cfgmod.load_config()["style"] == {"method": "otsu_border", "em_ratio": 0.9, "align_section_tolerance": 0.005,
-                                             "align_tolerance": 0.12}
+                                             "align_tolerance": 0.12, "weight_min_glyph_px": 25, "weight_refs": REFS}
 
 
 # ---------------------------------------------------------------------------
@@ -588,7 +590,9 @@ def test_no_text_block(cfg):
              cfg).blocks[0]
     assert blk.status == "no_text"
     assert (blk.font_color, blk.bg_color, blk.est_font_px, blk.align, blk.align_basis) == (None,) * 5
-    assert blk.null_reasons == {"font_color": "no_text", "bg_color": "no_text", "est_font_px": "no_text", "align": "no_text_lines"}
+    assert blk.null_reasons == {"font_color": "no_text", "bg_color": "no_text", "est_font_px": "no_text", "align": "no_text_lines",
+                                "font_weight": "no_text"}
+    assert (blk.font_weight, blk.weight_diag.model_dump()) == (None, {"min_glyph_px": 25.0, "lines_used": 0, "lines_small": 0, "value": None})
     assert blk.align_diag.model_dump() == {
         "section_width": 64, "tolerance_px": 1.28, "span_x1": None, "span_x2": None, "section_center": False,  # 섹션 폭 64 × 0.02
         "support": {"left": [], "center": [], "right": []}, "scores": {"left": 0, "center": 0, "right": 0},
@@ -606,10 +610,12 @@ def test_partial_some_and_all_color_failed(cfg):
     blk = ex(img, bundle([B(1, L("line_001", good, bad))]), cfg).blocks[0]
     assert (blk.status, blk.font_color, blk.bg_color, blk.est_font_px) == ("partial", "#000000", "#FFFFFF", 4.05)
     assert blk.counts.model_dump() == {"regions": 2, "measured": 1, "color_failed": 1, "blank_text": 0}
-    assert blk.null_reasons == {"align": "no_anchor"}  # 섹션에 블록 하나 · 중앙 아님 → 정렬 근거 없음(색 실패와 무관)
+    # 섹션에 블록 하나 · 중앙 아님 → 정렬 근거 없음(색 실패와 무관). 글자 픽셀 하나(높이 1)라 굵기는 재지 않는다
+    assert blk.null_reasons == {"align": "no_anchor", "font_weight": "small_glyph"}
     blk = ex(canvas(), bundle([B(1, L("line_001", R("reg_0001", 0, 0, 3, 3), R("reg_0002", 10, 0, 3, 2)))]), cfg).blocks[0]
     assert (blk.status, blk.font_color, blk.bg_color, blk.est_font_px) == ("partial", None, None, 3.375)  # (81/20 + 54/20)/2 = 27/8
-    assert blk.null_reasons == {"font_color": "no_valid_region", "bg_color": "no_valid_region", "align": "no_anchor"}
+    assert blk.null_reasons == {"font_color": "no_valid_region", "bg_color": "no_valid_region", "align": "no_anchor",
+                                "font_weight": "no_weight_region"}
     assert blk.counts.model_dump() == {"regions": 2, "measured": 0, "color_failed": 2, "blank_text": 0}
 
 
@@ -625,7 +631,8 @@ def test_label_and_logo_excluded(cfg):
         assert blk.excluded_reason == reason
         assert blk.regions == [] and blk.align_diag is None and blk.align_basis is None
         assert blk.counts.model_dump() == {"regions": n, "measured": 0, "color_failed": 0, "blank_text": 0}
-        assert blk.null_reasons == dict.fromkeys(("font_color", "bg_color", "est_font_px", "align"), "excluded")
+        assert blk.null_reasons == dict.fromkeys(("font_color", "bg_color", "est_font_px", "align", "font_weight"), "excluded")
+        assert blk.font_weight is None and blk.weight_diag is None
 
 
 def test_low_score_including_zero_is_measured(cfg):
@@ -647,8 +654,96 @@ def test_result_order_and_identity(cfg):
     assert [b.block_key for b in res.blocks] == ["blk_001", "blk_002"]
     assert [(r.line_key, r.region_key) for r in res.blocks[0].regions] == [("line_001", "reg_0002"), ("line_001", "reg_0001")]
     assert [(r.line_key, r.region_key) for r in res.blocks[1].regions] == [("line_002", "reg_0003"), ("line_003", "reg_0004")]
-    assert (res.image_id, res.section_key, res.schema_version) == (IMAGE_ID, KEY, "2")
-    assert res.config.model_dump() == {"method": "otsu_border", "em_ratio": 1.35, "align_section_tolerance": 0.02, "align_tolerance": 0.12}
+    assert (res.image_id, res.section_key, res.schema_version) == (IMAGE_ID, KEY, "3")
+    assert res.config.model_dump() == {"method": "otsu_border", "em_ratio": 1.35, "align_section_tolerance": 0.02, "align_tolerance": 0.12,
+                                       "weight_min_glyph_px": 25.0, "weight_refs": REFS}
+
+
+# ---------------------------------------------------------------------------
+# 6-1. 굵기 — 획 두께 ÷ 글자 높이 → 줄 · 블록 중앙값 → 가장 가까운 견본(사용자 결정 2026-11-26, open-questions #101)
+# ---------------------------------------------------------------------------
+def bar(img, x, y, w, h, color=BLACK):
+    img[y:y + h, x:x + w] = color
+
+
+def test_run_lengths():
+    m = np.array([[1, 1, 0, 1], [0, 0, 0, 0], [1, 1, 1, 1]], dtype=bool)
+    assert style.run_lengths(m).tolist() == [[2, 2, 0, 1], [0, 0, 0, 0], [4, 4, 4, 4]]
+
+
+def test_region_stroke_exact():
+    m = np.zeros((40, 20), dtype=bool)
+    m[5:35, 8:11] = True  # 세로 막대: 높이 30 · 두께 3 → 픽셀마다 min(가로 3, 세로 30) = 3 → 3/30
+    assert style.region_stroke(m) == (30, Fraction(1, 10))
+    m[5:8, 8:18] = True  # 위에 가로 막대(두께 3 · 길이 10)를 붙인 ㄱ자
+    # 겹친 9픽셀 min(10, 30) = 10, 가로 막대의 나머지 21픽셀 min(10, 3) = 3, 세로 막대의 나머지 81픽셀 min(3, 30) = 3
+    # → (90 + 63 + 243) / (111 × 30) = 396/3330 = 22/185
+    assert style.region_stroke(m) == (30, Fraction(22, 185))
+
+
+def test_nearest_weight():
+    got = [style.nearest_weight(Fraction(str(v)), REFS) for v in (0.01, 0.0632, 0.0867, 0.1293, 0.1643, 0.2064, 0.9)]
+    assert got == [100, 100, 300, 500, 700, 900, 900]
+    # 경계는 이웃 견본의 기하평균 — √(0.0867 × 0.1293) ≈ 0.10588. 0.105는 Light(1.211배 대 1.231배), 0.107은 Medium(1.234배 대 1.208배)
+    assert (style.nearest_weight(Fraction("0.105"), REFS), style.nearest_weight(Fraction("0.107"), REFS)) == (300, 500)
+    # 동률이면 가는 쪽 — 견본 0.1 · 0.4 사이의 0.2는 두 비율이 모두 2
+    tie = {"100": 0.1, "300": 0.4, "500": 0.8, "700": 1.6, "900": 3.2}
+    assert style.nearest_weight(Fraction("0.2"), tie) == 100
+
+
+def test_block_weight_rules():
+    F = Fraction
+    # 줄 값 = 영역 중앙값, 글자 높이(줄 영역 중앙값) 25 미만 줄은 뺀다, 블록 값 = 남은 줄 값의 중앙값
+    lines = [[(40, F("0.16")), (40, F("0.17"))],  # 줄 값 0.165 · 높이 40
+             [(30, F("0.13"))],                   # 줄 값 0.13 · 높이 30
+             [(10, F("0.30"))]]                   # 높이 10 → 뺀다
+    w, reason, d = style.block_weight(lines, 25, REFS)
+    # 남은 줄 0.165 · 0.13 → 중앙값 0.1475 → Medium 0.1293(1.141배)보다 Bold 0.1643(1.114배)에 가깝다
+    assert (w, reason) == (700, None)
+    assert d.model_dump() == {"min_glyph_px": 25.0, "lines_used": 2, "lines_small": 1, "value": 0.1475}
+    w, reason, d = style.block_weight([[(10, F("0.3"))], [(24, F("0.2"))]], 25, REFS)
+    assert (w, reason) == (None, "small_glyph")
+    assert d.model_dump() == {"min_glyph_px": 25.0, "lines_used": 0, "lines_small": 2, "value": None}
+    w, reason, d = style.block_weight([], 25, REFS)
+    assert (w, reason) == (None, "no_weight_region") and (d.lines_used, d.lines_small, d.value) == (0, 0, None)
+    # 기준과 같으면 쓴다(경계 포함). 기준 0이면 모든 줄을 쓴다
+    assert style.block_weight([[(25, F("0.09"))]], 25, REFS)[0] == 300
+    assert style.block_weight([[(1, F("0.09"))]], 0, REFS)[0] == 300
+
+
+def test_extract_measures_weight(cfg):
+    img = canvas(W=100, H=120)
+    # 블록 1: 줄 1 = 높이 30 · 두께 5 막대(5/30), 줄 2 = 높이 30 · 두께 3 막대(3/30) → 블록 값 (1/6 + 1/10) / 2 = 2/15 ≈ 0.1333 → Medium
+    r1, r2 = R("reg_0001", 10, 10, 20, 40), R("reg_0002", 10, 60, 20, 40)
+    bar(img, 18, 15, 5, 30)
+    bar(img, 18, 65, 3, 30)
+    # 블록 2: 줄 1 = 높이 30 · 두께 5 막대, 줄 2 = 높이 10 · 두께 4 막대(글자 높이 10 < 25라 뺀다) → 블록 값 1/6 ≈ 0.1667 → Bold
+    r3, r4 = R("reg_0003", 50, 10, 20, 40), R("reg_0004", 50, 60, 20, 20)
+    bar(img, 58, 15, 5, 30)
+    bar(img, 58, 65, 4, 10)
+    res = ex(img, bundle([B(1, L("line_001", r1), L("line_002", r2)), B(2, L("line_003", r3), L("line_004", r4))], W=100, H=120), cfg)
+    b1, b2 = res.blocks
+    assert [(r.glyph_h, r.stroke_ratio) for r in b1.regions] == [(30, 5 / 30), (30, 0.1)]
+    assert (b1.font_weight, b1.weight_diag.model_dump()) == (500, {"min_glyph_px": 25.0, "lines_used": 2, "lines_small": 0, "value": 2 / 15})
+    assert [(r.glyph_h, r.stroke_ratio) for r in b2.regions] == [(30, 5 / 30), (10, 0.4)]
+    assert (b2.font_weight, b2.weight_diag.model_dump()) == (700, {"min_glyph_px": 25.0, "lines_used": 1, "lines_small": 1, "value": 5 / 30})
+    assert "font_weight" not in b1.null_reasons and "font_weight" not in b2.null_reasons
+    # 기준을 0으로 낮추면 작은 줄도 쓴다 — 블록 2: (1/6 + 2/5) / 2 = 17/60 ≈ 0.2833 → Black
+    res = ex(img, bundle([B(1, L("line_001", r1), L("line_002", r2)), B(2, L("line_003", r3), L("line_004", r4))], W=100, H=120),
+             with_style(cfg, weight_min_glyph_px=0))
+    assert (res.blocks[1].font_weight, res.blocks[1].weight_diag.lines_small) == (900, 0)
+
+
+def test_weight_is_null_for_small_glyph_and_color_failed(cfg):
+    img = canvas()
+    small = R("reg_0001", 0, 0, 3, 3)
+    ink(img, small)  # 글자 픽셀 하나 — 글자 높이 1
+    blk = ex(img, bundle([B(1, L("line_001", small))]), cfg).blocks[0]
+    assert (blk.font_weight, blk.null_reasons["font_weight"]) == (None, "small_glyph")
+    assert (blk.regions[0].glyph_h, blk.regions[0].stroke_ratio) == (1, 1.0)
+    blk = ex(canvas(), bundle([B(1, L("line_001", R("reg_0001", 0, 0, 3, 3)))]), cfg).blocks[0]  # 흰색뿐 — 글자 · 배경을 나눌 수 없다
+    assert (blk.status, blk.font_weight, blk.null_reasons["font_weight"]) == ("partial", None, "no_weight_region")
+    assert (blk.regions[0].glyph_h, blk.regions[0].stroke_ratio) == (None, None)
 
 
 # ---------------------------------------------------------------------------
@@ -846,6 +941,14 @@ def test_zero_area_target_rejected_but_skipped_allowed(cfg):
     ({"align_section_tolerance": float("nan")}, "style.align_section_tolerance=nan"),
     ({"align_section_tolerance": -0.01}, "style.align_section_tolerance=-0.01"),
     ({"align_section_tolerance": "0.02"}, "style.align_section_tolerance='0.02'"),
+    ({"weight_min_glyph_px": -1}, "style.weight_min_glyph_px=-1"),
+    ({"weight_min_glyph_px": True}, "style.weight_min_glyph_px=True"),
+    ({"weight_min_glyph_px": float("nan")}, "style.weight_min_glyph_px=nan"),
+    ({"weight_refs": {"100": 0.06}}, "style.weight_refs — 키는"),
+    ({"weight_refs": [0.06, 0.08, 0.12, 0.16, 0.2]}, "style.weight_refs — 키는"),
+    ({"weight_refs": {**REFS, "500": 0}}, "값은 0보다 큰 유한 실수"),
+    ({"weight_refs": {**REFS, "500": "0.13"}}, "값은 0보다 큰 유한 실수"),
+    ({"weight_refs": {**REFS, "500": 0.2}}, "굵기가 클수록 값이 커야 한다"),
 ])
 def test_invalid_config_values(cfg, style_over, needle):
     expect_input_error(needle, lambda: run_base(cfg, cfg_=with_style(cfg, **style_over)))
@@ -858,6 +961,9 @@ def test_missing_config(cfg):
     c = copy.deepcopy(cfg)
     del c["style"]["align_section_tolerance"]
     expect_input_error("없는 키 style.align_section_tolerance", lambda: run_base(cfg, cfg_=c))
+    c = copy.deepcopy(cfg)
+    del c["style"]["weight_min_glyph_px"], c["style"]["weight_refs"]
+    expect_input_error("없는 키 style.weight_min_glyph_px, style.weight_refs", lambda: run_base(cfg, cfg_=c))
     c = copy.deepcopy(cfg)
     del c["style"]
     expect_input_error("config에 [style] 표가 없다", lambda: run_base(cfg, cfg_=c))
@@ -974,10 +1080,10 @@ def test_sample_blocks_are_valid(sample_blocks):
 def test_type_rejects_ok_with_null_values(sample_blocks):
     d = copy.deepcopy(sample_blocks["blk_002"])
     d.update(font_color=None, bg_color=None, null_reasons={"font_color": "no_valid_region", "bg_color": "no_valid_region",
-                                                           "align": "no_anchor"})
+                                                           "align": "no_anchor", "font_weight": "small_glyph"})
     invalid(d, "measured 영역이 있으면 두 대표색이 있어야 한다")
     d = copy.deepcopy(sample_blocks["blk_002"])
-    d.update(est_font_px=None, null_reasons={"est_font_px": "no_valid_region", "align": "no_anchor"})
+    d.update(est_font_px=None, null_reasons={"est_font_px": "no_valid_region", "align": "no_anchor", "font_weight": "small_glyph"})
     invalid(d, "ok이면 est_font_px가 있어야 한다")
 
 
@@ -1005,7 +1111,7 @@ def test_type_rejects_section_align_not_unique_winner(sample_blocks):
     d["align"] = "center"
     invalid(d, "section이면 지지 수 최댓값 정렬이 align 하나여야 한다")
     d = sample_blocks["blk_005"]  # 동률인데 하나를 골랐다
-    d.update(align="left", align_basis="section", null_reasons={})
+    d.update(align="left", align_basis="section", null_reasons={"font_weight": "small_glyph"})
     invalid(d, "section이면 지지 수 최댓값 정렬이 align 하나여야 한다")
 
 
@@ -1013,7 +1119,7 @@ def test_type_rejects_null_align_reason_against_scores(sample_blocks):
     for reason, needle in (("no_anchor", "no_anchor면 모든 지지 수가 0이어야 한다"),
                            ("align_tie", "align_tie면 지지 수 최댓값 정렬이 둘 이상이어야 한다")):
         d = copy.deepcopy(sample_blocks["blk_001"])
-        d.update(align=None, align_basis=None, null_reasons={"align": reason})
+        d.update(align=None, align_basis=None, null_reasons={"align": reason, "font_weight": "small_glyph"})
         invalid(d, needle)
 
 
@@ -1035,8 +1141,40 @@ def test_type_rejects_line_diag_contradictions(sample_blocks):
 def test_type_rejects_align_null_basis_mismatch(sample_blocks):
     d = sample_blocks["blk_004"]
     d["align"] = None
-    d["null_reasons"] = {"align": "no_anchor"}
+    d["null_reasons"] = {"align": "no_anchor", "font_weight": "small_glyph"}
     invalid(d, "align이 None이면 align_basis도 None이어야 한다")
+
+
+def test_type_rejects_weight_contradictions(sample_blocks):
+    s = sample_blocks  # 표본 블록은 글자 픽셀 하나(높이 1)라 굵기를 재지 않았다
+    assert (s["blk_001"]["font_weight"], s["blk_001"]["null_reasons"]["font_weight"], s["blk_001"]["weight_diag"]["lines_small"]) == (
+        None, "small_glyph", 2)
+    assert (s["blk_003"]["status"], s["blk_003"]["null_reasons"]["font_weight"]) == ("no_text", "no_text")
+    d = copy.deepcopy(s["blk_001"])
+    d["font_weight"] = 500  # 값이 있는데 사유가 남아 있다
+    invalid(d, "null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
+    del d["null_reasons"]["font_weight"]  # 값은 있는데 쓴 줄이 없다
+    invalid(d, "font_weight가 있으면 weight_diag.value가 있어야 한다")
+    d = copy.deepcopy(s["blk_001"])
+    d["null_reasons"]["font_weight"] = "no_weight_region"  # measured 영역이 있는데 영역 없음 사유
+    invalid(d, "font_weight None 사유 'no_weight_region' ≠ 'small_glyph'")
+    d = copy.deepcopy(s["blk_003"])
+    d["null_reasons"]["font_weight"] = "small_glyph"  # 비공백 영역이 없는 블록
+    invalid(d, "font_weight None 사유 'small_glyph' ≠ 'no_text'")
+    d = copy.deepcopy(s["blk_001"])
+    d["weight_diag"] = None
+    invalid(d, "ok는 weight_diag가 있어야 한다")
+    d = copy.deepcopy(s["blk_001"])
+    d["weight_diag"].update(lines_used=1, lines_small=1, value=0.13)  # 쓴 줄이 있는데 굵기가 None
+    invalid(d, "font_weight가 None이면 쓴 줄이 없어야 하고")
+    d = copy.deepcopy(s["blk_001"])
+    d["regions"][0]["stroke_ratio"] = None  # 글자 높이만 있다
+    invalid(d, "glyph_h · stroke_ratio는 measured 영역에만 함께 있어야 한다")
+    d = copy.deepcopy(s["blk_001"])
+    d.update(font_weight=400)  # 견본 굵기가 아니다
+    del d["null_reasons"]["font_weight"]
+    with pytest.raises(ValidationError):
+        BlockStyle.model_validate(d)
 
 
 def test_type_rejects_no_text_contradictions(sample_blocks):
@@ -1065,11 +1203,22 @@ def test_result_rejects_inconsistent_peers(sample):
 
 
 # ---------------------------------------------------------------------------
-# 8-1. 결과 버전 — 계산 당시 형식대로 검증(스키마 1 = 2026-11-05 이전, 2 = 현재). 이전 결과를 새 형식으로 바꾸지 않는다
+# 8-1. 결과 버전 — 계산 당시 형식대로 검증(스키마 1 = 2026-11-05 이전, 2 = 굵기 측정 전, 3 = 현재). 이전 결과를 새 형식으로 바꾸지 않는다
 # ---------------------------------------------------------------------------
-def test_parse_current_result_is_schema_2(sample):
+def test_parse_current_result_is_schema_3(sample):
     res = parse_style_result(sample["result"])
-    assert type(res) is StyleResult and res.schema_version == "2"
+    assert type(res) is StyleResult and res.schema_version == "3"
+
+
+def test_parse_schema_2_keeps_values_calculated_then(sample):
+    v2 = to_schema_v2(sample["result"])
+    res = parse_style_result(v2)
+    assert type(res) is StyleResultV2 and res.schema_version == "2"
+    assert res.model_dump(mode="json") == v2  # 검증만 하고 값 · 필드를 바꾸지 않는다 — 굵기를 채우지 않는다
+    assert not hasattr(res.blocks[0], "font_weight") and "weight_min_glyph_px" not in res.config.model_dump()
+    # 색 · 크기 · 정렬은 현재 결과와 같다
+    keys = ("font_color", "bg_color", "est_font_px", "align", "align_basis")
+    assert [[b[k] for k in keys] for b in v2["blocks"]] == [[b[k] for k in keys] for b in sample["result"]["blocks"]]
 
 
 def test_parse_schema_1_keeps_values_calculated_then(sample):
@@ -1086,7 +1235,7 @@ def test_parse_schema_1_keeps_values_calculated_then(sample):
     assert [b["align"] for b in sample["result"]["blocks"]] == ["left", None, None, "left", None, None]
 
 
-@pytest.mark.parametrize("version", ["3", "0", "", 1, None])
+@pytest.mark.parametrize("version", ["4", "0", "", 1, None])
 def test_parse_rejects_unknown_version(sample, version):
     d = copy.deepcopy(sample["result"])
     d["schema_version"] = version
@@ -1110,9 +1259,17 @@ def test_parse_rejects_structure_of_other_version(sample):
     with pytest.raises(ValidationError):
         parse_style_result(d)
     v1 = to_schema_v1(sample["result"])
-    v1["schema_version"] = "2"  # 이전 형식에 현재 버전 표시
+    v1["schema_version"] = "2"  # 스키마 1 형식에 다른 버전 표시
     with pytest.raises(ValidationError):
         parse_style_result(v1)
+    d = copy.deepcopy(sample["result"])
+    d["schema_version"] = "2"  # 현재 형식(굵기 필드 있음)에 스키마 2 표시
+    with pytest.raises(ValidationError):
+        parse_style_result(d)
+    v2 = to_schema_v2(sample["result"])
+    v2["schema_version"] = "3"  # 스키마 2 형식(굵기 필드 없음)에 현재 버전 표시
+    with pytest.raises(ValidationError):
+        parse_style_result(v2)
 
 
 def test_parse_rejects_contradictory_schema_1(sample):

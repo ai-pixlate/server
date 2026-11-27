@@ -1,7 +1,8 @@
-"""⑦ 결과 버전 호환 — 배포 전에 계산됐지만 채택되지 않은 스키마 1 결과와 신규 스키마 2 결과의 채택 · 복구 · 거절. 실제 PostgreSQL.
+"""⑦ 결과 버전 호환 — 배포 전에 계산됐지만 채택되지 않은 스키마 1 · 2 결과와 신규 스키마 3 결과의 채택 · 복구 · 거절. 실제 PostgreSQL.
 
-⑦ 계산은 실제 파이프라인 코드(PipelineStyler)로 하고, 스키마 1 결과는 같은 계산의 이전 규칙 값(tests/style_fixtures.to_schema_v1)으로 만든다.
-스키마 1은 계산 당시 형식대로 검증해 그때의 정렬값을 그대로 채택하고, 알 수 없는 버전 · 형식 위반은 거절해 스타일 실패 후속으로 보낸다.
+⑦ 계산은 실제 파이프라인 코드(PipelineStyler)로 하고, 스키마 1 · 2 결과는 같은 계산의 이전 형식 값(tests/style_fixtures.to_schema_v1 ·
+to_schema_v2)으로 만든다. 이전 결과는 계산 당시 형식대로 검증해 그때의 값을 그대로 채택하고, 알 수 없는 버전 · 형식 위반은 거절해
+스타일 실패 후속으로 보낸다. 스키마 3의 굵기(font_weight)는 text_block.style에 저장하지 않는다(4키 그대로 — open-questions #101).
 """
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ from app.storage import MemoryStore, set_store
 from tests.exec_db import bound_app_db, fresh_database, requires_db
 from tests.exec_fakes import (FakeAnalyzer, FakeInpaintModel, FakeJudge, FakeLabeler, FakeTranslator, QueueDispatcher, seed_dictionary,
                               style_defaults_file)
-from tests.style_fixtures import to_schema_v1
+from tests.style_fixtures import to_schema_v1, to_schema_v2
 from tests.test_exec_downstream import _q, _step, _to_n3
 
 pytestmark = requires_db
@@ -107,16 +108,31 @@ def _proceed(ids):
     assert ids["c"].post(f"/v1/jobs/{ids['job']}/sections/proceed").status_code in (200, 202)
 
 
-def test_schema_2_result_is_adopted(env):
-    """신규 계산(스키마 2)은 현재 형식으로 검증해 채택한다."""
+def test_current_schema_result_is_adopted(env):
+    """신규 계산(스키마 3)은 현재 형식으로 검증해 채택한다. 굵기는 저장하지 않고 측정값 4키만 text_block.style에 넣는다."""
     ids = _to_n3(env)
     _proceed(ids)
     env["q"].drain()
     assert _step(ids) == ("review", "N5")
     rows = _style_rows(ids)
     assert rows and all((r["status"], r["error_code"], r["state"]) == ("done", None, "adopted") for r in rows)
-    assert all(r["payload"]["style"]["schema_version"] == "2" for r in rows)
+    assert all(r["payload"]["style"]["schema_version"] == "3" for r in rows)
     assert sum(_assert_text_block_style_is(r["payload"]["style"]) for r in rows) > 0
+
+
+def test_schema_2_result_first_adoption_keeps_values_calculated_then(env):
+    """배포 전 계산된 스키마 2 결과(굵기 없음)를 처음 채택 — 이전 형식대로 검증하고 계산 당시 값을 그대로 쓴다."""
+    ai_adapters.set_adapters(styler=_PayloadStyler(to_schema_v2, "pipeline.style@legacy-v2"))
+    ids = _to_n3(env)
+    _proceed(ids)
+    env["q"].drain()
+    assert _step(ids) == ("review", "N5")
+    rows = _style_rows(ids)
+    assert rows and all((r["status"], r["error_code"], r["state"]) == ("done", None, "adopted") for r in rows)
+    payloads = [r["payload"]["style"] for r in rows]
+    assert all(p["schema_version"] == "2" for p in payloads)
+    assert all("font_weight" not in b for p in payloads for b in p["blocks"])
+    assert sum(_assert_text_block_style_is(p) for p in payloads) > 0
 
 
 def test_schema_1_result_first_adoption_keeps_values_calculated_then(env):
@@ -181,11 +197,11 @@ def test_schema_1_result_recovered_after_crash_then_duplicate_adoption_is_noop(e
 
 
 def _unknown_version(d):
-    d["schema_version"] = "3"
+    d["schema_version"] = "4"
     return d
 
 
-def _v2_marked_v1(d):
+def _current_marked_v1(d):
     d["schema_version"] = "1"
     return d
 
@@ -204,8 +220,8 @@ def _missing(d):
 
 
 @pytest.mark.parametrize("change, needle", [
-    (_unknown_version, "알 수 없는 ⑦ 결과 버전 '3'"),
-    (_v2_marked_v1, "⑦ 결과 형식 오류"),
+    (_unknown_version, "알 수 없는 ⑦ 결과 버전 '4'"),
+    (_current_marked_v1, "⑦ 결과 형식 오류"),
     (_contradictory_v1, "이면 align은 left여야 한다"),
     (_missing, "객체가 아니다"),
 ])

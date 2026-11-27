@@ -243,6 +243,53 @@ def test_unknown_role_rejected(d):
         sd.resolve_block(sd.BlockInput(1, "label", False, "원문", "Text", None, "failed"), 1080, d)
 
 
+# 굵기 — ⑦ 측정 굵기(font_weight)는 그 굵기의 글꼴이 설정 자료에 있을 때만 쓴다(사용자 결정 2026-11-26, open-questions #101)
+_BASE_STYLE = {"font_color": "#000000", "bg_color": None, "est_font_px": 20, "align": "left"}
+
+
+def _weight(r: sd.ResolvedBlock) -> tuple:
+    return r.applied["font_face"], r.applied["font_weight"], r.source["font_face"]
+
+
+def _resolve(d, role, style, stage="done"):
+    return sd.resolve_block(sd.BlockInput(1, role, False, "원문", "Text", style, stage), 1080, d)
+
+
+def test_measured_weight_applies_only_when_face_is_in_config(d, tmp_path):
+    # 굵기 키가 없는 저장값(굵기 측정 전 4키)과 측정 굵기 NULL — 역할 굵기
+    assert _weight(_resolve(d, "body", _BASE_STYLE)) == ("Regular", 400, "role_config")
+    assert _weight(_resolve(d, "title", {**_BASE_STYLE, "font_weight": None})) == ("SemiBold", 600, "role_config")
+    # 측정 굵기 700인데 설정 자료에 700 글꼴이 없다 — 역할 굵기(그릴 수 없는 굵기를 내지 않는다). 측정값은 measured에 그대로 남는다
+    r = _resolve(d, "body", {**_BASE_STYLE, "font_weight": 700})
+    assert _weight(r) == ("Regular", 400, "role_config") and r.measured["font_weight"] == 700
+    # 설정 자료에 700 글꼴이 있으면 측정 굵기를 쓴다 — 역할과 무관하고 글꼴 해시도 그 굵기의 것
+    raw = _raw()
+    raw["fonts"]["faces"]["Bold"] = {**raw["fonts"]["faces"]["Regular"], "weight": 700, "sha256": "7" * 64}
+    d7 = sd.load_style_defaults(_write(tmp_path, raw))
+    for role in ("body", "title"):
+        r = _resolve(d7, role, {**_BASE_STYLE, "font_weight": 700})
+        assert _weight(r) == ("Bold", 700, "measured") and r.applied["font_sha256"] == "7" * 64
+    # 자료에 없는 다른 굵기 · 측정 굵기 NULL · ⑦ 실패는 그대로 역할 굵기
+    assert _weight(_resolve(d7, "body", {**_BASE_STYLE, "font_weight": 300})) == ("Regular", 400, "role_config")
+    assert _weight(_resolve(d7, "title", {**_BASE_STYLE, "font_weight": None})) == ("SemiBold", 600, "role_config")
+    assert _weight(_resolve(d7, "title", None, "failed")) == ("SemiBold", 600, "role_config")
+    # 굵기 말고는 바뀌지 않는다
+    a, b = _resolve(d7, "body", _BASE_STYLE).applied, _resolve(d7, "body", {**_BASE_STYLE, "font_weight": 700}).applied
+    assert {k: v for k, v in a.items() if k not in ("font_face", "font_weight", "font_sha256")} == {
+        k: v for k, v in b.items() if k not in ("font_face", "font_weight", "font_sha256")}
+
+
+@pytest.mark.parametrize("w", [400, 150, "700", True, 700.0])
+def test_invalid_measured_weight_is_rejected(d, w):
+    with pytest.raises(sd.StyleInputInvalid, match="font_weight"):
+        _resolve(d, "body", {**_BASE_STYLE, "font_weight": w})
+
+
+def test_unknown_style_key_is_rejected(d):
+    with pytest.raises(sd.StyleInputInvalid, match="4개"):
+        _resolve(d, "body", {**_BASE_STYLE, "font_family": "Pretendard"})
+
+
 # ---------------------------------------------------------------------------
 # 폰트 자료
 # ---------------------------------------------------------------------------

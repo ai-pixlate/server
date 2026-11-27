@@ -116,6 +116,14 @@ method = "otsu_border"
 em_ratio = 0.9                 # 잠정값(사용자 결정 2026-10-15, open-questions #85). 개발계획 6장 1.35는 OCR bbox가 em보다 커서 약 1.5배 과대
 align_section_tolerance = 0.005 # 섹션 기준 정렬 허용 오차(섹션 폭 비율). 확정(사용자 결정 2026-11-05, 실측 docs/ai-experiments/2026-11-05_07-style_section-align.md)
 align_tolerance = 0.12         # 줄 진단(이전 규칙) 전용 — 판정에 쓰지 않는다
+weight_min_glyph_px = 25       # 굵기 — 글자 높이가 이 값 미만인 줄은 재지 않는다. 잠정(사용자 결정 2026-11-26, open-questions #101)
+
+[style.weight_refs]            # 굵기 — 견본(Pretendard v1.3.9) 굵기를 ⑦과 같은 방식으로 잰 값. 블록 값에 가장 가까운 굵기를 고른다. 잠정(#101)
+100 = 0.0632                   # Thin — 한글 40px · 검정 글자 · 흰 바탕 렌더에서 측정(docs/ai-experiments/2026-11-26_07-style_weight-measure.md)
+300 = 0.0867                   # Light
+500 = 0.1293                   # Medium
+700 = 0.1643                   # Bold
+900 = 0.2064                   # Black
 
 [translate]                    # ⑧ 로컬라이징 번역
 model = "gemini-3.8-flash"

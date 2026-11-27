@@ -507,6 +507,51 @@ def test_normal_flow_one_section_all_failed_translation_does_not_block_others(en
         ai_adapters.set_adapters(translator=FakeTranslator())
 
 
+def test_zero_success_section_waits_while_other_section_translation_is_running(env):
+    """PM 11-27 경계(통합): 다른 섹션 번역이 아직 진행 중이면, 성공분 0 으로 끝난 섹션은 미리보기를 만들지 않고 기다린다.
+    다른 섹션이 성공하면 그 섹션도 빈 칸으로 진행해 N5. (큐에서 섹션 A 번역만 먼저 처리하고 섹션 B 번역은 잡아 둔다)"""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    secs = [r["s"] for r in _q("SELECT DISTINCT tb.section_id AS s FROM text_block tb JOIN section s ON s.id = tb.section_id "
+                               "WHERE s.job_id = :j ORDER BY 1", j=job)]
+    assert len(secs) >= 2
+    a = secs[0]
+    keys = {f"blk_{r['id']}" for r in _q("SELECT id FROM text_block WHERE section_id = :s", s=a)}
+    ai_adapters.set_adapters(translator=FakeTranslator(fail_keys=keys))
+    held: list = []
+
+    def unit_of(args):
+        r = _q("SELECT unit_id FROM job_async_task WHERE id = :t", t=args[0])
+        return r[0]["unit_id"] if r else None
+
+    try:
+        assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+        while True:  # 섹션 A 번역(자동 재시도 포함)만 처리하고, 다른 섹션 번역 메시지는 잡아 둔다
+            skipped = env["q"].drain(skip={"app.tasks.run_translate"})
+            tr_msgs = [m for m in skipped if m[0] == "app.tasks.run_translate"]
+            mine = [m for m in tr_msgs if unit_of(m[1]) == a]
+            held += [m for m in tr_msgs if m not in mine]
+            if not mine:
+                break
+            import app.tasks as tasks
+            for _, args in mine:
+                tasks.run_translate(*args)
+        tr_a = _q("SELECT status FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s AND is_current",
+                  j=job, s=a)[0]
+        assert tr_a["status"] == "failed" and held  # A 는 성공분 0 으로 끝났고, 다른 섹션 번역은 아직 대기
+        assert _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND stage = 'preview' AND unit_id = :s",
+                  j=job, s=a)[0]["n"] == 0  # 기다림 — 미리보기를 만들지 않음
+        assert _state(ids)[:2] == ("processing", "N4")  # 막지도(N4 오류) 않음
+        env["q"].messages = held + env["q"].messages  # 잡아 둔 다른 섹션 번역을 처리 → 성공분 생김
+        env["q"].drain()
+        assert _state(ids) == ("review", "N5", "reviewing")
+        assert _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND stage = 'preview' AND unit_id = :s",
+                  j=job, s=a)[0]["n"] >= 1  # 그 뒤 A 도 빈 칸으로 진행
+        assert all(r["trans_1"] is None for r in _q("SELECT trans_1 FROM text_block WHERE section_id = :s", s=a))
+    finally:
+        ai_adapters.set_adapters(translator=FakeTranslator())
+
+
 # ---- 작업 단위 번역 판정(PM 11-27) — 입력별 경계 ----------------------------------------------------------------------
 def _tr(sid, status, *, target=2, code=None):
     return {"stage": "translate", "unit_id": sid, "status": status, "target_count": target, "error_code": code}

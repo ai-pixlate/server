@@ -1,0 +1,116 @@
+case_no	gs	block_line	weight	note
+1	GS-01	255:2	regular	
+2	GS-01	193:3	regular	
+3	GS-01	184:1	regular	
+4	GS-01	194:2	heavy	
+5	GS-01	330:1	mixed	가운데 단어만 굵음
+6	GS-02	577:1	unsure	작은 흐린 영문
+7	GS-02	743:1	regular	
+8	GS-02	801:2	regular	
+9	GS-01	91:1	bold	
+10	GS-01	74:1	heavy	
+11	GS-02	568:9	unsure	흐린 논문 글자
+12	GS-02	525:2	unsure	흐린 논문 글자
+13	GS-01	58:1	heavy	
+14	GS-02	702:1	unsure	로고 도장
+15	GS-02	441:1	unsure	손글씨
+16	GS-02	681:1	bold	
+17	GS-02	558:1	unsure	흐린 논문 글자
+18	GS-02	573:8	unsure	흐린 논문 글자
+19	GS-01	131:2	thin	
+20	GS-02	771:1	bold	
+21	GS-02	425:1	regular	
+22	GS-02	515:1	regular	
+23	GS-02	457:3	regular	
+24	GS-01	94:1	thin	
+25	GS-02	787:1	regular	
+26	GS-02	503:1	bold	
+27	GS-02	659:2	mixed	가운데 두 단어만 굵음
+28	GS-02	789:1	regular	
+29	GS-02	709:2	mixed	형광 부분이 더 굵어 보임(확신 낮음)
+30	GS-01	176:1	heavy	
+31	GS-02	822:1	regular	
+32	GS-01	168:1	regular	
+33	GS-02	561:8	unsure	아주 작은 글자
+34	GS-02	767:1	regular	
+35	GS-02	432:2	regular	파란 부분이 약간 굵어 보임(확신 낮음)
+36	GS-02	477:9	regular	
+37	GS-02	636:1	bold	
+38	GS-01	175:1	thin	
+39	GS-01	163:1	thin	
+40	GS-02	509:3	bold	
+41	GS-02	513:1	bold	
+42	GS-01	127:2	thin	
+43	GS-02	733:1	mixed	앞 단어가 더 굵어 보임(확신 낮음)
+44	GS-02	730:2	regular	
+45	GS-02	608:1	regular	
+46	GS-02	430:2	mixed	뒷부분만 굵음
+47	GS-02	662:1	regular	
+48	GS-02	424:2	bold	확신 낮음
+49	GS-02	820:2	bold	
+50	GS-02	524:1	regular	
+51	GS-02	504:1	regular	
+52	GS-02	509:2	regular	
+53	GS-01	53:2	bold	좁은 글꼴(확신 낮음)
+54	GS-02	761:1	bold	번짐 효과(확신 낮음)
+55	GS-02	640:1	regular	
+56	GS-01	115:1	thin	
+57	GS-02	766:1	regular	
+58	GS-02	699:2	bold	
+59	GS-01	118:1	bold	
+60	GS-02	488:2	regular	
+61	GS-01	282:1	regular	
+62	GS-01	75:2	bold	
+63	GS-01	95:1	unsure	글자 없음(사진)
+64	GS-02	423:1	regular	
+65	GS-02	689:1	bold	
+66	GS-01	103:2	heavy	
+67	GS-01	180:1	regular	
+68	GS-02	756:2	bold	
+69	GS-02	464:1	regular	
+70	GS-02	647:1	regular	
+71	GS-01	192:1	heavy	
+72	GS-02	751:3	regular	
+73	GS-02	463:2	bold	
+74	GS-02	654:2	bold	
+75	GS-02	650:1	regular	
+76	GS-02	751:1	regular	
+77	GS-02	591:1	mixed	가운데 '6배'만 굵음
+78	GS-01	58:2	heavy	
+79	GS-01	194:1	heavy	
+80	GS-02	807:1	unsure	필기체
+81	GS-02	474:1	regular	
+82	GS-02	472:1	regular	
+83	GS-01	147:2	heavy	
+84	GS-02	438:1	bold	세로로 돌아간 글자
+85	GS-02	460:1	regular	
+86	GS-01	40:1	bold	
+87	GS-01	192:4	regular	
+88	GS-01	96:1	unsure	글자 없음(사진)
+89	GS-01	193:1	heavy	
+90	GS-01	52:1	heavy	
+91	GS-02	649:3	bold	
+92	GS-02	751:2	unsure	기호만
+93	GS-01	180:3	bold	
+94	GS-02	631:1	unsure	원형 도장
+95	GS-01	119:1	unsure	기호만
+96	GS-02	649:1	regular	
+97	GS-01	119:3	bold	
+98	GS-01	162:2	bold	
+99	GS-02	647:2	bold	
+100	GS-01	191:1	heavy	
+101	GS-01	180:2	heavy	
+102	GS-01	194:3	regular	
+103	GS-01	192:3	regular	
+104	GS-01	194:4	regular	
+105	GS-02	650:3	bold	
+106	GS-02	474:2	bold	
+107	GS-02	649:2	bold	
+108	GS-01	193:2	regular	
+109	GS-02	423:2	bold	
+110	GS-02	662:2	bold	
+111	GS-02	650:2	bold	
+112	GS-02	472:2	bold	
+113	GS-01	119:2	heavy	
+114	GS-01	119:4	unsure	기호만
+115	GS-01	192:2	regular	

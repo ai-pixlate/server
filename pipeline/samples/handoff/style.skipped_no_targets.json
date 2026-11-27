@@ -385,10 +385,18 @@
         "method": "otsu_border",
         "em_ratio": 0.9,
         "align_section_tolerance": 0.005,
-        "align_tolerance": 0.12
+        "align_tolerance": 0.12,
+        "weight_min_glyph_px": 25,
+        "weight_refs": {
+          "100": 0.0632,
+          "300": 0.0867,
+          "500": 0.1293,
+          "700": 0.1643,
+          "900": 0.2064
+        }
       }
     },
-    "input_manifest_sha256": "95b689ac8fb7db675e17cd56bc915c133758a8e02141736efa03f6bf1b109bfe",
+    "input_manifest_sha256": "bb8827f1b0af741b7149874c7b8a232d0bba9e5daa5424f4e56fc3c59550144c",
     "outcome": "skipped",
     "target_count": 0,
     "skip_reason": "no_targets",
@@ -409,14 +417,14 @@
         "color": "#RRGGBB sRGB",
         "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"
       },
-      "style_result_sha256": "eb0f09d64d5df5d1cbf04898473de3ad66b630a88cb8e814571a5a4d58c50b2a"
+      "style_result_sha256": "f992cd9e7539a22d3d90fe445697ca0ad8470ab345c723f73fb51a82a32ed7d4"
     },
     "artifacts": [],
     "source_refs": [],
     "failure": null,
     "implementation": {
       "adapter": "downstream-handoff@2026-10-08.1",
-      "style_schema": "2"
+      "style_schema": "3"
     },
     "diagnostics": {}
   },

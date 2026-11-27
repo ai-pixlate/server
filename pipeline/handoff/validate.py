@@ -237,7 +237,7 @@ def _style(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[s
     if sorted(got) != sorted(_blocks_of(req)) or len(set(got)) != len(got):
         p.append("⑦ 결과가 요청 블록과 정확히 대응하지 않는다")
     for b in rep.payload["blocks"]:
-        nulls = {k for k in ("font_color", "bg_color", "est_font_px", "align") if b[k] is None}
+        nulls = {k for k in ("font_color", "bg_color", "est_font_px", "align", "font_weight") if b[k] is None}
         if nulls != set(b["null_reasons"]):
             p.append(f"{b['block_key']}: NULL 값과 사유가 맞지 않는다")
     return p

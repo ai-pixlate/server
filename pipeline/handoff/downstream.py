@@ -401,7 +401,8 @@ def run_style(raw: Any, cfg: dict[str, Any]) -> StageReport:
             "blocks": [b.model_dump(mode="json") for b in sorted(blocks, key=lambda b: b.block_order)],
             "label_result_sha256": req.label_result_sha256, "logo_result_sha256": req.logo_result_sha256,
             "logo_record_sha256": req.logo_record_sha256,
-            "config": {k: st[k] for k in ("method", "em_ratio", "align_section_tolerance", "align_tolerance")},
+            "config": {k: st[k] for k in ("method", "em_ratio", "align_section_tolerance", "align_tolerance", "weight_min_glyph_px",
+                                          "weight_refs")},
         })
         check_expected_manifest(ident, msha)
     except HandoffInputError as e:
@@ -418,7 +419,8 @@ def run_style(raw: Any, cfg: dict[str, Any]) -> StageReport:
     payload = {
         "section_key": sec.section_key,
         "blocks": [{"block_key": b.block_key, "font_color": b.font_color, "bg_color": b.bg_color, "est_font_px": b.est_font_px,
-                    "align": b.align, "align_basis": b.align_basis, "null_reasons": dict(b.null_reasons), "measure_status": b.status,
+                    "align": b.align, "align_basis": b.align_basis, "font_weight": b.font_weight,
+                    "null_reasons": dict(b.null_reasons), "measure_status": b.status,
                     "counts": b.counts.model_dump()} for b in targets],
         "excluded": [{"block_key": b.block_key, "reason": b.excluded_reason} for b in result.blocks if b.status == "excluded"],
         "units": {"color": "#RRGGBB sRGB", "est_font_px": "원본 섹션 이미지 px(반올림 · 배율 없음)"},

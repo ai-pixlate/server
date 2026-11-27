@@ -1,7 +1,8 @@
 """⑦ 스타일 추출 — 단독 개발 v1, 핵심 계산(2026-10-06). pipeline.md 단계표 ⑦, contract.md 1.3 · 2장.
 
 정본(확정): `otsu_border` — 테두리에 많이 닿는 쪽을 배경으로. 크기 = bbox 높이 × em_ratio(개발계획 1.35 → 잠정 0.9, open-questions #85).
-**원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리 · 굵기는 추출하지 않는다[개발계획 2.1, 4.1, 6장].
+**원본 섹션 이미지** 사용(⑥ 출력 아님). 폰트 패밀리는 추출하지 않는다[개발계획 2.1, 4.1, 6장].
+굵기는 잰다(사용자 결정 2026-11-26, open-questions #101 — 개발계획의 "굵기는 추출하지 않는다"를 대체하며 상위 문서 수정은 open-questions 3절 H).
 라벨 · 로고 블록은 스타일 추출에서 제외한다[계약 1.3].
 정렬 = 같은 섹션 안 블록 위치로 판정한다(기획 F-STY-03 E69, 사용자 결정 2026-11-05 — 개발계획 6장의 "블록 안 줄 분산 · 블록 폭 12%"를
 대체하며 상위 문서 수정은 open-questions 3절). 판정하지 못하면 None이고 렌더에서 역할별 기본 정렬을 쓴다(F-STY-03 I69).
@@ -23,6 +24,13 @@
   허용 오차 = 섹션 폭 × Fraction(str(align_section_tolerance)). 지지 수: left = x1이 맞는 동료 수, right = x2가 맞는 동료 수,
   center = 중심이 맞는 동료 수 + (블록 중심이 섹션 폭/2와 맞으면 1). "맞는다" = 차이 ≤ 허용 오차(경계 포함, Fraction으로 정확히 비교).
   최댓값이 하나이고 1 이상 → 그 정렬(section), 모두 0 → None(no_anchor), 최댓값 동률 → None(align_tie), span 없음 → None(no_text_lines).
+- 굵기(사용자 결정 2026-11-26): 색을 뽑은 영역(measured)마다 같은 글자 · 배경 분리에서 글자 높이 glyph_h = 글자 픽셀이 있는 행 범위,
+  획 두께 = 글자 픽셀마다 min(가로 연속 길이, 세로 연속 길이), stroke_ratio = 획 두께 평균 ÷ glyph_h(정수 합으로 만든 분수 — 정확).
+  줄 = measured 영역이 하나라도 있는 줄, 줄의 글자 높이 · 값 = 그 줄 영역 값의 중앙값(짝수면 가운데 두 값의 평균).
+  글자 높이가 style.weight_min_glyph_px 미만인 줄은 뺀다(작은 글자는 획이 1 ~ 3px라 값이 굵은 쪽으로 밀린다). 블록 값 = 남은 줄 값의 중앙값.
+  font_weight = style.weight_refs(견본 굵기 100 · 300 · 500 · 700 · 900을 같은 방식으로 잰 값) 가운데 블록 값과의 비율(큰 값 ÷ 작은 값)이 가장
+  작은 굵기 — Fraction으로 정확히 비교하고 동률이면 가는 쪽. measured 영역이 없으면 None(no_weight_region), 남은 줄이 없으면 None(small_glyph),
+  비공백 영역이 없으면 None(no_text). None이면 렌더에서 역할별 기본 굵기를 쓴다. 한 블록 안에서 줄 · 단어마다 굵기가 달라도 값은 블록당 하나다.
 - 줄 진단(이전 규칙, 판정에 쓰지 않음 — 비교용): 공백 영역만 있는 줄은 빼고, 나머지 줄은 비공백 영역 bbox 합집합의 왼쪽 x · 중앙
   x + w/2 · 오른쪽 x + w. 모분산(ddof=0)과 (블록 bbox.w × Fraction(str(align_tolerance)))²를 Fraction으로 정확히 비교. 유효 줄 0개 →
   None(no_text_lines), 1개 → left(default_single_line), 여러 줄 → 후보 중 분산 최소(estimated), 최솟값 동률 → left(default_tie, left가
@@ -46,6 +54,7 @@ from pipeline.stages.label import input_fingerprint
 from pipeline.stages.logo import sha256_json
 from pipeline.types import (
     ALIGN_VALUES,
+    FONT_WEIGHT_VALUES,
     BBox,
     BlockStyle,
     LabelResult,
@@ -62,6 +71,7 @@ from pipeline.types import (
     StyleLineAlignDiag,
     StyleOtsuDiag,
     StyleResult,
+    StyleWeightDiag,
     TextBlock,
 )
 
@@ -85,7 +95,8 @@ def validate_config(cfg: dict[str, Any]) -> None:
     if not isinstance(cfg, dict) or not isinstance(cfg.get("style"), dict):
         raise StyleInputError("config에 [style] 표가 없다")
     st = cfg["style"]
-    missing = [k for k in ("method", "em_ratio", "align_section_tolerance", "align_tolerance") if k not in st]
+    missing = [k for k in ("method", "em_ratio", "align_section_tolerance", "align_tolerance", "weight_min_glyph_px", "weight_refs")
+               if k not in st]
     if missing:
         raise StyleInputError("잘못된 [style] 설정: 없는 키 " + ", ".join(f"style.{k}" for k in missing))
     errors: list[str] = []
@@ -96,6 +107,16 @@ def validate_config(cfg: dict[str, Any]) -> None:
     for k in ("align_section_tolerance", "align_tolerance"):
         if not (_is_number(st[k]) and st[k] >= 0):
             errors.append(f"style.{k}={st[k]!r} — 0 이상 유한 실수(bool 불가)")
+    if not (_is_number(st["weight_min_glyph_px"]) and st["weight_min_glyph_px"] >= 0):
+        errors.append(f"style.weight_min_glyph_px={st['weight_min_glyph_px']!r} — 0 이상 유한 실수(bool 불가)")
+    refs = st["weight_refs"]
+    want = [str(w) for w in FONT_WEIGHT_VALUES]
+    if not isinstance(refs, dict) or sorted(refs) != sorted(want):
+        errors.append(f"style.weight_refs — 키는 {want}여야 한다: {sorted(refs) if isinstance(refs, dict) else refs!r}")
+    elif not all(_is_number(refs[k]) and refs[k] > 0 for k in want):
+        errors.append(f"style.weight_refs={refs!r} — 값은 0보다 큰 유한 실수(bool 불가)")
+    elif any(exact_ratio(refs[a]) >= exact_ratio(refs[b]) for a, b in zip(want, want[1:])):
+        errors.append(f"style.weight_refs={refs!r} — 굵기가 클수록 값이 커야 한다")
     if errors:
         raise StyleInputError("잘못된 [style] 설정: " + "; ".join(errors))
 
@@ -324,13 +345,13 @@ def class_color(pixels: np.ndarray) -> tuple[int, int, int]:
     return tuple(half_up(median2(pixels[:, ch])) for ch in range(3))  # type: ignore[return-value]
 
 
-def region_colors(crop: np.ndarray) -> tuple[tuple[int, int, int] | None, tuple[int, int, int] | None, str | None, StyleOtsuDiag | None]:
-    """crop (h, w, 3) uint8 RGB → (글자색, 배경색, color_error, Otsu 진단). 실패하면 두 색 None."""
+def region_split(crop: np.ndarray) -> tuple[np.ndarray | None, str | None, StyleOtsuDiag | None]:
+    """crop (h, w, 3) uint8 RGB → (글자 마스크, color_error, Otsu 진단). 글자 = 외곽에 덜 닿는 집단. 나눌 수 없으면 마스크 None."""
     h, w = crop.shape[:2]
     y = luma(crop)
     t = otsu_threshold(y)
     if t is None:
-        return None, None, "single_class", None
+        return None, "single_class", None
     dark = y <= t
     border = border_mask(h, w)
     border_px = int(border.sum())
@@ -338,10 +359,66 @@ def region_colors(crop: np.ndarray) -> tuple[tuple[int, int, int] | None, tuple[
     diag = StyleOtsuDiag(threshold=t, dark_px=int(dark.sum()), light_px=int((~dark).sum()), border_px=border_px,
                          border_dark=border_dark, border_light=border_px - border_dark)
     if diag.border_dark == diag.border_light:
-        return None, None, "border_tie", diag
+        return None, "border_tie", diag
     bg_is_dark = diag.border_dark > diag.border_light
-    fg_mask = ~dark if bg_is_dark else dark
+    return (~dark if bg_is_dark else dark), None, diag
+
+
+def region_colors(crop: np.ndarray) -> tuple[tuple[int, int, int] | None, tuple[int, int, int] | None, str | None, StyleOtsuDiag | None]:
+    """crop (h, w, 3) uint8 RGB → (글자색, 배경색, color_error, Otsu 진단). 실패하면 두 색 None."""
+    fg_mask, err, diag = region_split(crop)
+    if fg_mask is None:
+        return None, None, err, diag
     return class_color(crop[fg_mask]), class_color(crop[~fg_mask]), None, diag
+
+
+# ---------------------------------------------------------------------------
+# 굵기
+# ---------------------------------------------------------------------------
+def run_lengths(mask: np.ndarray) -> np.ndarray:
+    """(h, w) bool → 각 True 픽셀이 속한 가로 연속 구간의 길이(False 픽셀은 0)."""
+    out = np.zeros(mask.shape, dtype=np.int64)
+    for i in range(mask.shape[0]):
+        edges = np.flatnonzero(np.diff(np.concatenate(([0], mask[i].astype(np.int8), [0]))))
+        for a, b in zip(edges[::2].tolist(), edges[1::2].tolist()):
+            out[i, a:b] = b - a
+    return out
+
+
+def region_stroke(fg_mask: np.ndarray) -> tuple[int, Fraction]:
+    """글자 마스크 → (glyph_h, stroke_ratio). glyph_h = 글자 픽셀이 있는 행 범위, 획 두께 = 글자 픽셀마다 min(가로 · 세로 연속 길이),
+    stroke_ratio = 획 두께 평균 ÷ glyph_h — 정수 합으로 만든 분수라 정확하다. 마스크에는 글자 픽셀이 하나 이상 있어야 한다."""
+    m = np.ascontiguousarray(fg_mask)
+    local = np.minimum(run_lengths(m), run_lengths(np.ascontiguousarray(m.T)).T)[m]
+    rows = np.flatnonzero(m.any(axis=1))
+    glyph_h = int(rows[-1] - rows[0] + 1)
+    return glyph_h, Fraction(int(local.sum()), int(local.size) * glyph_h)
+
+
+def nearest_weight(value: Fraction, weight_refs: dict[str, float]) -> int:
+    """value에 가장 가까운 견본 굵기 — 비율(큰 값 ÷ 작은 값)이 가장 작은 것. Fraction으로 정확히 비교하고 동률이면 가는 쪽."""
+    best, best_d = None, None
+    for w in FONT_WEIGHT_VALUES:
+        ref = exact_ratio(weight_refs[str(w)])
+        d = value / ref if value >= ref else ref / value
+        if best_d is None or d < best_d:  # 엄격히 작을 때만 갱신 → 동률이면 먼저(가는 쪽)
+            best, best_d = w, d
+    return best  # type: ignore[return-value]
+
+
+def block_weight(lines: list[list[tuple[int, Fraction]]], min_glyph_px: float, weight_refs: dict[str, float]
+                 ) -> tuple[int | None, str | None, StyleWeightDiag]:
+    """lines = 줄마다 그 줄 measured 영역의 (glyph_h, stroke_ratio) 목록(영역이 없는 줄은 넣지 않는다).
+    반환: (font_weight, None 사유, 진단). 글자 높이(줄 영역 glyph_h의 중앙값)가 min_glyph_px 미만인 줄은 빼고, 남은 줄 값의 중앙값으로 정한다."""
+    floor = exact_ratio(min_glyph_px)
+    used = [median_fraction([v for _, v in ln]) for ln in lines if median_fraction([Fraction(h) for h, _ in ln]) >= floor]
+    small = len(lines) - len(used)
+    if not used:
+        diag = StyleWeightDiag(min_glyph_px=float(min_glyph_px), lines_used=0, lines_small=small, value=None)
+        return None, ("small_glyph" if lines else "no_weight_region"), diag
+    value = median_fraction(used)
+    return nearest_weight(value, weight_refs), None, StyleWeightDiag(min_glyph_px=float(min_glyph_px), lines_used=len(used),
+                                                                     lines_small=small, value=float(value))
 
 
 def est_font_size(h: int, em_ratio: float) -> Fraction:
@@ -459,37 +536,50 @@ def _excluded_block(block: TextBlock, reason: str) -> BlockStyle:
     n = sum(len(ln.regions) for ln in block.source_lines)
     return BlockStyle(
         block_key=block.block_key, status="excluded", excluded_reason=reason, font_color=None, bg_color=None, est_font_px=None,
-        align=None, align_basis=None, align_diag=None, null_reasons={"font_color": "excluded", "bg_color": "excluded",
-                                                                     "est_font_px": "excluded", "align": "excluded"},
+        align=None, align_basis=None, align_diag=None, font_weight=None, weight_diag=None,
+        null_reasons={"font_color": "excluded", "bg_color": "excluded", "est_font_px": "excluded", "align": "excluded",
+                      "font_weight": "excluded"},
         counts=StyleCounts(regions=n, measured=0, color_failed=0, blank_text=0), regions=[],
     )
 
 
-def _block_style(block: TextBlock, image: np.ndarray, em_ratio: float, align_tolerance: float,
+def _block_style(block: TextBlock, image: np.ndarray, st: dict[str, Any],
                  section: tuple[str | None, str | None, str | None, dict[str, Any]]) -> BlockStyle:
-    """section = section_align의 이 블록 결과(정렬 · 근거 · null 사유 · 진단 필드)."""
+    """st = 검증을 마친 [style] 설정. section = section_align의 이 블록 결과(정렬 · 근거 · null 사유 · 진단 필드)."""
+    em_ratio, align_tolerance = st["em_ratio"], st["align_tolerance"]
     regions: list[RegionStyle] = []
     fonts: list[tuple[int, int, int]] = []
     bgs: list[tuple[int, int, int]] = []
     sizes: list[Fraction] = []
+    strokes: list[list[tuple[int, Fraction]]] = []  # 줄마다 measured 영역의 (glyph_h, stroke_ratio)
     for ln in block.source_lines:
+        line_strokes: list[tuple[int, Fraction]] = []
         for r in ln.regions:
             if _is_blank(r.text):
                 regions.append(RegionStyle(region_key=r.region_key, line_key=ln.line_key, score=r.score, status="blank_text",
-                                           font_color=None, bg_color=None, est_font_px=None, color_error=None, otsu=None))
+                                           font_color=None, bg_color=None, est_font_px=None, color_error=None, otsu=None,
+                                           glyph_h=None, stroke_ratio=None))
                 continue
             b = r.bbox
             size = est_font_size(b.h, em_ratio)
             sizes.append(size)
-            fg, bg, err, diag = region_colors(image[b.y:b.y2, b.x:b.x2])
-            if err is None:
-                fonts.append(fg)  # type: ignore[arg-type]
-                bgs.append(bg)  # type: ignore[arg-type]
+            crop = image[b.y:b.y2, b.x:b.x2]
+            fg_mask, err, diag = region_split(crop)
+            fg = bg = None
+            glyph_h = ratio = None
+            if fg_mask is not None:
+                fg, bg = class_color(crop[fg_mask]), class_color(crop[~fg_mask])
+                fonts.append(fg)
+                bgs.append(bg)
+                glyph_h, ratio = region_stroke(fg_mask)
+                line_strokes.append((glyph_h, ratio))
             regions.append(RegionStyle(
                 region_key=r.region_key, line_key=ln.line_key, score=r.score, status="measured" if err is None else "color_failed",
                 font_color=hex_color(fg) if fg else None, bg_color=hex_color(bg) if bg else None, est_font_px=float(size),
-                color_error=err, otsu=diag,
+                color_error=err, otsu=diag, glyph_h=glyph_h, stroke_ratio=float(ratio) if ratio is not None else None,
             ))
+        if line_strokes:
+            strokes.append(line_strokes)
     counts = StyleCounts(regions=len(regions), measured=sum(r.status == "measured" for r in regions),
                          color_failed=sum(r.status == "color_failed" for r in regions),
                          blank_text=sum(r.status == "blank_text" for r in regions))
@@ -505,11 +595,15 @@ def _block_style(block: TextBlock, image: np.ndarray, em_ratio: float, align_tol
             null_reasons.update(font_color="no_valid_region", bg_color="no_valid_region")
     if align is None:
         null_reasons["align"] = align_reason  # type: ignore[assignment]
+    weight, weight_reason, weight_diag = block_weight(strokes, st["weight_min_glyph_px"], st["weight_refs"])
+    if weight is None:
+        null_reasons["font_weight"] = "no_text" if not sizes else weight_reason  # type: ignore[assignment]
     font, bg = representative_color(fonts), representative_color(bgs)
     return BlockStyle(
         block_key=block.block_key, status=status, excluded_reason=None, font_color=hex_color(font) if font else None,
         bg_color=hex_color(bg) if bg else None, est_font_px=float(median_fraction(sizes)) if sizes else None, align=align,
-        align_basis=basis, align_diag=align_diag, null_reasons=null_reasons, counts=counts, regions=regions,
+        align_basis=basis, align_diag=align_diag, font_weight=weight, weight_diag=weight_diag, null_reasons=null_reasons,
+        counts=counts, regions=regions,
     )
 
 
@@ -533,12 +627,12 @@ def extract(
     blocks: list[BlockStyle] = []
     for b in ordered:
         reason = excluded[b.block_key]
-        blocks.append(_excluded_block(b, reason) if reason else
-                      _block_style(b, image, st["em_ratio"], st["align_tolerance"], aligns[b.block_key]))
+        blocks.append(_excluded_block(b, reason) if reason else _block_style(b, image, st, aligns[b.block_key]))
     return StyleResult(
         image_id=image_id, section_key=section.section_key,
         config=StyleConfigSnapshot(method=st["method"], em_ratio=st["em_ratio"], align_section_tolerance=st["align_section_tolerance"],
-                                   align_tolerance=st["align_tolerance"]),
+                                   align_tolerance=st["align_tolerance"], weight_min_glyph_px=st["weight_min_glyph_px"],
+                                   weight_refs={str(w): st["weight_refs"][str(w)] for w in FONT_WEIGHT_VALUES}),
         input_fingerprints=fps, blocks=blocks,
     )
 

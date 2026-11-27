@@ -1,0 +1,164 @@
+gs	section_id	n	block_line	weight	note
+GS-01	19	1	209:1	bold	
+GS-01	19	2	210:1	bold	
+GS-01	19	3	210:2	bold	
+GS-01	19	4	211:1	medium	세리프 글꼴
+GS-02	73	1	820:1	bold	
+GS-02	73	2	820:2	bold	
+GS-02	73	3	821:1	mixed	뒷부분만 굵음
+GS-02	73	4	821:2	mixed	앞부분만 굵음
+GS-02	73	5	821:3	medium	
+GS-02	73	6	821:4	mixed	
+GS-02	73	7	822:1	medium	
+GS-02	73	8	822:2	mixed	
+GS-02	73	9	822:3	mixed	
+GS-02	73	10	822:4	medium	
+GS-02	73	11	823:1	medium	
+GS-02	73	12	823:2	mixed	
+GS-02	73	13	824:1	medium	
+GS-02	62	1	715:1	mixed	첫 단어만 굵음
+GS-02	62	2	716:1	mixed	
+GS-02	62	3	717:1	mixed	
+GS-02	62	4	718:1	mixed	
+GS-02	40	1	488:1	medium	
+GS-02	40	2	488:2	medium	
+GS-02	40	3	500:1	medium	
+GS-02	40	4	500:2	medium	
+GS-02	40	5	501:1	bold	
+GS-02	40	6	502:1	bold	
+GS-02	40	7	503:1	bold	
+GS-02	40	8	502:2	bold	
+GS-02	40	9	501:2	bold	
+GS-02	40	10	503:2	bold	
+GS-02	40	11	504:1	medium	
+GS-02	40	12	505:1	medium	
+GS-02	40	13	506:1	medium	
+GS-02	45	1	607:1	medium	
+GS-02	45	2	607:2	mixed	앞부분만 굵음
+GS-02	45	3	608:1	medium	
+GS-02	45	4	608:2	medium	
+GS-02	45	5	609:2	medium	
+GS-02	45	6	609:3	medium	
+GS-02	69	1	779:1	bold	
+GS-02	69	2	780:1	medium	
+GS-02	69	3	780:2	medium	
+GS-02	69	4	781:1	medium	
+GS-02	69	5	786:1	bold	
+GS-02	69	6	787:1	medium	
+GS-02	69	7	788:1	medium	
+GS-02	69	8	789:1	medium	
+GS-02	69	9	790:1	bold	
+GS-02	69	10	791:1	medium	
+GS-02	69	11	792:1	bold	
+GS-02	69	12	793:1	medium	
+GS-02	69	13	793:2	medium	
+GS-02	51	1	653:1	medium	
+GS-02	51	2	653:2	bold	
+GS-02	51	3	654:1	medium	
+GS-02	51	4	654:2	bold	
+GS-02	51	5	655:1	medium	
+GS-02	51	6	655:2	bold	
+GS-02	51	7	656:1	medium	
+GS-02	51	8	656:2	bold	
+GS-02	51	9	657:1	medium	
+GS-02	51	10	657:2	bold	
+GS-02	51	11	658:1	medium	
+GS-02	51	12	658:2	medium	
+GS-02	58	1	689:1	bold	
+GS-02	58	2	690:1	medium	
+GS-02	58	3	690:2	medium	
+GS-02	46	1	610:1	medium	
+GS-02	46	2	610:2	bold	
+GS-02	46	3	611:1	medium	Medium과 Bold 사이(확신 낮음)
+GS-02	46	4	611:2	medium	Medium과 Bold 사이(확신 낮음)
+GS-02	46	5	612:1	medium	
+GS-02	46	6	613:1	medium	
+GS-02	46	7	614:1	medium	
+GS-02	46	8	615:1	medium	
+GS-02	46	9	616:1	medium	
+GS-02	46	10	617:1	medium	
+GS-02	46	11	618:1	medium	
+GS-02	46	12	619:1	medium	
+GS-02	46	13	620:1	medium	
+GS-02	46	14	620:2	medium	
+GS-02	56	1	673:1	medium	
+GS-02	56	2	673:2	medium	
+GS-02	56	3	673:3	medium	
+GS-02	56	4	673:4	medium	
+GS-01	22	1	285:1	light	
+GS-01	22	2	286:1	bold	
+GS-01	22	3	287:1	light	
+GS-01	22	4	306:2	bold	로고 속 글자
+GS-01	22	5	307:1	light	
+GS-01	22	6	308:1	light	
+GS-01	22	7	307:2	light	
+GS-01	22	8	308:2	light	
+GS-01	15	1	176:1	black	
+GS-01	15	2	177:1	medium	3번 줄에서 떨어져 나온 조각
+GS-01	15	3	177:3	medium	
+GS-01	15	4	177:2	medium	
+GS-01	15	5	178:1	light	
+GS-02	35	1	458:1	medium	
+GS-02	35	2	459:1	bold	
+GS-02	35	3	460:1	medium	
+GS-02	35	4	460:2	medium	
+GS-02	35	5	461:1	medium	
+GS-02	35	6	461:2	medium	
+GS-02	35	7	462:1	unsure	글자 없음(사진)
+GS-01	10	1	129:1	light	
+GS-01	10	2	130:1	light	Light와 Medium 사이(확신 낮음)
+GS-01	10	3	130:2	black	
+GS-01	10	4	131:1	light	
+GS-01	10	5	131:2	light	
+GS-01	10	6	133:1	medium	
+GS-01	10	7	134:1	bold	15는 굵고 .92%는 가늘다(확신 낮음)
+GS-01	10	8	135:1	bold	
+GS-01	10	9	133:2	medium	
+GS-01	10	10	140:1	light	
+GS-01	10	11	140:2	light	
+GS-01	20	1	242:1	bold	
+GS-01	20	2	250:1	bold	
+GS-01	20	3	251:1	bold	
+GS-01	20	4	252:1	bold	
+GS-01	20	5	250:2	bold	
+GS-01	20	6	253:1	medium	
+GS-01	20	7	254:1	bold	어두운 바탕의 흰 글자라 굵어 보일 수 있음(확신 낮음)
+GS-01	20	8	255:1	medium	
+GS-01	20	9	256:1	medium	
+GS-01	20	10	254:2	bold	어두운 바탕의 흰 글자라 굵어 보일 수 있음(확신 낮음)
+GS-01	20	11	255:2	medium	
+GS-01	20	12	257:1	medium	
+GS-01	20	13	257:2	medium	
+GS-01	16	1	179:1	bold	
+GS-01	16	2	180:1	light	Light와 Medium 사이(확신 낮음)
+GS-01	16	3	180:2	black	
+GS-01	16	4	180:3	black	
+GS-01	16	5	181:1	medium	
+GS-01	16	6	181:2	medium	
+GS-01	16	7	182:1	medium	
+GS-01	16	8	183:1	medium	세리프 글꼴
+GS-01	16	9	184:1	light	
+GS-01	16	10	184:2	light	
+GS-02	39	1	478:1	bold	Medium과 Bold 사이(확신 낮음)
+GS-02	39	2	479:1	bold	
+GS-02	39	3	480:1	medium	
+GS-02	39	4	487:1	medium	
+GS-01	11	1	141:1	light	
+GS-01	11	2	142:1	light	Light와 Medium 사이(확신 낮음)
+GS-01	11	3	142:2	black	
+GS-01	11	4	143:1	medium	
+GS-01	11	5	143:2	medium	
+GS-01	11	6	144:1	light	
+GS-02	44	1	590:1	mixed	형광 부분만 굵음
+GS-02	44	2	591:1	mixed	'얇은'만 가늘다
+GS-02	44	3	591:2	bold	
+GS-02	44	4	591:3	bold	
+GS-02	44	5	592:1	medium	
+GS-02	44	6	592:2	medium	
+GS-02	44	7	596:1	bold	
+GS-02	44	8	600:1	medium	
+GS-02	44	9	600:2	medium	
+GS-02	44	10	606:1	medium	
+GS-02	37	1	465:1	medium	
+GS-02	37	2	465:2	medium	
+GS-02	37	3	465:3	medium	

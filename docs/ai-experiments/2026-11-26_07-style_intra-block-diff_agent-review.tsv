@@ -1,0 +1,39 @@
+case_no	gs	block_id	role	tool_type	agent_style	agent_measure	note
+1	GS-01	184	body	within	none	false_diff	같은 스타일. 크기 차이는 글자 모양에 따른 bbox 높이 차이
+2	GS-02	796	body	between	none	false_diff	같은 스타일. 크기 1.20은 bbox 높이 차이
+3	GS-01	66	caption	between	between	ok	큰 숫자 98과 작은 % — 화면에서는 같은 줄이지만 ③은 두 줄로 묶음
+4	GS-02	508	body	between	between	ok	3번째 줄만 굵다. 크기 · 색은 같아 보이고 굵기 차이가 글자색 거리 64로 잡힘
+5	GS-02	798	title	none	none	ok	
+6	GS-01	52	title	none	none	ok	
+7	GS-02	426	title	between	within	loc_mismatch	1번째 줄의 일부 단어만 파란색. 줄 전체가 영역 하나라 줄 사이 색 차이로 잡힘
+8	GS-01	179	title	none	none	ok	
+9	GS-02	738	body	between	none	false_diff	같은 스타일. 글머리표가 들어간 영역의 bbox가 더 높다
+10	GS-01	157	caption	both	none	false_diff	원형 도장의 곡선 배치 글자. bbox 높이가 기울기에 따라 달라짐
+11	GS-01	166	caption	within	within	ok	배지 속 수치(흰 글자 · 연두 배경)와 옆 라벨(녹색 글자) — 서로 다른 요소가 한 줄. 수치 안에서도 6이 .78%보다 크다
+12	GS-02	709	caption	between	within	false_diff+missed	2번째 줄의 '저자극성 제품'만 형광 배경 · 굵음 — 영역이 나뉘지 않아 안 잡힘. 크기 1.83은 '으로' 조각 영역 때문
+13	GS-02	573	caption	both	none	false_diff	논문 그림 속 흐린 작은 영문. 크기 차이는 10~14px bbox 높이 차이
+14	GS-01	75	body	none	between	missed	2번째 줄만 굵다. 크기 · 색이 같아 차이 없음으로 잡힘(굵기는 재지 않음)
+15	GS-02	823	body	between	within	loc_mismatch	2번째 줄 앞부분만 굵고 진하다. 줄 전체가 영역 하나라 줄 사이 색 차이로 잡힘
+16	GS-02	713	body	none	none	ok	
+17	GS-01	194	body	both	between	ok	1~2줄 흰색 굵은 큰 제목 + 3~4줄 어두운 본문. 줄 안 크기 차이(1.2 기준)는 bbox 높이 차이
+18	GS-02	587	caption	between	none	false_diff	논문 그림 속 흐린 작은 영문
+19	GS-01	88	title	none	none	ok	
+20	GS-01	313	body	between	none	false_diff	같은 스타일의 가는 글꼴. 글자색 거리 69는 측정값 흔들림으로 보임
+21	GS-01	211	title	within	none	false_diff	같은 스타일의 영문 한 줄. 하강부(g)가 있는 영역의 bbox가 더 높다
+22	GS-01	148	body	within	none	false_diff	같은 스타일
+23	GS-01	142	title	both	between	ok	1번째 줄 어두운 보통 + 2번째 줄 연두색 굵고 큼. 줄 안 크기 차이(1.2 기준)는 bbox 높이 차이
+24	GS-02	763	caption	none	none	ok	
+25	GS-01	181	body	within	none	false_diff	같은 스타일. 괄호 · 별표가 들어간 영역의 bbox가 더 높다
+26	GS-01	68	caption	between	between	ok	POWDER ROOM 로고풍 글자와 곡선 문구의 조각('진정') — 서로 다른 요소가 한 블록
+27	GS-01	193	body	between	between	ok	1번째 줄 흰색 굵은 큰 제목 + 2~3줄 어두운 본문
+28	GS-01	58	title	pair_only	none	false_diff	같은 스타일의 2줄 제목
+29	GS-02	569	caption	both	between	ok	굵은 머리말(Key Words) + 회색 본문. 논문 그림 속 흐린 작은 글자라 확신 낮음
+30	GS-01	286	title	none	none	ok	
+31	GS-01	143	body	within	none	false_diff	같은 스타일
+32	GS-02	488	title	within	within	ok	줄마다 흰 글자 수치(어두운 배경) + 형광 상자 속 검은 글자 — 2열 표 모양이 한 블록
+33	GS-02	690	body	none	none	ok	
+34	GS-01	128	caption	pair_only	none	false_diff	같은 스타일. 별표만 있는 영역
+35	GS-02	800	title	none	none	ok	
+36	GS-02	656	caption	between	between	ok	작은 라벨 + 크고 굵은 수치(-2.46%, % 기호는 작다)
+37	GS-02	507	title	pair_only	between	false_diff+missed	3번째 줄만 굵다(굵기는 재지 않음). 크기 1.20은 bbox 높이 차이
+38	GS-01	305	caption	both	between	ok	FSC 인증 마크 안의 글자들 — 크기 · 글꼴이 서로 다름. 확신 낮음

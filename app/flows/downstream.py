@@ -1064,6 +1064,7 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
     ids: list[int] = []
     blocking = False
     all_ready = True
+    tr_outcome = _translation_outcome(db, run_id, scope["section_ids"], by)
     for sid in scope["section_ids"]:
         lab, lg = by.get(("label", sid)), by.get(("logo", sid))
         inp, sty, tr, pv = by.get(("inpaint", sid)), by.get(("style", sid)), by.get(("translate", sid)), by.get(("preview", sid))
@@ -1071,12 +1072,19 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
             blocking = True
             all_ready = False
             continue
-        if (tr and tr["status"] == "failed" and tr["error_code"] != TRANSLATE_PARTIAL and (tr["target_count"] or 0) > 0
-                and not _translate_settled(db, run_id, tr)):
-            # 번역 대상이 있는데 성공분 없이 끝남 — 오류 코드와 무관하게 빈 N5 로 보내지 않는다(D9-3).
-            # 부분 실패(TRANSLATE_PARTIAL)만 성공분 보존·실패 칸 비움으로 진행한다. 대상 0개 정상 생략은 failed 가 아니다.
-            # 예외(PM 11-27): 시간 초과로 닫히고 횟수를 다 쓴 번역은, 앞 시도의 성공분이 있으면 성공분 보존 · 실패 칸 빈 칸으로 진행한다
+        if (tr and tr["status"] == "failed" and (tr["target_count"] or 0) > 0 and execution.timed_out(tr)
+                and _limit_left(tr)):
+            # 시간 초과로 닫혔고 횟수가 남은 번역 — N4 오류에 머물고 [다시 시도] 때 다시 실행한다(PM 11-27 1차: 시간 초과 = N4,
+            # 남은 횟수 안에서 재실행). 빈 칸으로 넘기는 것은 다시 할 수 없는 번역(소진 · 일반 실패 최종)만이다
             blocking = True
+            all_ready = False
+            continue
+        if tr and tr["status"] == "failed" and (tr["target_count"] or 0) > 0 and tr_outcome != "ok":
+            # 작업 단위 번역 판정(PM 11-27): 작업 어디에도 번역 성공 블록이 아직 없다(= 이 섹션도 성공분 0).
+            # "zero"(번역 대상 섹션이 모두 끝남) → 막힘(N4). "pending"(다른 섹션 번역이 아직 진행 중) → 미리보기를 만들지 않고 기다린다.
+            # 성공 블록이 하나라도 생기면("ok") 실패 섹션은 성공분 보존 · 실패 칸 빈 칸으로 아래에서 진행한다
+            # (섹션 하나의 성공분 0 이 다른 섹션의 성공분까지 막지 않는다). 대상 0개 정상 생략은 failed 가 아니다
+            blocking = blocking or tr_outcome == "zero"
             all_ready = False
             continue
         if not (_final(inp) and _final(sty) and _final(tr)):
@@ -1184,12 +1192,14 @@ RETRY, FALLBACK, BLOCK = "retry", "fallback", "block"
 _POLICY: dict[str, Any] = {
     "inpaint": RETRY,  # 남은 횟수 안에서 다시 실행, 소진이면 대체(원본 배경 · 실행 실패 표시 — 시간 초과 처리가 이미 남긴 기록)
     "style": RETRY,  # 남은 횟수 안에서 다시 실행, 소진이면 대체(역할 기본값 — 실패 시도는 최종 상태로 렌더가 기본값 적용)
-    "label": RETRY,  # 남은 횟수 안에서 다시 실행. 소진은 지금처럼 막힘 — PRD 「판단 실패」 규칙의 「전부 실패」 범위 확인 전(보고서 질문 ①)
+    # 남은 횟수 안에서 다시 실행. 소진은 지금처럼 막힘 — PM 확정 정책(11-27: 일부 섹션 실패 = 원본 + 실행 실패 배지로 N5,
+    # 처리 대상 블록 전부 실패만 N4)은 후순위 구현(11번 → 10번 → 13번 뒤). 그 전까지 이 막힘이 임시 동작(출구 [중단] → N3 → 섹션 제외)
+    "label": RETRY,
     "logo": RETRY,  # 라벨과 같음(로고 누적 한도는 기본값 0 — 그래서 소진 = 막힘)
     "text_check": FALLBACK,  # 규칙 검사: 검사 실패 · 결과 없음 유지로 N5(지금 동작 유지 — 이번 결정 범위 밖)
-    # 번역: 시간 초과로 닫히고 횟수가 없을 때 앞 시도의 성공분이 있으면 성공분 보존 · 실패 칸 빈 칸으로 진행(PM 11-27).
-    # 성공분 0 은 지금처럼 막힘(D9-3 「빈 N5 로 보내지 않음」 — 보고서 질문 ②). progress() 도 같은 판정을 쓴다(_translate_settled)
-    "translate_partial_proceed": True,
+    # 번역(PM 11-27 2차 회신): 실패로 끝난 섹션은 오류 종류와 관계없이 성공분 보존 · 실패 칸 빈 칸으로 N5 진행(섹션 단위로 막지 않음).
+    # 막힘은 작업 단위 — 번역 대상이 있는 섹션의 번역이 모두 끝났는데 성공 블록이 0 일 때만(_translation_outcome = "zero").
+    # progress() 와 job_retry_plan 이 같은 판정을 쓴다. 이전 D9-3 「빈 N5 로 보내지 않음」의 섹션 단위 차단을 대신한다
 }
 
 
@@ -1202,8 +1212,8 @@ class JobRetryRejected(Exception):
 
 
 class JobRetryBlocked(JobRetryRejected):
-    """판정에서 「재시도 불가 · 출구 없음」이 하나 이상 — 지금 동작에서도 진행이 막히는 경우만(라벨 · 로고 소진 · 성공분 없는 번역 소진 ·
-    소진 아닌 재시도 불가). 새 시도 0개. blocking = 막힌 섹션 · 단계 목록(공개 응답 모양은 계약 확정 전)."""
+    """판정에서 「재시도 불가 · 출구 없음」이 하나 이상 — 진행이 막히는 경우만(라벨 · 로고 소진 — PM 확정 정책의 후순위 구현 전 임시 동작,
+    작업 전체 번역 성공 0, 라벨 · 로고의 소진 아닌 재시도 불가). 새 시도 0개. blocking = 막힌 섹션 · 단계 목록(공개 응답 모양은 계약 확정 전)."""
 
     def __init__(self, blocking: list[dict[str, Any]]):
         super().__init__("JOB_RETRY_BLOCKED", f"재시도할 수 없는 처리 {len(blocking)}건")
@@ -1216,7 +1226,7 @@ class JobRetryUnsupported(JobRetryRejected):
 
 
 def translate_logical_successes(db: Session, run_id: int, section_id: int) -> dict[str, Any]:
-    """번역 성공분을 논리 작업(같은 실행 · 같은 섹션) 단위로 센다(1-4). progress() 는 _translate_settled 로, 판정은 _classify 로 쓴다.
+    """번역 성공분을 논리 작업(같은 실행 · 같은 섹션) 단위로 센다(1-4). 작업 단위 판정(_translation_outcome)이 쓴다.
     현재 번역 시도의 고정 입력 `preserved`(앞 시도에서 채택한 성공분) 중 지금도 블록에 그대로 남은 것(revision · 문장 해시 일치,
     TranslateHandler.adopt 의 보존 대조와 같은 규칙) + 현재 시도가 채택돼 반영한 것 + 사용자가 직접 입력한 대상 블록.
     마지막 시도가 시간 초과로 닫혀 채택 기록이 없어도 앞 시도의 성공분은 0 으로 치지 않는다."""
@@ -1247,11 +1257,40 @@ def translate_logical_successes(db: Session, run_id: int, section_id: int) -> di
             "hasSuccess": preserved + applied + edited > 0}
 
 
-def _translate_settled(db: Session, run_id: int, tr: dict[str, Any]) -> bool:
-    """시간 초과로 닫히고 누적 한도를 다 쓴 번역 시도를 「성공분 보존 · 실패 칸 빈 칸」으로 끝난 것으로 볼지(PM 11-27).
-    앞 시도의 성공분(translate_logical_successes)이 있을 때만 참 — 성공분 0 은 지금처럼 막힌다(D9-3)."""
-    return (_POLICY["translate_partial_proceed"] and tr["status"] == "failed" and execution.timed_out(tr) and _exhausted(tr)
-            and translate_logical_successes(db, run_id, tr["unit_id"])["hasSuccess"])
+def _translate_has_success(db: Session, run_id: int, tr: dict[str, Any]) -> bool:
+    """이 섹션의 현재 번역(논리 단위)에 성공 블록이 하나라도 있는지. 완료 = 대상 전부 성공, 부분 실패 = 성공분 있음,
+    그 밖(실패 · 진행 중 재시도)은 앞 시도의 유효 보존분 · 채택분 · 사용자 직접 입력으로 센다(translate_logical_successes)."""
+    if tr["status"] == "done":
+        return (tr["target_count"] or 0) > 0
+    if tr["status"] == "failed" and tr["error_code"] == TRANSLATE_PARTIAL:
+        return True
+    return translate_logical_successes(db, run_id, tr["unit_id"])["hasSuccess"]
+
+
+def _translation_may_change(retry_items: list[dict[str, Any]]) -> bool:
+    """[다시 시도]로 작업의 번역 성공 여부가 아직 바뀔 수 있는지 — 번역 재시도, 또는 번역을 새로 만들 라벨 · 로고 재시도가 있을 때."""
+    return any(i["stage"] in ("translate", "label", "logo") for i in retry_items)
+
+
+def _translation_outcome(db: Session, run_id: int, section_ids: list[int], by: dict[tuple[str, int], dict[str, Any]]) -> str:
+    """작업 단위 번역 결과(PM 11-27): "none"(번역 대상이 있는 섹션 없음) · "ok"(성공 블록 하나 이상) ·
+    "zero"(번역 대상이 있는 섹션의 번역이 모두 끝났는데 성공 블록 0 — 이때만 N4) · "pending"(아직 판단 못 함).
+    셀러가 제외한 섹션은 실행 범위(section_ids)에 없다. 라벨 · 로고가 실패한 섹션은 번역 시도가 없어 셈에서 빠진다(그 섹션은 따로 막힘)."""
+    targets: list[dict[str, Any]] = []
+    for sid in section_ids:
+        tr = by.get(("translate", sid))
+        if tr is None:
+            lab, lg = by.get(("label", sid)), by.get(("logo", sid))
+            if (lab and lab["status"] == "failed") or (lg and lg["status"] == "failed"):
+                continue
+            return "pending"  # 번역 시도가 아직 없다(라벨 · 로고 채택 뒤에 생김)
+        if (tr["target_count"] or 0) > 0:
+            targets.append(tr)
+    if not targets:
+        return "none"
+    if any(_translate_has_success(db, run_id, t) for t in targets):
+        return "ok"
+    return "zero" if all(_final(t) for t in targets) else "pending"
 
 
 def _limit_left(att: dict[str, Any]) -> bool:
@@ -1292,12 +1331,10 @@ def _classify(db: Session, run: dict[str, Any], att: dict[str, Any], policy: dic
             # 실패 블록만 다시 — 성공분은 고정 입력 preserved 로 그대로(translate_retry_plan)
             return RETRY, "retry"
         if att["error_code"] == TRANSLATE_PARTIAL:
-            return FALLBACK, "partial_kept"  # 횟수 소진 부분 실패: 지금처럼 성공분 보존 · 실패 칸 비움(progress 가 막지 않음)
-        if (timeout and _exhausted(att) and policy["translate_partial_proceed"]
-                and translate_logical_successes(db, run["id"], att["unit_id"])["hasSuccess"]):
-            return FALLBACK, "partial_after_timeout"
-        # 시간 초과가 아닌 일반 실패의 소진은 지금 동작(막힘) 그대로 — PM 11-27 결정은 시간 초과 복구 범위
-        return BLOCK, _no_retry_reason(att)
+            return FALLBACK, "partial_kept"  # 횟수 소진 부분 실패: 성공분 보존 · 실패 칸 비움
+        # 다시 할 수 없는 번역(소진 · 연결 불가 등 — 시간 초과 · 일반 실패 모두): 섹션 단위로 막지 않고 성공분 보존 · 실패 칸 빈 칸(PM 11-27).
+        # 작업 전체 번역 성공 0 이면 job_retry_plan 이 작업 단위로 막는다(progress 와 같은 판정)
+        return FALLBACK, "blank_kept"
     if stage == "preview":
         if left:
             return RETRY, "retry"
@@ -1326,13 +1363,25 @@ def job_retry_plan(db: Session, job_id: int, *, policy: dict[str, Any] | None = 
         out["state"] = "no_active_run"
         return out
     out["state"], out["runId"] = "ok", run["id"]
-    for a in execution.current_attempts(db, run["id"]):
+    atts = execution.current_attempts(db, run["id"])
+    targets: dict[int, int] = {}
+    for a in atts:
         if a["status"] != "failed":
             continue
         decision, reason = _classify(db, run, a, pol)
         item = {"taskId": a["id"], "stage": a["stage"], "sectionId": a["unit_id"], "errorCode": a["error_code"], "reason": reason,
                 "retryCount": a["retry_count"], "maxRetry": a["max_retry"]}
+        targets[a["id"]] = a["target_count"] or 0
         out[{RETRY: "retry", FALLBACK: "fallback", BLOCK: "blocking"}[decision]].append(item)
+    # 작업 단위 번역 판정(PM 11-27, progress 와 같은 기준): 다시 실행할 번역이 없고 번역 대상이 있는 섹션 전부 성공 0 이면,
+    # 빈 칸으로 넘길 번역을 막힘으로 옮긴다(작업 전체가 번역 없는 N5 가 되지 않게). 번역 결과가 아직 바뀔 수 있으면 기다린다 —
+    # 다시 실행할 번역이 있거나, 다시 실행할 라벨 · 로고가 있을 때(그 섹션은 채택 뒤 번역이 새로 생긴다 — progress 도 "pending")
+    if not _translation_may_change(out["retry"]):
+        by = {(a["stage"], a["unit_id"]): a for a in atts}
+        if _translation_outcome(db, run["id"], json_value(run["run_scope"])["section_ids"], by) == "zero":
+            moved = [i for i in out["fallback"] if i["stage"] == "translate" and targets.get(i["taskId"], 0) > 0]
+            out["fallback"] = [i for i in out["fallback"] if i not in moved]
+            out["blocking"] += [{**i, "reason": "job_translation_zero"} for i in moved]
     out["available"] = not out["blocking"] and not out["unsupported"]
     return out
 

@@ -3,7 +3,8 @@
 PM 결정: 시간 초과 = N4 오류(점검이 N5 로 넘기지 않음). [다시 시도] 때 시간 초과로 닫힌 처리는 단계별 기존 누적 한도(MAX_RETRY) 안에서
 다시 실행(인페인트 · 스타일 · 라벨 · 로고 포함), 소진이면 실패 규칙(인페인트 = 원본 배경 · 실행 실패 표시, 번역 = 성공분 보존 · 실패 칸 빈 칸,
 스타일 = 역할 기본값)으로 마무리해 N5 판정. 재시도 가능한 일반 실패도 함께. 시간 초과라고 새 횟수를 주지 않는다(한도 = 가).
-정해지지 않은 경우(라벨 · 로고 소진 · 성공분 없는 번역 소진 · 소진 아닌 재시도 불가)는 지금 동작(막힘)을 유지한다.
+PM 2차 회신(11-27): 번역은 작업 단위 — 실패로 끝난 섹션은 빈 칸으로 진행하고 작업 전체 번역 성공 0 일 때만 막힌다(일반 흐름 포함).
+라벨 · 로고 소진은 확정 정책(일부 섹션 실패 = 원본 + 배지로 N5)의 후순위 구현 전까지 지금 동작(막힘)이 임시 동작이다.
 대역 · 준비는 test_job_state_timers · test_timeout_followups 와 같다.
 """
 from __future__ import annotations
@@ -151,7 +152,7 @@ def test_translate_exhausted_with_successes_proceeds_with_blank_failed_block(env
     s = _successes(cur, sid)
     assert s["hasSuccess"] is True
     p = _plan(job)
-    assert [(i["taskId"], i["reason"]) for i in p["fallback"] if i["stage"] == "translate"] == [(cur["id"], "partial_after_timeout")]
+    assert [(i["taskId"], i["reason"]) for i in p["fallback"] if i["stage"] == "translate"] == [(cur["id"], "blank_kept")]
     assert p["blocking"] == [] and p["available"] is True
     before = {r["id"]: r["trans_1"] for r in _q("SELECT id, trans_1 FROM text_block WHERE section_id = :s AND trans_1 IS NOT NULL",
                                                  s=sid)}
@@ -169,12 +170,13 @@ def test_translate_exhausted_with_successes_proceeds_with_blank_failed_block(env
 
 
 # ---- 원자성 · 정해지지 않은 경우는 지금처럼 막힘 ------------------------------------------------------------------------
-def test_translate_exhausted_without_successes_stays_blocked_and_creates_nothing(env, monkeypatch):
-    monkeypatch.setitem(downstream.MAX_RETRY, "translate", 0)  # 성공분 없음 + 한도 0 → 지금처럼 막힘(D9-3)
+def test_translate_exhausted_with_zero_successes_job_wide_stays_blocked_and_creates_nothing(env, monkeypatch):
+    # PM 11-27: 작업 전체 번역 성공 0 일 때만 막힘. 여기서는 모든 섹션 번역이 시간 초과 · 한도 0 → 작업 전체 0
+    monkeypatch.setitem(downstream.MAX_RETRY, "translate", 0)
     ids, tr, inp = _inpaint_timeout(env)
     job = ids["job"]
     p = _plan(job)
-    assert {b["taskId"] for b in p["blocking"]} == set(tr) and {b["reason"] for b in p["blocking"]} == {"retry_limit"}
+    assert {b["taskId"] for b in p["blocking"]} == set(tr) and {b["reason"] for b in p["blocking"]} == {"job_translation_zero"}
     assert p["available"] is False and {i["taskId"] for i in p["retry"]} == set(inp)
     before_att, before_job, before_sec = _attempts(job), _job_row(job), _sections(job)
     with pytest.raises(downstream.JobRetryBlocked) as e:
@@ -418,13 +420,15 @@ def _att(stage, *, error_code="PROCESSING_TIMEOUT", retry_count=0, max_retry=1, 
     (_att("label", error_code="LABEL_FAILED", retry_count=1, max_retry=1), (downstream.BLOCK, "retry_limit")),  # 자동 재시도로 소진
     (_att("label", error_code="LABEL_FAILED"), (downstream.BLOCK, "not_retryable")),
     (_att("logo", error_code="LOGO_FAILED", max_retry=0), (downstream.BLOCK, "retry_limit")),
-    (_att("translate", error_code="AI_ADAPTER_UNAVAILABLE", retry_count=2, max_retry=2), (downstream.BLOCK, "retry_limit")),
+    # 번역(PM 11-27): 다시 할 수 없으면 오류 종류와 관계없이 섹션 단위로는 빈 칸 진행 — 작업 전체 0 은 job_retry_plan 이 따로 막는다
+    (_att("translate", error_code="AI_ADAPTER_UNAVAILABLE", retry_count=2, max_retry=2), (downstream.FALLBACK, "blank_kept")),
     # 인페인트 · 스타일 일반 실패는 사용자 재시도 종류(JOB-06 translate · render)가 아니다 — 횟수가 남아도 지금 대체 그대로
     (_att("inpaint", error_code="INPAINT_FAILED"), (downstream.FALLBACK, "fallback")),
     (_att("style", error_code="STYLE_FAILED"), (downstream.FALLBACK, "fallback")),
     (_att("translate", target_count=0), (downstream.FALLBACK, "partial_kept")),  # 대상 0 — 다시 할 것 없음
-    (_att("translate", error_code="AI_ADAPTER_UNAVAILABLE"), (downstream.BLOCK, "not_retryable")),  # 횟수 남아도 막힘 · 사유 구분
-    (_att("translate", error_code="TRANSLATE_FAILED", retry_count=2, max_retry=2), (downstream.BLOCK, "retry_limit")),
+    (_att("translate", error_code="AI_ADAPTER_UNAVAILABLE"), (downstream.FALLBACK, "blank_kept")),  # 연결 불가 — 다시 하지 않고 빈 칸
+    (_att("translate", error_code="TRANSLATE_FAILED", retry_count=2, max_retry=2), (downstream.FALLBACK, "blank_kept")),
+    (_att("translate", retry_count=2, max_retry=2), (downstream.FALLBACK, "blank_kept")),  # 시간 초과 소진(성공분 여부는 작업 단위로)
     (_att("translate", error_code="TRANSLATE_PARTIAL", retry_count=2, max_retry=2), (downstream.FALLBACK, "partial_kept")),
     (_att("translate", error_code="TRANSLATE_FAILED", retry_count=0, max_retry=2), (downstream.RETRY, "retry")),  # 일반 실패 함께
     (_att("inpaint", retry_count=1, max_retry=1), (downstream.FALLBACK, "fallback")),
@@ -460,17 +464,92 @@ def test_translate_success_kept_after_user_edits_preserved_block(env):
     _cleanup(ids, env)
 
 
-def test_translate_general_failure_exhausted_with_successes_stays_blocked(env, monkeypatch):
-    """시간 초과가 아닌 일반 실패로 한도를 다 쓴 번역은 성공분이 있어도 지금 동작(막힘) — 시간 초과 복구 결정의 범위 밖."""
+def test_translate_general_failure_exhausted_with_successes_proceeds_with_blank(env, monkeypatch):
+    """PM 11-27: 시간 초과가 아닌 일반 실패로 한도를 다 쓴 번역도 같은 작업 단위 기준 — 성공분이 있으면 빈 칸으로 N5."""
     monkeypatch.setitem(downstream.MAX_RETRY, "translate", 1)
     ids, sid, target, cur = _translate_partial_then_timeout(env)
     job = ids["job"]
     _q("UPDATE job_async_task SET error_code = 'TRANSLATE_FAILED' WHERE id = :t RETURNING id", t=cur["id"])  # 일반 실패로 바꿔 둠
     assert _successes(cur, sid)["hasSuccess"] is True
     p = _plan(job)
-    assert [(b["taskId"], b["reason"]) for b in p["blocking"]] == [(cur["id"], "retry_limit")] and p["available"] is False
-    before = _attempts(job)
-    with pytest.raises(downstream.JobRetryBlocked):
-        _retry_job(job)
-    assert _attempts(job) == before and _state(ids) == ("failed", "N4", "failed")
-    _cleanup(ids, env)
+    assert [(i["taskId"], i["reason"]) for i in p["fallback"] if i["stage"] == "translate"] == [(cur["id"], "blank_kept")]
+    assert p["blocking"] == [] and p["available"] is True
+    _retry_job(job)
+    env["q"].drain()
+    assert _state(ids) == ("review", "N5", "reviewing")
+    assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=target)[0]["trans_1"] is None  # 실패 칸은 빈 칸
+
+
+def test_normal_flow_one_section_all_failed_translation_does_not_block_others(env):
+    """PM 11-27: 섹션 하나의 번역 성공분 0 이 다른 섹션의 성공분까지 막지 않는다 — 재시도 전 일반 흐름에서도.
+    (모든 섹션이 0 이면 N4 — test_exec_downstream.test_translation_failed_with_other_code_is_still_n4_error)"""
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    secs = [r["s"] for r in _q("SELECT DISTINCT tb.section_id AS s FROM text_block tb JOIN section s ON s.id = tb.section_id "
+                               "WHERE s.job_id = :j ORDER BY 1", j=job)]
+    assert len(secs) >= 2
+    bad = secs[0]
+    keys = {f"blk_{r['id']}" for r in _q("SELECT id FROM text_block WHERE section_id = :s", s=bad)}
+    ai_adapters.set_adapters(translator=FakeTranslator(fail_keys=keys))  # 그 섹션 블록 전부 실패(자동 재시도도 실패)
+    try:
+        assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+        env["q"].drain()
+        assert _state(ids) == ("review", "N5", "reviewing")
+        tr = _q("SELECT status, target_count FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s "
+                "AND is_current", j=job, s=bad)[0]
+        assert tr["status"] == "failed" and tr["target_count"] > 0
+        assert all(r["trans_1"] is None for r in _q("SELECT trans_1 FROM text_block WHERE section_id = :s", s=bad))  # 빈 칸
+        assert _q("SELECT count(*) AS n FROM job_async_task WHERE job_id = :j AND stage = 'preview' AND unit_id = :s",
+                  j=job, s=bad)[0]["n"] >= 1  # 그 섹션도 미리보기까지 진행
+        others = _q("SELECT count(*) AS n FROM text_block WHERE section_id = ANY(:s) AND trans_1 IS NOT NULL", s=secs[1:])[0]["n"]
+        assert others > 0  # 다른 섹션 성공분은 그대로
+    finally:
+        ai_adapters.set_adapters(translator=FakeTranslator())
+
+
+# ---- 작업 단위 번역 판정(PM 11-27) — 입력별 경계 ----------------------------------------------------------------------
+def _tr(sid, status, *, target=2, code=None):
+    return {"stage": "translate", "unit_id": sid, "status": status, "target_count": target, "error_code": code}
+
+
+def _lab(sid, status):
+    return {"stage": "label", "unit_id": sid, "status": status, "target_count": 0, "error_code": None}
+
+
+@pytest.mark.parametrize("atts, logical, expected", [
+    # 보존분 · 채택분 · 사용자 입력만 있는 실패 섹션도 성공으로 센다(앞 시도의 유효 성공분 보존) → ok
+    ([_tr(1, "failed", code="PROCESSING_TIMEOUT"), _tr(2, "failed", code="TRANSLATE_FAILED")], {1: True}, "ok"),
+    # 모든 번역 대상 섹션이 끝났고 성공 0 → zero(이때만 N4)
+    ([_tr(1, "failed", code="PROCESSING_TIMEOUT"), _tr(2, "failed", code="AI_ADAPTER_UNAVAILABLE")], {}, "zero"),
+    # 번역 대상 0 섹션(정상 생략 done)과 성공 0 섹션이 섞임 → 대상 0 은 셈에서 빠져 zero
+    ([_tr(1, "done", target=0), _tr(2, "failed", code="TRANSLATE_FAILED")], {}, "zero"),
+    # 번역 대상 섹션이 하나도 없음 → none(막지 않음)
+    ([_tr(1, "done", target=0), _tr(2, "done", target=0)], {}, "none"),
+    # 다른 섹션 번역 진행 중(재시도 포함) → pending(기다림)
+    ([_tr(1, "failed", code="TRANSLATE_FAILED"), _tr(2, "pending")], {}, "pending"),
+    # 진행 중 재시도에 앞 시도 보존분이 있으면 → ok
+    ([_tr(1, "failed", code="TRANSLATE_FAILED"), _tr(2, "running")], {2: True}, "ok"),
+    # 부분 실패는 성공분 있음
+    ([_tr(1, "failed", code="TRANSLATE_PARTIAL"), _tr(2, "failed", code="TRANSLATE_FAILED")], {}, "ok"),
+    # 라벨이 최종 실패한 섹션(번역 시도 없음)은 셈에서 빠진다 — 그 섹션은 라벨 임시 막힘으로 따로 막힌다
+    ([_lab(1, "failed"), _tr(2, "failed", code="TRANSLATE_FAILED")], {}, "zero"),
+    ([_lab(1, "failed"), _tr(2, "done")], {}, "ok"),
+    # 라벨이 아직 진행 중인 섹션(번역 시도가 곧 생김) → pending
+    ([_lab(1, "pending"), _tr(2, "failed", code="TRANSLATE_FAILED")], {}, "pending"),
+])
+def test_translation_outcome_job_level(monkeypatch, atts, logical, expected):
+    monkeypatch.setattr(downstream, "translate_logical_successes",
+                        lambda db, run_id, sid: {"hasSuccess": logical.get(sid, False)})
+    by = {(a["stage"], a["unit_id"]): a for a in atts}
+    assert downstream._translation_outcome(None, 1, [1, 2], by) == expected
+
+
+@pytest.mark.parametrize("stages, expected", [
+    ([], False),
+    (["inpaint", "style", "preview"], False),       # 번역 결과를 바꾸지 않는 재시도
+    (["translate"], True),                          # 번역 재시도 — 결과를 기다린다
+    (["label"], True),                              # 라벨 재시도 → 채택 뒤 그 섹션 번역이 새로 생긴다(검토 지적 1)
+    (["logo", "inpaint"], True),
+])
+def test_job_retry_waits_when_translation_may_still_change(stages, expected):
+    assert downstream._translation_may_change([{"stage": s} for s in stages]) is expected

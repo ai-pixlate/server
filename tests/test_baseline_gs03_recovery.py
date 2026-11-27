@@ -15,6 +15,33 @@ from tools.baseline.core import write_new
 
 
 class RecoveryTest(unittest.TestCase):
+    def test_real_collector_full_no_wait_driver(self):
+        import test_baseline_protocol as fixtures
+        from tools.baseline.interaction import Collector
+        from tools.baseline import protocol
+        from tools.baseline.core import read
+        fixture=fixtures.ProtocolTest();fixture.setUp()
+        try:
+            collector=Collector(fixture.root,1,fixture.sources)
+            state={'current_step':'N3','status':'review'}
+            view={'values':{'1':'unchanged'},'warnings':[{'blockId':1,'code':'translation_failed'}]}
+            session=r.NoWaitSession(collector,SimpleNamespace(snapshot=lambda stage:copy.deepcopy(view)))
+            r.record_recovery_binding(collector,{'1':fixture.sources[0]})
+            def proceed(*a):state['current_step']='N5'
+            def confirm(db,jid,seller,acks):
+                self.assertEqual(acks,view['warnings']);state['current_step']='N6'
+            def checkpoint(cp,jid):collector.checkpoint(cp,view,[])
+            with patch('builtins.input',side_effect=AssertionError('입력 대기 금지')):
+                result=r.drive_from_n3(1,1,lambda:nullcontext(None),lambda *a,**k:[state],SimpleNamespace(drain=lambda:None),Mock(),None,
+                    SimpleNamespace(proceed=proceed),SimpleNamespace(confirm=confirm,can_save=lambda *a:True,unresolved_warnings=lambda *a:view['warnings']),
+                    lambda w:collector.evidence({'warnings':w}),checkpoint,lambda stage,jid:session.review(stage),collector.operation)
+            self.assertEqual(result,'completed');self.assertEqual(protocol.validate(fixture.root),[])
+            _,data=protocol.load(fixture.root)
+            self.assertFalse(any(x['record_kind']=='user_edit' for x in data['execution']))
+            evidence=[read(p) for p in (fixture.root/'artifacts').glob('*.json')]
+            self.assertTrue(any(x.get('kind')=='recovery_bound' for x in evidence))
+            self.assertTrue(any(x.get('stage')=='N5' and x.get('human_reviewed') is False for x in evidence))
+        finally:fixture.tearDown()
     def history(self, root, rows):
         p=Path(root)/'usage.jsonl'
         p.write_text('\n'.join(json.dumps(x) for x in rows),encoding='utf-8');return p

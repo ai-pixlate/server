@@ -18,7 +18,7 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
     from .gs03_supplement import require_approval
     recovery = read(Path(out)/'manifest.json').get('recovery')
     if recovery:
-        from .gs03_recovery import preflight as recovery_preflight, require_execution, object_index, NoWaitSession, drive_from_n3, CumulativeMeter
+        from .gs03_recovery import preflight as recovery_preflight, require_execution, object_index, NoWaitSession, drive_from_n3, CumulativeMeter, record_recovery_binding
         from functools import partial
         if recovery_url_file is None:raise ValueError('복제 DB 연결 파일 필요')
         recovery_preflight(out,recovery_url_file)
@@ -189,7 +189,8 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
                                 bindings[source]=protocol.source_key(item['source_id'])
                     collector.job_id=jid
                     active[0]=collector
-                    collector.operation('recovery_bound' if recovery else 'job_created','N3' if recovery else 'N1',{'bindings':bindings})
+                    if recovery:record_recovery_binding(collector,bindings)
+                    else:collector.operation('job_created','N1',{'bindings':bindings})
                     adapter=ProductReview(jid,seller,db.SessionLocal,query,dispatch,store,bindings)
                     human_session=NoWaitSession(collector,adapter) if recovery else HumanSession(collector,adapter)
                     checkpoint_ids={}

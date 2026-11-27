@@ -181,8 +181,13 @@ class NoWaitSession:
         evidence=self.c.evidence({'stage':stage,'state':state,'policy':POLICY,'actor':'experiment_automation',
                                   'human_reviewed':False,'acknowledgedWarnings':warnings if stage=='N5' else []})
         if self.adapter.snapshot(stage)!=state:raise ValueError('확정 중 상태 변경')
-        self.c.operation('preauthorized_no_review',stage,{'human_reviewed':False,'edits':0,'warnings':warnings},evidence)
+        # 독립 실험의 사전 승인 증거다. 공식 운영 이벤트나 사람 검수로 기록하지 않는다.
         return {'original':state['values'],'final':state['values'],'acknowledgedWarnings':warnings if stage=='N5' else []}
+
+
+def record_recovery_binding(collector, bindings):
+    return collector.evidence({'kind':'recovery_bound','stage':'N3','bindings':bindings,
+                               'actor':'experiment_automation','human_reviewed':False})
 
 
 def drive_from_n3(jid,seller,sessions,query,dispatch,analysis,common,downstream,final,record,checkpoint,human,operation):

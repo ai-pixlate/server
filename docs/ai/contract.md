@@ -619,4 +619,4 @@ AnalyzeError(code, retryable, message, source_image_id)
 | ⑥ 운영 시간 제한 | 운영값 미정(#75) | BE가 `limits`를 넘기지 않아 개발용 config 값을 쓰고 기록에 `dev_config`로 남긴다 | 미정 유지 | #75 |
 | 정책만 다시 계산 | 정책 변경만으로 AI 추론을 다시 실행하지 않는다(1.2 · 9장) | 운영 인계는 판정과 정책을 한 번에 수행하며(`run_judgment`) 정책만 다시 계산하는 경로가 없다 | 코드 지연 | 구현 시점 |
 | 재포함 섹션의 결과 재사용 | 유효한 결과 재사용(9장) | proceed마다 하류 파생값을 지우고 다시 계산한다(`_clear_previous`) | 코드 지연 | 구현 시점 |
-| 번역 후 검사 · 수정 재검증 | 번역문 수정 시 규제 · 강제 용어 재검증(5.1 · 7.2) | 검사 함수(`run_text_check`)는 있으나 BE가 부르지 않고 `compliance_flags`는 초기화만 한다 | 코드 지연 | BE 연결(`open-questions.md` 0.1) |
+| 번역 후 검사 · 수정 재검증 | 번역문 수정 시 규제 · 강제 용어 재검증(5.1 · 7.2) | 규칙 검사(`run_text_check`)는 BE가 번역 직후와 N5 수정 뒤에 등록해 부르고 결과를 `compliance_flags`에 채택한다(`app/flows/text_check.py`, PR #127 · #132). `PIXLATE_ACTIVE_CHECKS` 기본값이 비어 있어 `rule`을 넣지 않으면 검사를 돌리지 않는다. 번역문 LLM 규제 판정(`translation_review`)은 stage 허용만 있고 BE가 부르지 않는다(`develop` `0e5b2c1` 코드 정적 대조 2026-11-27) | 규칙 검사는 연결 · 기본 꺼짐, LLM 판정은 코드 지연 | 규칙 검사 운영 활성화 · LLM 판정 연결(`open-questions.md` 0.1 · #83) |

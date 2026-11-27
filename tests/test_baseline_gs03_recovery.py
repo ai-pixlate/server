@@ -133,8 +133,20 @@ class RecoveryTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp);done=out/'done.txt'
             child_code=f"import time;from pathlib import Path;time.sleep(1);Path({str(done)!r}).write_text('ok')"
-            code=f"import sys;sys.path.insert(0,{str(Path(gs03_launch.__file__).resolve().parents[2])!r});from pathlib import Path;from tools.baseline.gs03_launch import detached_process;detached_process([sys.executable,'-B','-c',{child_code!r}],Path({str(out)!r}))"
-            subprocess.run([sys.executable,'-I','-B','-c',code],check=True,capture_output=True,timeout=20)
+            code=f"import sys;sys.path.insert(0,{str(Path(gs03_launch.__file__).resolve().parents[2])!r});from pathlib import Path;from tools.baseline.gs03_launch import detached_process;child=detached_process([sys.executable,'-B','-c',{child_code!r}],Path({str(out)!r}));print(child.pid)"
+            result=subprocess.run([sys.executable,'-I','-B','-c',code],check=True,capture_output=True,timeout=20)
+            # 완료 파일 쓰기와 실제 프로세스 종료 사이의 로그 핸들 경합을 피한다.
+            import ctypes
+            from ctypes import wintypes
+            kernel=ctypes.WinDLL('kernel32',use_last_error=True)
+            kernel.OpenProcess.argtypes=[wintypes.DWORD,wintypes.BOOL,wintypes.DWORD]
+            kernel.OpenProcess.restype=wintypes.HANDLE
+            kernel.WaitForSingleObject.argtypes=[wintypes.HANDLE,wintypes.DWORD]
+            kernel.CloseHandle.argtypes=[wintypes.HANDLE]
+            handle=kernel.OpenProcess(0x100000,False,int(result.stdout.strip()))
+            if handle:
+                try:self.assertEqual(kernel.WaitForSingleObject(handle,10000),0)
+                finally:kernel.CloseHandle(handle)
             end=time.monotonic()+10
             while not done.exists() and time.monotonic()<end:time.sleep(.1)
             self.assertEqual(done.read_text(),'ok')

@@ -13,7 +13,7 @@ ENV_KEYS = ('PADDLE_PDX_CACHE_HOME', 'PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK',
 
 
 def detached_process(command, out):
-    """stdin 없이 독립 프로세스로 실행하고 로그를 파일에 보존한다."""
+    """과거 동작 재현용: 실제 실행은 gs03_scheduled를 사용한다."""
     if os.name != 'nt':raise ValueError('검증 대상은 Windows')
     with (out/'console.stdout.log').open('xb') as stdout, (out/'console.stderr.log').open('xb') as stderr:
         return subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
@@ -28,6 +28,8 @@ def main(argv=None):
     parser.add_argument('--execute-models', action='store_true')
     parser.add_argument('--detach', action='store_true')
     args = parser.parse_args(argv)
+    if args.detach:
+        parser.error('기존 콘솔 분리는 사용 중단: tools.baseline.gs03_scheduled로 일회 실행하세요')
     if not args.execute_models:
         parser.error('실제 실행은 별도 승인 후 --execute-models 필요')
     from tools.baseline.core import read, write_new, now
@@ -48,14 +50,6 @@ def main(argv=None):
     else:
         preflight(out)  # 이미 시작한 회차는 실행 기록 생성 전에 거부
         require_approval(out)
-    if args.detach:
-        if not recovery:raise ValueError('무대기 복제 실험만 독립 실행 가능')
-        write_new(out/'detached-start.json',{'at':now(),'entrypoint':'tools.baseline.gs03_launch','human_reviewed':False})
-        child=detached_process([sys.executable,'-u','-B','-m','tools.baseline.gs03_launch',str(out),
-            '--url-file',str(args.url_file.resolve()),'--execute-models'],out)
-        write_new(out/'detached-process.json',{'pid':child.pid,'at':now()})
-        print('독립 프로세스 시작:',child.pid)
-        return
     (out / 'tmp').mkdir(exist_ok=True)
     os.environ['TEMP'] = os.environ['TMP'] = str(out / 'tmp')
     write_new(out / 'launch.json', {

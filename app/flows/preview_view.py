@@ -10,6 +10,9 @@
   renderInput 의 style 8키는 서버 렌더와 같은 함수(`app/render_input.py`)로 만든다 — N5 가 그리는 값 = 서버가 그리는 값.
   `bundleId` = 고정한 FE 빌드(`html_render.BUNDLE_ID` = `fe-<FE 전체 SHA 40자>`, 계약 6.7 합의 11-21). 두 값 모두 렌더 고정 입력에 들어가
   `inputFingerprint` 를 바꾼다 — 그래서 결과에 bundleId 를 따로 싣지 않아도 FE 빌드가 바뀌면 `isCurrent = false` 다.
+- `render.attempt.inputFingerprint` · `pendingBlockIds`(미리보기 갱신 실패 보완 — FE 11-21 「두 필드로 충분」, PM 11-21 조사 지시):
+  둘 다 조회 때 DB 의 고정 입력으로 계산한다(저장하지 않음). 그래서 새로고침 · 여러 블록 저장 · 시도 대체 뒤에도 같은 값이 나온다.
+  `pendingBlockIds` 는 「결과에 반영되지 못한 변경 블록」이다 — 실패 원인 블록이라는 뜻이 아니다.
 """
 from __future__ import annotations
 
@@ -149,7 +152,8 @@ def adopted_result(ctx: PreviewContext, sid: int, image_key: str | None) -> dict
         return None
     rows = ctx.db.execute(
         text(
-            "SELECT t.id AS task_id, t.input_fingerprint AS t_fp, h.input_fingerprint AS h_fp, h.impl_version, h.payload "
+            "SELECT t.id AS task_id, t.input_fingerprint AS t_fp, t.input_manifest AS t_manifest, h.input_fingerprint AS h_fp, "
+            "h.impl_version, h.payload "
             "FROM task_artifact a JOIN task_handoff h ON h.id = a.handoff_id JOIN job_async_task t ON t.id = h.task_id "
             "WHERE a.job_id = :j AND a.kind = 'render_image' AND a.part_key = :pk AND a.state = 'adopted' "
             "AND coalesce(a.verified_key, a.source_ref->>'key') = :k "
@@ -166,7 +170,8 @@ def adopted_result(ctx: PreviewContext, sid: int, image_key: str | None) -> dict
     payload = json_value(r["payload"]) or {}
     measured = ((payload.get("render") or {}).get("blocks")) or {}
     return {"taskId": r["task_id"], "inputFingerprint": r["t_fp"], "rendererId": r["impl_version"],
-            "_overflow": {str(k): bool(v.get("overflow")) for k, v in measured.items()}}
+            "_overflow": {str(k): bool(v.get("overflow")) for k, v in measured.items()},
+            "_blocks": _manifest_blocks(json_value(r["t_manifest"]))}
 
 
 # 이미지 키는 있는데 지금 결과로 연결하지 못한 이유(응답 필드가 아니다 — 로그·조사용. 어느 경우든 최신 결과로 인정하지 않는다)
@@ -194,12 +199,37 @@ def unlinked_reason(ctx: PreviewContext, sid: int, image_key: str) -> str:
     return UNLINKED_UNKNOWN
 
 
-def current_attempt(ctx: PreviewContext, sid: int) -> dict[str, Any] | None:
+def _manifest_blocks(m: Any) -> dict[int, Any] | None:
+    """고정 입력의 블록별 입력(block_id → 블록 항목: revision·글 해시·박스·스타일 해시·배율). 블록 목록을 읽을 수 없으면 None."""
+    blocks = m.get("blocks") if isinstance(m, dict) else None
+    if not isinstance(blocks, list) or not all(isinstance(b, dict) and isinstance(b.get("block_id"), int) for b in blocks):
+        return None
+    return {b["block_id"]: b for b in blocks}
+
+
+def pending_block_ids(attempt_blocks: dict[int, Any] | None, result: dict[str, Any] | None) -> list[int] | None:
+    """현재 시도의 입력 중 지금 보이는 결과에 반영되지 않은 블록(계약 PreviewRenderAttempt.pendingBlockIds — 원인 블록이 아니다).
+    - 시도 입력과 결과 입력의 블록 항목이 다른 블록 + 시도 입력에만 있는 블록 + 결과에만 있는 블록(시도에서 빠짐 — 글 지움·제외 등).
+    - 보이는 결과가 없으면 시도 입력 블록 전체. 블록 입력이 같고 렌더러·FE 빌드·배경만 다르면 빈 배열(블록에 표시할 근거 없음).
+    - 시도나 결과의 블록 입력을 읽을 수 없으면 None(추측하지 않는다)."""
+    if attempt_blocks is None:
+        return None
+    if result is None:
+        return sorted(attempt_blocks)
+    shown = result.get("_blocks")
+    if shown is None:
+        return None
+    return sorted(b for b in attempt_blocks.keys() | shown.keys() if attempt_blocks.get(b) != shown.get(b))
+
+
+def current_attempt(ctx: PreviewContext, sid: int, result: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    """섹션의 현재 미리보기 시도. `result` = adopted_result(지금 보이는 결과의 채택 기록 — 내부 필드 포함) 또는 None."""
     a = ctx.attempts.get(("preview", sid))
     if a is None or a["status"] not in ("pending", "running", "done", "failed"):
         return None  # 취소된 시도는 현재 시도로 내지 않는다
     return {"taskId": a["id"], "status": a["status"], "errorCode": a["error_code"] if a["status"] == "failed" else None,
-            "retryable": task_retryable(a, ctx.run)}
+            "retryable": task_retryable(a, ctx.run), "inputFingerprint": a["input_fingerprint"],
+            "pendingBlockIds": pending_block_ids(_manifest_blocks(json_value(a["input_manifest"])), result)}
 
 
 def section_view(ctx: PreviewContext, sec: dict[str, Any]) -> dict[str, Any]:
@@ -218,13 +248,13 @@ def section_view(ctx: PreviewContext, sec: dict[str, Any]) -> dict[str, Any]:
     is_current = result is not None and fp is not None and result["inputFingerprint"] == fp
     shown = None
     if result is not None:
-        shown = {k: v for k, v in result.items() if k != "_overflow"}
+        shown = {k: v for k, v in result.items() if not k.startswith("_")}
         shown["overflow"] = result["_overflow"] if is_current else None
     return {
         # 표시 결과의 이미지 — 채택 근거가 없으면 null(원본 표시)
         "renderedUrl": s3.presigned_get(sec["render_image_key"]) if result is not None else None,
         "renderInput": inp.get("renderInput"), "inputFingerprint": fp, "inputError": inp.get("inputError"),
-        "render": {"attempt": current_attempt(ctx, sec["id"]), "result": shown, "isCurrent": is_current},
+        "render": {"attempt": current_attempt(ctx, sec["id"], result), "result": shown, "isCurrent": is_current},
     }
 
 

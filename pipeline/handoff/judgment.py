@@ -8,7 +8,12 @@
    호출 · 응답 실패는 그 섹션의 local=failed(uncertain · absent로 바꾸지 않음) → 정책은 섹션 제외 권고(판정 실패).
    현지 사전 조회 실패(묶음 local=null)는 local=not_checked — 제외하지 않고 검사 불가로 남긴다.
 3. 정책 — 남은 판정 모두 유지, 제외형이 하나라도 있으면 제외 권고. allowed는 판정 행을 만들지 않는다. conflict_group · 예외 쌍 없음.
-실패: 묶음 손상 · 충돌 · 규제 검출 불가는 보고 전체 failed(N2 실패, D9-1). 현지 실패는 섹션 결과로만 남기고 보고는 completed다.
+4. 채널 정책 맥락 판정(PRD F-LOC-03, 사용자 결정 2026-11-27) — 묶음에 채널 부분이 있을 때만. 방식은 현지와 같다: 받은 채널 항목
+   전부를 모든 섹션에서 LLM 1회(현지 호출과 따로 — 한 축의 실패가 다른 축에 번지지 않고, 현지 입력은 채널 유무와 무관하게 같다).
+   모델에는 항목명 · 맥락 두 열 · 패턴 신호만 보낸다(판정값 · 셀러 문장 없음). 해당 · 불확실은 정책 규칙의 채널 행으로 제외 권고,
+   호출 · 응답 실패는 channel=failed → 제외 권고(채널 판정 실패), 채널 사전 조회 실패(channel_unavailable)는 not_checked — 제외하지 않는다.
+   채널 부분이 없는 묶음(판매 사이트를 고르지 않은 작업)은 채널 키를 내지 않으며 결과 · 입력 지문이 이전과 같다.
+실패: 묶음 손상 · 충돌 · 규제 검출 불가는 보고 전체 failed(N2 실패, D9-1). 현지 · 채널 실패는 섹션 결과로만 남기고 보고는 completed다.
 content_type은 검사 대상 코드, external_id는 사용한 사전 ID로 분리한다(D7). 판정 · 근거 · 억제 관계는 audit 재료로 모두 보존한다.
 """
 from __future__ import annotations
@@ -18,6 +23,7 @@ from typing import Any, Literal
 
 from pydantic import Field, ValidationError
 
+from pipeline.dictionary import JudgeDictView
 from pipeline.handoff.bundle import BundleError, CheckedBundle, check_bundle, load_type_map
 from pipeline.handoff.canonical import sha256_file, sha256_text
 from pipeline.handoff.envelope import (
@@ -76,13 +82,13 @@ def _context(sections: list[Section], blocks_of: dict[str, list[TextBlock]], sec
     return text_of(same[max(0, i - n):i]), text_of(same[i + 1:i + 1 + n])
 
 
-def _local_payload(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, candidates: list[RawMatch],
-                   prev: str | None, nxt: str | None, context_sections: int) -> tuple[dict[str, Any], dict[str, str], list[str]]:
-    """③-1 맥락 판정 페이로드(judge_context.md 규약). 8항목 전부. 판정값 · 셀러 문장 · 규제 항목은 보내지 않는다."""
+def _context_payload(sec: Section, blocks: list[TextBlock], view: JudgeDictView, candidates: list[RawMatch],
+                     prev: str | None, nxt: str | None, context_sections: int) -> tuple[dict[str, Any], dict[str, str], list[str]]:
+    """③-1 맥락 판정 페이로드(judge_context.md 규약). 뷰의 항목 전부(현지 8항목 또는 받은 채널 항목).
+    판정값 · 셀러 문장 · 규제 항목은 보내지 않는다."""
     ordered = sorted(blocks, key=lambda b: b.block_order)
     block_ids = {f"b{i + 1}": b.block_key for i, b in enumerate(ordered)}
     tmp = {v: k for k, v in block_ids.items()}
-    view = cb.local_view()
     items = []
     for it in view.items:
         ms = [m for m in candidates if m.external_id == it.id]
@@ -142,6 +148,13 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
     basis: list[str] = []
     limit = int(cfg["policy"]["problem_text_max_chars"])
     diag: dict[str, Any] = {}
+    prepared: list[Any] = []
+
+    def section_image() -> tuple[Any, dict[str, Any]]:
+        """섹션 이미지는 한 번만 줄여 현지 · 채널 호출이 같이 쓴다. OSError는 입력 오류로 올린다."""
+        if not prepared:
+            prepared.extend(judge_stage.prepare_image(sec, int(cfg["judge"]["image_width_px"])))
+        return prepared[0], prepared[1]
 
     # --- 현지 8항목
     local_status: str
@@ -156,9 +169,10 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
         for b in ordered:
             lc_raw.extend(find_matches(b.block_key, b.source_ko, lc_specs, "ko"))
         _keyed(lc_raw, "lm_", 0)
-        payload, block_ids, sent = _local_payload(sec, ordered, cb, lc_raw, prev, nxt, int(cfg["judge"]["context_sections"]))
+        payload, block_ids, sent = _context_payload(sec, ordered, cb.local_view(), lc_raw, prev, nxt,
+                                                    int(cfg["judge"]["context_sections"]))
         ptext = judge_stage.payload_text(payload)
-        image, image_meta = judge_stage.prepare_image(sec, int(cfg["judge"]["image_width_px"]))  # OSError는 입력 오류로 올린다
+        image, image_meta = section_image()
         assistant = llm  # run_judgment가 실행당 한 번 만든다
         diag.update({"payload_sha256": sha256_text(ptext), "image": image_meta, "items_sent": sent})
         try:
@@ -237,6 +251,54 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
             add_verdict(f["finding_key"], t.external_id, "local", cb.local[t.external_id], f["status"], text, [])  # type: ignore[index]
     elif local_status == "failed":
         basis.append("local_judgment_failed")
+
+    # --- 채널 정책 항목(묶음에 채널 부분이 있을 때만). 현지와 같은 방식 · 따로 호출
+    channel_status: str | None = None
+    channel_failure: dict[str, Any] | None = None
+    ch_raw: list[RawMatch] = []
+    ch_types = cb.channel_types()
+    if cb.channel is None:
+        if cb.raw.channel_unavailable is not None:
+            channel_status = "not_checked"
+            channel_failure = {"kind": "dictionary_unavailable", "message": cb.raw.channel_unavailable.reason}
+    else:
+        ch_specs = [PatternSpec(t.external_id, p, price_suffix=t.price_suffix_exception)
+                    for t in ch_types for p in cb.channel[t.external_id].patterns]
+        for b in ordered:
+            ch_raw.extend(find_matches(b.block_key, b.source_ko, ch_specs, "ko"))
+        _keyed(ch_raw, "cm_", 0)
+        payload, block_ids, sent = _context_payload(sec, ordered, cb.channel_view(), ch_raw, prev, nxt,
+                                                    int(cfg["judge"]["context_sections"]))
+        ptext = judge_stage.payload_text(payload)
+        image, image_meta = section_image()
+        cdiag: dict[str, Any] = {"payload_sha256": sha256_text(ptext), "image": image_meta, "items_sent": sent}
+        diag["channel"] = cdiag
+        try:
+            reply = llm(prompt or "", ptext, image)  # type: ignore[misc]
+            cdiag["response_sha256"] = sha256_text(reply.text)
+            cdiag["usage"] = reply.usage
+            ch_judged = judge_stage.parse_items(reply.text, sent, block_ids)
+            channel_status = "completed"
+        except JudgeResponseError as e:
+            channel_status, channel_failure = "failed", {"kind": "response_invalid", "message": "; ".join(e.reasons)}
+        except VlmError as e:
+            channel_status, channel_failure = "failed", {"kind": "model_call_failed", "message": str(e)}
+        if channel_status == "completed":
+            for t in ch_types:
+                j = ch_judged[t.external_id]
+                fk = f"f_{len(findings) + 1:02d}"
+                findings.append({"finding_key": fk, "content_type": t.content_type, "status": j["status"],
+                                 "evidence_block_ids": j["evidence"], "evidence_source": j["evidence_source"], "reason": j["reason"]})
+                links.append({"finding_key": fk, "external_ids": [t.external_id],
+                              "match_keys": [m.match_key for m in ch_raw if m.external_id == t.external_id], "verdict_keys": []})
+                if j["status"] not in ("present", "uncertain"):
+                    continue
+                text = "\n".join(by_key[k].source_ko for k in j["evidence"]) if j["evidence"] else None
+                if text is not None and len(text) > limit:
+                    text = text[: max(1, limit - 1)] + "…"
+                add_verdict(fk, t.external_id, "channel", cb.channel[t.external_id], j["status"], text, [])
+        else:
+            basis.append("channel_judgment_failed")
     recommendation = "exclude" if basis else "include"
 
     used_ids = sorted({ext for ln in links for ext in ln["external_ids"]})
@@ -244,9 +306,11 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
     for ext in used_ids:
         if ext in cb.regulation:
             snapshots.append({"external_id": ext, "dict_type": "regulatory", "snapshot": cb.regulation[ext].model_dump(mode="json")})
+        elif cb.channel is not None and ext in cb.channel:
+            snapshots.append({"external_id": ext, "dict_type": "channel", "snapshot": cb.channel[ext].model_dump(mode="json")})
         else:
             snapshots.append({"external_id": ext, "dict_type": "local", "snapshot": cb.local[ext].model_dump(mode="json")})  # type: ignore[index]
-    matched_blocks = sorted({m.block_key for m in rg_raw + lc_raw}, key=lambda k: by_key[k].block_order)
+    matched_blocks = sorted({m.block_key for m in rg_raw + lc_raw + ch_raw}, key=lambda k: by_key[k].block_order)
     audit = {
         "inspection": {
             "regulatory": {"status": "completed", "regulatory_class": regulatory_class, "applied_classes": applied,
@@ -257,12 +321,12 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
                       "failure": local_failure},
         },
         "dictionary_snapshots": snapshots,
-        "matches": [_match_json(m) for m in rg_raw + lc_raw],
+        "matches": [_match_json(m) for m in rg_raw + lc_raw + ch_raw],
         "suppressed": [{"match_key": s.match_key, "rule": s.rule, "by": list(s.by)} for s in rg_sup],
         "links": links,
         "block_texts": {k: by_key[k].source_ko for k in matched_blocks},  # 당시 원문(구간 재해석 금지, D6)
     }
-    return {
+    out = {
         "section_key": sec.section_key,
         "regulatory_status": "completed",
         "local_status": local_status,
@@ -274,6 +338,13 @@ def judge_section(sec: Section, blocks: list[TextBlock], cb: CheckedBundle, regu
         "audit": audit,
         "_diagnostics": diag,
     }
+    if channel_status is not None:  # 채널 판정 대상 작업만 — 대상이 아니면 키를 내지 않는다(이전 결과와 같은 모양)
+        out["channel_status"] = channel_status
+        out["channel_failure"] = channel_failure
+        audit["inspection"]["channel"] = {
+            "status": channel_status, "site_key": cb.raw.channel.site_key if cb.raw.channel is not None else None,
+            "items_checked": [t.external_id for t in ch_types] if channel_status == "completed" else [], "failure": channel_failure}
+    return out
 
 
 def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = None) -> StageReport:
@@ -333,8 +404,11 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
             return failed_report(ident, "input_invalid", f"{s.section_key}: 섹션 이미지 SHA-256 불일치", implementation=impl)
         sections.append(s.model_copy(update={"image_path": str(p)}))
     blocks_of = {s.section_key: [b for b in ar.blocks if b.section_key == s.section_key] for s in all_sections}
+    if cb.channel is not None and not any(r.dict_type == "channel" and r.verdict_status == "policy" for r in cb.rules.verdict_map):
+        return failed_report(ident, "bundle_invalid", "채널 행을 받았는데 정책 규칙에 채널 판정 행(channel · policy)이 없다",
+                             implementation=impl)
     prompt = None
-    if cb.local is not None:
+    if cb.local is not None or cb.channel is not None:
         try:
             prompt = judge_stage.validate_llm_config(cfg, need_api_key=llm is None)
         except ValueError as e:
@@ -381,6 +455,9 @@ def run_judgment(raw: Any, cfg: dict[str, Any], *, llm: JudgeAssistant | None = 
         "exclude_recommended": [r["section_key"] for r in results if r["bucket_recommendation"] == "exclude"],
         "verdicts": sum(len(r["verdicts"]) for r in results),
     }
+    if cb.channel_requested:
+        summary["channel_failed"] = [r["section_key"] for r in results if r["channel_status"] == "failed"]
+        summary["channel_not_checked"] = [r["section_key"] for r in results if r["channel_status"] == "not_checked"]
     return StageReport(
         execution_id=ident.execution_id, attempt_id=ident.attempt_id, stage="judge", input_snapshot_id=ident.input_snapshot_id,
         input_manifest=manifest, input_manifest_sha256=msha, outcome="completed", target_count=len(results),

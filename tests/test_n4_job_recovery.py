@@ -464,6 +464,19 @@ def test_translate_success_kept_after_user_edits_preserved_block(env):
     _cleanup(ids, env)
 
 
+def test_translate_success_not_counted_when_preserved_blocks_are_stale(env):
+    """무효가 된 과거 결과는 성공으로 세지 않는다(독립 검토 11-27 보완): 보존분 블록의 revision 이 바뀌었는데 셀러 입력도 아니면
+    (기계 번역 그대로 · 대조 탈락) preserved · userEdited 어디에도 들지 않는다."""
+    ids, sid, target, cur = _translate_partial_then_timeout(env)
+    s0 = _successes(cur, sid)
+    assert s0["preserved"] >= 1 and s0["hasSuccess"] is True
+    _q("UPDATE text_block SET revision = revision + 1 WHERE section_id = :s AND trans_1 IS NOT NULL AND block_status = 'machine' "
+       "RETURNING id", s=sid)
+    s1 = _successes(cur, sid)
+    assert (s1["preserved"], s1["applied"], s1["userEdited"], s1["hasSuccess"]) == (0, 0, 0, False)
+    _cleanup(ids, env)
+
+
 def test_translate_general_failure_exhausted_with_successes_proceeds_with_blank(env, monkeypatch):
     """PM 11-27: 시간 초과가 아닌 일반 실패로 한도를 다 쓴 번역도 같은 작업 단위 기준 — 성공분이 있으면 빈 칸으로 N5."""
     monkeypatch.setitem(downstream.MAX_RETRY, "translate", 1)
@@ -552,9 +565,74 @@ def test_zero_success_section_waits_while_other_section_translation_is_running(e
         ai_adapters.set_adapters(translator=FakeTranslator())
 
 
+def test_zero_target_retry_section_successes_kept_in_job_wide_count(env, monkeypatch):
+    """독립 검토(11-27) 재현: 섹션 A 의 현재 번역 시도가 「이번 재시도 대상 0」(실패 블록을 셀러가 직접 입력 → 정상 생략 done)이고
+    A 에는 앞 시도의 유효 성공분이 있는데, 다른 섹션은 모두 번역 성공 0 으로 한도를 다 썼다.
+    현재 시도의 target_count(= 0)만 보고 A 를 작업 단위 집계에서 빼면 「작업 전체 성공 0」으로 거짓 막힘이 된다 —
+    A 를 대상 섹션으로 세어 다른 섹션은 빈 칸 대체 진행, [다시 시도] 가 받아져야 한다."""
+    import app.tasks as tasks
+
+    # 번역 한도 1: 다른 섹션은 자동 재시도 1회로 한도를 다 쓰고(성공분 0), A 의 부분 실패는 자동 재시도가 없어 사용자 재시도 1회가 남는다
+    monkeypatch.setitem(downstream.MAX_RETRY, "translate", 1)
+    ids = _to_n3(env)
+    c, job = ids["c"], ids["job"]
+    rows = _q("SELECT tb.id, tb.section_id, tb.source_ko FROM text_block tb JOIN section s ON s.id = tb.section_id "
+              "WHERE s.job_id = :j ORDER BY tb.id", j=job)
+    target = [r for r in rows if r["source_ko"].startswith("Locks")][0]
+    a = target["section_id"]
+    others = sorted({r["section_id"] for r in rows if r["section_id"] != a})
+    assert others
+    keys = {f"blk_{target['id']}"} | {f"blk_{r['id']}" for r in rows if r["section_id"] != a}
+    ai_adapters.set_adapters(translator=FakeTranslator(fail_keys=keys))  # A = 부분 실패, 나머지 섹션 = 전부 실패
+    try:
+        assert c.post(f"/v1/jobs/{job}/sections/proceed").status_code == 202
+        env["q"].drain(skip={"app.tasks.run_inpaint"})  # 인페인트만 멈춤 → 30분 초과 N4 오류
+        env["q"].messages = [m for m in env["q"].messages if m[0] != "app.tasks.run_inpaint"]
+        _age_state(job, 1801)
+        assert recovery.sweep()["timed_out"] == 1 and _state(ids) == ("failed", "N4", "failed")
+
+        part = _q("SELECT id, error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate' AND unit_id = :s AND is_current",
+                  j=job, s=a)[0]
+        assert part["error_code"] == "TRANSLATE_PARTIAL"
+        # 셀러가 A 의 실패 블록을 직접 입력 → 그 뒤 만든 재시도는 다시 할 실패 블록이 없어 대상 0
+        _q("UPDATE text_block SET trans_1 = '셀러 입력', block_status = 'edited', revision = revision + 1 WHERE id = :b RETURNING id",
+           b=target["id"])
+        db = _session()
+        try:
+            att = dict(db.execute(text("SELECT * FROM job_async_task WHERE id = :t"), {"t": part["id"]}).mappings().one())
+            plan = downstream.translate_retry_plan(db, att)
+            assert plan["target_count"] == 0
+            new = execution.create_retry(db, part["id"], "user", **plan)
+            db.commit()
+        finally:
+            db.close()
+        tasks.run_translate(new)
+        cur = _q("SELECT id, status, target_count FROM job_async_task WHERE id = :t", t=new)[0]
+        assert (cur["status"], cur["target_count"]) == ("done", 0)
+        assert _successes(cur, a)["hasSuccess"] is True  # 앞 시도 보존분(+ 직접 입력)이 유효
+        oth = _q("SELECT status, retry_count, max_retry, target_count FROM job_async_task WHERE job_id = :j AND stage = 'translate' "
+                 "AND is_current AND unit_id = ANY(:s)", j=job, s=others)
+        assert oth and all(o["status"] == "failed" and o["retry_count"] >= o["max_retry"] and o["target_count"] > 0 for o in oth)
+        assert _state(ids) == ("failed", "N4", "failed")
+
+        p = _plan(job)
+        assert p["blocking"] == [] and p["available"] is True  # 거짓 「작업 전체 성공 0」 막힘 없음
+        assert {i["sectionId"] for i in p["fallback"] if i["stage"] == "translate" and i["reason"] == "blank_kept"} == set(others)
+        _retry_job(job)
+        env["q"].drain()
+        assert _state(ids) == ("review", "N5", "reviewing")
+        assert all(r["trans_1"] is None for r in _q("SELECT trans_1 FROM text_block WHERE section_id = ANY(:s)", s=others))  # 빈 칸
+        assert _q("SELECT trans_1 FROM text_block WHERE id = :b", b=target["id"])[0]["trans_1"] == "셀러 입력"
+    finally:
+        ai_adapters.set_adapters(translator=FakeTranslator())
+
+
 # ---- 작업 단위 번역 판정(PM 11-27) — 입력별 경계 ----------------------------------------------------------------------
-def _tr(sid, status, *, target=2, code=None):
-    return {"stage": "translate", "unit_id": sid, "status": status, "target_count": target, "error_code": code}
+def _tr(sid, status, *, target=2, code=None, expected=None):
+    a = {"stage": "translate", "unit_id": sid, "status": status, "target_count": target, "error_code": code}
+    if expected is not None:  # 재시도 시도: target_count = 이번 실패 블록 수, expected = 섹션 번역 대상
+        a["input_manifest"] = {"expected": expected}
+    return a
 
 
 def _lab(sid, status):
@@ -581,6 +659,12 @@ def _lab(sid, status):
     ([_lab(1, "failed"), _tr(2, "done")], {}, "ok"),
     # 라벨이 아직 진행 중인 섹션(번역 시도가 곧 생김) → pending
     ([_lab(1, "pending"), _tr(2, "failed", code="TRANSLATE_FAILED")], {}, "pending"),
+    # 이번 재시도 대상 0(실패 블록 없음 → 정상 생략 done)이어도 섹션 번역 대상이 있으면 센다 — 유효 성공분이 있으면 ok(독립 검토 11-27)
+    ([_tr(1, "done", target=0, expected=[11, 12]), _tr(2, "failed", code="TRANSLATE_FAILED")], {1: True}, "ok"),
+    # 같은 경우라도 그 섹션의 유효 성공분이 없으면(무효가 된 보존분 등) 성공으로 세지 않는다 → zero
+    ([_tr(1, "done", target=0, expected=[11, 12]), _tr(2, "failed", code="TRANSLATE_FAILED")], {}, "zero"),
+    # 섹션 번역 대상 자체가 없는 시도(expected 없음)는 성공분이 있다고 나와도 셈에서 빠진다 → 대상 섹션은 2 뿐
+    ([_tr(1, "done", target=0, expected=[]), _tr(2, "failed", code="TRANSLATE_FAILED")], {1: True}, "zero"),
 ])
 def test_translation_outcome_job_level(monkeypatch, atts, logical, expected):
     monkeypatch.setattr(downstream, "translate_logical_successes",

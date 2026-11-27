@@ -1257,11 +1257,22 @@ def translate_logical_successes(db: Session, run_id: int, section_id: int) -> di
             "hasSuccess": preserved + applied + edited > 0}
 
 
+def _translate_in_scope(tr: dict[str, Any]) -> bool:
+    """이 섹션의 논리 번역 작업(같은 실행 · 같은 섹션)에 번역 대상이 있는지.
+    현재 시도의 target_count 는 재시도면 「이번에 다시 할 실패 블록 수」라, 0 이어도 섹션 번역 대상(고정 입력 expected)이
+    있으면 대상 섹션이다 — 앞 시도의 유효 성공분을 작업 단위 집계에서 빠뜨리지 않는다(독립 검토 11-27).
+    첫 시도는 expected 와 대상이 같으므로 target_count 0 = 번역 대상 없는 섹션(정상 생략)이다."""
+    if (tr["target_count"] or 0) > 0:
+        return True
+    return bool((json_value(tr.get("input_manifest")) or {}).get("expected"))
+
+
 def _translate_has_success(db: Session, run_id: int, tr: dict[str, Any]) -> bool:
-    """이 섹션의 현재 번역(논리 단위)에 성공 블록이 하나라도 있는지. 완료 = 대상 전부 성공, 부분 실패 = 성공분 있음,
-    그 밖(실패 · 진행 중 재시도)은 앞 시도의 유효 보존분 · 채택분 · 사용자 직접 입력으로 센다(translate_logical_successes)."""
-    if tr["status"] == "done":
-        return (tr["target_count"] or 0) > 0
+    """이 섹션의 현재 번역(논리 단위)에 성공 블록이 하나라도 있는지. 대상이 있는 시도의 완료 = 대상 전부 성공, 부분 실패 = 성공분 있음,
+    그 밖(실패 · 진행 중 재시도 · 이번 재시도 대상 0 으로 끝난 시도)은 앞 시도의 유효 보존분 · 채택분 · 사용자 직접 입력으로 센다
+    (translate_logical_successes — 지금 블록과 revision · 해시가 맞는 보존분만, 무효가 된 과거 결과는 세지 않는다)."""
+    if tr["status"] == "done" and (tr["target_count"] or 0) > 0:
+        return True
     if tr["status"] == "failed" and tr["error_code"] == TRANSLATE_PARTIAL:
         return True
     return translate_logical_successes(db, run_id, tr["unit_id"])["hasSuccess"]
@@ -1284,7 +1295,7 @@ def _translation_outcome(db: Session, run_id: int, section_ids: list[int], by: d
             if (lab and lab["status"] == "failed") or (lg and lg["status"] == "failed"):
                 continue
             return "pending"  # 번역 시도가 아직 없다(라벨 · 로고 채택 뒤에 생김)
-        if (tr["target_count"] or 0) > 0:
+        if _translate_in_scope(tr):  # 이번 재시도 대상 0 이어도 섹션 번역 대상이 있으면 센다
             targets.append(tr)
     if not targets:
         return "none"

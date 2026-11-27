@@ -119,7 +119,8 @@ def _expired(stats: dict[str, Any]) -> None:
             db.execute(text("UPDATE task_lease_grant SET closed_at = coalesce(closed_at, now()), close_reason = coalesce(close_reason, 'expired') "
                             "WHERE task_id = :t AND closed_at IS NULL"), {"t": r["id"]})
             if (run["status"] == "running" and job["status"] != "archived" and att["retry_count"] < att["max_retry"]
-                    and not execution.retry_blocked(att)):  # 같은 고정 입력으로 성공할 수 없으면 복구 재시도를 만들지 않는다
+                    and execution.automatic_retry_allowed(att, "recovery")
+                    and not execution.retry_blocked(att)):  # Gemini 횟수 불명 또는 같은 입력으로 성공 불가면 재계산 금지
                 ids = [execution.create_retry(db, att["id"], "recovery")]
             else:
                 ids = execution.handler_for(att["stage"]).after_failure(db, att, "LEASE_EXPIRED", False)

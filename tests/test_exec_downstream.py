@@ -234,7 +234,7 @@ def test_translation_all_failed_is_n4_error_then_user_retry(env):
     assert _step(ids) == ("failed", "N4")  # 빈 N5 로 보내지 않는다
     cur = _q("SELECT id, attempt_no, retry_origin, error_code FROM job_async_task WHERE job_id = :j AND stage = 'translate' "
              "AND is_current ORDER BY id", j=ids["job"])
-    assert all(a["attempt_no"] == 2 and a["retry_origin"] == "auto" and a["error_code"] == "TRANSLATE_ALL_FAILED" for a in cur)
+    assert all(a["attempt_no"] == 1 and a["retry_origin"] is None and a["error_code"] == "TRANSLATE_ALL_FAILED" for a in cur)
     tr.fail_all = 0
     for a in cur:
         assert c.post(f"/v1/jobs/{ids['job']}/tasks/{a['id']}/retry").status_code == 200

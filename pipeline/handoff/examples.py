@@ -40,6 +40,9 @@ EXAMPLE_UNICODE_VERSION = "15.0.0"  # 예제 logo_record에 쓰는 고정값(Pyt
 def config() -> dict[str, Any]:
     cfg = cfgmod.load_config(None, [])
     cfg["section"]["long_section_px"] = 999999  # VLM 경계 선택을 부르지 않는다(대체 예제는 별도로 강제)
+    # 커밋된 과거 인계 예제의 지문 재현용. 실제 호출은 모두 대역이며 운영 기본 시간 제한과 별개다.
+    cfg["merge"]["llm_timeout_s"] = 60
+    cfg["translate"]["timeout_s"] = 60
     return cfg
 
 

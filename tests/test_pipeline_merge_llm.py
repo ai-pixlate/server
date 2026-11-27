@@ -282,7 +282,7 @@ def test_injected_caller_needs_no_api_key(monkeypatch):
     assert run_llm(FakeLlm(PLAN)).blocks
 
 
-def test_gemini_caller_passes_timeout_and_no_retry_options(monkeypatch):
+def test_gemini_caller_passes_timeout_and_disables_sdk_retry(monkeypatch):
     import google.genai as genai
 
     seen = {}
@@ -295,7 +295,7 @@ def test_gemini_caller_passes_timeout_and_no_retry_options(monkeypatch):
     monkeypatch.setattr(genai, "Client", FakeClient)
     GeminiMergeAssistant(model="m", temperature=0, timeout_s=1.5)._client_or_raise()
     assert seen["http_options"].timeout == 1500
-    assert seen["http_options"].retry_options is None  # SDK 2.24.0: 미지정이면 1회만 시도
+    assert seen["http_options"].retry_options.attempts == 1
 
 
 # ---------------------------------------------------------------------------

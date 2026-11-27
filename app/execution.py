@@ -419,12 +419,30 @@ def create_attempt(
     ).scalar_one()
 
 
+def automatic_retry_allowed(attempt: dict[str, Any], origin: str = "auto") -> bool:
+    """Gemini 호출을 중복하는 작업 재실행을 차단한다. JOB-06 수동 재시도와 별개다.
+
+    analyze는 Gemini 시작 전 실패만 워커가 retryable=True로 보낸다. 채택 오류는 재계산하지 않는다.
+    만료 작업은 실제 호출 여부를 알 수 없으므로 analyze/translate 모두 복구 재계산하지 않는다.
+    """
+    stage = attempt["stage"]
+    if stage == "translate":
+        return False
+    if stage == "analyze":
+        return origin == "auto" and attempt.get("error_code") in {
+            "REGULATORY_DICT_LOOKUP_FAILED", "OCR_FAILED", "ANALYZE_UNEXPECTED",
+        }
+    return True
+
+
 def create_retry(db: Session, attempt_id: int, origin: str, *, manifest: dict[str, Any] | None = None,
                  target_count: int | None = None) -> int:
     """실패한 현재 시도의 재시도 시도를 만든다(잠금 순서 아래). 호출자가 커밋·dispatch 한다.
     - 현재 failed · 대표 미취소·실행 중 · 누적 한도 미만만 허용. 동시 요청은 잠금 재확인과 U2 로 하나만 생긴다.
     - manifest 를 주면 새 고정 입력(⑧ 실패 대상 재시도 등). 없으면 직전 시도와 같은 입력."""
     job, run, att = lock_chain(db, attempt_id)
+    if origin != "user" and not automatic_retry_allowed(att, origin):
+        raise RetryNotAllowed("Gemini 중복 호출 방지를 위해 작업 자동 재실행을 하지 않는다")
     if job["status"] == "archived":
         raise RetryNotAllowed("작업이 취소됐다")
     if run["status"] != "running" or run["cancelled_at"] is not None:

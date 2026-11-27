@@ -4,7 +4,7 @@
 - 분석이 끝나기 전 새 섹션은 analysis_task_id 로 숨긴다. 완료할 때 job.current_analysis_task_id 를 바꾸고 이전 결과를
   audit 에 남긴 뒤 교체한다(한 트랜잭션, D6). 실패·중단한 실행의 숨은 섹션은 지운다(기존 채택 결과는 보존).
 - D9-1: 규제 사전 조회·공통 묶음 실패 → N2 실패(자동 재시도 → 오류). 현지 AI 판정 실패 → 섹션 제외(auto_local_failed)·
-  시도 failed 기록 후 N3. 현지 사전 조회 실패 → 제외 없이 현지 미검사 기록 후 N3. 그 밖의 선행 결과 실패 → 자동 재시도 2회 후 오류.
+  시도 failed 기록 후 N3. 현지 사전 조회 실패 → 제외 없이 현지 미검사 기록 후 N3. Gemini 병합 시작 전 선행 실패는 기존 자동 재시도를 유지한다(요청 한도는 pipeline.md 7.2.1).
 """
 from __future__ import annotations
 
@@ -158,6 +158,13 @@ def _progress_kw(fn: Any, pr: Any) -> dict[str, Any]:
 
 
 def execute_analyze(attempt_id: int) -> dict[str, Any]:
+    from pipeline.vlm import track_gemini_calls
+
+    with track_gemini_calls(attempt_id) as calls:
+        return _execute_analyze(attempt_id, calls)
+
+
+def _execute_analyze(attempt_id: int, calls: dict) -> dict[str, Any]:
     from pipeline.errors import AnalyzeError
     from pipeline.types import SourceImage
 
@@ -208,7 +215,7 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
                 except AnalyzeError as e:
                     if hb.lost:
                         return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
-                    return report(attempt_id, submit(lease, failed_envelope(lease, e.code, e.message, e.retryable)))
+                    return report(attempt_id, submit(lease, failed_envelope(lease, e.code, e.message, e.retryable and not calls["started"])))
                 except ai_adapters.AdapterUnavailable as e:
                     return report(attempt_id, submit(lease, failed_envelope(lease, e.code, str(e), False)))
                 if hb.lost:
@@ -236,9 +243,9 @@ def execute_analyze(attempt_id: int) -> dict[str, Any]:
                 return report(attempt_id, submit(lease, env, files))
     except execution.LeaseLost:
         return {"attemptId": attempt_id, "ran": True, "leaseLost": True}
-    except Exception as e:  # noqa: BLE001 — 예기치 않은 오류: 선행 결과 생성 실패로 보고 자동 재시도 대상(D9-1)
+    except Exception as e:  # noqa: BLE001 — Gemini 시작 뒤에는 성공한 섹션까지 다시 호출하지 않는다
         log.exception("analyze 실패 attempt=%s", attempt_id)
-        execution.fail_attempt(lease, "ANALYZE_UNEXPECTED", f"{e.__class__.__name__}: {e}", retryable=True)
+        execution.fail_attempt(lease, "ANALYZE_UNEXPECTED", f"{e.__class__.__name__}: {e}", retryable=not calls["started"])
         return {"attemptId": attempt_id, "ran": True, "failed": True}
 
 
@@ -696,7 +703,8 @@ def _retry_or_fail_run(db: Session, attempt: dict[str, Any], error_code: str, re
     run = db.execute(text("SELECT * FROM job_async_task WHERE id = :r"), {"r": attempt["parent_task_id"]}).mappings().one()
     if run["status"] != "running":
         return []
-    if retryable and attempt["retry_count"] < attempt["max_retry"]:
+    if (retryable and execution.automatic_retry_allowed({**attempt, "error_code": error_code})
+            and attempt["retry_count"] < attempt["max_retry"]):
         return [execution.create_retry(db, attempt["id"], "auto")]
     fail_run(db, dict(run), error_code, attempt.get("error_message"))
     return []

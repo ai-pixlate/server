@@ -1,8 +1,8 @@
 """VLM·LLM 호출 — ① 섹션 분해의 긴 구간 경계 선택 [pipeline.md 단계표 ①] · ③ `llm_assist` [pipeline.md 7.2절].
 
 ③ 호출자(`GeminiMergeAssistant` · `ReplayMergeAssistant`)는 파일 끝에 있다. 실패는 ①과 같은 `VlmError`로 전파한다
-(open-questions #37). ③ 호출자는 시간 제한(`merge.llm_timeout_s`)을 SDK `HttpOptions.timeout`으로 넘기고, 재시도 옵션은
-주지 않는다 — 설치된 google-genai 2.24.0은 `retry_options`가 없으면 1회만 시도한다.
+(open-questions #37). ③ 호출자는 시간 제한(`merge.llm_timeout_s`)을 SDK `HttpOptions.timeout`으로 넘기고, SDK 시도 횟수는
+명시적으로 1회로 고정한다. ③ · ⑧ 번역은 일시적 오류만 호출부에서 최대 1회 재요청한다.
 
 아래는 ① 설명이다.
 
@@ -22,10 +22,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
-from pathlib import Path
+import re
+import time
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Protocol
+from uuid import uuid4
 
 from PIL import Image
 
@@ -44,6 +50,98 @@ class VlmError(Exception):
     def __init__(self, message: str, cause: BaseException | None = None) -> None:
         self.cause = cause
         super().__init__(message if cause is None else f"{message}: {cause}")
+
+
+# N2 병합 · N4 번역 전용. 다른 Gemini 호출자는 기존 정책을 유지한다.
+log = logging.getLogger(__name__)
+_call_scope: ContextVar[dict | None] = ContextVar("gemini_call_scope", default=None)
+
+
+@contextmanager
+def track_gemini_calls(attempt_id: int):
+    """N2 작업이 Gemini를 시작한 뒤 전체 작업을 자동 재실행하지 않도록 추적한다."""
+    state = {"attempt_id": attempt_id, "started": False}
+    token = _call_scope.set(state)
+    try:
+        yield state
+    finally:
+        _call_scope.reset(token)
+
+
+def _recoverable_429(error: Exception) -> bool:
+    """단기 제한임이 확인된 429만 허용. RetryInfo만 있거나 사유 불명이면 거절한다."""
+    raw = getattr(error, "details", {})
+    if not isinstance(raw, dict):
+        return False
+    body = raw.get("error", raw)
+    if not isinstance(body, dict):
+        return False
+    details = body.get("details", [])
+    if not isinstance(details, list):
+        return False
+    # 일반 안내문 'check your plan and billing details'는 소진 근거가 아니다.
+    hard = re.compile(r"perday|permonth|peryear|daily|monthly|billinglimit|spendlimit|"
+                      r"paymentrequired|insufficientquota|quotaexhausted|creditexhausted", re.I)
+    body_text = json.dumps(body, ensure_ascii=False)
+    if hard.search(re.sub(r"[^a-zA-Z0-9]", "", body_text)) or re.search(r"limit[:= ]+0(?:\D|$)", body_text, re.I):
+        return False
+    short_quota = False
+    rate_reason = False
+    for detail in details:
+        if not isinstance(detail, dict):
+            return False
+        if detail.get("reason"):
+            if detail["reason"] != "RATE_LIMIT_EXCEEDED":
+                return False
+            rate_reason = True
+        if str(detail.get("@type", "")).endswith("google.rpc.QuotaFailure"):
+            violations = detail.get("violations")
+            if not isinstance(violations, list) or not violations:
+                return False
+            for violation in violations:
+                if not isinstance(violation, dict):
+                    return False
+                description = json.dumps(violation, ensure_ascii=False)
+                if not re.search(r"perminute|persecond", re.sub(r"[^a-zA-Z]", "", description), re.I):
+                    return False
+                if str(violation.get("quotaValue", "")) == "0" or re.search(r"limit[:= ]+0(?:\D|$)", description, re.I):
+                    return False
+                short_quota = True
+    return short_quota or rate_reason
+
+
+def _retryable_gemini_error(error: Exception) -> bool:
+    from google.genai.errors import APIError
+    import httpx
+
+    if isinstance(error, APIError):
+        return error.code in {408, 500, 502, 503, 504} or (error.code == 429 and _recoverable_429(error))
+    return isinstance(error, (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.ConnectError, httpx.ReadError))
+
+
+def _generate_with_retry(client, *, stage: str, **kwargs):
+    """SDK는 1회 고정, 여기서만 최초 포함 최대 2회. 응답 파싱은 재시도 범위 밖이다."""
+    state = _call_scope.get()
+    if state is not None:
+        state["started"] = True
+    request_id = uuid4().hex[:12]
+    task_id = state["attempt_id"] if state is not None else None
+    for attempt in (1, 2):
+        log.info("Gemini 호출 stage=%s task=%s request=%s attempt=%s/2", stage, task_id, request_id, attempt)
+        try:
+            response = client.models.generate_content(**kwargs)
+        except Exception as error:
+            retryable = _retryable_gemini_error(error)
+            retry = attempt == 1 and retryable
+            log.warning("Gemini 실패 stage=%s task=%s request=%s attempt=%s/2 cause=%s code=%s retryable=%s retry=%s final=%s",
+                        stage, task_id, request_id, attempt, type(error).__name__, getattr(error, "code", None),
+                        retryable, retry, not retry)
+            if not retry:
+                raise
+            time.sleep(1.0)
+        else:
+            log.info("Gemini 완료 stage=%s task=%s request=%s attempt=%s/2", stage, task_id, request_id, attempt)
+            return response
 
 
 class BoundaryPicker(Protocol):
@@ -244,7 +342,8 @@ class GeminiMergeAssistant:
             except ImportError as e:
                 raise VlmError("google-genai가 설치되지 않았다 (pipeline/requirements.txt)", e) from e
             timeout_ms = int(round(self.config["timeout_s"] * 1000))
-            self._client = genai.Client(api_key=key, http_options=gtypes.HttpOptions(timeout=timeout_ms))
+            self._client = genai.Client(api_key=key, http_options=gtypes.HttpOptions(
+                timeout=timeout_ms, retry_options=gtypes.HttpRetryOptions(attempts=1)))
         return self._client
 
     def __call__(self, prompt: str, payload: str) -> LlmReply:
@@ -258,13 +357,13 @@ class GeminiMergeAssistant:
                 response_schema=MERGE_RESPONSE_SCHEMA,
                 automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
             )
-            resp = client.models.generate_content(model=self.config["model"], contents=[prompt, payload], config=config)
+            resp = _generate_with_retry(client, stage="merge", model=self.config["model"], contents=[prompt, payload], config=config)
             text = resp.text or ""
             um = getattr(resp, "usage_metadata", None)
             usage = um.model_dump(mode="json", exclude_none=True) if um is not None and hasattr(um, "model_dump") else None
         except VlmError:
             raise
-        except Exception as e:  # noqa: BLE001 — 실패 분류는 #37 결정 전에는 하지 않는다(시간 초과 포함)
+        except Exception as e:  # noqa: BLE001 — 재요청 소진·비대상 오류를 기존 VlmError로 전파
             raise VlmError(f"LLM 호출 실패 model={self.config['model']}", e) from e
         return LlmReply(text=text, usage=usage)
 
@@ -344,6 +443,7 @@ class GeminiJudgeAssistant:
     """google-genai로 ③-1 항목별 판정 JSON을 받는 기본 호출자. 호출 1회 = 섹션 1개. 이미지는 있으면 함께 보낸다.
     응답 스키마 · 단계 이름은 클래스 속성이다(④ `GeminiLabelAssistant`가 바꿔 쓴다)."""
 
+    retry_transient = False
     response_schema: dict[str, Any] = JUDGE_RESPONSE_SCHEMA
     stage_name = "③-1 맥락 판정"
 
@@ -362,7 +462,8 @@ class GeminiJudgeAssistant:
             except ImportError as e:
                 raise VlmError("google-genai가 설치되지 않았다 (pipeline/requirements.txt)", e) from e
             timeout_ms = int(round(self.config["timeout_s"] * 1000))
-            self._client = genai.Client(api_key=key, http_options=gtypes.HttpOptions(timeout=timeout_ms))
+            retry = gtypes.HttpRetryOptions(attempts=1) if self.retry_transient else None
+            self._client = genai.Client(api_key=key, http_options=gtypes.HttpOptions(timeout=timeout_ms, retry_options=retry))
         return self._client
 
     def __call__(self, prompt: str, payload: str, image: Image.Image | None) -> LlmReply:
@@ -379,7 +480,10 @@ class GeminiJudgeAssistant:
             contents: list[Any] = [prompt, payload]
             if image is not None:
                 contents.append(image)
-            resp = client.models.generate_content(model=self.config["model"], contents=contents, config=config)
+            if self.retry_transient:
+                resp = _generate_with_retry(client, stage="translate", model=self.config["model"], contents=contents, config=config)
+            else:
+                resp = client.models.generate_content(model=self.config["model"], contents=contents, config=config)
             text = resp.text or ""
             um = getattr(resp, "usage_metadata", None)
             usage = um.model_dump(mode="json", exclude_none=True) if um is not None and hasattr(um, "model_dump") else None
@@ -498,6 +602,7 @@ TRANSLATE_RESPONSE_SCHEMA: dict[str, Any] = {
 class GeminiTranslateAssistant(GeminiJudgeAssistant):
     """google-genai로 ⑧ 블록별 번역 JSON을 받는 기본 호출자. 호출 규약은 ③-1과 같다(prompt, payload, image=None) → LlmReply."""
 
+    retry_transient = True
     response_schema = TRANSLATE_RESPONSE_SCHEMA
     stage_name = "⑧ 로컬라이징 번역"
 

@@ -74,7 +74,7 @@ llm_model = "gemini-3.8-flash"
 llm_temperature = 0
 llm_split = false              # 분할 금지 고정
 prompt_path = "pipeline/prompts/merge_assist.md"   # llm_assist 프롬프트(초안 v1). 상대 경로는 레포 루트 기준(pipeline.md 7.2절)
-llm_timeout_s = 60             # llm_assist 호출 시간 제한(초). 개발용 잠정값 — 운영 값은 open-questions #37
+llm_timeout_s = 90             # 개별 API 요청 제한(초). 사용자 확정 · BE 동의 전달 2026-11-27
 
 [judge]                        # ③-1 AI 섹션 판정 — 설계 v1 잠정값(open-questions #60, docs/ai-experiments/2026-09-28_03-1-judge_design-v1.md 5절). 판정 방식 채택은 실측 후(#5). 값은 전부 실험 기준
 llm_model = "gemini-3.8-flash"
@@ -130,7 +130,7 @@ model = "gemini-3.8-flash"
 glossary = "rag"               # 용어는 BE가 검색해 실행 입력으로 공급한다(contract 5.1). AI가 검색하지 않는다
 prompt_path = "pipeline/prompts/translate.md"   # 초안 v1(실측 전). 확정은 #11 기술검증 후. 상대 경로는 레포 루트 기준
 temperature = 0                # 개발용 잠정값(③-1 · ④와 같은 계열)
-timeout_s = 60                 # 섹션 1회 호출 시간 제한(초). 개발용 잠정값 — 운영값 아님(BE 실행 정책에서 정한다)
+timeout_s = 90                 # 개별 API 요청 제한(초). 사용자 확정 · BE 동의 전달 2026-11-27
 
 [translation_review]           # ⑧ 번역문 LLM 규제 판정 — 번역기와 독립된 호출 · 프롬프트(사용자 결정 2026-10-12). 아래 값은 모두 개발용 잠정값(운영 확정값 아님)
 model = "gemini-3.8-flash"     # 개발용. 모델 선택은 이 설정으로 바꾼다(번역 모델과 같을 필요 없음)

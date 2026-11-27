@@ -103,7 +103,7 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ③ | `merge.title_pct` / `caption_pct` / `title_max_lines` / `caption_max_chars` / `price_max_chars` | 휴리스틱 역할 판정의 높이 백분위와 줄 수·글자 수 상한 | 잠정 | [PoC 5장 · heuristic_v2 코드] [`open-questions.md` #38] |
 | ③ | `merge.llm_model` / `merge.llm_temperature` / `merge.llm_split` | `llm_assist` 모델 · 온도. `llm_split`은 분할 금지 고정(false만 허용) | — | [개발계획 6장] |
 | ③ | `merge.prompt_path` | `llm_assist` 프롬프트 위치. 상대 경로는 레포 루트 기준 | 초안 v1 | [`dev.md` 2절] [`open-questions.md` #41] |
-| ③ | `merge.llm_timeout_s` | `llm_assist` 호출 시간 제한(초). 운영 값은 #37 | 개발용 잠정 | [`open-questions.md` #37, #41] |
+| ③ | `merge.llm_timeout_s` | `llm_assist` 개별 API 요청 시간 제한(초), 전체 상품 제한 아님 | 확정 | [사용자 결정 2026-11-27 · BE 동의 전달] |
 | ③ | `merge.xycut` / `merge.fullwidth` / `merge.num_o` | OCR 후처리 스위치(bool). `xycut` = 여백 분리 + 세로 중심 가로줄 정렬, `fullwidth` = 전각 변환, `num_o` = 숫자 속 o/O 교정. 서로 독립이며 모두 끄면 기존 규칙만 돈다(7.1절) | 기능 채택 확정 · 기본값 `xycut` · `num_o` 켬, `fullwidth` 끔(2026-10-26 결정). 운영 적용은 후속 조건(`open-questions.md` #86) | [사용자 결정 2026-10-21] [사용자 결정 2026-10-22] [사용자 결정 2026-10-26] [`open-questions.md` #86] |
 | ③ | `merge.xycut_gap_ratio` | 최소 여백 = 이 비율 × 섹션 전체 텍스트 영역 높이 중앙값 | 잠정 | [사용자 결정 2026-10-22] [`open-questions.md` #86] |
 | ③ | `merge.line_center_tol` / `merge.line_center_tol_min_px` | 같은 가로줄 허용치 = max(`line_center_tol_min_px`, `line_center_tol` × 후보 영역 텍스트 높이 중앙값) | 잠정 | [사용자 결정 2026-10-22] [`open-questions.md` #86] |
@@ -124,7 +124,8 @@ N2 기초 분석 오류의 자동 재시도는 2회다. 하류 횟수/시간으�
 | ⑦ | `style.method` / `style.em_ratio` / `style.align_section_tolerance` / `style.align_tolerance` | 스타일 추출 방식 · bbox 높이 → em 환산 비율 · 정렬 판정 허용 오차(섹션 폭 비율) · 줄 진단 허용 오차(블록 폭 비율, 이전 규칙 — 판정에 쓰지 않음) | 환산 비율 잠정 적용 · 최종값 미정(#85). 섹션 허용 오차 확정(2026-11-05, 실측 `docs/ai-experiments/2026-11-05_07-style_section-align.md`) | [개발계획 6장] [`open-questions.md` #85] [사용자 결정 2026-10-15] [사용자 결정 2026-11-05] |
 | ⑦ | `style.weight_min_glyph_px` / `style.weight_refs` | 굵기 측정 — 글자 높이가 이 값(px) 미만인 줄은 재지 않는다 · 견본 굵기(100 · 300 · 500 · 700 · 900)를 ⑦과 같은 방식으로 잰 값(블록 값에 가장 가까운 굵기를 고른다) | 잠정(2026-11-26, 실측 `docs/ai-experiments/2026-11-26_07-style_weight-measure.md`) | [`open-questions.md` #101] [사용자 결정 2026-11-26] |
 | ⑧ | `translate.model` / `translate.glossary` / `translate.prompt_path` | 번역 모델 · 용어 공급 방식(BE가 선별해 공급, `contract.md` 5.1) · 프롬프트 위치. 프롬프트 확정은 #11 기술검증 후 | 모델 확정 · 프롬프트 초안 v1 | [개발계획 6장] [계약 5.1] [통합 D10] [`open-questions.md` #11] |
-| ⑧ | `translate.temperature` / `translate.timeout_s` | 섹션 1회 호출 설정. 운영 시간 제한 · 재시도 상한은 BE 실행 정책에서 정하며 이 값을 운영 최댓값으로 쓰지 않는다 | 개발용 잠정 | [통합 D9] [`open-questions.md` #11] |
+| ⑧ | `translate.temperature` | 번역 온도 | 개발용 잠정 | [통합 D9] [`open-questions.md` #11] |
+| ⑧ | `translate.timeout_s` | 개별 API 요청 시간 제한(초), 전체 상품 제한 아님 | 확정 | [사용자 결정 2026-11-27 · BE 동의 전달] |
 | ⑧ 검사 | `translation_review.model` / `translation_review.prompt_path` | 번역문 LLM 규제 판정 모델 · 프롬프트 위치 — 번역기와 독립된 호출. 모델은 설정으로 고르며 번역 모델과 같을 필요 없다 | 개발용 잠정 · 프롬프트 초안 v1 | [통합 D12] |
 | ⑧ 검사 | `translation_review.temperature` / `translation_review.timeout_s` | 분할 1회 호출 설정. 운영 시간 제한 · 재시도 한도는 BE 실행 정책 | 개발용 잠정 | [통합 D12] |
 | ⑧ 검사 | `translation_review.max_input_chars` / `translation_review.max_pairs_per_call` / `translation_review.max_output_tokens` | 분할 상한(입력 코드 포인트 · 쌍 수)과 출력 상한. 문자 수는 토큰 한도를 보장하지 않는다. 출력 상한으로 잘린 응답은 같은 설정 재시도 불가 | `max_pairs_per_call` 확정(사용자 2026-11-19, 큰 섹션 시간 초과로 하향) · 나머지 개발용 잠정 | [통합 D12] [사용자 결정 2026-11-19] |
@@ -217,12 +218,20 @@ PoC에서 확인한 접근법을 참고한 우리 잠정 설계이며, 값·규�
 
 `heuristic_v2` 블록을 LLM이 **추가 병합하고 역할을 다시 판정**한다. 분할은 하지 않는다. [`pipeline.md` 단계표 ③] [개발계획 6장] 휴리스틱 과병합은 이 단계에서 복구되지 않는다. [PoC 5장] 입력 · 출력 형식 · 프롬프트는 우리 잠정 설계(v1)다. [`open-questions.md` #41]
 
-- 섹션마다 1회, 보낼 블록이 0개면 호출하지 않는다. 텍스트가 있고 크기가 0이 아닌 블록만 보내며 섹션 이미지와 휴리스틱 역할은 보내지 않는다(비교 실험 후보). 애플리케이션은 재시도하지 않는다. [`open-questions.md` #36, #37, #41]
+- 섹션마다 1회, 보낼 블록이 0개면 호출하지 않는다. 텍스트가 있고 크기가 0이 아닌 블록만 보내며 섹션 이미지와 휴리스틱 역할은 보내지 않는다(비교 실험 후보). 일시적 API 오류의 재요청은 7.2.1절을 따른다. [`open-questions.md` #36, #37, #41] [사용자 결정 2026-11-27 · BE 동의 전달]
 - LLM은 휴리스틱 블록을 통째로만 묶고 원문을 쓰지 않는다. 같은 줄 조각의 줄 복구는 하지 않는다(v2에서 판단). [`open-questions.md` #41]
-- 호출 실패 · 응답 검증 실패는 휴리스틱 결과로 대체하지 않고 `VlmError`로 전파한다. 운영 처리는 미정이다. [`open-questions.md` #37, #41]
+- 호출 실패 · 응답 검증 실패는 휴리스틱 결과로 대체하지 않고 `VlmError`로 전파한다. 재요청 소진 후 기존 실패 처리를 따른다(7.2.1절). [`open-questions.md` #37, #41] [사용자 결정 2026-11-27 · BE 동의 전달]
 - 프롬프트 원문 `pipeline/prompts/merge_assist.md`. 그 caution 정의는 #9(주의문구 범위)의 확정이 아니다. [`open-questions.md` #9, #41]
 - `merge.xycut`을 켜면(7.1절 OCR 후처리) 블록마다 `region`을 보내고 보충 프롬프트 `pipeline/prompts/merge_assist_region.md`를 뒤에 붙인다. `region` 값은 칸 묶음 번호(7.1절)다 — y 절단으로만 나뉜 후보 영역끼리는 합칠 수 있다. 칸 묶음을 넘는 묶음은 실패가 아니라 칸 묶음별로 나누고, 그 조각에는 LLM 역할 대신 휴리스틱 역할 판정을 다시 적용한다(분리 기록의 키 이름은 `region` 그대로, 값은 칸 묶음 번호). 다른 응답 오류는 위 실패 규칙 그대로다. 묶음 안의 모든 줄과 묶음의 위치는 같은 읽기 순서 키(후보 영역, 가로줄 순번, x, `region_key`)를 따른다 — 가로줄 순번은 후보 영역마다 1부터 다시 시작하므로 영역을 맨 앞에 둔다. 줄은 이 키로 다시 정렬하고(블록 단위로 잇지 않음), 묶음은 이 순서로 가장 앞선 멤버 위치에 둔다. 같은 후보 영역 안의 gutter 두 칸을 합치면 줄이 번갈아 섞일 수 있어, 같은 후보 영역에서 멤버들의 가로줄 범위가 교차하는 묶음을 분리 기록과 함께 `merge_debug`에 남긴다(계약 값 아님). 끄면 입력 · 프롬프트 · 기록 형식이 바뀌지 않는다. [사용자 결정 2026-10-22] [사용자 결정 2026-10-26] [`open-questions.md` #86]
 - 코드 `pipeline/stages/merge.py`(`llm_assist`) · 호출 `pipeline/vlm.py`, 테스트 `tests/test_pipeline_merge_llm.py`. 입출력 형식 · 응답 검증 · 로컬 조립 · 불변식 · 기록 · 재생 · 실행 모드별 설정 검증의 원문은 archive 7.2절.
+
+### 7.2.1 N2 병합 · N4 번역의 API 요청 정책
+
+- 적용 범위는 `GeminiMergeAssistant`와 `GeminiTranslateAssistant`다. 개별 요청 시간 제한의 값은 `config/default.toml`의 `merge.llm_timeout_s` · `translate.timeout_s`가 소유한다. 상품 전체 처리 제한이 아니다. SDK `HttpRetryOptions(attempts=1)`로 내부 재시도를 끄고, 호출부에서 최초 요청 포함 최대 2회만 보낸다. 첫 성공이면 즉시 반환하며 재요청 전 1초 대기한다. [사용자 결정 2026-11-27 · BE 동의 전달]
+- HTTP 408 · 500 · 502 · 503 · 504와 연결·읽기 타임아웃/연결·읽기 오류만 재요청한다. 429는 `QuotaFailure`의 모든 제한이 초·분 단위이고 0 한도가 아니거나 `ErrorInfo.reason=RATE_LIMIT_EXCEEDED`로 단기 제한이 확인되는 경우에만 허용한다. 일·월 할당량, 결제·지출 한도 소진 근거가 있으면 단기 제한 근거보다 우선해 제외한다. `RetryInfo`만 있거나 사유 불명인 429는 제외한다. 입력·인증·권한 오류와 응답 파싱·형식 검증은 자동 재요청하지 않는다. [사용자 결정 2026-11-27 · BE 동의 전달]
+- BE `translate` 작업의 자동 재실행은 하지 않는다. `analyze`는 병합 Gemini를 시작하기 전의 기존 사전 조회·OCR·예외 재시도만 유지한다. Gemini를 시작한 이후의 실패(후속 섹션 OCR 포함), 결과 채택 실패는 분석 전체를 자동 재계산하지 않는다. 성공했던 섹션을 다시 호출해 한도를 넘기지 않기 위한 경계다. [사용자 결정 2026-11-27 · 전체 계층 최대 2회 구현]
+- `analyze` · `translate` 워커가 만료되고 인계 결과가 없으면 호출 횟수를 확인할 수 없으므로 복구 재계산하지 않고 기존 단계 실패 처리를 진행한다. 실행 전 `pending` 메시지 재전달과 이미 등록된 산출물의 채택 복구는 유지한다. 다른 단계의 재시도 정책은 바꾸지 않는다. [사용자 결정 2026-11-27 · 전체 계층 최대 2회 구현]
+- JOB-06 사용자 수동 재시도는 별도 명시적 실행이며 기존 누적 한도를 유지한다. N4 재시도에서는 성공 번역을 보존하고 실패 대상만 공급하는 기존 경로를 유지한다. 호출 로그는 단계·작업 ID(N2)·논리 요청 ID·시도 번호·예외 종류·HTTP 코드·재요청 여부·최종 성공/실패를 남긴다. [사용자 결정 2026-11-27 · BE 동의 전달] [통합 D2 · D9 · 5.32]
 
 ### 7.3 ③-1 · ③-1' 섹션 판정 · 정책 적용
 

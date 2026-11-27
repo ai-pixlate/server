@@ -38,8 +38,9 @@ from pipeline.handoff import style_defaults as sd
 
 log = logging.getLogger(__name__)
 
-# 단계별 자동 재시도·누적 한도(개발 기본값 — 운영 수치 미정, N2 의 2회를 일반화하지 않음)
-AUTO_RETRY = {"label": 1, "logo": 0, "inpaint": 0, "style": 0, "translate": 1, "preview": 0}
+# 단계별 자동 재시도·누적 한도. translate는 API 호출부가 재요청을 맡고 작업 자동 재실행은 금지한다.
+# 그 밖은 개발 기본값(운영 수치 미정, N2 의 2회를 일반화하지 않음). MAX_RETRY는 JOB-06에도 쓰므로 유지한다.
+AUTO_RETRY = {"label": 1, "logo": 0, "inpaint": 0, "style": 0, "translate": 0, "preview": 0}
 MAX_RETRY = {"label": 1, "logo": 0, "inpaint": 1, "style": 1, "translate": 2, "preview": 2}
 TRANSLATE_ALL_FAILED = "TRANSLATE_ALL_FAILED"
 TRANSLATE_PARTIAL = "TRANSLATE_PARTIAL"

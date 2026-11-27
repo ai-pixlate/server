@@ -127,7 +127,7 @@ def test_judge_send_failure_after_adoption_keeps_pending_then_recovers(env):
     assert [h["state"] for h in _q("SELECT state FROM task_handoff WHERE task_id = :t", t=att)] == ["adopted"]  # 분석 인계 중복 없음
 
 
-def test_lease_expiry_without_result_creates_recovery_attempt(env):
+def test_analyze_lease_expiry_without_result_does_not_repeat_gemini(env):
     ids, att = _start(env)
     env["q"].messages.clear()
     lease = execution.acquire(att, "crashed-worker")  # 계산 중 워커가 죽었다
@@ -136,14 +136,14 @@ def test_lease_expiry_without_result_creates_recovery_attempt(env):
     recovery.sweep()
     rows = _q("SELECT id, attempt_no, status, error_code, retry_origin, is_current FROM job_async_task WHERE job_id = :j AND stage = 'analyze' "
               "ORDER BY attempt_no", j=ids["job"])
-    assert rows[0]["status"] == "failed" and rows[0]["error_code"] == "LEASE_EXPIRED" and not rows[0]["is_current"]
-    assert rows[1]["retry_origin"] == "recovery" and rows[1]["status"] == "pending"
+    assert len(rows) == 1
+    assert rows[0]["status"] == "failed" and rows[0]["error_code"] == "LEASE_EXPIRED" and rows[0]["is_current"]
     # 옛 워커가 돌아와도 결과를 등록할 수 없다
     with pytest.raises(execution.LeaseLost):
         execution.register_handoff(lease, execution.Envelope(outcome="failed", target_count=1, payload={},
                                                              input_fingerprint=lease.fingerprint))
     env["q"].drain()
-    assert _job(ids)["current_step"] == "N3"
+    assert _job(ids) == {"status": "failed", "current_step": "N2"}
 
 
 def test_valid_lease_is_not_taken_over(env):

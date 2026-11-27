@@ -510,6 +510,8 @@ is_product_label OR is_brand_logo
 AnalyzeError(code, retryable, message, source_image_id)
 ```
 
+N2 병합 · N4 번역의 요청 시간 제한·최대 호출 수는 `pipeline.md` 7.2.1절을 따른다. SDK·호출부·BE 자동/복구 재실행을 합쳐 논리 요청당 최대 2회다. 기존 N2 전체 작업 재시도 규칙보다 이 경계를 우선하며 JOB-06 수동 재시도와 N4 성공 번역 보존 계약은 유지한다. 새 API 오류 코드·DB 필드는 추가하지 않는다. [사용자 결정 2026-11-27 · BE 동의 전달]
+
 `retryable`은 워커가 소비하는 함수 출력값. 워커 기록 필드: `job_async_task.error_code` · `error_message` · `status` · `retry_count` · `max_retry`. 재시도는 `retryable` + 오류 코드별 실행 정책 + 남은 허용 횟수를 함께 확인.
 
 | 상황 | 오류 코드 | 재시도 |
@@ -523,7 +525,7 @@ AnalyzeError(code, retryable, message, source_image_id)
 - 텍스트가 없는 섹션은 빈 `text_blocks`를 반환.
 - 원본 전체에서 텍스트가 검출되지 않으면 분석 경고 기록.
 - ① 분해 실패는 원본 전체를 한 섹션으로 대체해 후속 처리를 진행한다. [통합 D9] 대체 기록은 AnalyzeResult 버전 1을 바꾸지 않고 `analyze()`의 `fallbacks`(원본 · 사유)로 전달하며, BE는 `analyze_with_fallbacks`(`app/ai_adapters.py`)로 받는다. 인계 함수 `run_analyze`는 같은 기록을 `split_fallbacks`로 낸다(`dev.md` 3.2). [통합 D3] [통합 D9]
-- ③ 병합 보정(`llm_assist`)의 LLM 호출·응답 검증 실패도 원본 계약에 없음. 같은 항목이 **미정**(10장, `open-questions.md` #37).
+- ③ 병합 보정(`llm_assist`)의 LLM 호출·응답 검증 실패도 원본 계약에 없음. 요청 시간 제한·일시적 API 오류 재요청은 `pipeline.md` 7.2.1절의 사용자 결정으로 정하며, 그 밖의 항목은 **미정**(10장, `open-questions.md` #37). [사용자 결정 2026-11-27 · BE 동의 전달]
 - ③-1 실패는 현지 실패 진행과 규제/공통 묶음 차단을 구분한다. 4.6의 D9 규칙을 적용하며 실패를 uncertain으로 저장하지 않는다. [통합 D9]
 
 현지 실패는 실패로 보존하면서 4.6의 N3 예외를 적용한다. 규제/공통 묶음 실패는 N2 차단이다. 유효한 선행 입력의 실패 단계만 재시도하며 입력 변경 시 영향 단계부터 처리한다. 기술 오류를 uncertain으로 바꾸지 않는다. N2 자동 재시도 2회 외 단계별 시간/횟수는 구현·운영 기준에서 정한다. [통합 D9]

@@ -1474,13 +1474,32 @@ components:
           description: '서버 계산 `result != null && result.inputFingerprint == inputFingerprint`(같은 응답 안). 조회 시점 서버 입력 기준이며 FE의 미저장 편집과 같다는 뜻이 아니다.'
     PreviewRenderAttempt:
       type: object
-      required: [taskId, status, errorCode, retryable]
-      description: '[PRD v3.5.10 · 계약 확정(FE 11-05) · 구현 완료·서버 배포 대기] 섹션의 현재 미리보기 시도'
+      required: [taskId, status, errorCode, retryable, inputFingerprint, pendingBlockIds]
+      description: >
+        [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현 완료·서버 배포 대기] 섹션의 현재 미리보기 시도.
+        `inputFingerprint` · `pendingBlockIds`는 미리보기 갱신 실패 보완(FE 11-21 「두 필드로 충분」 · 구현 완료·서버 배포 대기)이다.
+        두 값은 조회 때마다 서버에 저장된 시도 입력으로 다시 계산한다 — 새로고침 · 같은 섹션 여러 블록 저장 · 시도 대체 · 재시도 뒤에도 같은 기준으로 나온다.
       properties:
         taskId: { type: integer, format: int64, description: '저장 응답의 rerenderTaskId와 같은 번호 체계' }
         status: { $ref: '#/components/schemas/RenderStatus' }
         errorCode: { type: [string, 'null'], description: 'failed일 때 오류 코드(예: PREVIEW_FAILED·STYLE_DEFAULTS_UNAPPROVED). 그 밖에는 null' }
         retryable: { type: boolean, description: 'failed이고 true면 POST /jobs/{jobId}/tasks/{taskId}/retry 로 다시 시도할 수 있다(/tasks의 retryable과 같은 판정)' }
+        inputFingerprint:
+          type: [string, 'null']
+          pattern: '^[0-9a-f]{64}$'
+          description: >
+            이 시도의 고정 입력 지문(섹션 `inputFingerprint`와 같은 계산). 섹션 `inputFingerprint`와 같으면 지금 서버 입력에 대한 시도다
+            (실패면 「지금 입력의 미리보기를 만들지 못함」). 다르면 그 뒤 입력이 또 바뀌었다. 지문 기록이 없는 이전 방식 시도는 null.
+        pendingBlockIds:
+          type: [array, 'null']
+          items: { type: integer, format: int64 }
+          description: >
+            이 시도의 입력 중 지금 보이는 결과(`render.result`)에 반영되지 않은 블록 — **결과에 반영되지 못한 변경 블록이며 실패 원인 블록이 아니다.**
+            블록 입력(revision · 글 · 박스 · 스타일 · 배율)이 결과와 다른 블록, 이 시도 입력에만 있는 블록, 결과에는 있었지만 이 시도 입력에서 빠진 블록(번역 지움 · 제외 등)을 블록 ID 오름차순으로 낸다.
+            `render.result`가 null이면 이 시도 입력의 렌더 대상 블록 전체. 이 시도가 보이는 결과 자체면 빈 배열.
+            블록 입력은 같고 렌더러 · FE 빌드 · 배경만 바뀐 시도는 빈 배열 — 블록에 표시할 근거가 없으므로 섹션 단위로만 안내한다.
+            시도나 결과의 블록 입력 기록을 읽을 수 없으면(이전 방식 데이터) null — 서버가 추측하지 않는다.
+            예: 블록 101 · 102를 차례로 저장한 뒤 미리보기가 실패하면 `status: failed` · `pendingBlockIds: [101, 102]`이고, 이전 결과 이미지는 그대로 보인다.
     PreviewRenderResult:
       type: object
       required: [taskId, inputFingerprint, rendererId, overflow]
@@ -3351,7 +3370,8 @@ paths:
                                        blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120.5, w: 520, h: 64 },
                                                    style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
                         inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', inputError: null,
-                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false,
+                                             inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', pendingBlockIds: [] },
                                   result: { taskId: 9183, inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', rendererId: 'pillow-typeset/3+pillow-12.3.0', overflow: { '301': false } },
                                   isCurrent: true },
                         signals: [] } ] }
@@ -3360,13 +3380,15 @@ paths:
                   description: >
                     세 입력 필드가 모두 null = 입력 준비 중(번역 단계 진행 중). 입력 상태와 따로 `attempt.status = failed`이므로 렌더 실패를 표시한다.
                     이전 성공 결과(9183)는 표시할 수 있지만 `isCurrent = false`라 최신이 아니고 `overflow = null`이다. 번역이 채택되면 서버가 새 시도를 등록한다.
+                    `attempt.pendingBlockIds = [301]` — 실패한 시도에서 결과에 반영되지 못한 변경 블록(원인 블록이 아님). 새로고침해도 같은 값이다.
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
                       renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
                       sections: [ { id: 12, revision: 2, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
                         renderInput: null, inputFingerprint: null, inputError: null,
-                        render: { attempt: { taskId: 9240, status: failed, errorCode: PREVIEW_FAILED, retryable: false },
+                        render: { attempt: { taskId: 9240, status: failed, errorCode: PREVIEW_FAILED, retryable: false,
+                                             inputFingerprint: '5f0c2a9d7e3b41c6a8d9e0f1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5', pendingBlockIds: [301] },
                                   result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/3+pillow-12.3.0', overflow: null },
                                   isCurrent: false },
                         signals: [] } ] }
@@ -3381,7 +3403,8 @@ paths:
                       sections: [ { id: 12, revision: 0, sectionOrder: 1, bucket: include, excludedStage: null, sourceImageId: 501, width: 860, displayTop: 0, height: 1240,
                         originalUrl: 'https://example.com/sections/12/original.png?X-Amz-Signature=example', renderedUrl: 'https://example.com/sections/12/render-9183.png?X-Amz-Signature=example',
                         renderInput: null, inputFingerprint: null, inputError: { code: RENDER_INPUT_INVALID, blockIds: [301] },
-                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false },
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false,
+                                             inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', pendingBlockIds: [] },
                                   result: { taskId: 9183, inputFingerprint: 'cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4', rendererId: 'pillow-typeset/3+pillow-12.3.0', overflow: null },
                                   isCurrent: false },
                         signals: [] } ] }
@@ -3398,13 +3421,15 @@ paths:
                                        blocks: [ { blockId: 301, revision: 6, text: 'Smoother skin in 2 weeks', box: { x: 40, y: 120.5, w: 520, h: 64 },
                                                    style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
                         inputFingerprint: 'cb3a809ba87fbdfbe5072c6e93bfda1f77d4ef2811fec4e6ca89fbe10b11023e', inputError: null,
-                        render: { attempt: { taskId: 9301, status: pending, errorCode: null, retryable: false }, result: null, isCurrent: false },
+                        render: { attempt: { taskId: 9301, status: pending, errorCode: null, retryable: false,
+                                             inputFingerprint: 'cb3a809ba87fbdfbe5072c6e93bfda1f77d4ef2811fec4e6ca89fbe10b11023e', pendingBlockIds: [301] }, result: null, isCurrent: false },
                         signals: [] } ] }
                 unlinkedImage:
                   summary: '(가상 값) 5. 표시 결과 없음 · 시도 done — 채택 기록에 연결하지 못한 이미지 키 → 원본 + 미리보기 없음'
                   description: >
                     섹션에 이미지 키가 있어도(실행 기록 이전 작업·이전 실행·N6 최종 렌더 뒤·알 수 없는 키) 채택 기록에 연결하지 못하면 `result`·`renderedUrl`이 null이다.
                     `attempt`가 done이므로 d에 따라 한 번 재조회하고, 그대로면 원본 + 미리보기 없음으로 표시한다. 이유 필드는 없고 구분은 서버 로그로만 한다.
+                    표시 결과가 없으므로 `attempt.pendingBlockIds`는 시도 입력 블록 전체다(실패 표시는 `status`로 판단한다).
                   value:
                     { previewWidth: 500, maxOriginalWidth: 860, originalHeight: 1240, previewHeight: 721, scale: 0.5814, align: left,
                       renderer: { rendererId: 'pillow-typeset/3+pillow-12.3.0', bundleId: null },
@@ -3415,7 +3440,8 @@ paths:
                                        blocks: [ { blockId: 301, revision: 5, text: 'Visibly smoother skin', box: { x: 40, y: 120.5, w: 520, h: 64 },
                                                    style: { fontFamily: Pretendard, fontWeight: 600, fontSizePx: 34.4, fontScale: 1.0, fontColor: '#222222', align: left, letterSpacingEm: -0.015, lineHeightRatio: 1.2 } } ] },
                         inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', inputError: null,
-                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false }, result: null, isCurrent: false },
+                        render: { attempt: { taskId: 9183, status: done, errorCode: null, retryable: false,
+                                             inputFingerprint: 'b3ca0b199c8a9e6ff2836cd49979cfc8b8f31936f91ac36a77e04e59c3c7eccf', pendingBlockIds: [301] }, result: null, isCurrent: false },
                         signals: [] } ] }
                 excluded:
                   summary: '(가상 값) 6. N5 제외 섹션'

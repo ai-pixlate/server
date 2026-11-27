@@ -157,7 +157,7 @@ class ClassRule(_Model):
 class VerdictRule(_Model):
     """finding(사전 판정값 × 대체 표현 유무) → 출력 판정값 · 버킷. emit_verdict_status=None은 판정 행을 만들지 않음(allowed)."""
 
-    dict_type: Literal["regulatory", "local"]
+    dict_type: Literal["regulatory", "local", "channel"]  # channel = 판매 사이트 채널 정책 행(운영 인계 묶음의 channel 부분)
     verdict_status: str
     alternative: Literal["any", "required", "present", "absent"] = "any"
     emit_verdict_status: str | None
@@ -202,11 +202,11 @@ class JudgeItem:
     """③-1이 보는 사전 항목 — 정책 필드 없음(설계 1절 · 8절 '두 뷰')."""
 
     id: str
-    dict_type: Literal["regulatory", "local"]
+    dict_type: Literal["regulatory", "local", "channel"]
     name: str
     patterns_ko: tuple[str, ...]
-    exclusion_context: str | None  # local만
-    keep_context: str | None  # local만
+    exclusion_context: str | None  # local · channel만
+    keep_context: str | None  # local · channel만
 
 
 @dataclass(frozen=True)

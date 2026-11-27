@@ -2511,8 +2511,9 @@ def test_progress_does_not_resume_cancelled_run_for_changed_input(env):
     assert _progress_now(run_id, sid) == [] and _preview_count(job) == n0
 
 
-def test_n5_restore_with_unreadable_box_succeeds_without_attempt(env):
-    """적용 박스를 읽을 수 없는 섹션의 복원은 200(섹션 상태는 바뀜)이고 미리보기 시도는 만들지 않는다 — /preview 는 RENDER_INPUT_INVALID."""
+def test_n5_restore_with_unreadable_box_succeeds_and_records_input_error(env):
+    """적용 박스를 읽을 수 없는 섹션의 복원은 200(섹션 상태는 바뀜)이고, 렌더할 시도 대신 입력 오류 실패 시도를 하나 남긴다(전달 안 함 —
+    README 7.2 ② 구현). /preview 는 RENDER_INPUT_INVALID. 같은 상태로 다시 복원해도 새 시도 없음."""
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
     b = _text_block(c, job)
@@ -2522,5 +2523,11 @@ def test_n5_restore_with_unreadable_box_succeeds_without_attempt(env):
     n0, cur0 = _preview_count(job), _cur_preview(sid)
     r = _spatch(c, job, sid, {"action": "restore", "revision": 1})
     assert r.status_code == 200 and r.json()["bucket"] == "include"
-    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    cur = _cur_preview(sid)
+    assert _preview_count(job) == n0 + 1 and env["q"].messages == []
+    assert (cur["status"], cur["error_code"], cur["supersedes_task_id"], cur["retry_count"]) == (
+        "failed", "RENDER_INPUT_INVALID", cur0["id"], cur0["retry_count"])  # 재시도 횟수를 쓰지 않는다
     assert _pvs(c, job, sid)["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 2}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 3}).status_code == 200
+    assert _preview_count(job) == n0 + 1 and _cur_preview(sid)["id"] == cur["id"] and env["q"].messages == []

@@ -1028,6 +1028,9 @@ class PreviewHandler:
         return _after_failure(db, att, code, retryable)
 
     def retry_block_reason(self, att):
+        m = json_value(att["input_manifest"])
+        if isinstance(m, dict) and "input_error" in m:  # 렌더 입력을 만들지 못한 실패 기록 — 같은 입력으로는 다시 할 수 없다
+            return f"렌더 입력을 만들 수 없다({m['input_error'].get('code')})"
         return common.renderer_mismatch(att["input_manifest"])
 
 
@@ -1093,7 +1096,12 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if text_check.waiting(db, run, sid, by.get(("text_check", sid))):  # 활성 검사가 끝나야 N5(be-handoff 8.2)
             all_ready = False
         if pv is None:
-            m = _render_inputs(db, run_id, sid)
+            m, err = _preview_inputs(db, run_id, sid)
+            if err is not None:
+                # 렌더 입력을 만들 수 없다 — 실패 시도로 남기고(전달 안 함) 다른 미리보기 실패와 같게 최종 실패로 본다
+                # (렌더 실패는 원본 표시로 진행 — D9-3, 기존 규칙). 이 섹션 때문에 다른 섹션 처리를 멈추지 않는다
+                _record_input_error(db, run, sid, m, err, supersedes=None)
+                continue
             ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),
                                                 max_retry=MAX_RETRY["preview"]))
             all_ready = False
@@ -1103,14 +1111,18 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
             continue
         # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다.
         # 현재 시도가 완료든 최종 실패든 지문이 다를 때만 — 같은 입력의 최종 실패는 그대로 둔다(실패 상태·재시도 횟수 보존).
+        # 입력 오류도 같다: 같은 오류 상태(오류 고정 입력의 지문이 같음)면 새로 만들지 않고, 입력이 고쳐지면 정상 시도를 만든다.
         # 실행이 진행 중일 때만 여기까지 온다(위 run status 검사) — 취소·종료된 실행은 재개하지 않는다
-        m = _render_inputs(db, run_id, sid)
+        m, err = _preview_inputs(db, run_id, sid)
         if fingerprint(m) != pv["input_fingerprint"]:
             pv_row = execution.lock_task(db, pv["id"])
             if pv_row["is_current"] and pv_row["status"] in ("done", "failed"):  # 잠근 뒤 다시 확인 — 중복 호출에서 한 건만
-                ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
-                                                    target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
-                                                    count_retry=False))
+                if err is not None:
+                    _record_input_error(db, run, sid, m, err, supersedes=dict(pv_row))
+                else:
+                    ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
+                                                        target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
+                                                        count_retry=False))
     job = db.execute(text("SELECT id, status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
     if job["current_step"] == "N4":
         if blocking and not ids and job["status"] == "processing":
@@ -1119,6 +1131,36 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
             # 처리 중일 때만 N5 로 — 처리 시간 초과(README 7.8 ⑤)로 오류가 된 작업은 늦게 끝난 결과로 다음 단계로 가지 않는다
             set_job_state(db, job["id"], status="review", step="N5", ufs="reviewing")
     return ids
+
+
+def _preview_inputs(db: Session, run_id: int, sid: int) -> tuple[dict[str, Any], RenderInputInvalid | None]:
+    """⑨ 고정 입력, 또는 만들 수 없으면(적용 박스를 읽을 수 없음 — RenderInputInvalid) 입력 오류 상태를 적은 고정 입력과 그 오류.
+    입력 오류 고정 입력은 렌더 입력이 아니다(박스 · 배경 · 지문을 지어내지 않는다): 오류 코드와 대상 블록 id 만 적어,
+    같은 오류 상태인지(지문 비교) 가리는 데만 쓴다. revision 은 넣지 않는다 — 나쁜 블록의 번역문만 다시 저장해도 오류 상태는 같으므로
+    새 실패 시도를 만들지 않는다(입력이 고쳐졌는지는 정상 입력을 만들 수 있게 됐는지로 안다).
+    이 경로 밖의 장애(DB 오류 등)는 잡지 않는다 — 호출자의 오류 · 롤백 그대로."""
+    try:
+        return _render_inputs(db, run_id, sid), None
+    except RenderInputInvalid as e:
+        return {"stage": "preview", "section_id": sid,
+                "input_error": {"code": RenderInputInvalid.code, "block_ids": list(e.block_ids)}}, e
+
+
+def _record_input_error(db: Session, run: dict[str, Any], sid: int, manifest: dict[str, Any], err: RenderInputInvalid,
+                        supersedes: dict[str, Any] | None, origin: str = "auto") -> int:
+    """README 7.2 ② · reviewPreview 「구현 상태」 ②: 렌더 입력을 만들 수 없는 섹션의 실패를 미리보기 시도로 남긴다.
+    바로 failed(errorCode RENDER_INPUT_INVALID) — 큐로 보내지 않는다(실행할 입력이 없다). 재시도 횟수를 쓰지 않는다(입력 상태 기록).
+    같은 실패를 다시 시도해도 같은 결과라 사용자 재시도 불가(PreviewHandler.retry_block_reason). 호출자가 잠금 · 커밋하고, 반환 id 를 전달하지 않는다."""
+    if supersedes is not None and supersedes["status"] in ("pending", "running"):
+        db.execute(text("UPDATE job_async_task SET status = 'cancelled', finished_at = now(), lease_epoch = lease_epoch + 1, "
+                        "lease_token_hash = NULL, lease_expires_at = NULL WHERE id = :t"), {"t": supersedes["id"]})
+    tid = execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=manifest, target_count=0,
+                                   supersedes=supersedes, retry_origin=origin if supersedes is not None else None,
+                                   count_retry=False, max_retry=MAX_RETRY["preview"])
+    db.execute(text("UPDATE job_async_task SET status = 'failed', finished_at = now(), error_code = :c, error_message = :m WHERE id = :t"),
+               {"t": tid, "c": RenderInputInvalid.code, "m": str(err)[:500]})
+    log.warning("섹션 %s 미리보기 입력 오류 기록(시도 %s) — %s", sid, tid, err)
+    return tid
 
 
 def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int | None:
@@ -1140,12 +1182,12 @@ def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int
         text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
         {"r": run["id"], "s": section_id},
     ).mappings().first()
-    try:
-        m = _render_inputs(db, run["id"], section_id)
-    except RenderInputInvalid as e:
-        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고 시도만 확보하지 않는다(/preview 가 RENDER_INPUT_INVALID 로 보인다).
-        # 시도를 실패로 기록하는 처리는 미완료 항목(PR #108 본문)
-        log.warning("복원 섹션 %s 미리보기 미확보 — %s", section_id, e)
+    m, err = _preview_inputs(db, run["id"], section_id)
+    if err is not None:
+        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고, 실패를 시도로 남긴다(전달 안 함 · 반환 None).
+        # 같은 오류 상태의 실패 시도가 이미 현재면 새로 만들지 않는다. /preview 는 그대로 inputError RENDER_INPUT_INVALID
+        if cur is None or dict(cur)["input_fingerprint"] != fingerprint(m) or cur["status"] != "failed":
+            _record_input_error(db, run, section_id, m, err, supersedes=dict(cur) if cur is not None else None, origin="user")
         return None
     if cur is None:
         return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
@@ -1170,10 +1212,15 @@ def rerender_section(db: Session, job_id: int, section_id: int) -> int | None:
         text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
         {"r": run["id"], "s": section_id},
     ).mappings().first()
-    m = _render_inputs(db, run["id"], section_id)
+    m, err = _preview_inputs(db, run["id"], section_id)
     if cur is None:
         return None
     cur = dict(cur)
+    if err is not None:
+        # 저장은 막지 않고 실패를 시도로 남긴다(전달 안 함 → rerenderTaskId null). 같은 오류 상태의 실패 시도가 현재면 그대로
+        if not (cur["status"] == "failed" and cur["input_fingerprint"] == fingerprint(m)):
+            _record_input_error(db, run, section_id, m, err, supersedes=cur, origin="user")
+        return None
     if cur["status"] in ("pending", "running"):
         db.execute(text("UPDATE job_async_task SET status = 'cancelled', finished_at = now(), lease_epoch = lease_epoch + 1, "
                         "lease_token_hash = NULL, lease_expires_at = NULL WHERE id = :t"), {"t": cur["id"]})

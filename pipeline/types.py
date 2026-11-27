@@ -1458,3 +1458,121 @@ class AplusCutoutResult(_Model):
         if len(set(keys)) != len(keys):
             raise ValueError("같은 칸의 같은 이미지 칸이 두 번 있다")
         return self
+
+
+class AplusCompressedField(_Model):
+    """압축(2차 번역) 대상 — 템플릿 한도를 넘은 글 칸 하나의 기록(#94). AI 내부 기록이며 인계 형식이 아니다(#97).
+    `field`: `headline` · `items[i].title` 형식. `primary_text` = 7칸 구성이 넣은 1차 번역 조합, `max_chars` = 템플릿 한도(권장 길이),
+    `allowed_chars` = 넘으면 안 되는 길이(권장 길이 × `aplus_compress.over_ratio`, 가이드 상한 이하 — 없으면 `max_chars`와 같다),
+    `guide_max_chars` = 가이드 칸당 상한(대응 필드가 없으면 None). `outcome`: `compressed` 한도 안의 답으로 문구를 바꿈 ·
+    `kept` 1차 번역 그대로 둠. `reason`: `fit` 채택 · `over_limit` 답이 넘으면 안 되는 길이를 넘음 · `declined` 모델이 기준을 지키며 줄일 수 없다고 답함 ·
+    `new_number` 답에 1차 문구에 없던 숫자가 있음 · `new_regulated` 답에 1차 문구에 없던 규제 매칭이 있음 · `blank` 빈 답 ·
+    `call_failed` 다시 묻는 호출이 실패함.
+    `answer_text` = 모델의 마지막 답(채택됐으면 칸에 들어간 문구, 답이 없으면 None), `attempts` = 이 칸을 모델에 물은 횟수."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    origin_block_keys: list[str] = Field(default_factory=list)
+    primary_text: str
+    primary_chars: int = Field(gt=0)
+    max_chars: int = Field(gt=0)
+    allowed_chars: int | None = Field(default=None, gt=0)
+    guide_max_chars: int | None = Field(default=None, gt=0)
+    outcome: Literal["compressed", "kept"]
+    reason: Literal["fit", "over_limit", "declined", "new_number", "new_regulated", "blank", "call_failed"]
+    answer_text: str | None = None
+    answer_chars: int | None = Field(default=None, ge=0)
+    attempts: int = Field(ge=1)
+
+    @model_validator(mode="after")
+    def _outcome(self) -> "AplusCompressedField":
+        if (self.outcome == "compressed") != (self.reason == "fit"):
+            raise ValueError("outcome=compressed와 reason=fit은 함께 있어야 한다")
+        if (self.answer_text is None) != (self.answer_chars is None):
+            raise ValueError("answer_text와 answer_chars는 함께 있거나 함께 없어야 한다")
+        limit = self.allowed_chars if self.allowed_chars is not None else self.max_chars
+        if self.outcome == "compressed" and (self.answer_chars is None or not 0 < self.answer_chars <= limit):
+            raise ValueError("outcome=compressed면 넘으면 안 되는 길이 안의 답이 있어야 한다")
+        return self
+
+
+class AplusCompressChecked(_Model):
+    """압축이 무엇을 보고 했는지. `input_fingerprint`는 받은 7칸 구성 결과의 지문, `calls` = 모델 호출 횟수(대상이 없으면 0),
+    `regulation_applied` = 규제 행을 받아 반영했는지(False면 받지 못해 `avoid`도 새 규제 매칭 확인도 없었다),
+    `over_ratio` = 적용한 `aplus_compress.over_ratio`(이 값이 생기기 전의 결과에는 없다)."""
+
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+    calls: int = Field(ge=0)
+    regulation_applied: StrictBool = False
+    over_ratio: float | None = Field(default=None, ge=1)
+
+
+class AplusCompressResult(_Model):
+    """상품 하나의 압축 결과. `slots` = 7칸 구성 결과에서 한도 안에 들어온 칸만 문구를 바꾼 것(나머지는 그대로),
+    `fields` = 대상 칸마다의 기록(칸 순서 → 칸 안의 자리 순). 대상이 없으면 `fields`가 비고 모델을 부르지 않는다.
+    첫 호출의 실패(호출 · 응답 구조)는 전체 실패이며 호출자는 7칸 구성 결과를 그대로 쓴다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    slots: list[AplusSlotPlan] | None
+    fields: list[AplusCompressedField] = Field(default_factory=list)
+    checked: AplusCompressChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusCompressResult":
+        if self.status == "ok" and (self.slots is None or self.error is not None):
+            raise ValueError("status=ok면 slots가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.slots is not None or self.fields or not self.error):
+            raise ValueError("status=failed면 slots · fields가 없고 error가 있어야 한다")
+        if self.slots is not None and [s.slot for s in self.slots] != list(range(1, 8)):
+            raise ValueError("slots는 1~7 칸이 순서대로 하나씩 있어야 한다")
+        keys = [(x.slot, x.field) for x in self.fields]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
+        return self
+
+
+class AplusRecheckedField(_Model):
+    """압축 뒤 규칙 검사 — 압축이 문구를 바꾼 글 칸 하나의 검사 기록(#96). AI 내부 기록이며 인계 형식이 아니다(#97).
+    `block_key` = 그 칸의 출처 블록(1개), `text` = 검사한 문구(압축 후). `regulatory` · `terms` · `flags`는 원본 규격 유지 경로의 번역문 규칙 검사
+    (`stages.text_check.check_block`) 결과 그대로다 — `regulatory`: 검사한 · 검사하지 못한 규제 항목 ID와 매칭 · 억제 기록, `terms`: 강제 용어별
+    적용 여부, `flags`: 경고 후보(`revision`은 없다 — 압축 문구는 블록의 리비전이 아니다). `complete` = 검사 범위가 다 찼는지
+    (영어 패턴 없는 항목 0건 ∧ 판단할 수 없는 용어 0건 ∧ 용어 목록을 받음)."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    block_key: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    regulatory: dict[str, Any]
+    terms: list[dict[str, Any]] = Field(default_factory=list)
+    flags: list[dict[str, Any]] = Field(default_factory=list)
+    complete: StrictBool
+
+
+class AplusRecheckResult(_Model):
+    """상품 하나의 압축 뒤 규칙 검사 결과. `fields` = 압축이 문구를 바꾼 칸마다의 기록(압축 기록의 순서). 바뀐 칸이 없으면 빈다.
+    `terms_checked` = 용어 목록을 받아 강제 용어를 검사했는지(False면 받지 못해 검사하지 않음 — 빈 용어 목록과 다르다),
+    `rules` = 매칭 · 용어 규칙 버전. 사전 · 용어 데이터 오류는 전체 실패이며 문구는 바뀌지 않는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    fields: list[AplusRecheckedField] = Field(default_factory=list)
+    terms_checked: StrictBool
+    rules: dict[str, str]
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusRecheckResult":
+        if self.status == "ok" and self.error is not None:
+            raise ValueError("status=ok면 error가 없어야 한다")
+        if self.status == "failed" and (self.fields or not self.error):
+            raise ValueError("status=failed면 fields가 없고 error가 있어야 한다")
+        if not self.terms_checked and any(x.complete for x in self.fields):
+            raise ValueError("용어 목록을 받지 못했으면 complete일 수 없다")
+        keys = [(x.slot, x.field) for x in self.fields]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
+        return self

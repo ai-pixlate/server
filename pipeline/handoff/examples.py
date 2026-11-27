@@ -114,7 +114,7 @@ def bundle(*, local_ok: bool = True, unsplit_alternatives: bool = False) -> dict
          "variant_en": [], "alternative_expression": [], "verdict_status": "regulated", "source_verdict_status": "regulated",
          "reason": "합성: OTC 전용", "evidence": [], "confirmed_date": None},
     ]
-    if unsplit_alternatives:  # #71 확정 전 공급 형태 — 나누지 않은 원문 문자열
+    if unsplit_alternatives:  # 나누지 않은 원문 문자열 공급 형태(구분 규칙 #71에 맞지 않는 값 — 규칙 적용 전에 고정된 묶음에만 남는다)
         for r in reg:
             r["alternative_expression"] = "; ".join(r["alternative_expression"])
     names = ["가짜기획", "가짜문의", "가짜증정", "가짜반품", "가짜이벤트", "원", "가짜정품", "가짜몰"]

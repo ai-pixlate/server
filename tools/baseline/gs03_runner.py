@@ -23,6 +23,9 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
         n4_retry=recovery.get('mode')=='gs03_n4_job06_clone'
         if n4_retry:
             from .gs03_n4_execution import preflight as recovery_preflight, require_execution, drive as drive_from_n3, SingleRetryMeter
+        n4_restart=recovery.get('mode')=='gs03_n4_restart_clone'
+        if n4_restart:
+            from .gs03_n4_restart import preflight as recovery_preflight, require_execution, drive as drive_from_n3
         if recovery_url_file is None:raise ValueError('복제 DB 연결 파일 필요')
         recovery_preflight(out,recovery_url_file)
         require_execution(out)
@@ -54,6 +57,8 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
         from .gs03_recovery import CLONE_DB
         if n4_retry:
             from .gs03_n4_execution import CLONE_DB
+        if n4_restart:
+            from .gs03_n4_restart import CLONE_DB
         if url != database_url(recovery_url_file,CLONE_DB).render_as_string(hide_password=False):raise ValueError('복제 DB 환경 불일치')
     inputs = [dict(source_id=a['artifact_id'], path=str(out/a['path']), sha256=a['sha256'],
                    width=a['width'], height=a['height']) for a in manifest['artifacts'] if a['kind']=='original']
@@ -202,6 +207,7 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
                     collector.job_id=jid
                     active[0]=collector
                     if recovery and n4_retry:collector.evidence({'kind':'job06_clone_bound','stage':'N4','bindings':bindings,'human_reviewed':False})
+                    elif recovery and n4_restart:collector.evidence({'kind':'job07_sec04_clone_bound','stage':'N4','bindings':bindings,'human_reviewed':False})
                     elif recovery:record_recovery_binding(collector,bindings)
                     else:collector.operation('job_created','N1',{'bindings':bindings})
                     adapter=ProductReview(jid,seller,db.SessionLocal,query,dispatch,store,bindings)

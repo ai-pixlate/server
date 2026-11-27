@@ -47,6 +47,8 @@ def main():
     m=read(args.output/'manifest.json')
     if m['recovery']['mode']=='gs03_n4_job06_clone':
         from .gs03_n4_execution import preflight,require_execution
+    elif m['recovery']['mode']=='gs03_n4_restart_clone':
+        from .gs03_n4_restart import preflight,require_execution
     else:
         from .gs03_recovery import preflight,require_execution
     preflight(args.output,args.url_file);require_execution(args.output)

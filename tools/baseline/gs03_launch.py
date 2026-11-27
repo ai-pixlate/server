@@ -41,6 +41,8 @@ def main(argv=None):
     recovery = manifest.get('recovery') is not None
     if recovery:
         from tools.baseline.gs03_recovery import preflight as recovery_preflight, require_execution
+        if manifest['recovery'].get('mode')=='gs03_n4_job06_clone':
+            from tools.baseline.gs03_n4_execution import preflight as recovery_preflight, require_execution
         recovery_preflight(out, args.url_file)
         require_execution(out)
     else:

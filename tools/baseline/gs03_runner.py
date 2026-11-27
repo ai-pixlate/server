@@ -20,6 +20,9 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
     if recovery:
         from .gs03_recovery import preflight as recovery_preflight, require_execution, object_index, NoWaitSession, drive_from_n3, CumulativeMeter, record_recovery_binding
         from functools import partial
+        n4_retry=recovery.get('mode')=='gs03_n4_job06_clone'
+        if n4_retry:
+            from .gs03_n4_execution import preflight as recovery_preflight, require_execution, drive as drive_from_n3, SingleRetryMeter
         if recovery_url_file is None:raise ValueError('복제 DB 연결 파일 필요')
         recovery_preflight(out,recovery_url_file)
         require_execution(out)
@@ -49,6 +52,8 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
     if recovery:
         from .gs03_database import database_url
         from .gs03_recovery import CLONE_DB
+        if n4_retry:
+            from .gs03_n4_execution import CLONE_DB
         if url != database_url(recovery_url_file,CLONE_DB).render_as_string(hide_password=False):raise ValueError('복제 DB 환경 불일치')
     inputs = [dict(source_id=a['artifact_id'], path=str(out/a['path']), sha256=a['sha256'],
                    width=a['width'], height=a['height']) for a in manifest['artifacts'] if a['kind']=='original']
@@ -162,6 +167,13 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
                     collector.operation('resource',e['stage'],{'name':'inpaint_inference_attempts','amount':1,'unit':'count'},evidence)
         try:
             meter_factory = partial(CumulativeMeter,history=out/'usage.jsonl') if recovery else Meter
+            if recovery and n4_retry:
+                def allowed_request():
+                    context=current[1] or {}
+                    if context.get('task')!='app.tasks.run_translate':return False
+                    rows=query('SELECT * FROM job_async_task WHERE id=:t',t=context['args'][0])
+                    return len(rows)==1 and rows[0]['retry_origin']=='user' and rows[0]['retry_count']==2 and rows[0]['input_manifest']['targets']==[{'block_id':232,'revision':0}]
+                meter_factory=partial(SingleRetryMeter,history=out/'usage.jsonl',allowed=allowed_request)
             with observe(out, current, config['budget'], usage_sink, stage_sink, meter_factory=meter_factory):
                 for case in ('GS-03',):
                     items = [i for i in inputs if i['source_id'].startswith(case)]
@@ -189,7 +201,8 @@ def _run_prepared(out, execute=False, *, recovery_url_file=None):
                                 bindings[source]=protocol.source_key(item['source_id'])
                     collector.job_id=jid
                     active[0]=collector
-                    if recovery:record_recovery_binding(collector,bindings)
+                    if recovery and n4_retry:collector.evidence({'kind':'job06_clone_bound','stage':'N4','bindings':bindings,'human_reviewed':False})
+                    elif recovery:record_recovery_binding(collector,bindings)
                     else:collector.operation('job_created','N1',{'bindings':bindings})
                     adapter=ProductReview(jid,seller,db.SessionLocal,query,dispatch,store,bindings)
                     human_session=NoWaitSession(collector,adapter) if recovery else HumanSession(collector,adapter)

@@ -13,6 +13,9 @@ def automatic_scope():
 
 def automatic_only(manifest):
     scope = manifest.get('measurement_scope')
+    if (scope == {'measured_quality_metrics': list(QUALITY_METRICS), 'human_intervention': 'preauthorized_no_review'}
+            and (manifest.get('recovery') or {}).get('mode') in ('gs03_r3_n3_clone','gs03_n4_job06_clone','gs03_n4_restart_clone')):
+        return False  # 독립 보완 실험만: 사람 검수/무수정 승인 성과로 집계하지 않는다.
     if scope is None:
         return False  # 과거 기록 읽기 호환. 새 실행 승인은 별도 차단.
     if scope != automatic_scope():

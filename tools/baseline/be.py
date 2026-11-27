@@ -214,7 +214,7 @@ class Meter:
 
 
 @contextmanager
-def observe(out, current, budget, usage_sink=None, stage_sink=None):
+def observe(out, current, budget, usage_sink=None, stage_sink=None, *, meter_factory=Meter):
     """함수의 입력·출력과 오류를 변경하지 않는 기록 래퍼."""
     import functools
     import importlib
@@ -224,7 +224,7 @@ def observe(out, current, budget, usage_sink=None, stage_sink=None):
         event = {"source_id": current[0], "task_context": current[1] if len(current) > 1 else None, **e}
         append(out / "usage.jsonl", event)
         if usage_sink: usage_sink(event)
-    meter = Meter(budget, usage_record)
+    meter = meter_factory(budget, usage_record)
     patches = []
     for name in ("section_split", "ocr", "merge", "judge", "policy", "label", "logo", "style", "translate", "text_check"):
         module = importlib.import_module("pipeline.stages." + name)

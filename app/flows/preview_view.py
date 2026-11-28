@@ -13,6 +13,8 @@
 - `render.attempt.inputFingerprint` · `pendingBlockIds`(미리보기 갱신 실패 보완 — FE 11-21 「두 필드로 충분」, PM 11-21 조사 지시):
   둘 다 조회 때 DB 의 고정 입력으로 계산한다(저장하지 않음). 그래서 새로고침 · 여러 블록 저장 · 시도 대체 뒤에도 같은 값이 나온다.
   `pendingBlockIds` 는 「결과에 반영되지 못한 변경 블록」이다 — 실패 원인 블록이라는 뜻이 아니다.
+  입력 오류 기록 시도(고정 입력에 `input_error`)는 렌더 입력 지문이 없어 `attempt.inputFingerprint` 가 null 이고,
+  블록 입력 기록이 없어 `pendingBlockIds` 도 null 이다.
 """
 from __future__ import annotations
 
@@ -227,9 +229,15 @@ def current_attempt(ctx: PreviewContext, sid: int, result: dict[str, Any] | None
     a = ctx.attempts.get(("preview", sid))
     if a is None or a["status"] not in ("pending", "running", "done", "failed"):
         return None  # 취소된 시도는 현재 시도로 내지 않는다
+    m = json_value(a["input_manifest"])
+    # 입력 오류 기록 시도(README 7.2 ② — 렌더 입력을 만들 수 없어 오류 상태만 적은 고정 입력)는 렌더 입력 지문이 없다.
+    # DB 의 시도 지문(오류 상태 기록의 해시 — 시도 제약 · 같은 실패 판별용)은 섹션 inputFingerprint 와 같은 계산이 아니므로 공개하지 않는다.
+    # 이 시도만 null 이다 — 다른(정상) 시도의 지문 · 결과 · isCurrent 는 섹션의 지금 입력 상태와 상관없이 그대로 낸다.
+    input_error_record = downstream.is_input_error_record(m)
     return {"taskId": a["id"], "status": a["status"], "errorCode": a["error_code"] if a["status"] == "failed" else None,
-            "retryable": task_retryable(a, ctx.run), "inputFingerprint": a["input_fingerprint"],
-            "pendingBlockIds": pending_block_ids(_manifest_blocks(json_value(a["input_manifest"])), result)}
+            "retryable": task_retryable(a, ctx.run),
+            "inputFingerprint": None if input_error_record else a["input_fingerprint"],
+            "pendingBlockIds": pending_block_ids(_manifest_blocks(m), result)}
 
 
 def section_view(ctx: PreviewContext, sec: dict[str, Any]) -> dict[str, Any]:

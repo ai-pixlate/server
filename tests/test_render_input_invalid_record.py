@@ -12,6 +12,7 @@ from sqlalchemy import text
 
 from app import execution
 from app.flows import downstream
+from app.manifest import fingerprint
 from tests.exec_db import requires_db
 from tests.test_job_state_timers import _q, _state, _to_n5, dburl, env  # noqa: F401 — fixture 재사용
 from tests.test_n4_job_recovery import _attempts, _job_row, _retry_job, _session, _stage_timeout, _timed_out
@@ -230,3 +231,78 @@ def test_input_error_record_is_not_user_retryable():
     att = {"stage": "preview", "input_manifest": {"stage": "preview", "section_id": 1,
                                                   "input_error": {"code": "RENDER_INPUT_INVALID", "block_ids": []}}}
     assert "RENDER_INPUT_INVALID" in execution.retry_blocked(att)
+
+
+# ---- /preview 공개 값(#166 PreviewRenderAttempt.inputFingerprint · pendingBlockIds 와의 조합) ---------------------------------
+
+def _preview_section(c, job, sid):
+    return [s for s in c.get(f"/v1/jobs/{job}/preview").json()["sections"] if s["id"] == sid][0]
+
+
+def _db_fp(tid):
+    return _q("SELECT input_fingerprint FROM job_async_task WHERE id = :t", t=tid)[0]["input_fingerprint"]
+
+
+def test_preview_attempt_fields_for_input_error_record_and_normal_attempts(env):
+    """입력 오류 기록 시도만 공개 attempt.inputFingerprint · pendingBlockIds 가 null 이다(DB 의 오류 기록용 지문은 보존).
+    같은 작업의 정상 시도 · 이전 성공 결과(지문 · isCurrent)는 영향을 받지 않고, 입력을 고치면 정상 시도의 지문이 다시 나온다.
+    이전(#157 + #166 조합): 오류 상태 기록의 해시가 attempt.inputFingerprint 로 나가 「섹션 지문과 같은 계산」 정의와 어긋났다."""
+    ids = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    secs = [r["s"] for r in _q("SELECT DISTINCT tb.section_id AS s FROM text_block tb JOIN section s ON s.id = tb.section_id "
+                                "WHERE s.job_id = :j AND tb.trans_1 IS NOT NULL ORDER BY 1", j=job)]
+    assert len(secs) >= 2
+    bad, good = secs[0], secs[1]
+    before = _preview_section(c, job, bad)
+    old_result = before["render"]["result"]
+    assert old_result is not None and before["render"]["isCurrent"] is True
+    old_att = before["render"]["attempt"]
+    blk, box = _break_box(bad)
+    # 섹션은 이미 입력 오류지만 현재 시도는 아직 이전 정상(done) 시도 — 섹션 상태를 이유로 정상 시도의 지문을 지우지 않는다
+    s = _preview_section(c, job, bad)
+    assert s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [blk]} and s["inputFingerprint"] is None
+    att = s["render"]["attempt"]
+    assert att["taskId"] == old_att["taskId"] and att["status"] == "done"
+    assert att["inputFingerprint"] == _db_fp(att["taskId"]) == old_result["inputFingerprint"] is not None
+    _progress(job)
+    rec = [p for p in _previews(job, bad) if p["is_current"]][0]
+    assert rec["error_code"] == "RENDER_INPUT_INVALID"
+    # DB 지문(시도 제약 · 같은 실패 판별용)은 오류 상태 기록의 해시 그대로 둔다
+    assert _db_fp(rec["id"]) == fingerprint(rec["input_manifest"])
+
+    # 입력 오류 기록 시도
+    s = _preview_section(c, job, bad)
+    assert s["inputFingerprint"] is None and s["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [blk]}
+    att = s["render"]["attempt"]
+    assert (att["taskId"], att["status"], att["errorCode"], att["retryable"]) == (rec["id"], "failed", "RENDER_INPUT_INVALID", False)
+    assert att["inputFingerprint"] is None and att["pendingBlockIds"] is None
+    # 이전 성공 결과는 그대로(지문 유지) · 지금 입력의 결과가 아니므로 isCurrent false
+    assert s["render"]["result"]["taskId"] == old_result["taskId"]
+    assert s["render"]["result"]["inputFingerprint"] == old_result["inputFingerprint"] is not None
+    assert s["render"]["isCurrent"] is False and s["render"]["result"]["overflow"] is None
+
+    # 같은 작업의 정상 섹션 — 정상 시도의 지문 · 결과 · isCurrent · pendingBlockIds 의미 그대로
+    g = _preview_section(c, job, good)
+    gatt = g["render"]["attempt"]
+    assert gatt["inputFingerprint"] == _db_fp(gatt["taskId"]) == g["inputFingerprint"] is not None
+    assert g["render"]["isCurrent"] is True and gatt["pendingBlockIds"] == []
+
+    # 입력 수정(배치 조정 API) → 새 정상 시도: 지문이 다시 나오고 섹션 지문과 같다. 결과는 아직 이전 것 → 대기 블록 = 고친 블록
+    b = [x for x in c.get(f"/v1/jobs/{job}/blocks").json() if x["id"] == blk][0]
+    r = c.patch(f"/v1/jobs/{job}/blocks/{blk}", json={
+        "trans1": b["trans1"], "revision": b["revision"],
+        "layoutAdjust": {"box": {k: box[k] for k in ("x", "y", "w", "h")}, "fontScale": 1.0}})
+    assert r.status_code == 200, r.text
+    tid = r.json()["rerenderTaskId"]
+    s = _preview_section(c, job, bad)
+    att = s["render"]["attempt"]
+    assert s["inputError"] is None and att["taskId"] == tid and att["status"] == "pending"
+    assert att["inputFingerprint"] == _db_fp(tid) == s["inputFingerprint"] is not None
+    assert s["render"]["result"]["taskId"] == old_result["taskId"] and s["render"]["isCurrent"] is False
+    assert att["pendingBlockIds"] == [blk]  # 이전 결과와 다른 블록은 고친 블록뿐
+    # 렌더 완료 → 지금 결과 · isCurrent true · 대기 블록 없음
+    env["q"].drain()
+    s = _preview_section(c, job, bad)
+    att = s["render"]["attempt"]
+    assert att["status"] == "done" and att["inputFingerprint"] == s["inputFingerprint"] == s["render"]["result"]["inputFingerprint"]
+    assert s["render"]["result"]["taskId"] == tid and s["render"]["isCurrent"] is True and att["pendingBlockIds"] == []

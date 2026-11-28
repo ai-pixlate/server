@@ -1029,7 +1029,7 @@ class PreviewHandler:
 
     def retry_block_reason(self, att):
         m = json_value(att["input_manifest"])
-        if isinstance(m, dict) and "input_error" in m:  # 렌더 입력을 만들지 못한 실패 기록 — 같은 입력으로는 다시 할 수 없다
+        if is_input_error_record(m):  # 렌더 입력을 만들지 못한 실패 기록 — 같은 입력으로는 다시 할 수 없다
             return f"렌더 입력을 만들 수 없다({m['input_error'].get('code')})"
         return common.renderer_mismatch(att["input_manifest"])
 
@@ -1144,6 +1144,12 @@ def _preview_inputs(db: Session, run_id: int, sid: int) -> tuple[dict[str, Any],
     except RenderInputInvalid as e:
         return {"stage": "preview", "section_id": sid,
                 "input_error": {"code": RenderInputInvalid.code, "block_ids": list(e.block_ids)}}, e
+
+
+def is_input_error_record(manifest: Any) -> bool:
+    """시도의 고정 입력이 입력 오류 기록(_preview_inputs 의 오류 쪽)인가 — 재시도 차단(retry_block_reason)과
+    /preview 공개 지문(preview_view.current_attempt)이 같은 판별을 쓴다. 정상 렌더 입력에는 최상위 `input_error` 가 없다."""
+    return isinstance(manifest, dict) and "input_error" in manifest
 
 
 def _record_input_error(db: Session, run: dict[str, Any], sid: int, manifest: dict[str, Any], err: RenderInputInvalid,

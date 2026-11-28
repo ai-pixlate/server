@@ -1485,7 +1485,8 @@ components:
       description: >
         [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현 완료·서버 배포 대기] 섹션의 현재 미리보기 시도.
         `inputFingerprint` · `pendingBlockIds`는 미리보기 갱신 실패 보완(FE 11-21 「두 필드로 충분」 · 구현 완료·서버 배포 대기)이다.
-        두 값은 조회 때마다 서버에 저장된 시도 입력으로 다시 계산한다 — 새로고침 · 같은 섹션 여러 블록 저장 · 시도 대체 · 재시도 뒤에도 같은 기준으로 나온다.
+        `inputFingerprint`는 시도를 만들 때 저장한 고정 입력 지문을 그대로 내고(아래 입력 오류 기록 시도는 null), `pendingBlockIds`는 조회 때마다 서버에 저장된 시도 입력으로 다시 계산한다 —
+        새로고침 · 같은 섹션 여러 블록 저장 · 시도 대체 · 재시도 뒤에도 같은 기준으로 나온다.
       properties:
         taskId: { type: integer, format: int64, description: '저장 응답의 rerenderTaskId와 같은 번호 체계' }
         status: { $ref: '#/components/schemas/RenderStatus' }
@@ -1497,6 +1498,11 @@ components:
           description: >
             이 시도의 고정 입력 지문(섹션 `inputFingerprint`와 같은 계산). 섹션 `inputFingerprint`와 같으면 지금 서버 입력에 대한 시도다
             (실패면 「지금 입력의 미리보기를 만들지 못함」). 다르면 그 뒤 입력이 또 바뀌었다. 지문 기록이 없는 이전 방식 시도는 null.
+            렌더 입력을 만들 수 없어 실패로 기록한 시도(`errorCode: RENDER_INPUT_INVALID` — 실행하지 않은 입력 오류 기록, README 7.2 ②)도 null이다 —
+            이 시도에는 렌더 입력이 없어 섹션 `inputFingerprint`와 비교할 값이 없다. 기록 시점에는 섹션도 보통 `inputError` 값 · `inputFingerprint` null이다
+            (그 뒤 N5 번역 재시도 중이면 섹션은 「입력 준비 중」, 스타일 기본값 미승인이면 `inputError`가 STYLE_DEFAULTS_UNAPPROVED일 수 있다 — 섹션 값은 섹션 규칙대로).
+            null은 「이 시도 자체가 입력 오류 기록」이라는 뜻일 뿐이며, 다른 시도(이전 정상 시도 · 입력을 고친 뒤의 새 시도)의 값이나
+            `render.result` · `isCurrent`에는 영향이 없다.
         pendingBlockIds:
           type: [array, 'null']
           items: { type: integer, format: int64 }
@@ -1506,6 +1512,7 @@ components:
             `render.result`가 null이면 이 시도 입력의 렌더 대상 블록 전체. 이 시도가 보이는 결과 자체면 빈 배열.
             블록 입력은 같고 렌더러 · FE 빌드 · 배경만 바뀐 시도는 빈 배열 — 블록에 표시할 근거가 없으므로 섹션 단위로만 안내한다.
             시도나 결과의 블록 입력 기록을 읽을 수 없으면(이전 방식 데이터) null — 서버가 추측하지 않는다.
+            입력 오류 기록 시도(`RENDER_INPUT_INVALID`, 위 `inputFingerprint` 참고)도 블록 입력 기록이 없어 null이다 — 섹션 `inputError`가 RENDER_INPUT_INVALID이면 대상 블록은 그 `blockIds`로 본다.
             예: 블록 101 · 102를 차례로 저장한 뒤 미리보기가 실패하면 `status: failed` · `pendingBlockIds: [101, 102]`이고, 이전 결과 이미지는 그대로 보인다.
     PreviewRenderResult:
       type: object
@@ -3360,7 +3367,8 @@ paths:
           ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 — **구현(#157 · 미병합 · 서버 배포 전)**. 미리보기 시도를 만들 자리(자동 진행 · N4 작업 단위 재시도 ·
           블록 저장 뒤 재렌더 · N5 복원)에서 그 섹션의 렌더 입력을 만들 수 없으면(블록의 적용 박스를 읽을 수 없음), 렌더할 시도 대신 실패 시도
           (`attempt.status = failed` · `errorCode: RENDER_INPUT_INVALID` · `retryable: false`)를 남기고 실행 대기열로 보내지 않는다. 정상 입력 · 지문은 만들지 않는다
-          (/preview 는 지금처럼 `inputError` RENDER_INPUT_INVALID · `inputFingerprint` null — 위 렌더 판정 c 와 「표시 결과가 없을 때」의 입력 오류 안내가 함께 적용된다).
+          (/preview 는 지금처럼 `inputError` RENDER_INPUT_INVALID · `inputFingerprint` null — 위 렌더 판정 c 와 「표시 결과가 없을 때」의 입력 오류 안내가 함께 적용된다.
+          이 실패 기록 시도의 `render.attempt.inputFingerprint` · `pendingBlockIds` 는 null — `PreviewRenderAttempt` 참고. 이전 성공 결과가 있으면 `render.result` 는 그대로 · `isCurrent: false`).
           상태 전이는 다른 미리보기 실패와 같다(렌더 실패는 원본 표시로 진행 — D9-3). 같은 입력 오류 상태로 반복해도 새 시도가 생기지 않고 재시도 횟수도 쓰지 않는다.
           입력이 고쳐지면 다음 진행 · 저장 · 복원 때 정상 미리보기 시도를 만든다. 이 경우 블록 저장 응답의 `rerenderTaskId`는 null 이다(실행할 재렌더 시도가 없음).
           최종 렌더 입력(확정)에서 같은 오류가 나는 경로는 포함하지 않았다 — 그 섹션이 있으면 확정이 아직 500 이다(처리안 별도).

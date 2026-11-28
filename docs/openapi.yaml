@@ -113,7 +113,7 @@ tags:
   - name: M1 Library
     description: 'M1 보관함 — 보관함 카드 (F-LST) · 🟢9월 (LIB-02/03 🔵12월)'
   - name: S0 Job
-    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · PATCH /jobs draft-first 확정 · JOB-08 resume 📌조건부)'
+    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · PATCH /jobs draft-first 확정 · JOB-08 resume = N4 작업 단위 재시도, FE 11-27·11-28 계약 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포)'
   - name: Master
     description: '마스터 데이터 읽기 전용 시드 (F-LNG·F-CH·F-SRC) · 🟢9월 (전용 화면 O3는 🔵12월)'
   - name: Admin
@@ -515,19 +515,88 @@ components:
       properties:
         jobId: { type: integer, format: int64 }
         taskId: { type: [integer, 'null'], format: int64, description: '등록된 task ID(renderTaskId·rerenderTaskId 등)' }
+    JobResumeAccepted:
+      type: object
+      description: >
+        JOB-08 202 응답 [FE 11-27·11-28 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포]. 화면 전환은 `status` · `currentStep`과 이어지는 JOB-05 재조회로 한다
+        (`processing · N4` → 진행 화면, `review · N5` → 바로 N5). 두 목록은 정보 확인용이며 FE 가 재시도 대상 · 진행률을 따로 계산하지 않는다.
+        실제 처리 진행 · 완료 여부는 JOB-05 로 판단한다.
+      required: [jobId, status, currentStep, retriedTaskIds, fallbackSectionIds]
+      properties:
+        jobId: { type: integer, format: int64 }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        currentStep: { $ref: '#/components/schemas/JobStep' }
+        retriedTaskIds:
+          type: array
+          items: { type: integer, format: int64 }
+          description: >
+            이번 요청이 새로 만든 재시도 시도의 taskId(실패한 현재 시도를 대체한 것)만. 대체 진행 뒤 새로 생긴 후속 처리(미리보기 등)는 넣지 않는다.
+            다시 실행한 것이 없으면 빈 배열.
+        fallbackSectionIds:
+          type: array
+          items: { type: integer, format: int64 }
+          description: >
+            이번 요청에서 대체 진행으로 마무리한 처리가 하나 이상 있는 섹션(중복 제거 · 오름차순). 그 섹션의 모든 처리가 끝났다는 뜻이 아니다.
+            대체 진행이 없으면 빈 배열.
+    JobRetry:
+      type: object
+      description: >
+        JOB-05 작업 단위 재시도 판정 [FE 11-27·11-28 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포] — N4 오류 화면 [다시 시도] 버튼 상태의 기준.
+        JOB-08 과 같은 서버 판정 함수로 계산한다. 조회 뒤 상태가 바뀔 수 있어 JOB-08 이 다시 판정하므로 `available: true`가 요청 성공을 보장하지 않는다.
+        `items[].retryable`(시도 하나의 JOB-06 가능 여부) · HTTP `error.retryable`과 다른 값이다. 이 속성이 없는 서버 응답에서 FE 는
+        `items[].retryable`을 조합해 작업 전체의 재시도 가능 여부를 추정하지 않는다.
+      required: [available, blocking]
+      properties:
+        available: { type: boolean, description: '차단이 없어 [다시 시도]를 받을 수 있는 상태(대체 진행만 있는 경우 포함).' }
+        blocking:
+          type: array
+          description: 'available=false 의 사유. JOB-08 409 `details.blocking`과 같은 항목.'
+          items: { $ref: '#/components/schemas/JobRetryBlockingItem' }
+    JobRetryBlockingItem:
+      type: object
+      description: >
+        작업 단위 재시도의 차단 항목 [FE 11-27 요청 필드 · 11-28 값 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포].
+        FE 는 `sectionId`를 사용자용 번호로 그대로 보이지 않고 작업의 섹션 순서와 잇는다.
+        이 항목은 JOB-08 409 · JOB-05 `jobRetry` 응답 시점의 판정이다 — [중단] 뒤 N3 에서 다시 조회할 수 있는 실패 정보가 아니다.
+      required: [sectionId, stage, reason]
+      properties:
+        sectionId:
+          type: [integer, 'null']
+          format: int64
+          description: >
+            값이 있으면 그 섹션의 그 처리가 막힘. `null` 이면 작업 전체 판정으로 막힘(작업 전체 번역 성공 0 — 섹션별 항목을 늘어놓지 않고 항목 하나,
+            `stage: translate` · `reason: job_translation_zero`).
+        stage:
+          type: string
+          enum: [label, logo, translate]
+          description: >
+            차단 항목 전용 단계 값. JOB-05 `TaskType`은 바꾸지 않는다(TaskType 으로는 라벨 · 로고 · 스타일이 모두 `section` 이라 무엇이 막혔는지 나뉘지 않는다).
+        reason:
+          type: string
+          enum: [retry_limit_exceeded, not_retryable, job_translation_zero]
+          description: >
+            `retry_limit_exceeded` = 누적 한도 소진. `not_retryable` = 한도는 남았지만 다시 할 수 없음(라벨 · 로고의 일반 실패).
+            `job_translation_zero` = 작업 전체 번역 성공 0(`sectionId: null` · `stage: translate`).
 
     # ===== enum (CHECK_enum_허용값 v3.4.1 · ERD V5 그대로) =====
     JobStatus:
       type: string
-      description: 'DB job.status (6종)'
-      enum: [draft, processing, review, done, failed, archived]
+      description: >
+        DB job.status (6종). [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포] `archived` → `cancelled` 이름 바꾸기(G17 15번).
+        서버 배포 전까지 운영 응답은 `archived`다 — FE는 둘 다 취소로 다룬다(README 7.8 ⑥ⓓ).
+        처리가 도는 중은 `processing`(N2 · N4 · **N6 최종 렌더 중**), 셀러 차례는 `review`(README 7.8 ②).
+      enum: [draft, processing, review, done, failed, cancelled]
     JobStep:
       type: string
       enum: [N1, N2, N3, N4, N5, N6]
     UserFacingStatus:
       type: string
-      description: '사용자 노출 상태 영문 enum 8종 (GENERATED · 한글은 FE i18n gloss, API 값 아님)'
-      enum: [draft, analyzing, section_review, translating, reviewing, done, failed, archived]
+      description: >
+        사용자 노출 상태 영문 enum 10종(PRD 05 상태표 · F-JOB-04. 한글은 FE i18n gloss, API 값 아님).
+        [PRD v3.6.4 · PM 확정 11-25 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포] 새 값 `rendering`(최종 렌더 중 = processing · N6) ·
+        `awaiting_save`(저장 대기 = review · N6), `archived` → `cancelled`. 지금 서버는 N6에서 렌더 중 · 저장 대기 모두 `reviewing`이고
+        취소는 `archived`다 — 분리 뒤 저장 대기는 `awaiting_save`로 바뀐다. 대응표 · 전이는 README 7.8 ② · ③.
+      enum: [draft, analyzing, section_review, translating, reviewing, rendering, awaiting_save, done, failed, cancelled]
     SpecType:
       type: string
       enum: [original, site, custom]
@@ -923,6 +992,13 @@ components:
           description: >
             【구현 예정 — 운영 미제공】 선택. N2 세부 진행. currentStep=N2 가 아니면 속성을 생략한다(null 을 보내지 않음).
             없으면 FE 는 기존 progress·stages·items 로 표시한다. 기존 필드의 값·의미는 바꾸지 않는다.
+        jobRetry:
+          allOf: [ { $ref: '#/components/schemas/JobRetry' } ]
+          description: >
+            [FE 11-27·11-28 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포] 작업이 `failed · N4`이고 진행 중인 하류 실행이 있을 때만 싣는다. 그 밖(`failed · N4`가 아닌 상태,
+            `failed · N4`이지만 진행 중인 하류 실행이 없는 경우 — 이때 JOB-08 은 409 INVALID_STATE)에서는 **속성을 생략한다(null 을 보내지 않음)** —
+            analysisProgress 와 같은 규칙. **속성이 없다는 것은 재시도 가능 · 불가를 정한 값이 아니다** — FE 는 이때 `items[].retryable`을
+            조합해 작업 전체 가능 여부를 추정하지 않는다. 기존 필드의 값·의미는 바꾸지 않는다.
     JobAsyncTaskItem:
       type: object
       properties:
@@ -1478,7 +1554,8 @@ components:
       description: >
         [PRD v3.5.10 · 계약 확정(FE 11-05) · 구현 완료·서버 배포 대기] 섹션의 현재 미리보기 시도.
         `inputFingerprint` · `pendingBlockIds`는 미리보기 갱신 실패 보완(FE 11-21 「두 필드로 충분」 · 구현 완료·서버 배포 대기)이다.
-        두 값은 조회 때마다 서버에 저장된 시도 입력으로 다시 계산한다 — 새로고침 · 같은 섹션 여러 블록 저장 · 시도 대체 · 재시도 뒤에도 같은 기준으로 나온다.
+        `inputFingerprint`는 시도를 만들 때 저장한 고정 입력 지문을 그대로 내고(아래 입력 오류 기록 시도는 null), `pendingBlockIds`는 조회 때마다 서버에 저장된 시도 입력으로 다시 계산한다 —
+        새로고침 · 같은 섹션 여러 블록 저장 · 시도 대체 · 재시도 뒤에도 같은 기준으로 나온다.
       properties:
         taskId: { type: integer, format: int64, description: '저장 응답의 rerenderTaskId와 같은 번호 체계' }
         status: { $ref: '#/components/schemas/RenderStatus' }
@@ -1490,6 +1567,11 @@ components:
           description: >
             이 시도의 고정 입력 지문(섹션 `inputFingerprint`와 같은 계산). 섹션 `inputFingerprint`와 같으면 지금 서버 입력에 대한 시도다
             (실패면 「지금 입력의 미리보기를 만들지 못함」). 다르면 그 뒤 입력이 또 바뀌었다. 지문 기록이 없는 이전 방식 시도는 null.
+            렌더 입력을 만들 수 없어 실패로 기록한 시도(`errorCode: RENDER_INPUT_INVALID` — 실행하지 않은 입력 오류 기록, README 7.2 ②)도 null이다 —
+            이 시도에는 렌더 입력이 없어 섹션 `inputFingerprint`와 비교할 값이 없다. 기록 시점에는 섹션도 보통 `inputError` 값 · `inputFingerprint` null이다
+            (그 뒤 N5 번역 재시도 중이면 섹션은 「입력 준비 중」, 스타일 기본값 미승인이면 `inputError`가 STYLE_DEFAULTS_UNAPPROVED일 수 있다 — 섹션 값은 섹션 규칙대로).
+            null은 「이 시도 자체가 입력 오류 기록」이라는 뜻일 뿐이며, 다른 시도(이전 정상 시도 · 입력을 고친 뒤의 새 시도)의 값이나
+            `render.result` · `isCurrent`에는 영향이 없다.
         pendingBlockIds:
           type: [array, 'null']
           items: { type: integer, format: int64 }
@@ -1499,6 +1581,7 @@ components:
             `render.result`가 null이면 이 시도 입력의 렌더 대상 블록 전체. 이 시도가 보이는 결과 자체면 빈 배열.
             블록 입력은 같고 렌더러 · FE 빌드 · 배경만 바뀐 시도는 빈 배열 — 블록에 표시할 근거가 없으므로 섹션 단위로만 안내한다.
             시도나 결과의 블록 입력 기록을 읽을 수 없으면(이전 방식 데이터) null — 서버가 추측하지 않는다.
+            입력 오류 기록 시도(`RENDER_INPUT_INVALID`, 위 `inputFingerprint` 참고)도 블록 입력 기록이 없어 null이다 — 섹션 `inputError`가 RENDER_INPUT_INVALID이면 대상 블록은 그 `blockIds`로 본다.
             예: 블록 101 · 102를 차례로 저장한 뒤 미리보기가 실패하면 `status: failed` · `pendingBlockIds: [101, 102]`이고, 이전 결과 이미지는 그대로 보인다.
     PreviewRenderResult:
       type: object
@@ -2446,6 +2529,9 @@ paths:
         status=archived + 종속 리소스 정리(DELETE) + audit_log. 🟢9월.
         [PRD v3.5.10 · 계약 확정(FE 11-06) · 현행] 응답은 200 `{jobId, status}`다. 이미 취소한 작업을 다시 취소해도 같은 200이다.
         없는 작업과 남의 작업은 404 NOT_FOUND `job_not_found`로 구분하지 않는다(존재 은닉).
+        [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포] 상태 값 `archived` → `cancelled`(G17 15번, 응답 `status`도 같다 — 배포 전 서버는 `archived`).
+        작업 이벤트(`event_log`)는 지우지 않는다(F-JOB-07 남는 것). 24시간 자동 취소(G17 24번)도 이 처리와 같다 — 대상 · 기산점 · 삭제 범위 ·
+        취소 뒤 조작 응답은 README 7.8 ④.
       responses:
         '200':
           description: '취소됨(반복 취소 포함)'
@@ -2456,8 +2542,8 @@ paths:
                 required: [jobId, status]
                 properties:
                   jobId: { type: integer, format: int64 }
-                  status: { type: string, enum: [archived] }
-              example: { jobId: 501, status: archived }
+                  status: { type: string, enum: [cancelled], description: '배포 전 서버는 archived' }
+              example: { jobId: 501, status: cancelled }
         '404': { $ref: '#/components/responses/NotFound' }
   /jobs/{jobId}/tasks:
     parameters:
@@ -2530,21 +2616,39 @@ paths:
       - $ref: '#/components/parameters/JobId'
     post:
       tags: [S0 Job]
-      summary: 실패 단계 전체 재시도 📌조건부
+      summary: N4 오류 작업 단위 재시도 [다시 시도]
       operationId: jobResume
-      x-screen: 'N2·N4(조건부)'
+      x-screen: 'N4'
       x-source: API-JOB-08
       description: >
-        📌9월 조건부(PM 확정 대기 · openapi 개수 미합산). status=failed의 실패 task만 재큐잉,
-        인페인팅 실패는 재실행 안 함. TODO: 상세 계약 미확정.
+        [PM 11-27 정책 · FE 11-27·11-28 계약 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포] N4 오류 화면의 [다시 시도]는 이 요청 하나로 잇는다
+        (FE 는 개별 시도를 모아 JOB-06 으로 각각 보내지 않는다. JOB-06 은 N5 개별 미리보기 재시도 등 기존 화면에서 그대로).
+        요청 본문 없음. 받는 상태는 `failed · N4`(진행 중인 하류 실행이 있을 때)만이다 — 그 밖(이미 처리 중인 중복 요청 포함)은
+        409 `INVALID_STATE`이고 FE 는 작업을 다시 조회한다(이미 처리 중이면 진행 화면).
+        판정(README 7.8 ⑤ 「N4 [다시 시도]」): 현재 하류 실행의 실패한 현재 시도마다 다시 실행 · 대체 진행 · 차단으로 나눈다.
+        시간 초과로 닫힌 처리는 단계별 기존 누적 한도 안에서 다시 실행하고(시간 초과라고 횟수를 더하지 않음), 재시도할 수 있는 일반 실패(번역 · 렌더)도
+        함께 다시 실행한다. 한도를 다 쓴 처리와 다시 실행하지 않는 실패(시간 초과가 아닌 인페인트 · 스타일 일반 실패 등 — 범위는 README 7.8 ⑤)는
+        실패 규칙으로 대체 진행한다. **대체 진행은 차단이 아니다.**
+        차단이 하나라도 있으면 아무것도 바꾸지 않고(새 시도 0 · 상태 그대로) 요청 전체를 409 `RETRY_NOT_ALLOWED`로 거절하며
+        `details.blocking`에 차단 항목을 싣는다. 일부만 다시 실행하지 않는다.
+        성공하면 202 — 작업은 `processing · N4`가 되고 30분 상한을 새로 센다. 다시 실행할 것 없이 모두 대체 진행으로 끝나면
+        같은 요청 안에서 바로 `review · N5`가 될 수 있다(FE 는 진행 화면 없이 N5 로). 이후 진행은 JOB-05 로 따른다.
+        JOB-05 `jobRetry`와 같은 판정 함수를 쓰지만, 조회 뒤 상태가 바뀔 수 있으므로 이 요청에서 작업 행을 잠근 뒤 다시 판정한다 —
+        `jobRetry.available: true`가 이 요청의 성공을 보장하지 않는다.
       responses:
         '202':
-          description: '재개 수락 (→ JOB-05 폴링)'
+          description: '재시도 수락 — 이후 JOB-05 재조회'
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AcceptedTask' }
+              schema: { $ref: '#/components/schemas/JobResumeAccepted' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
+        '409':
+          description: >
+            INVALID_STATE — `failed · N4`가 아님(이미 처리 중인 중복 요청 · 취소 등). /
+            RETRY_NOT_ALLOWED — 실제로 다시 할 수 없는 차단이 있음, `details.blocking: JobRetryBlockingItem[]`. 아무것도 바꾸지 않았다.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /jobs/{jobId}/source-images:
     parameters:
@@ -3296,7 +3400,7 @@ paths:
 
         - 구현 완료·서버 배포 대기: 공통 렌더 입력·지문 B·현재 시도/표시 결과·키 제공 규칙(required 키 항상·상태별 null)(#108)
 
-        - 서버 미완료(`docs/README.md` 7.2 ①·②): 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 · 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록
+        - 서버 미완료(`docs/README.md` 7.2 ①): 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보. ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록은 구현(#157 · 미병합 · 서버 배포 전 — 아래 「구현 상태」 ②)
 
         - 미착수(`docs/README.md` 7.2 ③): 서버 HTML/Playwright 공통 렌더 연결 — 현행 Pillow
 
@@ -3347,8 +3451,15 @@ paths:
         - **렌더러 제약**: 서버 이미지는 Pillow 조판이며 자간을 적용하지 않는다(PreviewRenderer). style 8키 제공은 FE·서버 렌더 일치를 뜻하지 않는다 — 서버 HTML/Playwright 공통 렌더 연결은 2차 의존 작업이다.
         - **구현 상태**(FE의 응답 표현 수용 11-05와 별개로, 아래 경로는 서버 처리가 끝나지 않았다):
           ① 진행 중인 하류 실행이 없는 N5 섹션의 미리보기 확보 — **서버 미완료**. 시도를 만들지 않아 `attempt = null`(→ 원본 + 미리보기 없음)로 남는다.
-          ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 — **서버 미완료**. /preview·/blocks 조회는 `inputError` RENDER_INPUT_INVALID로 답하고 N5 복원도 성공하지만,
-          그 섹션의 블록 저장은 실패 시도를 남기지 못하고 500으로 끝나며 자동 진행 처리도 그 섹션에서 오류로 멈춘다.
+          ② 적용 박스를 읽을 수 없는 섹션의 렌더 실패 기록 — **구현(#157 · 미병합 · 서버 배포 전)**. 미리보기 시도를 만들 자리(자동 진행 · N4 작업 단위 재시도 ·
+          블록 저장 뒤 재렌더 · N5 복원)에서 그 섹션의 렌더 입력을 만들 수 없으면(블록의 적용 박스를 읽을 수 없음), 렌더할 시도 대신 실패 시도
+          (`attempt.status = failed` · `errorCode: RENDER_INPUT_INVALID` · `retryable: false`)를 남기고 실행 대기열로 보내지 않는다. 정상 입력 · 지문은 만들지 않는다
+          (/preview 는 지금처럼 `inputError` RENDER_INPUT_INVALID · `inputFingerprint` null — 위 렌더 판정 c 와 「표시 결과가 없을 때」의 입력 오류 안내가 함께 적용된다.
+          이 실패 기록 시도의 `render.attempt.inputFingerprint` · `pendingBlockIds` 는 null — `PreviewRenderAttempt` 참고. 이전 성공 결과가 있으면 `render.result` 는 그대로 · `isCurrent: false`).
+          상태 전이는 다른 미리보기 실패와 같다(렌더 실패는 원본 표시로 진행 — D9-3). 같은 입력 오류 상태로 반복해도 새 시도가 생기지 않고 재시도 횟수도 쓰지 않는다.
+          입력이 고쳐지면 다음 진행 · 저장 · 복원 때 정상 미리보기 시도를 만든다. 이 경우 블록 저장 응답의 `rerenderTaskId`는 null 이다(실행할 재렌더 시도가 없음).
+          최종 렌더 입력(확정)에서 같은 오류가 나는 경로는 포함하지 않았다 — 그 섹션이 있으면 확정이 아직 500 이다(처리안 별도).
+          섹션 크기를 읽을 수 없는 경우 · 박스 범위 오류는 /preview 가 RENDER_INPUT_INVALID 로 답하지만 이 기록 범위 밖이다.
           ③ 서버 HTML/Playwright 공통 렌더 연결 — **미착수**(현행 Pillow).
       responses:
         '200':
@@ -3480,8 +3591,11 @@ paths:
 
 
         전 섹션 제외 차단. acknowledgedWarnings 정합 아니면 409 INVALID_STATE(+현재 경고 목록).
-        job→review/N6. confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
-        FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지. 🟢9월.
+        job→processing/N6(userFacingStatus `rendering` — 최종 렌더 중) [PRD v3.6.4 · 계약안 11/26 · 로컬 구현(feature/job-auto-cancel) · 미배포 —
+        배포 전 서버는 job→review/N6(`reviewing`)]. 렌더가 성공하면 review/N6(`awaiting_save`), 자동 재시도가 없거나 끝난 실패면 바로
+        failed/N6(PM 확정 11-25 — 사용자 [다시 시도]는 JOB-05 `retryable` 에 따름, README 7.8 ③). confirm 트랜잭션에서 렌더 task(job_async_task)를 서버가 자동 등록 —
+        FE는 N6에서 JOB-05 폴링만(A4·Q9 채택). 수동 재렌더는 FIN-01 POST /render 유지 — 단, 저장 대기(review/N6 `awaiting_save`)에서는
+        409 INVALID_STATE(PM 11-25 재렌더 차단, [로컬 구현 · 미배포]). 받는 상태는 FIN-01 설명. 🟢9월.
 
         **[PRD v3.5.10 · 계약 확정] 2차(11/6) 확정 규칙**
         - 미리보기 재렌더가 진행 중이어도 확정을 허용한다 — 현행(진행 중 재렌더는 취소하고 N6가 다시 그린다).
@@ -3628,8 +3742,13 @@ paths:
       x-screen: 'N6'
       x-source: API-FIN-01
       description: >
-        review/N6 확인. 진행 중이면 그 시도, 현재 시도 실패면 같은 실행의 재시도 시도(retry_count 누적·max_retry 한도,
-        초기화 없음), 완료면 새 최종 렌더 실행. 한도 소진으로 실행이 실패 종료되면 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
+        N6 확인 — [로컬 구현 · 미배포] processing/N6(최종 렌더 중 `rendering`) · failed/N6(렌더 오류) · done/N6(저장 뒤)에서 받는다.
+        저장 대기(review/N6 `awaiting_save`)는 409 INVALID_STATE(PM 11-25 — 저장 대기 재렌더 차단, 새 실행·시도 없음, 사유 값 없음). 그 밖도 409 INVALID_STATE
+        (배포 전 서버는 review/N6 · done/N6 만). 렌더 오류에서 부르면 작업은 processing/N6(`rendering`)이 되고(처리 시간 30분을 새로 셈),
+        저장 뒤(done)는 상태를 바꾸지 않는다(README 7.8 ③). 무엇을 만들지는 작업 상태가 아니라 **최신 최종 렌더 실행**으로 정한다:
+        진행 중 실행이 있으면 — 현재 시도가 진행 중이면 그 시도(새 시도 없음), 현재 시도가 실패(처리 시간 초과 `PROCESSING_TIMEOUT` 포함)면
+        같은 실행의 재시도 시도(retry_count 누적·max_retry 한도, 초기화 없음). 진행 중 실행이 없고 최신 실행이 성공 종료(done) · 취소(cancelled)이거나 실행이 아직 없으면 새 최종 렌더 실행
+        (저장 뒤 재렌더가 보통 이 경우). 최신 실행이 한도 소진으로 실패 종료(failed)됐으면 작업 상태(done 포함)와 무관하게 409 RETRY_NOT_ALLOWED(새 실행·시도 없음).
         현재 시도 고정 입력의 renderer 가 실행 렌더러와 다르거나 없으면 재시도하지 않고 409 RETRY_NOT_ALLOWED(새 시도·횟수 없음).
         202 renderTaskId(시도 id) → JOB-05 폴링.
         최초 렌더는 confirm(CFM-04)이 자동 등록하므로 이 엔드포인트는 수동 재렌더용(A4·Q9).
@@ -3777,7 +3896,7 @@ paths:
       operationId: jobSave
       x-screen: 'N6'
       x-source: API-FIN-06
-      description: '렌더 성공 확인 후 done/N6·is_saved=true. 보관함 카드 = job 투영(테이블 아님). 🟢9월.'
+      description: '렌더 성공 확인 후 done/N6·is_saved=true. [로컬 구현 · 미배포] 저장 대기(review/N6 · `awaiting_save`)와 이미 저장한 done/N6 에서 받는다 — 최종 렌더 중(processing/N6) · 렌더 오류(failed/N6)는 409 INVALID_STATE(README 7.8 ③). 보관함 카드 = job 투영(테이블 아님). 🟢9월.'
       requestBody:
         required: false
         content:

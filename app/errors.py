@@ -127,6 +127,13 @@ def install_error_handlers(app) -> None:
             content=error_body(request, "VALIDATION_ERROR", "request validation failed", {"fields": fields}),
         )
 
+    from app.db import ActivityOnCancelledJob
+
+    @app.exception_handler(ActivityOnCancelledJob)
+    async def _cancelled_on_commit(request, exc: ActivityOnCancelledJob):
+        # 작업을 바꾸는 요청이 커밋하려는 때 이미 취소된 작업(app.db._touch_activity) — 변경은 커밋되지 않았다(README 7.8 ④)
+        return JSONResponse(status_code=409, content=error_body(request, "INVALID_STATE", "취소된 작업"))
+
     @app.exception_handler(Exception)
     async def _unhandled_handler(request, exc: Exception):
         return JSONResponse(status_code=500, content=error_body(request, "INTERNAL_ERROR", "internal server error"))

@@ -147,7 +147,7 @@ def test_save_after_full_cancel_is_rejected(env):
     r = c.post(f"/v1/jobs/{ids['job']}/save")
     assert r.status_code == 409
     job = _q("SELECT status, is_saved FROM job WHERE id = :j", j=ids["job"])[0]
-    assert job == {"status": "archived", "is_saved": False}
+    assert job == {"status": "cancelled", "is_saved": False}
 
 
 def test_proceed_rejects_all_excluded_and_is_idempotent(env):
@@ -557,7 +557,7 @@ def test_full_cancel_deletes_content_and_blocks_late_results(env):
     recovery.sweep()
     assert env["store"].keys(f"staging/{j}/") == []
     job = c.get(f"/v1/jobs/{j}").json()
-    assert job["status"] == "archived" and job["productName"] is None
+    assert job["status"] == "cancelled" and job["productName"] is None
 
 
 # ── 통합 계약(2026-10-14 묶음 A·B·C·D) ─────────────────────────────────
@@ -599,7 +599,7 @@ def test_confirm_accepts_fe_style_acks_with_overflow_and_out_of_scope(env):  # A
     acks = _fe_acks(blocks) + [{"blockId": 987654321, "code": "translation_failed"}]  # 범위 밖 블록은 무시
     r = c.post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": acks})
     assert r.status_code == 200, r.text
-    assert _step(ids) == ("review", "N6")
+    assert _step(ids) == ("processing", "N6")  # 최종 렌더 중(README 7.8 ③)
 
 
 def test_confirm_rejects_missing_required_ack_with_details(env):  # A + E
@@ -1332,8 +1332,9 @@ def _final_counts(job):
               "count(*) FILTER (WHERE stage = 'final_render') AS attempts FROM job_async_task WHERE job_id = :j", j=job)[0]
 
 
-def _assert_final_blocked(env, ids):
-    """한도 초과·실패 종료 뒤: FIN-01·JOB-06 은 기존 409 RETRY_NOT_ALLOWED, 실행·시도·큐 메시지가 늘지 않고 저장도 막힌다."""
+def _assert_final_blocked(env, ids, step=("failed", "N6")):
+    """한도 초과·실패 종료 뒤: FIN-01·JOB-06 은 기존 409 RETRY_NOT_ALLOWED, 실행·시도·큐 메시지가 늘지 않고 저장도 막힌다.
+    step: 그때 작업 상태 · 단계(기본 = 렌더 재시도 소진 → 오류 N6, README 7.8 ③)."""
     c, job = ids["c"], ids["job"]
     _, cur = _final(job)
     before = _final_counts(job)
@@ -1347,7 +1348,7 @@ def _assert_final_blocked(env, ids):
     assert c.post(f"/v1/jobs/{job}/save").status_code == 409
     item = [i for i in c.get(f"/v1/jobs/{job}/tasks").json()["items"] if i["taskId"] == cur["id"]][0]
     assert item["status"] == "failed" and item["retryable"] is False
-    assert _step(ids) == ("review", "N6")
+    assert _step(ids) == step
 
 
 def test_final_render_retryable_failures_close_run_at_limit(env, monkeypatch):
@@ -1440,19 +1441,24 @@ def test_final_render_non_retryable_failure_user_retry_succeeds(env, monkeypatch
 
 
 def test_final_render_new_run_after_success_is_kept(env, monkeypatch):
-    """성공 완료 뒤 FIN-01 은 새 최종 렌더 실행을 만든다(기존 동작). 그 새 실행이 실패로 닫히면 이전 성공으로 우회하지 않는다."""
+    """성공 완료 뒤 저장 대기의 FIN-01 은 막는다(PM 11-25 — 409 · 새 실행 없음). 저장 뒤(done)의 FIN-01 은 새 최종 렌더 실행을
+    만든다(기존 동작). 그 새 실행이 실패로 닫히면 이전 성공으로 우회하지 않는다."""
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
     fr = _FinalRenderMode(monkeypatch)
     c.post(f"/v1/jobs/{job}/confirm", json={"acknowledgedWarnings": []})
     env["q"].drain()
     assert [r["status"] for r in _final(job)[0]] == ["done"]
+    before = _final_counts(job)
     r = c.post(f"/v1/jobs/{job}/render")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "INVALID_STATE"
+    assert _final_counts(job) == before and env["q"].messages == []
+    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
+    r = c.post(f"/v1/jobs/{job}/render")  # 저장 뒤(done)의 재렌더는 기존대로 새 실행
     assert r.status_code == 202
     env["q"].drain()
     runs, cur = _final(job)
     assert [r["status"] for r in runs] == ["done", "done"] and (cur["status"], cur["retry_count"]) == ("done", 0)
-    assert c.post(f"/v1/jobs/{job}/save").status_code == 200
     # 저장 뒤(done/N6)에도 새 렌더는 기존대로 허용된다. 그 새 실행이 한도까지 실패하면 실행 failed, 이전 성공으로 우회 불가
     fr.mode = "fatal"
     for n in range(3):  # 새 실행(0) → 재시도(1·2)
@@ -1521,8 +1527,15 @@ def test_legacy_running_final_run_at_limit_task272(env, monkeypatch):
     assert [(r["status"], r["error_code"]) for r in _final(job)[0]] == [("failed", "STYLE_DEFAULTS_UNAPPROVED")]
     assert _q(live, j=job)[0]["n"] == 0
     assert _q(snap, j=job) == attempts_before  # 시도 행·고정 입력·횟수 그대로
-    _assert_final_blocked(env, ids)
+    # 옛 실패 처리(위에서 끼움)는 작업 상태를 바꾸지 않으므로 최종 렌더 중(processing · N6)에 남는다. 운영의 옛 행은 0017 마이그레이션이
+    # 오류 N6 로 바꾸고, 그래도 남은 것은 처리 시간 상한(README 7.8 ⑤)이 오류로 거둔다
+    _assert_final_blocked(env, ids, step=("processing", "N6"))
     assert _q(snap, j=job) == attempts_before
+    _q("UPDATE job SET state_entered_at = now() - interval '31 minutes' WHERE id = :j", j=job)
+    recovery.sweep()
+    env["q"].messages.clear()
+    assert _step(ids) == ("failed", "N6")
+    assert _q(snap, j=job) == attempts_before  # 시간 초과는 끝난 시도를 바꾸지 않는다(진행 중 시도 없음)
 
 
 def test_cleanup_sql_refuses_unexpected_state(env, monkeypatch):
@@ -2599,8 +2612,9 @@ def test_progress_does_not_resume_cancelled_run_for_changed_input(env):
     assert _progress_now(run_id, sid) == [] and _preview_count(job) == n0
 
 
-def test_n5_restore_with_unreadable_box_succeeds_without_attempt(env):
-    """적용 박스를 읽을 수 없는 섹션의 복원은 200(섹션 상태는 바뀜)이고 미리보기 시도는 만들지 않는다 — /preview 는 RENDER_INPUT_INVALID."""
+def test_n5_restore_with_unreadable_box_succeeds_and_records_input_error(env):
+    """적용 박스를 읽을 수 없는 섹션의 복원은 200(섹션 상태는 바뀜)이고, 렌더할 시도 대신 입력 오류 실패 시도를 하나 남긴다(전달 안 함 —
+    README 7.2 ② 구현). /preview 는 RENDER_INPUT_INVALID. 같은 상태로 다시 복원해도 새 시도 없음."""
     ids, _ = _to_n5(env)
     c, job = ids["c"], ids["job"]
     b = _text_block(c, job)
@@ -2610,5 +2624,11 @@ def test_n5_restore_with_unreadable_box_succeeds_without_attempt(env):
     n0, cur0 = _preview_count(job), _cur_preview(sid)
     r = _spatch(c, job, sid, {"action": "restore", "revision": 1})
     assert r.status_code == 200 and r.json()["bucket"] == "include"
-    assert (_preview_count(job), _cur_preview(sid), env["q"].messages) == (n0, cur0, [])
+    cur = _cur_preview(sid)
+    assert _preview_count(job) == n0 + 1 and env["q"].messages == []
+    assert (cur["status"], cur["error_code"], cur["supersedes_task_id"], cur["retry_count"]) == (
+        "failed", "RENDER_INPUT_INVALID", cur0["id"], cur0["retry_count"])  # 재시도 횟수를 쓰지 않는다
     assert _pvs(c, job, sid)["inputError"] == {"code": "RENDER_INPUT_INVALID", "blockIds": [b["id"]]}
+    assert _spatch(c, job, sid, {"action": "exclude", "revision": 2}).status_code == 200
+    assert _spatch(c, job, sid, {"action": "restore", "revision": 3}).status_code == 200
+    assert _preview_count(job) == n0 + 1 and _cur_preview(sid)["id"] == cur["id"] and env["q"].messages == []

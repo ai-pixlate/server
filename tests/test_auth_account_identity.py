@@ -320,7 +320,8 @@ def test_revision_ids_unique_and_single_head_0016():
         revs = list(sd.walk_revisions())
     ids = [r.revision for r in revs]
     assert len(ids) == len(set(ids))
-    assert sd.get_heads() == ["0016"]
+    assert sd.get_heads() == ["0017"]  # 0017 작업 상태 시각 열(자동 취소 · 처리 시간 상한)이 0016 위에 하나로 이어진다
+    assert sd.get_revision("0017").down_revision == "0016"
     assert sd.get_revision("0016").down_revision == "0015"
     assert sd.get_revision("0016").module.__file__.endswith("0016_seller_auth_identity.py")
     assert sd.get_revision("0015").module.__file__.endswith("0015_text_check_stage.py")
@@ -331,7 +332,7 @@ def test_empty_database_upgrades_to_head_0016_with_both_changes():
         eng = create_engine(url)
         try:
             with eng.connect() as c:
-                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0016"
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0017"  # head(0016 변경 포함)
                 assert {"auth_provider", "provider_subject", "display_name"} <= set(_cols(c))
                 stage, k1, fn = _check_structure(c)
                 assert "text_check" in stage and "translation_review" in k1 and "text_check" in fn

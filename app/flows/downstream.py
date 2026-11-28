@@ -156,7 +156,7 @@ def proceed(db: Session, job_id: int, seller_id: int) -> dict[str, Any]:
     if active is not None:
         db.rollback()
         return {"jobId": job_id, "accepted": True, "taskId": active["id"], "existing": True}
-    if job["status"] == "archived" or job["current_step"] != "N3" or job["status"] != "review":
+    if job["status"] == "cancelled" or job["current_step"] != "N3" or job["status"] != "review":
         raise ProceedRejected(409, "INVALID_STATE", f"proceed 는 N3 에서만({job['current_step']}/{job['status']})")
     if job["current_analysis_task_id"] is None:
         raise ProceedRejected(409, "INVALID_STATE", "채택된 초기 분석이 없다")
@@ -1028,6 +1028,9 @@ class PreviewHandler:
         return _after_failure(db, att, code, retryable)
 
     def retry_block_reason(self, att):
+        m = json_value(att["input_manifest"])
+        if is_input_error_record(m):  # 렌더 입력을 만들지 못한 실패 기록 — 같은 입력으로는 다시 할 수 없다
+            return f"렌더 입력을 만들 수 없다({m['input_error'].get('code')})"
         return common.renderer_mismatch(att["input_manifest"])
 
 
@@ -1053,12 +1056,18 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
     run = dict(db.execute(text("SELECT * FROM job_async_task WHERE id = :r"), {"r": run_id}).mappings().one())
     if run["status"] != "running":
         return []
+    job0 = db.execute(text("SELECT status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
+    if job0["current_step"] == "N4" and job0["status"] != "processing":
+        # N4 오류(처리 시간 초과 · 단계 실패) 동안은 후속 처리(대체 배경 · 미리보기)를 새로 만들지 않는다(README 7.8 ⑤ 늦은 완료 미채택).
+        # [다시 시도](JOB-06)로 다시 처리 중이 되면 그때 집계가 이어서 만든다
+        return []
     scope = json_value(run["run_scope"])
     atts = execution.current_attempts(db, run_id)
     by = {(a["stage"], a["unit_id"]): a for a in atts}
     ids: list[int] = []
     blocking = False
     all_ready = True
+    tr_outcome = _translation_outcome(db, run_id, scope["section_ids"], by)
     for sid in scope["section_ids"]:
         lab, lg = by.get(("label", sid)), by.get(("logo", sid))
         inp, sty, tr, pv = by.get(("inpaint", sid)), by.get(("style", sid)), by.get(("translate", sid)), by.get(("preview", sid))
@@ -1066,10 +1075,19 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
             blocking = True
             all_ready = False
             continue
-        if tr and tr["status"] == "failed" and tr["error_code"] != TRANSLATE_PARTIAL and (tr["target_count"] or 0) > 0:
-            # 번역 대상이 있는데 성공분 없이 끝남 — 오류 코드와 무관하게 빈 N5 로 보내지 않는다(D9-3).
-            # 부분 실패(TRANSLATE_PARTIAL)만 성공분 보존·실패 칸 비움으로 진행한다. 대상 0개 정상 생략은 failed 가 아니다
+        if (tr and tr["status"] == "failed" and (tr["target_count"] or 0) > 0 and execution.timed_out(tr)
+                and _limit_left(tr)):
+            # 시간 초과로 닫혔고 횟수가 남은 번역 — N4 오류에 머물고 [다시 시도] 때 다시 실행한다(PM 11-27 1차: 시간 초과 = N4,
+            # 남은 횟수 안에서 재실행). 빈 칸으로 넘기는 것은 다시 할 수 없는 번역(소진 · 일반 실패 최종)만이다
             blocking = True
+            all_ready = False
+            continue
+        if tr and tr["status"] == "failed" and (tr["target_count"] or 0) > 0 and tr_outcome != "ok":
+            # 작업 단위 번역 판정(PM 11-27): 작업 어디에도 번역 성공 블록이 아직 없다(= 이 섹션도 성공분 0).
+            # "zero"(번역 대상 섹션이 모두 끝남) → 막힘(N4). "pending"(다른 섹션 번역이 아직 진행 중) → 미리보기를 만들지 않고 기다린다.
+            # 성공 블록이 하나라도 생기면("ok") 실패 섹션은 성공분 보존 · 실패 칸 빈 칸으로 아래에서 진행한다
+            # (섹션 하나의 성공분 0 이 다른 섹션의 성공분까지 막지 않는다). 대상 0개 정상 생략은 failed 가 아니다
+            blocking = blocking or tr_outcome == "zero"
             all_ready = False
             continue
         if not (_final(inp) and _final(sty) and _final(tr)):
@@ -1078,7 +1096,12 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
         if text_check.waiting(db, run, sid, by.get(("text_check", sid))):  # 활성 검사가 끝나야 N5(be-handoff 8.2)
             all_ready = False
         if pv is None:
-            m = _render_inputs(db, run_id, sid)
+            m, err = _preview_inputs(db, run_id, sid)
+            if err is not None:
+                # 렌더 입력을 만들 수 없다 — 실패 시도로 남기고(전달 안 함) 다른 미리보기 실패와 같게 최종 실패로 본다
+                # (렌더 실패는 원본 표시로 진행 — D9-3, 기존 규칙). 이 섹션 때문에 다른 섹션 처리를 멈추지 않는다
+                _record_input_error(db, run, sid, m, err, supersedes=None)
+                continue
             ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m, target_count=len(m["blocks"]),
                                                 max_retry=MAX_RETRY["preview"]))
             all_ready = False
@@ -1088,21 +1111,62 @@ def progress(db: Session, run_id: int, section_id: int | None = None) -> list[in
             continue
         # 미리보기 이후 입력이 바뀌었으면(N5 번역 재시도 성공 등) 현재 입력으로 다시 그린다. 재시도 한도는 쓰지 않는다.
         # 현재 시도가 완료든 최종 실패든 지문이 다를 때만 — 같은 입력의 최종 실패는 그대로 둔다(실패 상태·재시도 횟수 보존).
+        # 입력 오류도 같다: 같은 오류 상태(오류 고정 입력의 지문이 같음)면 새로 만들지 않고, 입력이 고쳐지면 정상 시도를 만든다.
         # 실행이 진행 중일 때만 여기까지 온다(위 run status 검사) — 취소·종료된 실행은 재개하지 않는다
-        m = _render_inputs(db, run_id, sid)
+        m, err = _preview_inputs(db, run_id, sid)
         if fingerprint(m) != pv["input_fingerprint"]:
             pv_row = execution.lock_task(db, pv["id"])
             if pv_row["is_current"] and pv_row["status"] in ("done", "failed"):  # 잠근 뒤 다시 확인 — 중복 호출에서 한 건만
-                ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
-                                                    target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
-                                                    count_retry=False))
+                if err is not None:
+                    _record_input_error(db, run, sid, m, err, supersedes=dict(pv_row))
+                else:
+                    ids.append(execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=m,
+                                                        target_count=len(m["blocks"]), supersedes=pv_row, retry_origin="auto",
+                                                        count_retry=False))
     job = db.execute(text("SELECT id, status, current_step FROM job WHERE id = :j"), {"j": run["job_id"]}).mappings().one()
     if job["current_step"] == "N4":
         if blocking and not ids and job["status"] == "processing":
             set_job_state(db, job["id"], status="failed", step="N4", ufs="failed")
-        elif all_ready and not ids:
+        elif all_ready and not ids and job["status"] == "processing":
+            # 처리 중일 때만 N5 로 — 처리 시간 초과(README 7.8 ⑤)로 오류가 된 작업은 늦게 끝난 결과로 다음 단계로 가지 않는다
             set_job_state(db, job["id"], status="review", step="N5", ufs="reviewing")
     return ids
+
+
+def _preview_inputs(db: Session, run_id: int, sid: int) -> tuple[dict[str, Any], RenderInputInvalid | None]:
+    """⑨ 고정 입력, 또는 만들 수 없으면(적용 박스를 읽을 수 없음 — RenderInputInvalid) 입력 오류 상태를 적은 고정 입력과 그 오류.
+    입력 오류 고정 입력은 렌더 입력이 아니다(박스 · 배경 · 지문을 지어내지 않는다): 오류 코드와 대상 블록 id 만 적어,
+    같은 오류 상태인지(지문 비교) 가리는 데만 쓴다. revision 은 넣지 않는다 — 나쁜 블록의 번역문만 다시 저장해도 오류 상태는 같으므로
+    새 실패 시도를 만들지 않는다(입력이 고쳐졌는지는 정상 입력을 만들 수 있게 됐는지로 안다).
+    이 경로 밖의 장애(DB 오류 등)는 잡지 않는다 — 호출자의 오류 · 롤백 그대로."""
+    try:
+        return _render_inputs(db, run_id, sid), None
+    except RenderInputInvalid as e:
+        return {"stage": "preview", "section_id": sid,
+                "input_error": {"code": RenderInputInvalid.code, "block_ids": list(e.block_ids)}}, e
+
+
+def is_input_error_record(manifest: Any) -> bool:
+    """시도의 고정 입력이 입력 오류 기록(_preview_inputs 의 오류 쪽)인가 — 재시도 차단(retry_block_reason)과
+    /preview 공개 지문(preview_view.current_attempt)이 같은 판별을 쓴다. 정상 렌더 입력에는 최상위 `input_error` 가 없다."""
+    return isinstance(manifest, dict) and "input_error" in manifest
+
+
+def _record_input_error(db: Session, run: dict[str, Any], sid: int, manifest: dict[str, Any], err: RenderInputInvalid,
+                        supersedes: dict[str, Any] | None, origin: str = "auto") -> int:
+    """README 7.2 ② · reviewPreview 「구현 상태」 ②: 렌더 입력을 만들 수 없는 섹션의 실패를 미리보기 시도로 남긴다.
+    바로 failed(errorCode RENDER_INPUT_INVALID) — 큐로 보내지 않는다(실행할 입력이 없다). 재시도 횟수를 쓰지 않는다(입력 상태 기록).
+    같은 실패를 다시 시도해도 같은 결과라 사용자 재시도 불가(PreviewHandler.retry_block_reason). 호출자가 잠금 · 커밋하고, 반환 id 를 전달하지 않는다."""
+    if supersedes is not None and supersedes["status"] in ("pending", "running"):
+        db.execute(text("UPDATE job_async_task SET status = 'cancelled', finished_at = now(), lease_epoch = lease_epoch + 1, "
+                        "lease_token_hash = NULL, lease_expires_at = NULL WHERE id = :t"), {"t": supersedes["id"]})
+    tid = execution.create_attempt(db, run=run, stage="preview", unit_id=sid, manifest=manifest, target_count=0,
+                                   supersedes=supersedes, retry_origin=origin if supersedes is not None else None,
+                                   count_retry=False, max_retry=MAX_RETRY["preview"])
+    db.execute(text("UPDATE job_async_task SET status = 'failed', finished_at = now(), error_code = :c, error_message = :m WHERE id = :t"),
+               {"t": tid, "c": RenderInputInvalid.code, "m": str(err)[:500]})
+    log.warning("섹션 %s 미리보기 입력 오류 기록(시도 %s) — %s", sid, tid, err)
+    return tid
 
 
 def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int | None:
@@ -1124,12 +1188,12 @@ def ensure_preview_for_restore(db: Session, job_id: int, section_id: int) -> int
         text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
         {"r": run["id"], "s": section_id},
     ).mappings().first()
-    try:
-        m = _render_inputs(db, run["id"], section_id)
-    except RenderInputInvalid as e:
-        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고 시도만 확보하지 않는다(/preview 가 RENDER_INPUT_INVALID 로 보인다).
-        # 시도를 실패로 기록하는 처리는 미완료 항목(PR #108 본문)
-        log.warning("복원 섹션 %s 미리보기 미확보 — %s", section_id, e)
+    m, err = _preview_inputs(db, run["id"], section_id)
+    if err is not None:
+        # 적용 박스를 읽을 수 없으면 입력을 만들 수 없다 — 복원 자체는 막지 않고, 실패를 시도로 남긴다(전달 안 함 · 반환 None).
+        # 같은 오류 상태의 실패 시도가 이미 현재면 새로 만들지 않는다. /preview 는 그대로 inputError RENDER_INPUT_INVALID
+        if cur is None or dict(cur)["input_fingerprint"] != fingerprint(m) or cur["status"] != "failed":
+            _record_input_error(db, run, section_id, m, err, supersedes=dict(cur) if cur is not None else None, origin="user")
         return None
     if cur is None:
         return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
@@ -1154,15 +1218,310 @@ def rerender_section(db: Session, job_id: int, section_id: int) -> int | None:
         text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'preview' AND unit_id = :s AND is_current FOR UPDATE"),
         {"r": run["id"], "s": section_id},
     ).mappings().first()
-    m = _render_inputs(db, run["id"], section_id)
+    m, err = _preview_inputs(db, run["id"], section_id)
     if cur is None:
         return None
     cur = dict(cur)
+    if err is not None:
+        # 저장은 막지 않고 실패를 시도로 남긴다(전달 안 함 → rerenderTaskId null). 같은 오류 상태의 실패 시도가 현재면 그대로
+        if not (cur["status"] == "failed" and cur["input_fingerprint"] == fingerprint(m)):
+            _record_input_error(db, run, section_id, m, err, supersedes=cur, origin="user")
+        return None
     if cur["status"] in ("pending", "running"):
         db.execute(text("UPDATE job_async_task SET status = 'cancelled', finished_at = now(), lease_epoch = lease_epoch + 1, "
                         "lease_token_hash = NULL, lease_expires_at = NULL WHERE id = :t"), {"t": cur["id"]})
     return execution.create_attempt(db, run=run, stage="preview", unit_id=section_id, manifest=m, target_count=len(m["blocks"]),
                                     supersedes=cur, retry_origin="user", count_retry=False)
+
+
+# ---------------------------------------------------------------------------------------------------------
+# N4 작업 단위 복구(판정 · 생성 로직. 공개 경로는 JOB-08 `/resume` · JOB-05 `jobRetry` — routers/jobs.py · flows/status.py)
+# 근거: PM 결정 2026-11-27(한도 = 가 · N4 복구 규칙) — plans/2026-11-26_send/N4-재시도계약-보완·abort·resume-20261126.md 11-27 절
+# ---------------------------------------------------------------------------------------------------------
+RETRY, FALLBACK, BLOCK = "retry", "fallback", "block"
+
+# 시간 초과(PROCESSING_TIMEOUT)로 닫힌 시도의 복구 정책(PM 11-27). 횟수는 단계별 기존 누적 한도(MAX_RETRY)를 그대로 쓴다 —
+# 시간 초과라는 이유로 새 횟수를 주지 않는다(한도 = 가). 일반 실패(모델 오류 등)는 지금 동작 그대로다(_classify 참고).
+_POLICY: dict[str, Any] = {
+    "inpaint": RETRY,  # 남은 횟수 안에서 다시 실행, 소진이면 대체(원본 배경 · 실행 실패 표시 — 시간 초과 처리가 이미 남긴 기록)
+    "style": RETRY,  # 남은 횟수 안에서 다시 실행, 소진이면 대체(역할 기본값 — 실패 시도는 최종 상태로 렌더가 기본값 적용)
+    # 남은 횟수 안에서 다시 실행. 소진은 지금처럼 막힘 — PM 확정 정책(11-27: 일부 섹션 실패 = 원본 + 실행 실패 배지로 N5,
+    # 처리 대상 블록 전부 실패만 N4)은 후순위 구현(11번 → 10번 → 13번 뒤). 그 전까지 이 막힘이 임시 동작(출구 [중단] → N3 → 섹션 제외)
+    "label": RETRY,
+    "logo": RETRY,  # 라벨과 같음(로고 누적 한도는 기본값 0 — 그래서 소진 = 막힘)
+    "text_check": FALLBACK,  # 규칙 검사: 검사 실패 · 결과 없음 유지로 N5(지금 동작 유지 — 이번 결정 범위 밖)
+    # 번역(PM 11-27 2차 회신): 실패로 끝난 섹션은 오류 종류와 관계없이 성공분 보존 · 실패 칸 빈 칸으로 N5 진행(섹션 단위로 막지 않음).
+    # 막힘은 작업 단위 — 번역 대상이 있는 섹션의 번역이 모두 끝났는데 성공 블록이 0 일 때만(_translation_outcome = "zero").
+    # progress() 와 job_retry_plan 이 같은 판정을 쓴다. 이전 D9-3 「빈 N5 로 보내지 않음」의 섹션 단위 차단을 대신한다
+}
+
+
+class JobRetryRejected(Exception):
+    """작업 단위 복구를 받을 수 없는 상태(내부 예외 — 공개 응답은 JOB-08 라우터가 409 INVALID_STATE 로 바꾼다). 아무것도 바꾸지 않았다."""
+
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code, self.message = code, message
+
+
+class JobRetryBlocked(JobRetryRejected):
+    """판정에서 「재시도 불가 · 출구 없음」이 하나 이상 — 진행이 막히는 경우만(라벨 · 로고 소진 — PM 확정 정책의 후순위 구현 전 임시 동작,
+    작업 전체 번역 성공 0, 라벨 · 로고의 소진 아닌 재시도 불가). 새 시도 0개. blocking = 막힌 섹션 · 단계 목록(내부 사유 — 공개 값은 public_blocking 이 바꾼다, JOB-08 409 details.blocking)."""
+
+    def __init__(self, blocking: list[dict[str, Any]]):
+        super().__init__("JOB_RETRY_BLOCKED", f"재시도할 수 없는 처리 {len(blocking)}건")
+        self.blocking = blocking
+
+
+class JobRetryUnsupported(JobRetryRejected):
+    """판정은 났지만 진행 쪽 구현이 없는 정책 조합 — 안전장치. 현재 _POLICY 조합에서는 생기지 않는다(정책 표를 바꿀 때 막는 자리).
+    아무것도 바꾸지 않았다."""
+
+
+def translate_logical_successes(db: Session, run_id: int, section_id: int) -> dict[str, Any]:
+    """번역 성공분을 논리 작업(같은 실행 · 같은 섹션) 단위로 센다(1-4). 작업 단위 판정(_translation_outcome)이 쓴다.
+    현재 번역 시도의 고정 입력 `preserved`(앞 시도에서 채택한 성공분) 중 지금도 블록에 그대로 남은 것(revision · 문장 해시 일치,
+    TranslateHandler.adopt 의 보존 대조와 같은 규칙) + 현재 시도가 채택돼 반영한 것 + 사용자가 직접 입력한 대상 블록.
+    마지막 시도가 시간 초과로 닫혀 채택 기록이 없어도 앞 시도의 성공분은 0 으로 치지 않는다."""
+    cur = db.execute(
+        text("SELECT * FROM job_async_task WHERE parent_task_id = :r AND stage = 'translate' AND unit_id = :s AND is_current"),
+        {"r": run_id, "s": section_id},
+    ).mappings().first()
+    if cur is None:
+        return {"attemptId": None, "preserved": 0, "applied": 0, "userEdited": 0, "remaining": 0, "hasSuccess": False}
+    m = json_value(cur["input_manifest"]) or {}
+    rows = {r["id"]: r for r in _block_rows(db, section_id)}
+    kept: set[int] = set()
+    for ref in m.get("preserved") or []:
+        r = rows.get(ref["block_id"])
+        if r and r["revision"] == ref["revision"] and r["trans_1"] is not None and sha256_text(r["trans_1"]) == ref["sha256"]:
+            kept.add(ref["block_id"])
+    preserved = len(kept)
+    vr = json_value(db.execute(text("SELECT verify_result FROM task_handoff WHERE task_id = :t AND state = 'adopted'"),
+                               {"t": cur["id"]}).scalar()) or {}
+    applied = len(vr.get("applied") or [])
+    expected = set(m.get("expected") or [])
+    # 사용자 직접 입력: 실패 대상 + 보존분(보존분을 N5 에서 고치면 revision 이 달라 preserved 에서 빠지므로 여기서 센다 —
+    # 성공분 판정이 편집 뒤에 거짓으로 뒤집히지 않게)
+    candidates = (expected | {ref["block_id"] for ref in m.get("preserved") or []}) - kept  # 한 블록은 한 번만 센다
+    edited = sum(1 for b in candidates if rows.get(b) and rows[b]["block_status"] == "edited")
+    remaining = sum(1 for b in expected if rows.get(b) and rows[b]["block_status"] == "machine" and rows[b]["trans_1"] is None)
+    return {"attemptId": cur["id"], "preserved": preserved, "applied": applied, "userEdited": edited, "remaining": remaining,
+            "hasSuccess": preserved + applied + edited > 0}
+
+
+def _translate_in_scope(tr: dict[str, Any]) -> bool:
+    """이 섹션의 논리 번역 작업(같은 실행 · 같은 섹션)에 번역 대상이 있는지.
+    현재 시도의 target_count 는 재시도면 「이번에 다시 할 실패 블록 수」라, 0 이어도 섹션 번역 대상(고정 입력 expected)이
+    있으면 대상 섹션이다 — 앞 시도의 유효 성공분을 작업 단위 집계에서 빠뜨리지 않는다(독립 검토 11-27).
+    첫 시도는 expected 와 대상이 같으므로 target_count 0 = 번역 대상 없는 섹션(정상 생략)이다."""
+    if (tr["target_count"] or 0) > 0:
+        return True
+    return bool((json_value(tr.get("input_manifest")) or {}).get("expected"))
+
+
+def _translate_has_success(db: Session, run_id: int, tr: dict[str, Any]) -> bool:
+    """이 섹션의 현재 번역(논리 단위)에 성공 블록이 하나라도 있는지. 대상이 있는 시도의 완료 = 대상 전부 성공, 부분 실패 = 성공분 있음,
+    그 밖(실패 · 진행 중 재시도 · 이번 재시도 대상 0 으로 끝난 시도)은 앞 시도의 유효 보존분 · 채택분 · 사용자 직접 입력으로 센다
+    (translate_logical_successes — 지금 블록과 revision · 해시가 맞는 보존분만, 무효가 된 과거 결과는 세지 않는다)."""
+    if tr["status"] == "done" and (tr["target_count"] or 0) > 0:
+        return True
+    if tr["status"] == "failed" and tr["error_code"] == TRANSLATE_PARTIAL:
+        return True
+    return translate_logical_successes(db, run_id, tr["unit_id"])["hasSuccess"]
+
+
+def _translation_may_change(retry_items: list[dict[str, Any]]) -> bool:
+    """[다시 시도]로 작업의 번역 성공 여부가 아직 바뀔 수 있는지 — 번역 재시도, 또는 번역을 새로 만들 라벨 · 로고 재시도가 있을 때."""
+    return any(i["stage"] in ("translate", "label", "logo") for i in retry_items)
+
+
+def _translation_outcome(db: Session, run_id: int, section_ids: list[int], by: dict[tuple[str, int], dict[str, Any]]) -> str:
+    """작업 단위 번역 결과(PM 11-27): "none"(번역 대상이 있는 섹션 없음) · "ok"(성공 블록 하나 이상) ·
+    "zero"(번역 대상이 있는 섹션의 번역이 모두 끝났는데 성공 블록 0 — 이때만 N4) · "pending"(아직 판단 못 함).
+    셀러가 제외한 섹션은 실행 범위(section_ids)에 없다. 라벨 · 로고가 실패한 섹션은 번역 시도가 없어 셈에서 빠진다(그 섹션은 따로 막힘)."""
+    targets: list[dict[str, Any]] = []
+    for sid in section_ids:
+        tr = by.get(("translate", sid))
+        if tr is None:
+            lab, lg = by.get(("label", sid)), by.get(("logo", sid))
+            if (lab and lab["status"] == "failed") or (lg and lg["status"] == "failed"):
+                continue
+            return "pending"  # 번역 시도가 아직 없다(라벨 · 로고 채택 뒤에 생김)
+        if _translate_in_scope(tr):  # 이번 재시도 대상 0 이어도 섹션 번역 대상이 있으면 센다
+            targets.append(tr)
+    if not targets:
+        return "none"
+    if any(_translate_has_success(db, run_id, t) for t in targets):
+        return "ok"
+    return "zero" if all(_final(t) for t in targets) else "pending"
+
+
+def _limit_left(att: dict[str, Any]) -> bool:
+    """사용자 재시도 가능 여부 — JOB-05 items[].retryable 과 같은 누적 한도 · 차단 조건(단계 종류 조건만 뺌).
+    한도 「시간 초과 추가 1회」(PM 결정 1절 나안)를 받으면 이 판정과 create_retry 의 한도 검사를 함께 바꾼다."""
+    return (att["retry_count"] < att["max_retry"] and att.get("error_code") != "AI_ADAPTER_UNAVAILABLE"
+            and not execution.retry_blocked(att))
+
+
+def _exhausted(att: dict[str, Any]) -> bool:
+    """누적 한도 소진 — 소진이 아닌 재시도 불가(연결 불가 · 렌더러 · 번들 불일치 · 기록 누락)와 구분한다(그쪽은 지금 차단 유지)."""
+    return att["retry_count"] >= att["max_retry"]
+
+
+def _no_retry_reason(att: dict[str, Any]) -> str:
+    return "retry_limit" if _exhausted(att) else "not_retryable"
+
+
+def _classify(db: Session, run: dict[str, Any], att: dict[str, Any], policy: dict[str, Any]) -> tuple[str, str]:
+    """현재 실패 시도 하나 → (RETRY | FALLBACK | BLOCK, 사유). 시도를 만들지 않는다."""
+    stage, timeout = att["stage"], execution.timed_out(att)
+    left = _limit_left(att)
+    if stage in ("label", "logo"):
+        if timeout and policy[stage] == RETRY:
+            return (RETRY, "timeout_retry") if left else (BLOCK, _no_retry_reason(att))
+        # 지금: 최종 실패 = N4 막힘. 시간 초과가 아닌 실패는 사용자 재시도 종류(JOB-06 translate · render)가 아니라 다시 하지 않는다 —
+        # 사유만 소진(retry_limit, 자동 재시도로 다 쓴 흔한 경우) / 소진 아님(not_retryable)으로 나눈다
+        return BLOCK, "timeout_policy_block" if timeout else _no_retry_reason(att)
+    if stage in ("inpaint", "style", "text_check"):
+        if timeout and policy[stage] == RETRY and left:
+            return RETRY, "timeout_retry"
+        return FALLBACK, "fallback"  # 지금: 대체 결과(원본 배경 + 경고 / 역할 기본값 / 검사 실패 유지)로 진행
+    if stage == "translate":
+        if (att["target_count"] or 0) == 0:
+            return FALLBACK, "partial_kept"  # 대상 0 — 다시 할 것이 없다
+        if left:
+            # 시간 초과든 일반 실패(부분 실패 포함)든 남은 횟수가 있으면 함께 다시(PM 11-27 「재시도 가능한 일반 실패도 함께」).
+            # 실패 블록만 다시 — 성공분은 고정 입력 preserved 로 그대로(translate_retry_plan)
+            return RETRY, "retry"
+        if att["error_code"] == TRANSLATE_PARTIAL:
+            return FALLBACK, "partial_kept"  # 횟수 소진 부분 실패: 성공분 보존 · 실패 칸 비움
+        # 다시 할 수 없는 번역(소진 · 연결 불가 등 — 시간 초과 · 일반 실패 모두): 섹션 단위로 막지 않고 성공분 보존 · 실패 칸 빈 칸(PM 11-27).
+        # 작업 전체 번역 성공 0 이면 job_retry_plan 이 작업 단위로 막는다(progress 와 같은 판정)
+        return FALLBACK, "blank_kept"
+    if stage == "preview":
+        if left:
+            return RETRY, "retry"
+        # 지금: 최종 실패 = 원본 표시로 N5(기존 진입 조건 — 미리보기 실패는 원래 진행을 막지 않음).
+        # 렌더러 · 번들 불일치 · 기록 누락(소진 아님)은 progress 가 새 입력으로 다시 그린다 — 사유만 구분
+        return FALLBACK, "original_shown" if _exhausted(att) else "not_retryable_rerender"
+    return BLOCK, "unknown_stage"
+
+
+def job_retry_plan(db: Session, job_id: int, *, policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    """N4 작업 단위 재시도 판정만(시도 생성 · 상태 변경 없음, 1-2 ②). retry_job(JOB-08) · JOB-05 jobRetry 가 같이 쓴다.
+    현재 하류 실행의 현재 시도 중 failed 인 것을 단계별로 RETRY / FALLBACK / BLOCK 으로 나눈다.
+    available = 작업이 failed · N4 이고 · 진행 중 하류 실행이 있고 · BLOCK 이 없고 · 미구현 정책 조합이 없을 때."""
+    pol = _POLICY if policy is None else policy
+    job = db.execute(text("SELECT id, status, current_step FROM job WHERE id = :j"), {"j": job_id}).mappings().first()
+    out: dict[str, Any] = {"jobId": job_id, "available": False, "state": None, "runId": None,
+                           "retry": [], "fallback": [], "blocking": [], "unsupported": []}
+    if job is None:
+        out["state"] = "not_found"
+        return out
+    if (job["status"], job["current_step"]) != ("failed", "N4"):
+        out["state"] = "invalid_state"
+        return out
+    run = execution.active_run(db, job_id, "downstream")
+    if run is None:
+        out["state"] = "no_active_run"
+        return out
+    out["state"], out["runId"] = "ok", run["id"]
+    atts = execution.current_attempts(db, run["id"])
+    targets: dict[int, int] = {}
+    for a in atts:
+        if a["status"] != "failed":
+            continue
+        decision, reason = _classify(db, run, a, pol)
+        item = {"taskId": a["id"], "stage": a["stage"], "sectionId": a["unit_id"], "errorCode": a["error_code"], "reason": reason,
+                "retryCount": a["retry_count"], "maxRetry": a["max_retry"]}
+        targets[a["id"]] = a["target_count"] or 0
+        out[{RETRY: "retry", FALLBACK: "fallback", BLOCK: "blocking"}[decision]].append(item)
+    # 작업 단위 번역 판정(PM 11-27, progress 와 같은 기준): 다시 실행할 번역이 없고 번역 대상이 있는 섹션 전부 성공 0 이면,
+    # 빈 칸으로 넘길 번역을 막힘으로 옮긴다(작업 전체가 번역 없는 N5 가 되지 않게). 번역 결과가 아직 바뀔 수 있으면 기다린다 —
+    # 다시 실행할 번역이 있거나, 다시 실행할 라벨 · 로고가 있을 때(그 섹션은 채택 뒤 번역이 새로 생긴다 — progress 도 "pending")
+    if not _translation_may_change(out["retry"]):
+        by = {(a["stage"], a["unit_id"]): a for a in atts}
+        if _translation_outcome(db, run["id"], json_value(run["run_scope"])["section_ids"], by) == "zero":
+            moved = [i for i in out["fallback"] if i["stage"] == "translate" and targets.get(i["taskId"], 0) > 0]
+            out["fallback"] = [i for i in out["fallback"] if i not in moved]
+            out["blocking"] += [{**i, "reason": "job_translation_zero"} for i in moved]
+    out["available"] = not out["blocking"] and not out["unsupported"]
+    return out
+
+
+# 공개 응답의 차단 항목(JOB-08 409 details.blocking · JOB-05 jobRetry.blocking). 필드 3개(sectionId · stage · reason)는 FE 11-27 요청 그대로.
+# 아래 값 목록과 작업 전체 차단의 표현은 FE 11-28 합의(README 7.8 ⑤ 「응답 세부」 · openapi JobRetryBlockingItem enum).
+# 내부 차단 사유(_classify · job_retry_plan 이 내는 BLOCK 사유 전부)와 공개 값의 대응표. 대응이 없는 사유를 조용히 다른 값으로 바꾸지 않는다.
+BLOCK_REASONS = frozenset({"retry_limit", "not_retryable", "timeout_policy_block", "unknown_stage", "job_translation_zero"})
+_PUBLIC_BLOCK_REASON = {
+    "retry_limit": "retry_limit_exceeded",         # 누적 한도 소진(라벨 · 로고 — 자동 재시도로 다 쓴 흔한 경우 포함)
+    "not_retryable": "not_retryable",               # 한도는 남았지만 다시 할 수 없음(라벨 · 로고의 일반 실패 — 사용자 재시도 종류 아님)
+    "job_translation_zero": "job_translation_zero",  # 작업 전체 번역 성공 0 — 섹션 하나의 문제가 아님(sectionId = null 항목 하나)
+}
+# 공개 대응을 두지 않는 사유(지금 정책에서 생기지 않음 — 생기면 정책 표를 바꾼 것이므로 공개 값부터 정해야 한다):
+# timeout_policy_block(_POLICY 의 라벨 · 로고가 RETRY 가 아닐 때만) · unknown_stage(등록 단계 밖)
+_UNPUBLISHED_BLOCK_REASONS = frozenset({"timeout_policy_block", "unknown_stage"})
+# 차단 단계: 기존 TaskType 을 바꾸지 않고 차단 항목 전용 값(내부 단계 이름 그대로). 지금 차단이 생길 수 있는 단계만.
+_PUBLIC_BLOCK_STAGES = frozenset({"label", "logo", "translate"})
+
+
+class UnmappedBlockReason(RuntimeError):
+    """공개 대응이 없는 차단 사유 · 단계 — 정책 표를 바꿨는데 공개 계약을 정하지 않은 경우(프로그램 오류로 드러낸다)."""
+
+
+def public_blocking(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for it in items:
+        reason = _PUBLIC_BLOCK_REASON.get(it["reason"])
+        if reason is None or it["stage"] not in _PUBLIC_BLOCK_STAGES:
+            raise UnmappedBlockReason(f"공개 대응 없는 차단: stage={it['stage']} reason={it['reason']}")
+        if reason == "job_translation_zero":
+            row = {"sectionId": None, "stage": it["stage"], "reason": reason}  # 작업 전체 차단
+        else:
+            row = {"sectionId": it["sectionId"], "stage": it["stage"], "reason": reason}  # 그 섹션의 그 처리가 막힘
+        if row not in out:
+            out.append(row)
+    return out
+
+
+def retry_job(db: Session, job_id: int) -> dict[str, Any]:
+    """N4 작업 단위 복구(원자적). 호출자가 소유 확인을 마친 뒤 부른다(JOB-08 `/resume` 라우터).
+    작업 행 잠금 → 상태 재확인 → 전부 판정 → BLOCK 이 하나라도 있으면 아무것도 만들지 않고 JobRetryBlocked.
+    아니면 한 트랜잭션에서: 재시도 시도 생성(누적 한도 · 고정 입력 규칙은 JOB-06 과 같음) · 대체로 닫을 것 기록 ·
+    작업 processing · N4(30분 새로 셈) · 집계(대체로 끝난 섹션의 미리보기 등) → 커밋 → 큐 전송.
+    중복 · 동시 요청: 잠금 아래 상태가 이미 processing 이라 JobRetryRejected(INVALID_STATE) — 새 시도는 한 벌만."""
+    from app.flows import retry_plan
+
+    try:
+        execution.lock_job(db, job_id)
+        plan = job_retry_plan(db, job_id)
+        if plan["state"] != "ok":
+            raise JobRetryRejected("INVALID_STATE", f"작업 단위 재시도는 failed · N4 의 진행 중 하류 실행에서만({plan['state']})")
+        if plan["blocking"]:
+            raise JobRetryBlocked(plan["blocking"])
+        if plan["unsupported"]:
+            raise JobRetryUnsupported("POLICY_NOT_WIRED", "번역 부분 진행 정책은 progress() 판정 변경과 함께만 켠다")
+        run = execution.lock_task(db, plan["runId"])
+        ids: list[int] = []
+        for it in plan["retry"]:
+            att = execution.lock_task(db, it["taskId"])
+            ids.append(execution.create_retry(db, att["id"], "user", **retry_plan(db, att)))
+        inp = [it["sectionId"] for it in plan["fallback"] if it["stage"] == "inpaint"]
+        if inp:  # 인페인트 대체 기록(원본 배경 · 경고) — 실패 · 시간 초과 처리에서 이미 남겼으면 같은 값(멱등)
+            db.execute(text("UPDATE section SET inpaint_status = 'failed', warning_badge = 'processing_failed', updated_at = now() "
+                            "WHERE id = ANY(:s) AND job_id = :j"), {"s": inp, "j": job_id})
+        set_job_state(db, job_id, status="processing", step="N4", ufs="translating")
+        follow = progress(db, run["id"])  # 대체로 끝난 섹션의 다음 단계 — 오류 동안 만들지 않았던 미리보기 등. 모두 끝났으면 여기서 N5
+        job = db.execute(text("SELECT status, current_step FROM job WHERE id = :j"), {"j": job_id}).mappings().one()
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    execution.dispatch(ids + follow)
+    return {"jobId": job_id, "status": job["status"], "currentStep": job["current_step"], "retriedTaskIds": ids,
+            "createdTaskIds": follow,
+            "fallbackClosed": [{"sectionId": it["sectionId"], "stage": it["stage"]} for it in plan["fallback"]]}
 
 
 for _stage, _h in (("label", LabelHandler()), ("logo", LogoHandler()), ("style", StyleHandler()), ("translate", TranslateHandler()),

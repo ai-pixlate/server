@@ -41,7 +41,8 @@ def _require_job_owned(db: Session, job_id: int, seller_id: int) -> None:
 # ── FIN-01·02: Celery 큐 / 실제 DB ────────────────────────────────
 @router.post("/jobs/{job_id}/render", status_code=202, summary="API-FIN-01 최종 이미지 렌더링 (Celery 큐)")
 def render(job_id: int, response: Response, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
-    """N6 수동 재렌더. 진행 중이면 그 시도, 실패면 새 재시도 시도(누적 한도), 완료면 새 최종 렌더 실행을 만든다.
+    """N6 수동 재렌더. 진행 중이면 그 시도, 실패(시간 초과 포함)면 새 재시도 시도(누적 한도), 저장 뒤(done)면 새 최종 렌더 실행을 만든다.
+    저장 대기(review · N6)는 409(PM 11-25 — 재렌더 차단).
     누적 한도를 소진해 실행이 failed 로 닫혔으면 409 RETRY_NOT_ALLOWED — 새 실행·시도를 만들지 않는다.
     renderTaskId 는 job_async_task.id(시도) — JOB-05 폴링 대상이다."""
     from app import execution
@@ -49,14 +50,21 @@ def render(job_id: int, response: Response, db: Session = Depends(get_db), selle
 
     _require_job_owned(db, job_id, seller_id)
     job = execution.lock_job(db, job_id)
-    if job["current_step"] != "N6" or job["status"] not in ("review", "done"):
+    # 최종 렌더 중(processing — 진행 중 시도 반환) · 렌더 오류(failed — 사용자 재시도) · 저장 뒤(done — 기존 동작 유지). README 7.8 ③
+    # 저장 대기(review · N6)의 재렌더는 PM 11-25 요청으로 막는다(409 INVALID_STATE — 사유 값은 합의 전이라 두지 않음)
+    if job["current_step"] != "N6" or job["status"] not in ("processing", "failed", "done"):
         db.rollback()
-        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "최종 렌더는 N6 에서만"})
+        msg = "저장 대기에서는 다시 렌더하지 않는다" if job["status"] == "review" and job["current_step"] == "N6" else "최종 렌더는 N6 에서만"
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": msg})
     try:
         task_id = start_final_render(db, job_id)
     except execution.RetryNotAllowed as e:
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "RETRY_NOT_ALLOWED", "message": str(e)}) from e
+    if job["status"] == "failed":  # 렌더 오류에서 다시 그리면 최종 렌더 중. 저장한 작업(done)은 그대로
+        from app.flows.common import set_job_state
+
+        set_job_state(db, job_id, status="processing", step="N6", ufs="rendering")
     db.commit()
     execution.dispatch([task_id])
     response.status_code = 202
@@ -215,7 +223,18 @@ def export(job_id: int, body: ExportRequest, db: Session = Depends(get_db), sell
     from app.flows.common import VISIBLE, has_source
     from app.storage import ObjectMissing, get_store
 
+    from app import execution
+
     _require_job_owned(db, job_id, seller_id)
+    # 취소와의 경합(AC-03): 작업 행을 잠근 채 읽기 · S3 업로드 · export_artifact 기록 · 커밋까지 한다. 취소(사용자 · 24시간 자동)도
+    # 같은 행을 먼저 잠그므로 — 취소가 먼저면 여기서 cancelled 를 보고 409, 내보내기가 먼저면 취소는 이 커밋 뒤에 산출물 행 · 파일까지 지운다.
+    # 잠금은 이 요청 동안만이다. 사용자 취소(JOB-04)는 이 내보내기가 끝날 때까지 기다린다. 복구 점검에서 작업 행을 잠그는 단계
+    # (시간 상한 · 24시간 자동 취소 · 권한 만료 · 집계 복구 · 취소 잔여 정리)는 잠긴 작업을 기다리지 않고 그 주기에서 건너뛴다
+    # (execution.try_lock_job · recovery._skip_locked — 다음 주기에 다시 본다). 인계 · 대기 재전달은 작업 행을 잠그지 않는다.
+    if execution.lock_job(db, job_id)["status"] == "cancelled":
+        # 취소된 작업에 내보내기 파일을 새로 만들지 않는다(README 7.8 ④). 409 INVALID_STATE(사유 없음)
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "취소된 작업"})
     wanted = []
     for c in (body.components if body.components is not None else ["content.csv"]):
         c = _ALIASES.get(c, c)
@@ -343,7 +362,7 @@ def save(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(ge
         text(
             "UPDATE job SET is_saved = true, saved_at = now(), status = 'done', "
             "user_facing_status = 'done', updated_at = now() "
-            "WHERE id = :j AND seller_id = :s AND status <> 'archived' AND current_step = 'N6' RETURNING id, is_saved, saved_at"
+            "WHERE id = :j AND seller_id = :s AND status <> 'cancelled' AND current_step = 'N6' RETURNING id, is_saved, saved_at"
         ),
         {"j": job_id, "s": seller_id},
     ).mappings().first()

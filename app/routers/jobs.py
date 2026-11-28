@@ -399,6 +399,11 @@ def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db), seller_
             from app.flows.common import set_job_state
 
             set_job_state(db, job_id, status="processing", step="N4", ufs="translating")
+        elif job["status"] == "failed" and job["current_step"] == "N6" and t["stage"] == "final_render":
+            # N6 오류(최종 렌더 실패 · 한도 남음) [다시 시도] → 최종 렌더 중(PRD 05 오류 → 최종 렌더 중, README 7.8 ③)
+            from app.flows.common import set_job_state
+
+            set_job_state(db, job_id, status="processing", step="N6", ufs="rendering")
     except execution.RetryNotAllowed as e:
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "RETRY_NOT_ALLOWED", "message": str(e)}) from e
@@ -415,6 +420,39 @@ def retry_task(job_id: int, task_id: int, db: Session = Depends(get_db), seller_
     }
 
 
+@router.post("/jobs/{job_id}/resume", status_code=202, summary="API-JOB-08 N4 작업 단위 재시도 (DB)")
+def resume_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
+    """N4 오류 화면 [다시 시도](PM 11-27 · FE 11-27 동의 · 11-28 응답 세부 합의, README 7.8 ⑤ 「N4 [다시 시도]」). 요청 본문 없음.
+    판정 · 생성은 downstream.retry_job(작업 행 잠금 뒤 다시 판정 — JOB-05 jobRetry 조회 결과를 믿지 않는다).
+    차단이 하나라도 있으면 아무것도 바꾸지 않고 409 RETRY_NOT_ALLOWED + details.blocking, failed · N4 가 아니면 409 INVALID_STATE.
+    202 의 retriedTaskIds · fallbackSectionIds 와 차단 항목 값(public_blocking)은 openapi JobResumeAccepted · JobRetryBlockingItem 그대로.
+    JobRetryUnsupported(정책 표 안전장치) · 판정 뒤 create_retry 거절은 지금 정책에서 생기지 않는 프로그램 오류라 계약 값으로 바꾸지 않는다(500)."""
+    from app import execution
+    from app.flows import downstream
+
+    if not db.execute(text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"), {"j": job_id, "s": seller_id}).first():
+        raise HTTPException(status_code=404, detail="job not found")
+    try:
+        r = downstream.retry_job(db, job_id)
+    except downstream.JobRetryBlocked as e:
+        raise HTTPException(status_code=409, detail={
+            "code": "RETRY_NOT_ALLOWED", "message": e.message,
+            "details": {"blocking": downstream.public_blocking(e.blocking)}}) from e
+    except downstream.JobRetryRejected as e:
+        if e.code != "INVALID_STATE":
+            raise
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "job is not in failed N4"}) from e
+    except execution.NotFound as e:  # 잠금 단계에서 행이 사라짐(JOB-06 과 같은 처리)
+        raise HTTPException(status_code=404, detail="job not found") from e
+    return {
+        "jobId": job_id, "status": r["status"], "currentStep": r["currentStep"],
+        # 이번 요청이 새로 만든 재시도 시도(실패한 현재 시도를 대체)만 — 대체 진행 뒤 새로 생긴 후속 처리(미리보기 등)는 넣지 않는다
+        "retriedTaskIds": list(r["retriedTaskIds"]),
+        # 이번 요청에서 대체 진행으로 마무리한 처리가 있는 섹션(중복 제거 · 오름차순). 그 섹션의 모든 처리가 끝났다는 뜻이 아니다
+        "fallbackSectionIds": sorted({f["sectionId"] for f in r["fallbackClosed"]}),
+    }
+
+
 @router.post("/jobs/{job_id}/abort", summary="API-JOB-07 처리 중단·복귀 (DB)")
 def abort_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     """오류·처리 중 화면의 [중단](D9-3): N2 → N1, N4 → N3. 입력·버킷 선택은 유지한다(콘텐츠 삭제는 전체 취소 JOB-04).
@@ -427,7 +465,7 @@ def abort_job(job_id: int, db: Session = Depends(get_db), seller_id: int = Depen
         raise HTTPException(status_code=404, detail="job not found")
     job = execution.lock_job(db, job_id)
     step = job["current_step"]
-    if job["status"] == "archived" or step not in ("N2", "N4"):
+    if job["status"] == "cancelled" or step not in ("N2", "N4"):
         db.rollback()
         raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": f"중단할 수 없는 단계({step})"})
     if step == "N2":

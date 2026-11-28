@@ -297,7 +297,7 @@ def test_common_supply_error_is_section_wide_failed_without_attempt_and_confirm_
     assert all(st[x]["check"]["state"] == "failed" for x in sec_blocks)  # 공통 오류는 섹션 전체
     assert st[blk["id"]]["check"]["inputKey"] != b["check"]["inputKey"]
     assert _checks_pass(ids) and len(_checks(ids["job"])) == n
-    assert _confirm(ids).status_code == 200 and _step(ids) == ("review", "N6")
+    assert _confirm(ids).status_code == 200 and _step(ids) == ("processing", "N6")
 
 
 def test_null_term_kind_is_not_inferred_from_external_id(env, real_on):
@@ -399,7 +399,7 @@ def test_conflict_before_translation_checks_sibling_and_only_conflict_block_fail
     assert st[blk["id"]]["check"] == {"state": "failed", "inputKey": m["input_keys"][f"blk_{blk['id']}"]}
     assert all(st[b]["check"] == {"state": "settled", "inputKey": m["input_keys"][f"blk_{b}"]} for b in siblings)
     assert _own_flags(blk["id"]) == []  # A 는 검사 결과로 채택하지 않음
-    assert _confirm(ids).status_code == 200 and _step(ids) == ("review", "N6")
+    assert _confirm(ids).status_code == 200 and _step(ids) == ("processing", "N6")
 
 
 def test_conflict_in_a_keeps_settled_b_and_b_edit_is_rechecked(env, real_on):
@@ -801,7 +801,7 @@ def test_check_errors_do_not_bypass_other_confirm_conditions_and_keep_other_sect
     warnings = r.json()["error"]["details"]["warnings"]
     assert {"blockId": tf_block, "code": "translation_failed"} in warnings
     assert ids["c"].post(f"/v1/jobs/{ids['job']}/confirm", json={"acknowledgedWarnings": warnings}).status_code == 200
-    assert _step(ids) == ("review", "N6")
+    assert _step(ids) == ("processing", "N6")
 
 
 def test_stale_failure_of_previous_input_is_not_current_failure(env, real_on, monkeypatch):
@@ -897,7 +897,7 @@ def test_u2_request_store_failure_at_translate_records_failed_and_reaches_n5(env
     fault["on"] = False  # 저장소 회복
     _sweep_n(env)
     assert (len(_tc_rows(ids["job"])), fault["puts"]) == (n, puts)
-    assert _confirm(ids).status_code == 200 and _step(ids) == ("review", "N6")
+    assert _confirm(ids).status_code == 200 and _step(ids) == ("processing", "N6")
 
 
 def _keys_fault(monkeypatch, sid):
@@ -942,7 +942,7 @@ def test_u1_n5_blocks_failed_null_and_confirm_passes(env, real_on, monkeypatch):
     others = [b for b, v in st.items() if v["check"] is not None and v["sectionId"] != sid]
     assert others and all(st[b]["check"]["state"] == "settled" for b in others)
     assert not [r for r in _tc_rows(ids["job"]) if r["unit_id"] == sid]  # 대응하는 검사 작업 없음
-    assert _confirm(ids).status_code == 200 and _step(ids) == ("review", "N6")
+    assert _confirm(ids).status_code == 200 and _step(ids) == ("processing", "N6")
 
 
 def test_u1_block_save_200_failed_null_no_null_reuse_then_recovers(env, real_on, monkeypatch):

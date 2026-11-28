@@ -204,10 +204,23 @@ def confirm(db: Session, job_id: int, seller_id: int, acknowledged: list[dict[st
         )
         execution.finish_run(db, run["id"], "done")
     attempt_id = start_final_render(db, job_id)
-    set_job_state(db, job_id, status="review", step="N6", ufs="reviewing")
+    # 최종 렌더 중 = processing · N6 · rendering(PRD 05 · README 7.8 ③). 렌더가 끝나면 저장 대기(review · awaiting_save)
+    set_job_state(db, job_id, status="processing", step="N6", ufs="rendering")
     db.commit()
     execution.dispatch([attempt_id])
-    return {"jobId": job_id, "status": "review", "currentStep": "N6", "renderTaskId": attempt_id}
+    return {"jobId": job_id, "status": "processing", "currentStep": "N6", "renderTaskId": attempt_id}
+
+
+def _render_settled(db: Session, job_id: int, *, ok: bool) -> None:
+    """최종 렌더가 끝났을 때 작업 상태(호출자가 같은 트랜잭션). 최종 렌더 중(processing · N6)일 때만 바꾼다 —
+    저장한 작업(done)의 재렌더는 상태를 바꾸지 않는다. 성공 → 저장 대기, 자동 재시도 없이 실패 → 오류(N6)."""
+    job = db.execute(text("SELECT status, current_step FROM job WHERE id = :j FOR UPDATE"), {"j": job_id}).mappings().one()
+    if job["status"] != "processing" or job["current_step"] != "N6":
+        return
+    if ok:
+        set_job_state(db, job_id, status="review", step="N6", ufs="awaiting_save")
+    else:
+        set_job_state(db, job_id, status="failed", step="N6", ufs="failed")
 
 
 # ---------------------------------------------------------------------------------------------------------
@@ -382,6 +395,7 @@ class FinalRenderHandler:
 
     def after_done(self, db, att):
         execution.finish_run(db, att["parent_task_id"], "done")
+        _render_settled(db, att["job_id"], ok=True)
         return []
 
     def after_failure(self, db, att, code, retryable):
@@ -390,7 +404,10 @@ class FinalRenderHandler:
         if att["retry_count"] >= att["max_retry"]:
             # 누적 한도 소진: 실행을 failed 로 닫는다. 이후 JOB-06·FIN-01 은 409, 새 실행으로 한도를 우회하지 못한다
             execution.finish_run(db, att["parent_task_id"], "failed", att["error_code"], att["error_message"])
-        return []  # 한도가 남으면 retryable 과 무관하게 실행을 running 으로 두어 JOB-06·FIN-01 사용자 재시도가 가능하다. 저장은 막힌다
+        # 자동 재시도가 없으면 작업은 오류(failed · N6) — PRD 05 오류 진입(재시도 후 오류 전환 · F-FIN-01 I). 한도가 남으면 실행을
+        # running 으로 두어 JOB-06·FIN-01 [다시 시도]가 가능하다(→ 다시 최종 렌더 중). 저장은 막힌다. [중단](→ N5)은 G17 10번
+        _render_settled(db, att["job_id"], ok=False)
+        return []
 
     def retry_block_reason(self, att):
         return common.renderer_mismatch(att["input_manifest"])

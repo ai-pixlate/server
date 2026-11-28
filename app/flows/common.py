@@ -40,10 +40,25 @@ def parse_key(key: str, prefix: str) -> int | None:
 
 
 def set_job_state(db: Session, job_id: int, *, status: str, step: str, ufs: str) -> None:
+    """상태 전이. 상태 · 단계가 바뀌면 그 상태에 들어간 시각(state_entered_at — 처리 시간 상한 기산점, README 7.8 ⑤)을 새로 하고,
+    전이 자체를 마지막 움직임(last_activity_at — 24시간 자동 취소 기산점, 7.8 ④)으로 센다(서버 처리가 끝나 단계가 넘어간 때 포함)."""
     db.execute(
-        text("UPDATE job SET status = :st, current_step = :cs, user_facing_status = :u, updated_at = now() WHERE id = :j"),
+        text("UPDATE job SET state_entered_at = CASE WHEN status IS DISTINCT FROM :st OR current_step IS DISTINCT FROM :cs "
+             "THEN now() ELSE state_entered_at END, "
+             "status = :st, current_step = :cs, user_facing_status = :u, updated_at = now(), last_activity_at = now() WHERE id = :j"),
         {"st": status, "cs": step, "u": ufs, "j": job_id},
     )
+
+
+# 작업 이벤트(event_log · G17 3번 중 24 · 25번에 필요한 것). 문구 · 이미지를 담지 않는다(F-JOB-07). 취소해도 지우지 않는다
+EV_JOB_CANCELLED = "job_cancelled"  # payload: reason(user | inactive_24h) · step · from_status
+EV_JOB_FAILED = "job_failed"  # payload: reason(PROCESSING_TIMEOUT) · step · elapsed_s
+CANCEL_USER, CANCEL_INACTIVE = "user", "inactive_24h"
+
+
+def write_event(db: Session, job_id: int, event_type: str, payload: dict[str, Any]) -> None:
+    db.execute(text("INSERT INTO event_log (job_id, event_type, payload) VALUES (:j, :t, CAST(:p AS jsonb))"),
+               {"j": job_id, "t": event_type, "p": stable_json(payload)})
 
 
 def write_audit(db: Session, *, action_type: str, target_type: str, target_id: int | None, detail: dict[str, Any] | None,

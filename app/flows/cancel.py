@@ -1,10 +1,12 @@
 """✕ 전체 작업 취소 = 콘텐츠 삭제(D9-4). 중단(JOB-07, 입력 유지)과 다르다.
 
 순서
-1) job 잠금 아래 archived 로 바꾸고 모든 진행 실행을 중단한다(시도 cancelled·세대+1·원격 토큰 해시 제거). 이후 권한 획득·갱신·
-   업로드 URL·인계 등록·채택이 모두 거절된다 — 늦은 결과가 콘텐츠를 다시 남기지 않는다.
+1) job 잠금 아래 cancelled(G17 15번 — 이전 이름 archived)로 바꾸고 모든 진행 실행을 중단한다(시도 cancelled·세대+1·원격 토큰 해시 제거).
+   이후 권한 획득·갱신·업로드 URL·인계 등록·채택이 모두 거절된다 — 늦은 결과가 콘텐츠를 다시 남기지 않는다.
+   취소 사유(사용자 · 24시간 자동 취소)는 작업 이벤트(event_log job_cancelled)로 남긴다(README 7.8 ④).
 2) 같은 트랜잭션에서 이미지·문구가 담긴 DB 자료를 지운다: 섹션(블록·판정·산출물 연결 포함)·원본·산출물·내보내기·수정 기록·키워드·
-   인계 payload·산출물 행·event_log·audit_log.detail(콘텐츠 없는 행위자·시각·대상 행은 남김)·시도 오류 메시지·상품명.
+   인계 payload·산출물 행·audit_log.detail(콘텐츠 없는 행위자·시각·대상 행은 남김)·시도 오류 메시지·상품명.
+   작업 이벤트(event_log)는 남긴다(F-JOB-07 — 문구 없음).
    정상 작업의 스냅샷 보존 규칙을 취소 콘텐츠 보존 근거로 쓰지 않는다.
 3) 커밋 후 S3 를 job 접두사 단위로 지운다(원본·검증·스테이징·산출물·내보내기·검사 고정 요청 input/). 실패하거나 늦은 업로드가
    생겨도 복구 프로세스가 최근 취소 작업(PIXLATE_PURGE_WINDOW_H 안)의 접두사를 다시 지운다(app.recovery.purge_archived).
@@ -36,10 +38,29 @@ def cancel_job(db: Session, job_id: int, seller_id: int) -> dict[str, Any] | Non
     if not db.execute(text("SELECT 1 FROM job WHERE id = :j AND seller_id = :s"), {"j": job_id, "s": seller_id}).first():
         return None
     job = execution.lock_job(db, job_id)
+    keys = cancel_locked(db, job, reason=common.CANCEL_USER, actor_type=common.ACTOR_SELLER, actor_id=seller_id)
+    db.commit()
+    purge_storage(job_id, keys)
+    return {"jobId": job_id, "status": "cancelled"}
+
+
+# 24시간 자동 취소 대상(README 7.8 ④ — PM 11-24 「사용자 차례」 5개 상태). 처리 중 · 완료 · 취소는 대상이 아니다
+AUTO_CANCEL_STATES = (("draft", "N1"), ("review", "N3"), ("review", "N5"), ("review", "N6"))  # + failed(모든 단계)
+
+
+def auto_cancel_eligible(job: dict[str, Any]) -> bool:
+    return job["status"] == "failed" or (job["status"], job["current_step"]) in AUTO_CANCEL_STATES
+
+
+def cancel_locked(db: Session, job: dict[str, Any], *, reason: str, actor_type: str, actor_id: int | None) -> list[str]:
+    """job 잠금 아래 취소(사용자 취소 · 자동 취소 공통 — 처리가 같다). 커밋 · S3 삭제는 호출자. 지울 참조 키를 돌려준다."""
+    job_id = job["id"]
     keys: list[str] = []
-    if job["status"] != "archived":
-        db.execute(text("UPDATE job SET status = 'archived', user_facing_status = 'archived', updated_at = now() WHERE id = :j"),
+    if job["status"] != "cancelled":
+        db.execute(text("UPDATE job SET status = 'cancelled', user_facing_status = 'cancelled', updated_at = now() WHERE id = :j"),
                    {"j": job_id})
+        common.write_event(db, job_id, common.EV_JOB_CANCELLED,
+                           {"reason": reason, "step": job["current_step"], "from_status": job["status"]})
     for run in db.execute(
         text("SELECT id FROM job_async_task WHERE job_id = :j AND parent_task_id IS NULL AND execution_schema_version = 1 "
              "AND status IN ('pending', 'running') ORDER BY id"), {"j": job_id}
@@ -75,17 +96,15 @@ def cancel_job(db: Session, job_id: int, seller_id: int) -> dict[str, Any] | Non
         "DELETE FROM export_artifact WHERE job_id = :j",
         "DELETE FROM edit_signal WHERE job_id = :j",
         "DELETE FROM job_keyword WHERE job_id = :j",
-        "DELETE FROM event_log WHERE job_id = :j",
+        # event_log 는 지우지 않는다 — F-JOB-07 남는 것(작업 이벤트, 문구 없음). README 7.8 ④
         "DELETE FROM edit_idempotency WHERE job_id = :j",  # 저장 재전송 기록(응답에 번역문이 들어 있음)
         "UPDATE job_async_task SET error_message = NULL WHERE job_id = :j AND error_message IS NOT NULL",
         "UPDATE job SET product_name = NULL, product_code = NULL WHERE id = :j",
     ):
         db.execute(text(sql), {"j": job_id})
     common.write_audit(db, action_type=common.ACT_JOB_CONTENT_DELETED, target_type="job", target_id=job_id, detail=None,
-                       actor_type=common.ACTOR_SELLER, actor_id=seller_id)
-    db.commit()
-    purge_storage(job_id, keys)
-    return {"jobId": job_id, "status": "archived"}
+                       actor_type=actor_type, actor_id=actor_id)
+    return keys
 
 
 def purge_storage(job_id: int, keys: list[str] | None = None) -> dict[str, int]:

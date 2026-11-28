@@ -28,6 +28,15 @@ def _job_owned(db: Session, job_id: int, seller_id: int) -> bool:
     ).first() is not None
 
 
+def _require_not_cancelled(db: Session, job_id: int) -> None:
+    """취소된 작업에는 원본을 올리거나 · 순서를 바꾸거나 · 지우지 않는다(README 7.8 ④ — 취소 뒤 새 콘텐츠가 생기지 않게).
+    job 행을 잠가 취소(cancel_locked)와 같은 순서로 판정한다. 409 INVALID_STATE(사유 없음)."""
+    st = db.execute(text("SELECT status FROM job WHERE id = :j FOR UPDATE"), {"j": job_id}).scalar()
+    if st == "cancelled":
+        db.rollback()
+        raise HTTPException(status_code=409, detail={"code": "INVALID_STATE", "message": "취소된 작업"})
+
+
 def _source_image(r) -> dict[str, Any]:
     """계약 SourceImage."""
     return {
@@ -64,6 +73,7 @@ def list_source_images(job_id: int, db: Session = Depends(get_db), seller_id: in
 def upload_source_images(job_id: int, files: list[UploadFile] = File(...), db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     if not _job_owned(db, job_id, seller_id):
         raise HTTPException(status_code=404, detail="job not found")
+    _require_not_cancelled(db, job_id)
 
     base_order = db.execute(
         text("SELECT COALESCE(MAX(upload_order), 0) FROM source_image WHERE job_id = :j"),
@@ -113,6 +123,7 @@ def reorder_source_images(job_id: int, raw: Any = Body(default=None), db: Sessio
     ).first() is None:
         db.rollback()
         raise _reorder_error(404, "NOT_FOUND", "job not found")
+    _require_not_cancelled(db, job_id)
     order = raw.get("order") if isinstance(raw, dict) else None
     if not isinstance(order, list) or not all(isinstance(x, int) and not isinstance(x, bool) for x in order):
         db.rollback()
@@ -141,6 +152,7 @@ def reorder_source_images(job_id: int, raw: Any = Body(default=None), db: Sessio
 def delete_source_image(job_id: int, image_id: int, db: Session = Depends(get_db), seller_id: int = Depends(get_current_seller)):
     if not _job_owned(db, job_id, seller_id):
         raise HTTPException(status_code=404, detail="job not found")
+    _require_not_cancelled(db, job_id)
     r = db.execute(
         text("SELECT file_url FROM source_image WHERE id = :id AND job_id = :j"),
         {"id": image_id, "j": job_id},

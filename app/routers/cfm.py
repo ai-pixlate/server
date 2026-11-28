@@ -173,7 +173,7 @@ def _check_layout_target(db: Session, cur, body: BlockUpdate) -> None:
         sbox = json_value(cur["section_bbox"])
         width = sbox.get("w") if isinstance(sbox, dict) else None
         if not (layout.is_number(width) and layout.is_number(cur["section_height"])):
-            db.rollback()  # 섹션 크기를 읽을 수 없다 — 검증도 렌더도 할 수 없다(README 7.2 ②와 같은 미완료 경로)
+            db.rollback()  # 섹션 크기를 읽을 수 없다 — 검증도 렌더도 할 수 없다(README 7.2 ② 의 실패 기록 범위 밖 — 블록 박스가 아닌 섹션 자료 문제)
             raise RenderInputInvalid([])
         errs = layout.box_range_errors(box.model_dump(), width, cur["section_height"])
         if errs:

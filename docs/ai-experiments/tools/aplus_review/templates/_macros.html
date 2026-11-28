@@ -1,0 +1,52 @@
+{# 글 칸: b=상자, s=문구, size=기본 글자 크기, lines=최대 줄 수, area=치수 파일 구역 이름 #}
+{# b=None 이면 위치를 정하지 않고 위에서부터 쌓는다(.flow 안). shrink = 쌓인 글이 넘칠 때 줄이는 순서(작을수록 먼저) #}
+{# underline = 제목 밑줄(none·bar·line, fit.js 가 글 아래에 그림) · vg = 세로 가운데 묶음(layout vcenter) #}
+{% macro text(b, s, size, lines, name, area='', cls='', align='left', lh=1.2, extra=False, vc=False, shrink=0, underline='none', vg=False) -%}
+{% if s %}<div class="fit {{ cls }}{% if vc %} vc{% endif %}" data-name="{{ name }}" data-size="{{ size }}" data-lines="{{ lines }}" data-lh="{{ lh }}"{% if area %} data-area="{{ area }}"{% endif %}{% if extra %} data-extra="1"{% endif %}{% if shrink %} data-shrink="{{ shrink }}"{% endif %}{% if underline and underline != 'none' %} data-underline="{{ underline }}"{% endif %}{% if vg %} data-vgroup="1"{% endif %} style="{% if b %}{{ b.css }};{% endif %}font-size:{{ size }}px;line-height:{{ lh }};text-align:{{ align }}"><div class="t">{{ s }}</div></div>{% endif %}
+{%- endmacro %}
+
+{# 이미지: img = {uri, fit} · shape = 반복 칸 작은 이미지 모양(square·rounded·circle) #}
+{% macro image(b, img, name='image', area='', round=False, extra=False, shape='square') -%}
+{% if img %}<div class="img{% if round %} round{% endif %}{% if shape and shape != 'square' %} shape-{{ shape }}{% endif %}" data-name="{{ name }}"{% if area %} data-area="{{ area }}"{% endif %}{% if extra %} data-extra="1"{% endif %} style="{{ b.css }}"><img src="{{ img.uri }}" alt="" style="object-fit:{{ img.fit }}"></div>{% endif %}
+{%- endmacro %}
+
+{# 큰 사진(제품·모델): 모양·뒤 배경 도형·테두리 (style 옵션). 기본값이면 image() 와 같은 결과 #}
+{% macro photo(b, img, st, area='') -%}
+{% if img %}{% if st.photo_backdrop != 'none' %}<div class="backdrop bd-{{ st.photo_backdrop }}" data-deco="backdrop" style="{{ b.css }}">{% if st.photo_backdrop == 'blob' %}<svg viewBox="0 0 200 200" preserveAspectRatio="none"><path d="M44.7,-58.3C57.3,-49.6,66.4,-35.4,70.6,-19.6C74.8,-3.8,74.1,13.6,66.6,27.4C59.1,41.2,44.8,51.4,29.3,58.5C13.8,65.6,-2.9,69.6,-19.4,66.6C-35.9,63.6,-52.2,53.6,-62.3,39.1C-72.4,24.6,-76.3,5.6,-72.3,-11.3C-68.3,-28.2,-56.4,-43,-42.1,-51.6C-27.8,-60.2,-13.9,-62.6,1.1,-64.1C16.1,-65.6,32.2,-67,44.7,-58.3Z" transform="translate(100 100)"/></svg>{% endif %}</div>{% endif %}<div class="img{% if st.photo_shape != 'square' %} shape-{{ st.photo_shape }}{% endif %}{% if st.photo_border == 'thin' %} bordered{% endif %}" data-name="image"{% if area %} data-area="{{ area }}"{% endif %} style="{{ b.css }}"><img src="{{ img.uri }}" alt="" style="object-fit:{{ img.fit }}"></div>{% endif %}
+{%- endmacro %}
+
+{# 체크 원 (추가 요소) #}
+{% macro check(b, name='check', area='') -%}
+<div class="dot" data-name="{{ name }}" data-extra="1"{% if area %} data-area="{{ area }}"{% endif %} style="{{ b.css }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+{%- endmacro %}
+
+{# 아이콘 칸: 이미지가 있으면 이미지, 없으면 뜻 아이콘(glyph, 11-12), 그것도 없으면 연한 원 + 번호 #}
+{% macro icon(b, img, n, name='icon', area='', round=False, shape='square', glyph='') -%}
+{% if img %}{{ image(b, img, name=name, area=area, round=round, shape=shape) }}{% elif glyph %}<div class="glyph" data-name="{{ name }}"{% if area %} data-area="{{ area }}"{% endif %} style="{{ b.css }}">{{ glyph | safe }}</div>{% else %}<div class="ph" data-name="{{ name }}"{% if area %} data-area="{{ area }}"{% endif %} style="{{ b.css }}"><span>{{ n }}</span></div>{% endif %}
+{%- endmacro %}
+
+{# 칸 사이 화살표 (추가 요소) #}
+{% macro arrow(b, name='arrow', area='') -%}
+<div class="arrow" data-name="{{ name }}" data-extra="1"{% if area %} data-area="{{ area }}"{% endif %} style="{{ b.css }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></div>
+{%- endmacro %}
+
+{# 단계 연결 (6A): arrow = 지금 화살표 · line·dotted = 사진 사이 선(지그재그면 꺾임) · none #}
+{% macro connector(it, kind, name='arrow', area='') -%}
+{% if kind == 'arrow' and it.arrow %}{{ arrow(it.arrow, name=name, area=area) }}
+{% elif kind in ('line', 'dotted') and it.seg %}{% set s = it.seg %}{% set mx = (s.x1 + s.x2) / 2 %}<svg class="conn" data-name="{{ name }}" data-extra="1" width="970" height="300" viewBox="0 0 970 300"><path d="M{{ s.x1 }} {{ s.y1 }} H{{ mx }} V{{ s.y2 }} H{{ s.x2 }}" fill="none" stroke="currentColor" stroke-width="2"{% if kind == 'dotted' %} stroke-dasharray="2 5" stroke-linecap="round"{% endif %}/></svg>{% endif %}
+{%- endmacro %}
+
+{# 번호 (추가 요소): filled = 지금 채운 원 · outline · square · big("01" 크게 연한 색) #}
+{% macro number(b, n, name='number', area='', style='filled') -%}
+<div class="dot num{% if style != 'filled' %} num-{{ style }}{% endif %}" data-name="{{ name }}" data-extra="1"{% if area %} data-area="{{ area }}"{% endif %} style="{{ b.css }}">{% if style == 'big' %}{{ '%02d' % n }}{% else %}{{ n }}{% endif %}</div>
+{%- endmacro %}
+
+{# 반복 칸 카드 (장식) #}
+{% macro card(b) -%}
+<div class="cardbg" data-deco="card" style="{{ b.css }}"></div>
+{%- endmacro %}
+
+{# 타임라인 선 (6A 가로 · 6B 세로) #}
+{% macro tline(b) -%}
+{% if b %}<div class="tline" data-deco="timeline" style="{{ b.css }}"></div>{% endif %}
+{%- endmacro %}

@@ -1,0 +1,23 @@
+{# 4B 신뢰·증명 · S2 제목+나열형 · Four Images & Text
+   모듈 제목(30, 가운데, 135,24,700,40). 아래 2~4칸(60~910): 배지 120×120 + 제목(16, 최대 2줄, 가운데)
+   mode="before_after": 이미지 2칸 400×172(전/후), 각각 라벨 #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+{{ m.text(B.title, c.headline, fs.title, 1, "headline", area=A.title, cls="mt", align="center", extra=True, underline=st.headline_underline) }}
+{% if c.mode == "before_after" %}
+{% for it in items %}
+{% set i = loop.index0 %}
+{{ m.image(it.img, it.image, name="items[" ~ i ~ "].image", area=A.ba) }}
+{{ m.text(it.lbox, it.title, fs.label, 1, "items[" ~ i ~ "].title", area=A.ba, cls="pill") }}
+{% endfor %}
+{% else %}
+{% if st.card %}{% for it in items %}{{ m.card(it.card) }}{% endfor %}{% endif %}
+{% for it in items %}
+{% set i = loop.index0 %}
+{{ m.image(it.img, it.image, name="items[" ~ i ~ "].image", area=A.images, shape=st.item_image_shape) }}
+{{ m.text(it.tbox, it.title, fs.item, 2, "items[" ~ i ~ "].title", area=A.titles, cls="sh", align="center") }}
+{% endfor %}
+{% endif %}
+{% endblock %}

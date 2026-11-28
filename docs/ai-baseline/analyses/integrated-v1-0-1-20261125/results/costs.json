@@ -1,0 +1,537 @@
+{
+  "all": {
+    "requests": 393,
+    "priced_requests": 372,
+    "unpriced_requests": 21,
+    "estimated_known_usd": "2.11574850",
+    "held_reservation_usd": "21.84",
+    "budget_occupancy_usd": "23.95574850",
+    "actual_invoice_usd": null,
+    "tokens": {
+      "prompt_token_count": {
+        "known_sum": 824723,
+        "known_requests": 390,
+        "missing_requests": 3
+      },
+      "candidates_token_count": {
+        "known_sum": 98113,
+        "known_requests": 390,
+        "missing_requests": 3
+      },
+      "thoughts_token_count": {
+        "known_sum": 320814,
+        "known_requests": 372,
+        "missing_requests": 21
+      },
+      "total_token_count": {
+        "known_sum": 1243650,
+        "known_requests": 390,
+        "missing_requests": 3
+      }
+    },
+    "by_purpose": {
+      "app.tasks.run_analyze": {
+        "requests": 187,
+        "priced_requests": 182,
+        "unpriced_requests": 5,
+        "estimated_known_usd": "0.92148225",
+        "held_reservation_usd": "5.20",
+        "budget_occupancy_usd": "6.12148225",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 269962,
+            "known_requests": 184,
+            "missing_requests": 3
+          },
+          "candidates_token_count": {
+            "known_sum": 19665,
+            "known_requests": 184,
+            "missing_requests": 3
+          },
+          "thoughts_token_count": {
+            "known_sum": 173545,
+            "known_requests": 182,
+            "missing_requests": 5
+          },
+          "total_token_count": {
+            "known_sum": 463172,
+            "known_requests": 184,
+            "missing_requests": 3
+          }
+        }
+      },
+      "app.tasks.run_judge": {
+        "requests": 73,
+        "priced_requests": 70,
+        "unpriced_requests": 3,
+        "estimated_known_usd": "0.63522450",
+        "held_reservation_usd": "3.12",
+        "budget_occupancy_usd": "3.75522450",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 294165,
+            "known_requests": 73,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 44842,
+            "known_requests": 73,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 69900,
+            "known_requests": 70,
+            "missing_requests": 3
+          },
+          "total_token_count": {
+            "known_sum": 408907,
+            "known_requests": 73,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_label": {
+        "requests": 67,
+        "priced_requests": 66,
+        "unpriced_requests": 1,
+        "estimated_known_usd": "0.24449700",
+        "held_reservation_usd": "1.04",
+        "budget_occupancy_usd": "1.28449700",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 184109,
+            "known_requests": 67,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 13878,
+            "known_requests": 67,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 15536,
+            "known_requests": 66,
+            "missing_requests": 1
+          },
+          "total_token_count": {
+            "known_sum": 213523,
+            "known_requests": 67,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_translate": {
+        "requests": 66,
+        "priced_requests": 54,
+        "unpriced_requests": 12,
+        "estimated_known_usd": "0.31454475",
+        "held_reservation_usd": "12.48",
+        "budget_occupancy_usd": "12.79454475",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 76487,
+            "known_requests": 66,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 19728,
+            "known_requests": 66,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 61833,
+            "known_requests": 54,
+            "missing_requests": 12
+          },
+          "total_token_count": {
+            "known_sum": 158048,
+            "known_requests": 66,
+            "missing_requests": 0
+          }
+        }
+      }
+    }
+  },
+  "GS-01": {
+    "requests": 105,
+    "priced_requests": 98,
+    "unpriced_requests": 7,
+    "estimated_known_usd": "0.68243400",
+    "held_reservation_usd": "7.28",
+    "budget_occupancy_usd": "7.96243400",
+    "actual_invoice_usd": null,
+    "tokens": {
+      "prompt_token_count": {
+        "known_sum": 251573,
+        "known_requests": 105,
+        "missing_requests": 0
+      },
+      "candidates_token_count": {
+        "known_sum": 32848,
+        "known_requests": 105,
+        "missing_requests": 0
+      },
+      "thoughts_token_count": {
+        "known_sum": 106201,
+        "known_requests": 98,
+        "missing_requests": 7
+      },
+      "total_token_count": {
+        "known_sum": 390622,
+        "known_requests": 105,
+        "missing_requests": 0
+      }
+    },
+    "by_purpose": {
+      "app.tasks.run_analyze": {
+        "requests": 36,
+        "priced_requests": 35,
+        "unpriced_requests": 1,
+        "estimated_known_usd": "0.24803475",
+        "held_reservation_usd": "1.04",
+        "budget_occupancy_usd": "1.28803475",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 57101,
+            "known_requests": 36,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 5479,
+            "known_requests": 36,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 50027,
+            "known_requests": 35,
+            "missing_requests": 1
+          },
+          "total_token_count": {
+            "known_sum": 112607,
+            "known_requests": 36,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_judge": {
+        "requests": 24,
+        "priced_requests": 23,
+        "unpriced_requests": 1,
+        "estimated_known_usd": "0.24933450",
+        "held_reservation_usd": "1.04",
+        "budget_occupancy_usd": "1.28933450",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 98521,
+            "known_requests": 24,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 15240,
+            "known_requests": 24,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 33117,
+            "known_requests": 23,
+            "missing_requests": 1
+          },
+          "total_token_count": {
+            "known_sum": 146878,
+            "known_requests": 24,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_label": {
+        "requests": 23,
+        "priced_requests": 22,
+        "unpriced_requests": 1,
+        "estimated_known_usd": "0.09283050",
+        "held_reservation_usd": "1.04",
+        "budget_occupancy_usd": "1.13283050",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 66757,
+            "known_requests": 23,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 5831,
+            "known_requests": 23,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 6609,
+            "known_requests": 22,
+            "missing_requests": 1
+          },
+          "total_token_count": {
+            "known_sum": 79197,
+            "known_requests": 23,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_translate": {
+        "requests": 22,
+        "priced_requests": 18,
+        "unpriced_requests": 4,
+        "estimated_known_usd": "0.09223425",
+        "held_reservation_usd": "4.16",
+        "budget_occupancy_usd": "4.25223425",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 29194,
+            "known_requests": 22,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 6298,
+            "known_requests": 22,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 16448,
+            "known_requests": 18,
+            "missing_requests": 4
+          },
+          "total_token_count": {
+            "known_sum": 51940,
+            "known_requests": 22,
+            "missing_requests": 0
+          }
+        }
+      }
+    }
+  },
+  "GS-02": {
+    "requests": 209,
+    "priced_requests": 198,
+    "unpriced_requests": 11,
+    "estimated_known_usd": "1.08278700",
+    "held_reservation_usd": "11.44",
+    "budget_occupancy_usd": "12.52278700",
+    "actual_invoice_usd": null,
+    "tokens": {
+      "prompt_token_count": {
+        "known_sum": 466450,
+        "known_requests": 209,
+        "missing_requests": 0
+      },
+      "candidates_token_count": {
+        "known_sum": 58479,
+        "known_requests": 209,
+        "missing_requests": 0
+      },
+      "thoughts_token_count": {
+        "known_sum": 149265,
+        "known_requests": 198,
+        "missing_requests": 11
+      },
+      "total_token_count": {
+        "known_sum": 674194,
+        "known_requests": 209,
+        "missing_requests": 0
+      }
+    },
+    "by_purpose": {
+      "app.tasks.run_analyze": {
+        "requests": 72,
+        "priced_requests": 71,
+        "unpriced_requests": 1,
+        "estimated_known_usd": "0.32292000",
+        "held_reservation_usd": "1.04",
+        "budget_occupancy_usd": "1.36292000",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 106161,
+            "known_requests": 72,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 7400,
+            "known_requests": 72,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 58170,
+            "known_requests": 71,
+            "missing_requests": 1
+          },
+          "total_token_count": {
+            "known_sum": 171731,
+            "known_requests": 72,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_judge": {
+        "requests": 49,
+        "priced_requests": 47,
+        "unpriced_requests": 2,
+        "estimated_known_usd": "0.38589000",
+        "held_reservation_usd": "2.08",
+        "budget_occupancy_usd": "2.46589000",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 195644,
+            "known_requests": 49,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 29602,
+            "known_requests": 49,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 36783,
+            "known_requests": 47,
+            "missing_requests": 2
+          },
+          "total_token_count": {
+            "known_sum": 262029,
+            "known_requests": 49,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_label": {
+        "requests": 44,
+        "priced_requests": 44,
+        "unpriced_requests": 0,
+        "estimated_known_usd": "0.15166650",
+        "held_reservation_usd": "0",
+        "budget_occupancy_usd": "0.15166650",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 117352,
+            "known_requests": 44,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 8047,
+            "known_requests": 44,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 8927,
+            "known_requests": 44,
+            "missing_requests": 0
+          },
+          "total_token_count": {
+            "known_sum": 134326,
+            "known_requests": 44,
+            "missing_requests": 0
+          }
+        }
+      },
+      "app.tasks.run_translate": {
+        "requests": 44,
+        "priced_requests": 36,
+        "unpriced_requests": 8,
+        "estimated_known_usd": "0.22231050",
+        "held_reservation_usd": "8.32",
+        "budget_occupancy_usd": "8.54231050",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 47293,
+            "known_requests": 44,
+            "missing_requests": 0
+          },
+          "candidates_token_count": {
+            "known_sum": 13430,
+            "known_requests": 44,
+            "missing_requests": 0
+          },
+          "thoughts_token_count": {
+            "known_sum": 45385,
+            "known_requests": 36,
+            "missing_requests": 8
+          },
+          "total_token_count": {
+            "known_sum": 106108,
+            "known_requests": 44,
+            "missing_requests": 0
+          }
+        }
+      }
+    }
+  },
+  "GS-03": {
+    "requests": 79,
+    "priced_requests": 76,
+    "unpriced_requests": 3,
+    "estimated_known_usd": "0.35052750",
+    "held_reservation_usd": "3.12",
+    "budget_occupancy_usd": "3.47052750",
+    "actual_invoice_usd": null,
+    "tokens": {
+      "prompt_token_count": {
+        "known_sum": 106700,
+        "known_requests": 76,
+        "missing_requests": 3
+      },
+      "candidates_token_count": {
+        "known_sum": 6786,
+        "known_requests": 76,
+        "missing_requests": 3
+      },
+      "thoughts_token_count": {
+        "known_sum": 65348,
+        "known_requests": 76,
+        "missing_requests": 3
+      },
+      "total_token_count": {
+        "known_sum": 178834,
+        "known_requests": 76,
+        "missing_requests": 3
+      }
+    },
+    "by_purpose": {
+      "app.tasks.run_analyze": {
+        "requests": 79,
+        "priced_requests": 76,
+        "unpriced_requests": 3,
+        "estimated_known_usd": "0.35052750",
+        "held_reservation_usd": "3.12",
+        "budget_occupancy_usd": "3.47052750",
+        "actual_invoice_usd": null,
+        "tokens": {
+          "prompt_token_count": {
+            "known_sum": 106700,
+            "known_requests": 76,
+            "missing_requests": 3
+          },
+          "candidates_token_count": {
+            "known_sum": 6786,
+            "known_requests": 76,
+            "missing_requests": 3
+          },
+          "thoughts_token_count": {
+            "known_sum": 65348,
+            "known_requests": 76,
+            "missing_requests": 3
+          },
+          "total_token_count": {
+            "known_sum": 178834,
+            "known_requests": 76,
+            "missing_requests": 3
+          }
+        }
+      }
+    }
+  }
+}

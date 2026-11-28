@@ -1,0 +1,16 @@
+{
+  "inputs_unchanged": true,
+  "h_pm_formal_complete": true,
+  "h_metrics_unchanged": true,
+  "tq03_scores": 449,
+  "tq03_total": 491,
+  "tq03_sum": 970,
+  "ocr_error_characters": 584,
+  "ocr_reference_characters": 16742,
+  "logical_units": 476,
+  "result_only_excluded": 34,
+  "gs03_failed_jobs": 1,
+  "gs03_affected_originals": 18,
+  "model_calls_in_this_aggregation": 0,
+  "regeneration": false
+}

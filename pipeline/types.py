@@ -15,7 +15,7 @@
 """
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
 
@@ -660,7 +660,7 @@ class InpaintResult(_Model):
 # 단독 개발 v1 명세(사용자 승인 2026-10-06). text_block.style JSON 계약(#14)이 아니다 — font_color · bg_color · est_font_px · align은
 # 개발용 측정값 이름이고, status · 사유 값은 운영 enum · 오류 코드가 아니다. TextBlock과 공통 SCHEMA_VERSION은 바꾸지 않는다.
 # ---------------------------------------------------------------------------
-STYLE_SCHEMA_VERSION = "2"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전. 2 = 섹션 기준 정렬(사용자 결정 2026-11-05)
+STYLE_SCHEMA_VERSION = "3"  # [잠정] ⑦ 개발용 결과(StyleResult) 전용 버전. 2 = 섹션 기준 정렬(사용자 결정 2026-11-05) · 3 = 글자 굵기 측정(2026-11-26)
 AlignValue = Literal["left", "center", "right"]
 ALIGN_VALUES: tuple[str, ...] = ("left", "center", "right")
 # [잠정] 블록 status = 영역 측정 상태(정렬 성공 여부와 별개 — align · align_basis · null_reasons로 판단)
@@ -683,6 +683,13 @@ LineAlignNullReason = Literal["no_candidate", "no_text_lines"]
 # no_text_lines = 비공백 영역이 있는 줄 없음 / no_anchor = 어느 정렬도 지지가 없음 / align_tie = 지지 수 최댓값이 둘 이상
 StyleNullReason = Literal["excluded", "no_text", "no_valid_region", "no_text_lines", "no_anchor", "align_tie"]
 STYLE_VALUE_FIELDS: tuple[str, ...] = ("font_color", "bg_color", "est_font_px", "align")
+# [잠정 · 스키마 3] 글자 굵기 — Pretendard 굵기 다섯 단계 중 측정값에 가장 가까운 것(사용자 결정 2026-11-26, open-questions #101)
+FontWeight = Literal[100, 300, 500, 700, 900]
+FONT_WEIGHT_VALUES: tuple[int, ...] = (100, 300, 500, 700, 900)
+STYLE_VALUE_FIELDS_V3: tuple[str, ...] = STYLE_VALUE_FIELDS + ("font_weight",)
+# [잠정 · 스키마 3] 굵기 None 사유를 더한다: small_glyph = 굵기를 잴 수 있는 줄이 모두 글자 높이 기준(style.weight_min_glyph_px) 미만 /
+# no_weight_region = 굵기를 잴 수 있는 영역(measured)이 없음(색 추출에 실패한 영역뿐)
+StyleNullReasonV3 = Literal["excluded", "no_text", "no_valid_region", "no_text_lines", "no_anchor", "align_tie", "small_glyph", "no_weight_region"]
 HEX_COLOR_PATTERN = r"^#[0-9A-F]{6}$"  # sRGB "#RRGGBB"(대문자)
 _SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -704,8 +711,9 @@ class StyleOtsuDiag(_Model):
         return self
 
 
-class RegionStyle(_Model):
-    """[잠정] 원시 OCR 영역 하나의 측정값. score는 OCR 점수 보존(⑦은 score로 거르지 않는다)."""
+class RegionStyleV2(_Model):
+    """[잠정] 원시 OCR 영역 하나의 측정값. score는 OCR 점수 보존(⑦은 score로 거르지 않는다).
+    스키마 2까지의 형식이다 — 스키마 3은 굵기 측정값을 더한 `RegionStyle`."""
 
     region_key: str
     line_key: str
@@ -718,7 +726,7 @@ class RegionStyle(_Model):
     otsu: StyleOtsuDiag | None
 
     @model_validator(mode="after")
-    def _by_status(self) -> "RegionStyle":
+    def _by_status(self) -> "RegionStyleV2":
         colors = (self.font_color, self.bg_color)
         if self.status == "measured":
             if None in colors or self.est_font_px is None or self.color_error is not None or self.otsu is None:
@@ -730,6 +738,20 @@ class RegionStyle(_Model):
                 raise ValueError("otsu는 single_class일 때만 None이다")
         elif colors != (None, None) or self.est_font_px is not None or self.color_error is not None or self.otsu is not None:
             raise ValueError("blank_text는 측정값 · color_error · otsu가 모두 None이어야 한다")
+        return self
+
+
+class RegionStyle(RegionStyleV2):
+    """[잠정 · 스키마 3] 영역 측정값 + 굵기 측정. glyph_h = 글자 픽셀이 있는 행 범위(px), stroke_ratio = 획 두께 평균 ÷ glyph_h
+    (획 두께 = 글자 픽셀마다 min(가로 연속 길이, 세로 연속 길이)). 글자 · 배경을 나눈 measured 영역에만 있다."""
+
+    glyph_h: int | None = Field(gt=0)
+    stroke_ratio: float | None = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _weight_by_status(self) -> "RegionStyle":
+        if (self.glyph_h is None) != (self.stroke_ratio is None) or (self.status == "measured") != (self.glyph_h is not None):
+            raise ValueError("glyph_h · stroke_ratio는 measured 영역에만 함께 있어야 한다")
         return self
 
 
@@ -843,9 +865,12 @@ class StyleCounts(_Model):
     blank_text: int = Field(ge=0)
 
 
-class BlockStyle(_Model):
+class BlockStyleV2(_Model):
     """[잠정] 블록 하나의 대표값과 근거. regions는 source_lines의 줄 순서 → 줄 안 영역 순서(제외 블록은 빈 목록).
-    null_reasons는 값이 None인 측정값 필드(STYLE_VALUE_FIELDS)마다 하나씩, None이 아닌 필드에는 없다."""
+    null_reasons는 값이 None인 측정값 필드(VALUE_FIELDS)마다 하나씩, None이 아닌 필드에는 없다.
+    스키마 2까지의 형식이다 — 스키마 3은 굵기를 더한 `BlockStyle`(VALUE_FIELDS에 font_weight가 더해진다)."""
+
+    VALUE_FIELDS: ClassVar[tuple[str, ...]] = STYLE_VALUE_FIELDS
 
     block_key: str
     status: StyleBlockStatus
@@ -858,11 +883,11 @@ class BlockStyle(_Model):
     align_diag: StyleAlignDiag | None
     null_reasons: dict[str, StyleNullReason] = Field(default_factory=dict)
     counts: StyleCounts
-    regions: list[RegionStyle] = Field(default_factory=list)
+    regions: list[RegionStyleV2] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _consistent(self) -> "BlockStyle":
-        values = {f: getattr(self, f) for f in STYLE_VALUE_FIELDS}
+    def _consistent(self) -> "BlockStyleV2":
+        values = {f: getattr(self, f) for f in self.VALUE_FIELDS}
         if set(self.null_reasons) != {f for f, v in values.items() if v is None}:
             raise ValueError("null_reasons의 키는 값이 None인 측정값 필드와 같아야 한다")
         if (self.align is None) != (self.align_basis is None):
@@ -891,8 +916,8 @@ class BlockStyle(_Model):
         colors = (self.font_color, self.bg_color)
         r = self.null_reasons
         if self.status == "no_text":
-            if any(v is not None for v in values.values()) or r != {"font_color": "no_text", "bg_color": "no_text",
-                                                                    "est_font_px": "no_text", "align": "no_text_lines"}:
+            if any(v is not None for v in values.values()) or {k: r.get(k) for k in STYLE_VALUE_FIELDS} != {
+                    "font_color": "no_text", "bg_color": "no_text", "est_font_px": "no_text", "align": "no_text_lines"}:
                 raise ValueError("no_text는 측정값이 모두 None이고 사유가 no_text · 정렬 no_text_lines여야 한다")
         else:
             if self.est_font_px is None:
@@ -920,8 +945,8 @@ class BlockStyle(_Model):
         return self
 
 
-class StyleConfigSnapshot(_Model):
-    """[잠정] 추출에 쓴 [style] 설정 값."""
+class StyleConfigSnapshotV2(_Model):
+    """[잠정] 추출에 쓴 [style] 설정 값(스키마 2까지). 스키마 3은 굵기 설정을 더한 `StyleConfigSnapshot`."""
 
     method: Literal["otsu_border"]
     em_ratio: float
@@ -939,27 +964,29 @@ class StyleFingerprints(_Model):
     logo_record: str = Field(pattern=_SHA256_PATTERN)
 
 
-class StyleResult(_Model):
+class StyleResultV2(_Model):
     """[잠정] ⑦ 섹션 하나의 결과 — ③의 모든 블록을 block_order 순으로 담는다. 원문 · 좌표 · ④⑤ 판정은 담지 않는다(바꾸지 않는다).
-    섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다."""
+    섹션 입력 오류는 결과 없이 StyleInputError(stages/style.py)이므로 섹션 status는 없다.
+    스키마 2(2026-11-05 ~ 2026-11-26, 섹션 기준 정렬 · 굵기 없음)의 형식이다. 배포 전에 계산된 결과를 계산 당시 형식대로 검증하는 데 쓰고,
+    새 계산은 스키마 3 `StyleResult`로 만든다 — parse_style_result."""
 
-    schema_version: Literal["2"] = STYLE_SCHEMA_VERSION
+    schema_version: Literal["2"]
     image_id: str  # 원본 이미지 식별자(고정 입력본의 이미지 폴더 이름). 파일 간 식별 = image_id + section_key + block_key + region_key
     section_key: str
-    config: StyleConfigSnapshot
+    config: StyleConfigSnapshotV2
     input_fingerprints: StyleFingerprints
-    blocks: list[BlockStyle]
+    blocks: list[BlockStyleV2]
 
     @field_validator("blocks")
     @classmethod
-    def _unique_blocks(cls, v: list[BlockStyle]) -> list[BlockStyle]:
+    def _unique_blocks(cls, v: list[BlockStyleV2]) -> list[BlockStyleV2]:
         keys = [b.block_key for b in v]
         if len(set(keys)) != len(keys):
             raise ValueError("blocks에 같은 block_key가 두 번 있다")
         return v
 
     @model_validator(mode="after")
-    def _align_peers(self) -> "StyleResult":
+    def _align_peers(self) -> "StyleResultV2":
         """지지 동료는 같은 섹션의 다른 비교 대상 블록(처리 대상 · span 있음)이고, 지지 관계는 대칭이다(i가 j를 지지하면 j도 i를)."""
         diags = {b.block_key: b.align_diag for b in self.blocks if b.align_diag is not None and b.align_diag.span_x1 is not None}
         order = {b.block_key: i for i, b in enumerate(self.blocks)}
@@ -977,6 +1004,78 @@ class StyleResult(_Model):
         if len(widths) > 1 or len(tols) > 1:
             raise ValueError("섹션 안 블록의 section_width · tolerance_px는 같아야 한다")
         return self
+
+
+# ---------------------------------------------------------------------------
+# ⑦ 결과 스키마 3 — 글자 굵기 측정(사용자 결정 2026-11-26, open-questions #101). 스키마 2 형식에 굵기 필드를 더한다.
+# 굵기 = 영역의 획 두께 ÷ 글자 높이 → 줄 값(영역 중앙값) → 블록 값(글자 높이가 기준 이상인 줄의 중앙값) → 가장 가까운 견본 굵기.
+# ---------------------------------------------------------------------------
+class StyleWeightDiag(_Model):
+    """[잠정] 블록 굵기 진단. 줄 = 굵기를 잰 영역(measured)이 하나라도 있는 줄. 줄의 글자 높이 · 값 = 그 줄 영역 값의 중앙값.
+    min_glyph_px = style.weight_min_glyph_px. lines_used = 글자 높이가 기준 이상이라 블록 값에 쓴 줄 수, lines_small = 기준 미만이라 뺀 줄 수.
+    value = 쓴 줄 값의 중앙값(쓴 줄이 없으면 None)."""
+
+    min_glyph_px: float = Field(ge=0)
+    lines_used: int = Field(ge=0)
+    lines_small: int = Field(ge=0)
+    value: float | None = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "StyleWeightDiag":
+        if (self.value is None) != (self.lines_used == 0):
+            raise ValueError("value는 쓴 줄이 있을 때만 있다")
+        return self
+
+
+class BlockStyle(BlockStyleV2):
+    """[잠정 · 스키마 3] 블록 대표값 + 글자 굵기. font_weight = 블록 값에 가장 가까운 견본 굵기(100 · 300 · 500 · 700 · 900).
+    잴 수 없으면 None이고 null_reasons에 사유가 있다 — 렌더는 None이면 역할별 기본 굵기를 쓴다."""
+
+    VALUE_FIELDS: ClassVar[tuple[str, ...]] = STYLE_VALUE_FIELDS_V3
+
+    font_weight: FontWeight | None
+    weight_diag: StyleWeightDiag | None
+    null_reasons: dict[str, StyleNullReasonV3] = Field(default_factory=dict)
+    regions: list[RegionStyle] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _weight_consistent(self) -> "BlockStyle":
+        reason, d = self.null_reasons.get("font_weight"), self.weight_diag
+        bad = {k: v for k, v in self.null_reasons.items() if k != "font_weight" and v in ("small_glyph", "no_weight_region")}
+        if bad:
+            raise ValueError(f"small_glyph · no_weight_region은 font_weight의 사유로만 쓴다: {bad}")
+        if self.status == "excluded":
+            if d is not None:
+                raise ValueError("excluded는 weight_diag가 None이어야 한다")
+            return self
+        if d is None:
+            raise ValueError(f"{self.status}는 weight_diag가 있어야 한다")
+        measured = sum(r.status == "measured" for r in self.regions)
+        if self.font_weight is not None:
+            if d.value is None:
+                raise ValueError("font_weight가 있으면 weight_diag.value가 있어야 한다")
+            return self
+        want = "no_text" if self.status == "no_text" else "no_weight_region" if measured == 0 else "small_glyph"
+        if reason != want:
+            raise ValueError(f"font_weight None 사유 {reason!r} ≠ {want!r}")
+        if d.value is not None or (want == "small_glyph") != (d.lines_small > 0):
+            raise ValueError("font_weight가 None이면 쓴 줄이 없어야 하고, small_glyph는 기준 미만 줄이 있을 때만이다")
+        return self
+
+
+class StyleConfigSnapshot(StyleConfigSnapshotV2):
+    """[잠정 · 스키마 3] 추출에 쓴 [style] 설정 값 + 굵기 설정. weight_refs = 견본 굵기("100" … "900") → 견본을 같은 방식으로 잰 값."""
+
+    weight_min_glyph_px: float
+    weight_refs: dict[str, float]
+
+
+class StyleResult(StyleResultV2):
+    """[잠정 · 스키마 3] ⑦ 섹션 하나의 결과 — 스키마 2 형식 + 블록 · 영역의 굵기 측정."""
+
+    schema_version: Literal["3"] = STYLE_SCHEMA_VERSION
+    config: StyleConfigSnapshot
+    blocks: list[BlockStyle]
 
 
 # ---------------------------------------------------------------------------
@@ -1028,7 +1127,7 @@ class BlockStyleV1(_Model):
     align_diag: StyleAlignDiagV1 | None
     null_reasons: dict[str, StyleNullReasonV1] = Field(default_factory=dict)
     counts: StyleCounts
-    regions: list[RegionStyle] = Field(default_factory=list)
+    regions: list[RegionStyleV2] = Field(default_factory=list)  # 스키마 1의 영역 형식은 스키마 2와 같다(굵기 없음)
 
     @model_validator(mode="after")
     def _consistent(self) -> "BlockStyleV1":
@@ -1118,13 +1217,13 @@ class StyleResultV1(_Model):
         return v
 
 
-STYLE_RESULT_MODELS: dict[str, type[_Model]] = {"1": StyleResultV1, "2": StyleResult}
+STYLE_RESULT_MODELS: dict[str, type[_Model]] = {"1": StyleResultV1, "2": StyleResultV2, "3": StyleResult}
 
 
-def parse_style_result(data: Any) -> "StyleResult | StyleResultV1":
-    """⑦ 결과 JSON을 계산 당시 형식(schema_version)대로 검증한다 — 1 = 2026-11-05 이전(블록 안 줄 정렬), 2 = 섹션 기준 정렬.
-    버전이 없거나 알 수 없으면 거부한다(ValueError). 형식 안의 모순은 pydantic ValidationError(ValueError의 하위)로 거부한다.
-    이전 결과를 새 형식으로 바꾸거나 새 정렬 근거를 채우지 않는다."""
+def parse_style_result(data: Any) -> "StyleResult | StyleResultV2 | StyleResultV1":
+    """⑦ 결과 JSON을 계산 당시 형식(schema_version)대로 검증한다 — 1 = 2026-11-05 이전(블록 안 줄 정렬), 2 = 섹션 기준 정렬,
+    3 = 글자 굵기 측정. 버전이 없거나 알 수 없으면 거부한다(ValueError). 형식 안의 모순은 pydantic ValidationError(ValueError의 하위)로
+    거부한다. 이전 결과를 새 형식으로 바꾸거나 새 정렬 근거 · 굵기를 채우지 않는다(이전 결과의 블록에는 font_weight가 없다)."""
     if not isinstance(data, dict):
         raise ValueError(f"⑦ 결과가 객체가 아니다: {type(data).__name__}")
     v = data.get("schema_version")
@@ -1132,3 +1231,348 @@ def parse_style_result(data: Any) -> "StyleResult | StyleResultV1":
     if model is None:
         raise ValueError(f"알 수 없는 ⑦ 결과 버전 {v!r} — 지원 {sorted(STYLE_RESULT_MODELS)}")
     return model.model_validate(data)  # type: ignore[return-value]
+
+
+# ---------------------------------------------------------------------------
+# A+ 규격 변경 템플릿 모듈 — [잠정 · 개발용 v1, 사용자 결정 2026-11-23, 운영 계약 아님]
+# ---------------------------------------------------------------------------
+# 아마존 A+ 한 사이트의 모듈 한 장에 들어갈 슬롯 내용. 규격(템플릿 · 필수 칸 · 글자 수 한도)의 정본은
+# pipeline/data/aplus/spec.json 이고 이 타입은 형태만 정한다 — 템플릿별 규칙 검사는 pipeline/aplus/content.py.
+# 저장 필드 · 인계 형식 · 렌더 담당은 정하지 않았다(open-questions.md #93 · #97 · #100). BE 계약으로 읽지 않는다.
+APLUS_SCHEMA_VERSION = "1"  # [잠정] A+ 슬롯 내용(AplusModule) 전용 버전
+
+AplusFit = Literal["contain", "cover"]  # 이미지 칸 맞춤: contain = 전체가 보이게, cover = 칸을 꽉 채우고 넘치면 자름
+
+
+class AplusText(_Model):
+    """글 칸 하나. `origin_block_keys` = 이 문구를 이룬 1차 번역 블록(넣은 순서). 블록에서 오지 않은 문구면 빈 목록."""
+
+    text: str
+    origin_block_keys: list[str] = Field(default_factory=list)
+
+    @field_validator("text")
+    @classmethod
+    def _not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("빈 문구는 칸을 비워 두는 것으로 표현한다(None)")
+        return v
+
+    @field_validator("origin_block_keys")
+    @classmethod
+    def _unique_origin(cls, v: list[str]) -> list[str]:
+        if len(set(v)) != len(v):
+            raise ValueError(f"origin_block_keys에 같은 블록이 두 번 있다: {v}")
+        return v
+
+
+class AplusImage(_Model):
+    """이미지 칸 하나 — 원본 섹션에서 자를 자리(섹션 로컬 픽셀). `cutout` = 배경을 지워 대상만 남겨도 되는 사진이라는
+    7칸 구성의 판단(누끼 요청, #98). 누끼 결과는 `AplusCutout`에 따로 있다."""
+
+    section_key: str
+    bbox: BBox
+    fit: AplusFit
+    cutout: StrictBool = False
+
+    @model_validator(mode="after")
+    def _area(self) -> "AplusImage":
+        if self.bbox.w <= 0 or self.bbox.h <= 0:
+            raise ValueError(f"자를 자리의 넓이가 0이다: {self.bbox}")
+        return self
+
+
+class AplusItem(_Model):
+    """반복 칸 하나. 템플릿마다 쓰는 칸이 다르다(spec.json `items.fields`)."""
+
+    title: AplusText | None = None
+    body: AplusText | None = None
+    image: AplusImage | None = None
+    color: str | None = Field(default=None, pattern=HEX_COLOR_PATTERN)  # 5A 스와치 색
+
+
+class AplusModule(_Model):
+    """A+ 모듈 한 장(970×300)의 슬롯 내용. `template`은 spec.json의 템플릿 ID(1A~7B), `layout` · `mode`는 그 템플릿의 변형.
+    `mirror`는 좌우 반전(사진이 한쪽에 있는 템플릿: True = 사진 왼쪽, 1B: True = 글 상자 오른쪽)."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    template: str
+    layout: str = "default"
+    mode: Literal["before_after"] | None = None
+    mirror: StrictBool = False
+    label: AplusText | None = None
+    headline: AplusText | None = None
+    subheadline: AplusText | None = None
+    body: AplusText | None = None
+    image: AplusImage | None = None
+    mark: AplusImage | None = None
+    items: list[AplusItem] = Field(default_factory=list)
+
+
+class AplusSectionLabel(_Model):
+    """섹션 하나의 내용 라벨 — A+ 모듈 안의 내부 계산이다(#93). `label`은 spec.json `labels`의 코드(19종) 중 하나,
+    `sub`는 눈에 띄게 따로 있는 보조 내용 0~2개. 허용 코드는 규격 데이터가 정본이라 여기서는 문자열로 받고
+    pipeline/aplus/label.py가 검사한다."""
+
+    section_key: str
+    label: str
+    sub: list[str] = Field(default_factory=list, max_length=2)
+    confidence: Literal["high", "low"]
+    reason: str
+
+    @model_validator(mode="after")
+    def _sub(self) -> "AplusSectionLabel":
+        if len(set(self.sub)) != len(self.sub) or self.label in self.sub:
+            raise ValueError(f"보조 라벨이 겹치거나 주 라벨과 같다: {self.label} / {self.sub}")
+        return self
+
+
+class AplusLabelChecked(_Model):
+    """라벨 분류가 무엇을 보고 했는지. `input_fingerprint`는 보낸 섹션 · 블록 전체의 지문."""
+
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+    sent_section_keys: list[str]
+
+
+class AplusLabelResult(_Model):
+    """상품 하나(섹션 전체)의 라벨 분류 결과. 실패는 전체 실패다 — 일부 섹션만 성공으로 내보내지 않는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    labels: list[AplusSectionLabel] | None
+    checked: AplusLabelChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusLabelResult":
+        if self.status == "ok" and (self.labels is None or self.error is not None):
+            raise ValueError("status=ok면 labels가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.labels is not None or not self.error):
+            raise ValueError("status=failed면 labels가 없고 error가 있어야 한다")
+        if self.labels is not None:
+            keys = [x.section_key for x in self.labels]
+            if keys != self.checked.sent_section_keys:
+                raise ValueError("labels의 섹션 순서 · 집합이 보낸 섹션과 다르다")
+        return self
+
+
+class AplusDropped(_Model):
+    """모델이 고른 블록 가운데 코드가 넣지 않은 것과 그 이유(검수용). `reason`: `limit` 한도 직전에서 중단 ·
+    `not_candidate` 그 칸 라벨의 섹션이 아님 · `already_used` 다른 칸에서 이미 씀 · `unknown` 보낸 적 없는 블록 ID ·
+    `role` 블록 역할이 그 칸에 들어갈 수 없음(규격 데이터 `block_roles`)."""
+
+    field: str
+    block_keys: list[str]
+    reason: Literal["limit", "not_candidate", "already_used", "unknown", "role"]
+
+
+class AplusSlotPlan(_Model):
+    """7칸 중 한 칸의 결과. `template`이 None이면 빈 칸(`module`도 None). `errors`는 템플릿 규칙 위반(있으면 그릴 수 없다),
+    `flags`는 코드가 바로잡았거나 사람이 확인할 점, `sources`는 글 재료로 쓴 섹션."""
+
+    slot: int = Field(ge=1, le=7)
+    template: str | None
+    why: str
+    module: AplusModule | None
+    sources: list[str] = Field(default_factory=list)
+    dropped: list[AplusDropped] = Field(default_factory=list)
+    flags: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "AplusSlotPlan":
+        if (self.template is None) != (self.module is None):
+            raise ValueError("template과 module은 함께 있거나 함께 없어야 한다")
+        if self.module is not None and self.module.template != self.template:
+            raise ValueError(f"module.template {self.module.template!r} != template {self.template!r}")
+        return self
+
+
+class AplusPlanChecked(_Model):
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+
+
+class AplusPlan(_Model):
+    """상품 하나의 7칸 구성 결과. 실패(호출 · 응답 구조)는 전체 실패다. 칸 안의 규칙 위반은 그 칸의 `errors`에 남는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    slots: list[AplusSlotPlan] | None
+    checked: AplusPlanChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusPlan":
+        if self.status == "ok" and (self.slots is None or self.error is not None):
+            raise ValueError("status=ok면 slots가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.slots is not None or not self.error):
+            raise ValueError("status=failed면 slots가 없고 error가 있어야 한다")
+        if self.slots is not None and [s.slot for s in self.slots] != list(range(1, 8)):
+            raise ValueError("slots는 1~7 칸이 순서대로 하나씩 있어야 한다")
+        return self
+
+
+class AplusCutout(_Model):
+    """누끼를 요청한 이미지 칸 하나의 결과(#98). `field`: `image` · `mark` · `items[i].image`. `source` = 자른 원천
+    (`erased` 글자를 지운 섹션 · `original` 원본 섹션). `crop_bbox` = 넓혀 자른 자리, `subject_bbox` = 남은 대상의 자리
+    (둘 다 섹션 로컬 픽셀). `image_path` = 배경이 투명한 PNG(`width` × `height`, 투명 여백 포함).
+    실패(`failed`)면 `subject_bbox` · `image_path` · 크기가 없고 그 칸은 원본 크롭을 쓴다."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    section_key: str
+    status: Literal["ok", "failed"]
+    source: Literal["erased", "original"]
+    crop_bbox: BBox
+    subject_bbox: BBox | None = None
+    image_path: str | None = None
+    width: int | None = Field(default=None, gt=0)
+    height: int | None = Field(default=None, gt=0)
+    flags: list[str] = Field(default_factory=list)
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusCutout":
+        outs = (self.subject_bbox, self.image_path, self.width, self.height)
+        if self.status == "ok" and (any(v is None for v in outs) or self.error is not None):
+            raise ValueError("status=ok면 subject_bbox · image_path · 크기가 있고 error가 없어야 한다")
+        if self.status == "failed" and (any(v is not None for v in outs) or not self.error):
+            raise ValueError("status=failed면 결과가 없고 error가 있어야 한다")
+        return self
+
+
+class AplusCutoutResult(_Model):
+    """상품 하나의 누끼 결과 — 7칸 구성이 누끼를 요청한 이미지 칸마다 하나(칸 순서 → 큰 사진 · 마크 · 항목 순).
+    요청이 없으면 빈 목록이다. `matting_config` = 쓴 전경 분리 모델의 설정(요청이 없어 모델을 부르지 않았으면 None)."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    items: list[AplusCutout] = Field(default_factory=list)
+    matting_config: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _unique(self) -> "AplusCutoutResult":
+        keys = [(x.slot, x.field) for x in self.items]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 이미지 칸이 두 번 있다")
+        return self
+
+
+class AplusCompressedField(_Model):
+    """압축(2차 번역) 대상 — 템플릿 한도를 넘은 글 칸 하나의 기록(#94). AI 내부 기록이며 인계 형식이 아니다(#97).
+    `field`: `headline` · `items[i].title` 형식. `primary_text` = 7칸 구성이 넣은 1차 번역 조합, `max_chars` = 템플릿 한도(권장 길이),
+    `allowed_chars` = 넘으면 안 되는 길이(권장 길이 × `aplus_compress.over_ratio`, 가이드 상한 이하 — 없으면 `max_chars`와 같다),
+    `guide_max_chars` = 가이드 칸당 상한(대응 필드가 없으면 None). `outcome`: `compressed` 한도 안의 답으로 문구를 바꿈 ·
+    `kept` 1차 번역 그대로 둠. `reason`: `fit` 채택 · `over_limit` 답이 넘으면 안 되는 길이를 넘음 · `declined` 모델이 기준을 지키며 줄일 수 없다고 답함 ·
+    `new_number` 답에 1차 문구에 없던 숫자가 있음 · `new_regulated` 답에 1차 문구에 없던 규제 매칭이 있음 · `blank` 빈 답 ·
+    `call_failed` 다시 묻는 호출이 실패함.
+    `answer_text` = 모델의 마지막 답(채택됐으면 칸에 들어간 문구, 답이 없으면 None), `attempts` = 이 칸을 모델에 물은 횟수."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    origin_block_keys: list[str] = Field(default_factory=list)
+    primary_text: str
+    primary_chars: int = Field(gt=0)
+    max_chars: int = Field(gt=0)
+    allowed_chars: int | None = Field(default=None, gt=0)
+    guide_max_chars: int | None = Field(default=None, gt=0)
+    outcome: Literal["compressed", "kept"]
+    reason: Literal["fit", "over_limit", "declined", "new_number", "new_regulated", "blank", "call_failed"]
+    answer_text: str | None = None
+    answer_chars: int | None = Field(default=None, ge=0)
+    attempts: int = Field(ge=1)
+
+    @model_validator(mode="after")
+    def _outcome(self) -> "AplusCompressedField":
+        if (self.outcome == "compressed") != (self.reason == "fit"):
+            raise ValueError("outcome=compressed와 reason=fit은 함께 있어야 한다")
+        if (self.answer_text is None) != (self.answer_chars is None):
+            raise ValueError("answer_text와 answer_chars는 함께 있거나 함께 없어야 한다")
+        limit = self.allowed_chars if self.allowed_chars is not None else self.max_chars
+        if self.outcome == "compressed" and (self.answer_chars is None or not 0 < self.answer_chars <= limit):
+            raise ValueError("outcome=compressed면 넘으면 안 되는 길이 안의 답이 있어야 한다")
+        return self
+
+
+class AplusCompressChecked(_Model):
+    """압축이 무엇을 보고 했는지. `input_fingerprint`는 받은 7칸 구성 결과의 지문, `calls` = 모델 호출 횟수(대상이 없으면 0),
+    `regulation_applied` = 규제 행을 받아 반영했는지(False면 받지 못해 `avoid`도 새 규제 매칭 확인도 없었다),
+    `over_ratio` = 적용한 `aplus_compress.over_ratio`(이 값이 생기기 전의 결과에는 없다)."""
+
+    input_fingerprint: str
+    spec_version: str
+    llm_called: StrictBool
+    calls: int = Field(ge=0)
+    regulation_applied: StrictBool = False
+    over_ratio: float | None = Field(default=None, ge=1)
+
+
+class AplusCompressResult(_Model):
+    """상품 하나의 압축 결과. `slots` = 7칸 구성 결과에서 한도 안에 들어온 칸만 문구를 바꾼 것(나머지는 그대로),
+    `fields` = 대상 칸마다의 기록(칸 순서 → 칸 안의 자리 순). 대상이 없으면 `fields`가 비고 모델을 부르지 않는다.
+    첫 호출의 실패(호출 · 응답 구조)는 전체 실패이며 호출자는 7칸 구성 결과를 그대로 쓴다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    slots: list[AplusSlotPlan] | None
+    fields: list[AplusCompressedField] = Field(default_factory=list)
+    checked: AplusCompressChecked
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusCompressResult":
+        if self.status == "ok" and (self.slots is None or self.error is not None):
+            raise ValueError("status=ok면 slots가 있고 error가 없어야 한다")
+        if self.status == "failed" and (self.slots is not None or self.fields or not self.error):
+            raise ValueError("status=failed면 slots · fields가 없고 error가 있어야 한다")
+        if self.slots is not None and [s.slot for s in self.slots] != list(range(1, 8)):
+            raise ValueError("slots는 1~7 칸이 순서대로 하나씩 있어야 한다")
+        keys = [(x.slot, x.field) for x in self.fields]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
+        return self
+
+
+class AplusRecheckedField(_Model):
+    """압축 뒤 규칙 검사 — 압축이 문구를 바꾼 글 칸 하나의 검사 기록(#96). AI 내부 기록이며 인계 형식이 아니다(#97).
+    `block_key` = 그 칸의 출처 블록(1개), `text` = 검사한 문구(압축 후). `regulatory` · `terms` · `flags`는 원본 규격 유지 경로의 번역문 규칙 검사
+    (`stages.text_check.check_block`) 결과 그대로다 — `regulatory`: 검사한 · 검사하지 못한 규제 항목 ID와 매칭 · 억제 기록, `terms`: 강제 용어별
+    적용 여부, `flags`: 경고 후보(`revision`은 없다 — 압축 문구는 블록의 리비전이 아니다). `complete` = 검사 범위가 다 찼는지
+    (영어 패턴 없는 항목 0건 ∧ 판단할 수 없는 용어 0건 ∧ 용어 목록을 받음)."""
+
+    slot: int = Field(ge=1, le=7)
+    field: str
+    block_key: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    regulatory: dict[str, Any]
+    terms: list[dict[str, Any]] = Field(default_factory=list)
+    flags: list[dict[str, Any]] = Field(default_factory=list)
+    complete: StrictBool
+
+
+class AplusRecheckResult(_Model):
+    """상품 하나의 압축 뒤 규칙 검사 결과. `fields` = 압축이 문구를 바꾼 칸마다의 기록(압축 기록의 순서). 바뀐 칸이 없으면 빈다.
+    `terms_checked` = 용어 목록을 받아 강제 용어를 검사했는지(False면 받지 못해 검사하지 않음 — 빈 용어 목록과 다르다),
+    `rules` = 매칭 · 용어 규칙 버전. 사전 · 용어 데이터 오류는 전체 실패이며 문구는 바뀌지 않는다."""
+
+    schema_version: Literal["1"] = APLUS_SCHEMA_VERSION
+    status: Literal["ok", "failed"]
+    fields: list[AplusRecheckedField] = Field(default_factory=list)
+    terms_checked: StrictBool
+    rules: dict[str, str]
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def _status(self) -> "AplusRecheckResult":
+        if self.status == "ok" and self.error is not None:
+            raise ValueError("status=ok면 error가 없어야 한다")
+        if self.status == "failed" and (self.fields or not self.error):
+            raise ValueError("status=failed면 fields가 없고 error가 있어야 한다")
+        if not self.terms_checked and any(x.complete for x in self.fields):
+            raise ValueError("용어 목록을 받지 못했으면 complete일 수 없다")
+        keys = [(x.slot, x.field) for x in self.fields]
+        if len(set(keys)) != len(keys):
+            raise ValueError("같은 칸의 같은 글 칸이 두 번 있다")
+        return self

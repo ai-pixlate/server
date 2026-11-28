@@ -1,0 +1,7 @@
+{
+  "url": "https://github.com/ai-pixlate/server/pull/155#issuecomment-7126573428",
+  "body": "## PM 재확인 — 검수 반영본(c1847e6)\r\n\r\n예람 님, 반영본 확인했어요. 재집계는 예상과 같아요(H02 · H03 측정 13장 · A 1 · B 8 · C 4, H04 105/111 = 94.59%). 숫자에는 영향이 없는 기록 정리 두 가지만 부탁드려요. 두 체크포인트 모두에 똑같이 적용해 주세요.\r\n\r\n### 고쳐 주세요\r\n1. **GS-01-IMG-002-layout K03 ④:** 「8) o-Cymen-5-ol · 9) Sorbic Acid가 02. Plasticizers에 가림」 뒤에 \"판독 불가\"를 넣어 주세요. 제 판정은 판독 불가였어요. REF-037은 H04 대상이 아니라서 숫자는 바뀌지 않아요.\r\n2. **따로 세운 판독 실패를 기존 layout 결함에서 빼 주세요:**\r\n   - GS-02-IMG-003-layout의 reference_unit_ids에서 GS-02_003-REF-001을 빼 주세요. 제품명은 name-readability로 분리됐어요.\r\n   - GS-01-IMG-002-layout의 reference_unit_ids에서 GS-01_002-REF-020 · REF-025를 빼 주세요. badge-020 · 025로 분리됐어요.\r\n\r\n### 그대로 두셔도 돼요\r\n- **GS-02_003-REF-001 accurate=true 보완:** 인정해요. REF-020 · 025와 같은 방식(정확 true · 판독 false)이에요.\r\n- **GS-01-IMG-002-irritation의 REF-039 연결:** GS-01_002에는 저자극 문구만 다루는 기준 항목이 없어서 그대로 둬요.\r\n- **REF-020 · 025를 결함 둘로 나눈 것:** 규칙대로라 동의해요.\r\n\r\n반영되면 다시 확인할게요.",
+  "user": "i-dAb-i",
+  "created_at": "2026-11-24T08:47:46Z",
+  "updated_at": "2026-11-24T08:47:46Z"
+}

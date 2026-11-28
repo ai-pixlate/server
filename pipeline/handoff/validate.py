@@ -108,12 +108,17 @@ def _judge(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[s
     p = []
     tm = load_type_map()
     local_types = [t.content_type for t in tm.local]
-    allowed_types = set(local_types) | {tm.regulatory_content_type}
     ar = AnalyzeResult.model_validate(req["analyze_result"])
     blocks = {b.block_key: b for b in ar.blocks}
     bundle_ids = {e["external_id"] for e in req["bundle"]["regulation"]["entries"]}
     if req["bundle"].get("local"):
         bundle_ids |= {e["external_id"] for e in req["bundle"]["local"]["entries"]}
+    # 채널: 묶음에 채널 부분(행 또는 조회 실패)이 있을 때만 채널 결과가 있어야 한다. 받은 행의 유형만 허용한다
+    channel_ids = {e["external_id"] for e in (req["bundle"].get("channel") or {}).get("entries", [])}
+    channel_requested = bool(req["bundle"].get("channel") or req["bundle"].get("channel_unavailable"))
+    channel_types = [t.content_type for t in tm.channel if t.external_id in channel_ids]
+    bundle_ids |= channel_ids
+    allowed_types = set(local_types) | {tm.regulatory_content_type} | set(channel_types)
     secs = rep.payload.get("sections", [])
     targets = req.get("target_section_keys")
     want = [s.section_key for s in ar.sections if targets is None or s.section_key in set(targets)]
@@ -153,6 +158,22 @@ def _judge(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[s
             p.append(f"{k}: local_status {st!r}")
         if st == "failed" and s.get("bucket_recommendation") != "exclude":
             p.append(f"{k}: 현지 판정 실패 섹션은 제외 권고여야 한다(D9-1)")
+        ct = [f.content_type for f in fs if f.content_type in channel_types]
+        cst = s.get("channel_status")
+        if not channel_requested:
+            if "channel_status" in s or "channel_failure" in s:
+                p.append(f"{k}: 채널 판정 대상이 아닌데 채널 결과가 있다")
+        else:
+            if cst == "completed" and sorted(ct) != sorted(channel_types):
+                p.append(f"{k}: 채널 완료인데 받은 채널 항목의 finding이 정확히 하나씩이 아니다")
+            if cst in ("failed", "not_checked") and (ct or not s.get("channel_failure")):
+                p.append(f"{k}: 채널 {cst}인데 채널 finding이 있거나 사유가 없다")
+            if cst not in ("completed", "failed", "not_checked"):
+                p.append(f"{k}: channel_status {cst!r}")
+            if (cst == "not_checked") != (not channel_ids):
+                p.append(f"{k}: 채널 행 공급 여부와 channel_status {cst!r}가 맞지 않는다")
+            if cst == "failed" and s.get("bucket_recommendation") != "exclude":
+                p.append(f"{k}: 채널 판정 실패 섹션은 제외 권고여야 한다")
         if sum(1 for f in fs if f.content_type == tm.regulatory_content_type) > 1:
             p.append(f"{k}: 규제 검출 finding이 섹션당 1건을 넘는다")
         texts = s["audit"]["block_texts"]
@@ -168,7 +189,7 @@ def _judge(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[s
         for v in s.get("verdicts", []):
             if v["finding_key"] not in set(fkeys) or v["external_id"] not in bundle_ids or set(v["match_keys"]) - mkeys:
                 p.append(f"{k}: 판정 {v['verdict_key']}의 finding · 사전 · 매칭 연결 오류")
-        excl = any(v["bucket"] == "exclude" for v in s.get("verdicts", [])) or st == "failed"
+        excl = any(v["bucket"] == "exclude" for v in s.get("verdicts", [])) or st == "failed" or (channel_requested and cst == "failed")
         if (s.get("bucket_recommendation") == "exclude") != excl:
             p.append(f"{k}: 제외 권고와 판정 집계가 맞지 않는다")
     return p
@@ -237,7 +258,7 @@ def _style(rep: StageReport, req: dict[str, Any], ctx: dict[str, Any]) -> list[s
     if sorted(got) != sorted(_blocks_of(req)) or len(set(got)) != len(got):
         p.append("⑦ 결과가 요청 블록과 정확히 대응하지 않는다")
     for b in rep.payload["blocks"]:
-        nulls = {k for k in ("font_color", "bg_color", "est_font_px", "align") if b[k] is None}
+        nulls = {k for k in ("font_color", "bg_color", "est_font_px", "align", "font_weight") if b[k] is None}
         if nulls != set(b["null_reasons"]):
             p.append(f"{b['block_key']}: NULL 값과 사유가 맞지 않는다")
     return p

@@ -1,0 +1,21 @@
+{# 2A 효능 · S4 글·나열+사진형 · Single Image & Highlights
+   왼쪽 0~582: 제목(30, 1줄) · 본문(15, 1줄) · 불릿 2~4개(체크 원 28 + 글 17)
+   오른쪽: 사진 구역 582~970, 300×300 #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+<div class="zone" style="{{ B.zone.css }}"></div>
+{{ m.photo(B.image, c.image, st, area=A.image) }}
+{% if c.layout == 'single' %}
+{{ m.text(single_head, c.headline, fs.headline, 2, "headline", cls="h", underline=st.headline_underline) }}
+{{ m.text(single_body, c.body, fs.body, 4, "body", cls="b", lh=1.45) }}
+{% else %}
+{{ m.text(B.headline, c.headline, fs.headline, 1, "headline", area=A.headline, cls="h", underline=st.headline_underline) }}
+{{ m.text(B.body, c.body, fs.body, 1, "body", area=A.body, cls="b", lh=1.4) }}
+{% endif %}
+{% for it in items %}
+{{ m.check(it.icon, name="check[" ~ loop.index0 ~ "]", area=A.checks_area) }}
+{{ m.text(it.text, it.title, fs.bullet, it.lines, "items[" ~ loop.index0 ~ "].title", area=A.bullets_area, cls="sh", lh=1.3, vc=True) }}
+{% endfor %}
+{% endblock %}

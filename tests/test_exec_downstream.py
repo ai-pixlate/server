@@ -1958,7 +1958,9 @@ def test_preview_render_input_fingerprint_current_result_and_blocks(env):
         assert s["bucket"] == "include" and s["inputError"] is None and s["revision"] == 0
         assert s["inputFingerprint"] == cur["input_fingerprint"]
         r = s["render"]
-        assert r["attempt"] == {"taskId": cur["id"], "status": "done", "errorCode": None, "retryable": False}
+        # 지금 보이는 결과 = 현재 시도 → 반영 안 된 블록 없음(미리보기 갱신 실패 보완 11-21)
+        assert r["attempt"] == {"taskId": cur["id"], "status": "done", "errorCode": None, "retryable": False,
+                                "inputFingerprint": cur["input_fingerprint"], "pendingBlockIds": []}
         assert r["isCurrent"] is True
         assert (r["result"]["taskId"], r["result"]["inputFingerprint"], r["result"]["rendererId"]) == (
             cur["id"], cur["input_fingerprint"], typeset.RENDERER_VERSION)
@@ -2003,6 +2005,105 @@ def test_preview_new_attempt_pending_then_failed_keeps_adopted_previous_result(e
     assert (att["taskId"], att["status"], att["errorCode"]) == (t, "failed", "STYLE_DEFAULTS_UNAPPROVED")
     assert s["render"]["result"]["taskId"] == old["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
     assert s["render"]["result"]["overflow"] is None and s["renderedUrl"] == old["renderedUrl"]
+
+
+# ── 미리보기 갱신 실패 보완(11-21): render.attempt.inputFingerprint · pendingBlockIds — 조회 때 계산, 원인 블록이 아니다 ──────────
+def _two_text_blocks(c, job):
+    by: dict[int, list[dict]] = {}
+    for b in c.get(f"/v1/jobs/{job}/blocks").json():
+        if b["trans1"] and (b["sourceKo"] or "").strip() and b["isExcluded"] is False:
+            by.setdefault(b["sectionId"], []).append(b)
+    two = [bs for bs in by.values() if len(bs) >= 2]
+    assert two, "같은 섹션에 렌더 대상 블록이 둘 이상인 섹션이 있어야 한다"
+    return two[0][0], two[0][1]
+
+
+def test_preview_pending_blocks_survive_multiple_saves_failure_refetch_and_retry(env, monkeypatch):
+    """같은 섹션 두 블록을 차례로 저장(두 번째 저장이 첫 시도를 대체) → 실패: 두 블록 모두 pendingBlockIds.
+    새로고침(재조회)해도 같은 값, 재시도(같은 입력)도 같은 블록, 성공하면 빈 배열. 시도 지문 = 그 시도의 고정 입력 지문."""
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b1, b2 = _two_text_blocks(c, job)
+    sid = b1["sectionId"]
+    old = _pvs(c, job, sid)
+    assert old["render"]["attempt"]["pendingBlockIds"] == []
+    t1 = c.patch(f"/v1/jobs/{job}/blocks/{b1['id']}", json={"trans1": "First edit", "revision": b1["revision"]}).json()["rerenderTaskId"]
+    s = _pvs(c, job, sid)
+    assert s["render"]["attempt"]["taskId"] == t1 and s["render"]["attempt"]["pendingBlockIds"] == [b1["id"]]
+    t2 = c.patch(f"/v1/jobs/{job}/blocks/{b2['id']}", json={"trans1": "Second edit", "revision": b2["revision"]}).json()["rerenderTaskId"]
+    assert t2 != t1
+    real_render = downstream._render_section
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    env["q"].drain()
+    want = sorted([b1["id"], b2["id"]])
+    for _ in range(2):  # 새로고침 · 재조회 — 화면 상태에 기대지 않는다
+        s = _pvs(c, job, sid)
+        att = s["render"]["attempt"]
+        assert (att["taskId"], att["status"]) == (t2, "failed")
+        assert att["pendingBlockIds"] == want
+        assert att["inputFingerprint"] == _attempt(t2)["input_fingerprint"] == s["inputFingerprint"]  # 지금 입력에 대한 실패
+        assert s["render"]["result"]["taskId"] == old["render"]["result"]["taskId"] and s["render"]["isCurrent"] is False
+    # 재시도 — 같은 입력이라 같은 블록
+    assert att["retryable"] is True
+    assert c.post(f"/v1/jobs/{job}/tasks/{t2}/retry").status_code == 200
+    s = _pvs(c, job, sid)
+    t3 = s["render"]["attempt"]["taskId"]
+    assert t3 != t2 and s["render"]["attempt"]["status"] == "pending" and s["render"]["attempt"]["pendingBlockIds"] == want
+    assert s["render"]["attempt"]["inputFingerprint"] == att["inputFingerprint"]
+    # 성공 → 보이는 결과 = 현재 시도 → 빈 배열(S3 차단 · 렌더 세션 고정물은 그대로 두고 렌더 함수만 되돌린다)
+    monkeypatch.setattr(downstream, "_render_section", real_render)
+    env["q"].drain()
+    s = _pvs(c, job, sid)
+    assert s["render"]["isCurrent"] is True and s["render"]["result"]["taskId"] == t3
+    assert s["render"]["attempt"]["pendingBlockIds"] == []
+
+
+def test_preview_pending_blocks_include_block_dropped_from_attempt_and_stale_attempt_fingerprint(env, monkeypatch):
+    """번역을 지워 시도 입력에서 빠진 블록도 「결과에 반영되지 못한 변경」이다(결과에는 있었음).
+    시도 지문은 그 시도의 값 — 그 뒤 입력이 또 바뀌면(번들 변경) 섹션 지문과 달라진다."""
+    from app import html_render
+    from app.flows import downstream
+
+    ids, _ = _to_n5(env)
+    c, job = ids["c"], ids["job"]
+    b1, b2 = _two_text_blocks(c, job)
+    sid = b1["sectionId"]
+    t = c.patch(f"/v1/jobs/{job}/blocks/{b1['id']}", json={"trans1": "", "revision": b1["revision"]}).json()["rerenderTaskId"]
+    assert t is not None and b1["id"] not in [x["block_id"] for x in _q("SELECT input_manifest FROM job_async_task WHERE id = :t", t=t)[0]["input_manifest"]["blocks"]]
+    monkeypatch.setattr(downstream, "_render_section", _render_boom)
+    env["q"].drain()
+    s = _pvs(c, job, sid)
+    assert s["render"]["attempt"]["status"] == "failed" and s["render"]["attempt"]["pendingBlockIds"] == [b1["id"]]
+    assert b2["id"] not in s["render"]["attempt"]["pendingBlockIds"]  # 바뀌지 않은 블록은 넣지 않는다
+    monkeypatch.setattr(html_render, "BUNDLE_ID", NEW_BUNDLE)
+    s2 = _pvs(c, job, sid)
+    assert s2["render"]["attempt"]["inputFingerprint"] == s["render"]["attempt"]["inputFingerprint"] != s2["inputFingerprint"]
+    assert s2["render"]["attempt"]["pendingBlockIds"] == [b1["id"]]
+
+
+def test_pending_block_ids_rules():
+    """계산 규칙(순수 함수): 렌더러 · FE 빌드 · 배경만 다르면 블록 입력이 같아 빈 배열, 결과 없음 = 시도 블록 전체,
+    블록 기록을 읽을 수 없으면 None(추측하지 않음), 박스 · 배율만 바뀐 블록도 변경."""
+    from app.flows import preview_view as pv
+
+    def blk(i, rev=1, **kw):
+        return {"block_id": i, "revision": rev, "role": "body", "trans_sha256": "t", "box": {"x": 0, "y": 0, "w": 10, "h": 10},
+                "style_sha256": "s", **kw}
+
+    shown = {"renderer": "html-typeset/1+chromium-1", "bundle": "fe-a", "background": {"key": "a"}, "blocks": [blk(1), blk(2)]}
+    same_blocks = {**shown, "renderer": "html-typeset/2+chromium-2", "bundle": "fe-b", "background": {"key": "b"}}
+    result = {"_blocks": pv._manifest_blocks(shown)}
+    assert pv.pending_block_ids(pv._manifest_blocks(same_blocks), result) == []
+    assert pv.pending_block_ids(pv._manifest_blocks(same_blocks), None) == [1, 2]
+    moved = {**shown, "blocks": [blk(2, box={"x": 1, "y": 0, "w": 10, "h": 10}), blk(1, font_scale=1.1), blk(3)]}
+    assert pv.pending_block_ids(pv._manifest_blocks(moved), result) == [1, 2, 3]
+    assert pv.pending_block_ids(pv._manifest_blocks({**shown, "blocks": [blk(2)]}), result) == [1]
+    for bad in (None, {}, {"blocks": None}, {"blocks": [{"revision": 1}]}):
+        assert pv._manifest_blocks(bad) is None
+        assert pv.pending_block_ids(pv._manifest_blocks(bad), result) is None
+    assert pv.pending_block_ids(pv._manifest_blocks(shown), {"_blocks": None}) is None
 
 
 def test_preview_result_is_the_adopted_record_of_the_current_image(env, monkeypatch):

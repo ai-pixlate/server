@@ -1,0 +1,20 @@
+{# 6B 사용법 · S4 · Single Image & Highlights
+   왼쪽: 제목(30, 48,28). 아래 2~4단계 세로(y 104~280): 번호 원 30 + 단계 이름(17) + 설명(14)
+   설명 최대 줄 수는 단계 수에 따라 자동(3단계면 1줄, 2단계면 3줄)
+   오른쪽: 사진 구역 582~970, 300×300 #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+<div class="zone" style="{{ B.zone.css }}"></div>
+{{ m.photo(B.image, c.image, st, area=A.image) }}
+{{ m.text(B.headline, c.headline, fs.headline, 1, "headline", area=A.headline, cls="h", underline=st.headline_underline) }}
+{{ m.tline(tl_line) }}
+{% if c.layout == 'prose' %}{{ m.text(prose_box, c.body, fs.prose, prose_lines, "body", cls="b", lh=1.5) }}{% endif %}
+{% for it in items %}
+{% set i = loop.index0 %}
+{{ m.number(it.num, loop.index, name="items[" ~ i ~ "].number", style=st.step_number) }}
+{{ m.text(it.tbox, it.title, fs.step, 1, "items[" ~ i ~ "].title", area=A.text_area, cls="h") }}
+{{ m.text(it.bbox, it.body, fs.body, it.body_lines, "items[" ~ i ~ "].body", area=A.text_area, cls="b", lh=1.35) }}
+{% endfor %}
+{% endblock %}

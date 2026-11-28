@@ -7,6 +7,9 @@
 - 대체 표현은 BE가 묶음 생성 시 배열로 변환해 준다. AI 실행 중에는 문자열을 나누지 않는다.
 - 현지 사전 조회 실패는 `local=null` + `local_unavailable.reason`으로 받는다(D9-1: 검사 불가 안내 후 N3). 규제 묶음 실패는 BE의 N2 실패다.
 - 개발용 예외 쌍(`overrides`)은 운영 규칙이 아니다(5.21 R04). 비어 있지 않으면 거부한다 — 조용히 무시하지 않는다.
+- 채널 정책 행(판매 사이트를 고른 작업, PRD F-LOC-03)은 `channel`(고른 사이트의 행)로 받는다. 채널 사전 조회 실패는
+  `channel_unavailable.reason`으로 받는다(제외 없이 검사 불가). 둘 다 없으면 채널 판정을 하지 않는 작업이며 기존 묶음과 같다.
+  채널 부분의 필드 이름은 AI 제안이며 BE 확인 전이다(`open-questions.md` #102).
 """
 from __future__ import annotations
 
@@ -52,7 +55,7 @@ class RegulationRow(_Model):
     source_expression: str = Field(min_length=1)
     variant_ko: list[str] = Field(min_length=1)
     variant_en: list[str] = Field(default_factory=list)  # DB forbidden_en(영어 재대조 패턴). NULL이면 BE가 빈 목록으로 공급
-    # 대체 표현: 배열 = BE가 구분 규칙(#71)에 따라 나눈 값 / 문자열 = 나누지 않은 원문(#71 확정 전). 빈 문자열 · 빈 배열 = 없음.
+    # 대체 표현: 배열 = BE가 구분 규칙(#71)에 따라 나눈 값 / 문자열 = 나누지 않은 원문(구분 규칙에 맞지 않는 값 — 규칙 적용 전에 고정된 묶음에만 남는다). 빈 문자열 · 빈 배열 = 없음.
     # AI는 문자열을 나누지 않는다. 원문 문자열은 정책의 "대체 표현 있음" 판단 · 스냅샷에만 쓰고 ⑧ 표현 지시로는 쓰지 않는다
     alternative_expression: list[str] | str = Field(default_factory=list)
     verdict_status: Literal["allowed", "conditional", "regulated"]  # DB 서비스 판정값. 시트의 rewritable은 regulated + 원값으로 온다
@@ -109,6 +112,30 @@ class LocalUnavailable(_Model):
     reason: str = Field(min_length=1)
 
 
+class ChannelRow(_Model):
+    """채널 정책 행 1건(dict_type=channel). 모양은 현지 행과 같고 판정값은 policy 하나다.
+    규정 원문 · 근거(조문 식별자 · 링크)는 받지 않는다 — AI 판정에 쓰지 않으며 표시용 근거는 BE가 고정 묶음에서 찾는다."""
+
+    external_id: str = Field(min_length=1)
+    item: str = Field(min_length=1)  # 항목명(content_type 코드가 아니다)
+    patterns: list[str] = Field(min_length=1)
+    verdict_status: Literal["policy"]
+    exclusion_context: str = Field(min_length=1)
+    keep_context: str = Field(min_length=1)
+    seller_message: str = Field(min_length=1)
+    confirmed_date: str | None = None
+
+
+class ChannelPart(_Model):
+    site_key: str = Field(min_length=1)  # 작업에서 고른 판매 사이트. 행은 그 사이트의 것만 온다(선별은 BE)
+    version: str = Field(min_length=1)
+    entries: list[ChannelRow] = Field(min_length=1)  # 판정할 행이 없으면 channel을 보내지 않는다(빈 목록으로 완료 처리하지 않음)
+
+
+class ChannelUnavailable(_Model):
+    reason: str = Field(min_length=1)
+
+
 class RuntimeBundle(_Model):
     bundle_id: str = Field(min_length=1)
     bundle_sha256: str = Field(pattern=SHA256)
@@ -116,12 +143,16 @@ class RuntimeBundle(_Model):
     regulation: RegulationPart
     local: LocalPart | None
     local_unavailable: LocalUnavailable | None = None
+    channel: ChannelPart | None = None  # 판매 사이트를 고른 작업만. 없으면 채널 판정을 하지 않는다
+    channel_unavailable: ChannelUnavailable | None = None  # 고른 사이트의 채널 사전 조회 실패(제외 없이 검사 불가)
     rules: dict[str, Any]  # PolicyRules 구조(rules_version · regulatory_class_map · verdict_map · uncertain_bucket · overrides)
 
     @model_validator(mode="after")
     def _local_xor(self) -> "RuntimeBundle":
         if (self.local is None) == (self.local_unavailable is None):
             raise ValueError("local과 local_unavailable 중 정확히 하나만 있어야 한다(현지 조회 실패면 local=null + 사유)")
+        if self.channel is not None and self.channel_unavailable is not None:
+            raise ValueError("channel과 channel_unavailable을 함께 보낼 수 없다(채널 조회 실패면 channel 없이 사유만)")
         return self
 
 
@@ -138,6 +169,7 @@ class TypeMap:
     sha256: str
     local: tuple[LocalType, ...]
     regulatory_content_type: str
+    channel: tuple[LocalType, ...] = ()  # 채널 항목 대응(같은 모양). 대응표 파일에 `channel`이 없으면 빈 목록 — 채널 행을 받지 않는다
 
     def local_by_id(self) -> dict[str, LocalType]:
         return {t.external_id: t for t in self.local}
@@ -145,11 +177,15 @@ class TypeMap:
 
 def load_type_map(path: Path = CONTENT_TYPES_PATH) -> TypeMap:
     raw = json.loads(path.read_text(encoding="utf-8"))
-    local = tuple(LocalType(x["content_type"], x["external_id"], bool(x.get("price_suffix_exception", False))) for x in raw["local"])
-    types = [t.content_type for t in local] + [raw["regulatory"]["content_type"]]
-    if len(set(types)) != len(types) or len({t.external_id for t in local}) != len(local):
+
+    def rows(key: str) -> tuple[LocalType, ...]:
+        return tuple(LocalType(x["content_type"], x["external_id"], bool(x.get("price_suffix_exception", False))) for x in raw.get(key, []))
+
+    local, channel = rows("local"), rows("channel")
+    types = [t.content_type for t in local + channel] + [raw["regulatory"]["content_type"]]
+    if len(set(types)) != len(types) or len({t.external_id for t in local + channel}) != len(local + channel):
         raise BundleError(f"{path.name}: content_type 또는 external_id가 중복이다")
-    return TypeMap(raw["version"], sha256_file(path), local, raw["regulatory"]["content_type"])
+    return TypeMap(raw["version"], sha256_file(path), local, raw["regulatory"]["content_type"], channel)
 
 
 @dataclass(frozen=True)
@@ -159,14 +195,28 @@ class CheckedBundle:
     regulation: dict[str, RegulationRow]
     local: dict[str, LocalRow] | None
     types: TypeMap
+    channel: dict[str, ChannelRow] | None = None
 
     @property
     def identity(self) -> dict[str, Any]:
-        return {"bundle_id": self.raw.bundle_id, "bundle_sha256": self.raw.bundle_sha256,
-                "regulation_version": self.raw.regulation.version,
-                "local_version": self.raw.local.version if self.raw.local else None,
-                "rules_version": self.rules.rules_version, "rules_sha256": sha256_canonical(self.raw.rules),
-                "type_map_version": self.types.version, "type_map_sha256": self.types.sha256}
+        out = {"bundle_id": self.raw.bundle_id, "bundle_sha256": self.raw.bundle_sha256,
+               "regulation_version": self.raw.regulation.version,
+               "local_version": self.raw.local.version if self.raw.local else None,
+               "rules_version": self.rules.rules_version, "rules_sha256": sha256_canonical(self.raw.rules),
+               "type_map_version": self.types.version, "type_map_sha256": self.types.sha256}
+        if self.raw.channel is not None:  # 채널이 없는 묶음의 식별 정보(입력 지문)는 그대로 둔다
+            out["channel_site_key"] = self.raw.channel.site_key
+            out["channel_version"] = self.raw.channel.version
+        return out
+
+    @property
+    def channel_requested(self) -> bool:
+        """이 작업이 채널 판정 대상인지 — 채널 행을 받았거나 채널 사전 조회 실패를 받았다."""
+        return self.raw.channel is not None or self.raw.channel_unavailable is not None
+
+    def channel_types(self) -> tuple[LocalType, ...]:
+        """받은 채널 행의 대응(대응표 순서). 고른 사이트의 행만 오므로 대응표의 일부일 수 있다."""
+        return tuple(t for t in self.types.channel if self.channel is not None and t.external_id in self.channel)
 
     def applied_classes(self, regulatory_class: str) -> list[str]:
         return list(self.rules.regulatory_class_map[regulatory_class].applied_classes)
@@ -178,6 +228,14 @@ class CheckedBundle:
                                 self.local[t.external_id].exclusion_context, self.local[t.external_id].keep_context)
                       for t in self.types.local)
         return JudgeDictView(items, {"local": self.raw.local.version}, {"bundle_sha256": self.raw.bundle_sha256})
+
+    def channel_view(self) -> JudgeDictView:
+        """채널 맥락 판정용 뷰 — 현지와 같이 항목명 · 패턴 · 맥락 두 열만(판정값 · 셀러 문장을 모델에 보내지 않는다). 대응표 순서."""
+        assert self.channel is not None and self.raw.channel is not None
+        items = tuple(JudgeItem(t.external_id, "channel", self.channel[t.external_id].item, tuple(self.channel[t.external_id].patterns),
+                                self.channel[t.external_id].exclusion_context, self.channel[t.external_id].keep_context)
+                      for t in self.channel_types())
+        return JudgeDictView(items, {"channel": self.raw.channel.version}, {"bundle_sha256": self.raw.bundle_sha256})
 
 
 def load_policy_rules(path: Path = POLICY_RULES_PATH) -> dict[str, Any]:
@@ -214,13 +272,19 @@ def check_bundle(raw: Any, *, target_country: str, types: TypeMap | None = None)
     problems: list[str] = []
     reg_ids = [e.external_id for e in b.regulation.entries]
     loc_ids = [e.external_id for e in b.local.entries] if b.local else []
-    dup = sorted({i for i in reg_ids + loc_ids if (reg_ids + loc_ids).count(i) > 1})
+    ch_ids = [e.external_id for e in b.channel.entries] if b.channel else []
+    all_ids = reg_ids + loc_ids + ch_ids
+    dup = sorted({i for i in all_ids if all_ids.count(i) > 1})
     if dup:
         problems.append(f"중복 external_id {dup}")
     if b.local is not None:
         want = {t.external_id for t in types.local}
         if set(loc_ids) != want:
             problems.append(f"현지 항목 {sorted(set(loc_ids))} ≠ 대응표 {sorted(want)} (미지원 항목은 공급 전에 거부)")
+    if b.channel is not None:
+        unknown = sorted(set(ch_ids) - {t.external_id for t in types.channel})
+        if unknown:  # 고른 사이트의 행만 오므로 대응표의 일부여도 된다. 대응표에 없는 항목은 판정 대상 코드가 없어 받지 않는다
+            problems.append(f"채널 항목 {unknown}이 대응표에 없다(미지원 항목은 공급 전에 거부)")
     # 정규화 후 빈 패턴 · 같은 문자열의 금지/허용 적재(D8: 적재 거부 대상)
     for lang, rows in (("ko", [(e, e.variant_ko) for e in b.regulation.entries]), ("en", [(e, e.variant_en) for e in b.regulation.entries])):
         seen: dict[str, tuple[str, bool]] = {}
@@ -236,14 +300,14 @@ def check_bundle(raw: Any, *, target_country: str, types: TypeMap | None = None)
                 if prev is not None and prev[1] != allowed:
                     problems.append(f"{lang} 정규화 결과가 같은 금지/허용 패턴: {prev[0]} · {e.external_id} ({p!r})")
                 seen.setdefault(n, (e.external_id, allowed))
-    if b.local is not None:
-        for e in b.local.entries:
-            for p in e.patterns:
-                try:
-                    normalize_pattern(p, "ko")
-                except PatternError as pe:
-                    problems.append(f"{e.external_id}: {pe}")
+    for e in (b.local.entries if b.local is not None else []) + (b.channel.entries if b.channel is not None else []):
+        for p in e.patterns:
+            try:
+                normalize_pattern(p, "ko")
+            except PatternError as pe:
+                problems.append(f"{e.external_id}: {pe}")
     if problems:
         raise BundleError("사전 묶음 검증 실패: " + "; ".join(problems))
     return CheckedBundle(b, rules, {e.external_id: e for e in b.regulation.entries},
-                         {e.external_id: e for e in b.local.entries} if b.local else None, types)
+                         {e.external_id: e for e in b.local.entries} if b.local else None, types,
+                         {e.external_id: e for e in b.channel.entries} if b.channel else None)

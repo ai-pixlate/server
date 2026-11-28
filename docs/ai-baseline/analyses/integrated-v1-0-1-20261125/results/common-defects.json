@@ -1,0 +1,95 @@
+[
+  {
+    "origin_stage": "OCR",
+    "severity": {
+      "critical": 1
+    },
+    "affected_sources": [
+      "GS-01-IMG-002"
+    ],
+    "root_ids": [
+      "GS-01-IMG-002-volume"
+    ]
+  },
+  {
+    "origin_stage": "undetermined",
+    "severity": {
+      "major": 18,
+      "minor": 2,
+      "critical": 3
+    },
+    "affected_sources": [
+      "GS-01-IMG-002",
+      "GS-02-IMG-003",
+      "GS-02-IMG-004",
+      "GS-02-IMG-005",
+      "GS-02-IMG-006",
+      "GS-02-IMG-007",
+      "GS-02-IMG-008",
+      "GS-02-IMG-009",
+      "GS-02-IMG-010",
+      "GS-02-IMG-011",
+      "GS-02-IMG-013",
+      "GS-02-IMG-014"
+    ],
+    "root_ids": [
+      "GS-01-IMG-002-layout",
+      "GS-01-IMG-002-protected",
+      "GS-01-IMG-002-escape",
+      "GS-01-IMG-002-badge-020",
+      "GS-01-IMG-002-badge-025",
+      "GS-02-IMG-003-layout",
+      "GS-02-IMG-003-name-readability",
+      "GS-02-IMG-004-layout",
+      "GS-02-IMG-005-layout",
+      "GS-02-IMG-005-graph",
+      "GS-02-IMG-006-layout",
+      "GS-02-IMG-006-microscope",
+      "GS-02-IMG-007-layout",
+      "GS-02-IMG-008-layout",
+      "GS-02-IMG-008-papers",
+      "GS-02-IMG-009-layout",
+      "GS-02-IMG-009-badges",
+      "GS-02-IMG-010-layout",
+      "GS-02-IMG-010-escape",
+      "GS-02-IMG-011-layout",
+      "GS-02-IMG-013-layout",
+      "GS-02-IMG-014-layout",
+      "GS-02-IMG-014-sketch"
+    ]
+  },
+  {
+    "origin_stage": "렌더·배치",
+    "severity": {
+      "critical": 1
+    },
+    "affected_sources": [
+      "GS-02-IMG-014"
+    ],
+    "root_ids": [
+      "GS-02-IMG-014-usage-layout"
+    ]
+  },
+  {
+    "origin_stage": "번역·현지화",
+    "severity": {
+      "critical": 3,
+      "major": 2,
+      "minor": 1
+    },
+    "affected_sources": [
+      "GS-01-IMG-002",
+      "GS-02-IMG-004",
+      "GS-02-IMG-013",
+      "GS-02-IMG-014"
+    ],
+    "root_ids": [
+      "GS-01-IMG-002-claim",
+      "GS-01-IMG-002-irritation",
+      "GS-02-IMG-004-replacement",
+      "GS-02-IMG-013-irritation",
+      "GS-02-IMG-014-bean",
+      "GS-02-IMG-014-rice-name"
+    ]
+  }
+]

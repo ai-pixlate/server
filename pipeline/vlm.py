@@ -598,3 +598,82 @@ def sdk_info() -> dict[str, Any]:
         ver = None
     return {"google_genai": ver, "retry_options": None, "sdk_attempts": 1, "app_retry": False,
             "note": "google-genai 2.24.0: retry_options 미지정이면 stop_after_attempt(1) — 코드 확인 2026-09-29"}
+
+
+# ---------------------------------------------------------------------------
+# A+ 템플릿 모듈 — 섹션 내용 라벨 호출자 [open-questions 2.9절, 개발용 v1] — 상품 하나의 섹션 전체를 1회 호출로 보낸다.
+# 섹션마다 "[s1]" 같은 ID 글과 그 섹션 이미지를 차례로 붙인다. 시간 제한 · 재시도 규약은 ④와 같다(SDK 1회 시도).
+# ---------------------------------------------------------------------------
+class MultiImageAssistant(Protocol):
+    config: dict[str, Any]
+
+    def __call__(self, prompt: str, payload: str, images: list[tuple[str, Image.Image]]) -> LlmReply: ...
+
+
+def section_label_response_schema(labels: list[str]) -> dict[str, Any]:
+    """라벨 코드 목록(규격 데이터 `labels`)으로 응답 스키마를 만든다. 코드 목록의 정본은 pipeline/data/aplus/spec.json."""
+    return {
+        "type": "object",
+        "properties": {
+            "sections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string"},
+                        "label": {"type": "string", "enum": list(labels)},
+                        "sub": {"type": "array", "items": {"type": "string", "enum": list(labels)}},
+                        "confidence": {"type": "string", "enum": ["high", "low"]},
+                        "reason": {"type": "string"},
+                    },
+                    "required": ["id", "label", "sub", "confidence", "reason"],
+                },
+            }
+        },
+        "required": ["sections"],
+    }
+
+
+class GeminiMultiImageAssistant(GeminiJudgeAssistant):
+    """google-genai로 이미지 여러 장을 한 번에 보내는 호출자. (prompt, payload, [(id, image), …]) → LlmReply.
+    이미지마다 "[id]" 글을 앞에 붙인다. 응답 스키마는 생성할 때 준다."""
+
+    stage_name = "A+ 템플릿 모듈"
+
+    def __init__(self, model: str, temperature: float, timeout_s: float, response_schema: dict[str, Any]) -> None:
+        super().__init__(model=model, temperature=temperature, timeout_s=timeout_s)
+        self.response_schema = response_schema
+
+    def __call__(self, prompt: str, payload: str, images: list[tuple[str, Image.Image]]) -> LlmReply:  # type: ignore[override]
+        try:
+            client = self._client_or_raise()
+            from google.genai import types as gtypes  # noqa: PLC0415
+
+            config = gtypes.GenerateContentConfig(
+                temperature=self.config["temperature"],
+                response_mime_type="application/json",
+                response_schema=self.response_schema,
+                automatic_function_calling=gtypes.AutomaticFunctionCallingConfig(disable=True),
+            )
+            contents: list[Any] = [prompt, payload]
+            for sid, image in images:
+                contents.append(f"[{sid}]")
+                contents.append(image)
+            resp = client.models.generate_content(model=self.config["model"], contents=contents, config=config)
+            text = resp.text or ""
+            um = getattr(resp, "usage_metadata", None)
+            usage = um.model_dump(mode="json", exclude_none=True) if um is not None and hasattr(um, "model_dump") else None
+        except VlmError:
+            raise
+        except Exception as e:  # noqa: BLE001 — 실패 분류는 하지 않는다(시간 초과 포함)
+            raise VlmError(f"LLM 호출 실패 model={self.config['model']}", e) from e
+        return LlmReply(text=text, usage=usage, finish_reason=_finish_reason(resp))
+
+
+class GeminiSectionLabelAssistant(GeminiMultiImageAssistant):
+    """섹션별 내용 라벨 JSON을 받는 기본 호출자."""
+
+    stage_name = "A+ 섹션 내용 라벨"
+
+    def __init__(self, model: str, temperature: float, timeout_s: float, labels: list[str]) -> None:
+        super().__init__(model=model, temperature=temperature, timeout_s=timeout_s, response_schema=section_label_response_schema(labels))

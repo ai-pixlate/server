@@ -1,0 +1,18 @@
+{# 6A 사용법 · S2 · Three Images & Text
+   모듈 제목(30, 가운데, 135,22). 2~4단계 가로(90~880): 이미지 120×120(round_images=true 면 원형),
+   번호 원 30(이미지 왼쪽 위), 칸 사이 화살표, 단계 이름(16), 설명(13, 최대 2줄) #}
+{% extends "_base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+{% set st = c.style %}
+{{ m.text(B.title, c.headline, fs.title, 1, "headline", area=A.title, cls="mt", align="center", underline=st.headline_underline) }}
+{{ m.tline(tl_line) }}
+{% for it in items %}
+{% set i = loop.index0 %}{% set sh = it.shifted %}
+{% if it.img %}{{ m.icon(it.img, it.image, loop.index, name="items[" ~ i ~ "].image", area='' if sh else A.images, round=c.round_images, shape=st.item_image_shape) }}{% endif %}
+{{ m.number(it.num, loop.index, name="items[" ~ i ~ "].number", area='' if sh else A.nums, style=st.step_number) }}
+{{ m.connector(it, st.step_connector, name="arrow[" ~ i ~ "]", area='' if sh else A.nums) }}
+{{ m.text(it.tbox, it.title, fs.item, 1, "items[" ~ i ~ "].title", area='' if sh else A.titles, cls="h", align="center", lh=1.25) }}
+{{ m.text(it.bbox, it.body, fs.body, 2, "items[" ~ i ~ "].body", area='' if sh else A.bodies, cls="b", align="center", lh=1.35) }}
+{% endfor %}
+{% endblock %}

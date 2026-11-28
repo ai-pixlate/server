@@ -1,0 +1,6 @@
+{# 1A 제품 소개 · S1 글·사진 좌우형 · Single Left/Right Image
+   왼쪽: 브랜드명 라벨(12) → 제목(32, 1~2줄) → 한 줄 설명(18) → 본문(16, 최대 3줄)
+   오른쪽: 사진 구역 485~970, 가운데 300×300 #}
+{% extends "_base.html" %}
+{% block style %}.tpl-1A .sh { color: var(--text); }{% endblock %}
+{% block content %}{% include "_s1.html" %}{% endblock %}

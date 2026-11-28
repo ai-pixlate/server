@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "deploy" / "bin" / "pixlate-transition"
 SHA_A, SHA_B = "a" * 40, "b" * 40
 DG_A, DG_B = "sha256:" + "1" * 64, "sha256:" + "2" * 64
-MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-recovery")
+MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-worker-adopt", "pixlate-recovery")
 
 FAKE_DOCKER = r'''#!{py}
 import json, os, sys
@@ -188,7 +188,17 @@ def test_begin_absent_container_is_recorded_not_failed(e):
     e.containers({"pixlate-api": {"policy": "unless-stopped", "status": "running", "image": f"x@{DG_A}"}})
     assert e.begin().returncode == 0
     assert e.record()["prev"]["restart_policies"] == {"pixlate-api": "unless-stopped", "pixlate-worker-cpu": "absent",
-                                                      "pixlate-recovery": "absent"}
+                                                      "pixlate-worker-adopt": "absent", "pixlate-recovery": "absent"}
+
+
+def test_begin_from_release_without_adopt_worker(e):
+    # adopt 워커가 없던 이전 배포에서 첫 전환: adopt 는 absent 로 기록되고 나머지 정책만 끈다
+    e.containers({c: {"policy": "unless-stopped", "status": "running", "image": f"reg/pixlate-api@{DG_A}"}
+                  for c in MANAGED if c != "pixlate-worker-adopt"})
+    assert e.begin().returncode == 0
+    assert e.record()["prev"]["restart_policies"] == {c: ("absent" if c == "pixlate-worker-adopt" else "unless-stopped")
+                                                      for c in MANAGED}
+    assert e.policies() == {c: "no" for c in MANAGED if c != "pixlate-worker-adopt"}
 
 
 # ---- step · consume -------------------------------------------------------------------------------------------

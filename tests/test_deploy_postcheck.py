@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "deploy" / "bin" / "pixlate-postcheck"
 SHA = "c" * 40
 DG = "sha256:" + "3" * 64
-MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-recovery")
+MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-worker-adopt", "pixlate-recovery")
 
 FAKE_DOCKER = r'''#!/usr/bin/env python3
 import json, os, sys
@@ -32,12 +32,14 @@ if a[:2] == ["container", "inspect"]:
         c["restarts"] += 1; c["started"] = "t%d" % c["restarts"]; json.dump(st, open(p, "w"))
     print("|".join([c["status"], c["image"], str(c["restarts"]), "true" if c["oom"] else "false", c["started"]]))
     sys.exit(0)
-if a[:2] == ["exec", "pixlate-worker-cpu"]:
+WORKERS = {"pixlate-worker-cpu": ("cpu", "abc123", "ping_ok"), "pixlate-worker-adopt": ("adopt", "def456", "adopt_ping_ok")}
+if a[0] == "exec" and a[1] in WORKERS:
+    node, host, key = WORKERS[a[1]]
     if a[2] == "hostname":
-        print("abc123"); sys.exit(0)
+        print(host); sys.exit(0)
     if "ping" in a:
-        if st.get("ping_ok") and "cpu@abc123" in a:
-            print("-> cpu@abc123: OK\n        pong"); sys.exit(0)
+        if st.get(key) and f"{node}@{host}" in a:
+            print(f"-> {node}@{host}: OK\n        pong"); sys.exit(0)
         print("Error: No nodes replied within time constraint"); sys.exit(1)
 sys.exit(2)
 '''
@@ -57,7 +59,7 @@ def pc(tmp_path):
     (conf / "deploy.mode").write_text("live\n")
     (conf / "deploy.mode.applied").write_text("live\n")
     state = tmp_path / "docker.json"
-    state.write_text(json.dumps({"ping_ok": True, "containers": {
+    state.write_text(json.dumps({"ping_ok": True, "adopt_ping_ok": True, "containers": {
         c: {"status": "running", "image": f"reg/pixlate-api@{DG}", "restarts": 0, "oom": False, "started": "t0"} for c in MANAGED}}))
     rec = tmp_path / "record.json"
     rec.write_text(json.dumps({"run_id": "r1", "state": "incomplete", "step": "live"}))
@@ -121,6 +123,22 @@ def test_ping_failure(pc):
     pc.docker(lambda st: st.update(ping_ok=False))
     r = pc.run()
     assert r.returncode == 1 and _fails(r) == ["ping"]
+
+
+def test_adopt_ping_failure(pc):
+    # adopt 워커가 응답하지 않으면 cpu ping 이 성공해도 실패 — adopt 노드 이름은 adopt 컨테이너 안에서 확인한다
+    pc.docker(lambda st: st.update(adopt_ping_ok=False))
+    r = pc.run()
+    assert r.returncode == 1 and _fails(r) == ["ping:adopt"]
+    assert "adopt@<컨테이너 호스트> 응답 없음" in r.stdout
+
+
+def test_adopt_container_absent_is_failure(pc):
+    # 옛 배포(adopt 컨테이너 없음)에서는 컨테이너 · 안정 · ping 이 모두 실패여야 한다
+    pc.docker(lambda st: st["containers"].pop("pixlate-worker-adopt"))
+    r = pc.run()
+    assert r.returncode == 1
+    assert {"container:pixlate-worker-adopt", "stable:pixlate-worker-adopt"} <= set(_fails(r))
 
 
 def test_restart_during_settle_and_oom(pc):

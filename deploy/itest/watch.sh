@@ -26,7 +26,7 @@ gpu() { ssh -F "$CFG" -o ConnectTimeout=8 gpu "$@"; }
 log() { echo "$(date -u +%H:%M:%S) $*" | tee -a "$LOG"; }
 
 ec2_probe() {
-  ec2 "sudo docker inspect -f '{{.Name}} {{.Id}} {{.State.StartedAt}} {{.State.Status}}' pixlate-api pixlate-worker-cpu pixlate-recovery pixlate-redis 2>&1 | cut -c1-200
+  ec2 "sudo docker inspect -f '{{.Name}} {{.Id}} {{.State.StartedAt}} {{.State.Status}}' pixlate-api pixlate-worker-cpu pixlate-worker-adopt pixlate-recovery pixlate-redis 2>&1 | cut -c1-200
        echo \"itest=\$(sudo docker inspect -f '{{.State.Status}}:{{.State.ExitCode}}' $NAME 2>/dev/null | grep . || echo absent)\"
        echo \"phase=\$(sudo python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get(\"phase\"))' $EV/state.json 2>/dev/null || echo none)\"
        echo \"abort_sent=\$(sudo test -e $EV/ABORT_SENT && echo 1 || echo 0)\"
@@ -76,7 +76,7 @@ except Exception:
 }
 
 B0=$(ec2_probe); BASE=$(printf '%s\n' "$B0" | grep '^/pixlate')
-[ "$(printf '%s\n' "$BASE" | grep -c .)" = 4 ] || { log "기준 컨테이너 조회 실패 — 감시 시작 안 함"; exit 3; }
+[ "$(printf '%s\n' "$BASE" | grep -c .)" = 5 ] || { log "기준 컨테이너 조회 실패 — 감시 시작 안 함"; exit 3; }   # api·cpu·adopt·복구·Redis
 log "기준 컨테이너: $(printf '%s\n' "$BASE" | awk '{print $1, substr($2,1,12), $3, $4}' | tr '\n' ';')"
 t0=$(date +%s); halted=0; termed=0; emerg=0; maint_done=0; seen_running=0; probe_fail=0; known_ids=""; seen_reasons=""
 printf '%s\n' "$B0" | grep -q '^itest=running' && seen_running=1   # 시작 시점에 driver 실행을 봤으면 종료 직후부터 정리 확인

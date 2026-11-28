@@ -13,6 +13,7 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
                                    ├ pixlate-api          (8000)
                                    ├ pixlate-redis        (6379, 비밀번호)
                                    ├ pixlate-worker-cpu   (cpu 큐)
+                                   ├ pixlate-worker-adopt (adopt 큐 — 원격 인계 검증·채택 run_adopt 만)
                                    └ pixlate-recovery     (DB 기준 작업 복구)
                                         │
                      RDS pixlate-db (PostgreSQL 16) · S3 · ECR pixlate-api
@@ -24,6 +25,18 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 - `ocr` 큐(분석: 섹션 분해·OCR·병합)는 학교 GPU pod가 소비합니다. PaddleOCR은 섹션 하나에 수 GiB~18GiB를 써서
   t3.micro(총 909MiB)에서 돌릴 수 없습니다(측정값은 `gpu/README.md` 4장).
 - EC2에는 gpu·ocr 워커를 두지 않습니다. 예전 `pixlate-worker-ocr` 컨테이너가 남아 있으면 `start-pixlate.sh`가 멈춰 둡니다(삭제하지 않음).
+- `adopt` 큐(GPU 결과 채택 `run_adopt`)는 EC2 의 전용 워커(`-Q adopt --pool=solo -n adopt@%h`)가 소비합니다. 채택이 cpu 큐의
+  라벨·번역·미리보기·렌더 뒤에서 기다리지 않게 하려는 분리입니다. 발행자는 학교 GPU 워커(인계 등록 뒤)와 복구 프로세스이고,
+  라우팅은 각 발행자 코드 판의 `task_routes`로 정해지므로 **adopt 워커를 먼저 띄운 뒤 발행자를 바꿉니다**(소비자가 없으면 채택이 멈춤).
+
+| 큐 | 소비자 | 태스크 |
+| --- | --- | --- |
+| `ocr` | 학교 GPU ocr 워커 | `run_analyze` |
+| `gpu` | 학교 GPU gpu 워커 | `run_inpaint`(LaMa) |
+| `cpu` | EC2 `pixlate-worker-cpu` | `run_judge`·`run_label`·`run_logo`·`run_style`·`run_translate`·`run_text_check`·`run_preview`·`run_render` |
+| `adopt` | EC2 `pixlate-worker-adopt` | `run_adopt`(원격 인계 검증·채택, 모델·렌더 없음) |
+
+태스크별 큐의 정본은 `app/celery_app.py` `task_routes`와 `app/tasks.py` 머리 표입니다.
 
 | 자원 | 이름 | 비고 |
 | --- | --- | --- |
@@ -58,8 +71,9 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 | `deploy/bin/gemini_check.py` | `/opt/pixlate/bin/gemini_check.py` | Gemini 키 주입 확인 / 실제 요청 1회 |
 | `deploy/bin/ocr_measure.py` | (학교 GPU `/data/pixlate/bin/`) | OCR 1섹션 메모리·시간 실측 |
 | `deploy/bin/state_check.py` | `/opt/pixlate/bin/state_check.py` | 큐·unacked·DB 진행 중 시도 개수 재조회(읽기 전용) |
-| `deploy/pixlate.env.example` | `/etc/pixlate/pixlate.env` (root 600) | API·cpu 워커·복구 공용 환경변수. 실제 값은 서버에만 |
-| — | `/etc/pixlate/worker-gemini.env` (root:root 600) | `GEMINI_API_KEY` 한 줄. **cpu 워커에만** 연결(API·복구에는 없음) |
+| `deploy/bin/pixlate-stop-adopt` | `/opt/pixlate/bin/pixlate-stop-adopt` | adopt 워커만 정지(롤백용 — 아래 「5. 롤백」). 옛 판으로 되돌릴 때도 지우지 않고 둔다 |
+| `deploy/pixlate.env.example` | `/etc/pixlate/pixlate.env` (root 600) | API·cpu 워커·adopt 워커·복구 공용 환경변수. 실제 값은 서버에만 |
+| — | `/etc/pixlate/worker-gemini.env` (root:root 600) | `GEMINI_API_KEY` 한 줄. **cpu 워커에만** 연결(API·adopt 워커·복구에는 없음) |
 | — | `/etc/pixlate/release.conf` | `RELEASE_SHA=<40자리>`, `API_DIGEST=sha256:<64자리>` (비밀 아님) |
 | — | `/etc/pixlate/deploy.mode` | `maintenance` · `validate` · `live` 한 단어 |
 | `deploy/fe/compose.yaml` | `/opt/pixlate/fe/compose.yaml` | FE 컨테이너(`pixlate-fe`) 하나만 선언(아래 FE 절) |
@@ -69,14 +83,14 @@ AWS에 올라가 있는 백엔드 구성과 배포·점검 방법입니다. 2026
 
 ### 배포 모드
 
-| 모드 | API | cpu 워커·복구 | 재부팅 시 |
+| 모드 | API | cpu·adopt 워커·복구 | 재부팅 시 |
 | --- | --- | --- | --- |
 | `maintenance` | 정지 | 정지 | 아무것도 자동 시작하지 않는다(Redis만) |
 | `validate` | `127.0.0.1:8000`에만(ALB·외부 유입 없음) | 정지 | 자동 시작 안 함(서비스가 다시 띄움) |
-| `live` | `:8000` 외부 공개 | 실행(API → cpu → 복구 순) | Docker restart 정책 + 서비스 재실행 |
+| `live` | `:8000` 외부 공개 | 실행(API → cpu → adopt → 복구 순) | Docker restart 정책 + 서비스 재실행 |
 
 - 모드 파일이 없거나 값이 잘못되면 `maintenance`로 동작합니다. `live`로 시작하는 일은 없습니다.
-- **정지 방식**: 대상(API·복구·cpu)의 자동 재시작을 먼저 모두 끄고, API(신규 유입 차단) → 복구 → cpu 순으로 **TERM만** 보낸 뒤
+- **정지 방식**: 대상(API·복구·adopt·cpu)의 자동 재시작을 먼저 모두 끄고, API(신규 유입 차단) → 복구 → adopt → cpu 순으로 **TERM만** 보낸 뒤
   따로 기다립니다(`STOP_WAIT_S`, 기본 600초). 하나가 늦거나 Docker 명령이 실패해도 나머지에는 계속 요청하고, 실패는 모아서 보고합니다.
   기다려도 끝나지 않으면 **SIGKILL·삭제·재생성을 하지 않고** 적용 상태를 `<모드>-incomplete`로 남긴 채 실패로 끝냅니다
   (남은 작업이 끝난 뒤 같은 명령을 다시 실행). `validate`·`live` 전환도 교체할 컨테이너의 정지가 확인돼야 다시 만듭니다.
@@ -218,8 +232,8 @@ push 후 ECR digest가 빌드한 이미지 ID와 같은지 확인하고, 그 dig
 | 도구 | 하는 일 |
 | --- | --- |
 | `bin/pixlate-transition` | 전환 기록(`/var/lib/pixlate/transition.json`, 영속)·단계 요청(1회용, 부팅 ID·만료 포함)·abort·recover·`--from-live` 진입·resolve. 기록을 만들기 전에 이전 `release.conf`를 보관하고 관리 컨테이너 재시작 정책을 모두 `no`로 바꿔 확인합니다. 종료 코드 0 성공 · 10 거부 · 11 실패(원상태 확인) · 12 상태 미확인 · 13 단계 실패 |
-| `bin/state_check.py` | 인자 없이 부르면 지금과 같은 출력(`pixlate-mode status`). `--gate` 유휴 관문(0 유휴·2 작업 있음·1 조회 실패), `--db-revision` `alembic_version` 직접 조회, `--snapshot [--with-s3]` 무실행 확인용 상태 지문, `--compare A B` 지문 비교 |
-| `bin/pixlate-postcheck` | 공개 후 동작 확인: `release.conf`·모드·세 컨테이너 digest·`/health`·celery ping·확인 구간 동안 재시작 없음. 새 작업·큐가 있어도 실패가 아닙니다 |
+| `bin/state_check.py` | 인자 없이 부르면 `pixlate-mode status` 용 출력(큐 목록에 `adopt` 가 더해진 것 외에 형식은 이전과 같음). `--gate` 유휴 관문(0 유휴·2 작업 있음·1 조회 실패), `--db-revision` `alembic_version` 직접 조회, `--snapshot [--with-s3]` 무실행 확인용 상태 지문, `--compare A B` 지문 비교 |
+| `bin/pixlate-postcheck` | 공개 후 동작 확인: `release.conf`·모드·네 컨테이너(api·cpu·adopt·복구) digest·`/health`·celery ping(`cpu@`·`adopt@`)·확인 구간 동안 재시작 없음. 새 작업·큐가 있어도 실패가 아닙니다 |
 
 - 상태 지문이 같다는 것은 **DB·큐(와 S3 목록) 무변화**만 뜻합니다. 이미 지워진 S3 접두사를 다시 지우는 호출이나 외부 호출은 보이지 않습니다.
 - 기록 잠금(`/run/lock/pixlate-transition.lock`)은 기록을 읽고 쓰는 동안만 잡습니다. 잡은 채로 `pixlate-mode`·`systemctl`을 부르지 않습니다.
@@ -258,14 +272,94 @@ sudo docker run --rm --init --env-file /etc/pixlate/pixlate.env \
 - 배포 SHA의 Alembic head가 하나인지 먼저 확인합니다. 실패하면 maintenance를 유지하고 실제 revision을 확인합니다.
 - 스키마가 올라간 뒤에는 옛 API·워커를 다시 켜지 않습니다.
 
+### 5. 롤백 — adopt 워커가 있는 판 → 없는 판
+
+옛 판 `start-pixlate.sh`·`pixlate-mode`는 `pixlate-worker-adopt`를 모릅니다. 옛 판으로 maintenance 를 적용해도 이 컨테이너는
+정지 대상이 아니어서 `unless-stopped`로 남고, 재부팅 때 다시 뜹니다. 그래서 **새 판 파일이 설치된 채로 먼저 멈추고 확인한 뒤**에
+옛 판을 설치합니다. 확인은 아래 세 가지를 **따로** 합니다. `pixlate-mode`의 상태 출력만으로 롤백 진행 조건이 충족됐다고 판정하지 않습니다.
+
+순서는 위 「2. 전환」과 같은 원칙입니다: **새 유입 차단 → 발행자 정지 → 진행·대기 작업 없음 확인 → 옛 판 설치 → 발행자 라우팅을 옛 판으로 맞춘 뒤 재가동**.
+작업이 남아 있으면(③ 종료 2) 진행하지 않습니다. 유입을 막은 채 남은 작업만 처리하는 방법은 지금 도구에 없습니다(아래 「작업이 남아 있을 때」).
+
+**`run_adopt` 발행자** — 라우팅(`app/celery_app.py` `task_routes`)은 메시지를 보내는 프로세스의 코드 판이 정합니다. 롤백 뒤에는 아래 둘이 모두 `run_adopt → cpu` 판이어야 합니다.
+
+| 발행자 | 언제 보내나 | 라우팅을 정하는 것 | 되돌린 상태 | 확인 방법 |
+| --- | --- | --- | --- | --- |
+| EC2 `pixlate-recovery` | 권한 만료·멈춘 인계 재전달(`app/recovery.py` `_expired`·`_stuck_handoffs`) | 컨테이너 이미지(`release.conf` `API_DIGEST`) | 옛 판 digest | `sudo docker inspect -f '{{.Config.Image}}' pixlate-recovery` 가 `@<옛 판 API_DIGEST>` 로 끝남 |
+| 학교 GPU gpu 워커 | 인페인트 인계 등록 직후(`execution.register_handoff` → `dispatch_adoption`, 원격 제어는 같은 프로세스 호출 `InProcessControlClient`) | 학교 서버 `/data/server` 체크아웃 SHA(`/data/pixlate/release.sha` 와 같아야 워커가 시작됨) | 롤백 대상 판의 SHA | `bash /data/pixlate/worker.sh gpu status` 의 `release=`·`code=` 가 그 SHA, `git -C /data/server grep -n 'app.tasks.run_adopt' HEAD -- app/celery_app.py` 가 `"queue": "cpu"` |
+
+- 학교 서버 코드 교체는 `gpu/README.md` 4장 「설치」(`git checkout <배포 SHA>` · `release.sha` 기록)와 「점검·시작·정지」 절차를 따릅니다. ocr 워커도 같은 `/data/server` 코드를 씁니다(`run_adopt` 는 보내지 않음).
+- API·cpu 워커는 지금 코드에서 `run_adopt` 를 보내지 않습니다(원격 인계 등록만 채택 메시지를 보냄 — `app/execution.py` `register_handoff` 의 `remote_worker_id` 분기). 원격 GPU 제어가 HTTP 로 바인딩되어 API 가 인계 등록을 받게 되면 API 도 발행자가 되므로 이 표를 다시 봅니다.
+- 학교 GPU 를 되돌릴 판이 EC2 옛 판과 같이 돌 수 있는지(DB revision·취소 상태 해석 등)는 롤백 대상 판의 배포 기록으로 판단합니다. 이 문서에서는 확인하지 않습니다(미확인).
+
+| 확인 | 명령 | 통과 조건 | 아니면 |
+| --- | --- | --- | --- |
+| ① 모드 전환 | `sudo /opt/pixlate/bin/pixlate-mode maintenance` | 종료 0, `requested=maintenance applied=maintenance` | 멈춘다. 남은 작업이 끝난 뒤 같은 명령을 다시 실행(정지 방식 절) |
+| ② 컨테이너 정지 | `sudo /opt/pixlate/bin/pixlate-stop-adopt` 와 `sudo docker inspect -f '{{.State.Status}} {{.HostConfig.RestartPolicy.Name}}' pixlate-worker-adopt` | 마지막 줄 `STOP-ADOPT ok`(종료 0), inspect 가 `exited no`(또는 컨테이너 없음) | 멈춘다. 웜 종료가 끝난 뒤 다시 실행 |
+| ③ 큐·인계 비어 있음 | 새 판 `state_check.py --gate`(아래 명령) | 종료 0, `gate=idle` — 큐(ocr·cpu·gpu·adopt·celery)·unacked·unacked_index·진행 중 시도·열린 인계(`received`·`verifying`·`verified`) 모두 0 | 종료 2(작업 있음) → 아래 「작업이 남아 있을 때」(롤백 중단). 종료 1(조회 실패) → 멈추고 원인 확인 후 다시 조회 |
+
+```bash
+# 0. 새 판 파일이 설치된 상태에서 시작한다(옛 판 파일을 먼저 덮어쓰지 않는다)
+# 1. 새 유입 차단 · EC2 소비·복구 정지(새 판: API → 복구 → adopt → cpu 순 TERM·웜 종료). FE 도 꺼진다
+sudo /opt/pixlate/bin/pixlate-mode maintenance   # ①
+# 2. 학교 GPU 워커 웜 종료 — 발행자(gpu 워커)를 멈춘다(gpu/README.md 4장). 롤백이 끝날 때까지 다시 켜지지 않게 게이트 파일을 뺀다
+#    (학교 서버) bash /data/pixlate/worker.sh gpu stop; bash /data/pixlate/worker.sh ocr stop
+#    (학교 서버) rm -f /data/pixlate/gpu.enabled /data/pixlate/ocr.enabled; bash /data/pixlate/worker.sh gpu status; bash /data/pixlate/worker.sh ocr status
+sudo /opt/pixlate/bin/pixlate-stop-adopt         # ②
+sudo docker inspect -f '{{.State.Status}} {{.HostConfig.RestartPolicy.Name}}' pixlate-worker-adopt   # ② exited no
+sudo docker run --rm --network pixlate-net --env-file /etc/pixlate/pixlate.env -v /opt/pixlate/bin:/opt/pixlate/bin:ro \
+  <레지스트리>/pixlate-api@<API_DIGEST> python /opt/pixlate/bin/state_check.py --gate                   # ③ 새 판 state_check(adopt 큐 포함)
+# 3. ①②③ 이 모두 통과했을 때만: 옛 판 start-pixlate.sh · bin · release.conf 설치(pixlate-stop-adopt 는 지우지 않고 둔다)
+sudo /opt/pixlate/bin/pixlate-stop-adopt         # 설치 뒤 한 번 더(그사이 다시 떴는지) — 이미 멈췄으면 TERM 없이 ok. 아니면 재기동하지 않는다
+sudo /opt/pixlate/bin/pixlate-mode live          # 옛 판: API → cpu → 복구. adopt 는 멈춘 채 남는다(지우지 않음)
+sudo docker inspect -f '{{.State.Status}} {{.HostConfig.RestartPolicy.Name}}' pixlate-worker-adopt   # exited no 그대로인지
+sudo docker inspect -f '{{.Config.Image}}' pixlate-recovery                                           # 발행자 ① 옛 판 digest
+# 4. 학교 서버 코드를 롤백 대상 SHA 로 바꾸고(gpu/README.md 4장) 아래 「GPU 워커 재가동 조건」을 모두 확인한 뒤에만
+#    (학교 서버) touch /data/pixlate/gpu.enabled /data/pixlate/ocr.enabled; bash /data/pixlate/worker.sh gpu start; bash /data/pixlate/worker.sh ocr start
+```
+
+**GPU 워커 재가동 조건(하나라도 확인되지 않으면 켜지 않는다)**
+- EC2 옛 판 `live` 완료: `pixlate-mode status` 가 `requested=live applied=live`, api·cpu·복구가 옛 판 digest 로 running, adopt 는 `exited no`(또는 없음)
+- EC2 cpu 워커가 응답: `sudo docker exec pixlate-worker-cpu celery -A app.celery_app inspect ping` 에 `cpu@` 응답(옛 판 채택 소비자)
+- 발행자 표의 두 줄 모두 되돌린 상태: 복구 이미지가 옛 판 digest, 학교 `/data/server` 가 `run_adopt → cpu` 인 롤백 대상 SHA(`worker.sh gpu status` 의 `release=`·`code=` 일치)
+- 켜지 못하면 인페인트·분석 단계가 멈춘 상태로 남는다. 이 상태는 롤백 완료가 아니다(새 판 GPU 코드로 켜면 채택 메시지가 소비자 없는 `adopt` 큐로 간다).
+
+**옛 판 설치 · 재기동 전에 갖춰야 할 결과(하나라도 없으면 설치하지 않는다)**
+- ① `pixlate-mode maintenance` 종료 0, `applied=maintenance`(`-incomplete`·`-in-progress` 아님)
+- 학교 GPU: `worker.sh gpu status`·`worker.sh ocr status` 가 둘 다 `stopped` · `gate=off`
+- ② `STOP-ADOPT ok`, `docker inspect` 결과 `exited no`(또는 컨테이너 없음)
+- ③ `state_check.py --gate` 종료 0 · `gate=idle`. 조회 실패(종료 1)는 0 으로 보지 않는다
+- ③ 은 **옛 판 파일을 설치하기 전에** 새 판 `/opt/pixlate/bin/state_check.py`로 본다(옛 판 큐 목록에는 `adopt`가 없다)
+
+**작업이 남아 있을 때(③ 이 종료 2) — 지원하지 않는 상황: 롤백을 중단한다(옛 판으로 진행하지 않는다)**
+- 지금 도구에는 「새 유입은 막고 EC2 소비자(adopt·cpu)·복구만 켜 둔」 상태가 없습니다. `maintenance` 는 소비자·복구도 멈추고,
+  `validate` 는 워커·복구를 멈춘 채 API 만 `127.0.0.1` 에 열고, `live` 는 API 를 외부(:8000, ALB)에 엽니다(배포 모드 표).
+  그래서 유입을 막은 채 남은 작업을 처리해 ③ 을 통과시키는 절차는 **이 문서가 제공하지 않습니다.**
+- 새 판 `live` 로 되돌리면 남은 작업은 처리되지만 API 가 다시 열려 새 작업이 들어옵니다. **배출이 아니라 롤백 취소**이며, 그 뒤 ③ 이 0 이 된다는 보장은 없습니다.
+  학교 GPU 워커를 멈춘 채 두면 `gpu`·`ocr` 큐와 GPU 단계 시도가 처리되지 않아 ③ 은 0 이 되지 않습니다.
+- 할 수 있는 것은 둘 중 하나입니다.
+  1. **롤백 취소 · 서비스 복귀**: 옛 판 파일을 설치하지 않은 채 새 판 그대로 `sudo /opt/pixlate/bin/pixlate-mode live`를 실행합니다(adopt 워커가 복구보다 먼저 뜸).
+     학교 서버는 새 판 코드 그대로 게이트 파일을 되돌리고 `worker.sh gpu|ocr start` 합니다. 롤백은 다시 결정해 처음(①)부터 합니다.
+  2. **maintenance 유지 · 원인 확인**: `--gate` 출력(큐별 개수·unacked·진행 중 시도·열린 인계)으로 무엇이 남았는지 보고, 처리 방법은 따로 결정합니다.
+- 롤백을 시작하기 전에 `--gate` 를 한 번 보는 것은 시작 시점을 고르는 참고일 뿐입니다. ① 이전이라 그 뒤의 유입을 막지 못하므로 통과 판정은 ① 뒤의 ③ 으로만 합니다.
+- **큐 삭제(`DEL`·`FLUSH` 등) · 인계 강제 거절 · 시도 강제 취소로 해결하지 않는다.** 관리 스크립트 밖에서 컨테이너를 손으로 `docker start` 해 소비자만 켜는 것도 이 절차가 아니다
+  (재시작 정책·모드 기록과 실제 상태가 어긋난다).
+- 「옛 판 복구 프로세스가 남은 인계를 다시 보낸다」는 **검증되지 않은 동작이다 — 롤백 진행의 근거로 쓰지 않고, ③ 을 건너뛰는 이유로도 쓰지 않는다.**
+
+- `pixlate-stop-adopt` 동작은 `start-pixlate.sh` 정지와 같습니다: 자동 재시작을 먼저 끄고(`docker update --restart=no` 뒤 정책 확인),
+  running 이면 TERM 만 보낸 뒤 `STOP_WAIT_S`(기본 600초)까지 기다립니다(웜 종료 — 실행 중 채택을 끝내고 멈춤).
+  시간 안에 안 끝남 · paused · 상태 조회 실패 · 재시작 끄기 실패는 **종료 1·`STOP-ADOPT fail`** 이고, SIGKILL·삭제·재생성·unpause 는 하지 않습니다.
+  컨테이너가 없으면 성공(`컨테이너 없음`)입니다. 큐·처리 중 채택은 이 도구가 보지 않습니다(③ 으로 따로 확인).
+- 옛 판 `pixlate-mode status`에는 adopt 워커가 나오지 않으므로 `docker inspect`로 봅니다.
+
 ## 점검
 
 ```bash
-# 컨테이너: live 이면 api·redis·worker-cpu·recovery Up, worker-ocr 은 Exited(옛 컨테이너)
+# 컨테이너: live 이면 api·redis·worker-cpu·worker-adopt·recovery Up, worker-ocr 은 Exited(옛 컨테이너)
 sudo docker ps -a --format "table {{.Names}}\t{{.Status}}"
 sudo /opt/pixlate/bin/pixlate-mode status
 
-# 워커: cpu(EC2)·ocr·gpu(학교 GPU) 3 nodes online
+# 워커: cpu·adopt(EC2)·ocr·gpu(학교 GPU) 4 nodes online
 sudo docker exec pixlate-worker-cpu celery -A app.celery_app inspect ping
 
 # 큐 대기 개수(값을 출력하지 않는 방법으로 비밀번호 전달)

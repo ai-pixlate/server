@@ -4,8 +4,8 @@
 #
 # 실패 조건(하나라도 있으면 종료 1):
 #   release.conf 가 기대 SHA·digest 와 다름 / deploy.mode·deploy.mode.applied 가 live 가 아님
-#   api·cpu·복구가 기대 digest 로 running 이 아님 / OOMKilled / 확인 구간(SETTLE_S) 동안 재시작(RestartCount·StartedAt 변화)
-#   /health 응답이 HTTP 200 이 아님(3xx·204 등도 실패) / celery ping 에 cpu@<컨테이너 호스트> 응답 없음
+#   api·cpu·adopt·복구가 기대 digest 로 running 이 아님 / OOMKilled / 확인 구간(SETTLE_S) 동안 재시작(RestartCount·StartedAt 변화)
+#   /health 응답이 HTTP 200 이 아님(3xx·204 등도 실패) / celery ping 에 cpu@·adopt@<컨테이너 호스트> 응답 없음(ping · ping:adopt)
 #   --run-id: 전환 기록의 run_id 가 다름, 또는 step≠live(직후 확인) / state≠live-confirmed(--resume)
 # 새 작업·큐·활성 시도의 존재는 실패가 아니다(정상 사용). 유휴 관문을 적용하지 않는다.
 # 출력: 항목마다 `CHECK <항목> ok|fail <설명>`, 마지막 줄 `POSTCHECK ok|fail`.
@@ -17,7 +17,7 @@ TRANSITION=${TRANSITION:-/opt/pixlate/bin/pixlate-transition}
 HEALTH_URL=${HEALTH_URL:-http://127.0.0.1:8000/health}
 SETTLE_S=${SETTLE_S:-10}
 PING_TIMEOUT_S=${PING_TIMEOUT_S:-10}
-MANAGED=(pixlate-api pixlate-worker-cpu pixlate-recovery)
+MANAGED=(pixlate-api pixlate-worker-cpu pixlate-worker-adopt pixlate-recovery)
 
 sha="" digest="" run_id="" resume=0
 while [ $# -gt 0 ]; do
@@ -53,10 +53,16 @@ done
 code=$("$CURL" -s -o /dev/null -w '%{http_code}' -m 5 "$HEALTH_URL" 2>/dev/null); crc=$?
 [ "$crc" -eq 0 ] && [ "$code" = 200 ]; check health $(( $? == 0 )) "$HEALTH_URL → HTTP ${code:-응답 없음}, curl 종료 $crc"
 
-host=$($DOCKER exec pixlate-worker-cpu hostname 2>/dev/null | tr -d '\r\n')
-out=$($DOCKER exec pixlate-worker-cpu python -m celery -A app.celery_app:celery_app inspect ping -d "cpu@$host" --timeout "$PING_TIMEOUT_S" 2>&1); rc=$?
-ok=0; [ -n "$host" ] && [ $rc -eq 0 ] && grep -q pong <<< "$out" && ok=1
-check ping $ok "cpu@<컨테이너 호스트> 응답 $([ $ok = 1 ] && echo 있음 || echo 없음)"
+# celery ping — 워커마다 자기 컨테이너 안에서 자기 노드 이름(<큐>@<컨테이너 호스트>)으로 확인한다
+ping_worker() {
+  local name=$1 container=$2 node=$3 host out rc ok
+  host=$($DOCKER exec "$container" hostname 2>/dev/null | tr -d '\r\n')
+  out=$($DOCKER exec "$container" python -m celery -A app.celery_app:celery_app inspect ping -d "$node@$host" --timeout "$PING_TIMEOUT_S" 2>&1); rc=$?
+  ok=0; [ -n "$host" ] && [ $rc -eq 0 ] && grep -q pong <<< "$out" && ok=1
+  check "$name" $ok "$node@<컨테이너 호스트> 응답 $([ $ok = 1 ] && echo 있음 || echo 없음)"
+}
+ping_worker ping pixlate-worker-cpu cpu
+ping_worker ping:adopt pixlate-worker-adopt adopt
 
 if [ -n "$run_id" ]; then
   rid=$("$TRANSITION" show --field run_id 2>/dev/null); stt=$("$TRANSITION" show --field state 2>/dev/null); stp=$("$TRANSITION" show --field step 2>/dev/null)

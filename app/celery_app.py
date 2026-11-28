@@ -71,12 +71,13 @@ celery_app.conf.update(
     accept_content=["json"],
     timezone="UTC",
     task_track_started=True,
-    # 큐 3분할 + 태스크→큐 라우팅
+    # 큐 4분할 + 태스크→큐 라우팅. adopt = 원격 인계 검증·채택만(병렬화 B — cpu 큐 대기 뒤에 서지 않게)
     task_default_queue="cpu",
     task_queues=(
         Queue("ocr"),
         Queue("cpu"),
         Queue("gpu"),
+        Queue("adopt"),
     ),
     task_routes={
         "app.tasks.run_analyze": {"queue": "ocr"},
@@ -89,7 +90,7 @@ celery_app.conf.update(
         "app.tasks.run_preview": {"queue": "cpu"},
         "app.tasks.run_text_check": {"queue": "cpu"},
         "app.tasks.run_render": {"queue": "cpu"},
-        "app.tasks.run_adopt": {"queue": "cpu"},
+        "app.tasks.run_adopt": {"queue": "adopt"},
     },
     # 워커가 처리 도중 죽어도 작업이 사라지지 않게: 끝난 뒤에 ack, 워커 유실 시 재큐잉
     task_acks_late=True,

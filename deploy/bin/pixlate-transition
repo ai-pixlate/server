@@ -46,7 +46,7 @@ LOCK_WAIT_S = float(os.environ.get("PIXLATE_LOCK_WAIT_S", "30"))
 RECORD = os.path.join(STATE_DIR, "transition.json")
 PREP = os.path.join(STATE_DIR, "transition.prep.json")
 LOCK = os.path.join(LOCK_DIR, "pixlate-transition.lock")
-MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-recovery")
+MANAGED = ("pixlate-api", "pixlate-worker-cpu", "pixlate-worker-adopt", "pixlate-recovery")
 SEQUENCES = {
     "sandbox": ["precheck", "maintenance", "validate", "isolated", "live"],
     "production": ["precheck", "maintenance", "validate", "live"],

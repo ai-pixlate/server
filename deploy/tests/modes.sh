@@ -89,44 +89,46 @@ sed -i '/^GEMINI_API_KEY=/d' /etc/pixlate/pixlate.env
 echo "== 7. live"
 $S >/tmp/o 2>&1; rc=$?
 ok "exit 0" "[ $rc = 0 ]"
-ok "api·cpu·복구 running·unless-stopped" 'for c in pixlate-api pixlate-worker-cpu pixlate-recovery; do [ $(st $c) = running ] && [ $(rp $c) = unless-stopped ] || exit 1; done'
+ok "api·cpu·adopt·복구 running·unless-stopped" 'for c in pixlate-api pixlate-worker-cpu pixlate-worker-adopt pixlate-recovery; do [ $(st $c) = running ] && [ $(rp $c) = unless-stopped ] || exit 1; done'
+ok "기동 순서 api → cpu → adopt → 복구(소비자 먼저)" '[ "$(grep -oE "pixlate-(api|worker-cpu|worker-adopt|recovery) 실행 확인" /tmp/o | cut -d" " -f1 | tr "\n" " ")" = "pixlate-api pixlate-worker-cpu pixlate-worker-adopt pixlate-recovery " ]'
 ok "EC2 ocr 워커는 정지·restart=no 유지(학교 GPU 로 이전)" '[ $(st pixlate-worker-ocr) = exited ] && [ $(rp pixlate-worker-ocr) = no ]'
 ok "API 외부 바인딩" '[ "$(bind pixlate-api)" = "{\"8000/tcp\":[{\"HostIp\":\"\",\"HostPort\":\"8000\"}]}" ]'
-ok "GEMINI 는 cpu 에만" 'envkeys pixlate-worker-cpu | grep -q GEMINI_API_KEY && ! envkeys pixlate-api | grep -q GEMINI && ! envkeys pixlate-recovery | grep -q GEMINI'
+ok "GEMINI 는 cpu 에만" 'envkeys pixlate-worker-cpu | grep -q GEMINI_API_KEY && ! envkeys pixlate-api | grep -q GEMINI && ! envkeys pixlate-recovery | grep -q GEMINI && ! envkeys pixlate-worker-adopt | grep -q GEMINI'
 ok "복구 명령(SHA 와 동일)" '[ "$(cmdof pixlate-recovery)" = "python /opt/pixlate/bin/redact_run.py -- python -m app.recovery --interval 60" ]'
 ok "워커 명령(python -m celery·큐·solo·노드명)" '[ "$(cmdof pixlate-worker-cpu)" = "python /opt/pixlate/bin/redact_run.py -- python -m celery -A app.celery_app:celery_app worker -Q cpu --pool=solo -n cpu@%h --loglevel=info" ]'
+ok "adopt 워커 명령(adopt 큐·solo·노드명)" '[ "$(cmdof pixlate-worker-adopt)" = "python /opt/pixlate/bin/redact_run.py -- python -m celery -A app.celery_app:celery_app worker -Q adopt --pool=solo -n adopt@%h --loglevel=info" ]'
 sleep 2
-ok "워커·복구 로그 정제" 'for c in pixlate-worker-cpu pixlate-recovery; do ! docker logs $c 2>&1 | grep -qE "$SECRETS" || exit 1; done'
+ok "워커·복구 로그 정제" 'for c in pixlate-worker-cpu pixlate-worker-adopt pixlate-recovery; do ! docker logs $c 2>&1 | grep -qE "$SECRETS" || exit 1; done'
 ok "Redis 동일·데이터" '[ $(cid pixlate-redis) = $R0 ] && [ "$(rkey)" = keep-me ]'
-C1=$(cid pixlate-worker-cpu); O1=$(cid pixlate-worker-ocr); A1=$(cid pixlate-api); V1=$(cid pixlate-recovery)
+C1=$(cid pixlate-worker-cpu); O1=$(cid pixlate-worker-ocr); A1=$(cid pixlate-api); V1=$(cid pixlate-recovery); D1=$(cid pixlate-worker-adopt)
 
 echo "== 8. 반복 실행"
 $S >/tmp/o 2>&1
-ok "ID 불변" '[ $(cid pixlate-worker-cpu) = $C1 ] && [ $(cid pixlate-worker-ocr) = $O1 ] && [ $(cid pixlate-api) = $A1 ] && [ $(cid pixlate-recovery) = $V1 ]'
+ok "ID 불변" '[ $(cid pixlate-worker-cpu) = $C1 ] && [ $(cid pixlate-worker-ocr) = $O1 ] && [ $(cid pixlate-api) = $A1 ] && [ $(cid pixlate-recovery) = $V1 ] && [ $(cid pixlate-worker-adopt) = $D1 ]'
 
 echo "== 8b. cpu 워커 명령만 변경(이전 celery 실행 파일 → python -m celery) — 서버 반영 흉내"
-sed 's#redact_run.py -- python -m celery -A#redact_run.py -- celery -A#' $S > /tmp/prev-start.sh; chmod +x /tmp/prev-start.sh
-ok "이전 스크립트 사본은 celery 실행 파일 명령" 'grep -q "redact_run.py -- celery -A app.celery_app" /tmp/prev-start.sh && ! grep -q "redact_run.py -- python -m celery" /tmp/prev-start.sh'
+sed '/-Q cpu /s#redact_run.py -- python -m celery -A#redact_run.py -- celery -A#' $S > /tmp/prev-start.sh; chmod +x /tmp/prev-start.sh
+ok "이전 스크립트 사본은 cpu 만 celery 실행 파일 명령" 'grep -q "redact_run.py -- celery -A app.celery_app:celery_app worker -Q cpu " /tmp/prev-start.sh && ! grep -q "redact_run.py -- python -m celery -A app.celery_app:celery_app worker -Q cpu " /tmp/prev-start.sh'
 /tmp/prev-start.sh >/tmp/o 2>&1
-ok "이전 명령으로 cpu 만 교체(api·복구 재사용)" '[ "$(cmdof pixlate-worker-cpu)" = "python /opt/pixlate/bin/redact_run.py -- celery -A app.celery_app:celery_app worker -Q cpu --pool=solo -n cpu@%h --loglevel=info" ] && [ $(cid pixlate-api) = $A1 ] && [ $(cid pixlate-recovery) = $V1 ]'
+ok "이전 명령으로 cpu 만 교체(api·adopt·복구 재사용)" '[ "$(cmdof pixlate-worker-cpu)" = "python /opt/pixlate/bin/redact_run.py -- celery -A app.celery_app:celery_app worker -Q cpu --pool=solo -n cpu@%h --loglevel=info" ] && [ $(cid pixlate-api) = $A1 ] && [ $(cid pixlate-recovery) = $V1 ] && [ $(cid pixlate-worker-adopt) = $D1 ]'
 P1=$(cid pixlate-worker-cpu); PS1=$(docker inspect -f '{{.State.StartedAt}}' pixlate-api); RS1=$(docker inspect -f '{{.State.StartedAt}}' pixlate-recovery)
 $S >/tmp/o 2>&1; rc=$?
 ok "새 스크립트 exit 0" "[ $rc = 0 ]"
 ok "cpu 만 교체: TERM 정지 확인 후 python -m celery 로 재생성" '[ $(cid pixlate-worker-cpu) != $P1 ] && [ $(st pixlate-worker-cpu) = running ] && grep -q "pixlate-worker-cpu 정지 요청(TERM)" /tmp/o && grep -q "pixlate-worker-cpu 정지 확인(exited, exit=0)" /tmp/o && cmdof pixlate-worker-cpu | grep -q "redact_run.py -- python -m celery -A"'
 ok "api·복구 재사용(ID·StartedAt·restart 불변)" '[ $(cid pixlate-api) = $A1 ] && [ $(cid pixlate-recovery) = $V1 ] && [ "$(docker inspect -f "{{.State.StartedAt}}" pixlate-api)" = "$PS1" ] && [ "$(docker inspect -f "{{.State.StartedAt}}" pixlate-recovery)" = "$RS1" ] && [ $(rp pixlate-api) = unless-stopped ] && [ $(rp pixlate-recovery) = unless-stopped ]'
-ok "api·복구에는 정지 요청 없음" '! grep -qE "pixlate-(api|recovery) 정지 요청" /tmp/o'
+ok "api·adopt·복구에는 정지 요청 없음" '! grep -qE "pixlate-(api|recovery|worker-adopt) 정지 요청" /tmp/o && [ $(cid pixlate-worker-adopt) = $D1 ]'
 ok "Redis 동일·옛 ocr 불변" '[ $(cid pixlate-redis) = $R0 ] && [ $(cid pixlate-worker-ocr) = $O1 ]'
 ok "applied=live" 'grep -qx live /etc/pixlate/deploy.mode.applied'
 C1=$(cid pixlate-worker-cpu)
 
 echo "== 9. API digest 변경"
 sed -i "s|^API_DIGEST=.*|API_DIGEST=$API2|" /etc/pixlate/release.conf; $S >/tmp/o 2>&1
-ok "api·cpu·복구만 교체, ocr 유지" '[ $(cid pixlate-worker-cpu) != $C1 ] && [ $(cid pixlate-api) != $A1 ] && [ $(cid pixlate-recovery) != $V1 ] && [ $(cid pixlate-worker-ocr) = $O1 ] && img pixlate-api | grep -q "@$API2"'
-C2=$(cid pixlate-worker-cpu); O2=$(cid pixlate-worker-ocr); A2=$(cid pixlate-api)
+ok "api·cpu·adopt·복구만 교체, ocr 유지" '[ $(cid pixlate-worker-cpu) != $C1 ] && [ $(cid pixlate-api) != $A1 ] && [ $(cid pixlate-recovery) != $V1 ] && [ $(cid pixlate-worker-adopt) != $D1 ] && [ $(cid pixlate-worker-ocr) = $O1 ] && img pixlate-api | grep -q "@$API2" && img pixlate-worker-adopt | grep -q "@$API2"'
+C2=$(cid pixlate-worker-cpu); O2=$(cid pixlate-worker-ocr); A2=$(cid pixlate-api); D2=$(cid pixlate-worker-adopt)
 
 echo "== 10. Gemini 파일 내용 변경"
 echo "GEMINI_API_KEY=AIzaFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFA2" > /etc/pixlate/worker-gemini.env; $S >/tmp/o 2>&1
-ok "cpu 만 교체(옛 ocr 컨테이너 불변)" '[ $(cid pixlate-worker-cpu) != $C2 ] && [ $(cid pixlate-worker-ocr) = $O2 ] && [ $(cid pixlate-api) = $A2 ]'
+ok "cpu 만 교체(옛 ocr·adopt 컨테이너 불변)" '[ $(cid pixlate-worker-cpu) != $C2 ] && [ $(cid pixlate-worker-ocr) = $O2 ] && [ $(cid pixlate-api) = $A2 ] && [ $(cid pixlate-worker-adopt) = $D2 ]'
 
 echo "== 11. 종료 처리"
 sleep 3; docker stop -t 30 pixlate-worker-cpu >/dev/null
@@ -140,7 +142,7 @@ ok "같은 컨테이너 시작·데이터" '[ $(st pixlate-redis) = running ] &&
 
 echo "== 13. live → maintenance (pixlate-mode)"
 CONF_DIR=/etc/pixlate SYSTEMCTL=true /opt/pixlate/bin/pixlate-mode maintenance >/dev/null; $S >/tmp/o 2>&1
-ok "전부 정지·restart=no·Redis 유지" 'for c in pixlate-api pixlate-worker-cpu pixlate-recovery; do [ $(st $c) = exited ] && [ $(rp $c) = no ] || exit 1; done; [ $(st pixlate-redis) = running ]'
+ok "전부 정지·restart=no·Redis 유지" 'for c in pixlate-api pixlate-worker-cpu pixlate-worker-adopt pixlate-recovery; do [ $(st $c) = exited ] && [ $(rp $c) = no ] || exit 1; done; [ $(st pixlate-redis) = running ]'
 ok "모드 파일 권한 644·값" '[ "$(stat -c %a /etc/pixlate/deploy.mode)" = 644 ] && grep -qx maintenance /etc/pixlate/deploy.mode'
 
 echo "== 14. Redis 부재"

@@ -3,8 +3,9 @@
 set -uo pipefail
 apk add -q bash coreutils >/dev/null 2>&1
 mkdir -p /etc/pixlate /opt/pixlate/bin
-cp /draft/start-pixlate.sh /opt/pixlate/; cp /draft/bin/redact_run.py /draft/bin/pixlate-mode /draft/bin/state_check.py /opt/pixlate/bin/
-chmod +x /opt/pixlate/start-pixlate.sh /opt/pixlate/bin/pixlate-mode
+cp /draft/start-pixlate.sh /opt/pixlate/; cp /draft/bin/redact_run.py /draft/bin/pixlate-mode /draft/bin/state_check.py /draft/bin/pixlate-stop-adopt /opt/pixlate/bin/
+chmod +x /opt/pixlate/start-pixlate.sh /opt/pixlate/bin/pixlate-mode /opt/pixlate/bin/pixlate-stop-adopt
+SA=/opt/pixlate/bin/pixlate-stop-adopt
 S=/opt/pixlate/start-pixlate.sh
 P=0; F=0
 ok() { if ( eval "$2" ); then echo "  PASS $1"; P=$((P+1)); else echo "  FAIL $1"; F=$((F+1)); fi; }
@@ -33,19 +34,21 @@ echo "GEMINI_API_KEY=AIzaFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAK" > /etc/pixlate/wor
 rel() { printf 'RELEASE_SHA=e1291abceb8d280594e366be733c3cf950b1a0c4\nAPI_DIGEST=%s\nREGISTRY=localhost:5000\n' "$1" > /etc/pixlate/release.conf; }
 redis_ok() { [ "$(cid pixlate-redis)" = "$R0" ] && [ "$(docker exec pixlate-redis redis-cli -a testpw --no-auth-warning GET marker)" = keep-me ]; }
 
-echo "== A. live(느린 cpu 워커 25초) → maintenance, 대기 5초: 강제 종료 없이 미완료로 실패"
-rel "$SLOW"; mode live; $S >/tmp/o 2>&1; ok "live 기동" "[ \$? = 0 ] || true; [ \$(st pixlate-worker-cpu) = running ] && [ \$(st pixlate-api) = running ] && [ \$(st pixlate-recovery) = running ]"
-sleep 3; T0=$(date +%s); C1=$(cid pixlate-worker-cpu); A1=$(cid pixlate-api)
+workers_down() { for i in $(seq 40); do [ "$(st pixlate-worker-cpu)" = exited ] && [ "$(st pixlate-worker-adopt)" != running ] && break; sleep 1; done; }
+
+echo "== A. live(느린 cpu·adopt 워커 25초) → maintenance, 대기 5초: 강제 종료 없이 미완료로 실패"
+rel "$SLOW"; mode live; $S >/tmp/o 2>&1; ok "live 기동" "[ \$? = 0 ] || true; [ \$(st pixlate-worker-cpu) = running ] && [ \$(st pixlate-worker-adopt) = running ] && [ \$(st pixlate-api) = running ] && [ \$(st pixlate-recovery) = running ]"
+sleep 3; T0=$(date +%s); C1=$(cid pixlate-worker-cpu); A1=$(cid pixlate-api); D1=$(cid pixlate-worker-adopt)
 mode maintenance; STOP_WAIT_S=5 $S >/tmp/o 2>&1; rc=$?
 ok "exit 1, applied=maintenance-incomplete" "[ $rc = 1 ] && [ \"\$(applied)\" = maintenance-incomplete ]"
-ok "API·복구 정지, cpu 는 계속 실행(SIGKILL 없음)" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-recovery) = exited ] && [ \$(st pixlate-worker-cpu) = running ]"
-ok "세 컨테이너 모두 restart=no, 삭제·재생성 없음" "[ \$(rp pixlate-api) = no ] && [ \$(rp pixlate-recovery) = no ] && [ \$(rp pixlate-worker-cpu) = no ] && [ \$(cid pixlate-worker-cpu) = $C1 ] && [ \$(cid pixlate-api) = $A1 ]"
+ok "API·복구 정지, adopt·cpu 는 계속 실행(SIGKILL 없음)" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-recovery) = exited ] && [ \$(st pixlate-worker-adopt) = running ] && [ \$(st pixlate-worker-cpu) = running ]"
+ok "네 컨테이너 모두 restart=no, 삭제·재생성 없음" "[ \$(rp pixlate-api) = no ] && [ \$(rp pixlate-recovery) = no ] && [ \$(rp pixlate-worker-adopt) = no ] && [ \$(rp pixlate-worker-cpu) = no ] && [ \$(cid pixlate-worker-cpu) = $C1 ] && [ \$(cid pixlate-api) = $A1 ] && [ \$(cid pixlate-worker-adopt) = $D1 ]"
 K=$(kills $T0); echo "    kill events: $K"
-ok "TERM 순서 API → 복구 → cpu, KILL 신호 없음" "echo '$K' | grep -q 'pixlate-api:15 pixlate-recovery:15 pixlate-worker-cpu:15' && ! echo '$K' | grep -qE ':9( |$)'"
-ok "실패 보고에 남은 컨테이너 표시" "grep -q 'pixlate-worker-cpu 5초 안에 끝나지 않음' /tmp/o"
+ok "TERM 순서 API → 복구 → adopt → cpu, KILL 신호 없음" "echo '$K' | grep -q 'pixlate-api:15 pixlate-recovery:15 pixlate-worker-adopt:15 pixlate-worker-cpu:15' && ! echo '$K' | grep -qE ':9( |$)'"
+ok "실패 보고에 남은 컨테이너 표시" "grep -q 'pixlate-worker-adopt 5초 안에 끝나지 않음' /tmp/o && grep -q 'pixlate-worker-cpu 5초 안에 끝나지 않음' /tmp/o"
 ok "Redis 영향 없음" "redis_ok"
-for i in $(seq 40); do [ "$(st pixlate-worker-cpu)" = exited ] && break; sleep 1; done
-ok "cpu 는 스스로 웜 종료(exit 0)" "[ \$(st pixlate-worker-cpu) = exited ] && [ \$(ex pixlate-worker-cpu) = 0 ] && docker logs pixlate-worker-cpu 2>&1 | grep -q 'warm shutdown'"
+workers_down
+ok "adopt·cpu 는 스스로 웜 종료(exit 0)" "for c in pixlate-worker-adopt pixlate-worker-cpu; do [ \$(st \$c) = exited ] && [ \$(ex \$c) = 0 ] && docker logs \$c 2>&1 | grep -q 'warm shutdown' || exit 1; done"
 T1=$(date +%s); $S >/tmp/o 2>&1; rc=$?
 ok "재실행: exit 0, applied=maintenance, 추가 TERM 없음" "[ $rc = 0 ] && [ \"\$(applied)\" = maintenance ] && [ -z \"\$(kills $T1)\" ]"
 
@@ -67,18 +70,18 @@ sleep 2; T2=$(date +%s); mode maintenance; DOCKER=faildocker STOP_WAIT_S=8 $S >/
 K=$(kills $T2); echo "    kill events: $K"
 ok "exit 1, applied=maintenance-incomplete" "[ $rc = 1 ] && [ \"\$(applied)\" = maintenance-incomplete ]"
 ok "실패 2건이 모두 보고됨" "grep -q 'pixlate-recovery 자동 재시작 끄기 실패' /tmp/o && grep -q 'pixlate-api TERM 전달 실패' /tmp/o"
-ok "API 실패 뒤에도 복구·cpu 에 TERM 전달" "echo '$K' | grep -q 'pixlate-recovery:15' && echo '$K' | grep -q 'pixlate-worker-cpu:15'"
+ok "API 실패 뒤에도 복구·adopt·cpu 에 TERM 전달" "echo '$K' | grep -q 'pixlate-recovery:15' && echo '$K' | grep -q 'pixlate-worker-adopt:15' && echo '$K' | grep -q 'pixlate-worker-cpu:15'"
 ok "API 는 남아 있음을 보고(강제 종료 없음)" "[ \$(st pixlate-api) = running ] && grep -q 'pixlate-api 8초 안에 끝나지 않음' /tmp/o"
 echo "    recovery after TERM with restart policy still on: state=$(st pixlate-recovery) restart=$(rp pixlate-recovery)"
 $S >/tmp/o 2>&1; rc=$?
-ok "정상 docker 로 재실행하면 완료" "[ $rc = 0 ] && [ \"\$(applied)\" = maintenance ] && for c in pixlate-api pixlate-recovery pixlate-worker-cpu; do [ \$(st \$c) != running ] && [ \$(rp \$c) = no ] || exit 1; done"
+ok "정상 docker 로 재실행하면 완료" "[ $rc = 0 ] && [ \"\$(applied)\" = maintenance ] && for c in pixlate-api pixlate-recovery pixlate-worker-adopt pixlate-worker-cpu; do [ \$(st \$c) != running ] && [ \$(rp \$c) = no ] || exit 1; done"
 
 echo "== D. live → validate 중 cpu 정지 미완료면 API 를 다시 열지 않음"
 rel "$SLOW"; mode live; $S >/tmp/o 2>&1; sleep 3; A2=$(cid pixlate-api)
 mode validate; STOP_WAIT_S=5 $S >/tmp/o 2>&1; rc=$?
 ok "exit 1, applied=validate-incomplete" "[ $rc = 1 ] && [ \"\$(applied)\" = validate-incomplete ]"
 ok "옛 API 정지·삭제 안 함, 새 API 생성 안 함" "[ \$(st pixlate-api) = exited ] && [ \$(cid pixlate-api) = $A2 ] && [ \"\$(docker inspect -f '{{json .HostConfig.PortBindings}}' pixlate-api)\" = '{\"8000/tcp\":[{\"HostIp\":\"\",\"HostPort\":\"8000\"}]}' ]"
-for i in $(seq 40); do [ "$(st pixlate-worker-cpu)" = exited ] && break; sleep 1; done
+workers_down
 $S >/tmp/o 2>&1; rc=$?
 ok "cpu 종료 후 재실행하면 validate 완료(127.0.0.1 API)" "[ $rc = 0 ] && [ \"\$(applied)\" = validate ] && [ \$(st pixlate-api) = running ] && docker inspect -f '{{json .HostConfig.PortBindings}}' pixlate-api | grep -q 127.0.0.1"
 
@@ -89,8 +92,9 @@ SYSTEMCTL=fakesystemctl /opt/pixlate/bin/pixlate-mode maintenance >/tmp/m 2>&1; 
 sed 's/^/    /' /tmp/m
 ok "pixlate-mode 종료 코드 실패, '(미완료)' 표시" "[ $rc != 0 ] && grep -q 'requested=maintenance applied=maintenance-incomplete (미완료)' /tmp/m"
 ok "대상 컨테이너 상태 출력(cpu running)" "grep -q 'pixlate-worker-cpu: running restart=no' /tmp/m"
+ok "대상 컨테이너 상태 출력에 adopt 포함" "grep -qE 'pixlate-worker-adopt: (running|exited) restart=no' /tmp/m"
 ok "상태 재조회 시도 결과 출력(가짜 이미지라 실패 표시)" "grep -qE 'state check (failed|skipped)' /tmp/m"
-for i in $(seq 40); do [ "$(st pixlate-worker-cpu)" = exited ] && break; sleep 1; done
+workers_down
 SYSTEMCTL=fakesystemctl /opt/pixlate/bin/pixlate-mode maintenance >/tmp/m 2>&1; rc=$?
 ok "재실행 후 requested=applied, 종료 코드 0" "grep -q '^requested=maintenance applied=maintenance$' /tmp/m"
 
@@ -120,7 +124,10 @@ mode maintenance; D2; failon "start pixlate-api"; mode validate; D2; rc=$?
 ok "start 실패(같은 사양 재사용) → exit 1, validate-incomplete" "[ $rc = 1 ] && [ \"\$(applied)\" = validate-incomplete ] && grep -q 'pixlate-api 시작 실패' /tmp/o && [ \$(st pixlate-api) = exited ]"
 failon; D2
 failon "rm pixlate-api"; mode live; D2; rc=$?
-ok "rm 실패(교체) → exit 1, live-incomplete, cpu·복구 기동 안 함" "[ $rc = 1 ] && [ \"\$(applied)\" = live-incomplete ] && grep -q 'pixlate-api 삭제 실패' /tmp/o && [ \$(st pixlate-worker-cpu) != running ] && [ \$(st pixlate-recovery) != running ]"
+ok "rm 실패(교체) → exit 1, live-incomplete, cpu·adopt·복구 기동 안 함" "[ $rc = 1 ] && [ \"\$(applied)\" = live-incomplete ] && grep -q 'pixlate-api 삭제 실패' /tmp/o && [ \$(st pixlate-worker-cpu) != running ] && [ \$(st pixlate-worker-adopt) != running ] && [ \$(st pixlate-recovery) != running ]"
+failon; mode maintenance; D2
+failon "run pixlate-worker-adopt" "start pixlate-worker-adopt"; mode live; D2; rc=$?
+ok "adopt 기동 실패 → exit 1, live-incomplete, 복구(발행자) 기동 안 함" "[ $rc = 1 ] && [ \"\$(applied)\" = live-incomplete ] && grep -qE 'pixlate-worker-adopt (생성|시작) 실패' /tmp/o && [ \$(st pixlate-recovery) != running ]"
 failon; mode maintenance; D2
 rel "$CRASH"; mode validate; D2; rc=$?
 ok "기동 직후 종료하는 API → exit 1, validate-incomplete" "[ $rc = 1 ] && [ \"\$(applied)\" = validate-incomplete ] && grep -q '기동 직후 실행 중이 아님' /tmp/o"
@@ -130,7 +137,7 @@ echo "== H. 조회 실패·paused 는 정지 완료가 아니다"
 mode live; D2; [ "$(applied)" = live ] || echo "    (live 준비 실패: $(applied))"
 failon "inspect pixlate-recovery"; mode maintenance; D2; rc=$?
 ok "복구 상태 조회 실패 → exit 1, maintenance-incomplete, 없음으로 취급 안 함" "[ $rc = 1 ] && [ \"\$(applied)\" = maintenance-incomplete ] && grep -q 'pixlate-recovery 상태 조회 실패' /tmp/o"
-ok "조회 실패와 별개로 API·cpu 는 정지" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-worker-cpu) = exited ]"
+ok "조회 실패와 별개로 API·adopt·cpu 는 정지" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(st pixlate-worker-cpu) = exited ]"
 failon; D2; ok "해제 후 재실행 → maintenance 완료" "[ \$? = 0 ] || true; [ \"\$(applied)\" = maintenance ]"
 mode live; D2; docker pause pixlate-worker-cpu >/dev/null
 mode maintenance; D2; rc=$?
@@ -142,7 +149,7 @@ echo "== I. 옛 워커 정지가 끝나지 않으면 live 기동을 시작하지
 docker run -d --name pixlate-worker-ocr --network pixlate-net --restart unless-stopped localhost:5000/pixlate-api:slow celery old >/dev/null; sleep 3
 T3=$(date +%s); mode live; W=3 D2; rc=$?
 ok "exit 1, live-incomplete, '옛 워커 정지 미완료'" "[ $rc = 1 ] && [ \"\$(applied)\" = live-incomplete ] && grep -q '옛 워커 정지 미완료' /tmp/o"
-ok "API·cpu·복구는 기동되지 않음" "[ \$(st pixlate-api) != running ] && [ \$(st pixlate-worker-cpu) != running ] && [ \$(st pixlate-recovery) != running ]"
+ok "API·cpu·adopt·복구는 기동되지 않음" "[ \$(st pixlate-api) != running ] && [ \$(st pixlate-worker-cpu) != running ] && [ \$(st pixlate-worker-adopt) != running ] && [ \$(st pixlate-recovery) != running ]"
 ok "옛 ocr 은 TERM 만 받고 계속 실행(강제 종료 없음)" "[ \$(st pixlate-worker-ocr) = running ] && [ \$(rp pixlate-worker-ocr) = no ] && ! kills $T3 | grep -q ':9'"
 for i in $(seq 40); do [ "$(st pixlate-worker-ocr)" = exited ] && break; sleep 1; done
 D2; rc=$?; ok "옛 ocr 종료 후 재실행 → live 완료" "[ $rc = 0 ] && [ \"\$(applied)\" = live ]"
@@ -170,7 +177,7 @@ $S >/tmp/o 2>&1; ok "정상 연결로 재실행 → maintenance 완료" "[ \$? =
 mode live; $S >/tmp/o 2>&1
 mode maintenance; PATH=/tmp/failbin:$PATH $S >/tmp/o 2>&1; rc=$?
 ok "applied 저장 실패(mv) → exit 1, 완료 로그 없음" "[ $rc = 1 ] && ! grep -q 'maintenance: Redis 만 유지' /tmp/o && grep -q '적용 상태 저장 실패' /tmp/o"
-ok "안전을 위한 정지는 계속 수행" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-recovery) = exited ] && [ \$(st pixlate-worker-cpu) = exited ]"
+ok "안전을 위한 정지는 계속 수행" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-recovery) = exited ] && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(st pixlate-worker-cpu) = exited ]"
 ok "이전 값(live)이 남지 않음" "[ ! -e /etc/pixlate/deploy.mode.applied ] || [ \"\$(applied)\" != live ]"
 $S >/tmp/o 2>&1; ok "정상 재실행 → maintenance 기록" "[ \"\$(applied)\" = maintenance ]"
 PATH=/tmp/failbin:$PATH $S >/tmp/o 2>&1; rc=$?
@@ -183,13 +190,51 @@ mkdir -p /tmp/failbin2; for b in mv rm; do printf '#!/bin/sh\necho "%s: simulate
 mode live; $S >/tmp/o 2>&1; [ "$(applied)" = live ] || echo "    (live 준비 실패: $(applied))"
 T4=$(date +%s); mode maintenance; PATH=/tmp/failbin2:$PATH $S >/tmp/o 2>&1; rc=$?
 ok "exit 1, 이전 값(live)을 지우지 못했고 최신이 아님을 보고" "[ $rc = 1 ] && grep -q '이전 적용 값(live)을 지우지 못했다' /tmp/o && grep -q '최신이 아니다' /tmp/o"
-ok "그래도 API·복구·cpu 에 TERM 전달·정지" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-recovery) = exited ] && [ \$(st pixlate-worker-cpu) = exited ] && kills $T4 | grep -q 'pixlate-api:15 pixlate-recovery:15 pixlate-worker-cpu:15'"
+ok "그래도 API·복구·adopt·cpu 에 TERM 전달·정지" "[ \$(st pixlate-api) = exited ] && [ \$(st pixlate-recovery) = exited ] && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(st pixlate-worker-cpu) = exited ] && kills $T4 | grep -q 'pixlate-api:15 pixlate-recovery:15 pixlate-worker-adopt:15 pixlate-worker-cpu:15'"
 ok "완료 로그 없음" "! grep -q 'maintenance: Redis 만 유지' /tmp/o"
 mode live; PATH=/tmp/failbin2:$PATH START_SETTLE_S=1 $S >/tmp/o 2>&1; rc=$?
-ok "같은 상황에서 live → exit 1, 새 기동 차단" "[ $rc = 1 ] && [ \$(st pixlate-api) = exited ] && [ \$(st pixlate-worker-cpu) = exited ] && [ \$(st pixlate-recovery) = exited ] && ! grep -q '실행 확인' /tmp/o"
+ok "같은 상황에서 live → exit 1, 새 기동 차단" "[ $rc = 1 ] && [ \$(st pixlate-api) = exited ] && [ \$(st pixlate-worker-cpu) = exited ] && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(st pixlate-recovery) = exited ] && ! grep -q '실행 확인' /tmp/o"
 rm -f /etc/pixlate/.deploy.mode.applied.*   # 가짜 rm 때문에 남은 임시 파일 정리(시험 전용)
 $S >/tmp/o 2>&1; ok "정상 재실행 → live 복구" "[ \"\$(applied)\" = live ]"
 mode maintenance; $S >/tmp/o 2>&1; ok "정상 maintenance" "[ \"\$(applied)\" = maintenance ]"
+
+echo "== M. 옛 판(adopt 를 모르는 기동 스크립트)으로 되돌린 뒤 남은 adopt 워커 — pixlate-stop-adopt 로 정지, 미종료는 실패"
+OLD=/tmp/old-start-pixlate.sh   # 옛 판 흉내: adopt 정지 대상 · 기동 줄을 뺀 사본
+sed -e 's/pixlate-recovery pixlate-worker-adopt pixlate-worker-cpu/pixlate-recovery pixlate-worker-cpu/' -e '/run_managed pixlate-worker-adopt/d' -e '/-Q adopt /d' $S > $OLD; chmod +x $OLD
+ok "옛 판 흉내 스크립트는 adopt 를 모른다" "! grep -q pixlate-worker-adopt $OLD && grep -q 'run_managed pixlate-recovery' $OLD && grep -q '^STOP_ORDER=(pixlate-api pixlate-recovery pixlate-worker-cpu)' $OLD"
+rel "$FAST"; mode live; $S >/tmp/o 2>&1
+ok "새 판 live: adopt running·unless-stopped" "[ \$(st pixlate-worker-adopt) = running ] && [ \$(rp pixlate-worker-adopt) = unless-stopped ]"
+D0=$(cid pixlate-worker-adopt)
+mode maintenance; $OLD >/tmp/o 2>&1; rc=$?
+ok "재현: 옛 판 maintenance 는 성공으로 끝나도 adopt 는 running·unless-stopped 로 남음" "[ $rc = 0 ] && [ \"\$(applied)\" = maintenance ] && [ \$(st pixlate-api) = exited ] && [ \$(st pixlate-worker-cpu) = exited ] && [ \$(st pixlate-worker-adopt) = running ] && [ \$(rp pixlate-worker-adopt) = unless-stopped ]"
+T5=$(date +%s); $SA >/tmp/o 2>&1; rc=$?
+K=$(kills $T5); echo "    kill events: $K"
+ok "보완: exit 0, exited·restart=no, 같은 컨테이너(삭제·재생성 없음)" "[ $rc = 0 ] && grep -q '^STOP-ADOPT ok' /tmp/o && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(rp pixlate-worker-adopt) = no ] && [ \$(cid pixlate-worker-adopt) = $D0 ]"
+ok "TERM 만(KILL 없음)·웜 종료 exit 0" "echo '$K' | grep -q 'pixlate-worker-adopt:15' && ! echo '$K' | grep -qE ':9( |$)' && [ \$(ex pixlate-worker-adopt) = 0 ] && docker logs pixlate-worker-adopt 2>&1 | grep -q 'warm shutdown'"
+mode live; $OLD >/tmp/o 2>&1; rc=$?
+ok "옛 판 live: api·cpu·복구 실행, adopt 는 정지·restart=no 그대로" "[ $rc = 0 ] && [ \$(st pixlate-api) = running ] && [ \$(st pixlate-worker-cpu) = running ] && [ \$(st pixlate-recovery) = running ] && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(rp pixlate-worker-adopt) = no ]"
+T6=$(date +%s); $SA >/tmp/o 2>&1; rc=$?
+ok "이미 정지 → exit 0, 추가 TERM 없음" "[ $rc = 0 ] && grep -q '^STOP-ADOPT ok' /tmp/o && ! kills $T6 | grep -q pixlate-worker-adopt"
+rel "$SLOW"; mode live; $S >/tmp/o 2>&1; sleep 3   # 느린 adopt(웜 종료 25초) 실행
+T7=$(date +%s); STOP_WAIT_S=3 $SA >/tmp/o 2>&1; rc=$?
+ok "미종료: 3초 안에 안 끝나면 exit 1·STOP-ADOPT fail, restart=no, 강제 종료 없음" "[ $rc = 1 ] && grep -q '^STOP-ADOPT fail' /tmp/o && grep -q '3초 안에 끝나지 않음' /tmp/o && [ \$(st pixlate-worker-adopt) = running ] && [ \$(rp pixlate-worker-adopt) = no ] && ! kills $T7 | grep -q ':9'"
+for i in $(seq 40); do [ "$(st pixlate-worker-adopt)" = exited ] && break; sleep 1; done
+$SA >/tmp/o 2>&1; rc=$?
+ok "웜 종료가 끝난 뒤 재실행 → exit 0" "[ $rc = 0 ] && grep -q '^STOP-ADOPT ok' /tmp/o && [ \$(ex pixlate-worker-adopt) = 0 ]"
+docker start pixlate-worker-adopt >/dev/null; sleep 2; docker pause pixlate-worker-adopt >/dev/null
+$SA >/tmp/o 2>&1; rc=$?
+ok "paused → exit 1, 자동 unpause 안 함" "[ $rc = 1 ] && grep -q '^STOP-ADOPT fail' /tmp/o && grep -q 'paused' /tmp/o && [ \$(st pixlate-worker-adopt) = paused ]"
+docker unpause pixlate-worker-adopt >/dev/null
+DOCKER="docker -H unix:///tmp/nope.sock" $SA >/tmp/o 2>&1; rc=$?
+ok "조회 실패(데몬 연결 불가) → exit 1, 없음으로 취급 안 함" "[ $rc = 1 ] && grep -q '상태 조회 실패' /tmp/o && ! grep -q '^STOP-ADOPT ok' /tmp/o"
+docker update --restart=unless-stopped pixlate-worker-adopt >/dev/null
+failon "update pixlate-worker-adopt"; DOCKER=faildocker2 $SA >/tmp/o 2>&1; rc=$?; failon
+ok "자동 재시작 끄기 실패 → exit 1, TERM 보내지 않음" "[ $rc = 1 ] && grep -q '자동 재시작 끄기 실패' /tmp/o && ! grep -q '정지 요청(TERM)' /tmp/o && [ \$(st pixlate-worker-adopt) = running ]"
+$SA >/tmp/o 2>&1; rc=$?
+ok "정상 docker 로 재실행 → 웜 종료 대기 후 exit 0" "[ $rc = 0 ] && [ \$(st pixlate-worker-adopt) = exited ] && [ \$(rp pixlate-worker-adopt) = no ]"
+docker rm pixlate-worker-adopt >/dev/null; $SA >/tmp/o 2>&1; rc=$?
+ok "컨테이너 없음 → exit 0(없음 표시)" "[ $rc = 0 ] && grep -q '^STOP-ADOPT ok 컨테이너 없음' /tmp/o"
+mode maintenance; $S >/tmp/o 2>&1
 
 echo "== F. 출력 정제·Redis"
 ok "스크립트 출력에 비밀 없음" "! grep -qE 'testpw|dbsecretpw|AIzaFAKE|bucket-name-xyz' /tmp/o /tmp/m"

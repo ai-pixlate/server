@@ -165,7 +165,7 @@ docker build \
 
 API는 인페인팅(`app.tasks.run_inpaint`)을 **`gpu` 큐**에, 분석(`app.tasks.run_analyze`, ①섹션 분해·②OCR·③병합)을 **`ocr` 큐**에 넣습니다.
 이 서버의 워커 두 개가 **EC2 Redis에 접속해** 가져갑니다. 학교 서버는 인바운드가 막혀 있어, 워커가 EC2로 나가는 방향만 씁니다.
-EC2에는 `cpu` 워커·API·복구 프로세스만 둡니다(`deploy/README.md`).
+EC2에는 `cpu` 워커·`adopt` 워커(GPU 결과 채택 `run_adopt` 전용)·API·복구 프로세스만 둡니다(`deploy/README.md`).
 
 | 워커 | venv | 로그 | 명령(`gpu/worker.sh`가 실행) |
 | --- | --- | --- | --- |

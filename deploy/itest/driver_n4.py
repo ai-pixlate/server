@@ -313,7 +313,7 @@ class Db:
             return [dict(r) for r in c.execute(self.text(sql), p).mappings().all()]
 
     def queues(self):
-        return {k: self.rds.llen(k) for k in ("ocr", "cpu", "gpu", "celery")} | {"unacked": self.rds.hlen("unacked")}
+        return {k: self.rds.llen(k) for k in ("ocr", "cpu", "gpu", "adopt", "celery")} | {"unacked": self.rds.hlen("unacked")}
 
     def schema_problems(self):
         bad = []

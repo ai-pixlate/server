@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # EC2 설치 위치: /opt/pixlate/start-pixlate.sh — pixlate.service ExecStart. 비밀 값 없음. set -x 금지.
-# EC2 에는 API·cpu 워커·복구 프로세스와 Redis 만 둔다. ocr·gpu 큐는 학교 GPU pod 워커가 소비한다(gpu/README.md).
+# EC2 에는 API·cpu 워커·adopt 워커·복구 프로세스와 Redis 만 둔다. ocr·gpu 큐는 학교 GPU pod 워커가 소비한다(gpu/README.md).
 #
 # 동작은 /etc/pixlate/deploy.mode 한 단어로 정한다. 파일이 없거나 값이 다르면 maintenance 로 동작한다(live 로 시작하지 않는다).
-#   maintenance : API·복구·cpu 워커를 멈추고 자동 재시작을 끈다(재부팅해도 유입·소비·복구 없음). Redis 는 그대로 둔다
+#   maintenance : API·복구·adopt·cpu 워커를 멈추고 자동 재시작을 끈다(재부팅해도 유입·소비·복구 없음). Redis 는 그대로 둔다
 #   validate    : 고정 digest API 를 127.0.0.1 에만 연다(외부·ALB 유입 없음, 자동 재시작 끔). 워커·복구는 멈춘 채
-#   live        : API 외부 공개 → cpu 워커 → 복구 프로세스 순서로 기동(자동 재시작 켬)
+#   live        : API 외부 공개 → cpu 워커 → adopt 워커 → 복구 프로세스 순서로 기동(자동 재시작 켬)
 # 모드는 /opt/pixlate/bin/pixlate-mode 로만 바꾼다(파일 기록과 적용을 한 번에 해서 restart 정책과 모드가 어긋나지 않게 한다).
 #
-# 정지(graceful_stop): ① 대상 전부의 자동 재시작을 먼저 끈다 ② API(신규 유입 차단) → 복구 → cpu 순으로 TERM 만 보낸다
+# 정지(graceful_stop): ① 대상 전부의 자동 재시작을 먼저 끈다 ② API(신규 유입 차단) → 복구 → adopt → cpu 순으로 TERM 만 보낸다
 #   ③ 보낸 뒤 따로 기다린다(STOP_WAIT_S). 하나가 실패하거나 늦어도 나머지 대상에는 계속 요청한다.
 #   대기가 끝나도 SIGKILL·삭제·재생성·unpause 를 하지 않는다. 정지 완료는 exited·created 만 인정한다
 #   (paused·restarting·조회 실패는 미완료). 실패는 모아 보고하고 적용 상태를 `<모드>-incomplete` 로 남긴 뒤 실패로 끝낸다.
@@ -37,7 +37,7 @@ WRAP=${WRAP:-/opt/pixlate/bin/redact_run.py}  # 로그 정제 래퍼(시그널 �
 STOP_WAIT_S=${STOP_WAIT_S:-600}             # 정지 대기 상한(초). 넘어도 강제 종료하지 않고 실패로 보고
 START_SETTLE_S=${START_SETTLE_S:-3}         # 기동 뒤 실행 상태를 확인하기까지 기다리는 시간(초)
 NET=pixlate-net
-STOP_ORDER=(pixlate-api pixlate-recovery pixlate-worker-cpu)   # 신규 유입 차단 → 재전달 중단 → 웜 종료
+STOP_ORDER=(pixlate-api pixlate-recovery pixlate-worker-adopt pixlate-worker-cpu)   # 신규 유입 차단 → 재전달 중단 → 채택 웜 종료 → 웜 종료(채택이 만든 미리보기 메시지를 cpu 가 받을 시간을 둠)
 OFFLOADED=(pixlate-worker-gpu pixlate-worker-ocr)              # EC2 에서 돌리지 않는 큐의 옛 컨테이너(지우지 않고 멈춤)
 FAILURES=()
 
@@ -264,10 +264,14 @@ graceful_stop "${OFFLOADED[@]}"
 no_failures || { finish live || true; die "옛 워커 정지 미완료 — live 기동을 시작하지 않았다"; }
 # cpu 워커는 python -m celery 로 띄운다. celery 실행 파일은 앱을 불러올 때만 /app 을 import 경로에 넣었다가 빼므로,
 # 태스크 실행 중의 지연 import(pipeline)가 실패한다(tests/worker_import.sh). 학교 워커(gpu/worker.sh)와 같은 방식.
-# 실행 명령은 사양 해시에 들어가므로 이 줄을 바꾸면 cpu 워커만 교체된다. 래퍼(redact_run.py) 내용은 세 컨테이너 사양 모두에 들어간다.
+# 실행 명령은 사양 해시에 들어가므로 이 줄을 바꾸면 cpu 워커만 교체된다. 래퍼(redact_run.py) 내용은 네 컨테이너 사양 모두에 들어간다.
+# adopt 워커는 원격 인계 검증·채택(run_adopt)만 소비한다(모델·렌더 없음 — Gemini 환경 파일 연결 안 함).
+# 채택 메시지 발행자인 복구보다 먼저 띄운다(소비자 먼저).
 run_managed pixlate-api unless-stopped -p 8000:8000 --env-file "$ENVFILE" "$IMAGE" "${API_CMD[@]}" \
   && run_managed pixlate-worker-cpu unless-stopped --env-file "$ENVFILE" --env-file "$GEMINI_ENV" "$IMAGE" \
        python /opt/pixlate/bin/redact_run.py -- python -m celery -A app.celery_app:celery_app worker -Q cpu --pool=solo -n "cpu@%h" --loglevel=info \
+  && run_managed pixlate-worker-adopt unless-stopped --env-file "$ENVFILE" "$IMAGE" \
+       python /opt/pixlate/bin/redact_run.py -- python -m celery -A app.celery_app:celery_app worker -Q adopt --pool=solo -n "adopt@%h" --loglevel=info \
   && run_managed pixlate-recovery unless-stopped --env-file "$ENVFILE" "$IMAGE" \
        python /opt/pixlate/bin/redact_run.py -- python -m app.recovery --interval 60 \
   || { finish live || true; die "live 기동 실패(위 실패 참고) — 남은 컨테이너는 그대로 두었다"; }

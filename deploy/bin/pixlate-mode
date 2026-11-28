@@ -9,7 +9,7 @@ CONF_DIR=${CONF_DIR:-/etc/pixlate}
 SYSTEMCTL=${SYSTEMCTL:-systemctl}
 DOCKER=${DOCKER:-docker}
 BIN=${BIN:-/opt/pixlate/bin}
-TARGETS=(pixlate-api pixlate-recovery pixlate-worker-cpu pixlate-worker-ocr pixlate-worker-gpu)
+TARGETS=(pixlate-api pixlate-recovery pixlate-worker-adopt pixlate-worker-cpu pixlate-worker-ocr pixlate-worker-gpu)
 
 report() {
   local req app

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# /opt/pixlate/bin/pixlate-stop-adopt — adopt 워커(pixlate-worker-adopt) 하나만 멈추는 롤백용 정지 도구. 비밀 값 없음. set -x 금지.
+#
+# 왜 따로 있나: adopt 워커를 모르는 옛 판 start-pixlate.sh · pixlate-mode 로 되돌리면, maintenance 로 바꿔도 이 컨테이너는
+#   정지 대상이 아니어서 unless-stopped 로 남고 재부팅 때 다시 뜬다. 이 도구는 기동 스크립트 판과 상관없이 같은 방식으로 멈춘다.
+# 동작(start-pixlate.sh graceful_stop 과 같은 규칙):
+#   ① 자동 재시작을 먼저 끈다(docker update --restart=no) ② running·restarting 이면 TERM 만 보낸다(웜 종료 — 실행 중 run_adopt 를 끝내고 멈춤)
+#   ③ STOP_WAIT_S(기본 600초)까지 기다린다. SIGKILL·삭제·재생성·unpause 는 하지 않는다.
+#   정지 완료는 exited·created·없음(No such container)만 인정한다. 시간 안에 안 끝남 · paused · 조회 실패 · restart 끄기 실패는 실패(종료 1).
+# 큐 · 처리 중 채택 확인(LLEN adopt · unacked · verifying)은 이 도구의 일이 아니다 — 부르기 전 state_check.py --gate 로 본다(README 롤백 절).
+# 출력: 진행 줄과 마지막 줄 `STOP-ADOPT ok|fail <설명>`. 종료 코드 0 정지 확인 · 1 실패 · 2 사용법.
+set -uo pipefail
+DOCKER=${DOCKER:-docker}
+STOP_WAIT_S=${STOP_WAIT_S:-600}
+NAME=pixlate-worker-adopt
+[ $# -eq 0 ] || { echo "usage: $0   (인자 없음, 환경 변수 STOP_WAIT_S 로 대기 상한)" >&2; exit 2; }
+
+log() { echo "[stop-adopt] $*"; }
+fail() { log "실패: $*"; echo "STOP-ADOPT fail $*"; exit 1; }
+
+# start-pixlate.sh state() 와 같다: 없다는 명확한 응답만 absent, 그 밖의 조회 실패는 unknown
+state() {
+  local out
+  if out=$($DOCKER container inspect -f '{{.State.Status}}' "$NAME" 2>&1); then echo "$out"
+  elif printf '%s' "$out" | grep -qE 'No such (container|object)'; then echo absent
+  else echo unknown; fi
+}
+policy() { $DOCKER container inspect -f '{{.HostConfig.RestartPolicy.Name}}' "$NAME" 2>/dev/null; }
+
+st=$(state)
+case "$st" in
+  absent) log "$NAME 없음"; echo "STOP-ADOPT ok 컨테이너 없음"; exit 0 ;;
+  unknown) fail "$NAME 상태 조회 실패(없음으로 취급하지 않음)" ;;
+esac
+
+$DOCKER update --restart=no "$NAME" >/dev/null 2>&1 || fail "$NAME 자동 재시작 끄기 실패"
+[ "$(policy)" = no ] || fail "$NAME 자동 재시작 정책 확인 실패(restart=$(policy || echo '?'))"
+log "$NAME 자동 재시작 끔(restart=no)"
+
+st=$(state)
+case "$st" in
+  running|restarting)
+    $DOCKER kill --signal=TERM "$NAME" >/dev/null 2>&1 || fail "$NAME TERM 전달 실패"
+    log "$NAME 정지 요청(TERM)" ;;
+  paused) fail "$NAME paused 상태 — TERM 이 처리되지 않는다(자동 unpause 하지 않음)" ;;
+esac
+
+deadline=$(( $(date +%s) + STOP_WAIT_S ))
+while :; do
+  st=$(state)
+  case "$st" in
+    running|restarting|removing) [ "$(date +%s)" -lt "$deadline" ] || break; sleep 2 ;;
+    *) break ;;
+  esac
+done
+case "$st" in
+  exited|created)
+    ex=$($DOCKER container inspect -f '{{.State.ExitCode}}' "$NAME" 2>/dev/null || echo '?')
+    log "$NAME 정지 확인($st, exit=$ex)"; echo "STOP-ADOPT ok 정지 확인($st, exit=$ex, restart=no)"; exit 0 ;;
+  absent) log "$NAME 정지 확인(없음)"; echo "STOP-ADOPT ok 컨테이너 없음"; exit 0 ;;
+  running|restarting|removing) fail "$NAME ${STOP_WAIT_S}초 안에 끝나지 않음($st, 강제 종료하지 않음 — 끝난 뒤 다시 실행)" ;;
+  *) fail "$NAME 정지 확인 불가($st)" ;;
+esac

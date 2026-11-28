@@ -4,8 +4,8 @@
       <API 이미지> python /opt/pixlate/bin/state_check.py [--gate | --db-revision | --snapshot [--with-s3] | --compare A B]
 
 값·주소·메시지 본문은 출력하지 않는다. 결과는 조회 시점의 값이다. 정지된 요청·작업이 늦게 만든 메시지가 있을 수 있으므로 0 이 아니면 그대로 보고한다.
-- 인자 없음(pixlate-mode status 가 부른다): 기존 출력 그대로. 종료 코드 0 조회 성공 / 1 조회 실패(연결 오류 등 — 유형만 출력).
-- --gate        : 전환 전 유휴 관문. 큐(ocr·cpu·gpu·celery)·unacked·unacked_index 0, 부모 있는 pending·running 시도 0, 열린 인계 0 이면 0.
+- 인자 없음(pixlate-mode status 가 부른다): 큐 목록에 adopt 가 더해진 것 외에 형식은 기존과 같다. 종료 코드 0 조회 성공 / 1 조회 실패(연결 오류 등 — 유형만 출력).
+- --gate        : 전환 전 유휴 관문. 큐(ocr·cpu·gpu·adopt·celery)·unacked·unacked_index 0, 부모 있는 pending·running 시도 0, 열린 인계 0 이면 0.
                   하나라도 있으면 2, 조회 실패 1. 열린 대표 실행은 개수만 출력(관문 조건 아님).
 - --db-revision : alembic_version 을 SQL 로 직접 읽는다(Alembic 스크립트 해석과 분리 — 이전 이미지가 모르는 revision 도 읽힌다).
                   행이 정확히 1개면 값 출력·0, 아니면 1.
@@ -20,7 +20,7 @@ import json
 import os
 import sys
 
-QUEUES = ("ocr", "cpu", "gpu", "celery")
+QUEUES = ("ocr", "cpu", "gpu", "adopt", "celery")
 
 
 def _redis():

@@ -26,6 +26,7 @@ EOF
 
 C="/pixlate-api aaa 2026-10-12T07:54:50Z running
 /pixlate-worker-cpu bbb 2026-10-12T07:54:50Z running
+/pixlate-worker-adopt eee 2026-10-12T07:54:51Z running
 /pixlate-recovery ccc 2026-10-12T07:54:51Z running
 /pixlate-redis ddd 2026-09-28T04:31:31Z running"
 CX=$(printf '%s\n' "$C" | sed 's/bbb/zzz/')
@@ -59,6 +60,12 @@ scenario normal 0 0 0 0 0 "종료: N3 도달 + 이번 실행 잔여 작업 정�
 mk replaced; e running:0 N2 > $W/replaced/ec2.1; e running:0 N2 > $W/replaced/ec2.2; e running:0 N2 0 "$CX" > $W/replaced/ec2.3
 e running:0 aborted 1 "$CX" > $W/replaced/ec2.4; e exited:2 aborted-settled 1 "$CX" > $W/replaced/ec2.5
 scenario replaced 1 0 0 0 0 "S4: EC2 컨테이너 교체"
+
+# 2b adopt 워커 교체도 같은 판정(STOP 한 번)
+CA=$(printf '%s\n' "$C" | sed 's/eee/yyy/')
+mk replaced_adopt; e running:0 N2 > $W/replaced_adopt/ec2.1; e running:0 N2 > $W/replaced_adopt/ec2.2; e running:0 N2 0 "$CA" > $W/replaced_adopt/ec2.3
+e running:0 aborted 1 "$CA" > $W/replaced_adopt/ec2.4; e exited:2 aborted-settled 1 "$CA" > $W/replaced_adopt/ec2.5
+scenario replaced_adopt 1 0 0 0 0 "S4: EC2 컨테이너 교체"
 
 # 3 N2 중 메모리 초과 → STOP 한 번 + TERM 한 번
 mk memory; e running:0 N2 > $W/memory/ec2.1; e running:0 N2 > $W/memory/ec2.2; e running:0 aborted 1 > $W/memory/ec2.4; e exited:2 aborted-settled 1 > $W/memory/ec2.5

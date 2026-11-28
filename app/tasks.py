@@ -13,7 +13,7 @@
 | run_preview | cpu | ⑨ 초기 미리보기(섹션별) |
 | run_text_check | cpu | ⑧ 번역문 규칙 검사(섹션별, 모델 호출 없음) |
 | run_render | cpu | N6 최종 렌더 |
-| run_adopt | cpu | 원격 인계 검증·채택 |
+| run_adopt | adopt | 원격 인계 검증·채택(모델 · 렌더 없음 — 전용 워커) |
 
 run_preview · run_render 는 시도를 임대하기 전에 FE 내부 렌더 경로 준비를 확인하고, 준비 전이면 시도를 잡지 않고 미룬다(_defer_render).
 """

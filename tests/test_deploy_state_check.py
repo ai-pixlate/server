@@ -1,7 +1,8 @@
 """deploy/bin/state_check.py — 인자 없는 기존 출력 유지, 유휴 관문, 실제 DB revision, 상태 지문(구현안 6판 2.4).
 
 DB 는 PIXLATE_TEST_DATABASE_URL, Redis 는 PIXLATE_TEST_REDIS_URL 이 있을 때만(없으면 해당 시험 skip — S3 목록 지문 시험은 항상 실행).
-Redis 는 다른 시험과 겹치지 않게 db 12 를 쓰고, 큐 키(ocr·cpu·gpu·celery·unacked·unacked_index)만 지운다.
+Redis 는 다른 시험과 겹치지 않게 db 12 를 쓰고, 큐 키(ocr·cpu·gpu·adopt·celery·unacked·unacked_index)만 지운다.
+--gate 의 큐 판정(adopt 포함)은 가짜 Redis · DB 로도 본다(시험 Redis 없이 실행).
 """
 from __future__ import annotations
 
@@ -22,7 +23,7 @@ sc = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(sc)
 
 REDIS_BASE = os.getenv("PIXLATE_TEST_REDIS_URL")
-KEYS = ("ocr", "cpu", "gpu", "celery", "unacked", "unacked_index")
+KEYS = ("ocr", "cpu", "gpu", "adopt", "celery", "unacked", "unacked_index")
 needs_db_redis = pytest.mark.skipif(not (ADMIN_URL and REDIS_BASE), reason="PIXLATE_TEST_DATABASE_URL·PIXLATE_TEST_REDIS_URL 필요")
 
 
@@ -121,7 +122,7 @@ def test_legacy_output_format_unchanged(env, capsys):
     assert sc.main([]) == 0
     lines = capsys.readouterr().out.splitlines()
     assert lines == [
-        "redis queues: {'ocr': 0, 'cpu': 0, 'gpu': 0, 'celery': 0} | unacked: 0 | unacked_index: 0",
+        "redis queues: {'ocr': 0, 'cpu': 0, 'gpu': 0, 'adopt': 0, 'celery': 0} | unacked: 0 | unacked_index: 0",
         f"db revision: {revs[0]} | pending/running attempts: 0 | open handoffs: 0",
     ]
 
@@ -164,6 +165,82 @@ def test_gate_redis_failure_is_query_failure(env, capsys, monkeypatch):
     assert sc.main(["--gate"]) == 1
     out = capsys.readouterr().out
     assert out.startswith("gate check failed: ") and "127.0.0.1" not in out
+
+
+@needs_db_redis
+def test_gate_adopt_queue_is_busy_until_drained(env, capsys):
+    # 롤백 ③(deploy/README.md 5절)은 새 판 --gate 가 adopt 큐(run_adopt)의 남은 메시지를 작업으로 세는 데 기댄다
+    _settle()
+    assert sc.main(["--gate"]) == 0
+    capsys.readouterr()
+    env["redis"].rpush("adopt", "m")
+    assert sc.main(["--gate"]) == 2
+    out = capsys.readouterr().out
+    assert "'adopt': 1" in out and out.strip().endswith("gate=busy")
+    env["redis"].delete("adopt")
+    assert sc.main(["--gate"]) == 0
+    out = capsys.readouterr().out
+    assert "'adopt': 0" in out and out.strip().endswith("gate=idle")
+
+
+# ---- --gate 큐 판정(가짜 Redis · DB — 새 의존성 없음, 시험 Redis 없이도 실행) ------------------------------------------
+class FakeRedis:
+    def __init__(self):
+        self.lists: dict[str, list] = {}
+
+    def rpush(self, k, v):
+        self.lists.setdefault(k, []).append(v)
+
+    def delete(self, *ks):
+        for k in ks:
+            self.lists.pop(k, None)
+
+    def llen(self, k):
+        return len(self.lists.get(k, []))
+
+    def hlen(self, k):
+        return 0
+
+    def zcard(self, k):
+        return 0
+
+
+class FakeEngine:
+    """진행 중 시도·열린 인계·열린 대표 실행 개수를 모두 0 으로 돌려준다(큐 판정만 본다)."""
+
+    def connect(self):
+        class C:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def execute(self, _sql):
+                class R:
+                    def scalar(self):
+                        return 0
+
+                return R()
+
+        return C()
+
+
+def test_gate_counts_adopt_queue_without_test_redis(capsys, monkeypatch):
+    r = FakeRedis()
+    monkeypatch.setattr(sc, "_redis", lambda: r)
+    monkeypatch.setattr(sc, "_engine", lambda: FakeEngine())
+    assert "adopt" in sc.QUEUES
+    assert sc.main(["--gate"]) == 0
+    assert capsys.readouterr().out.strip().endswith("gate=idle")
+    r.rpush("adopt", "m")
+    assert sc.main(["--gate"]) == 2
+    out = capsys.readouterr().out
+    assert "'adopt': 1" in out and out.strip().endswith("gate=busy")
+    r.delete("adopt")
+    assert sc.main(["--gate"]) == 0
+    out = capsys.readouterr().out
+    assert "'adopt': 0" in out and out.strip().endswith("gate=idle")
 
 
 # ---- --db-revision ------------------------------------------------------------------------------------------

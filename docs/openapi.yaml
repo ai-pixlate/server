@@ -113,7 +113,7 @@ tags:
   - name: M1 Library
     description: 'M1 보관함 — 보관함 카드 (F-LST) · 🟢9월 (LIB-02/03 🔵12월)'
   - name: S0 Job
-    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · PATCH /jobs draft-first 확정 · JOB-08 resume 📌조건부)'
+    description: 'S0 프로세스 바(전역) — 작업 골격·상태·제어 (F-JOB·F-SRC) · 🟢9월 (JOB-01 🔵12월 · PATCH /jobs draft-first 확정 · JOB-08 resume = N4 작업 단위 재시도, FE 11-27·11-28 계약 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포)'
   - name: Master
     description: '마스터 데이터 읽기 전용 시드 (F-LNG·F-CH·F-SRC) · 🟢9월 (전용 화면 O3는 🔵12월)'
   - name: Admin
@@ -515,6 +515,68 @@ components:
       properties:
         jobId: { type: integer, format: int64 }
         taskId: { type: [integer, 'null'], format: int64, description: '등록된 task ID(renderTaskId·rerenderTaskId 등)' }
+    JobResumeAccepted:
+      type: object
+      description: >
+        JOB-08 202 응답 [FE 11-27·11-28 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포]. 화면 전환은 `status` · `currentStep`과 이어지는 JOB-05 재조회로 한다
+        (`processing · N4` → 진행 화면, `review · N5` → 바로 N5). 두 목록은 정보 확인용이며 FE 가 재시도 대상 · 진행률을 따로 계산하지 않는다.
+        실제 처리 진행 · 완료 여부는 JOB-05 로 판단한다.
+      required: [jobId, status, currentStep, retriedTaskIds, fallbackSectionIds]
+      properties:
+        jobId: { type: integer, format: int64 }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        currentStep: { $ref: '#/components/schemas/JobStep' }
+        retriedTaskIds:
+          type: array
+          items: { type: integer, format: int64 }
+          description: >
+            이번 요청이 새로 만든 재시도 시도의 taskId(실패한 현재 시도를 대체한 것)만. 대체 진행 뒤 새로 생긴 후속 처리(미리보기 등)는 넣지 않는다.
+            다시 실행한 것이 없으면 빈 배열.
+        fallbackSectionIds:
+          type: array
+          items: { type: integer, format: int64 }
+          description: >
+            이번 요청에서 대체 진행으로 마무리한 처리가 하나 이상 있는 섹션(중복 제거 · 오름차순). 그 섹션의 모든 처리가 끝났다는 뜻이 아니다.
+            대체 진행이 없으면 빈 배열.
+    JobRetry:
+      type: object
+      description: >
+        JOB-05 작업 단위 재시도 판정 [FE 11-27·11-28 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포] — N4 오류 화면 [다시 시도] 버튼 상태의 기준.
+        JOB-08 과 같은 서버 판정 함수로 계산한다. 조회 뒤 상태가 바뀔 수 있어 JOB-08 이 다시 판정하므로 `available: true`가 요청 성공을 보장하지 않는다.
+        `items[].retryable`(시도 하나의 JOB-06 가능 여부) · HTTP `error.retryable`과 다른 값이다. 이 속성이 없는 서버 응답에서 FE 는
+        `items[].retryable`을 조합해 작업 전체의 재시도 가능 여부를 추정하지 않는다.
+      required: [available, blocking]
+      properties:
+        available: { type: boolean, description: '차단이 없어 [다시 시도]를 받을 수 있는 상태(대체 진행만 있는 경우 포함).' }
+        blocking:
+          type: array
+          description: 'available=false 의 사유. JOB-08 409 `details.blocking`과 같은 항목.'
+          items: { $ref: '#/components/schemas/JobRetryBlockingItem' }
+    JobRetryBlockingItem:
+      type: object
+      description: >
+        작업 단위 재시도의 차단 항목 [FE 11-27 요청 필드 · 11-28 값 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포].
+        FE 는 `sectionId`를 사용자용 번호로 그대로 보이지 않고 작업의 섹션 순서와 잇는다.
+        이 항목은 JOB-08 409 · JOB-05 `jobRetry` 응답 시점의 판정이다 — [중단] 뒤 N3 에서 다시 조회할 수 있는 실패 정보가 아니다.
+      required: [sectionId, stage, reason]
+      properties:
+        sectionId:
+          type: [integer, 'null']
+          format: int64
+          description: >
+            값이 있으면 그 섹션의 그 처리가 막힘. `null` 이면 작업 전체 판정으로 막힘(작업 전체 번역 성공 0 — 섹션별 항목을 늘어놓지 않고 항목 하나,
+            `stage: translate` · `reason: job_translation_zero`).
+        stage:
+          type: string
+          enum: [label, logo, translate]
+          description: >
+            차단 항목 전용 단계 값. JOB-05 `TaskType`은 바꾸지 않는다(TaskType 으로는 라벨 · 로고 · 스타일이 모두 `section` 이라 무엇이 막혔는지 나뉘지 않는다).
+        reason:
+          type: string
+          enum: [retry_limit_exceeded, not_retryable, job_translation_zero]
+          description: >
+            `retry_limit_exceeded` = 누적 한도 소진. `not_retryable` = 한도는 남았지만 다시 할 수 없음(라벨 · 로고의 일반 실패).
+            `job_translation_zero` = 작업 전체 번역 성공 0(`sectionId: null` · `stage: translate`).
 
     # ===== enum (CHECK_enum_허용값 v3.4.1 · ERD V5 그대로) =====
     JobStatus:
@@ -930,6 +992,13 @@ components:
           description: >
             【구현 예정 — 운영 미제공】 선택. N2 세부 진행. currentStep=N2 가 아니면 속성을 생략한다(null 을 보내지 않음).
             없으면 FE 는 기존 progress·stages·items 로 표시한다. 기존 필드의 값·의미는 바꾸지 않는다.
+        jobRetry:
+          allOf: [ { $ref: '#/components/schemas/JobRetry' } ]
+          description: >
+            [FE 11-27·11-28 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포] 작업이 `failed · N4`이고 진행 중인 하류 실행이 있을 때만 싣는다. 그 밖(`failed · N4`가 아닌 상태,
+            `failed · N4`이지만 진행 중인 하류 실행이 없는 경우 — 이때 JOB-08 은 409 INVALID_STATE)에서는 **속성을 생략한다(null 을 보내지 않음)** —
+            analysisProgress 와 같은 규칙. **속성이 없다는 것은 재시도 가능 · 불가를 정한 값이 아니다** — FE 는 이때 `items[].retryable`을
+            조합해 작업 전체 가능 여부를 추정하지 않는다. 기존 필드의 값·의미는 바꾸지 않는다.
     JobAsyncTaskItem:
       type: object
       properties:
@@ -2547,21 +2616,39 @@ paths:
       - $ref: '#/components/parameters/JobId'
     post:
       tags: [S0 Job]
-      summary: 실패 단계 전체 재시도 📌조건부
+      summary: N4 오류 작업 단위 재시도 [다시 시도]
       operationId: jobResume
-      x-screen: 'N2·N4(조건부)'
+      x-screen: 'N4'
       x-source: API-JOB-08
       description: >
-        📌9월 조건부(PM 확정 대기 · openapi 개수 미합산). status=failed의 실패 task만 재큐잉,
-        인페인팅 실패는 재실행 안 함. TODO: 상세 계약 미확정.
+        [PM 11-27 정책 · FE 11-27·11-28 계약 합의 · 로컬 구현(feature/job-auto-cancel) · 미배포] N4 오류 화면의 [다시 시도]는 이 요청 하나로 잇는다
+        (FE 는 개별 시도를 모아 JOB-06 으로 각각 보내지 않는다. JOB-06 은 N5 개별 미리보기 재시도 등 기존 화면에서 그대로).
+        요청 본문 없음. 받는 상태는 `failed · N4`(진행 중인 하류 실행이 있을 때)만이다 — 그 밖(이미 처리 중인 중복 요청 포함)은
+        409 `INVALID_STATE`이고 FE 는 작업을 다시 조회한다(이미 처리 중이면 진행 화면).
+        판정(README 7.8 ⑤ 「N4 [다시 시도]」): 현재 하류 실행의 실패한 현재 시도마다 다시 실행 · 대체 진행 · 차단으로 나눈다.
+        시간 초과로 닫힌 처리는 단계별 기존 누적 한도 안에서 다시 실행하고(시간 초과라고 횟수를 더하지 않음), 재시도할 수 있는 일반 실패(번역 · 렌더)도
+        함께 다시 실행한다. 한도를 다 쓴 처리와 다시 실행하지 않는 실패(시간 초과가 아닌 인페인트 · 스타일 일반 실패 등 — 범위는 README 7.8 ⑤)는
+        실패 규칙으로 대체 진행한다. **대체 진행은 차단이 아니다.**
+        차단이 하나라도 있으면 아무것도 바꾸지 않고(새 시도 0 · 상태 그대로) 요청 전체를 409 `RETRY_NOT_ALLOWED`로 거절하며
+        `details.blocking`에 차단 항목을 싣는다. 일부만 다시 실행하지 않는다.
+        성공하면 202 — 작업은 `processing · N4`가 되고 30분 상한을 새로 센다. 다시 실행할 것 없이 모두 대체 진행으로 끝나면
+        같은 요청 안에서 바로 `review · N5`가 될 수 있다(FE 는 진행 화면 없이 N5 로). 이후 진행은 JOB-05 로 따른다.
+        JOB-05 `jobRetry`와 같은 판정 함수를 쓰지만, 조회 뒤 상태가 바뀔 수 있으므로 이 요청에서 작업 행을 잠근 뒤 다시 판정한다 —
+        `jobRetry.available: true`가 이 요청의 성공을 보장하지 않는다.
       responses:
         '202':
-          description: '재개 수락 (→ JOB-05 폴링)'
+          description: '재시도 수락 — 이후 JOB-05 재조회'
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/AcceptedTask' }
+              schema: { $ref: '#/components/schemas/JobResumeAccepted' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
+        '409':
+          description: >
+            INVALID_STATE — `failed · N4`가 아님(이미 처리 중인 중복 요청 · 취소 등). /
+            RETRY_NOT_ALLOWED — 실제로 다시 할 수 없는 차단이 있음, `details.blocking: JobRetryBlockingItem[]`. 아무것도 바꾸지 않았다.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /jobs/{jobId}/source-images:
     parameters:

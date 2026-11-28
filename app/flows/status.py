@@ -102,6 +102,14 @@ def task_status(db: Session, job: dict[str, Any]) -> dict[str, Any]:
         ap = _analysis_progress(db, run)
         if ap is not None:
             out["analysisProgress"] = ap
+    if (job["status"], job["current_step"]) == ("failed", "N4"):
+        # 작업 단위 재시도 판정(JOB-08 과 같은 함수). failed · N4 가 아니면 속성 생략(null 아님 — analysisProgress 와 같은 규칙).
+        # 조회 뒤 상태가 바뀔 수 있어 JOB-08 이 잠근 뒤 다시 판정한다 — available=true 는 성공 보장이 아니다
+        from app.flows import downstream
+
+        plan = downstream.job_retry_plan(db, job["id"])
+        if plan["state"] == "ok":  # 진행 중인 하류 실행이 없으면(JOB-08 은 INVALID_STATE) 사유 없는 false 대신 속성 생략
+            out["jobRetry"] = {"available": plan["available"], "blocking": downstream.public_blocking(plan["blocking"])}
     return out
 
 

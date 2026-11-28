@@ -1235,7 +1235,7 @@ def rerender_section(db: Session, job_id: int, section_id: int) -> int | None:
 
 
 # ---------------------------------------------------------------------------------------------------------
-# N4 작업 단위 복구(내부 로직 — 공개 API 미연결. 경로 · 요청 · 응답 이름은 계약 확정 전이라 라우터 · openapi 에 넣지 않는다)
+# N4 작업 단위 복구(판정 · 생성 로직. 공개 경로는 JOB-08 `/resume` · JOB-05 `jobRetry` — routers/jobs.py · flows/status.py)
 # 근거: PM 결정 2026-11-27(한도 = 가 · N4 복구 규칙) — plans/2026-11-26_send/N4-재시도계약-보완·abort·resume-20261126.md 11-27 절
 # ---------------------------------------------------------------------------------------------------------
 RETRY, FALLBACK, BLOCK = "retry", "fallback", "block"
@@ -1257,7 +1257,7 @@ _POLICY: dict[str, Any] = {
 
 
 class JobRetryRejected(Exception):
-    """작업 단위 복구를 받을 수 없는 상태(내부 예외 — 공개 응답 코드 · 이름은 계약 확정 전). 아무것도 바꾸지 않았다."""
+    """작업 단위 복구를 받을 수 없는 상태(내부 예외 — 공개 응답은 JOB-08 라우터가 409 INVALID_STATE 로 바꾼다). 아무것도 바꾸지 않았다."""
 
     def __init__(self, code: str, message: str):
         super().__init__(message)
@@ -1266,7 +1266,7 @@ class JobRetryRejected(Exception):
 
 class JobRetryBlocked(JobRetryRejected):
     """판정에서 「재시도 불가 · 출구 없음」이 하나 이상 — 진행이 막히는 경우만(라벨 · 로고 소진 — PM 확정 정책의 후순위 구현 전 임시 동작,
-    작업 전체 번역 성공 0, 라벨 · 로고의 소진 아닌 재시도 불가). 새 시도 0개. blocking = 막힌 섹션 · 단계 목록(공개 응답 모양은 계약 확정 전)."""
+    작업 전체 번역 성공 0, 라벨 · 로고의 소진 아닌 재시도 불가). 새 시도 0개. blocking = 막힌 섹션 · 단계 목록(내부 사유 — 공개 값은 public_blocking 이 바꾼다, JOB-08 409 details.blocking)."""
 
     def __init__(self, blocking: list[dict[str, Any]]):
         super().__init__("JOB_RETRY_BLOCKED", f"재시도할 수 없는 처리 {len(blocking)}건")
@@ -1409,7 +1409,7 @@ def _classify(db: Session, run: dict[str, Any], att: dict[str, Any], policy: dic
 
 
 def job_retry_plan(db: Session, job_id: int, *, policy: dict[str, Any] | None = None) -> dict[str, Any]:
-    """N4 작업 단위 재시도 판정만(시도 생성 · 상태 변경 없음, 1-2 ②). retry_job 이 쓴다(JOB-05 표시 연결은 계약 확정 뒤).
+    """N4 작업 단위 재시도 판정만(시도 생성 · 상태 변경 없음, 1-2 ②). retry_job(JOB-08) · JOB-05 jobRetry 가 같이 쓴다.
     현재 하류 실행의 현재 시도 중 failed 인 것을 단계별로 RETRY / FALLBACK / BLOCK 으로 나눈다.
     available = 작업이 failed · N4 이고 · 진행 중 하류 실행이 있고 · BLOCK 이 없고 · 미구현 정책 조합이 없을 때."""
     pol = _POLICY if policy is None else policy
@@ -1450,8 +1450,43 @@ def job_retry_plan(db: Session, job_id: int, *, policy: dict[str, Any] | None = 
     return out
 
 
+# 공개 응답의 차단 항목(JOB-08 409 details.blocking · JOB-05 jobRetry.blocking). 필드 3개(sectionId · stage · reason)는 FE 11-27 요청 그대로.
+# 아래 값 목록과 작업 전체 차단의 표현은 FE 11-28 합의(README 7.8 ⑤ 「응답 세부」 · openapi JobRetryBlockingItem enum).
+# 내부 차단 사유(_classify · job_retry_plan 이 내는 BLOCK 사유 전부)와 공개 값의 대응표. 대응이 없는 사유를 조용히 다른 값으로 바꾸지 않는다.
+BLOCK_REASONS = frozenset({"retry_limit", "not_retryable", "timeout_policy_block", "unknown_stage", "job_translation_zero"})
+_PUBLIC_BLOCK_REASON = {
+    "retry_limit": "retry_limit_exceeded",         # 누적 한도 소진(라벨 · 로고 — 자동 재시도로 다 쓴 흔한 경우 포함)
+    "not_retryable": "not_retryable",               # 한도는 남았지만 다시 할 수 없음(라벨 · 로고의 일반 실패 — 사용자 재시도 종류 아님)
+    "job_translation_zero": "job_translation_zero",  # 작업 전체 번역 성공 0 — 섹션 하나의 문제가 아님(sectionId = null 항목 하나)
+}
+# 공개 대응을 두지 않는 사유(지금 정책에서 생기지 않음 — 생기면 정책 표를 바꾼 것이므로 공개 값부터 정해야 한다):
+# timeout_policy_block(_POLICY 의 라벨 · 로고가 RETRY 가 아닐 때만) · unknown_stage(등록 단계 밖)
+_UNPUBLISHED_BLOCK_REASONS = frozenset({"timeout_policy_block", "unknown_stage"})
+# 차단 단계: 기존 TaskType 을 바꾸지 않고 차단 항목 전용 값(내부 단계 이름 그대로). 지금 차단이 생길 수 있는 단계만.
+_PUBLIC_BLOCK_STAGES = frozenset({"label", "logo", "translate"})
+
+
+class UnmappedBlockReason(RuntimeError):
+    """공개 대응이 없는 차단 사유 · 단계 — 정책 표를 바꿨는데 공개 계약을 정하지 않은 경우(프로그램 오류로 드러낸다)."""
+
+
+def public_blocking(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for it in items:
+        reason = _PUBLIC_BLOCK_REASON.get(it["reason"])
+        if reason is None or it["stage"] not in _PUBLIC_BLOCK_STAGES:
+            raise UnmappedBlockReason(f"공개 대응 없는 차단: stage={it['stage']} reason={it['reason']}")
+        if reason == "job_translation_zero":
+            row = {"sectionId": None, "stage": it["stage"], "reason": reason}  # 작업 전체 차단
+        else:
+            row = {"sectionId": it["sectionId"], "stage": it["stage"], "reason": reason}  # 그 섹션의 그 처리가 막힘
+        if row not in out:
+            out.append(row)
+    return out
+
+
 def retry_job(db: Session, job_id: int) -> dict[str, Any]:
-    """N4 작업 단위 복구(원자적). 호출자가 소유 확인을 마친 뒤 부른다(공개 API 미연결 — 계약 확정 뒤 라우터에 잇는다).
+    """N4 작업 단위 복구(원자적). 호출자가 소유 확인을 마친 뒤 부른다(JOB-08 `/resume` 라우터).
     작업 행 잠금 → 상태 재확인 → 전부 판정 → BLOCK 이 하나라도 있으면 아무것도 만들지 않고 JobRetryBlocked.
     아니면 한 트랜잭션에서: 재시도 시도 생성(누적 한도 · 고정 입력 규칙은 JOB-06 과 같음) · 대체로 닫을 것 기록 ·
     작업 processing · N4(30분 새로 셈) · 집계(대체로 끝난 섹션의 미리보기 등) → 커밋 → 큐 전송.

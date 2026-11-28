@@ -399,7 +399,8 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 | 최종 렌더 실패 — 자동 재시도가 없을 때(재시도 불가 실패, 또는 자동 재시도 1회 뒤 실패), 한도 남음 | 상태 그대로(`review · N6 · reviewing`). JOB-06 · FIN-01 [다시 시도] 가능(기존 기능) · 저장 409 | **`failed · N6 · failed`**(PM 확정 11-25). [다시 시도]는 JOB-05 `retryable` 에 따름(JOB-06 · FIN-01, 기존 재시도 경로) → `processing · N6 · rendering`. 저장 409 |
 | 최종 렌더 실패 — 누적 한도 소진 | 실행 failed, JOB-06 · FIN-01 · 저장 409, 상태 그대로 — 나갈 길은 취소뿐(기존) | `failed · N6 · failed`, 재시도 409. [중단](→ N5)은 G17 10번 일정이라 아직 없다 — 셀러 차례라 24시간 자동 취소 대상(④) |
 | 저장 대기에서 FIN-01 수동 재렌더 | 바뀌지 않음(새 최종 렌더 실행) | **409 `INVALID_STATE`**(PM 11-25 — 저장 대기 재렌더 차단, 새 실행 · 시도 없음, 사유 값은 합의 전이라 두지 않음). 렌더 오류(`failed · N6`)의 [다시 시도] · 처리 중 중복 요청(진행 중 시도 반환) · 저장 뒤(`done`) 재렌더는 그대로 |
-| FIN-06 저장 | `done · N6 · done` | 같음(저장 대기에서만) |
+| FIN-06 저장 | `done · N6 · done` | 같음 — 저장 대기에서 `done · N6 · done` 으로 전이. 이미 완료(`done · N6`)에서도 받으며 상태는 그대로이고 `saved_at` 은 다시 쓴다(매 [저장]이 최근 저장 시각 — D3) |
+| 첫 다운로드(FIN-05 POST — ⑧) | 없음 — 다운로드(GET)는 상태를 바꾸지 않아 내려받기만 한 작업이 저장 대기로 남음 | 저장 대기에서 `done · N6 · done` · `isSaved`(PM 11-25 D1~D4 — 첫 다운로드 = 완료, F-FIN-03). 이미 완료면 그대로 |
 | 처리 시간 초과(⑤) | 없음(처리 중에 계속 남음) | `failed · (그 단계) · failed` |
 | 취소(JOB-04 · 자동 취소) | `archived`, 단계 유지 | `cancelled`, 단계 유지 |
 
@@ -414,7 +415,7 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 
     | 센다(변경이 커밋된 때) | 세지 않는다 |
     |---|---|
-    | JOB-01 `PATCH /jobs/{jobId}` · ANL-01 `POST …/analyze` · SEC-03 `PATCH …/sections/{sectionId}` · SEC-04 `POST …/sections/proceed` · CFM-02 `PATCH …/blocks/{blockId}` · CFM-04 `POST …/confirm` · JOB-06 `POST …/tasks/{taskId}/retry` · JOB-07 `POST …/abort` · FIN-01 `POST …/render` · FIN-04 `POST …/export` · FIN-06 `POST …/save` · SRC-02 `POST …/source-images` · SRC-03 `PATCH …/source-images/reorder` · SRC-04 `DELETE …/source-images/{imageId}` | 모든 `GET`(JOB-05 폴링 포함) · JOB-04 `DELETE /jobs/{jobId}`(취소 자체) · 커밋 전에 끝난 실패 응답(4xx — 상태 · revision 충돌 등) · 멱등 재전송(최초 응답 재사용, 새 커밋 없음) |
+    | JOB-01 `PATCH /jobs/{jobId}` · ANL-01 `POST …/analyze` · SEC-03 `PATCH …/sections/{sectionId}` · SEC-04 `POST …/sections/proceed` · CFM-02 `PATCH …/blocks/{blockId}` · CFM-04 `POST …/confirm` · JOB-06 `POST …/tasks/{taskId}/retry` · JOB-07 `POST …/abort` · FIN-01 `POST …/render` · FIN-04 `POST …/export` · FIN-05 `POST …/exports/{artifactId}/download`(⑧) · FIN-06 `POST …/save` · SRC-02 `POST …/source-images` · SRC-03 `PATCH …/source-images/reorder` · SRC-04 `DELETE …/source-images/{imageId}` | 모든 `GET`(JOB-05 폴링 포함) · JOB-04 `DELETE /jobs/{jobId}`(취소 자체) · 커밋 전에 끝난 실패 응답(4xx — 상태 · revision 충돌 등) · 멱등 재전송(최초 응답 재사용, 새 커밋 없음) |
 
     값이 같아 바뀐 것이 없는 저장(CFM-02 no-op 등)도 요청이 성공해 커밋하면 센다. 커밋하려는 순간 그 작업이 이미 취소돼 있으면(자동 취소가 먼저 작업 행을 잠금) 변경을 커밋하지 않고 409 `INVALID_STATE`를 돌려준다 — 취소된 작업에 성공 응답을 내지 않는다.
 - **판정:** 서버 점검이 마지막 움직임에서 24시간이 지난 대상 작업을 취소한다. 점검은 앞 주기가 끝난 뒤 1분 쉬고 다시 돈다 — 실제 취소 시각은 「24시간이 지난 뒤 처음 도는 점검」이며, 점검 자체에 걸린 시간 · 건너뛴 주기(아래) · 복구 프로세스가 멈춰 있던 시간만큼 늦어질 수 있다. **늦어짐의 상한은 보장하지 않는다**(보통은 1분 남짓). 그 순간 다른 요청(내보내기 · 편집 등)이 작업 행을 잡고 있으면 점검은 기다리지 않고 그 작업을 이번 주기에서 건너뛴다(다음 주기에 다시 본다 — 그 요청이 성공해 커밋하면 마지막 움직임이 새로 찍힌다). 처리 시간 상한(⑤) 점검도 같다.
@@ -428,7 +429,7 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
 - **사유 기록:** 사용자 취소 / 자동 취소는 작업 이벤트에 사유로 남긴다(PM 11-24). API 응답에는 없다(아래 FE 협의 ⓐ).
 - **자동 취소된 작업에 조작했을 때:** 사용자가 취소한 작업과 같다.
   - `GET /jobs/{jobId}` · JOB-05 → 200, `status`·`userFacingStatus` = `cancelled`.
-  - JOB-01 PATCH · ANL-01 · SEC-03 · SEC-04 · CFM-02 · CFM-04 · FIN-01 · FIN-06 · JOB-07 → 409 `INVALID_STATE`(블록 · 섹션 PATCH는 `details.reason: job_not_editable`), JOB-06 → 409 `RETRY_NOT_ALLOWED`. 지금과 같다.
+  - JOB-01 PATCH · ANL-01 · SEC-03 · SEC-04 · CFM-02 · CFM-04 · FIN-01 · FIN-05 POST(⑧) · FIN-06 · JOB-07 → 409 `INVALID_STATE`(블록 · 섹션 PATCH는 `details.reason: job_not_editable`), JOB-06 → 409 `RETRY_NOT_ALLOWED`. 지금과 같다.
   - **변경:** SRC-02 업로드 · SRC-03 순서 · SRC-04 삭제 · FIN-04 내보내기는 지금 상태 검사가 없어 취소된 작업에도 새 데이터가 생긴다 → 409 `INVALID_STATE`(사유 없음)로 막는다. 이 검사는 작업 행 잠금 아래서 한다.
   - **FIN-04 내보내기와 취소가 겹칠 때:** 내보내기는 작업 행을 잠근 채 읽기 · 파일 업로드 · 산출물 기록 · 커밋까지 한다. 취소가 먼저 잠그면 내보내기는 409, 내보내기가 먼저면 취소는 그 커밋 뒤에 진행해 방금 만든 산출물 행 · 파일까지 지운다(어느 순서든 취소 뒤 산출물이 남지 않는다). 그동안 같은 작업의 사용자 취소(JOB-04)는 내보내기 시간만큼 기다린다. 24시간 자동 취소 점검은 기다리지 않고 그 작업을 이번 주기에서 건너뛰며, 내보내기가 성공하면 마지막 움직임이 새로 찍혀 취소되지 않는다. 복구 점검에서 작업 행을 잠그는 다른 단계(권한 만료 · 집계 복구 · 취소 잔여 정리)도 처리 중 작업에 한정되지 않으므로(예: N5 검수 · N4 오류 작업의 하류 실행도 집계 복구 대상) 같은 방식으로 잠긴 작업을 그 주기에서 건너뛴다 — 기능은 그대로이고 다음 주기에 다시 본다. 인계 · 대기 재전달은 작업 행을 잠그지 않는다. (FIN-04 는 상태 제한이 없다 — FE 가 어느 상태에서 내보내는지는 확인하지 않음.)
   - JOB-04 다시 취소 → 200(반복 취소 허용, 지금과 같음).
@@ -472,3 +473,26 @@ FE 타입 재생성이 필요한 것은 `isExcluded`·`retryAction`·`TextBlock.
   - 새 코드를 0017 전 DB 에 붙이면 상태 전이 호출에서 실패한다(로컬 확인). 기동 시 판 불일치를 자동으로 알아채는지는 검증하지 않았다 — 적용 뒤 `alembic_version` 을 따로 확인한다.
   - 실제 dev GPU 호스트의 제어 경로 · 실행 판은 아직 확인하지 않았다 — 확인 블록 · 혼합 판 결과는 작업 계획 문서.
 - 이 삭제형 자동 취소는 「작업 보존 · 계정별 재개」 요구의 구현이 아니다(재진입은 이후).
+
+#### ⑧ 첫 다운로드 = 완료 (F-FIN-03 · PM 11-25 D1~D4)
+
+[PM 11-25 확정 · FE D1 동의(11-25) · 로컬 구현 `feature/first-download-complete` · 미배포] 정본(F-FIN-03 · 05 상태 정책 · 용어집 「완료」)은 **[저장]과 첫 다운로드 중 먼저 일어난 것이 완료**다. 지금까지는 FIN-06 저장만 완료를 만들어, 내려받기만 한 작업이 저장 대기로 남고 24시간 자동 취소(④) 대상이 됐다.
+
+- **D1 — `POST /jobs/{jobId}/exports/{artifactId}/download`**(요청 본문 없음, 응답은 GET 과 같은 `DownloadResponse`). N6 의 두 다운로드 동선(선택 항목 내보내기 · 행별 개별 다운로드)이 부른다. 두 동선 모두 먼저 `POST /jobs/{jobId}/export`(FIN-04 — 묶음은 고른 구성요소, 행별은 `{components:[그 타입]}`)로 산출물을 만들고 응답 `ExportResponse.artifactId` 로 이 경로를 부른다(FE 현행도 두 동선이 같은 artifactId 다운로드 함수를 쓰고 타입별 GET `…/export/download?artifactType=` 은 부르지 않는다). 그래서 타입별 GET 에는 POST 짝을 두지 않는다.
+- **처리 순서**(저장 대기 · 완료 공통 — 산출물 검증을 건너뛰는 분기 없음): 소유 확인(404) → 작업 행 잠금(취소 · 자동 취소 · 저장과 같은 잠금) → 상태 판정 → 산출물 검증(그 작업 소속 · 배포 가능 · 생성됨 · 파일 키 — 아니면 404, 상태 변화 없음) → 링크 서명 → (저장 대기면) 완료 기록 → 커밋 → **커밋이 성공한 뒤에만 링크 응답**.
+
+| 작업 상태 | 응답 | 기록 |
+|---|---|---|
+| 저장 대기(`review · N6 · awaiting_save`, 최종 렌더 성공) | 200 링크 | `done · N6 · done` · `is_saved = true` · `saved_at = now()`(FIN-06 과 같은 열 — 새 열 없음) |
+| 완료(`done · N6`) | 200 링크 | 쓰지 않음 — **`saved_at` 그대로**(D3) |
+| 취소(`cancelled`) | 409 `INVALID_STATE` · 사유 없음(④) | 없음 |
+| 처리 중 · 렌더 오류 · N5 이전 | 409 `INVALID_STATE` · 사유 값 없음(합의 전) | 없음 |
+
+- **D3 — 최근 저장 시각 정책 유지.** 완료 전이(첫 다운로드)와 매 [저장](FIN-06 현행)이 `saved_at` 을 쓴다. 반복 다운로드 · 응답 유실 뒤 재요청은 쓰지 않는다.
+- **D4 — 오래된 묶음 허용.** 재렌더 전에 만든 묶음으로도 완료된다(묶음과 렌더 결과를 잇는 기록이 없다 — 판정하지 않음). 저장 대기의 최종 재렌더는 막는다(③ — FIN-01 409).
+- **반복 · 동시 · 재요청:** 완료 기록은 잠금 아래에서 본 실제 상태가 저장 대기일 때만 쓴다 → 묶음 · 행별 동시 2건, 응답 유실 뒤 재요청, 커밋 결과가 불명확했던 요청의 재요청 모두 **완료 전이 최대 1번 · 보관함 카드 1개**(카드 = 작업 행 투영). 「이미 완료됐을 것」으로 가정하지 않고 매번 실제 상태로 다시 판정한다(완료 유지 · 완료 재시도 · 취소면 409). 멱등 키는 두지 않는다.
+- **오류:** 오류 때 링크는 나가지 않는다. 이 경로 전용 오류 구분(일시 장애 · 커밋 결과 불명확 · 예상 못 한 오류별 HTTP 상태 · `retryable`)은 **합의 전** — 지금은 기존 공통 오류 처리를 따르고, 커밋 실패는 서버 로그에 남긴다. FE 는 POST 오류 때 다운로드를 시작하지 않고 **GET 으로 대신하지 않는다**.
+- **자동 취소와의 관계:** 완료(`done`)는 ④ 대상이 아니다. 이 POST 는 `/jobs/{jobId}` 아래 POST 라 마지막 움직임으로 센다(④ 목록). 과거 다운로드 · 기존 묶음만으로 옛 작업을 완료로 바꾸지 않는다(소급 없음).
+- **D2 — 기존 GET 두 경로**(`GET …/exports/{artifactId}/download` · `GET …/export/download`)**는 아직 그대로**(상태를 바꾸지 않고 저장 대기에서도 링크를 준다). 순서: 서버 POST 추가 → FE 전환 → 연동 확인 → GET 을 완료(`done · N6`) 작업에서만 허용 — **GET 제한은 후속 PR · 두 번째 배포 이미지**이고 그 오류 값은 합의 전이다. GET 우회가 남는 동안(또는 합의된 대책 전) 24시간 자동 취소는 켜지 않는다(`0`).
+- **구버전 탭:** GET 제한 뒤 이미 열린 옛 화면은 저장 대기 다운로드에서 실패 문구를 보인다 — 팀 사용자에게 새로고침 뒤 다시 내려받도록 안내한다(PM 11-25).
+- 작업 이벤트(완료 · 계기 첫 다운로드)는 이벤트 목록(⑦) 확정 뒤 — 이 절과 분리.
